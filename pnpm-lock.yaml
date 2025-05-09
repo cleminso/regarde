@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      jazz-inspector:
+        specifier: ^0.13.21
+        version: 0.13.21(csstype@3.1.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       jazz-react:
         specifier: ^0.13.21
         version: 0.13.21(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -622,6 +625,10 @@ packages:
     resolution: {integrity: sha512-NIxF55hv4nSqQswkAeiOi1r83xy8JldOFDTWiug55KBu9Jnblncd2U6ViHmYgHf01TPZS77NJBhBMKdWj9HQMQ==}
     engines: {node: '>=8'}
 
+  clsx@2.1.1:
+    resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
+    engines: {node: '>=6'}
+
   cojson-storage-indexeddb@0.13.21:
     resolution: {integrity: sha512-z8odnCFQggKd0kPIt/J4nSzSrMKppQkq2NKznB46Dh2hB7Iz9v5cs9crQ8mciq/xdOy8NkvsEo22EWZvZxx96Q==}
 
@@ -768,6 +775,11 @@ packages:
   glur@1.1.2:
     resolution: {integrity: sha512-l+8esYHTKOx2G/Aao4lEQ0bnHWg4fWtJbVoZZT9Knxi01pB8C80BR85nONLFwkkQoFRCmXY+BUcGZN3yZ2QsRA==}
 
+  goober@2.1.16:
+    resolution: {integrity: sha512-erjk19y1U33+XAMe1VTvIONHYoSqE4iS7BYUZfHaqeohLmnC0FdxEh7rQU+6MZ4OajItzjZFSRtVANrQwNq6/g==}
+    peerDependencies:
+      csstype: ^3.0.10
+
   hasown@2.0.2:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
@@ -817,6 +829,11 @@ packages:
 
   jazz-crypto-rs@0.0.7:
     resolution: {integrity: sha512-Pzs8Zu1zgKVURkBVvqqF1B2r78FaSZdwPbmeCWx0Nb3nibzPuB/kSKEO7LJsKnb3P5HO0v+lTIJ53mGC5H1urQ==}
+
+  jazz-inspector@0.13.21:
+    resolution: {integrity: sha512-IIjidDCHW+XCfYo8WWbE0m7HO7wC7xnR8ZUiHfP+jKd6Z7N2PVUjSC3vVTjXHJ/rB5ElGnn1FSkB2EuDhx7QmQ==}
+    peerDependencies:
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
 
   jazz-react-core@0.13.21:
     resolution: {integrity: sha512-mH+KQvsLCcMu43shGbnbluI2O5RtRDNAKmo61p+xRiDzwaUCmdGELkC2spX5Fe+vRuh663+HZ0sFOAGyyK5PPQ==}
@@ -1670,6 +1687,8 @@ snapshots:
 
   ci-info@3.9.0: {}
 
+  clsx@2.1.1: {}
+
   cojson-storage-indexeddb@0.13.21:
     dependencies:
       cojson: 0.13.21
@@ -1824,6 +1843,10 @@ snapshots:
 
   glur@1.1.2: {}
 
+  goober@2.1.16(csstype@3.1.3):
+    dependencies:
+      csstype: 3.1.3
+
   hasown@2.0.2:
     dependencies:
       function-bind: 1.1.2
@@ -1878,6 +1901,18 @@ snapshots:
       jazz-tools: 0.13.21
 
   jazz-crypto-rs@0.0.7: {}
+
+  jazz-inspector@0.13.21(csstype@3.1.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      clsx: 2.1.1
+      cojson: 0.13.21
+      goober: 2.1.16(csstype@3.1.3)
+      jazz-react-core: 0.13.21(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      jazz-tools: 0.13.21
+      react: 18.3.1
+    transitivePeerDependencies:
+      - csstype
+      - react-dom
 
   jazz-react-core@0.13.21(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

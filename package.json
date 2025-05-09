@@ -13,6 +13,7 @@
     "format-and-lint:fix": "biome check . --write"
   },
   "dependencies": {
+    "jazz-inspector": "^0.13.21",
     "jazz-react": "^0.13.21",
     "jazz-tools": "^0.13.21",
     "react": "18.3.1",
