@@ -24,13 +24,7 @@ function App() {
         <Logo />
 
         <div className="text-center">
-          <h1>
-            Welcome{me?.profile.firstName ? <>, {me?.profile.firstName}</> : ""}
-            !
-          </h1>
-          {!!me?.root.age && (
-            <p>As of today, you are {me.root.age} years old.</p>
-          )}
+          <h1>Welcome{me?.profile.name ? <>, {me?.profile.name}</> : ""}!</h1>
         </div>
 
         <Form />
