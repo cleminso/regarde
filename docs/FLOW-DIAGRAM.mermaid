@@ -1,0 +1,98 @@
+classDiagram
+    class OnboardingApp {
+        +JazzProvider
+        +Router
+        +AuthenticationLayer
+    }
+    OnboardingApp --|> AuthProvider : uses
+    OnboardingApp --|> ProfileEditor : contains
+
+    class AuthProvider {
+        +ClerkProvider
+        +JazzProviderWithClerk
+    }
+    AuthProvider --|> ProfileViewer : authenticates
+    AuthProvider --|> OnboardingAccount : authenticates
+
+    class ProfileViewer {
+        +useCoState(OnboardingProfile)
+        +renderProfile()
+    }
+    ProfileViewer --|> OnboardingProfile : displays
+
+    class ProfileEditor {
+        +formState
+        +useAccount()
+        +handleSubmit()
+    }
+    ProfileEditor --|> OnboardingAccount : edits
+
+    class Account {
+    }
+    Account <|-- OnboardingAccount
+    Account <|-- Profile
+
+    class OnboardingAccount {
+        +profile: OnboardingProfile
+        +migrate(creationProps)
+    }
+    OnboardingAccount --|> OnboardingProfile : has
+
+    class Profile {
+    }
+    Profile --|> CoMap
+    Profile --|> OnboardingProfile
+
+    class ProfileList {
+        +useCoState(ProfileDirectory)
+        +renderProfileList()
+    }
+    OnboardingApp --|> ProfileList : contains
+    ProfileList --|> ProfileDirectory : displays
+
+    class ProfileDirectory {
+        +profiles: Map
+        +addProfile(profile)
+        +removeProfile(profileId)
+    }
+
+    class OnboardingProfile {
+        +name: string
+        +bio: string
+        +avatar: string
+        +skills: string[]
+        +socialLinks: SocialLinks
+        +experience: Experience[]
+        +education: Education[]
+    }
+    OnboardingProfile --|> SocialLinks : has
+    OnboardingProfile --o CoMap
+    OnboardingProfile --|> Experience : "has many"
+    OnboardingProfile --|> Education : "has many"
+
+
+    class SocialLinks {
+        +github: string
+        +twitter: string
+        +linkedin: string
+        +website: string
+    }
+
+    class Experience {
+        +company: string
+        +role: string
+        +startDate: string
+        +endDate: string
+        +description: string
+    }
+
+    class Education {
+        +institution: string
+        +degree: string
+        +field: string
+        +graduationYear: string
+    }
+
+    class CoMap {
+    }
+    CoMap <|-- ProfileDirectory

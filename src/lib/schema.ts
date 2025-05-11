@@ -3,6 +3,9 @@ import { Account, CoMap, Group, Profile, co } from "jazz-tools";
 /** The OnboardingProfile is an app-specific per-user public `CoMap` representing the user's public profile. */
 export class OnboardingProfile extends Profile {
   name = co.string;
+  bio = co.optional.string;
+  avatar = co.optional.string;
+  socialLinks = co.optional.ref(SocialLinks);
 
   static validate(profile: OnboardingProfile): string | undefined {
     if (!profile.name || profile.name.trim() === "") {
@@ -10,6 +13,12 @@ export class OnboardingProfile extends Profile {
     }
     return undefined;
   }
+}
+
+export class SocialLinks extends CoMap {
+  github = co.optional.string;
+  twitter = co.optional.string;
+  linkedin = co.optional.string;
 }
 
 /**
@@ -33,12 +42,13 @@ export class AccountRoot extends CoMap {
 }
 
 export class OnboardingAccount extends Account {
+  profile = co.ref(OnboardingProfile);
+  root = co.ref(AccountRoot);
+
   /** Rule 1.3: Define `export class JazzAccount extends Account` with exactly two properties:
    *  `profile = co.ref(UserProfile);`
    *  `root = co.ref(AccountRoot);`
    */
-  profile = co.ref(OnboardingProfile);
-  root = co.ref(AccountRoot);
 
   /**
    * Rule 1.4: The `JazzAccount` class must have a `migrate(creationProps?: { name: string; other?: Record<string, unknown> })` method.
