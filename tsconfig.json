@@ -36,5 +36,10 @@
     "src/lib/schema.ts",
     "src/lib/apiKey.ts"
   ],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }

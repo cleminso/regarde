@@ -1,41 +1,36 @@
 import { useAccount, useIsAuthenticated } from "jazz-react";
-import { Link } from "react-router-dom"; // <--- Import Link
 import { AuthButton } from "./AuthButton.tsx";
 import { Form } from "./Form.tsx";
 import { Logo } from "./Logo.tsx";
 
 function App() {
   const { me } = useAccount({ resolve: { profile: true, root: true } });
+
   const isAuthenticated = useIsAuthenticated();
 
   return (
     <>
       <header>
         <nav className="container flex justify-between items-center py-3">
-          <div>
-            {" "}
-            {isAuthenticated ? (
-              <span>You're logged in.</span>
-            ) : (
-              <span>Authenticate to share the data with another device.</span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-4">
-            {" "}
-            <Link to="/profile" className="font-semibold hover:underline">
-              Go to My Profile
-            </Link>
-            <AuthButton />
-          </div>
+          {isAuthenticated ? (
+            <span>You're logged in.</span>
+          ) : (
+            <span>Authenticate to share the data with another device.</span>
+          )}
+          <AuthButton />
         </nav>
       </header>
-
       <main className="container mt-16 flex flex-col gap-8">
         <Logo />
 
         <div className="text-center">
-          <h1>Welcome{me?.profile.name ? <>, {me.profile.name}</> : ""}!</h1>
+          <h1>
+            Welcome{me?.profile.firstName ? <>, {me?.profile.firstName}</> : ""}
+            !
+          </h1>
+          {!!me?.root.age && (
+            <p>As of today, you are {me.root.age} years old.</p>
+          )}
         </div>
 
         <Form />

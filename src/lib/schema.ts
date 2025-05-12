@@ -18,7 +18,7 @@ export class OnboardingProfile extends Profile {
 export class SocialLinks extends CoMap {
   github = co.optional.string;
   twitter = co.optional.string;
-  linkedin = co.optional.string;
+  website = co.optional.string;
 }
 
 /**
