@@ -15,7 +15,7 @@ export function Form() {
           type="text"
           id="firstName"
           placeholder="Enter your first name here..."
-          className="border border-stone-300 rounded shadow-sm py-1 px-2 flex-1"
+          className="border border-stone-300 rounded shadow-xs py-1 px-2 flex-1"
           value={me.profile.name || ""}
           onChange={(e) => (me.profile.name = e.target.value)}
         />
