@@ -23,18 +23,18 @@
     /* Shadcn UI & Vite alias config */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["packages/profile-app/src/*"]
     }
   },
   "include": [
-    "src",
+    "packages/profile-app/src",
     "vite.config.ts",
     "tailwind.config.ts",
     "postcss.config.js",
     "components.json",
-    "src/lib/vite-env.d.ts",
-    "src/lib/schema.ts",
-    "src/lib/apiKey.ts"
+    "packages/profile-app/src/lib/vite-env.d.ts",
+    "packages/profile-app/src/lib/schema.ts",
+    "packages/profile-app/src/lib/apiKey.ts"
   ],
   "files": [],
   "references": [

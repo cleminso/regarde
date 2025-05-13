@@ -21,19 +21,6 @@ export function Form() {
         />
       </div>
 
-      <div className="flex items-center gap-3">
-        <label htmlFor="dateOfBirth" className="sm:w-32">
-          Date of birth
-        </label>
-        <input
-          type="date"
-          id="dateOfBirth"
-          className="border border-stone-300 rounded shadow-sm py-1 px-2 flex-1"
-          value={me.root.dateOfBirth?.toISOString().split("T")[0] || ""}
-          onChange={(e) => (me.root.dateOfBirth = new Date(e.target.value))}
-        />
-      </div>
-
       {/*Add more fields here*/}
     </div>
   );
