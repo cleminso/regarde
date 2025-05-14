@@ -1,14 +1,20 @@
 {
   "name": "@onboarding.jazz/sdk",
-  "main": "dist/main.js",
-  "types": "dist/main.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/cleminso/onboarding.jazz.git",
     "directory": "packages/sdk"
   },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
   "private": true,
-  "version": "0.0.84",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
