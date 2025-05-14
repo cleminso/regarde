@@ -1,8 +1,13 @@
 {
-  "name": "jazz.onboarding",
+  "name": "@onboarding.jazz/profile",
   "private": true,
   "version": "0.0.83",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cleminso/onboarding.jazz.git",
+    "directory": "packages/profile-app"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -17,16 +22,14 @@
     "@tailwindcss/vite": "^4.1.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "jazz-inspector": "^0.13.21",
-    "jazz-react": "^0.13.21",
-    "jazz-tools": "^0.13.21",
     "lucide-react": "^0.510.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-router-dom": "^7.6.0",
     "tailwind-merge": "^3.2.0",
     "tailwindcss-animate": "^1.0.7",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "@onboarding.jazz/sdk": "workspace:*"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

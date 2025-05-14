@@ -6,139 +6,11 @@ settings:
 
 importers:
 
-  .:
-    dependencies:
-      '@radix-ui/react-slot':
-        specifier: ^1.2.2
-        version: 1.2.2(@types/react@18.3.21)(react@18.3.1)
-      class-variance-authority:
-        specifier: ^0.7.1
-        version: 0.7.1
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
-      jazz-inspector:
-        specifier: ^0.13.21
-        version: 0.13.26(csstype@3.1.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      jazz-react:
-        specifier: ^0.13.21
-        version: 0.13.26(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      jazz-tools:
-        specifier: ^0.13.21
-        version: 0.13.26
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-      react-router-dom:
-        specifier: ^7.6.0
-        version: 7.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      tailwind-merge:
-        specifier: ^3.2.0
-        version: 3.2.0
-      tailwindcss-animate:
-        specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@3.4.17)
-      vite-tsconfig-paths:
-        specifier: ^5.1.4
-        version: 5.1.4(typescript@5.6.3)(vite@6.3.5(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1))
-    devDependencies:
-      '@biomejs/biome':
-        specifier: 1.9.4
-        version: 1.9.4
-      '@playwright/test':
-        specifier: ^1.50.1
-        version: 1.52.0
-      '@types/react':
-        specifier: ~18.3.12
-        version: 18.3.21
-      '@types/react-dom':
-        specifier: ^18.3.1
-        version: 18.3.7(@types/react@18.3.21)
-      '@vitejs/plugin-react':
-        specifier: ^4.3.3
-        version: 4.4.1(vite@6.3.5(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1))
-      autoprefixer:
-        specifier: ^10.4.20
-        version: 10.4.21(postcss@8.5.3)
-      globals:
-        specifier: ^15.11.0
-        version: 15.15.0
-      is-ci:
-        specifier: ^3.0.1
-        version: 3.0.1
-      postcss:
-        specifier: ^8.4.27
-        version: 8.5.3
-      tailwindcss:
-        specifier: ^3.4.17
-        version: 3.4.17
-      typescript:
-        specifier: ~5.6.2
-        version: 5.6.3
-      vite:
-        specifier: ^6.0.11
-        version: 6.3.5(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1)
-
-  packages/onboarding.jazz-sdk:
-    dependencies:
-      jazz-inspector:
-        specifier: ^0.13.23
-        version: 0.13.26(csstype@3.1.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      jazz-react:
-        specifier: ^0.13.23
-        version: 0.13.26(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      jazz-tools:
-        specifier: ^0.13.23
-        version: 0.13.26
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-    devDependencies:
-      '@biomejs/biome':
-        specifier: 1.9.4
-        version: 1.9.4
-      '@playwright/test':
-        specifier: ^1.50.1
-        version: 1.52.0
-      '@types/react':
-        specifier: ~18.3.12
-        version: 18.3.21
-      '@types/react-dom':
-        specifier: ^18.3.1
-        version: 18.3.7(@types/react@18.3.21)
-      '@vitejs/plugin-react':
-        specifier: ^4.3.3
-        version: 4.4.1(vite@6.3.5(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1))
-      autoprefixer:
-        specifier: ^10.4.20
-        version: 10.4.21(postcss@8.5.3)
-      globals:
-        specifier: ^15.11.0
-        version: 15.15.0
-      is-ci:
-        specifier: ^3.0.1
-        version: 3.0.1
-      postcss:
-        specifier: ^8.4.27
-        version: 8.5.3
-      tailwindcss:
-        specifier: ^3.4.17
-        version: 3.4.17
-      typescript:
-        specifier: ~5.6.2
-        version: 5.6.3
-      vite:
-        specifier: ^6.0.11
-        version: 6.3.5(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1)
-
   packages/profile-app:
     dependencies:
+      '@onboarding.jazz/sdk':
+        specifier: workspace:*
+        version: link:../sdk
       '@radix-ui/react-slot':
         specifier: ^1.2.2
         version: 1.2.2(@types/react@18.3.21)(react@18.3.1)
@@ -151,15 +23,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      jazz-inspector:
-        specifier: ^0.13.21
-        version: 0.13.26(csstype@3.1.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      jazz-react:
-        specifier: ^0.13.21
-        version: 0.13.26(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      jazz-tools:
-        specifier: ^0.13.21
-        version: 0.13.26
       lucide-react:
         specifier: ^0.510.0
         version: 0.510.0(react@18.3.1)
@@ -225,16 +88,16 @@ importers:
         specifier: ^6.3.5
         version: 6.3.5(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1)
 
-  packages/profile-app2:
+  packages/sdk:
     dependencies:
       jazz-inspector:
-        specifier: ^0.13.26
+        specifier: ^0.13.23
         version: 0.13.26(csstype@3.1.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       jazz-react:
-        specifier: ^0.13.26
+        specifier: ^0.13.23
         version: 0.13.26(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       jazz-tools:
-        specifier: ^0.13.26
+        specifier: ^0.13.23
         version: 0.13.26
       react:
         specifier: 18.3.1
@@ -2896,10 +2759,6 @@ snapshots:
   supports-preserve-symlinks-flag@1.0.0: {}
 
   tailwind-merge@3.2.0: {}
-
-  tailwindcss-animate@1.0.7(tailwindcss@3.4.17):
-    dependencies:
-      tailwindcss: 3.4.17
 
   tailwindcss-animate@1.0.7(tailwindcss@4.1.6):
     dependencies:

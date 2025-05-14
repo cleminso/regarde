@@ -28,6 +28,7 @@ export class SocialLinks extends CoMap {
  */
 export class Container extends CoMap {
   // Define main domain entities here if needed in the future.
+  creationMessage = co.optional.string;
 }
 
 /** The account root is an app-specific per-user private `CoMap`
@@ -62,8 +63,13 @@ export class OnboardingAccount extends Account {
     // This method is called when root is undefined AND creationProps are provided.
     // It sets up the AccountRoot and its container.
     // Rule 2.4: Whenever the root structure is initialized, it is always owned by the current `JazzAccount`.
-    // Example: this.root = AccountRoot.create({ container: defaultContainer, version: 0 }, { owner: this });
-    const defaultContainer = Container.create({}, { owner: this });
+
+    // Create the Container, now using creationProps.name for the new field
+    const defaultContainer = Container.create(
+      { creationMessage: `Container initialized for ${creationProps.name}.` }, // <-- Use creationProps.name here
+      { owner: this },
+    );
+
     this.root = AccountRoot.create(
       { container: defaultContainer },
       { owner: this },

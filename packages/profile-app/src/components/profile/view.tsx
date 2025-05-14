@@ -1,1 +1,1 @@
-// Component for viewing profiles
+import { Profile } from "@onboarding.jazz/sdk";

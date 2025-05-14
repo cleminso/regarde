@@ -1,4 +1,5 @@
-import { Account, CoMap, Group, Profile, co } from "jazz-tools";
+import { Account, CoMap, Group, Profile, co } from "@onboarding.jazz/sdk";
+import { JazzAccount } from "jazz-react";
 
 /** The OnboardingProfile is an app-specific per-user public `CoMap` representing the user's public profile. */
 export class OnboardingProfile extends Profile {

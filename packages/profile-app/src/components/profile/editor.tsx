@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAccount } from "jazz-react";
-import { OnboardingProfile, SocialLinks } from "@/lib/schema";
+import { OnboardingProfile, SocialLinks } from "@onboarding.jazz/sdk";
 import { Button, Input, Textarea } from "@/components/ui";
 
 export function ProfileEditor() {
