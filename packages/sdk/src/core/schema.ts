@@ -66,7 +66,7 @@ export class OnboardingAccount extends Account {
 
     // Create the Container, now using creationProps.name for the new field
     const defaultContainer = Container.create(
-      { creationMessage: `Container initialized for ${creationProps.name}.` }, // <-- Use creationProps.name here
+      { creationMessage: `Container initialized for ${creationProps.name}.` },
       { owner: this },
     );
 

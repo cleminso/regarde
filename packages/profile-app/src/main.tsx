@@ -3,7 +3,8 @@ import { StrictMode } from "react";
 import "./index.css";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { OnboardingAccount } from "onboarding.jazz-sdk";
+import { OnboardingAccount } from "./lib/schema.ts";
+import { ThemeProvider } from "./components/theme-provider.tsx";
 
 import OriginalAppContent from "./App.tsx";
 import "./index.css";
@@ -22,24 +23,26 @@ declare module "jazz-react" {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <JazzProvider
-      sync={{
-        peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
-      }}
-      AccountSchema={OnboardingAccount}
-    >
-      <BrowserRouter>
-        <JazzInspector position="bottom left" />
-        <Routes>
-          <Route path="/" element={<OriginalAppContent />} />
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <JazzProvider
+        sync={{
+          peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+        }}
+        AccountSchema={OnboardingAccount}
+      >
+        <BrowserRouter>
+          <JazzInspector position="bottom left" />
+          <Routes>
+            <Route path="/" element={<OriginalAppContent />} />
 
-          <Route element={<Layout />}>
-            {" "}
-            {/* The Layout component wraps these child routes */}
-            <Route path="/profile" element={<Profile />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </JazzProvider>
+            <Route element={<Layout />}>
+              {" "}
+              {/* The Layout component wraps these child routes */}
+              <Route path="/profile" element={<Profile />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </JazzProvider>
+    </ThemeProvider>
   </StrictMode>,
 );

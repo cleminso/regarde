@@ -1,8 +1,8 @@
 import { useAccount, useIsAuthenticated } from "jazz-react";
 import { Link } from "react-router-dom";
-import { AuthButton } from "#/AuthButton.tsx";
-import { Form } from "#/Form.tsx";
-import { Logo } from "#/Logo.tsx";
+import { AuthButton } from "./AuthButton.tsx";
+import { Form } from "./Form.tsx";
+import { Logo } from "./Logo.tsx";
 
 function App() {
   const { me } = useAccount({ resolve: { profile: true, root: true } });

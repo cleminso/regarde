@@ -1,6 +1,7 @@
 import { Outlet, Link } from "react-router-dom";
 import { useAccount, useIsAuthenticated } from "jazz-react";
 import { AuthButton } from "./AuthButton.tsx";
+import { ThemeToggle } from "./components/themeToggle.tsx";
 
 export function Layout() {
   const { me } = useAccount();
@@ -8,14 +9,14 @@ export function Layout() {
 
   return (
     <>
-      <header className="bg-zinc-800 text-white shadow-lg">
+      <header className="bg-background text-card-foreground shadow-lg">
         <nav className="container flex justify-between items-center py-4">
           <div>
             <Link to="/my-new-page" className="text-xl font-bold mr-6">
               onboarding.jazz
             </Link>
             <Link to="/" className="text-sm hover:text-slate-300">
-              (Back to Jazz Starter)
+              (Back home)
             </Link>
           </div>
           <div className="flex items-center gap-4">
@@ -28,12 +29,13 @@ export function Layout() {
             ) : (
               <span>Welcome, Guest! (New App Layout)</span>
             )}
+            <ThemeToggle />
             <AuthButton />{" "}
           </div>
         </nav>
       </header>
 
-      <main className="container mt-8 py-6">
+      <main className="container-full py-6 bg-background">
         <Outlet />
       </main>
 

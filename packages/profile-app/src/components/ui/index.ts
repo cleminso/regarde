@@ -1,3 +1,3 @@
-export * from "../../../../../src/components/ui/button";
+export * from "./button";
 export * from "./input";
 export * from "./textarea";

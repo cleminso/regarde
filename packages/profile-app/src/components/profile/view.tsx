@@ -1,1 +1,1 @@
-import { Profile } from "@onboarding.jazz/sdk";
+import { Profile } from "jazz-tools";

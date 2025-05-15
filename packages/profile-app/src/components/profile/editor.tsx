@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useAccount } from "jazz-react";
-import { OnboardingProfile, SocialLinks } from "@onboarding.jazz/sdk";
-import { Button, Input, Textarea } from "@/components/ui";
+import { OnboardingProfile, SocialLinks } from "../../lib/schema.ts";
+import { Button, Input, Textarea } from "../ui";
 
 export function ProfileEditor() {
   const { me } = useAccount({ resolve: { profile: { socialLinks: true } } });
@@ -35,23 +35,20 @@ export function ProfileEditor() {
     return <div>Loading profile...</div>;
   }
 
-  // Cast to OnboardingProfile after ensuring it and me exist.
   // `resolve` in useAccount should ensure `profile` and `socialLinks` are loaded.
   const profile = me.profile as OnboardingProfile;
 
   const handleSave = () => {
-    // Ensure profile object is available
     if (!profile) return;
 
     profile.name = name;
     profile.bio = bio || undefined;
     profile.avatar = avatar || undefined;
 
-    const hasSocialLinksInput = github || twitter;
+    const hasSocialLinksInput = github || twitter || website;
 
     if (hasSocialLinksInput) {
       if (!profile.socialLinks) {
-        // Create SocialLinks if it doesn't exist and there's input.
         // It should be owned by the same group as the profile itself for consistent permissions.
         profile.socialLinks = SocialLinks.create(
           {
@@ -59,26 +56,23 @@ export function ProfileEditor() {
             twitter: twitter || undefined,
             website: website || undefined,
           },
-          { owner: profile._owner }, // profile._owner is the CoID of the group owning the profile
+          { owner: profile._owner },
         );
       } else {
-        // Update existing SocialLinks
         profile.socialLinks.github = github || undefined;
         profile.socialLinks.twitter = twitter || undefined;
         profile.socialLinks.website = website || undefined;
       }
     } else {
-      // No social link input, clear existing social links reference
       if (profile.socialLinks) {
         profile.socialLinks = undefined;
       }
     }
-    alert("Profile saved!"); // Simple feedback
+    alert("Profile saved!");
   };
 
   return (
     <div className="w-full max-w-md mx-auto p-4 space-y-4">
-      <h2 className="text-2xl font-semibold text-center">Edit Profile</h2>
       <div className="space-y-2">
         <label htmlFor="name" className="block text-sm font-medium">
           Name:
@@ -87,14 +81,14 @@ export function ProfileEditor() {
           type="text"
           id="name"
           value={name}
-          onChange={(e) => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setName(e.target.value);
-            me.profile.name = e.target.value;
+            profile.name = e.target.value;
           }}
           placeholder="Your name"
         />
         {!name.trim() && (
-          <small className="text-red-600">Name is required.</small>
+          <small className="text-destructive">Name is required.</small>
         )}
       </div>
       <div className="space-y-2">
@@ -104,11 +98,11 @@ export function ProfileEditor() {
         <Textarea
           id="bio"
           value={bio}
-          onChange={(e) => {
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
             setBio(e.target.value);
-            me.profile.bio = e.target.value;
+            profile.bio = e.target.value;
           }}
-          placeholder="Tell us a bit about yourself"
+          placeholder="Share what people should know about you"
         />
       </div>
       <div className="space-y-2">
@@ -119,7 +113,9 @@ export function ProfileEditor() {
           type="text"
           id="avatar"
           value={avatar}
-          onChange={(e) => setAvatar(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setAvatar(e.target.value)
+          }
           placeholder="https://example.com/avatar.png"
         />
       </div>
@@ -133,7 +129,9 @@ export function ProfileEditor() {
           type="text"
           id="github"
           value={github}
-          onChange={(e) => setGithub(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setGithub(e.target.value)
+          }
           placeholder="your-github-username"
         />
       </div>
@@ -145,7 +143,9 @@ export function ProfileEditor() {
           type="text"
           id="twitter"
           value={twitter}
-          onChange={(e) => setTwitter(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setTwitter(e.target.value)
+          }
           placeholder="@yourTwitterHandle"
         />
       </div>
@@ -157,7 +157,9 @@ export function ProfileEditor() {
           type="text"
           id="website"
           value={website}
-          onChange={(e) => setWebsite(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setWebsite(e.target.value)
+          } // Typed 'e'
           placeholder="https://your-website"
         />
       </div>
