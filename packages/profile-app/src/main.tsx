@@ -11,7 +11,8 @@ import "./index.css";
 import { apiKey } from "./lib/apiKey.ts";
 import { JazzInspector } from "jazz-inspector";
 import { Layout } from "./layout.tsx";
-import { Profile } from "./pages/Profile.tsx";
+import { Profile } from "./pages/edit.tsx";
+import { ProfilePage } from "./components/profile/profile.tsx";
 
 export const APPLICATION_NAME = "Jazz Profile";
 
@@ -38,7 +39,8 @@ createRoot(document.getElementById("root")!).render(
             <Route element={<Layout />}>
               {" "}
               {/* The Layout component wraps these child routes */}
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/edit" element={<Profile />} />
+              <Route path="/profile" element={<ProfilePage />} />
             </Route>
           </Routes>
         </BrowserRouter>

@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "./components/ui/button";
 
 import { useAccount, usePasskeyAuth } from "jazz-react";
 import { APPLICATION_NAME } from "./main";
@@ -17,29 +18,20 @@ export function AuthButton() {
 
   if (auth.state === "signedIn") {
     return (
-      <button
-        className="bg-stone-100 py-1.5 px-3 text-sm rounded-md"
-        onClick={handleLogOut}
-      >
+      <Button variant="secondary" size="lg" onClick={handleLogOut}>
         Log out
-      </button>
+      </Button>
     );
   }
 
   return (
     <div className="flex gap-2">
-      <button
-        className="bg-stone-100 py-1.5 px-3 text-sm rounded-md"
-        onClick={() => auth.signUp("")}
-      >
+      <Button variant="secondary" size="sm" onClick={() => auth.signUp("")}>
         Sign up
-      </button>
-      <button
-        onClick={() => auth.logIn()}
-        className="bg-stone-100 py-1.5 px-3 text-sm rounded-md"
-      >
+      </Button>
+      <Button variant="secondary" size="sm" onClick={() => auth.logIn()}>
         Log in
-      </button>
+      </Button>
     </div>
   );
 }

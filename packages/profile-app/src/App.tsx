@@ -11,7 +11,7 @@ function App() {
   return (
     <>
       <header>
-        <nav className="container flex justify-between items-center py-3">
+        <nav className="container-full flex justify-between items-center py-3">
           <div>
             {" "}
             {isAuthenticated ? (
@@ -24,7 +24,10 @@ function App() {
           <div className="flex items-center gap-4">
             {" "}
             <Link to="/profile" className="font-semibold hover:underline">
-              Go to My Profile
+              View Profile
+            </Link>
+            <Link to="/edit" className="font-semibold hover:underline">
+              Edit Profile
             </Link>
             <AuthButton />
           </div>

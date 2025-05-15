@@ -10,7 +10,7 @@ export function Layout() {
   return (
     <>
       <header className="bg-background text-card-foreground shadow-lg">
-        <nav className="container flex justify-between items-center py-4">
+        <nav className="@container-normal flex justify-between items-center py-4 mx-16">
           <div>
             <Link to="/my-new-page" className="text-xl font-bold mr-6">
               onboarding.jazz
