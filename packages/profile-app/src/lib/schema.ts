@@ -1,6 +1,5 @@
-import { Account, CoMap, Group, Profile, co } from "jazz-tools";
+import { Account, co, CoMap, Group, Profile } from 'jazz-tools';
 
-/** The OnboardingProfile is an app-specific per-user public `CoMap` representing the user's public profile. */
 export class OnboardingProfile extends Profile {
   name = co.string;
   bio = co.optional.string;
@@ -8,8 +7,8 @@ export class OnboardingProfile extends Profile {
   socialLinks = co.optional.ref(SocialLinks);
 
   static validate(profile: OnboardingProfile): string | undefined {
-    if (!profile.name || profile.name.trim() === "") {
-      return "Name must be present and non-empty.";
+    if (!profile.name || profile.name.trim() === '') {
+      return 'Name must be present and non-empty.';
     }
     return undefined;
   }
@@ -27,7 +26,6 @@ export class SocialLinks extends CoMap {
  * Rule 2.3: Never define a `name` field in the `Container` class.
  */
 export class Container extends CoMap {
-  // Define main domain entities here if needed in the future.
   creationMessage = co.optional.string;
 }
 
@@ -39,7 +37,7 @@ export class AccountRoot extends CoMap {
    */
   container = co.ref(Container);
 
-  // Add private fields here
+  // Private fields here
 }
 
 export class OnboardingAccount extends Account {
@@ -89,13 +87,13 @@ export class OnboardingAccount extends Account {
       // that has `"everyone"` as `"reader"`.
       // Rule 3.2: When creating a group, no need to explicitly pass `owner: this`. That is implicit.
       const publicGroup = Group.create();
-      publicGroup.addMember("everyone", "reader");
+      publicGroup.addMember('everyone', 'reader');
 
       this.profile = OnboardingProfile.create(
         {
           // Use name from creationProps if provided, otherwise a default.
           // Rule 1.4 specifies creationProps must include a name if creationProps itself is provided.
-          name: creationProps?.name || "Public Profile",
+          name: creationProps?.name || 'Public Profile',
         },
         { owner: publicGroup }, // Profile is owned by the publicGroup
       );

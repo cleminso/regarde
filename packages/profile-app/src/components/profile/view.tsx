@@ -1,8 +1,8 @@
+import { OnboardingProfile } from '#/lib/schema.ts';
 import { useAccount } from 'jazz-react';
 import { MoreHorizontalIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import { OnboardingProfile } from '../../lib/schema.ts';
 import { Button } from '../ui/button.tsx';
 import {
   DropdownMenu,
@@ -11,18 +11,16 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu.tsx';
 
-// Define social link configurations outside the component for stable reference
-// Explicitly type 'key' to ensure it matches properties of SocialLinks schema
 const socialLinkConfigs: {
   key: 'github' | 'twitter' | 'website';
   label: string;
 }[] = [
   { key: 'github', label: 'GitHub' },
   { key: 'twitter', label: 'Twitter' },
-  { key: 'website', label: 'Website' }, // Included as per prompt's examples "twitter; github; website"
+  { key: 'website', label: 'Website' },
 ];
 
-export function ProfilePage() {
+export function ProfileView() {
   const { me } = useAccount({
     resolve: {
       profile: {
@@ -62,13 +60,10 @@ export function ProfilePage() {
       if (hostname.startsWith('www.')) {
         hostname = hostname.substring(4);
       }
-      // For paths like github.com/user, return the path as well.
       if (parsedUrl.pathname !== '/' && parsedUrl.pathname !== '') {
-        // Avoid adding multiple slashes if pathname already starts with one (it should)
         const path = parsedUrl.pathname.startsWith('/')
           ? parsedUrl.pathname.substring(1)
           : parsedUrl.pathname;
-        // remove trailing slash from path if any
         const cleanPath = path.endsWith('/') ? path.slice(0, -1) : path;
         if (cleanPath) {
           hostname = `${hostname}/${cleanPath}`;
@@ -76,7 +71,6 @@ export function ProfilePage() {
       }
       return hostname;
     } catch (e) {
-      // Fallback for invalid URLs or simple strings that are not full URLs
       let displayName = url.replace(/^https?:\/\//, '');
       if (displayName.startsWith('www.')) {
         displayName = displayName.substring(4);
@@ -88,22 +82,19 @@ export function ProfilePage() {
     }
   };
 
-  const websiteUrl = profile.socialLinks?.website; // Use optional chaining
+  const websiteUrl = profile.socialLinks?.website;
   const websiteHref = getHref(websiteUrl);
   const websiteDisplayName = getWebsiteDisplayName(websiteUrl);
 
-  // Prepare social links for the "Contact" section
-  // Filter out links that don't have a URL and prepare data for rendering
   const availableSocialLinks = socialLinkConfigs
     .map((config) => {
-      const urlValue = profile.socialLinks?.[config.key]; // Safely access URL
+      const urlValue = profile.socialLinks?.[config.key];
       if (!urlValue) {
-        return null; // If no URL, this link won't be rendered
+        return null;
       }
       const hrefValue = getHref(urlValue);
       const displayNameValue = getWebsiteDisplayName(urlValue);
 
-      // Ensure href and displayName are valid before including
       if (!hrefValue || !displayNameValue) {
         return null;
       }
@@ -117,7 +108,6 @@ export function ProfilePage() {
       };
     })
     .filter((link) => link !== null) as {
-    // Type assertion after filtering nulls
     key: 'github' | 'twitter' | 'website';
     label: string;
     url: string;
@@ -129,7 +119,7 @@ export function ProfilePage() {
     <main className="w-full py-8">
       {/* Profile Header Section (Avatar, Name, Website Badge) */}
       <section
-        className="mx-auto flex flex-row items-start gap-4" // Spacing handled by my-8 on subsequent sections
+        className="mx-auto flex flex-row items-start gap-4"
         style={{ width: '540px' }}
       >
         {profile.avatar ? (
@@ -177,11 +167,10 @@ export function ProfilePage() {
 
       {/* About Section */}
       <section
-        className="mx-auto flex flex-col gap-2 my-8" // Changed to flex-col, added gap and consistent margin
+        className="mx-auto flex flex-col gap-2 my-8"
         style={{ width: '540px' }}
       >
         <h3 className="text-lg font-semibold">About</h3>{' '}
-        {/* Updated H3 styling */}
         {profile.bio ? (
           <p className="text-sm text-muted-foreground whitespace-pre-wrap">
             {profile.bio}
@@ -195,14 +184,13 @@ export function ProfilePage() {
 
       {/* Contact Section */}
       <section
-        className="mx-auto flex flex-col gap-3 my-8" // gap-3 between H3 and the list of links
+        className="mx-auto flex flex-col gap-3 my-8"
         style={{ width: '540px' }}
       >
         <h3 className="text-lg font-semibold">Contact</h3>
         {availableSocialLinks.length > 0 ? (
           <div className="flex flex-col gap-2.5">
             {' '}
-            {/* gap-2.5 (10px) between each social link row */}
             {availableSocialLinks.map((link) => (
               <div key={link.key} className="flex w-full items-center">
                 <div className="w-1/4 text-sm text-muted-foreground capitalize">
@@ -212,7 +200,6 @@ export function ProfilePage() {
                   <Button
                     asChild
                     variant="link"
-                    // Custom styling for link-like appearance
                     className="p-0 h-auto justify-start text-sm font-medium text-primary hover:text-primary/90"
                     title={`Visit ${profile.name}'s ${link.label}: ${link.href}`}
                   >

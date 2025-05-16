@@ -1,20 +1,21 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useAccount } from "jazz-react";
-import { OnboardingProfile, SocialLinks } from "../../lib/schema.ts";
-import { Button, Input, Textarea, Card, Badge } from "../ui";
-import { useNavigate } from "react-router-dom";
+import { useAccount } from 'jazz-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { OnboardingProfile, SocialLinks } from '../../lib/schema.ts';
+import { Badge, Button, Card, Input, Textarea } from '../ui';
 
 export function ProfileEditor() {
   const { me } = useAccount({
     resolve: { profile: { socialLinks: true } },
   }) as { me: { profile: OnboardingProfile & { socialLinks?: SocialLinks } } };
 
-  const [activeSection, setActiveSection] = useState<"general" | "contact">(
-    "general",
+  const [activeSection, setActiveSection] = useState<'general' | 'contact'>(
+    'general',
   );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [syncState, setSyncState] = useState<"saved" | "syncing">("saved");
+  const [syncState, setSyncState] = useState<'saved' | 'syncing'>('saved');
   const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
 
   const navigate = useNavigate();
@@ -23,9 +24,9 @@ export function ProfileEditor() {
     if (timeoutIdRef.current) {
       clearTimeout(timeoutIdRef.current);
     }
-    setSyncState("syncing");
+    setSyncState('syncing');
     timeoutIdRef.current = setTimeout(() => {
-      setSyncState("saved");
+      setSyncState('saved');
       timeoutIdRef.current = null;
     }, 1500);
   };
@@ -38,13 +39,12 @@ export function ProfileEditor() {
     };
   }, []);
 
-  // --- Avatar Specific Handlers ---
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
 
   const processFile = (file: File | null | undefined) => {
-    if (file && file.type.startsWith("image/")) {
+    if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onloadend = () => {
         // TODO: Make sure the size is at most 512x512
@@ -53,32 +53,32 @@ export function ProfileEditor() {
       };
       reader.readAsDataURL(file);
     } else if (file) {
-      alert("Please select an image file (e.g., PNG, JPG).");
+      alert('Please select an image file (e.g., PNG, JPG).');
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     processFile(e.target.files?.[0]);
-    if (e.target) e.target.value = "";
+    if (e.target) e.target.value = '';
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    (e.currentTarget as HTMLDivElement).classList.remove("");
+    (e.currentTarget as HTMLDivElement).classList.remove('');
     processFile(e.dataTransfer.files?.[0]);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    (e.currentTarget as HTMLDivElement).classList.add("");
+    (e.currentTarget as HTMLDivElement).classList.add('');
   };
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    (e.currentTarget as HTMLDivElement).classList.remove("");
+    (e.currentTarget as HTMLDivElement).classList.remove('');
   };
 
   const handleRemoveAvatar = () => {
@@ -87,7 +87,7 @@ export function ProfileEditor() {
   };
 
   const handleSocialLinkChange = (
-    field: "github" | "twitter" | "website",
+    field: 'github' | 'twitter' | 'website',
     value: string,
   ) => {
     if (!me || !me.profile) return;
@@ -95,7 +95,6 @@ export function ProfileEditor() {
       socialLinks?: SocialLinks;
     };
 
-    // Ensure socialLinks object exists if we are setting a value
     if (value && !profile.socialLinks) {
       profile.socialLinks = SocialLinks.create({}, { owner: profile._owner });
     }
@@ -103,7 +102,6 @@ export function ProfileEditor() {
     if (profile.socialLinks) {
       profile.socialLinks[field] = value || undefined;
 
-      // If all social links are now empty, remove the socialLinks object
       if (
         !profile.socialLinks.github &&
         !profile.socialLinks.twitter &&
@@ -116,7 +114,7 @@ export function ProfileEditor() {
   };
 
   const handleCloseEditor = () => {
-    navigate("/profile");
+    navigate('/profile');
   };
 
   if (!me || !me.profile) {
@@ -129,11 +127,11 @@ export function ProfileEditor() {
     );
   }
 
-  const sidebarButtonBaseClasses = "w-full justify-start px-6 text-left";
+  const sidebarButtonBaseClasses = 'w-full justify-start px-6 text-left';
   const activeSidebarButtonClasses =
-    "border-l-2 border-border bg-background text-foreground hover:bg-background hover:text-foreground";
+    'border-l-2 border-border bg-background text-foreground hover:bg-background hover:text-foreground';
   const inactiveSidebarButtonClasses =
-    "text-muted-foreground hover:text-foreground hover:bg-background";
+    'text-muted-foreground hover:text-foreground hover:bg-background';
 
   return (
     <div className="flex items-center justify-center p-4">
@@ -143,9 +141,9 @@ export function ProfileEditor() {
             <h2 className="text-xl font-medium px-6 pb-3">Profile</h2>
             <Button
               variant="ghost"
-              onClick={() => setActiveSection("general")}
+              onClick={() => setActiveSection('general')}
               className={`${sidebarButtonBaseClasses} ${
-                activeSection === "general"
+                activeSection === 'general'
                   ? activeSidebarButtonClasses
                   : inactiveSidebarButtonClasses
               }`}
@@ -154,9 +152,9 @@ export function ProfileEditor() {
             </Button>
             <Button
               variant="ghost"
-              onClick={() => setActiveSection("contact")}
+              onClick={() => setActiveSection('contact')}
               className={`${sidebarButtonBaseClasses} ${
-                activeSection === "contact"
+                activeSection === 'contact'
                   ? activeSidebarButtonClasses
                   : inactiveSidebarButtonClasses
               }`}
@@ -166,7 +164,7 @@ export function ProfileEditor() {
           </div>
 
           <div className="w-[75%] flex flex-col p-6 overflow-y-auto">
-            {activeSection === "general" && (
+            {activeSection === 'general' && (
               <>
                 {/* === AVATAR UPLOAD SECTION === */}
                 <section className="flex items-center mb-6 space-x-2">
@@ -188,7 +186,7 @@ export function ProfileEditor() {
                       role="button"
                       tabIndex={0}
                       onKeyDown={(e) =>
-                        (e.key === "Enter" || e.key === " ") &&
+                        (e.key === 'Enter' || e.key === ' ') &&
                         handleAvatarClick()
                       }
                       aria-label="Upload avatar"
@@ -223,12 +221,12 @@ export function ProfileEditor() {
                     <div className="flex items-center justify-end mb-4 space-x-2">
                       <Badge
                         className={
-                          syncState === "saved"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-orange-100 text-orange-700"
+                          syncState === 'saved'
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-orange-100 text-orange-700'
                         }
                       >
-                        {syncState === "saved" ? "Saved" : "Syncing..."}
+                        {syncState === 'saved' ? 'Saved' : 'Syncing...'}
                       </Badge>
                       <Button
                         variant="ghost"
@@ -244,8 +242,6 @@ export function ProfileEditor() {
                   </div>
                 </section>
 
-                {/* === END AVATAR UPLOADER SECTION === */}
-
                 <section className="mb-5 h-1/2">
                   <div className="space-y-4 w-full h-full">
                     <div className="space-y-1">
@@ -258,7 +254,7 @@ export function ProfileEditor() {
                       <Input
                         type="text"
                         id="name"
-                        value={me.profile.name || ""}
+                        value={me.profile.name || ''}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                           if (me.profile) {
                             me.profile.name = e.target.value;
@@ -284,7 +280,7 @@ export function ProfileEditor() {
                       </label>
                       <Textarea
                         id="bio"
-                        value={me.profile.bio || ""}
+                        value={me.profile.bio || ''}
                         onChange={(
                           e: React.ChangeEvent<HTMLTextAreaElement>,
                         ) => {
@@ -302,7 +298,7 @@ export function ProfileEditor() {
               </>
             )}
 
-            {activeSection === "contact" && (
+            {activeSection === 'contact' && (
               <div className="space-y-4 w-full">
                 <h3 className="text-lg font-semibold text-foreground mb-2">
                   Social Links
@@ -321,9 +317,9 @@ export function ProfileEditor() {
                   <Input
                     type="text"
                     id="github"
-                    value={me.profile.socialLinks?.github || ""}
+                    value={me.profile.socialLinks?.github || ''}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      handleSocialLinkChange("github", e.target.value)
+                      handleSocialLinkChange('github', e.target.value)
                     }
                     placeholder="your-github-username"
                     className="w-full"
@@ -340,9 +336,9 @@ export function ProfileEditor() {
                   <Input
                     type="text"
                     id="twitter"
-                    value={me.profile.socialLinks?.twitter || ""}
+                    value={me.profile.socialLinks?.twitter || ''}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      handleSocialLinkChange("twitter", e.target.value)
+                      handleSocialLinkChange('twitter', e.target.value)
                     }
                     placeholder="@yourTwitterHandle"
                     className="w-full"
@@ -359,9 +355,9 @@ export function ProfileEditor() {
                   <Input
                     type="text"
                     id="website"
-                    value={me.profile.socialLinks?.website || ""}
+                    value={me.profile.socialLinks?.website || ''}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      handleSocialLinkChange("website", e.target.value)
+                      handleSocialLinkChange('website', e.target.value)
                     }
                     placeholder="https://your-website.com"
                     className="w-full"

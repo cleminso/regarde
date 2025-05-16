@@ -8,9 +8,9 @@ import { ThemeProvider } from './components/theme-provider.tsx';
 import { apiKey } from './lib/apiKey.ts';
 import { OnboardingAccount } from './lib/schema.ts';
 import { AppLayout } from './pages/appLayout.tsx';
-import { Editor as EditProfilePage } from './pages/edit.tsx';
+import { Editor } from './pages/edit.tsx';
 import { HomePage } from './pages/home.tsx';
-import { Profile as ViewProfilePage } from './pages/profile.tsx';
+import { ProfilePage } from './pages/profile.tsx';
 
 import './index.css';
 
@@ -37,8 +37,8 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/" element={<HomePage />} />
 
             <Route element={<AppLayout />}>
-              <Route path="/edit" element={<EditProfilePage />} />
-              <Route path="/profile" element={<ViewProfilePage />} />
+              <Route path="/edit" element={<Editor />} />
+              <Route path="/profile" element={<ProfilePage />} />
             </Route>
           </Routes>
         </BrowserRouter>

@@ -1,9 +1,10 @@
-import { useAccount, useIsAuthenticated, usePasskeyAuth } from "jazz-react";
-import { Link, useNavigate } from "react-router-dom";
-import { AuthButton } from "./AuthButton.tsx";
-import { Button } from "./components/ui/button.tsx";
-import { APPLICATION_NAME } from "./main.tsx";
-import { ThemeToggle } from "./components/themeToggle.tsx"; // Added for the new header
+import { useAccount, useIsAuthenticated, usePasskeyAuth } from 'jazz-react';
+import { Link, useNavigate } from 'react-router-dom';
+
+import { AuthButton } from './AuthButton.tsx';
+import { ThemeToggle } from './components/themeToggle.tsx';
+import { Button } from './components/ui/button.tsx';
+import { APPLICATION_NAME } from './main.tsx';
 
 export function App() {
   const { me } = useAccount({ resolve: { profile: true, root: true } });
@@ -17,20 +18,18 @@ export function App() {
   const handleLogin = async () => {
     try {
       await auth.logIn();
-      navigate("/");
+      navigate('/');
     } catch (error) {
-      console.error("Login failed:", error);
-      // Optionally, display an error message to the user
+      console.error('Login failed:', error);
     }
   };
 
   const handleCreateProfile = async () => {
     try {
-      await auth.signUp("");
-      navigate("/edit");
+      await auth.signUp('');
+      navigate('/edit');
     } catch (error) {
-      console.error("Sign up failed:", error);
-      // Optionally, display an error message to the user
+      console.error('Sign up failed:', error);
     }
   };
 
@@ -49,13 +48,13 @@ export function App() {
               <span>
                 {me?.profile?.name
                   ? `Hello, ${me.profile.name}`
-                  : "Logged In"}{" "}
+                  : 'Logged In'}{' '}
               </span>
             ) : (
               <span></span>
             )}
             <ThemeToggle />
-            <AuthButton />{" "}
+            <AuthButton />{' '}
           </div>
         </nav>
       </header>
@@ -65,7 +64,7 @@ export function App() {
         {isAuthenticated ? (
           <div className="content-center">
             <h1 className="text-center">
-              Welcome{me?.profile?.name ? <>, {me.profile.name}</> : ""}!
+              Welcome{me?.profile?.name ? <>, {me.profile.name}</> : ''}!
             </h1>
           </div>
         ) : (

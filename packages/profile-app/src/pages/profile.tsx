@@ -1,9 +1,9 @@
-import { ProfilePage } from '#/components/profile/profile';
+import { ProfileView } from '#/components/profile/view';
 
-export function Profile() {
+export function ProfilePage() {
   return (
     <div className="flex flex-col items-center gap-8">
-      <ProfilePage />
+      <ProfileView />
     </div>
   );
 }
