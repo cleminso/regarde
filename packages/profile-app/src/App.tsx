@@ -18,7 +18,7 @@ export function App() {
   const handleLogin = async () => {
     try {
       await auth.logIn();
-      navigate('/');
+      navigate('/profile');
     } catch (error) {
       console.error('Login failed:', error);
     }

@@ -1,11 +1,14 @@
-"use client";
-import { Button } from "./components/ui/button";
+'use client';
 
-import { useAccount, usePasskeyAuth } from "jazz-react";
-import { APPLICATION_NAME } from "./main";
+import { useAccount, usePasskeyAuth } from 'jazz-react';
+import { useNavigate } from 'react-router-dom';
+
+import { Button } from './components/ui/button';
+import { APPLICATION_NAME } from './main';
 
 export function AuthButton() {
   const { logOut } = useAccount();
+  const navigate = useNavigate();
 
   const auth = usePasskeyAuth({
     appName: APPLICATION_NAME,
@@ -13,10 +16,10 @@ export function AuthButton() {
 
   function handleLogOut() {
     logOut();
-    window.history.pushState({}, "", "/");
+    navigate('/');
   }
 
-  if (auth.state === "signedIn") {
+  if (auth.state === 'signedIn') {
     return (
       <Button variant="secondary" size="lg" onClick={handleLogOut}>
         Log out
@@ -26,10 +29,26 @@ export function AuthButton() {
 
   return (
     <div className="flex gap-2">
-      <Button variant="secondary" size="sm" onClick={() => auth.signUp("")}>
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => {
+          auth.signUp('').then(() => {
+            navigate('/profile');
+          });
+        }}
+      >
         Sign up
       </Button>
-      <Button variant="secondary" size="sm" onClick={() => auth.logIn()}>
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => {
+          auth.logIn().then(() => {
+            navigate('/profile');
+          });
+        }}
+      >
         Log in
       </Button>
     </div>

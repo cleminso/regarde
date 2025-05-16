@@ -1,1 +1,1 @@
-export { Layout as AppLayout } from "../layout.tsx";
+export { AppLayout } from '../layout.tsx';

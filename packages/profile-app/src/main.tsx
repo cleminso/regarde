@@ -8,7 +8,7 @@ import { ThemeProvider } from './components/theme-provider.tsx';
 import { apiKey } from './lib/apiKey.ts';
 import { OnboardingAccount } from './lib/schema.ts';
 import { AppLayout } from './pages/appLayout.tsx';
-import { Editor } from './pages/edit.tsx';
+import { EditorPage } from './pages/edit.tsx';
 import { HomePage } from './pages/home.tsx';
 import { ProfilePage } from './pages/profile.tsx';
 
@@ -37,7 +37,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/" element={<HomePage />} />
 
             <Route element={<AppLayout />}>
-              <Route path="/edit" element={<Editor />} />
+              <Route path="/edit" element={<EditorPage />} />
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
           </Routes>

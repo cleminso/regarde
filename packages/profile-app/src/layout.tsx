@@ -1,9 +1,10 @@
-import { Outlet, Link } from "react-router-dom";
-import { useAccount, useIsAuthenticated } from "jazz-react";
-import { AuthButton } from "./AuthButton.tsx";
-import { ThemeToggle } from "./components/themeToggle.tsx";
+import { useAccount, useIsAuthenticated } from 'jazz-react';
+import { Link, Outlet } from 'react-router-dom';
 
-export function Layout() {
+import { AuthButton } from './AuthButton.tsx';
+import { ThemeToggle } from './components/themeToggle.tsx';
+
+export function AppLayout() {
   const { me } = useAccount();
   const isAuthenticated = useIsAuthenticated();
 
@@ -21,13 +22,13 @@ export function Layout() {
               <span>
                 {me?.profile?.name
                   ? `Hello, ${me.profile.name}`
-                  : "Logged In"}{" "}
+                  : 'Logged In'}{' '}
               </span>
             ) : (
               <span></span>
             )}
             <ThemeToggle />
-            <AuthButton />{" "}
+            <AuthButton />{' '}
           </div>
         </nav>
       </header>
