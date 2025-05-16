@@ -1,24 +1,25 @@
-import { useAccount } from "jazz-react";
-import { OnboardingProfile } from "../../lib/schema.ts";
-import { Button } from "../ui/button.tsx";
-import { MoreHorizontalIcon } from "lucide-react";
+import { useAccount } from 'jazz-react';
+import { MoreHorizontalIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+import { OnboardingProfile } from '../../lib/schema.ts';
+import { Button } from '../ui/button.tsx';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu.tsx";
-import { useNavigate } from "react-router-dom";
+} from '../ui/dropdown-menu.tsx';
 
 // Define social link configurations outside the component for stable reference
 // Explicitly type 'key' to ensure it matches properties of SocialLinks schema
 const socialLinkConfigs: {
-  key: "github" | "twitter" | "website";
+  key: 'github' | 'twitter' | 'website';
   label: string;
 }[] = [
-  { key: "github", label: "GitHub" },
-  { key: "twitter", label: "Twitter" },
-  { key: "website", label: "Website" }, // Included as per prompt's examples "twitter; github; website"
+  { key: 'github', label: 'GitHub' },
+  { key: 'twitter', label: 'Twitter' },
+  { key: 'website', label: 'Website' }, // Included as per prompt's examples "twitter; github; website"
 ];
 
 export function ProfilePage() {
@@ -43,7 +44,7 @@ export function ProfilePage() {
 
   const getHref = (url?: string): string | undefined => {
     if (!url) return undefined;
-    if (url.startsWith("http://") || url.startsWith("https://")) {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
     }
     return `https://${url}`;
@@ -53,22 +54,22 @@ export function ProfilePage() {
     if (!url) return undefined;
     try {
       const fullUrl =
-        url.startsWith("http://") || url.startsWith("https://")
+        url.startsWith('http://') || url.startsWith('https://')
           ? url
           : `https://${url}`;
       const parsedUrl = new URL(fullUrl);
       let hostname = parsedUrl.hostname;
-      if (hostname.startsWith("www.")) {
+      if (hostname.startsWith('www.')) {
         hostname = hostname.substring(4);
       }
       // For paths like github.com/user, return the path as well.
-      if (parsedUrl.pathname !== "/" && parsedUrl.pathname !== "") {
+      if (parsedUrl.pathname !== '/' && parsedUrl.pathname !== '') {
         // Avoid adding multiple slashes if pathname already starts with one (it should)
-        const path = parsedUrl.pathname.startsWith("/")
+        const path = parsedUrl.pathname.startsWith('/')
           ? parsedUrl.pathname.substring(1)
           : parsedUrl.pathname;
         // remove trailing slash from path if any
-        const cleanPath = path.endsWith("/") ? path.slice(0, -1) : path;
+        const cleanPath = path.endsWith('/') ? path.slice(0, -1) : path;
         if (cleanPath) {
           hostname = `${hostname}/${cleanPath}`;
         }
@@ -76,11 +77,11 @@ export function ProfilePage() {
       return hostname;
     } catch (e) {
       // Fallback for invalid URLs or simple strings that are not full URLs
-      let displayName = url.replace(/^https?:\/\//, "");
-      if (displayName.startsWith("www.")) {
+      let displayName = url.replace(/^https?:\/\//, '');
+      if (displayName.startsWith('www.')) {
         displayName = displayName.substring(4);
       }
-      if (displayName.endsWith("/")) {
+      if (displayName.endsWith('/')) {
         displayName = displayName.slice(0, -1);
       }
       return displayName;
@@ -117,7 +118,7 @@ export function ProfilePage() {
     })
     .filter((link) => link !== null) as {
     // Type assertion after filtering nulls
-    key: "github" | "twitter" | "website";
+    key: 'github' | 'twitter' | 'website';
     label: string;
     url: string;
     href: string;
@@ -129,7 +130,7 @@ export function ProfilePage() {
       {/* Profile Header Section (Avatar, Name, Website Badge) */}
       <section
         className="mx-auto flex flex-row items-start gap-4" // Spacing handled by my-8 on subsequent sections
-        style={{ width: "540px" }}
+        style={{ width: '540px' }}
       >
         {profile.avatar ? (
           <img
@@ -165,7 +166,7 @@ export function ProfilePage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => navigate("/edit")}>
+                <DropdownMenuItem onClick={() => navigate('/edit')}>
                   Edit
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -177,9 +178,9 @@ export function ProfilePage() {
       {/* About Section */}
       <section
         className="mx-auto flex flex-col gap-2 my-8" // Changed to flex-col, added gap and consistent margin
-        style={{ width: "540px" }}
+        style={{ width: '540px' }}
       >
-        <h3 className="text-lg font-semibold">About</h3>{" "}
+        <h3 className="text-lg font-semibold">About</h3>{' '}
         {/* Updated H3 styling */}
         {profile.bio ? (
           <p className="text-sm text-muted-foreground whitespace-pre-wrap">
@@ -195,12 +196,12 @@ export function ProfilePage() {
       {/* Contact Section */}
       <section
         className="mx-auto flex flex-col gap-3 my-8" // gap-3 between H3 and the list of links
-        style={{ width: "540px" }}
+        style={{ width: '540px' }}
       >
         <h3 className="text-lg font-semibold">Contact</h3>
         {availableSocialLinks.length > 0 ? (
           <div className="flex flex-col gap-2.5">
-            {" "}
+            {' '}
             {/* gap-2.5 (10px) between each social link row */}
             {availableSocialLinks.map((link) => (
               <div key={link.key} className="flex w-full items-center">
