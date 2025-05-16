@@ -29,11 +29,11 @@
   "dependencies": {
     "jazz-react": "^0.13.23",
     "jazz-tools": "^0.13.23",
-    "jazz-inspector": "^0.13.23",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
   "devDependencies": {
+    "jazz-inspector": "^0.13.23",
     "@biomejs/biome": "1.9.4",
     "@playwright/test": "^1.50.1",
     "@types/react": "~18.3.12",
