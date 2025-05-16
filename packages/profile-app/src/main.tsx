@@ -6,13 +6,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { OnboardingAccount } from "./lib/schema.ts";
 import { ThemeProvider } from "./components/theme-provider.tsx";
 
-import OriginalAppContent from "./App.tsx";
+import { HomePage } from "./pages/home.tsx";
+import { AppLayout } from "./pages/appLayout.tsx";
+import { Editor as EditProfilePage } from "./pages/edit.tsx";
+import { Profile as ViewProfilePage } from "./pages/profile.tsx";
+
 import "./index.css";
 import { apiKey } from "./lib/apiKey.ts";
 import { JazzInspector } from "jazz-inspector";
-import { Layout } from "./layout.tsx";
-import { Profile } from "./pages/edit.tsx";
-import { ProfilePage } from "./components/profile/profile.tsx";
 
 export const APPLICATION_NAME = "Jazz Profile";
 
@@ -34,13 +35,11 @@ createRoot(document.getElementById("root")!).render(
         <BrowserRouter>
           <JazzInspector position="bottom left" />
           <Routes>
-            <Route path="/" element={<OriginalAppContent />} />
+            <Route path="/" element={<HomePage />} />
 
-            <Route element={<Layout />}>
-              {" "}
-              {/* The Layout component wraps these child routes */}
-              <Route path="/edit" element={<Profile />} />
-              <Route path="/profile" element={<ProfilePage />} />
+            <Route element={<AppLayout />}>
+              <Route path="/edit" element={<EditProfilePage />} />
+              <Route path="/profile" element={<ViewProfilePage />} />
             </Route>
           </Routes>
         </BrowserRouter>

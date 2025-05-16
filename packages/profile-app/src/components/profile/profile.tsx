@@ -1,6 +1,14 @@
 import { useAccount } from "jazz-react";
 import { OnboardingProfile } from "../../lib/schema.ts";
-import { Button } from "../ui/button.tsx"; // Import the Button component
+import { Button } from "../ui/button.tsx";
+import { MoreHorizontalIcon } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu.tsx";
+import { useNavigate } from "react-router-dom";
 
 // Define social link configurations outside the component for stable reference
 // Explicitly type 'key' to ensure it matches properties of SocialLinks schema
@@ -21,6 +29,7 @@ export function ProfilePage() {
       },
     },
   });
+  const navigate = useNavigate();
 
   if (!me || !me.profile) {
     return (
@@ -146,6 +155,22 @@ export function ProfilePage() {
               <span>{websiteDisplayName}</span>
             </a>
           )}
+        </div>
+        <div className="flex flex-col w-full h-full">
+          <div className="flex justify-end my-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="w-8 h-8 p-0">
+                  <MoreHorizontalIcon className="w-4 h-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => navigate("/edit")}>
+                  Edit
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </section>
 

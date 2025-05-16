@@ -1,70 +1,42 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useAccount } from "jazz-react";
 import { OnboardingProfile, SocialLinks } from "../../lib/schema.ts";
-import { Button, Input, Textarea, Card } from "../ui";
+import { Button, Input, Textarea, Card, Badge } from "../ui";
+import { useNavigate } from "react-router-dom";
 
 export function ProfileEditor() {
-  const { me } = useAccount({ resolve: { profile: { socialLinks: true } } });
+  const { me } = useAccount({
+    resolve: { profile: { socialLinks: true } },
+  }) as { me: { profile: OnboardingProfile & { socialLinks?: SocialLinks } } };
 
-  const [name, setName] = useState("");
-  const [bio, setBio] = useState("");
-  const [avatar, setAvatar] = useState("");
-  const [github, setGithub] = useState("");
-  const [twitter, setTwitter] = useState("");
-  const [website, setWebsite] = useState("");
+  const [activeSection, setActiveSection] = useState<"general" | "contact">(
+    "general",
+  );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [syncState, setSyncState] = useState<"saved" | "syncing">("saved");
+  const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
+
+  const navigate = useNavigate();
+
+  const triggerSyncIndicator = () => {
+    if (timeoutIdRef.current) {
+      clearTimeout(timeoutIdRef.current);
+    }
+    setSyncState("syncing");
+    timeoutIdRef.current = setTimeout(() => {
+      setSyncState("saved");
+      timeoutIdRef.current = null;
+    }, 1500);
+  };
 
   useEffect(() => {
-    if (me?.profile) {
-      const currentProfile = me.profile as OnboardingProfile;
-      setName(currentProfile.name || "");
-      setBio(currentProfile.bio || "");
-      setAvatar(currentProfile.avatar || "");
-      if (currentProfile.socialLinks) {
-        setGithub(currentProfile.socialLinks.github || "");
-        setTwitter(currentProfile.socialLinks.twitter || "");
-        setWebsite(currentProfile.socialLinks.website || "");
-      } else {
-        setGithub("");
-        setTwitter("");
-        setWebsite("");
+    return () => {
+      if (timeoutIdRef.current) {
+        clearTimeout(timeoutIdRef.current);
       }
-    }
-  }, [me]);
-
-  const handleSave = () => {
-    if (!me || !me.profile) return;
-    const profile = me.profile as OnboardingProfile;
-
-    profile.name = name;
-    profile.bio = bio || undefined;
-    profile.avatar = avatar || undefined;
-
-    const hasSocialLinksInput = github || twitter || website;
-
-    if (hasSocialLinksInput) {
-      if (!profile.socialLinks) {
-        profile.socialLinks = SocialLinks.create(
-          {
-            github: github || undefined,
-            twitter: twitter || undefined,
-            website: website || undefined,
-          },
-          { owner: profile._owner },
-        );
-      } else {
-        profile.socialLinks.github = github || undefined;
-        profile.socialLinks.twitter = twitter || undefined;
-        profile.socialLinks.website = website || undefined;
-      }
-    } else {
-      if (profile.socialLinks) {
-        profile.socialLinks = undefined;
-      }
-    }
-    alert("Profile saved!");
-  };
+    };
+  }, []);
 
   // --- Avatar Specific Handlers ---
   const handleAvatarClick = () => {
@@ -75,7 +47,9 @@ export function ProfileEditor() {
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setAvatar(reader.result as string); // Set avatar to data URL for preview & save
+        // TODO: Make sure the size is at most 512x512
+        if (me && me.profile) me.profile.avatar = reader.result as string;
+        triggerSyncIndicator();
       };
       reader.readAsDataURL(file);
     } else if (file) {
@@ -108,14 +82,46 @@ export function ProfileEditor() {
   };
 
   const handleRemoveAvatar = () => {
-    setAvatar("");
+    if (me && me.profile) me.profile.avatar = undefined;
+    triggerSyncIndicator();
+  };
+
+  const handleSocialLinkChange = (
+    field: "github" | "twitter" | "website",
+    value: string,
+  ) => {
+    if (!me || !me.profile) return;
+    const profile = me.profile as OnboardingProfile & {
+      socialLinks?: SocialLinks;
+    };
+
+    // Ensure socialLinks object exists if we are setting a value
+    if (value && !profile.socialLinks) {
+      profile.socialLinks = SocialLinks.create({}, { owner: profile._owner });
+    }
+
+    if (profile.socialLinks) {
+      profile.socialLinks[field] = value || undefined;
+
+      // If all social links are now empty, remove the socialLinks object
+      if (
+        !profile.socialLinks.github &&
+        !profile.socialLinks.twitter &&
+        !profile.socialLinks.website
+      ) {
+        profile.socialLinks = undefined;
+      }
+      triggerSyncIndicator();
+    }
+  };
+
+  const handleCloseEditor = () => {
+    navigate("/profile");
   };
 
   if (!me || !me.profile) {
     return (
       <div className="flex items-center justify-center p-4 min-h-[600px]">
-        {" "}
-        {/* Adjusted for page flow */}
         <Card className="w-[840px] h-[600px] flex items-center justify-center p-6 border-0 shadow-none">
           <div>Loading profile...</div>
         </Card>
@@ -123,187 +129,246 @@ export function ProfileEditor() {
     );
   }
 
+  const sidebarButtonBaseClasses = "w-full justify-start px-6 text-left";
+  const activeSidebarButtonClasses =
+    "border-l-2 border-border bg-background text-foreground hover:bg-background hover:text-foreground";
+  const inactiveSidebarButtonClasses =
+    "text-muted-foreground hover:text-foreground hover:bg-background";
+
   return (
     <div className="flex items-center justify-center p-4">
       <Card className="w-[840px] h-[600px] flex flex-col overflow-hidden p-0 border-0 shadow-none">
         <div className="flex flex-row h-full">
-          <div className="w-[25%] flex flex-col pt-6 border-r border-border space-y-4">
-            <h2 className="text-xl font-medium px-6">Profile</h2>
+          <div className="w-[25%] flex flex-col pt-6 border-r border-border space-y-1">
+            <h2 className="text-xl font-medium px-6 pb-3">Profile</h2>
             <Button
               variant="ghost"
-              className="w-full justify-start px-6 text-left border-l-2 border-border  bg-background hover:bg-background hover:text-foreground"
+              onClick={() => setActiveSection("general")}
+              className={`${sidebarButtonBaseClasses} ${
+                activeSection === "general"
+                  ? activeSidebarButtonClasses
+                  : inactiveSidebarButtonClasses
+              }`}
             >
               General
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setActiveSection("contact")}
+              className={`${sidebarButtonBaseClasses} ${
+                activeSection === "contact"
+                  ? activeSidebarButtonClasses
+                  : inactiveSidebarButtonClasses
+              }`}
+            >
+              Contact
             </Button>
           </div>
 
           <div className="w-[75%] flex flex-col p-6 overflow-y-auto">
-            {/* === AVATAR UPLOAD SECTION === */}
-            <section className="flex items-center mb-6 space-x-2">
-              <div>
-                <input
-                  type="file"
-                  id="avatar-upload"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  accept="image/png, image/jpeg, image/gif"
-                  className="hidden"
-                />
-                <div
-                  onClick={handleAvatarClick}
-                  onDrop={handleDrop}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  className="w-24 h-24 rounded-full bg-background flex justify-center text-center text-muted-foreground cursor-pointer transition-colors overflow-hidden"
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) =>
-                    (e.key === "Enter" || e.key === " ") && handleAvatarClick()
-                  }
-                  aria-label="Upload avatar"
-                >
-                  {avatar ? (
-                    <img
-                      src={avatar}
-                      alt="Avatar Preview"
-                      className="w-full h-full object-cover" // Ensure image covers the circle
+            {activeSection === "general" && (
+              <>
+                {/* === AVATAR UPLOAD SECTION === */}
+                <section className="flex items-center mb-6 space-x-2">
+                  <div>
+                    <input
+                      type="file"
+                      id="avatar-upload"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      accept="image/png, image/jpeg, image/gif"
+                      className="hidden"
                     />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center p-2 text-xs">
-                      <span>Upload</span>
+                    <div
+                      onClick={handleAvatarClick}
+                      onDrop={handleDrop}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      className="w-24 h-24 rounded-full bg-background flex justify-center text-center text-muted-foreground cursor-pointer transition-colors overflow-hidden"
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) =>
+                        (e.key === "Enter" || e.key === " ") &&
+                        handleAvatarClick()
+                      }
+                      aria-label="Upload avatar"
+                    >
+                      {me.profile.avatar ? (
+                        <img
+                          src={me.profile.avatar}
+                          alt="Avatar Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center p-2 text-xs">
+                          <span>Upload</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {me.profile.avatar && (
+                    <div className="h-full flex flex-col justify-end">
+                      <button
+                        type="button"
+                        onClick={handleRemoveAvatar}
+                        className="text-sm text-muted-foreground hover:text-destructive cursor-pointer"
+                        aria-label="Remove current avatar"
+                      >
+                        Remove
+                      </button>
                     </div>
                   )}
-                </div>
-              </div>
-              {avatar && (
-                <div className="h-full flex flex-col justify-end">
-                  <button
-                    type="button"
-                    onClick={handleRemoveAvatar}
-                    className="text-sm text-muted-foreground hover:text-destructive cursor-pointer"
-                    aria-label="Remove current avatar"
+                  <div className="flex flex-col w-full h-full">
+                    {/* Status Badge and Close Button - pushed to end */}
+                    <div className="flex items-center justify-end mb-4 space-x-2">
+                      <Badge
+                        className={
+                          syncState === "saved"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-orange-100 text-orange-700"
+                        }
+                      >
+                        {syncState === "saved" ? "Saved" : "Syncing..."}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleCloseEditor}
+                        aria-label="Close editor and go to profile"
+                        title="Close editor"
+                        className="text-muted-foreground hover:text-foreground text-xl leading-none p-1 w-6 h-6 rounded-sm hover:bg-muted"
+                      >
+                        &times;
+                      </Button>
+                    </div>
+                  </div>
+                </section>
+
+                {/* === END AVATAR UPLOADER SECTION === */}
+
+                <section className="mb-5 h-1/2">
+                  <div className="space-y-4 w-full h-full">
+                    <div className="space-y-1">
+                      <label
+                        htmlFor="name"
+                        className="block text-sm font-medium text-foreground"
+                      >
+                        Name
+                      </label>
+                      <Input
+                        type="text"
+                        id="name"
+                        value={me.profile.name || ""}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          if (me.profile) {
+                            me.profile.name = e.target.value;
+                            triggerSyncIndicator();
+                          }
+                        }}
+                        placeholder="Your name"
+                        className="w-full"
+                      />
+                      {!me.profile.name?.trim() && (
+                        <small className="text-destructive">
+                          Name is required.
+                        </small>
+                      )}
+                    </div>
+
+                    <div className="space-y-1 h-full">
+                      <label
+                        htmlFor="bio"
+                        className="block text-sm font-medium text-foreground"
+                      >
+                        Bio
+                      </label>
+                      <Textarea
+                        id="bio"
+                        value={me.profile.bio || ""}
+                        onChange={(
+                          e: React.ChangeEvent<HTMLTextAreaElement>,
+                        ) => {
+                          if (me.profile) {
+                            me.profile.bio = e.target.value || undefined;
+                            triggerSyncIndicator();
+                          }
+                        }}
+                        placeholder="Share what people should know about you"
+                        className="w-full min-h-full h-max resize-none"
+                      />
+                    </div>
+                  </div>
+                </section>
+              </>
+            )}
+
+            {activeSection === "contact" && (
+              <div className="space-y-4 w-full">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  Social Links
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Link your accounts from other platforms.
+                </p>
+
+                <div className="space-y-1">
+                  <label
+                    htmlFor="github"
+                    className="block text-sm font-medium text-foreground"
                   >
-                    Remove
-                  </button>
+                    GitHub
+                  </label>
+                  <Input
+                    type="text"
+                    id="github"
+                    value={me.profile.socialLinks?.github || ""}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleSocialLinkChange("github", e.target.value)
+                    }
+                    placeholder="your-github-username"
+                    className="w-full"
+                  />
                 </div>
-              )}
-            </section>
-            {/* === END AVATAR UPLOADER SECTION === */}
 
-            <div className="space-y-4 w-full">
-              <div className="space-y-1">
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-foreground"
-                >
-                  Name
-                </label>
-                <Input
-                  type="text"
-                  id="name"
-                  value={name}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setName(e.target.value);
-                  }}
-                  placeholder="Your name"
-                  className="w-full"
-                />
-                {!name.trim() && (
-                  <small className="text-destructive">Name is required.</small>
-                )}
+                <div className="space-y-1">
+                  <label
+                    htmlFor="twitter"
+                    className="block text-sm font-medium text-foreground"
+                  >
+                    Twitter
+                  </label>
+                  <Input
+                    type="text"
+                    id="twitter"
+                    value={me.profile.socialLinks?.twitter || ""}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleSocialLinkChange("twitter", e.target.value)
+                    }
+                    placeholder="@yourTwitterHandle"
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label
+                    htmlFor="website"
+                    className="block text-sm font-medium text-foreground"
+                  >
+                    Website
+                  </label>
+                  <Input
+                    type="text"
+                    id="website"
+                    value={me.profile.socialLinks?.website || ""}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleSocialLinkChange("website", e.target.value)
+                    }
+                    placeholder="https://your-website.com"
+                    className="w-full"
+                  />
+                </div>
               </div>
-
-              {/* Bio Input Group */}
-              <div className="space-y-1">
-                <label
-                  htmlFor="bio"
-                  className="block text-sm font-medium text-foreground"
-                >
-                  Bio
-                </label>
-                <Textarea
-                  id="bio"
-                  value={bio}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                    setBio(e.target.value);
-                  }}
-                  placeholder="Share what people should know about you"
-                  className="w-full min-h-[100px]"
-                />
-              </div>
-
-              <h3 className="text-lg font-semibold pt-4 mt-4 border-t border-border text-foreground">
-                Social Links
-              </h3>
-
-              {/* GitHub Input Group */}
-              <div className="space-y-1">
-                <label
-                  htmlFor="github"
-                  className="block text-sm font-medium text-foreground"
-                >
-                  GitHub
-                </label>
-                <Input
-                  type="text"
-                  id="github"
-                  value={github}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setGithub(e.target.value)
-                  }
-                  placeholder="your-github-username"
-                  className="w-full"
-                />
-              </div>
-
-              {/* Twitter Input Group */}
-              <div className="space-y-1">
-                <label
-                  htmlFor="twitter"
-                  className="block text-sm font-medium text-foreground"
-                >
-                  Twitter
-                </label>
-                <Input
-                  type="text"
-                  id="twitter"
-                  value={twitter}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setTwitter(e.target.value)
-                  }
-                  placeholder="@yourTwitterHandle"
-                  className="w-full"
-                />
-              </div>
-
-              {/* Website Input Group */}
-              <div className="space-y-1">
-                <label
-                  htmlFor="website"
-                  className="block text-sm font-medium text-foreground"
-                >
-                  Website
-                </label>
-                <Input
-                  type="text"
-                  id="website"
-                  value={website}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setWebsite(e.target.value)
-                  }
-                  placeholder="https://your-website.com"
-                  className="w-full"
-                />
-              </div>
-
-              <Button
-                onClick={handleSave}
-                disabled={!name.trim()}
-                className="w-full mt-6"
-              >
-                Save Profile
-              </Button>
-            </div>
+            )}
           </div>
         </div>
       </Card>

@@ -12,11 +12,8 @@ export function Layout() {
       <header className="bg-background text-card-foreground shadow-lg">
         <nav className="@container-normal flex justify-between items-center py-4 mx-16">
           <div>
-            <Link to="/my-new-page" className="text-xl font-bold mr-6">
-              onboarding.jazz
-            </Link>
-            <Link to="/" className="text-sm hover:text-slate-300">
-              (Back home)
+            <Link to="/" className="text-xl font-bold mr-6">
+              profile.jazz.dev
             </Link>
           </div>
           <div className="flex items-center gap-4">
@@ -27,7 +24,7 @@ export function Layout() {
                   : "Logged In"}{" "}
               </span>
             ) : (
-              <span>Welcome, Guest! (New App Layout)</span>
+              <span></span>
             )}
             <ThemeToggle />
             <AuthButton />{" "}
