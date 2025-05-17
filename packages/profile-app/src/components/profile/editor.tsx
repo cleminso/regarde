@@ -300,69 +300,99 @@ export function ProfileEditor() {
 
             {activeSection === 'contact' && (
               <div className="space-y-4 w-full">
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  Social Links
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Link your accounts from other platforms.
-                </p>
+                <section className="flex mb-6 space-x-2">
+                  <div className="w-full">
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                      Social Links
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Link accounts where people's can find you.
+                    </p>
+                  </div>
+                  <div className="flex flex-col h-full">
+                    {/* Status Badge and Close Button - pushed to end */}
+                    <div className="flex items-center justify-end mb-4 space-x-2">
+                      <Badge
+                        className={
+                          syncState === 'saved'
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-orange-100 text-orange-700'
+                        }
+                      >
+                        {syncState === 'saved' ? 'Saved' : 'Syncing...'}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleCloseEditor}
+                        aria-label="Close editor and go to profile"
+                        title="Close editor"
+                        className="text-muted-foreground hover:text-foreground text-xl leading-none p-1 w-6 h-6 rounded-sm hover:bg-muted"
+                      >
+                        &times;
+                      </Button>
+                    </div>
+                  </div>
+                </section>
 
-                <div className="space-y-1">
-                  <label
-                    htmlFor="github"
-                    className="block text-sm font-medium text-foreground"
-                  >
-                    GitHub
-                  </label>
-                  <Input
-                    type="text"
-                    id="github"
-                    value={me.profile.socialLinks?.github || ''}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      handleSocialLinkChange('github', e.target.value)
-                    }
-                    placeholder="your-github-username"
-                    className="w-full"
-                  />
-                </div>
+                <section className="flex flex-col gap-4 mb-6 space-x-2">
+                  <div className="space-y-1">
+                    <label
+                      htmlFor="github"
+                      className="block text-sm font-medium text-foreground"
+                    >
+                      GitHub
+                    </label>
+                    <Input
+                      type="text"
+                      id="github"
+                      value={me.profile.socialLinks?.github || ''}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleSocialLinkChange('github', e.target.value)
+                      }
+                      placeholder="your-github-username"
+                      className="w-full"
+                    />
+                  </div>
 
-                <div className="space-y-1">
-                  <label
-                    htmlFor="twitter"
-                    className="block text-sm font-medium text-foreground"
-                  >
-                    Twitter
-                  </label>
-                  <Input
-                    type="text"
-                    id="twitter"
-                    value={me.profile.socialLinks?.twitter || ''}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      handleSocialLinkChange('twitter', e.target.value)
-                    }
-                    placeholder="@yourTwitterHandle"
-                    className="w-full"
-                  />
-                </div>
+                  <div className="space-y-1">
+                    <label
+                      htmlFor="twitter"
+                      className="block text-sm font-medium text-foreground"
+                    >
+                      Twitter
+                    </label>
+                    <Input
+                      type="text"
+                      id="twitter"
+                      value={me.profile.socialLinks?.twitter || ''}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleSocialLinkChange('twitter', e.target.value)
+                      }
+                      placeholder="@yourTwitterHandle"
+                      className="w-full"
+                    />
+                  </div>
 
-                <div className="space-y-1">
-                  <label
-                    htmlFor="website"
-                    className="block text-sm font-medium text-foreground"
-                  >
-                    Website
-                  </label>
-                  <Input
-                    type="text"
-                    id="website"
-                    value={me.profile.socialLinks?.website || ''}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      handleSocialLinkChange('website', e.target.value)
-                    }
-                    placeholder="https://your-website.com"
-                    className="w-full"
-                  />
-                </div>
+                  <div className="space-y-1">
+                    <label
+                      htmlFor="website"
+                      className="block text-sm font-medium text-foreground"
+                    >
+                      Website
+                    </label>
+                    <Input
+                      type="text"
+                      id="website"
+                      value={me.profile.socialLinks?.website || ''}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleSocialLinkChange('website', e.target.value)
+                      }
+                      placeholder="https://your-website.com"
+                      className="w-full"
+                    />
+                  </div>
+                </section>
               </div>
             )}
           </div>
