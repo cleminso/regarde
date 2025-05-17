@@ -33,17 +33,6 @@ export function AuthButton() {
         variant="secondary"
         size="sm"
         onClick={() => {
-          auth.signUp('').then(() => {
-            navigate('/profile');
-          });
-        }}
-      >
-        Sign up
-      </Button>
-      <Button
-        variant="secondary"
-        size="sm"
-        onClick={() => {
           auth.logIn().then(() => {
             navigate('/profile');
           });

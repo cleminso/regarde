@@ -36,7 +36,7 @@ export function App() {
   return (
     <>
       {/* Header from Layout.tsx */}
-      <header className="bg-background text-card-foreground shadow-lg">
+      <header className="bg-background text-card-foreground">
         <nav className="@container-normal flex justify-between items-center py-4 mx-16">
           <div>
             <Link to="/" className="text-xl font-bold mr-6">
@@ -75,7 +75,12 @@ export function App() {
               everywhere.
             </p>
             <div className="flex gap-4 mt-4">
-              <Button size="lg" variant="outline" onClick={handleLogin}>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={handleLogin}
+                className="border-border"
+              >
                 Log in
               </Button>
               <Button size="lg" variant="default" onClick={handleCreateProfile}>
