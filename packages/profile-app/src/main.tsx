@@ -11,8 +11,11 @@ import { AppLayout } from './pages/appLayout.tsx';
 import { EditorPage } from './pages/edit.tsx';
 import { HomePage } from './pages/home.tsx';
 import { ProfilePage } from './pages/profile.tsx';
+import { ProtectedRoute } from './ProtectedRoute.tsx';
 
 import './index.css';
+
+import { NotFoundPage } from './pages/notFoundPage.tsx';
 
 export const APPLICATION_NAME = 'Jazz Profile';
 
@@ -36,10 +39,13 @@ createRoot(document.getElementById('root')!).render(
           <Routes>
             <Route path="/" element={<HomePage />} />
 
-            <Route element={<AppLayout />}>
-              <Route path="/edit" element={<EditorPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
+            <Route element={<ProtectedRoute />}>
+              <Route element={<AppLayout />}>
+                <Route path="/edit" element={<EditorPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+              </Route>
             </Route>
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
       </JazzProvider>

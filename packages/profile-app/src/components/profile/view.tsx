@@ -16,7 +16,7 @@ const socialLinkConfigs: {
   label: string;
 }[] = [
   { key: 'github', label: 'GitHub' },
-  { key: 'twitter', label: 'Twitter' },
+  { key: 'twitter', label: 'X / Twitter' },
   { key: 'website', label: 'Website' },
 ];
 

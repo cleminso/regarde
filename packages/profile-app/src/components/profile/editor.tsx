@@ -360,7 +360,7 @@ export function ProfileEditor() {
                       htmlFor="twitter"
                       className="block text-sm font-medium text-foreground"
                     >
-                      Twitter
+                      X / Twitter
                     </label>
                     <Input
                       type="text"

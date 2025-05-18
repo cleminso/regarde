@@ -1,4 +1,5 @@
 import { useAccount, useIsAuthenticated, usePasskeyAuth } from 'jazz-react';
+import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { AuthButton } from './AuthButton.tsx';
@@ -32,6 +33,12 @@ export function App() {
       console.error('Sign up failed:', error);
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/profile', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <>
