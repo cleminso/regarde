@@ -3,7 +3,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { OnboardingProfile, SocialLinks } from '../../lib/schema.ts';
-import { Badge, Button, Card, Input, Textarea } from '../ui';
+import { Button, Input, Textarea } from '../ui/index.ts';
+import { EditorLayout } from './layout.tsx';
+import { EditorSidebar } from './sidebar.tsx';
 
 export function ProfileEditor() {
   const { me } = useAccount({
@@ -120,50 +122,25 @@ export function ProfileEditor() {
   if (!me || !me.profile) {
     return (
       <div className="flex items-center justify-center p-4 min-h-[600px]">
-        <Card className="w-[840px] h-[600px] flex items-center justify-center p-6 border-0 shadow-none">
+        <div className="w-[840px] h-[600px] flex items-center justify-center p-6 border-0 shadow-none bg-card text-card-foreground rounded-xl">
           <div>Loading profile...</div>
-        </Card>
+        </div>
       </div>
     );
   }
 
-  const sidebarButtonBaseClasses = 'w-full justify-start px-6 text-left';
-  const activeSidebarButtonClasses =
-    'border-l-2 border-border bg-background text-foreground hover:bg-background hover:text-foreground';
-  const inactiveSidebarButtonClasses =
-    'text-muted-foreground hover:text-foreground hover:bg-background';
-
   return (
-    <div className="flex items-center justify-center p-4">
-      <Card className="w-[840px] h-[600px] flex flex-col overflow-hidden p-0 border-0 shadow-none">
-        <div className="flex flex-row h-full">
-          <div className="w-[25%] flex flex-col pt-6 border-r border-border space-y-1">
-            <h2 className="text-xl font-medium px-6 pb-3">Profile</h2>
-            <Button
-              variant="ghost"
-              onClick={() => setActiveSection('general')}
-              className={`${sidebarButtonBaseClasses} ${
-                activeSection === 'general'
-                  ? activeSidebarButtonClasses
-                  : inactiveSidebarButtonClasses
-              }`}
-            >
-              General
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setActiveSection('contact')}
-              className={`${sidebarButtonBaseClasses} ${
-                activeSection === 'contact'
-                  ? activeSidebarButtonClasses
-                  : inactiveSidebarButtonClasses
-              }`}
-            >
-              Contact
-            </Button>
-          </div>
-
-          <div className="w-[75%] flex flex-col p-6 overflow-y-auto">
+    <EditorLayout
+      sidebar={
+        <EditorSidebar
+          activeSection={activeSection}
+          onSectionChange={setActiveSection}
+          syncState={syncState}
+        />
+      }
+      mainContent={
+        <div className="w-[75%] flex flex-col p-6 overflow-y-auto">
+          <>
             {activeSection === 'general' && (
               <>
                 {/* === AVATAR UPLOAD SECTION === */}
@@ -217,17 +194,7 @@ export function ProfileEditor() {
                     </div>
                   )}
                   <div className="flex flex-col w-full h-full">
-                    {/* Status Badge and Close Button - pushed to end */}
                     <div className="flex items-center justify-end mb-4 space-x-2">
-                      <Badge
-                        className={
-                          syncState === 'saved'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-orange-100 text-orange-700'
-                        }
-                      >
-                        {syncState === 'saved' ? 'Saved' : 'Syncing...'}
-                      </Badge>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -310,17 +277,8 @@ export function ProfileEditor() {
                     </p>
                   </div>
                   <div className="flex flex-col h-full">
-                    {/* Status Badge and Close Button - pushed to end */}
                     <div className="flex items-center justify-end mb-4 space-x-2">
-                      <Badge
-                        className={
-                          syncState === 'saved'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-orange-100 text-orange-700'
-                        }
-                      >
-                        {syncState === 'saved' ? 'Saved' : 'Syncing...'}
-                      </Badge>
+                      {/* Close button re-added here */}
                       <Button
                         variant="ghost"
                         size="icon"
@@ -395,9 +353,9 @@ export function ProfileEditor() {
                 </section>
               </div>
             )}
-          </div>
+          </>
         </div>
-      </Card>
-    </div>
+      }
+    />
   );
 }

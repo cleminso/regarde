@@ -1,4 +1,4 @@
-import { ProfileEditor } from '../components/profile/editor';
+import { ProfileEditor } from '../components/editor/content';
 
 export function EditorPage() {
   return (

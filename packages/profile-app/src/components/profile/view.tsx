@@ -155,8 +155,14 @@ export function ProfileView() {
                   <MoreHorizontalIcon className="w-4 h-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => navigate('/edit')}>
+              <DropdownMenuContent
+                align="end"
+                className="py-1 px-0 border border-border shadow-none"
+              >
+                <DropdownMenuItem
+                  className="w-full"
+                  onClick={() => navigate('/edit')}
+                >
                   Edit
                 </DropdownMenuItem>
               </DropdownMenuContent>
