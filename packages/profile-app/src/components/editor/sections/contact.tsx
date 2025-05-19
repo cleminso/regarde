@@ -1,3 +1,4 @@
+import { useContact } from '#/lib/hook/useContact';
 import React from 'react';
 
 import { OnboardingProfile, SocialLinks } from '../../../lib/schema';
@@ -15,36 +16,7 @@ export function ContactEdit({
   triggerSyncIndicator,
   onCloseEditor,
 }: ContactEditProps) {
-  const handleSocialLinkChange = (
-    field: 'github' | 'twitter' | 'website',
-    value: string,
-  ) => {
-    if (!profile) return;
-
-    const owner = profile._owner;
-    if (value && !profile.socialLinks) {
-      if (!owner) {
-        console.error(
-          'Cannot create SocialLinks: profile._owner is undefined.',
-        );
-        return;
-      }
-      profile.socialLinks = SocialLinks.create({}, { owner });
-    }
-
-    if (profile.socialLinks) {
-      profile.socialLinks[field] = value || undefined;
-
-      if (
-        !profile.socialLinks.github &&
-        !profile.socialLinks.twitter &&
-        !profile.socialLinks.website
-      ) {
-        profile.socialLinks = undefined;
-      }
-      triggerSyncIndicator();
-    }
-  };
+  const { updateSocialLink } = useContact({ profile, triggerSyncIndicator });
 
   return (
     <div className="space-y-4 w-full">
@@ -67,7 +39,7 @@ export function ContactEdit({
             id="github"
             value={profile.socialLinks?.github || ''}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleSocialLinkChange('github', e.target.value)
+              updateSocialLink('github', e.target.value)
             }
             placeholder="your-github-username"
             className="w-full"
@@ -86,7 +58,7 @@ export function ContactEdit({
             id="twitter"
             value={profile.socialLinks?.twitter || ''}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleSocialLinkChange('twitter', e.target.value)
+              updateSocialLink('twitter', e.target.value)
             }
             placeholder="@yourTwitterHandle"
             className="w-full"
@@ -105,7 +77,7 @@ export function ContactEdit({
             id="website"
             value={profile.socialLinks?.website || ''}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleSocialLinkChange('website', e.target.value)
+              updateSocialLink('website', e.target.value)
             }
             placeholder="https://your-website.com"
             className="w-full"

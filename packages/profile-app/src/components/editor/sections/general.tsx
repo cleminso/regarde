@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+import { useGeneral } from '#/lib/hook/useGeneral';
+import React from 'react';
 
 import { OnboardingProfile } from '../../../lib/schema';
 import { Button, Input, Textarea } from '../../ui';
@@ -14,54 +15,17 @@ export function GeneralEdit({
   triggerSyncIndicator,
   onCloseEditor,
 }: GeneralEditProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const processFile = (file: File | null | undefined) => {
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // TODO: Make sure the size is at most 512x512
-        if (profile) profile.avatar = reader.result as string;
-        triggerSyncIndicator();
-      };
-      reader.readAsDataURL(file);
-    } else if (file) {
-      alert('Please select an image file (e.g., PNG, JPG).');
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    processFile(e.target.files?.[0]);
-    if (e.target) e.target.value = '';
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    (e.currentTarget as HTMLDivElement).classList.remove('');
-    processFile(e.dataTransfer.files?.[0]);
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    (e.currentTarget as HTMLDivElement).classList.add('');
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    (e.currentTarget as HTMLDivElement).classList.remove('');
-  };
-
-  const handleRemoveAvatar = () => {
-    if (profile) profile.avatar = undefined;
-    triggerSyncIndicator();
-  };
+  const {
+    fileInputRef,
+    handleAvatarClick,
+    handleFileChange,
+    handleDrop,
+    handleDragOver,
+    handleDragLeave,
+    handleRemoveAvatar,
+    updateName,
+    updateBio,
+  } = useGeneral({ profile, triggerSyncIndicator });
 
   return (
     <>
@@ -142,12 +106,9 @@ export function GeneralEdit({
               type="text"
               id="name"
               value={profile.name || ''}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                if (profile) {
-                  profile.name = e.target.value;
-                  triggerSyncIndicator();
-                }
-              }}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                updateName(e.target.value)
+              }
               placeholder="Your name"
               className="w-full"
             />
@@ -166,12 +127,9 @@ export function GeneralEdit({
             <Textarea
               id="bio"
               value={profile.bio || ''}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                if (profile) {
-                  profile.bio = e.target.value || undefined;
-                  triggerSyncIndicator();
-                }
-              }}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                updateBio(e.target.value)
+              }
               placeholder="Share what people should know about you"
               className="w-full min-h-full h-max resize-none"
             />
