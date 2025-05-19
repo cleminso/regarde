@@ -1,2 +1,117 @@
-// Manages and renders the content for the "Contact" settings tab.
-// Props: receive `me.profile.sociallinks` data (or the whole me.profile), syncState, callbacks for changes (e.g., onSocialLinkChange), triggerSyncIndicator, and onCloseEditor.
+import React from 'react';
+
+import { OnboardingProfile, SocialLinks } from '../../../lib/schema';
+import { Input } from '../../ui';
+import { SectionHeader } from '../header';
+
+type ContactEditProps = {
+  profile: OnboardingProfile & { socialLinks?: SocialLinks };
+  triggerSyncIndicator: () => void;
+  onCloseEditor: () => void;
+};
+
+export function ContactEdit({
+  profile,
+  triggerSyncIndicator,
+  onCloseEditor,
+}: ContactEditProps) {
+  const handleSocialLinkChange = (
+    field: 'github' | 'twitter' | 'website',
+    value: string,
+  ) => {
+    if (!profile) return;
+
+    const owner = profile._owner;
+    if (value && !profile.socialLinks) {
+      if (!owner) {
+        console.error(
+          'Cannot create SocialLinks: profile._owner is undefined.',
+        );
+        return;
+      }
+      profile.socialLinks = SocialLinks.create({}, { owner });
+    }
+
+    if (profile.socialLinks) {
+      profile.socialLinks[field] = value || undefined;
+
+      if (
+        !profile.socialLinks.github &&
+        !profile.socialLinks.twitter &&
+        !profile.socialLinks.website
+      ) {
+        profile.socialLinks = undefined;
+      }
+      triggerSyncIndicator();
+    }
+  };
+
+  return (
+    <div className="space-y-4 w-full">
+      <SectionHeader
+        title="Contact Links"
+        description="Link accounts where people's can find you."
+        onCloseEditor={onCloseEditor}
+      />
+
+      <section className="flex flex-col gap-4 mb-6 space-x-2">
+        <div className="space-y-1">
+          <label
+            htmlFor="github"
+            className="block text-sm font-medium text-foreground"
+          >
+            GitHub
+          </label>
+          <Input
+            type="text"
+            id="github"
+            value={profile.socialLinks?.github || ''}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleSocialLinkChange('github', e.target.value)
+            }
+            placeholder="your-github-username"
+            className="w-full"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label
+            htmlFor="twitter"
+            className="block text-sm font-medium text-foreground"
+          >
+            X / Twitter
+          </label>
+          <Input
+            type="text"
+            id="twitter"
+            value={profile.socialLinks?.twitter || ''}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleSocialLinkChange('twitter', e.target.value)
+            }
+            placeholder="@yourTwitterHandle"
+            className="w-full"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label
+            htmlFor="website"
+            className="block text-sm font-medium text-foreground"
+          >
+            Website
+          </label>
+          <Input
+            type="text"
+            id="website"
+            value={profile.socialLinks?.website || ''}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleSocialLinkChange('website', e.target.value)
+            }
+            placeholder="https://your-website.com"
+            className="w-full"
+          />
+        </div>
+      </section>
+    </div>
+  );
+}
