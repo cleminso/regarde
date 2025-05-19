@@ -1,9 +1,10 @@
 import { Button } from '../ui/button';
+import { SectionType } from './shared.ts';
 import { SyncStateBadge } from './syncState';
 
 type EditorSidebarProps = {
-  activeSection: 'general' | 'contact';
-  onSectionChange: (section: 'general' | 'contact') => void;
+  activeSection: SectionType;
+  onSectionChange: (section: SectionType) => void;
   syncState: 'saved' | 'syncing';
 };
 

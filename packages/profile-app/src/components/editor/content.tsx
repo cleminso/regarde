@@ -1,51 +1,26 @@
-import { useAccount } from 'jazz-react';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { OnboardingProfile, SocialLinks } from '../../lib/schema.ts';
+import { useEditProfile } from '../../lib/hook/useEditProfile.ts';
 import { EditorLayout } from './layout.tsx';
-import { ContactEdit } from './sections/contact.tsx';
-import { GeneralEdit } from './sections/general.tsx';
+import { ContactEdit, GeneralEdit } from './sections';
+import { editorSections, SectionType } from './shared.ts';
 import { EditorSidebar } from './sidebar.tsx';
 
 export function ProfileEditor() {
-  const { me } = useAccount({
-    resolve: { profile: { socialLinks: true } },
-  }) as { me: { profile: OnboardingProfile & { socialLinks?: SocialLinks } } };
-
-  const [activeSection, setActiveSection] = useState<'general' | 'contact'>(
-    'general',
+  const { profile, isLoading, syncState, triggerSyncIndicator } =
+    useEditProfile();
+  const [activeSection, setActiveSection] = useState<SectionType>(
+    editorSections.general,
   );
 
-  const [syncState, setSyncState] = useState<'saved' | 'syncing'>('saved');
-  const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
-
   const navigate = useNavigate();
-
-  const triggerSyncIndicator = () => {
-    if (timeoutIdRef.current) {
-      clearTimeout(timeoutIdRef.current);
-    }
-    setSyncState('syncing');
-    timeoutIdRef.current = setTimeout(() => {
-      setSyncState('saved');
-      timeoutIdRef.current = null;
-    }, 1500);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (timeoutIdRef.current) {
-        clearTimeout(timeoutIdRef.current);
-      }
-    };
-  }, []);
 
   const handleCloseEditor = () => {
     navigate('/profile');
   };
 
-  if (!me || !me.profile) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center p-4 min-h-[600px]">
         <div className="w-[840px] h-[600px] flex items-center justify-center p-6 border-0 shadow-none bg-card text-card-foreground rounded-xl">
@@ -69,7 +44,7 @@ export function ProfileEditor() {
           <>
             {activeSection === 'general' && (
               <GeneralEdit
-                profile={me.profile}
+                profile={profile!}
                 triggerSyncIndicator={triggerSyncIndicator}
                 onCloseEditor={handleCloseEditor}
               />
@@ -77,7 +52,7 @@ export function ProfileEditor() {
 
             {activeSection === 'contact' && (
               <ContactEdit
-                profile={me.profile}
+                profile={profile!}
                 triggerSyncIndicator={triggerSyncIndicator}
                 onCloseEditor={handleCloseEditor}
               />
