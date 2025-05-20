@@ -22,13 +22,12 @@ export function SectionHeader({
       <div className="ml-4 flex-shrink-0">
         <Button
           variant="ghost"
-          size="icon"
           onClick={onCloseEditor}
           aria-label="Close editor and go to profile"
           title="Close editor"
-          className="text-muted-foreground hover:text-foreground text-xl leading-none p-1 w-6 h-6 rounded-sm hover:bg-muted"
+          className="text-muted-foreground hover:text-foreground rounded-sm hover:bg-accent"
         >
-          &times;
+          Close
         </Button>
       </div>
     </div>

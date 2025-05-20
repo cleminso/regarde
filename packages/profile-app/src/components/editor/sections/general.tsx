@@ -1,6 +1,6 @@
-import { useGeneral } from '#/lib/hook/useGeneral';
 import React from 'react';
 
+import { useGeneral } from '#/lib/hook/useGeneral';
 import { OnboardingProfile } from '../../../lib/schema';
 import { Button, Input, Textarea } from '../../ui';
 
@@ -81,13 +81,12 @@ export function GeneralEdit({
           <div className="flex items-center justify-end mb-4 space-x-2">
             <Button
               variant="ghost"
-              size="icon"
               onClick={onCloseEditor}
               aria-label="Close editor and go to profile"
               title="Close editor"
-              className="text-muted-foreground hover:text-foreground text-xl leading-none p-1 w-6 h-6 rounded-sm hover:bg-muted"
+              className="text-muted-foreground hover:text-foreground rounded-sm hover:bg-accent"
             >
-              &times;
+              Close
             </Button>
           </div>
         </div>

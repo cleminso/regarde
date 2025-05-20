@@ -1,10 +1,11 @@
-import { Account, co, CoMap, Group, Profile } from 'jazz-tools';
+import { Account, co, CoList, CoMap, Group, Profile } from 'jazz-tools';
 
 export class OnboardingProfile extends Profile {
   name = co.string;
   bio = co.optional.string;
   avatar = co.optional.string;
   socialLinks = co.optional.ref(SocialLinks);
+  projects = co.optional.ref(ListOfProjects);
 
   static validate(profile: OnboardingProfile): string | undefined {
     if (!profile.name || profile.name.trim() === '') {
@@ -19,6 +20,16 @@ export class SocialLinks extends CoMap {
   twitter = co.optional.string;
   website = co.optional.string;
 }
+
+export class Project extends CoMap {
+  title = co.string;
+  year = co.string;
+  client = co.optional.string;
+  link = co.optional.string;
+  description = co.optional.string;
+}
+
+export class ListOfProjects extends CoList.Of(co.ref(Project)) {}
 
 /**
  * The Container class (extending `CoMap`) should contain the main domain entities of the app.
