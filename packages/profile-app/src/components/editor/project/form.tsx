@@ -2,19 +2,19 @@ import { Loaded } from 'jazz-tools';
 
 import { useProject } from '../../../lib/hook/useProject.ts';
 import { OnboardingProfile } from '../../../lib/schema.ts';
-import { Input, Textarea } from '../../ui';
+import { Input, Textarea } from '../../ui/index.ts';
 import { SectionHeader } from '../header.tsx';
 
 type ProjectEditProps = {
   profile: Loaded<typeof OnboardingProfile>;
   triggerSyncIndicator: () => void;
-  onCloseEditor: () => void;
+  onDoneEditing: () => void;
 };
 
 export function ProjectEdit({
   profile,
   triggerSyncIndicator,
-  onCloseEditor,
+  onDoneEditing,
 }: ProjectEditProps) {
   const { project, updateProjectField } = useProject({
     profile,
@@ -26,8 +26,8 @@ export function ProjectEdit({
       <div className="space-y-4 w-full">
         <SectionHeader
           title="Projects"
-          description="Showcase your projects and contributions."
-          onCloseEditor={onCloseEditor}
+          onActionClick={onDoneEditing}
+          actionText="Add"
         />
         <div>Loading project data or encountered an issue...</div>
       </div>
@@ -39,7 +39,8 @@ export function ProjectEdit({
       <SectionHeader
         title="Projects"
         description="Showcase your projects and contributions."
-        onCloseEditor={onCloseEditor}
+        onActionClick={onDoneEditing}
+        actionText="I'm done!"
       />
       <section>
         <div className="space-y-1 flex flex-row gap-4">

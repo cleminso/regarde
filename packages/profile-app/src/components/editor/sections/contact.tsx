@@ -7,7 +7,7 @@ import { Input } from '../../ui';
 import { SectionHeader } from '../header';
 
 type ContactEditProps = {
-  profile: Loaded<typeof OnboardingProfile>; // Corrected type
+  profile: Loaded<typeof OnboardingProfile>;
   triggerSyncIndicator: () => void;
   onCloseEditor: () => void;
 };
@@ -24,7 +24,8 @@ export function ContactEdit({
       <SectionHeader
         title="Contact Links"
         description="Link accounts where people's can find you."
-        onCloseEditor={onCloseEditor}
+        onActionClick={onCloseEditor}
+        actionText="Close"
       />
 
       <section className="flex flex-col gap-4 mb-6 space-x-2">

@@ -81,11 +81,11 @@ export function GeneralEdit({
         <div className="flex flex-col w-full h-full">
           <div className="flex items-center justify-end mb-4 space-x-2">
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={onCloseEditor}
               aria-label="Close editor and go to profile"
               title="Close editor"
-              className="text-muted-foreground hover:text-foreground rounded-sm hover:bg-accent"
+              className="text-foreground hover:text-foreground rounded-sm hover:bg-accent"
             >
               Close
             </Button>

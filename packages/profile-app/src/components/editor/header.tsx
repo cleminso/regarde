@@ -3,16 +3,18 @@ import { Button } from '../ui/button';
 type SectionsHeaderProps = {
   title: string;
   description?: string;
-  onCloseEditor: () => void;
+  onActionClick: () => void;
+  actionText?: string;
 };
 
 export function SectionHeader({
   title,
   description,
-  onCloseEditor,
+  onActionClick,
+  actionText = 'Close',
 }: SectionsHeaderProps) {
   return (
-    <div className="flex justify-between items-start mb-6">
+    <div className="flex justify-between items-start mb-6 border-b border-border pb-4">
       <div className="flex-grow">
         <h3 className="text-lg font-semibold text-foreground">{title}</h3>
         {description && (
@@ -21,13 +23,13 @@ export function SectionHeader({
       </div>
       <div className="ml-4 flex-shrink-0">
         <Button
-          variant="ghost"
-          onClick={onCloseEditor}
-          aria-label="Close editor and go to profile"
-          title="Close editor"
-          className="text-muted-foreground hover:text-foreground rounded-sm hover:bg-accent"
+          variant="outline"
+          onClick={onActionClick}
+          aria-label={actionText}
+          title={actionText}
+          className="text-foreground hover:text-foreground rounded-sm hover:bg-accent"
         >
-          Close
+          {actionText}
         </Button>
       </div>
     </div>

@@ -3,7 +3,10 @@ import { useNavigate } from 'react-router-dom';
 
 import { useEditProfile } from '../../lib/hook/useEditProfile.ts';
 import { EditorLayout } from './layout.tsx';
-import { ContactEdit, GeneralEdit, ProjectEdit } from './sections';
+import { ProjectEdit } from './project/form.tsx';
+import { ProjectView } from './project/view.tsx';
+import { ContactEdit } from './sections/contact.tsx';
+import { GeneralEdit } from './sections/general.tsx';
 import { editorSections, SectionType } from './shared.ts';
 import { EditorSidebar } from './sidebar.tsx';
 
@@ -13,11 +16,21 @@ export function ProfileEditor() {
   const [activeSection, setActiveSection] = useState<SectionType>(
     editorSections.general,
   );
+  const [projectSectionViewMode, setProjectView] = useState<'view' | 'form'>(
+    'view',
+  );
 
   const navigate = useNavigate();
 
   const handleCloseEditor = () => {
     navigate('/profile');
+  };
+
+  const handleSectionChange = (section: SectionType) => {
+    if (activeSection === 'project' && section !== 'project') {
+      setProjectView('view');
+    }
+    setActiveSection(section);
   };
 
   if (isLoading) {
@@ -35,7 +48,7 @@ export function ProfileEditor() {
       sidebar={
         <EditorSidebar
           activeSection={activeSection}
-          onSectionChange={setActiveSection}
+          onSectionChange={handleSectionChange}
           syncState={syncState}
         />
       }
@@ -57,13 +70,16 @@ export function ProfileEditor() {
                 onCloseEditor={handleCloseEditor}
               />
             )}
-            {activeSection === 'project' && (
-              <ProjectEdit
-                profile={profile!}
-                triggerSyncIndicator={triggerSyncIndicator}
-                onCloseEditor={handleCloseEditor}
-              />
-            )}
+            {activeSection === 'project' &&
+              (projectSectionViewMode === 'view' ? (
+                <ProjectView onAddProject={() => setProjectView('form')} />
+              ) : (
+                <ProjectEdit
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  onDoneEditing={() => setProjectView('view')}
+                />
+              ))}
           </>
         </div>
       }
