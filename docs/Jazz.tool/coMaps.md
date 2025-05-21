@@ -2,21 +2,23 @@ CoMaps are key-value objects that work like JavaScript objects. You can access p
 
 ## [](https://jazz.tools/docs/react/using-covalues/comaps#creating-comaps)Creating CoMaps
 
-CoMaps are typically defined by extending the `CoMap` class and specifying primitive fields using the `co` declarer (see [Defining schemas: CoValues](https://jazz.tools/docs/react/schemas/covalues) for more details on primitive fields):
+CoMaps are typically defined with `co.map()` and specifying primitive fields using `z` (see [Defining schemas: CoValues](https://jazz.tools/docs/react/schemas/covalues) for more details on primitive fields):
 
 ```
-class Project extends CoMap {
-  name = co.string;
-  startDate = co.Date;
-  status = co.literal("planning", "active", "completed");
-  coordinator = co.optional.ref(Member);
-}
+import { co, z } from "jazz-tools";
+
+const Project = co.map({
+  name: z.string(),
+  startDate: z.date(),
+  status: z.literal(["planning", "active", "completed"]),
+  coordinator: z.optional(Member),
+});
 ```
 
 You can create either struct-like CoMaps with fixed fields (as above) or record-like CoMaps for key-value pairs:
 
 ```
-class Inventory extends CoMap.Record(co.number) {}
+const Inventory = co.record(z.string(), z.number());
 ```
 
 To instantiate a CoMap:
@@ -86,7 +88,7 @@ if (project.coordinator) {
 For record-type CoMaps, you can access values using bracket notation:
 
 ```
-<div><pre tabindex="0"><code><span><span>const</span><span> inventory</span><span> =</span><span> Inventory</span><spanconst inventory = Inventory.create({
+const inventory = Inventory.create({
   tomatoes: 48,
   peppers: 24,
   basil: 12
@@ -110,7 +112,7 @@ CoMaps are fully typed in TypeScript, giving you autocomplete and error checking
 
 ```
 project.name = "Spring Vegetable Planting";  // ✓ Valid string
-project.startDate = "2025-03-15";  // ✗ Type error: expected Date
+project.startDate = "2025-03-15"; // ✗ Type error: expected DateType 'string' is not assignable to type 'Date'.
 ```
 
 ### [](https://jazz.tools/docs/react/using-covalues/comaps#deleting-properties)Deleting Properties
@@ -121,7 +123,7 @@ You can delete properties from CoMaps:
 delete inventory["basil"];  // Remove a key-value pair
 
 // For optional fields in struct-like CoMaps
-project.coordinator = null;  // Remove the reference
+project.coordinator = undefined;  // Remove the reference
 ```
 
 ## [](https://jazz.tools/docs/react/using-covalues/comaps#best-practices)Best Practices
@@ -134,38 +136,44 @@ project.coordinator = null;  // Remove the reference
 
 ### [](https://jazz.tools/docs/react/using-covalues/comaps#common-patterns)Common Patterns
 
-#### [](https://jazz.tools/docs/react/using-covalues/comaps#using-computed-properties)Using Computed Properties
+#### [](https://jazz.tools/docs/react/using-covalues/comaps#helper-methods)Helper methods
 
-CoMaps support computed properties and methods:
+You can add helper methods to your CoMap schema to make it more useful:
 
 ```
-class ComputedProject extends CoMap {
-  name = co.string;
-  startDate = co.Date;
-  endDate = co.optional.Date;
+import { co, z, Loaded } from "jazz-tools";
 
-  get isActive() {
+const Project = co.map({
+  name: z.string(),
+  startDate: z.date(),
+  endDate: z.optional(z.date()),
+}).withHelpers((Self) => ({
+  isActive(project: Loaded<typeof Self>) {
     const now = new Date();
-    return now >= this.startDate && (!this.endDate || now <= this.endDate);
-  }
+    return now >= project.startDate && (!project.endDate || now <= project.endDate);
+  },
 
-  formatDuration(format: "short" | "full") {
-    const start = this.startDate.toLocaleDateString();
-    if (!this.endDate) {
+  formatDuration(project: Loaded<typeof Self>, format: "short" | "full") {
+    const start = project.startDate.toLocaleDateString();
+    if (!project.endDate) {
       return format === "full"
         ? `Started on ${start}, ongoing`
         : `From ${start}`;
     }
 
-    const end = this.endDate.toLocaleDateString();
+    const end = project.endDate.toLocaleDateString();
     return format === "full"
       ? `From ${start} to ${end}`
-      : `${(this.endDate.getTime() - this.startDate.getTime()) / 86400000} days`;
+      : `${(project.endDate.getTime() - project.startDate.getTime()) / 86400000} days`;
   }
-}
+}));
 
-// ...
+const project = Project.create({
+  name: "My project",
+  startDate: new Date("2025-04-01"),
+  endDate: new Date("2025-04-04"),
+});
 
-console.log(computedProject.isActive); // false
-console.log(computedProject.formatDuration("short")); // "3 days"
+console.log(Project.isActive(project)); // false
+console.log(Project.formatDuration(project, "short")); // "3 days"
 ```

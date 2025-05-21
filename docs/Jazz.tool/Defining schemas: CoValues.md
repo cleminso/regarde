@@ -6,7 +6,7 @@ As their name suggests, CoValues are inherently collaborative, meaning **multipl
 
 - CoValues keep their full edit histories, from which they derive their "current state".
 - The fact that this happens in an eventually-consistent way makes them [CRDTs](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type).
-- Having the full history also means that you often don't need explicit timestamps and author info - you get this for free as part of a CoValue's [edit metadata](https://jazz.tools/docs/react/using-covalues/metadata).
+- Having the full history also means that you often don't need explicit timestamps and author info - you get this for free as part of a CoValue's [edit metadata](https://jazz.tools/docs/react/using-covalues/history).
 
 CoValues model JSON with CoMaps and CoLists, but also offer CoFeeds for simple per-user value feeds, and let you represent binary data with FileStreams.
 
@@ -23,28 +23,35 @@ Thinking about the shape of your data is also a great first step to model your a
 
 Even before you know the details of how your app will work, you'll probably know which kinds of objects it will deal with, and how they relate to each other.
 
-Jazz makes it quick to declare schemas, since they are simple TypeScript classes:
+In Jazz, you define schemas using `co` for CoValues and `z` (from [Zod](https://zod.dev/)) for their primitive fields.
 
 ```
-export class TodoProject extends CoMap {
-    title = co.string;
-    tasks = co.ref(ListOfTasks);
-}
+// schema.ts
+import { co, z } from "jazz-tools";
+
+const ListOfTasks = co.list(z.string());
+
+export const TodoProject = co.map({
+  title: z.string(),
+  tasks: ListOfTasks,
+});
 ```
 
-Here you can see how we extend a CoValue type and use `co` for declaring (collaboratively) editable fields. This means that schema info is available for type inference _and_ at runtime.
+This gives us schema info that is available for type inference _and_ at runtime.
 
-Classes might look old-fashioned, but Jazz makes use of them being both types and values in TypeScript, letting you refer to either with a single definition and import.
+Check out the inferred type of `project` in the example below, as well as the input `.create()` expects.
 
 ```
+// app.ts
+import { Group } from "jazz-tools";
 import { TodoProject, ListOfTasks } from "./schema";
 
-const project: TodoProject = TodoProject.create(
-    {
-        title: "New Project",
-        tasks: ListOfTasks.create([], Group.create()),
-    },
-    Group.create()
+const project = TodoProject.create(
+  {
+    title: "New Project",
+    tasks: ListOfTasks.create([], Group.create()),
+  },
+  Group.create()
 );
 ```
 
@@ -52,27 +59,26 @@ const project: TodoProject = TodoProject.create(
 
 ### [](https://jazz.tools/docs/react/schemas/covalues#comap-declaration)`CoMap` (declaration)
 
-CoMaps are the most commonly used type of CoValue. They are the equivalent of JSON objects. (Collaborative editing follows a last-write-wins strategy per-key.)
+CoMaps are the most commonly used type of CoValue. They are the equivalent of JSON objects (Collaborative editing follows a last-write-wins strategy per-key).
 
 You can either declare struct-like CoMaps:
 
 ```
-class Person extends CoMap {
-    name = co.string;
-    age = co.number;
-    pet = co.optional.ref(Pet);
-}
+const Task = co.map({
+  title: z.string(),
+  completed: z.boolean(),
+});
 ```
 
 Or record-like CoMaps (key-value pairs, where keys are always `string`):
 
 ```
-class ColorToHex extends CoMap.Record(co.string) {}
+const ColorToHex = co.record(z.string(), z.string());
 
-class ColorToFruit extends CoMap.Record(co.ref(Fruit)) {}
+const ColorToFruit = co.record(z.string(), Fruit);
 ```
 
-See the corresponding sections for [creating](https://jazz.tools/docs/react/using-covalues/creation#comap-creation), [subscribing/loading](https://jazz.tools/docs/react/using-covalues/subscription-and-loading), [reading from](https://jazz.tools/docs/react/using-covalues/reading#comap-reading) and [writing to](https://jazz.tools/docs/react/using-covalues/writing#comap-writing) CoMaps.
+See the corresponding sections for [creating](https://jazz.tools/docs/react/using-covalues/comaps#creating-comaps), [subscribing/loading](https://jazz.tools/docs/react/using-covalues/subscription-and-loading), [reading from](https://jazz.tools/docs/react/using-covalues/comaps#reading-from-comaps) and [updating](https://jazz.tools/docs/react/using-covalues/comaps#updating-comaps) CoMaps.
 
 ### [](https://jazz.tools/docs/react/schemas/covalues#colist-declaration)`CoList` (declaration)
 
@@ -81,80 +87,66 @@ CoLists are ordered lists and are the equivalent of JSON arrays. (They support c
 You define them by specifying the type of the items they contain:
 
 ```
-class ListOfColors extends CoList.Of(co.string) {}
-
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
+const ListOfColors = co.list(z.string());
+const ListOfTasks = co.list(Task);
 ```
 
-See the corresponding sections for [creating](https://jazz.tools/docs/react/using-covalues/creation#colist-creation), [subscribing/loading](https://jazz.tools/docs/react/using-covalues/subscription-and-loading), [reading from](https://jazz.tools/docs/react/using-covalues/reading#colist-reading) and [writing to](https://jazz.tools/docs/react/using-covalues/writing#colist-writing) CoLists.
+See the corresponding sections for [creating](https://jazz.tools/docs/react/using-covalues/colists#creating-colists), [subscribing/loading](https://jazz.tools/docs/react/using-covalues/subscription-and-loading), [reading from](https://jazz.tools/docs/react/using-covalues/colists#reading-from-colists) and [updating](https://jazz.tools/docs/react/using-covalues/colists#updating-colists) CoLists.
 
 ### [](https://jazz.tools/docs/react/schemas/covalues#cofeed-declaration)`CoFeed` (declaration)
 
-CoFeeds are a special CoValue type that represent a feed of values for a set of users / sessions. (Each session of a user gets its own append-only feed.)
+CoFeeds are a special CoValue type that represent a feed of values for a set of users/sessions (Each session of a user gets its own append-only feed).
 
 They allow easy access of the latest or all items belonging to a user or their sessions. This makes them particularly useful for user presence, reactions, notifications, etc.
 
 You define them by specifying the type of feed item:
 
 ```
-class FeedOfTasks extends CoFeed.Of(co.ref(Task)) {}
+const FeedOfTasks = co.feed(Task);
 ```
 
-See the corresponding sections for [creating](https://jazz.tools/docs/react/using-covalues/creation#cofeed-creation), [subscribing/loading](https://jazz.tools/docs/react/using-covalues/subscription-and-loading), [reading from](https://jazz.tools/docs/react/using-covalues/reading#cofeed-reading) and [writing to](https://jazz.tools/docs/react/using-covalues/writing#cofeed-writing) CoFeeds.
+See the corresponding sections for [creating](https://jazz.tools/docs/react/using-covalues/cofeeds#creating-cofeeds), [subscribing/loading](https://jazz.tools/docs/react/using-covalues/subscription-and-loading), [reading from](https://jazz.tools/docs/react/using-covalues/cofeeds#reading-from-cofeeds) and [writing to](https://jazz.tools/docs/react/using-covalues/cofeeds#writing-to-cofeeds) CoFeeds.
 
 ### [](https://jazz.tools/docs/react/schemas/covalues#filestream-declaration)`FileStream` (declaration)
 
 FileStreams are a special type of CoValue that represent binary data. (They are created by a single user and offer no internal collaboration.)
 
-They allow you to upload and reference files, images, etc.
+They allow you to upload and reference files.
 
-You typically don't need to declare or extend them yourself, you simply refer to the built-in `FileStream` from another CoValue:
-
-```
-import { FileStream } from "jazz-tools";
-
-class UserProfile extends CoMap {
-    name = co.string;
-    avatar = co.ref(FileStream);
-}
-```
-
-See the corresponding sections for [creating](https://jazz.tools/docs/react/using-covalues/creation#filestream-creation), [subscribing/loading](https://jazz.tools/docs/react/using-covalues/subscription-and-loading), [reading from](https://jazz.tools/docs/react/using-covalues/reading#filestream-reading) and [writing to](https://jazz.tools/docs/react/using-covalues/writing#filestream-writing) FileStreams.
-
-### [](https://jazz.tools/docs/react/schemas/covalues#schemaunion-declaration)`SchemaUnion` (declaration)
-
-SchemaUnion is a helper type that allows you to load and refer to multiple subclasses of a CoMap schema, distinguished by a discriminating field.
-
-You declare them with a base class type and discriminating lambda, in which you have access to the `RawCoMap`, on which you can call `get` with the field name to get the discriminating value.
+You typically don't need to declare or extend them yourself, you simply refer to the built-in `co.fileStream()` from another CoValue:
 
 ```
-import { SchemaUnion, CoMap } from "jazz-tools";
-
-class BaseWidget extends CoMap {
-  type = co.string;
-}
-
-class ButtonWidget extends BaseWidget {
-  type = co.literal("button");
-  label = co.string;
-}
-
-class SliderWidget extends BaseWidget {
-  type = co.literal("slider");
-  min = co.number;
-  max = co.number;
-}
-
-const WidgetUnion = SchemaUnion.Of<BaseWidget>((raw) => {
-  switch (raw.get("type")) {
-    case "button": return ButtonWidget;
-    case "slider": return SliderWidget;
-    default: throw new Error("Unknown widget type");
-  }
+const Document = co.map({
+  title: z.string(),
+  file: co.fileStream(),
 });
 ```
 
-See the corresponding sections for [creating](https://jazz.tools/docs/react/using-covalues/creation#schemaunion-creation), [subscribing/loading](https://jazz.tools/docs/react/using-covalues/subscription-and-loading) and [narrowing](https://jazz.tools/docs/react/using-covalues/reading#schemaunion-narrowing) SchemaUnions.
+See the corresponding sections for [creating](https://jazz.tools/docs/react/using-covalues/filestreams#creating-filestreams), [subscribing/loading](https://jazz.tools/docs/react/using-covalues/subscription-and-loading), [reading from](https://jazz.tools/docs/react/using-covalues/filestreams#reading-from-filestreams) and [writing to](https://jazz.tools/docs/react/using-covalues/filestreams#writing-to-filestreams) FileStreams.
+
+**Note: For images, we have a special, higher-level `co.image()` helper, see [ImageDefinition](https://jazz.tools/docs/react/using-covalues/imagedef).**
+
+### [](https://jazz.tools/docs/react/schemas/covalues#unions-of-comaps-declaration)Unions of CoMaps (declaration)
+
+You can declare unions of CoMaps that have discriminating fields, using `z.discriminatedUnion()`.
+
+```
+
+const ButtonWidget = co.map({
+  type: z.literal("button"),
+  label: z.string(),
+});
+
+const SliderWidget = co.map({
+  type: z.literal("slider"),
+  min: z.number(),
+  max: z.number(),
+});
+
+const WidgetUnion = z.discriminatedUnion([ButtonWidget, SliderWidget]);
+```
+
+See the corresponding sections for [creating](https://jazz.tools/docs/react/using-covalues/schemaunions#creating-schemaunions), [subscribing/loading](https://jazz.tools/docs/react/using-covalues/subscription-and-loading) and [narrowing](https://jazz.tools/docs/react/using-covalues/schemaunions#narrowing) SchemaUnions.
 
 ## [](https://jazz.tools/docs/react/schemas/covalues#covalue-fielditem-types)CoValue field/item types
 
@@ -162,38 +154,50 @@ Now that we've seen the different types of CoValues, let's see more precisely ho
 
 ### [](https://jazz.tools/docs/react/schemas/covalues#primitive-fields)Primitive fields
 
-You can declare primitive field types using the `co` declarer:
+You can declare primitive field types using `z` (re-exported in `jazz-tools` from [Zod](https://zod.dev/)):
 
 ```
-import { co } from "jazz-tools";
+import { co, z } from "jazz-tools";
 
-export class Person extends CoMap {
-    title = co.string;
-}
+const Person = co.map({
+  title: z.string(),
+})
 
-export class ListOfColors extends CoList.Of(co.string) {}
+export const ListOfColors = co.list(z.string());
 ```
 
 Here's a quick overview of the primitive types you can use:
 
 ```
-co.string;
-co.number;
-co.boolean;
-co.null;
-co.Date;
-co.literal("waiting", "ready");
+z.string();  // For simple strings
+z.number();  // For numbers
+z.boolean(); // For booleans
+z.null();    // For null
+z.date();    // For dates
+z.literal(["waiting", "ready"]); // For enums
 ```
 
-Finally, for more complex JSON data, that you _don't want to be collaborative internally_ (but only ever update as a whole), you can use `co.json<T>()`:
+Finally, for more complex JSON data, that you _don't want to be collaborative internally_ (but only ever update as a whole), you can use more complex Zod types.
+
+For example, you can use `z.object()` to represent an internally immutable position:
 
 ```
-co.json<{ name: string }>();
+const Sprite = co.map({
+  // assigned as a whole
+  position: z.object({ x: z.number(), y: z.number() }),
+});
 ```
 
-For more detail, see the API Reference for the [`co` field declarer](https://jazz.tools/api-reference/jazz-tools#co).
+Or you could use a `z.tuple()`:
 
-### [](https://jazz.tools/docs/react/schemas/covalues#refs-to-other-covalues)Refs to other CoValues
+```
+const Sprite = co.map({
+  // assigned as a whole
+  position: z.tuple([z.number(), z.number()]),
+});
+```
+
+### [](https://jazz.tools/docs/react/schemas/covalues#references-to-other-covalues)References to other CoValues
 
 To represent complex structured data with Jazz, you form trees or graphs of CoValues that reference each other.
 
@@ -201,42 +205,97 @@ Internally, this is represented by storing the IDs of the referenced CoValues in
 
 The important caveat here is that **a referenced CoValue might or might not be loaded yet,** but we'll see what exactly that means in [Subscribing and Deep Loading](https://jazz.tools/docs/react/using-covalues/subscription-and-loading).
 
-In Schemas, you declare Refs using the `co.ref<T>()` declarer:
+In Schemas, you declare references by just using the schema of the referenced CoValue:
 
 ```
-class Company extends CoMap {
-    members = co.ref(ListOfPeople);
-}
+// schema.ts
+const Person = co.map({
+  name: z.string(),
+});
 
-class ListOfPeople extends CoList.Of(co.ref(Person)) {}
+const ListOfPeople = co.list(Person);
+
+const Company = co.map({
+  members: ListOfPeople,
+});
 ```
 
-#### [](https://jazz.tools/docs/react/schemas/covalues#optional-refs)Optional Refs
+#### [](https://jazz.tools/docs/react/schemas/covalues#optional-references)Optional References
 
-⚠️ If you want to make a referenced CoValue field optional, you _have to_ use `co.optional.ref<T>()`: ⚠️
-
-```
-class Person extends CoMap {
-    pet = co.optional.ref(Pet);
-}
-```
-
-### [](https://jazz.tools/docs/react/schemas/covalues#computed-fields--methods)Computed fields & methods
-
-Since CoValue schemas are based on classes, you can easily add computed fields and methods:
+You can make references optional with `z.optional()`:
 
 ```
-class Person extends CoMap {
-    firstName = co.string;
-    lastName = co.string;
-    dateOfBirth = co.Date;
+const Person = co.map({
+  pet: z.optional(Pet),
+});
+```
 
-    get name() {
-        return `${this.firstName} ${this.lastName}`;
-    }
+#### [](https://jazz.tools/docs/react/schemas/covalues#recursive-references)Recursive References
 
-    ageAsOf(date: Date) {
-        return differenceInYears(date, this.dateOfBirth);
-    }
-}
+You can refer to the same schema from within itself using getters:
+
+```
+const Person = co.map({
+  name: z.string(),
+  get bestFriend() {
+    return Person;
+  }
+});
+```
+
+You can use the same technique for mutually recursive references, but you'll need to help TypeScript along:
+
+```
+import { co, z, CoListSchema } from "jazz-tools";
+
+const Person = co.map({
+  name: z.string(),
+  get friends(): CoListSchema<typeof Person> {
+    return ListOfPeople;
+  }
+});
+
+const ListOfPeople = co.list(Person);
+```
+
+Note: similarly, if you use modifiers like `z.optional()` you'll need to help TypeScript along:
+
+```
+const Person = co.map({
+  name: z.string(),
+  get bestFriend(): z.ZodOptional<typeof Person> {
+    return z.optional(Person);
+  }
+});
+```
+
+### [](https://jazz.tools/docs/react/schemas/covalues#helper-methods)Helper methods
+
+You can use the `withHelpers` method on CoValue schemas to add helper functions to the schema itself.
+
+These typically take a parameter of a loaded CoValue of the schema.
+
+```
+const Person = co.map({
+  firstName: z.string(),
+  lastName: z.string(),
+  dateOfBirth: z.date(),
+}).withHelpers((Self) => ({
+  fullName(person: Loaded<typeof Self>) {
+    return `${person.firstName} ${person.lastName}`;
+  },
+
+  ageAsOf(person: Loaded<typeof Self>, date: Date) {
+    return differenceInYears(date, person.dateOfBirth);
+  }
+}));
+
+const person = Person.create({
+  firstName: "John",
+  lastName: "Doe",
+  dateOfBirth: new Date("1990-01-01"),
+});
+
+const fullName = Person.fullName(person);
+const age = Person.ageAsOf(person, new Date());
 ```

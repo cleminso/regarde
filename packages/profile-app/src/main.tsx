@@ -1,5 +1,6 @@
 import { JazzInspector } from 'jazz-inspector';
 import { JazzProvider } from 'jazz-react';
+import { InstanceOfSchema } from 'jazz-tools';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
@@ -21,7 +22,7 @@ export const APPLICATION_NAME = 'Jazz Profile';
 
 declare module 'jazz-react' {
   export interface Register {
-    Account: OnboardingAccount;
+    Account: InstanceOfSchema<typeof OnboardingAccount>;
   }
 }
 

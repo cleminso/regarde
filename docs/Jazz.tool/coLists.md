@@ -5,19 +5,21 @@ CoLists are ordered collections that work like JavaScript arrays. They provide i
 CoLists are defined by specifying the type of items they contain:
 
 ```
-class ListOfResources extends CoList.Of(co.string) {}
+import { co, z } from "jazz-tools";
 
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
+const ListOfResources = co.list(z.string());
+
+const ListOfTasks = co.list(Task);
 ```
 
 To create a `CoList`:
 
 ```
 // Create an empty list
-const resources = ListOfResources.create([]);
+const resources = co.list(z.string()).create([]);
 
 // Create a list with initial items
-const tasks = ListOfTasks.create([
+const tasks = co.list(Task).create([
   Task.create({ title: "Prepare soil beds", status: "in-progress" }),
   Task.create({ title: "Order compost", status: "todo" })
 ]);
@@ -32,7 +34,7 @@ Like other CoValues, you can specify ownership when creating CoLists.
 const teamGroup = Group.create();
 teamGroup.addMember(colleagueAccount, "writer");
 
-const teamList = ListOfTasks.create([], { owner: teamGroup });
+const teamList = co.list(Task).create([], { owner: teamGroup });
 ```
 
 See [Groups as permission scopes](https://jazz.tools/docs/react/groups/intro) for more information on how to use groups to control access to CoLists.
@@ -143,8 +145,11 @@ tasks.forEach(task => {
 CoLists work well with UI rendering libraries:
 
 ```
+import { co, z, Loaded } from "jazz-tools";
+const ListOfTasks = co.list(Task);
+
 // React example
-function TaskList({ tasks }) {
+function TaskList({ tasks: Loaded<typeof ListOfTasks> }) {
   return (
     <ul>
       {tasks.map(task => (
@@ -162,10 +167,12 @@ function TaskList({ tasks }) {
 CoLists can be used to create one-to-many relationships:
 
 ```
-class Project extends CoMap {
-  name = co.string;
-  tasks = co.ref(ListOfTasks);
-}
+import { co, z } from "jazz-tools";
+
+const Project = co.map({
+  name: z.string(),
+  tasks: co.list(Task),
+});
 
 // ...
 

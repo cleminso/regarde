@@ -13,14 +13,14 @@ CoFeeds are defined by specifying the type of items they'll contain, similar to 
 
 ```
 // Define a schema for feed items
-class Activity extends CoMap {
-  timestamp = co.Date;
-  action = co.literal("watering", "planting", "harvesting", "maintenance");
-  notes = co.optional.string;
-}
+const Activity = co.map({
+  timestamp: z.date(),
+  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
+  notes: z.optional(z.string()),
+});
 
 // Define a feed of garden activities
-class ActivityFeed extends CoFeed.Of(co.ref(Activity)) {}
+const ActivityFeed = co.feed(Activity);
 
 // Create a feed instance
 const activityFeed = ActivityFeed.create([]);
@@ -67,11 +67,11 @@ console.log(currentSessionFeed.value.action); // "harvesting"
 
 ### [](https://jazz.tools/docs/react/using-covalues/cofeeds#per-account-access)Per-Account Access
 
-To retrieve entries from a specific account you can use bracket notation with the account ID:
+To retrieve entries from a specific account (with entries from all sessions combined) use `perAccount`:
 
 ```
 // Get the feed for a specific account
-const accountFeed = activityFeed[accountId];
+const accountFeed = activityFeed.perAccount[accountId];
 
 // Latest entry from the account
 console.log(accountFeed.value.action); // "watering"
@@ -95,7 +95,7 @@ To retrieve all entries from a CoFeed:
 
 ```
 // Get the feeds for a specific account and session
-const accountFeed = activityFeed[accountId];
+const accountFeed = activityFeed.perAccount[accountId];
 const sessionFeed = activityFeed.perSession[sessionId];
 
 // Iterate over all entries from the account
@@ -121,7 +121,7 @@ console.log(`My last action was ${latestEntry.value.action}`);
   // "My last action was harvesting"
 
 // Get the latest entry from each account
-const latestEntriesByAccount = Object.values(activityFeed).map(entry => ({
+const latestEntriesByAccount = Object.values(activityFeed.perAccount).map(entry => ({
   accountName: entry.by?.profile?.name,
   value: entry.value,
 }));
@@ -164,6 +164,7 @@ fromBrowserFeed.push(Activity.create({
 }));
 
 // These are separate entries in the same feed, from the same account
+
 ```
 
 ## [](https://jazz.tools/docs/react/using-covalues/cofeeds#metadata)Metadata
@@ -175,10 +176,10 @@ CoFeeds support metadata, which is useful for tracking information about the fee
 The `by` property is the account that made the entry.
 
 ```
-const accountFeed = activityFeed[accountId];
-
-// Get the account that made the last entry
-console.log(accountFeed?.by);
+<div><pre tabindex="0"><code><span><span>const</span><span> accountFeed</span><span> =</span><span> activityFeed</span><span>.perAccount[accountId];</span></span>
+<span></span>
+<span><span>// Get the account that made the last entry</span></span>
+<span><span>console</span><span>.log</span><span>(</span><span>accountFeed</span><span>?.by);</span></span></code></pre></div>
 ```
 
 ### [](https://jazz.tools/docs/react/using-covalues/cofeeds#madeat)MadeAt
@@ -186,7 +187,7 @@ console.log(accountFeed?.by);
 The `madeAt` property is a timestamp of when the entry was added to the feed.
 
 ```
-const accountFeed = activityFeed[accountId];
+const accountFeed = activityFeed.perAccount[accountId];
 
 // Get the timestamp of the last update
 console.log(accountFeed?.madeAt);

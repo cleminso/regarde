@@ -11,17 +11,17 @@ You can subscribe to a CoValue from anywhere in your code (if you have its ID) b
 **Note:** Unless you're using vanilla JavaScript, this is only used outside of React components - for example in server-side code or in tests. See the section below for convenient subscription _hooks_ that you typically use in React.
 
 ```
-class Task extends CoMap {
-  title = co.string;
-  description = co.string;
-  status = co.literal("todo", "in-progress", "completed");
-  assignedTo = co.optional.string;
-}
+const Task = co.map({
+  title: z.string(),
+  description: z.string(),
+  status: z.literal(["todo", "in-progress", "completed"]),
+  assignedTo: z.optional(z.string()),
+});
 
 // ...
 
 // Subscribe to a Task by ID
-const unsubscribe = Task.subscribe(taskId, (updatedTask) => {
+const unsubscribe = Task.subscribe(taskId, {}, (updatedTask) => {
   console.log("Task updated:", updatedTask.title);
   console.log("New status:", updatedTask.status);
 });
@@ -55,7 +55,7 @@ Jazz provides a `useCoState` hook that provides a convenient way to subscribe to
 ```
 import { useCoState } from "jazz-react";
 
-function GardenPlanner({ projectId }: { projectId: ID<Project> }) {
+function GardenPlanner({ projectId }: { projectId: string }) {
   // Subscribe to a project and its tasks
   const project = useCoState(Project, projectId, {
     resolve: {
@@ -77,7 +77,7 @@ function GardenPlanner({ projectId }: { projectId: ID<Project> }) {
   );
 }
 
-function TaskList({ tasks }: { tasks: Task[] }) {
+function TaskList({ tasks }: { tasks: Loaded<typeof Task>[] }) {
   return (
     <ul>
       {tasks.map((task) => (
@@ -103,15 +103,15 @@ Like `useCoState`, you can specify a resolve query to also subscribe to CoValues
 import { useAccount } from "jazz-react";
 
 function ProjectList() {
-  const { me } = useAccount({
+  const { me } = useAccount(MyAppAccount, {
     resolve: {
       profile: true,
       root: {
         myProjects: {
           $each: {
-            tasks: true
-          }
-        }
+            tasks: true,
+          },
+        },
       },
     },
   });
@@ -120,17 +120,20 @@ function ProjectList() {
     return <div>Loading...</div>;
   }
 
-  return <div>
-    <h1>{me.profile.name}'s projects</h1>
-    <ul>
-      {me.root.myProjects.map(project => (
-        <li key={project.id}>
-          {project.name} ({project.tasks.length} tasks)
-        </li>
-      ))}
-    </ul>
-  </div>
+  return (
+    <div>
+      <h1>{me.profile.name}'s projects</h1>
+      <ul>
+        {me.root.myProjects.map((project) => (
+          <li key={project.id}>
+            {project.name} ({project.tasks.length} tasks)
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
+
 ```
 
 ## [](https://jazz.tools/docs/react/using-covalues/subscription-and-loading#loading-states-and-permission-checking)Loading States and Permission Checking
@@ -144,7 +147,7 @@ When subscribing to or loading a CoValue, you need to handle three possible stat
 This allows you to handle loading, error, and success states in your application:
 
 ```
-Task.subscribe(taskId, (task) => {
+Task.subscribe(taskId, {}, (task: Loaded<typeof Task>) => {
   if (task === undefined) {
     console.log("Task is loading...");
   } else if (task === null) {
@@ -164,23 +167,21 @@ When working with related CoValues (like tasks in a project), you often need to 
 Resolve queries let you declare exactly which references to load and how deep to go using the `resolve` property:
 
 ```
-class Project extends CoMap {
-  name = co.string;
-  tasks = co.ref(ListOfTasks);
-  owner = co.ref(TeamMember);
-}
+const TeamMember = co.map({
+  name: z.string(),
+});
 
-class Task extends CoMap {
-  title = co.string;
-  subtasks = co.ref(ListOfTasks);
-  assignee = co.optional.ref(TeamMember);
-}
+const Task = co.map({
+  title: z.string(),
+  assignee: z.optional(TeamMember),
+  get subtasks(): CoListSchema<typeof Task> { return co.list(Task) },
+});
 
-class TeamMember extends CoMap {
-  name = co.string;
-}
-
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
+const Project = co.map({
+  name: z.string(),
+  tasks: co.list(Task),
+  owner: TeamMember,
+});
 
 // Load just the project, not its references
 const project = await Project.load(projectId);
@@ -304,24 +305,96 @@ project?.owner // => always null
 
 The load operation will succeed and return the object, but the inaccessible reference will always be `null`.
 
-## [](https://jazz.tools/docs/react/using-covalues/subscription-and-loading#type-safety-with-resolved-type)Type Safety with Resolved Type
+#### [](https://jazz.tools/docs/react/using-covalues/subscription-and-loading#deep-loading-lists-with-shared-items)Deep loading lists with shared items
 
-Jazz provides the `Resolved` type to help you define and enforce the structure of deeply loaded data in your application. This makes it easier to ensure that components receive the data they expect with proper TypeScript validation.
+When loading a list with shared items, you can use the `$onError` option to safely load the list skipping any inaccessible items.
 
-The `Resolved` type is especially useful when passing data between components, as it guarantees that all necessary nested data has been loaded:
+This is especially useful when in your app access to these items might be revoked.
+
+This way the inaccessible items are replaced with `null` in the returned list.
 
 ```
-// Define a type that includes resolved nested data
-type ProjectWithTasks = Resolved<Project, {
-  tasks: { $each: true }
-}>;
+const source = co.list(Person).create(
+  [
+    Person.create(
+      {
+        name: "Jane",
+      },
+      privateGroup, // We don't have access to Jane
+    ),
+    Person.create(
+      {
+        name: "Alice",
+      },
+      publicGroup, // We have access to Alice
+    ),
+  ],
+  publicGroup,
+);
 
-// Component that expects a fully resolved project
+const friends = await co.list(Person).load(source.id, {
+  resolve: {
+    $each: { $onError: null }
+  },
+  loadAs: me,
+});
+
+// Thanks to $onError catching the errors, the list is loaded
+// because we have access to friends
+console.log(friends); // Person[]
+
+// Jane is null because we lack access rights
+// and we have used $onError to catch the error on the list items
+console.log(friends?.[0]); // null
+
+// Alice is not null because we have access
+// the type is nullable because we have used $onError
+console.log(friends?.[1]); // Person
+```
+
+The `$onError` works as a "catch" clause option to block any error in the resolved children.
+
+```
+const friends = await co.list(Person).load(source.id, {
+  resolve: {
+    $each: { dog: { $onError: null } }
+  },
+  loadAs: me,
+});
+
+// Jane now is not-nullable at type level because
+// we have moved $onError down to the dog field
+//
+// This also means that if we don't have access to Jane
+// the entire friends list will be null
+console.log(friends?.[0]); // => Person
+
+// Jane's dog is null because we don't have access to Rex
+// and we have used $onError to catch the error
+console.log(friends?.[0]?.dog); // => null
+```
+
+## [](https://jazz.tools/docs/react/using-covalues/subscription-and-loading#type-safety-with-loaded-type)Type Safety with Loaded Type
+
+Jazz provides the `Loaded` type to help you define and enforce the structure of deeply loaded data in your application. This makes it easier to ensure that components receive the data they expect with proper TypeScript validation.
+
+The `Loaded` type is especially useful when passing data between components, as it guarantees that all necessary nested data has been loaded:
+
+```
+// Define a type that includes loaded nested data
+type ProjectWithTasks = Loaded<
+  typeof Project,
+  {
+    tasks: { $each: true };
+  }
+>;
+
+// Component that expects a fully loaded project
 function TaskList({ project }: { project: ProjectWithTasks }) {
   // TypeScript knows tasks are loaded, so this is type-safe
   return (
     <ul>
-      {project.tasks.map(task => (
+      {project.tasks.map((task) => (
         <li key={task.id}>{task.title}</li>
       ))}
     </ul>
@@ -329,36 +402,39 @@ function TaskList({ project }: { project: ProjectWithTasks }) {
 }
 
 // For more complex resolutions
-type FullyLoadedProject = Resolved<Project, {
-  tasks: {
-    $each: {
-      subtasks: true,
-      assignee: true
-    }
-  },
-  owner: true
-}>;
+type FullyLoadedProject = Loaded<
+  typeof Project,
+  {
+    tasks: {
+      $each: {
+        subtasks: true;
+        assignee: true;
+      };
+    };
+    owner: true;
+  }
+>;
 
-// Function that requires deeply resolved data
+// Function that requires deeply loaded data
 function processProject(project: FullyLoadedProject) {
-  // Safe access to all resolved properties
+  // Safe access to all loaded properties
   console.log(`Project ${project.name} owned by ${project.owner.name}`);
 
-  project.tasks.forEach(task => {
+  project.tasks.forEach((task) => {
     console.log(`Task: ${task.title}, Assigned to: ${task.assignee?.name}`);
     console.log(`Subtasks: ${task.subtasks.length}`);
   });
 }
 ```
 
-Using the `Resolved` type helps catch errors at compile time rather than runtime, ensuring that your components and functions receive data with the proper resolution depth. This is especially useful for larger applications where data is passed between many components.
+Using the `Loaded` type helps catch errors at compile time rather than runtime, ensuring that your components and functions receive data with the proper resolution depth. This is especially useful for larger applications where data is passed between many components.
 
 ## [](https://jazz.tools/docs/react/using-covalues/subscription-and-loading#ensuring-data-is-loaded)Ensuring Data is Loaded
 
 Sometimes you need to make sure data is loaded before proceeding with an operation. The `ensureLoaded` method lets you guarantee that a CoValue and its referenced data are loaded to a specific depth:
 
 ```
-async function completeAllTasks(projectId: ID<Project>) {
+async function completeAllTasks(projectId: string) {
   // Ensure the project is loaded
   const project = await Project.load(projectId, { resolve: true });
   if (!project) return;
@@ -367,13 +443,13 @@ async function completeAllTasks(projectId: ID<Project>) {
   const loadedProject = await project.ensureLoaded({
     resolve: {
       tasks: {
-        $each: true
-      }
-    }
+        $each: true,
+      },
+    },
   });
 
   // Now we can safely access and modify tasks
-  loadedProject.tasks.forEach(task => {
+  loadedProject.tasks.forEach((task) => {
     task.status = "completed";
   });
 }
@@ -385,4 +461,4 @@ async function completeAllTasks(projectId: ID<Project>) {
 2.  **Use framework integrations**: They handle subscription lifecycle automatically
 3.  **Clean up subscriptions**: Always store and call the unsubscribe function when you're done
 4.  **Handle all loading states**: Check for undefined (loading), null (not found), and success states
-5.  **Use the Resolved type**: Add compile-time type safety for components that require specific resolution patterns
+5.  **Use the Loaded type**: Add compile-time type safety for components that require specific resolution patterns
