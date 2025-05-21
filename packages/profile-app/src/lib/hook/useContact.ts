@@ -1,9 +1,17 @@
+import { Loaded } from 'jazz-tools';
+
 import { OnboardingProfile, SocialLinks } from '../schema';
 
 type UseContactProps = {
-  profile: OnboardingProfile & { socialLinks?: SocialLinks };
+  profile: Loaded<typeof OnboardingProfile>;
   triggerSyncIndicator: () => void;
 };
+
+// declare module 'jazz-react' {
+// export interface Register {
+// Account: InstanceOfSchema<typeof OnboardingAccount>;
+//  }
+// }
 
 export function useContact({ profile, triggerSyncIndicator }: UseContactProps) {
   const updateSocialLink = (

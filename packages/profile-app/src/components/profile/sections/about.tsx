@@ -1,7 +1,9 @@
+import { Loaded } from 'jazz-tools';
+
 import { OnboardingProfile } from '#/lib/schema.ts';
 
 type AboutProps = {
-  profile: OnboardingProfile;
+  profile: Loaded<typeof OnboardingProfile>;
 };
 
 export function About({ profile }: AboutProps) {

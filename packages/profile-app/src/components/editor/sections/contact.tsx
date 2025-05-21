@@ -1,12 +1,13 @@
-import { useContact } from '#/lib/hook/useContact';
+import { Loaded } from 'jazz-tools';
 import React from 'react';
 
-import { OnboardingProfile, SocialLinks } from '../../../lib/schema';
+import { useContact } from '#/lib/hook/useContact';
+import { OnboardingProfile } from '../../../lib/schema';
 import { Input } from '../../ui';
 import { SectionHeader } from '../header';
 
 type ContactEditProps = {
-  profile: OnboardingProfile & { socialLinks?: SocialLinks };
+  profile: Loaded<typeof OnboardingProfile>; // Corrected type
   triggerSyncIndicator: () => void;
   onCloseEditor: () => void;
 };

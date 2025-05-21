@@ -5,10 +5,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthButton } from './AuthButton.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
 import { Button } from './components/ui/button.tsx';
+import { OnboardingAccount } from './lib/schema.ts';
 import { APPLICATION_NAME } from './main.tsx';
 
 export function App() {
-  const { me } = useAccount({ resolve: { profile: true, root: true } });
+  const { me } = useAccount(OnboardingAccount, {
+    resolve: { profile: true, root: true },
+  });
   const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
 

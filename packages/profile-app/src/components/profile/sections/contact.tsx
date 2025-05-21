@@ -1,5 +1,6 @@
-import { OnboardingProfile } from '#/lib/schema.ts';
+import { Loaded } from 'jazz-tools';
 
+import { OnboardingProfile } from '#/lib/schema.ts';
 import { Button } from '../../ui/button.tsx';
 
 const socialLinkConfigs: {
@@ -54,7 +55,7 @@ const getWebsiteDisplayName = (url?: string): string | undefined => {
 };
 
 type ContactProps = {
-  profile: OnboardingProfile;
+  profile: Loaded<typeof OnboardingProfile>;
 };
 
 export function Contact({ profile }: ContactProps) {

@@ -1,12 +1,13 @@
-import { OnboardingProfile } from '#/lib/schema.ts';
 import { useAccount } from 'jazz-react';
+import { Loaded } from 'jazz-tools';
 
+import { OnboardingAccount, OnboardingProfile } from '#/lib/schema.ts';
 import { ProfileHeader } from './header.tsx';
 import { About } from './sections/about.tsx';
 import { Contact } from './sections/contact.tsx';
 
 export function ProfileView() {
-  const { me } = useAccount({
+  const { me } = useAccount(OnboardingAccount, {
     resolve: {
       profile: {
         socialLinks: true,
@@ -22,7 +23,7 @@ export function ProfileView() {
     );
   }
 
-  const profile = me.profile as OnboardingProfile;
+  const profile = me.profile as Loaded<typeof OnboardingProfile>;
 
   const getHref = (url?: string): string | undefined => {
     if (!url) return undefined;

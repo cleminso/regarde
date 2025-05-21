@@ -4,10 +4,11 @@ import { useAccount, usePasskeyAuth } from 'jazz-react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from './components/ui/button';
+import { OnboardingAccount } from './lib/schema';
 import { APPLICATION_NAME } from './main';
 
 export function AuthButton() {
-  const { logOut } = useAccount();
+  const { logOut } = useAccount(OnboardingAccount);
   const navigate = useNavigate();
 
   const auth = usePasskeyAuth({

@@ -3,9 +3,10 @@ import { Link, Outlet } from 'react-router-dom';
 
 import { AuthButton } from './AuthButton.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
+import { OnboardingAccount } from './lib/schema.ts';
 
 export function AppLayout() {
-  const { me } = useAccount();
+  const { me } = useAccount(OnboardingAccount);
   const isAuthenticated = useIsAuthenticated();
 
   return (

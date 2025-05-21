@@ -1,3 +1,4 @@
+import { Loaded } from 'jazz-tools';
 import React from 'react';
 
 import { useGeneral } from '#/lib/hook/useGeneral';
@@ -5,7 +6,7 @@ import { OnboardingProfile } from '../../../lib/schema';
 import { Button, Input, Textarea } from '../../ui';
 
 type GeneralEditProps = {
-  profile: OnboardingProfile;
+  profile: Loaded<typeof OnboardingProfile>;
   triggerSyncIndicator: () => void;
   onCloseEditor: () => void;
 };

@@ -1,9 +1,10 @@
+import { Loaded } from 'jazz-tools';
 import React, { useRef } from 'react';
 
 import { OnboardingProfile } from '../schema';
 
 type UseGeneralProps = {
-  profile: OnboardingProfile;
+  profile: Loaded<typeof OnboardingProfile>;
   triggerSyncIndicator: () => void;
 };
 

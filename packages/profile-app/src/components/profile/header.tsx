@@ -1,7 +1,8 @@
-import { OnboardingProfile } from '#/lib/schema.ts';
+import { Loaded } from 'jazz-tools';
 import { MoreHorizontalIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import { OnboardingProfile } from '#/lib/schema.ts';
 import { Button } from '../ui/button.tsx';
 import {
   DropdownMenu,
@@ -11,7 +12,7 @@ import {
 } from '../ui/dropdown-menu.tsx';
 
 type ProfileHeaderProps = {
-  profile: OnboardingProfile;
+  profile: Loaded<typeof OnboardingProfile>;
   websiteHref?: string;
   websiteDisplayName?: string;
 };
