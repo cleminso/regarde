@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useEditProfile } from '../../lib/hook/useEditProfile.ts';
 import { EditorLayout } from './layout.tsx';
-import { ContactEdit, GeneralEdit } from './sections';
+import { ContactEdit, GeneralEdit, ProjectEdit } from './sections';
 import { editorSections, SectionType } from './shared.ts';
 import { EditorSidebar } from './sidebar.tsx';
 
@@ -52,6 +52,13 @@ export function ProfileEditor() {
 
             {activeSection === 'contact' && (
               <ContactEdit
+                profile={profile!}
+                triggerSyncIndicator={triggerSyncIndicator}
+                onCloseEditor={handleCloseEditor}
+              />
+            )}
+            {activeSection === 'project' && (
+              <ProjectEdit
                 profile={profile!}
                 triggerSyncIndicator={triggerSyncIndicator}
                 onCloseEditor={handleCloseEditor}

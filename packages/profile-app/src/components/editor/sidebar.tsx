@@ -44,6 +44,15 @@ export function EditorSidebar({
         >
           Contact
         </Button>
+        <Button
+          variant="ghost"
+          onClick={() => onSectionChange('project')}
+          className={`${baseButton} ${
+            activeSection === 'project' ? activeButton : inactiveButton
+          }`}
+        >
+          Project
+        </Button>
       </div>
     </div>
   );

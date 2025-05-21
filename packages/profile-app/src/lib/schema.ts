@@ -1,4 +1,4 @@
-import { co, Group, ImageDefinition, Loaded, z } from 'jazz-tools';
+import { co, Group, Loaded, z } from 'jazz-tools';
 
 export const SocialLinks = co.map({
   github: z.optional(z.string()),
@@ -12,7 +12,6 @@ export const Project = co.map({
   client: z.optional(z.string()),
   link: z.optional(z.string()),
   description: z.optional(z.string()),
-  image: ImageDefinition,
 });
 
 export const ListOfProjects = co.list(Project);
