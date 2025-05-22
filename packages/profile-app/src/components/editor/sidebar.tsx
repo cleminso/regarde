@@ -17,7 +17,7 @@ export function EditorSidebar({
   const activeButton =
     'border-l-2 border-border bg-background text-foreground hover:bg-background hover:text-foreground';
   const inactiveButton =
-    'text-muted-foreground hover:text-foreground hover:bg-background';
+    'text-muted-foreground hover:text-foreground hover:bg-background cursor-pointer';
 
   return (
     <div className="w-[25%] flex flex-col pt-6 border-r border-border">

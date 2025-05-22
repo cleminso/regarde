@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useProject } from '../../../lib/hook/useProject.ts';
 import { OnboardingProfile, Project } from '../../../lib/schema.ts';
 import { Input, Textarea } from '../../ui/index.ts';
+// Removed DropdownMenu imports
 import { SectionHeader } from '../header.tsx';
 
 type ProjectEditProps = {
@@ -48,7 +49,6 @@ export function ProjectEdit({
 
   const handleSaveAndClose = () => {
     if (!title.trim() || !year.trim()) {
-      // Consider showing an error to the user
       alert('Project Name and Year are required.');
       return;
     }
@@ -69,6 +69,8 @@ export function ProjectEdit({
     onDoneEditing();
   };
 
+  // Removed yearOptions generation
+
   return (
     <div className="space-y-4 w-full">
       <SectionHeader
@@ -76,6 +78,8 @@ export function ProjectEdit({
         description="Showcase your projects and contributions."
         onActionClick={handleSaveAndClose}
         actionText={projectToEdit ? 'Save Changes' : 'Add Project'}
+        onCancelClick={onDoneEditing}
+        cancelText="Cancel"
       />
       <section>
         <div className="space-y-1 flex flex-row gap-4">
@@ -84,7 +88,7 @@ export function ProjectEdit({
               htmlFor="project-title"
               className="block text-sm font-medium text-foreground"
             >
-              Name°
+              Name<sup>*</sup>
             </label>
             <Input
               type="text"
@@ -94,7 +98,7 @@ export function ProjectEdit({
                 setTitle(e.target.value)
               }
               placeholder="My wonderful project"
-              className="w-full placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="w-full text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
 
@@ -103,7 +107,7 @@ export function ProjectEdit({
               htmlFor="project-year"
               className="block text-sm font-medium text-foreground"
             >
-              Year°
+              Year<sup>*</sup>
             </label>
             <Input
               type="text"
@@ -112,8 +116,8 @@ export function ProjectEdit({
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setYear(e.target.value)
               }
-              placeholder="Ongoing or YYYY"
-              className="w-full placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+              placeholder="e.g., Ongoing or 2024"
+              className="w-full text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
         </div>
@@ -136,7 +140,7 @@ export function ProjectEdit({
                 setClient(e.target.value)
               }
               placeholder="Super client"
-              className="w-full placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="w-full text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
 
@@ -155,7 +159,7 @@ export function ProjectEdit({
                 setLink(e.target.value)
               }
               placeholder="https://example.com"
-              className="w-full placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="w-full text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
         </div>
@@ -177,7 +181,7 @@ export function ProjectEdit({
                 setDescription(e.target.value)
               }
               placeholder="Add some details"
-              className="w-full placeholder:text-muted-foreground min-h-[300px] resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="w-full text-sm placeholder:text-muted-foreground min-h-[300px] resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
         </div>

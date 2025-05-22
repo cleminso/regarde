@@ -85,7 +85,7 @@ export function GeneralEdit({
               onClick={onCloseEditor}
               aria-label="Close editor and go to profile"
               title="Close editor"
-              className="text-foreground hover:text-foreground rounded-sm hover:bg-accent"
+              className="text-foreground hover:text-foreground rounded-sm hover:bg-accent border-none cursor-pointer"
             >
               Close
             </Button>

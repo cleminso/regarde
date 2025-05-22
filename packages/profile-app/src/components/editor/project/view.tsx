@@ -1,5 +1,7 @@
 import { Loaded } from 'jazz-tools';
+import { useState } from 'react';
 
+import { ConfirmationDialog } from '#/components/confirmation-dialog';
 import { Button } from '#/components/ui';
 import { ListOfProjects, OnboardingProfile, Project } from '#/lib/schema';
 import { useProject } from '../../../lib/hook/useProject.ts';
@@ -12,6 +14,7 @@ type ProjectViewProps = {
   projects: Loaded<typeof ListOfProjects> | undefined;
   onAddProject: () => void;
   onEditProject: (project: Loaded<typeof Project>) => void;
+  onClose?: () => void;
 };
 
 export function ProjectView({
@@ -20,18 +23,37 @@ export function ProjectView({
   projects,
   onAddProject,
   onEditProject,
+  onClose,
 }: ProjectViewProps) {
   const { deleteProject } = useProject({ profile, triggerSyncIndicator });
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<Loaded<
+    typeof Project
+  > | null>(null);
 
-  const handleDeleteProject = (projectToDelete: Loaded<typeof Project>) => {
+  const initiateDeleteProject = (project: Loaded<typeof Project>) => {
+    setProjectToDelete(project);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteProject = () => {
     if (projectToDelete && projectToDelete.id) {
       deleteProject(projectToDelete.id);
     } else {
       console.error(
-        'Attempted to delete a project without an ID.',
+        'Attempted to delete a project without an ID or projectToDelete is null.',
         projectToDelete,
       );
     }
+    setProjectToDelete(null);
+    setIsDeleteDialogOpen(false);
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    if (!open) {
+      setProjectToDelete(null);
+    }
+    setIsDeleteDialogOpen(open);
   };
 
   return (
@@ -42,6 +64,12 @@ export function ProjectView({
         onActionClick={onAddProject}
         actionText="Add Project"
       />
+      {onClose && (
+        <Button variant="default" onClick={onClose} className="">
+          Close
+        </Button>
+      )}
+
       {(!projects || projects.length === 0) && (
         <div className="flex flex-col items-center py-50">
           <Button variant="outline" size="sm" onClick={onAddProject}>
@@ -60,11 +88,21 @@ export function ProjectView({
                 key={project.id}
                 project={project}
                 onEdit={onEditProject}
-                onDelete={handleDeleteProject}
+                onDelete={initiateDeleteProject}
               />
             ))}
         </div>
       )}
+
+      <ConfirmationDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={handleDialogClose}
+        title="Delete project?"
+        description="This action cannot be undone. This will permanently delete this project from your profile."
+        onConfirm={confirmDeleteProject}
+        confirmButtonText="Delete"
+        confirmButtonVariant="destructive"
+      />
     </div>
   );
 }

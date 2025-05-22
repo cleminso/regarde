@@ -110,6 +110,6 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
     addProject,
     updateProject,
     deleteProject,
-    // getProjectById: (projectId: string) => profile.projects?.find(p => p.id === projectId) // Optional helper
+    // getProjectById: (projectId: string) => profile.projects?.find(p => p.id === projectId)
   };
 }
