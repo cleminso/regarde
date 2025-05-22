@@ -1,23 +1,39 @@
 import { Loaded } from 'jazz-tools';
 
 import { Button } from '#/components/ui';
-import { ListOfProjects, Project } from '#/lib/schema';
+import { ListOfProjects, OnboardingProfile, Project } from '#/lib/schema';
+import { useProject } from '../../../lib/hook/useProject.ts';
 import { SectionHeader } from '../header';
 import { ProjectCard } from './card';
 
 type ProjectViewProps = {
+  profile: Loaded<typeof OnboardingProfile>;
+  triggerSyncIndicator: () => void;
   projects: Loaded<typeof ListOfProjects> | undefined;
   onAddProject: () => void;
   onEditProject: (project: Loaded<typeof Project>) => void;
-  onDeleteProject: (project: Loaded<typeof Project>) => void;
 };
 
 export function ProjectView({
+  profile,
+  triggerSyncIndicator,
   projects,
   onAddProject,
   onEditProject,
-  onDeleteProject,
 }: ProjectViewProps) {
+  const { deleteProject } = useProject({ profile, triggerSyncIndicator });
+
+  const handleDeleteProject = (projectToDelete: Loaded<typeof Project>) => {
+    if (projectToDelete && projectToDelete.id) {
+      deleteProject(projectToDelete.id);
+    } else {
+      console.error(
+        'Attempted to delete a project without an ID.',
+        projectToDelete,
+      );
+    }
+  };
+
   return (
     <div className="space-y-4 w-full">
       <SectionHeader
@@ -35,14 +51,18 @@ export function ProjectView({
       )}
       {projects && projects.length > 0 && (
         <div className="space-y-6">
-          {projects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              onEdit={onEditProject}
-              onDelete={onDeleteProject}
-            />
-          ))}
+          {projects
+            .filter(
+              (project): project is Loaded<typeof Project> => project !== null,
+            )
+            .map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                onEdit={onEditProject}
+                onDelete={handleDeleteProject}
+              />
+            ))}
         </div>
       )}
     </div>

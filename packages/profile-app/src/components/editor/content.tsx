@@ -1,7 +1,9 @@
+import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useEditProfile } from '../../lib/hook/useEditProfile.ts';
+import { Project } from '../../lib/schema.ts';
 import { EditorLayout } from './layout.tsx';
 import { ProjectEdit } from './project/form.tsx';
 import { ProjectView } from './project/view.tsx';
@@ -19,6 +21,9 @@ export function ProfileEditor() {
   const [projectSectionViewMode, setProjectView] = useState<'view' | 'form'>(
     'view',
   );
+  const [projectToEdit, setProjectToEdit] = useState<
+    Loaded<typeof Project> | undefined
+  >(undefined);
 
   const navigate = useNavigate();
 
@@ -29,8 +34,14 @@ export function ProfileEditor() {
   const handleSectionChange = (section: SectionType) => {
     if (activeSection === 'project' && section !== 'project') {
       setProjectView('view');
+      setProjectToEdit(undefined);
     }
     setActiveSection(section);
+  };
+
+  const handleEditProject = (project: Loaded<typeof Project>) => {
+    setProjectToEdit(project);
+    setProjectView('form');
   };
 
   if (isLoading) {
@@ -72,12 +83,25 @@ export function ProfileEditor() {
             )}
             {activeSection === 'project' &&
               (projectSectionViewMode === 'view' ? (
-                <ProjectView onAddProject={() => setProjectView('form')} />
+                <ProjectView
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  projects={profile?.projects ?? undefined}
+                  onAddProject={() => {
+                    setProjectToEdit(undefined);
+                    setProjectView('form');
+                  }}
+                  onEditProject={handleEditProject}
+                />
               ) : (
                 <ProjectEdit
                   profile={profile!}
                   triggerSyncIndicator={triggerSyncIndicator}
-                  onDoneEditing={() => setProjectView('view')}
+                  onDoneEditing={() => {
+                    setProjectView('view');
+                    setProjectToEdit(undefined);
+                  }}
+                  projectToEdit={projectToEdit}
                 />
               ))}
           </>

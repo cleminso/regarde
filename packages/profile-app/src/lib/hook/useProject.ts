@@ -1,73 +1,115 @@
-import { Loaded } from 'jazz-tools';
+import { Loaded, z } from 'jazz-tools';
 
 import { ListOfProjects, OnboardingProfile, Project } from '../schema';
+
+type ProjectCreationData = z.input<typeof Project>;
+type ProjectUpdateData = Partial<ProjectCreationData>;
 
 type UseProjectProps = {
   profile: Loaded<typeof OnboardingProfile>;
   triggerSyncIndicator: () => void;
 };
-
-type ProjectField = keyof Pick<
-  Loaded<typeof Project>,
-  'title' | 'year' | 'client' | 'link' | 'description'
->;
-
 export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
-  const getOrCreateFirstProject = (): Loaded<typeof Project> | undefined => {
-    if (!profile) return undefined;
-
-    let projectsList = profile.projects;
-    if (!projectsList) {
+  const ensureProjectsList = (): Loaded<typeof ListOfProjects> | undefined => {
+    if (!profile.projects) {
       const profileOwner = profile._owner;
       if (!profileOwner) {
         console.error(
-          'Cannot create ListOfProjects: profile._owner is undefined.',
+          'Cannot initialize projects list: profile._owner is undefined.',
         );
         return undefined;
       }
-      projectsList = ListOfProjects.create([], { owner: profileOwner });
-      profile.projects = projectsList;
-    }
 
-    let firstProject = projectsList[0];
-    if (!firstProject) {
-      const listOwner = projectsList._owner;
-      if (!listOwner) {
-        console.error(
-          'Cannot create Project: projectsList._owner is undefined.',
-        );
-        return undefined;
-      }
-      firstProject = Project.create(
-        {
-          title: '',
-          year: '',
-        },
-        { owner: listOwner },
-      );
-      projectsList.push(firstProject);
+      profile.projects = ListOfProjects.create([], { owner: profileOwner });
     }
-    return firstProject;
+    return profile.projects;
   };
 
-  const project = getOrCreateFirstProject();
+  const addProject = (
+    projectData: ProjectCreationData,
+  ): Loaded<typeof Project> | undefined => {
+    const projectsList = ensureProjectsList();
+    if (!projectsList) return undefined;
 
-  const updateProjectField = (field: ProjectField, value: string) => {
-    if (!project) {
+    const listOwner = projectsList._owner;
+    if (!listOwner) {
       console.error(
-        "Attempted to update a project that doesn't exist or couldn't be created.",
+        'Cannot create a new project instance: projectsList._owner is undefined.',
       );
+      return undefined;
+    }
+    const newProject = Project.create(
+      {
+        title: projectData.title,
+        year: projectData.year,
+        client: projectData.client,
+        link: projectData.link,
+        description: projectData.description,
+      },
+      { owner: listOwner },
+    );
+    projectsList.push(newProject);
+    triggerSyncIndicator();
+    return newProject;
+  };
+
+  const updateProject = (
+    projectToUpdate: Loaded<typeof Project>,
+    projectData: ProjectUpdateData,
+  ) => {
+    if (!projectToUpdate) {
+      console.error('Project instance not provided for update.');
       return;
     }
 
-    if (field === 'client' || field === 'link' || field === 'description') {
-      project[field] = value || undefined;
-    } else {
-      project[field] = value;
+    let changed = false;
+    for (const key in projectData) {
+      if (Object.prototype.hasOwnProperty.call(projectData, key)) {
+        const field = key as keyof ProjectUpdateData;
+        const currentValue =
+          projectToUpdate[field as keyof Loaded<typeof Project>];
+        const newValue = projectData[field];
+
+        if (field === 'title' || field === 'year') {
+          if (typeof newValue === 'string' && currentValue !== newValue) {
+            projectToUpdate[field as 'title' | 'year'] = newValue;
+            changed = true;
+          }
+        } else {
+          if (currentValue !== newValue) {
+            projectToUpdate[field as 'client' | 'link' | 'description'] =
+              newValue as string | undefined;
+            changed = true;
+          }
+        }
+      }
     }
 
-    triggerSyncIndicator();
+    if (changed) {
+      triggerSyncIndicator();
+    }
   };
 
-  return { project, updateProjectField };
+  const deleteProject = (projectId: string) => {
+    const projectsList = profile.projects;
+    if (!projectsList) {
+      console.warn('No projects list to delete from.');
+      return;
+    }
+    const projectIndex = projectsList.findIndex((p) => p && p.id === projectId);
+
+    if (projectIndex !== -1) {
+      projectsList.splice(projectIndex, 1);
+      triggerSyncIndicator();
+    } else {
+      console.error(`Project with id ${projectId} not found for deletion.`);
+    }
+  };
+
+  return {
+    addProject,
+    updateProject,
+    deleteProject,
+    // getProjectById: (projectId: string) => profile.projects?.find(p => p.id === projectId) // Optional helper
+  };
 }
