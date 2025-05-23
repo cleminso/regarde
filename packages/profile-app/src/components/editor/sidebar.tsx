@@ -1,5 +1,5 @@
 import { Button } from '../ui/button';
-import { SectionType } from './shared.ts';
+import { editorSections, SectionType } from './shared.ts';
 import { SyncStateBadge } from './syncState';
 
 type EditorSidebarProps = {
@@ -28,30 +28,47 @@ export function EditorSidebar({
       <div className="space-y-1">
         <Button
           variant="ghost"
-          onClick={() => onSectionChange('general')}
+          onClick={() => onSectionChange(editorSections.general)}
           className={`${baseButton} ${
-            activeSection === 'general' ? activeButton : inactiveButton
+            activeSection === editorSections.general
+              ? activeButton
+              : inactiveButton
           }`}
         >
           General
         </Button>
         <Button
           variant="ghost"
-          onClick={() => onSectionChange('contact')}
+          onClick={() => onSectionChange(editorSections.contact)}
           className={`${baseButton} ${
-            activeSection === 'contact' ? activeButton : inactiveButton
+            activeSection === editorSections.contact
+              ? activeButton
+              : inactiveButton
           }`}
         >
           Contact
         </Button>
         <Button
           variant="ghost"
-          onClick={() => onSectionChange('project')}
+          onClick={() => onSectionChange(editorSections.project)}
           className={`${baseButton} ${
-            activeSection === 'project' ? activeButton : inactiveButton
+            activeSection === editorSections.project
+              ? activeButton
+              : inactiveButton
           }`}
         >
           Project
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={() => onSectionChange(editorSections.workExp)}
+          className={`${baseButton} ${
+            activeSection === editorSections.workExp
+              ? activeButton
+              : inactiveButton
+          }`}
+        >
+          Work Experience
         </Button>
       </div>
     </div>

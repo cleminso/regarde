@@ -1,0 +1,71 @@
+import { Loaded } from 'jazz-tools';
+import { ArrowUpRight, CalendarDays } from 'lucide-react';
+
+import { WorkExp } from '#/lib/schema';
+import { EditorCardActions } from '../cardActions';
+
+type WorkExpCardProps = {
+  workExp: Loaded<typeof WorkExp>;
+  onEdit: (workExp: Loaded<typeof WorkExp>) => void;
+  onDelete: (workExp: Loaded<typeof WorkExp>) => void;
+};
+
+const formatDate = (date: Date | undefined): string => {
+  if (!date) return 'Present';
+  return new Date(date).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+  });
+};
+
+export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
+  const displayTitle = `${workExp.title || 'Untitled Role'} @ ${
+    workExp.company || 'Unnamed Company'
+  }`;
+  const dateRange = `${formatDate(workExp.from)} - ${formatDate(workExp.to)}`;
+
+  return (
+    <div className="flex flex-col border-b border-border pb-4 gap-4">
+      <div className="flex flex-row gap-10">
+        <div className="flex flex-col w-22.5 flex-shrink-0">
+          <span className="text-sm font-medium text-muted-foreground inline-flex items-center">
+            <CalendarDays className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+            {dateRange}
+          </span>
+          {workExp.location && (
+            <span className="text-xs text-muted-foreground mt-1">
+              {workExp.location}
+            </span>
+          )}
+        </div>
+        <div className="flex flex-col flex-grow gap-2">
+          <div>
+            {workExp.url ? (
+              <a
+                href={workExp.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-lg font-sans text-foreground hover:underline hover:underline-offset-4 inline-flex items-center group"
+              >
+                {displayTitle}
+                <ArrowUpRight className="h-4 w-4 ml-1 opacity-70 group-hover:opacity-100" />
+              </a>
+            ) : (
+              <h3 className="text-lg font-medium">{displayTitle}</h3>
+            )}
+          </div>
+          {workExp.description && (
+            <p className="text-sm text-muted-foreground whitespace-pre-line">
+              {workExp.description}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="pl-30">
+        {' '}
+        <EditorCardActions item={workExp} onEdit={onEdit} onDelete={onDelete} />
+      </div>
+    </div>
+  );
+}

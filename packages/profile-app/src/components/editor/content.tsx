@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useEditProfile } from '../../lib/hook/useEditProfile.ts';
-import { Project } from '../../lib/schema.ts';
+import { Project, WorkExp } from '../../lib/schema.ts';
 import {
   ContactEdit,
   EditorLayout,
@@ -11,6 +11,8 @@ import {
   GeneralEdit,
   ProjectEdit,
   ProjectView,
+  WorkExpEdit,
+  WorkExpView,
 } from './index.tsx';
 import { editorSections, SectionType } from './shared.ts';
 
@@ -26,6 +28,12 @@ export function ProfileEditor() {
   const [projectToEdit, setProjectToEdit] = useState<
     Loaded<typeof Project> | undefined
   >(undefined);
+  const [workExpSectionViewMode, setWorkExpViewMode] = useState<
+    'view' | 'form'
+  >('view');
+  const [workExpToEdit, setWorkExpToEdit] = useState<
+    Loaded<typeof WorkExp> | undefined
+  >(undefined);
 
   const navigate = useNavigate();
 
@@ -34,9 +42,19 @@ export function ProfileEditor() {
   };
 
   const handleSectionChange = (section: SectionType) => {
-    if (activeSection === 'project' && section !== 'project') {
+    if (
+      activeSection === editorSections.project &&
+      section !== editorSections.project
+    ) {
       setProjectView('view');
       setProjectToEdit(undefined);
+    }
+    if (
+      activeSection === editorSections.workExp &&
+      section !== editorSections.workExp
+    ) {
+      setWorkExpViewMode('view');
+      setWorkExpToEdit(undefined);
     }
     setActiveSection(section);
   };
@@ -44,6 +62,11 @@ export function ProfileEditor() {
   const handleEditProject = (project: Loaded<typeof Project>) => {
     setProjectToEdit(project);
     setProjectView('form');
+  };
+
+  const handleEditWorkExp = (workExp: Loaded<typeof WorkExp>) => {
+    setWorkExpToEdit(workExp);
+    setWorkExpViewMode('form');
   };
 
   if (isLoading) {
@@ -68,7 +91,7 @@ export function ProfileEditor() {
       mainContent={
         <div className="w-[75%] flex flex-col p-6 overflow-y-auto">
           <>
-            {activeSection === 'general' && (
+            {activeSection === editorSections.general && (
               <GeneralEdit
                 profile={profile!}
                 triggerSyncIndicator={triggerSyncIndicator}
@@ -76,14 +99,14 @@ export function ProfileEditor() {
               />
             )}
 
-            {activeSection === 'contact' && (
+            {activeSection === editorSections.contact && (
               <ContactEdit
                 profile={profile!}
                 triggerSyncIndicator={triggerSyncIndicator}
                 onCloseEditor={handleCloseEditor}
               />
             )}
-            {activeSection === 'project' &&
+            {activeSection === editorSections.project &&
               (projectSectionViewMode === 'view' ? (
                 <ProjectView
                   profile={profile!}
@@ -104,6 +127,29 @@ export function ProfileEditor() {
                     setProjectToEdit(undefined);
                   }}
                   projectToEdit={projectToEdit}
+                />
+              ))}
+            {activeSection === editorSections.workExp &&
+              (workExpSectionViewMode === 'view' ? (
+                <WorkExpView
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  workExperiences={profile?.workExp ?? undefined}
+                  onAddWorkExp={() => {
+                    setWorkExpToEdit(undefined);
+                    setWorkExpViewMode('form');
+                  }}
+                  onEditWorkExp={handleEditWorkExp}
+                />
+              ) : (
+                <WorkExpEdit
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  onDoneEditing={() => {
+                    setWorkExpViewMode('view');
+                    setWorkExpToEdit(undefined);
+                  }}
+                  workExpToEdit={workExpToEdit}
                 />
               ))}
           </>

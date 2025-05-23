@@ -16,6 +16,30 @@ export const Project = co.map({
 
 export const ListOfProjects = co.list(Project);
 
+export const WorkExp = co.map({
+  title: z.string(),
+  from: z.date(),
+  to: z.optional(z.date()),
+  company: z.string(),
+  location: z.optional(z.string()),
+  url: z.optional(z.string()),
+  description: z.optional(z.string()),
+});
+
+export const ListOfWorkExp = co.list(WorkExp);
+
+// TODO:
+// export const Attachments = co.map({
+// url: z.string(),
+// fileName: z.optional(z.string()),
+// fileType: z.optional(z.string()),
+// fileSize: z.optional(z.number()),
+// })
+//
+// export const ListOfAttachmentItems = co.list(AttachmentItem);
+//
+// Use it like:  mediaFiles: z.optional(co.list(AttachmentItem)),
+
 export const OnboardingProfile = co
   .profile({
     name: z.string(),
@@ -23,6 +47,7 @@ export const OnboardingProfile = co
     avatar: z.optional(z.string()),
     socialLinks: z.optional(SocialLinks),
     projects: z.optional(ListOfProjects),
+    workExp: z.optional(ListOfWorkExp),
   })
   .withHelpers((Self) => ({
     validate(profile: Loaded<typeof Self>): {
@@ -35,7 +60,6 @@ export const OnboardingProfile = co
           message: 'Name must be present and non-empty.',
         };
       }
-      // Add other validation rules for OnboardingProfile here if needed
       return { isValid: true };
     },
   }));
