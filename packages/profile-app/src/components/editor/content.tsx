@@ -4,13 +4,15 @@ import { useNavigate } from 'react-router-dom';
 
 import { useEditProfile } from '../../lib/hook/useEditProfile.ts';
 import { Project } from '../../lib/schema.ts';
-import { EditorLayout } from './layout.tsx';
-import { ProjectEdit } from './project/form.tsx';
-import { ProjectView } from './project/view.tsx';
-import { ContactEdit } from './sections/contact.tsx';
-import { GeneralEdit } from './sections/general.tsx';
+import {
+  ContactEdit,
+  EditorLayout,
+  EditorSidebar,
+  GeneralEdit,
+  ProjectEdit,
+  ProjectView,
+} from './index.tsx';
 import { editorSections, SectionType } from './shared.ts';
-import { EditorSidebar } from './sidebar.tsx';
 
 export function ProfileEditor() {
   const { profile, isLoading, syncState, triggerSyncIndicator } =

@@ -5,12 +5,14 @@ import { OnboardingAccount, OnboardingProfile } from '#/lib/schema.ts';
 import { ProfileHeader } from './header.tsx';
 import { About } from './sections/about.tsx';
 import { Contact } from './sections/contact.tsx';
+import { Projects } from './sections/project.tsx';
 
 export function ProfileView() {
   const { me } = useAccount(OnboardingAccount, {
     resolve: {
       profile: {
         socialLinks: true,
+        projects: true,
       },
     },
   });
@@ -82,6 +84,8 @@ export function ProfileView() {
       <About profile={profile} />
 
       <Contact profile={profile} />
+
+      <Projects profile={profile} />
     </main>
   );
 }
