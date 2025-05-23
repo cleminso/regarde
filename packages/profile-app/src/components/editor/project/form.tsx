@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { useProject } from '../../../lib/hook/useProject.ts';
 import { OnboardingProfile, Project } from '../../../lib/schema.ts';
 import { Input, Textarea } from '../../ui/index.ts';
-// Removed DropdownMenu imports
 import { SectionHeader } from '../header.tsx';
+import { SelectorDate } from '../selectorDate.tsx';
 
 type ProjectEditProps = {
   profile: Loaded<typeof OnboardingProfile>;
@@ -109,15 +109,16 @@ export function ProjectEdit({
             >
               Year<sup>*</sup>
             </label>
-            <Input
-              type="text"
+            <SelectorDate
               id="project-year"
               value={year}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setYear(e.target.value)
-              }
-              placeholder="e.g., Ongoing or 2024"
-              className="w-full text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+              onChange={(e) => setYear(e.target.value)}
+              placeholderOption={{
+                value: '',
+                label: 'Select Year',
+                disabled: true,
+              }}
+              buttonDisplayValue={year || '2025'}
             />
           </div>
         </div>

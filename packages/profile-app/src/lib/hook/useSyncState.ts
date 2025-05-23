@@ -12,7 +12,7 @@ export function useSyncState() {
     timeoutIdRef.current = setTimeout(() => {
       setSyncState('saved');
       timeoutIdRef.current = null;
-    }, 1500);
+    }, 1000);
   };
 
   useEffect(() => {

@@ -19,7 +19,7 @@ export const ListOfProjects = co.list(Project);
 export const WorkExp = co.map({
   title: z.string(),
   from: z.date(),
-  to: z.optional(z.date()),
+  to: z.optional(z.string()),
   company: z.string(),
   location: z.optional(z.string()),
   url: z.optional(z.string()),

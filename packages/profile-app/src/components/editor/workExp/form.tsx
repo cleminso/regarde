@@ -5,6 +5,7 @@ import { useWorkExp } from '../../../lib/hook/useWorkExp';
 import { OnboardingProfile, WorkExp } from '../../../lib/schema';
 import { Input, Textarea } from '../../ui/index';
 import { SectionHeader } from '../header';
+import { SelectorDate } from '../selectorDate';
 
 type WorkExpEditProps = {
   profile: Loaded<typeof OnboardingProfile>;
@@ -13,7 +14,7 @@ type WorkExpEditProps = {
   workExpToEdit?: Loaded<typeof WorkExp>;
 };
 
-const formatDateForInput = (date?: Date): string => {
+const formatDate = (date?: Date): string => {
   if (!date) return '';
   const d = date instanceof Date ? date : new Date(date);
   if (isNaN(d.getTime())) return '';
@@ -46,8 +47,8 @@ export function WorkExpEdit({
       setLocation(workExpToEdit.location || '');
       setUrl(workExpToEdit.url || '');
       setDescription(workExpToEdit.description || '');
-      setFromDate(formatDateForInput(workExpToEdit.from));
-      setToDate(formatDateForInput(workExpToEdit.to));
+      setFromDate(formatDate(workExpToEdit.from));
+      setToDate(workExpToEdit.to || '');
     } else {
       setTitle('');
       setCompany('');
@@ -65,15 +66,6 @@ export function WorkExpEdit({
       return;
     }
 
-    if (!/^\d{4}$/.test(fromDate)) {
-      alert('From Date must be a valid 4-digit year.');
-      return;
-    }
-    if (toDate.trim() && !/^\d{4}$/.test(toDate)) {
-      alert('To Date must be a valid 4-digit year if provided.');
-      return;
-    }
-
     const workExpData = {
       title: title.trim(),
       company: company.trim(),
@@ -81,7 +73,7 @@ export function WorkExpEdit({
       url: url.trim() || undefined,
       description: description.trim() || undefined,
       from: new Date(parseInt(fromDate, 10), 0, 1),
-      to: toDate.trim() ? new Date(parseInt(toDate, 10), 0, 1) : undefined,
+      to: toDate.trim() || undefined,
     };
 
     if (workExpToEdit) {
@@ -102,6 +94,50 @@ export function WorkExpEdit({
         onCancelClick={onDoneEditing}
         cancelText="Cancel"
       />
+
+      <section>
+        <div className="space-y-1 flex flex-row gap-4">
+          <div className="flex flex-col gap-1 w-full">
+            <label
+              htmlFor="work-from-date"
+              className="block text-sm font-medium text-foreground"
+            >
+              From<sup>*</sup>
+            </label>
+            <SelectorDate
+              id="work-from-date"
+              value={fromDate}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                setFromDate(e.target.value);
+              }}
+              placeholderOption={{
+                value: '',
+                label: 'Select Year',
+                disabled: true,
+              }}
+              buttonDisplayValue={fromDate || 'Select Year'}
+            />
+          </div>
+          <div className="flex flex-col gap-1 w-full">
+            <label
+              htmlFor="work-to-date"
+              className="block text-sm font-medium text-foreground"
+            >
+              To
+            </label>
+            <SelectorDate
+              id="work-to-date"
+              value={toDate}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                setToDate(e.target.value);
+              }}
+              placeholderOption={{ value: '', label: 'Present' }}
+              buttonDisplayValue={toDate || 'Present'}
+            />
+          </div>
+        </div>
+      </section>
+
       <section>
         <div className="space-y-1 flex flex-row gap-4">
           <div className="flex flex-col gap-1 w-full">
@@ -131,55 +167,12 @@ export function WorkExpEdit({
             </label>
             <Input
               type="text"
-              id="Acme inc."
+              id="work-company"
               value={company}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setCompany(e.target.value)
               }
               placeholder="Acme Inc."
-              className="w-full text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <div className="space-y-1 flex flex-row gap-4">
-          <div className="flex flex-col gap-1 w-full">
-            <label
-              htmlFor="work-from-date"
-              className="block text-sm font-medium text-foreground"
-            >
-              From<sup>*</sup>
-            </label>
-            <Input
-              type="text"
-              id="work-from-date"
-              value={fromDate}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setFromDate(e.target.value)
-              }
-              placeholder="2022"
-              maxLength={4}
-              className="w-full text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </div>
-          <div className="flex flex-col gap-1 w-full">
-            <label
-              htmlFor="work-to-date"
-              className="block text-sm font-medium text-foreground"
-            >
-              To
-            </label>
-            <Input
-              type="text"
-              id="work-to-date"
-              value={toDate}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setToDate(e.target.value)
-              }
-              placeholder="Now"
-              maxLength={4}
               className="w-full text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>

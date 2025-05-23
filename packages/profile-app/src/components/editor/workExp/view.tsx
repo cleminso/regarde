@@ -14,7 +14,6 @@ type WorkExpViewProps = {
   workExperiences: Loaded<typeof ListOfWorkExp> | undefined;
   onAddWorkExp: () => void;
   onEditWorkExp: (workExp: Loaded<typeof WorkExp>) => void;
-  onClose?: () => void;
 };
 
 export function WorkExpView({
@@ -23,7 +22,6 @@ export function WorkExpView({
   workExperiences,
   onAddWorkExp,
   onEditWorkExp,
-  onClose,
 }: WorkExpViewProps) {
   const { deleteWorkExp } = useWorkExp({ profile, triggerSyncIndicator });
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -64,11 +62,6 @@ export function WorkExpView({
         onActionClick={onAddWorkExp}
         actionText="Add Experience"
       />
-      {onClose && (
-        <Button variant="default" onClick={onClose} className="">
-          Close
-        </Button>
-      )}
 
       {(!workExperiences || workExperiences.length === 0) && (
         <div className="flex flex-col items-center py-50">

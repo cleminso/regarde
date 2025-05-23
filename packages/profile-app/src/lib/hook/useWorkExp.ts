@@ -42,7 +42,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
     }
 
     const fromDate = new Date(workExpData.from);
-    const toDate = workExpData.to ? new Date(workExpData.to) : undefined;
+    const toDate = workExpData.to;
 
     const newWorkExp = WorkExp.create(
       {
@@ -88,19 +88,9 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
       changed = true;
     }
 
-    if (dataToUpdate.from !== undefined) {
-      const newFromDate = new Date(dataToUpdate.from);
-      if (workExpToUpdate.from.getTime() !== newFromDate.getTime()) {
-        workExpToUpdate.from = newFromDate;
-        changed = true;
-      }
-    }
-
     if (dataToUpdate.hasOwnProperty('to')) {
-      const newToDate = dataToUpdate.to ? new Date(dataToUpdate.to) : undefined;
-      const currentToDate = workExpToUpdate.to;
-      if (newToDate?.getTime() !== currentToDate?.getTime()) {
-        workExpToUpdate.to = newToDate;
+      if (workExpToUpdate.to !== dataToUpdate.to) {
+        workExpToUpdate.to = dataToUpdate.to;
         changed = true;
       }
     }

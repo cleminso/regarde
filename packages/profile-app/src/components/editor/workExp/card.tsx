@@ -1,5 +1,5 @@
 import { Loaded } from 'jazz-tools';
-import { ArrowUpRight, CalendarDays } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 
 import { WorkExp } from '#/lib/schema';
 import { EditorCardActions } from '../cardActions';
@@ -10,12 +10,14 @@ type WorkExpCardProps = {
   onDelete: (workExp: Loaded<typeof WorkExp>) => void;
 };
 
-const formatDate = (date: Date | undefined): string => {
-  if (!date) return 'Present';
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-  });
+const formatDate = (date: Date | string | undefined): string => {
+  if (!date) return 'Now';
+  if (date instanceof Date) {
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+    });
+  }
+  return String(date);
 };
 
 export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
@@ -29,29 +31,30 @@ export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
       <div className="flex flex-row gap-10">
         <div className="flex flex-col w-22.5 flex-shrink-0">
           <span className="text-sm font-medium text-muted-foreground inline-flex items-center">
-            <CalendarDays className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
             {dateRange}
           </span>
-          {workExp.location && (
-            <span className="text-xs text-muted-foreground mt-1">
-              {workExp.location}
-            </span>
-          )}
         </div>
-        <div className="flex flex-col flex-grow gap-2">
+        <div className="flex flex-col flex-grow">
           <div>
             {workExp.url ? (
               <a
                 href={workExp.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-lg font-sans text-foreground hover:underline hover:underline-offset-4 inline-flex items-center group"
+                className="hover:underline hover:underline-offset-4 inline-flex items-center group"
               >
                 {displayTitle}
                 <ArrowUpRight className="h-4 w-4 ml-1 opacity-70 group-hover:opacity-100" />
               </a>
             ) : (
               <h3 className="text-lg font-medium">{displayTitle}</h3>
+            )}
+          </div>
+          <div className="pb-2">
+            {workExp.location && (
+              <span className="text-sm text-muted-foreground">
+                {workExp.location}
+              </span>
             )}
           </div>
           {workExp.description && (

@@ -4,7 +4,7 @@ type SectionsHeaderProps = {
   title: string;
   description?: string;
   onActionClick: () => void;
-  actionText?: string;
+  actionText: string;
   onCancelClick?: () => void;
   cancelText?: string;
   className?: string;
@@ -14,7 +14,7 @@ export function SectionHeader({
   title,
   description,
   onActionClick,
-  actionText = 'Close',
+  actionText,
   onCancelClick,
   cancelText = 'Cancel',
   className,
