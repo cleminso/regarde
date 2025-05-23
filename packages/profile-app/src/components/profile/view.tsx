@@ -3,9 +3,7 @@ import { Loaded } from 'jazz-tools';
 
 import { OnboardingAccount, OnboardingProfile } from '#/lib/schema.ts';
 import { ProfileHeader } from './header.tsx';
-import { About } from './sections/about.tsx';
-import { Contact } from './sections/contact.tsx';
-import { Projects } from './sections/project.tsx';
+import { About, Contact, Projects, WorkExp } from './index.tsx';
 
 export function ProfileView() {
   const { me } = useAccount(OnboardingAccount, {
@@ -13,6 +11,7 @@ export function ProfileView() {
       profile: {
         socialLinks: true,
         projects: true,
+        workExp: true,
       },
     },
   });
@@ -80,12 +79,13 @@ export function ProfileView() {
         websiteHref={websiteHref}
         websiteDisplayName={websiteDisplayName}
       />
-
       <About profile={profile} />
 
       <Contact profile={profile} />
 
       <Projects profile={profile} />
+
+      <WorkExp profile={profile} />
     </main>
   );
 }

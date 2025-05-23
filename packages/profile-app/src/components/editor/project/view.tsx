@@ -72,7 +72,12 @@ export function ProjectView({
 
       {(!projects || projects.length === 0) && (
         <div className="flex flex-col items-center py-50">
-          <Button variant="outline" size="sm" onClick={onAddProject}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onAddProject}
+            className="border-none"
+          >
             Add projects eveyone should know you work hard on it.
           </Button>
         </div>

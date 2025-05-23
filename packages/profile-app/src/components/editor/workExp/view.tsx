@@ -65,8 +65,13 @@ export function WorkExpView({
 
       {(!workExperiences || workExperiences.length === 0) && (
         <div className="flex flex-col items-center py-50">
-          <Button variant="outline" size="sm" onClick={onAddWorkExp}>
-            Add your professional experiences.
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onAddWorkExp}
+            className="border-none"
+          >
+            Add experience you're proud of.
           </Button>
         </div>
       )}
