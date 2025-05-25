@@ -24,9 +24,11 @@ export function SectionHeader({
       className={`flex justify-between items-start mb-6 border-b border-border pb-4 ${className}`}
     >
       <div className="flex-grow">
-        <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+        <h3 className="text-lg font-sans text-foreground">{title}</h3>
         {description && (
-          <p className="text-sm text-muted-foreground mt-1">{description}</p>
+          <p className="text-sm font-sans text-muted-foreground mt-1">
+            {description}
+          </p>
         )}
       </div>
       <div className="ml-4 flex-shrink-0 flex flex-col items-end gap-2">
@@ -35,7 +37,7 @@ export function SectionHeader({
           onClick={onActionClick}
           aria-label={actionText}
           title={actionText}
-          className="text-foreground hover:text-foreground rounded-sm hover:bg-accent border-none cursor-pointer"
+          className="text-sm font-sans text-foreground hover:text-foreground rounded-sm hover:bg-accent border-none cursor-pointer"
         >
           {actionText}
         </Button>
@@ -45,7 +47,7 @@ export function SectionHeader({
             onClick={onCancelClick}
             aria-label={cancelText}
             title={cancelText}
-            className="text-foreground hover:text-foreground rounded-sm hover:bg-transparent hover:underline cursor-pointer"
+            className="text-sm font-sans text-foreground hover:text-foreground rounded-sm hover:bg-transparent hover:underline cursor-pointer"
           >
             {cancelText}
           </Button>

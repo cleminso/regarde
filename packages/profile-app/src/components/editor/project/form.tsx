@@ -69,8 +69,6 @@ export function ProjectEdit({
     onDoneEditing();
   };
 
-  // Removed yearOptions generation
-
   return (
     <div className="space-y-4 w-full">
       <SectionHeader
@@ -86,7 +84,7 @@ export function ProjectEdit({
           <div className="flex flex-col gap-1 w-full">
             <label
               htmlFor="project-title"
-              className="block text-sm font-medium text-foreground"
+              className="block text-xs font-sans text-foreground"
             >
               Name<sup>*</sup>
             </label>
@@ -98,14 +96,14 @@ export function ProjectEdit({
                 setTitle(e.target.value)
               }
               placeholder="My wonderful project"
-              className="w-full text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
 
           <div className="flex flex-col gap-1 w-full">
             <label
               htmlFor="project-year"
-              className="block text-sm font-medium text-foreground"
+              className="block text-xs font-sans text-foreground"
             >
               Year<sup>*</sup>
             </label>
@@ -129,7 +127,7 @@ export function ProjectEdit({
           <div className="flex flex-col gap-1 w-full">
             <label
               htmlFor="project-client"
-              className="block text-sm font-medium text-foreground"
+              className="block text-xs font-sans text-foreground"
             >
               Company or client
             </label>
@@ -141,14 +139,14 @@ export function ProjectEdit({
                 setClient(e.target.value)
               }
               placeholder="Super client"
-              className="w-full text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
 
           <div className="flex flex-col gap-1 w-full">
             <label
               htmlFor="project-link"
-              className="block text-sm font-medium text-foreground"
+              className="block text-xs font-sans text-foreground"
             >
               Link to project
             </label>
@@ -160,7 +158,7 @@ export function ProjectEdit({
                 setLink(e.target.value)
               }
               placeholder="https://example.com"
-              className="w-full text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
         </div>
@@ -171,7 +169,7 @@ export function ProjectEdit({
           <div className="flex flex-col gap-1 w-full">
             <label
               htmlFor="project-description"
-              className="block text-sm font-medium text-foreground "
+              className="block text-xs font-sans text-foreground "
             >
               Description
             </label>

@@ -18,7 +18,7 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
     <div className="flex flex-col border-b border-border pb-4 gap-4">
       <div className="flex flex-row gap-10">
         <div className="flex flex-col w-22.5 flex-shrink-0">
-          <span className="text-sm font-medium text-muted-foreground">
+          <span className="text-sm font-sans text-muted-foreground">
             {project.year || 'N/A'}
           </span>
         </div>
@@ -29,17 +29,17 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
                 href={project.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-lg font-sans text-foreground hover:underline hover:underline-offset-4 inline-flex items-center group"
+                className="text-md font-sans text-foreground hover:underline hover:underline-offset-4 inline-flex items-center group"
               >
                 {displayTitle}
                 <ArrowUpRight className="h-4 w-4 ml-1 opacity-70 group-hover:opacity-100" />
               </a>
             ) : (
-              <h3 className="text-lg font-medium">{displayTitle}</h3>
+              <h3 className="text-md font-sans">{displayTitle}</h3>
             )}
           </div>
           {project.description && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground whitespace-pre-line">
               {project.description}
             </p>
           )}

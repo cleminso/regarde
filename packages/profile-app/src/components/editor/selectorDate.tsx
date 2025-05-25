@@ -25,7 +25,7 @@ export function SelectorDate({
   onChange,
   placeholderOption,
   buttonDisplayValue,
-  buttonClassName = 'w-full justify-start font-normal h-9 py-2 px-3 text-sm',
+  buttonClassName = 'w-full justify-start font-normal h-9 py-2 px-3 text-sm font-sans',
   selectClassName = 'absolute inset-0 w-full h-full opacity-0 cursor-pointer',
   wrapperClassName = 'relative w-full',
 }: SelectorDateProps) {
@@ -51,7 +51,6 @@ export function SelectorDate({
         >
           {placeholderOption.label}
         </option>
-        {/* Uses internally generated yearOptions */}
         {yearOptions.map((year) => (
           <option key={`${id}-option-${year}`} value={year}>
             {year}

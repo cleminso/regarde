@@ -37,17 +37,17 @@ export function ProfileHeader({
         />
       ) : (
         <div className="w-24 h-24 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground text-center flex-shrink-0">
-          <span className="text-sm">No Avatar</span>
+          <span className="text-md">No Avatar</span>
         </div>
       )}
       <div className="flex flex-col gap-2 pt-2">
-        <h2 className="text-2xl font-bold">{profile.name}</h2>
+        <h2 className="text-lg font">{profile.name}</h2>
         {websiteHref && websiteDisplayName && (
           <a
             href={websiteHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors"
+            className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200 transition-colors"
             title={`Visit ${profile.name}'s website: ${websiteHref}`}
           >
             <span>{websiteDisplayName}</span>

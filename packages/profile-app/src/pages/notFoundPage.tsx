@@ -1,6 +1,7 @@
-import { Button } from '#/components/ui';
 import { useIsAuthenticated } from 'jazz-react';
 import { Link } from 'react-router-dom';
+
+import { Button } from '#/components/ui';
 
 export function NotFoundPage() {
   const isAuthenticated = useIsAuthenticated();
@@ -8,8 +9,10 @@ export function NotFoundPage() {
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1 className="mb-8 font-semibold">404 - Page Do Not Exist</h1>
-      <p className="mb-4">Sory, the page you are looking for does not exist.</p>
+      <h1 className="mb-8 text-lg font-sans">404 - Page Do Not Exist</h1>
+      <p className="mb-4 text-lg font-sans">
+        Sory, the page you are looking for does not exist.
+      </p>
       <p>
         You can come back home and jazz safely, clicking on the button below
       </p>

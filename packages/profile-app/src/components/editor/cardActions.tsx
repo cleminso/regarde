@@ -17,7 +17,7 @@ export function EditorCardActions<T>({
         variant="ghost"
         size="sm"
         onClick={() => onEdit(item)}
-        className="hover:bg-transparent hover:underline underline-offset-4 cursor-pointer "
+        className="text-xs font-sans hover:bg-transparent hover:underline underline-offset-4 cursor-pointer "
       >
         Edit
       </Button>
@@ -25,7 +25,7 @@ export function EditorCardActions<T>({
         variant="ghost"
         size="sm"
         onClick={() => onDelete(item)}
-        className="hover:bg-transparent hover:underline underline-offset-4 cursor-pointer"
+        className="text-xs font-sans hover:bg-transparent hover:underline underline-offset-4 cursor-pointer"
       >
         Delete
       </Button>

@@ -100,7 +100,7 @@ export function WorkExpEdit({
           <div className="flex flex-col gap-1 w-full">
             <label
               htmlFor="work-from-date"
-              className="block text-sm font-medium text-foreground"
+              className="block text-xs font-sans text-foreground"
             >
               From<sup>*</sup>
             </label>
@@ -121,7 +121,7 @@ export function WorkExpEdit({
           <div className="flex flex-col gap-1 w-full">
             <label
               htmlFor="work-to-date"
-              className="block text-sm font-medium text-foreground"
+              className="block text-xs font-sans  text-foreground"
             >
               To
             </label>
@@ -143,7 +143,7 @@ export function WorkExpEdit({
           <div className="flex flex-col gap-1 w-full">
             <label
               htmlFor="work-title"
-              className="block text-sm font-medium text-foreground"
+              className="block text-xs font-sans  text-foreground"
             >
               Title<sup>*</sup>
             </label>
@@ -155,13 +155,13 @@ export function WorkExpEdit({
                 setTitle(e.target.value)
               }
               placeholder="Designer, Engineer, etc"
-              className="w-full text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
           <div className="flex flex-col gap-1 w-full">
             <label
               htmlFor="work-company"
-              className="block text-sm font-medium text-foreground"
+              className="block text-xs font-sans text-foreground"
             >
               At Company<sup>*</sup>
             </label>
@@ -173,7 +173,7 @@ export function WorkExpEdit({
                 setCompany(e.target.value)
               }
               placeholder="Acme Inc."
-              className="w-full text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
         </div>
@@ -184,7 +184,7 @@ export function WorkExpEdit({
           <div className="flex flex-col gap-1 w-full">
             <label
               htmlFor="work-location"
-              className="block text-sm font-medium text-foreground"
+              className="block text-xs font-sans  text-foreground"
             >
               Location
             </label>
@@ -196,13 +196,13 @@ export function WorkExpEdit({
                 setLocation(e.target.value)
               }
               placeholder="Where was it"
-              className="w-full text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
           <div className="flex flex-col gap-1 w-full">
             <label
               htmlFor="work-url"
-              className="block text-sm font-medium text-foreground"
+              className="block text-xs font-sans  text-foreground"
             >
               URL
             </label>
@@ -214,7 +214,7 @@ export function WorkExpEdit({
                 setUrl(e.target.value)
               }
               placeholder="https://company.example.com"
-              className="w-full text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
         </div>
@@ -225,7 +225,7 @@ export function WorkExpEdit({
           <div className="flex flex-col gap-1 w-full">
             <label
               htmlFor="Description"
-              className="block text-sm font-medium text-foreground "
+              className="block text-xs font-sans  text-foreground "
             >
               Description
             </label>
@@ -236,7 +236,7 @@ export function WorkExpEdit({
                 setDescription(e.target.value)
               }
               placeholder="Describe your role and achievements..."
-              className="w-full text-sm placeholder:text-muted-foreground min-h-[200px] resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="w-full text-sm font-sans placeholder:text-muted-foreground min-h-[200px] resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
         </div>

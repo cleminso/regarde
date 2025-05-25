@@ -44,7 +44,7 @@ export function WorkExp({ profile }: WorkExpProps) {
       className="mx-auto flex flex-col gap-3 my-8"
       style={{ width: '540px' }}
     >
-      <h3 className="text-lg font-semibold">Work Experience</h3>
+      <h3 className="text-md font-sans">Work Experience</h3>
       <div className="space-y-6">
         {workExperiences.map((workExp) => {
           const displayTitle = `${workExp.title || 'Untitled Role'} @ ${
@@ -60,7 +60,7 @@ export function WorkExp({ profile }: WorkExpProps) {
             >
               <div className="flex flex-row gap-4">
                 <div className="flex flex-col w-28 flex-shrink-0">
-                  <span className="text-sm font-medium text-muted-foreground">
+                  <span className="text-sm font-sans text-muted-foreground">
                     {dateRange}
                   </span>
                 </div>
@@ -71,13 +71,13 @@ export function WorkExp({ profile }: WorkExpProps) {
                         href={companyLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-base font-medium text-foreground hover:underline hover:underline-offset-4 inline-flex items-center"
+                        className="text-md font-sans text-foreground hover:underline hover:underline-offset-4 inline-flex items-center"
                       >
                         {displayTitle}
                         <ArrowUpRight className="h-4 w-4 ml-1" />
                       </a>
                     ) : (
-                      <h4 className="text-base font-medium text-foreground">
+                      <h4 className="text-md font-sans text-foreground">
                         {displayTitle}
                       </h4>
                     )}

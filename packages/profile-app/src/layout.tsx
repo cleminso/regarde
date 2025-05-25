@@ -14,7 +14,7 @@ export function AppLayout() {
       <header className="bg-background text-card-foreground shadow-lg">
         <nav className="@container-normal flex justify-between items-center py-4 mx-16">
           <div>
-            <Link to="/" className="text-xl font-bold mr-6">
+            <Link to="/" className="text-xl font-sans mr-6">
               profile.jazz.dev
             </Link>
           </div>

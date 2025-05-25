@@ -32,7 +32,7 @@ export function ContactEdit({
         <div className="space-y-1">
           <label
             htmlFor="github"
-            className="block text-sm font-medium text-foreground"
+            className="text-sm font-sans block text-foreground"
           >
             GitHub
           </label>
@@ -51,7 +51,7 @@ export function ContactEdit({
         <div className="space-y-1">
           <label
             htmlFor="twitter"
-            className="block text-sm font-medium text-foreground"
+            className="text-sm font-sans block text-foreground"
           >
             X / Twitter
           </label>
@@ -70,7 +70,7 @@ export function ContactEdit({
         <div className="space-y-1">
           <label
             htmlFor="website"
-            className="block text-sm font-medium text-foreground"
+            className="text-sm font-sans block text-foreground"
           >
             Website
           </label>

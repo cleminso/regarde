@@ -40,13 +40,20 @@ export function ConfirmationDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className="border-none">
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogTitle className="text-lg font-sans text-foreground">
+            {title}
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-sm font-sans text-muted-foreground">
+            {description}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => onOpenChange(false)}>
+          <AlertDialogCancel
+            onClick={() => onOpenChange(false)}
+            className="text-sm font-sans text-foreground shadow-none"
+          >
             {cancelButtonText}
           </AlertDialogCancel>
           <AlertDialogAction

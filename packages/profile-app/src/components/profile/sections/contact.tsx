@@ -93,7 +93,7 @@ export function Contact({ profile }: ContactProps) {
       className="mx-auto flex flex-col gap-3 my-8"
       style={{ width: '540px' }}
     >
-      <h3 className="text-lg font-semibold">Contact</h3>
+      <h3 className="text-md font-sans">Contact</h3>
       {availableSocialLinks.length > 0 ? (
         <div className="flex flex-col gap-2.5">
           {' '}
@@ -106,7 +106,7 @@ export function Contact({ profile }: ContactProps) {
                 <Button
                   asChild
                   variant="link"
-                  className="p-0 h-auto justify-start text-sm font-medium text-primary hover:text-primary/90"
+                  className="p-0 h-auto justify-start text-sm font-sans text-primary hover:text-primary/90"
                   title={`Visit ${profile.name}'s ${link.label}: ${link.href}`}
                 >
                   <a href={link.href} target="_blank" rel="noopener noreferrer">

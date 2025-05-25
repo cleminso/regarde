@@ -27,10 +27,10 @@ export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
   const dateRange = `${formatDate(workExp.from)} - ${formatDate(workExp.to)}`;
 
   return (
-    <div className="flex flex-col border-b border-border pb-4 gap-4">
+    <div className="flex flex-col border-b border-border pb-4 gap-3">
       <div className="flex flex-row gap-10">
         <div className="flex flex-col w-22.5 flex-shrink-0">
-          <span className="text-sm font-medium text-muted-foreground inline-flex items-center">
+          <span className="text-sm font-sans text-muted-foreground inline-flex items-center">
             {dateRange}
           </span>
         </div>
@@ -41,24 +41,24 @@ export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
                 href={workExp.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:underline hover:underline-offset-4 inline-flex items-center group"
+                className="text-md hover:underline hover:underline-offset-4 inline-flex items-center group"
               >
                 {displayTitle}
                 <ArrowUpRight className="h-4 w-4 ml-1 opacity-70 group-hover:opacity-100" />
               </a>
             ) : (
-              <h3 className="text-lg font-medium">{displayTitle}</h3>
+              <h3 className="text-md font-sans">{displayTitle}</h3>
             )}
           </div>
           <div className="pb-2">
             {workExp.location && (
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm font-sans text-muted-foreground">
                 {workExp.location}
               </span>
             )}
           </div>
           {workExp.description && (
-            <p className="text-sm text-muted-foreground whitespace-pre-line">
+            <p className="text-sm font-sans text-muted-foreground whitespace-pre-line">
               {workExp.description}
             </p>
           )}

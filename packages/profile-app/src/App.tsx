@@ -49,7 +49,7 @@ export function App() {
       <header className="bg-background text-card-foreground">
         <nav className="@container-normal flex justify-between items-center py-4 mx-16">
           <div>
-            <Link to="/" className="text-xl font-bold mr-6">
+            <Link to="/" className="text-lg font-sans mr-6">
               profile.jazz.dev
             </Link>
           </div>
@@ -69,7 +69,6 @@ export function App() {
         </nav>
       </header>
 
-      {/* Existing main content from the previous App.tsx version */}
       <main className="container mt-16 flex flex-col">
         {isAuthenticated ? (
           <div className="content-center">
@@ -79,7 +78,7 @@ export function App() {
           </div>
         ) : (
           <div className="flex flex-col items-center text-center gap-6 py-12">
-            <h1 className="text-4xl font-bold">profile.jazz.dev</h1>
+            <h1 className="text-4xl font-sans">profile.jazz.dev</h1>
             <p className="text-lg text-muted-foreground max-w-md">
               The last public profile you will ever need. Build one, share
               everywhere.

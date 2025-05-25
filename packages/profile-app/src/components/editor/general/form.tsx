@@ -45,7 +45,7 @@ export function GeneralEdit({
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
-            className="w-24 h-24 rounded-full bg-background flex justify-center text-center text-muted-foreground cursor-pointer transition-colors overflow-hidden"
+            className="w-24 h-24 rounded-full bg-background flex justify-center text-sm text-center text-muted-foreground cursor-pointer transition-colors overflow-hidden"
             role="button"
             tabIndex={0}
             onKeyDown={(e) =>
@@ -71,7 +71,7 @@ export function GeneralEdit({
             <button
               type="button"
               onClick={handleRemoveAvatar}
-              className="text-sm text-muted-foreground hover:text-destructive cursor-pointer"
+              className="text-sm font-sans text-muted-foreground hover:text-destructive cursor-pointer"
               aria-label="Remove current avatar"
             >
               Remove
@@ -85,7 +85,7 @@ export function GeneralEdit({
               onClick={onCloseEditor}
               aria-label="Close editor and go to profile"
               title="Close editor"
-              className="text-foreground hover:text-foreground rounded-sm hover:bg-accent border-none cursor-pointer"
+              className="text-sm font-sans text-foreground hover:text-foreground rounded-sm hover:bg-accent border-none cursor-pointer"
             >
               Close
             </Button>
@@ -98,7 +98,7 @@ export function GeneralEdit({
           <div className="space-y-1">
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-foreground"
+              className="text-sm font-sans block text-foreground"
             >
               Name
             </label>
@@ -120,7 +120,7 @@ export function GeneralEdit({
           <div className="space-y-1 h-full">
             <label
               htmlFor="bio"
-              className="block text-sm font-medium text-foreground"
+              className="block text-sm font-sans text-foreground"
             >
               Bio
             </label>
@@ -131,7 +131,7 @@ export function GeneralEdit({
                 updateBio(e.target.value)
               }
               placeholder="Share what people should know about you"
-              className="w-full min-h-full h-max resize-none"
+              className="text-sm font-sans w-full min-h-full h-max resize-none"
             />
           </div>
         </div>

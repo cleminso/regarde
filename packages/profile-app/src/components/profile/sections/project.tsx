@@ -21,7 +21,7 @@ export function Projects({ profile }: ProjectsProps) {
       className="mx-auto flex flex-col gap-3 my-8"
       style={{ width: '540px' }}
     >
-      <h3 className="text-lg font-semibold">Projects</h3>
+      <h3 className="text-md font-sans">Projects</h3>
       <div className="space-y-6">
         {projects.map((project) => {
           const displayTitle = project.client
@@ -42,7 +42,7 @@ export function Projects({ profile }: ProjectsProps) {
             >
               <div className="flex flex-row gap-4">
                 <div className="flex flex-col w-20 flex-shrink-0">
-                  <span className="text-sm font-medium text-muted-foreground">
+                  <span className="text-sm font-sans text-muted-foreground">
                     {project.year || 'N/A'}
                   </span>
                 </div>
