@@ -1,9 +1,6 @@
-import { Loaded, z } from 'jazz-tools';
+import { Loaded } from 'jazz-tools';
 
 import { ListOfWorkExp, OnboardingProfile, WorkExp } from '../schema';
-
-type WorkExpCreationData = z.input<typeof WorkExp>;
-type WorkExpUpdateData = Partial<WorkExpCreationData>;
 
 type UseWorkExpProps = {
   profile: Loaded<typeof OnboardingProfile>;
@@ -28,7 +25,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
   };
 
   const addWorkExp = (
-    workExpData: WorkExpCreationData,
+    workExpData: WorkExp,
   ): Loaded<typeof WorkExp> | undefined => {
     const workExpList = ensureWorkExpList();
     if (!workExpList) return undefined;
@@ -63,7 +60,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
 
   const updateWorkExp = (
     workExpToUpdate: Loaded<typeof WorkExp>,
-    dataToUpdate: WorkExpUpdateData,
+    dataToUpdate: WorkExp,
   ) => {
     if (!workExpToUpdate) {
       console.error('Work experience instance not provided for update.');

@@ -7,12 +7,6 @@ type UseContactProps = {
   triggerSyncIndicator: () => void;
 };
 
-// declare module 'jazz-react' {
-// export interface Register {
-// Account: InstanceOfSchema<typeof OnboardingAccount>;
-//  }
-// }
-
 export function useContact({ profile, triggerSyncIndicator }: UseContactProps) {
   const updateSocialLink = (
     field: 'github' | 'twitter' | 'website',

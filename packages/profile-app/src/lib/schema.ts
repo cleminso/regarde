@@ -6,6 +6,8 @@ export const SocialLinks = co.map({
   website: z.optional(z.string()),
 });
 
+export type SocialLinks = z.infer<typeof SocialLinks>;
+
 export const Project = co.map({
   title: z.string(),
   year: z.string(),
@@ -13,6 +15,8 @@ export const Project = co.map({
   link: z.optional(z.string()),
   description: z.optional(z.string()),
 });
+
+export type Project = z.infer<typeof Project>;
 
 export const ListOfProjects = co.list(Project);
 
@@ -25,6 +29,8 @@ export const WorkExp = co.map({
   url: z.optional(z.string()),
   description: z.optional(z.string()),
 });
+
+export type WorkExp = z.infer<typeof WorkExp>;
 
 export const ListOfWorkExp = co.list(WorkExp);
 

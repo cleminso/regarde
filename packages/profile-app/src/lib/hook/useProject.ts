@@ -1,9 +1,6 @@
-import { Loaded, z } from 'jazz-tools';
+import { Loaded } from 'jazz-tools';
 
 import { ListOfProjects, OnboardingProfile, Project } from '../schema';
-
-type ProjectCreationData = z.input<typeof Project>;
-type ProjectUpdateData = Partial<ProjectCreationData>;
 
 type UseProjectProps = {
   profile: Loaded<typeof OnboardingProfile>;
@@ -26,7 +23,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
   };
 
   const addProject = (
-    projectData: ProjectCreationData,
+    projectData: Project,
   ): Loaded<typeof Project> | undefined => {
     const projectsList = ensureProjectsList();
     if (!projectsList) return undefined;
@@ -55,7 +52,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
 
   const updateProject = (
     projectToUpdate: Loaded<typeof Project>,
-    projectData: ProjectUpdateData,
+    projectData: Project,
   ) => {
     if (!projectToUpdate) {
       console.error('Project instance not provided for update.');
@@ -65,7 +62,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
     let changed = false;
     for (const key in projectData) {
       if (Object.prototype.hasOwnProperty.call(projectData, key)) {
-        const field = key as keyof ProjectUpdateData;
+        const field = key as keyof Project;
         const currentValue =
           projectToUpdate[field as keyof Loaded<typeof Project>];
         const newValue = projectData[field];
