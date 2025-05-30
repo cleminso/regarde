@@ -10,7 +10,7 @@
 
 Welcome to the Jazz documentation!
 
-The Jazz docs are currently heavily work in progress, sorry about that!
+**Note:** We just released [Jazz 0.14.0](/docs/upgrade/0-14-0) with a bunch of breaking changes and are still cleaning the docs up - see the [upgrade guide](/docs/upgrade/0-14-0) for details.
 
 ## Quickstart
 
@@ -31,9 +31,9 @@ Or set up Jazz yourself, using the following instructions for your framework of 
 - [Vue](/docs/vue/project-setup)
 - [Svelte](/docs/svelte/project-setup)
 
-<ContentByFramework framework="react">
-  Or you can follow this [React step-by-step guide](/docs/react/guide) where we walk you through building an issue tracker app.
-</ContentByFramework>
+{/_ <ContentByFramework framework="react">
+Or you can follow this [React step-by-step guide](/docs/react/guide) where we walk you through building an issue tracker app.
+</ContentByFramework> _/}
 
 ## Example apps
 
@@ -48,10 +48,6 @@ Sync and persist your data by setting up a [sync and storage infrastructure](/do
 
 Learn how to structure your data using [collaborative values](/docs/schemas/covalues).
 
-## API Reference
-
-Many of the packages provided are documented in the [API Reference](/api-reference).
-
 ## LLM Docs
 
 Get better results with AI by [importing the Jazz docs](/docs/ai-tools) into your context window.
@@ -60,783 +56,6 @@ Get better results with AI by [importing the Jazz docs](/docs/ai-tools) into you
 
 If you have any questions or need assistance, please don't hesitate to reach out to us on [Discord](https://discord.gg/utDMjHYg42).
 We would love to help you get started.
-
-#### Guide
-
-### react Implementation
-
-# React guide
-
-This is a step-by-step tutorial where we'll build an issue tracker app using React.
-
-You'll learn how to set up a Jazz app, use Jazz Cloud for sync and storage, create and manipulate data using
-Collaborative Values (CoValues), build a UI and subscribe to changes, set permissions, and send invites.
-
-## Project setup
-
-1. Create a project called "circular" from a generic Vite starter template:
-
-<CodeGroup>
-    {/* prettier-ignore */}
-    ```bash
-    npx degit gardencmp/vite-ts-react-tailwind circular
-    cd circular
-    npm install
-    npm run dev
-    ```
-</CodeGroup>
-
-    You should now have an empty app running, typically at [localhost:5173](http://localhost:5173).<br/>
-
-    <small>
-        (If you make changes to the code, the app will automatically refresh.)
-    </small>
-
-2. Install `jazz-tools` and `jazz-react`<br/>
-
-   <small>(in a new terminal window):</small>
-
-<CodeGroup>
-    {/* prettier-ignore */}
-    ```bash
-    cd circular
-    npm install jazz-tools jazz-react
-    ```
-</CodeGroup>
-
-3. Modify `src/main.tsx` to set up a Jazz context:
-
-<CodeGroup>
-    {/* prettier-ignore */}
-    ```tsx
-    import React from "react";
-    import ReactDOM from "react-dom/client";
-    import App from "./App.tsx";
-    import "./index.css";
-    import { JazzProvider } from "jazz-react";  // [!code ++]
-
-    ReactDOM.createRoot(document.getElementById("root")!).render(
-        <React.StrictMode>
-            <JazzProvider // [!code ++:6]
-                // replace `you@example.com` with your email as a temporary API key
-                sync={{ peer: "wss://cloud.jazz.tools/?key=you@example.com" }}
-            >
-                <App />
-            </JazzProvider>
-        </React.StrictMode>
-    );
-    ```
-
-</CodeGroup>
-
-This sets Jazz up and wraps our app in the provider.
-
-{/_ TODO: explain Auth _/}
-
-## Intro to CoValues
-
-Let's learn about the **central idea** behind Jazz: **Collaborative Values.**
-
-What if we could **treat distributed state like local state?** That's what CoValues do.
-
-We can
-
-- **create** CoValues, anywhere
-- **load** CoValues by `ID`, from anywhere else
-- **edit** CoValues, from anywhere, by mutating them like local state
-- **subscribe to edits** in CoValues, whether they're local or remote
-
-### Declaring our own CoValues
-
-To make our own CoValues, we first need to declare a schema for them. Think of a schema as a combination of TypeScript types and runtime type information.
-
-Let's start by defining a schema for our most central entity in Circular: an **Issue.**
-
-Create a new file `src/schema.ts` and add the following:
-
-<CodeGroup>
-```ts
-
-export class Issue extends CoMap {
-title = co.string;
-description = co.string;
-estimate = co.number;
-status = co.optional.literal("backlog", "in progress", "done");
-}
-
-````
-</CodeGroup>
-
-{/* TODO: explain what's happening */}
-
-### Reading from CoValues
-
-CoValues are designed to be read like simple local JSON state. Let's see how we can read from an Issue by building a component to render one.
-
-Create a new file `src/components/Issue.tsx` and add the following:
-
-<CodeGroup>
-{/* prettier-ignore */}
-```tsx
-
-export function IssueComponent({ issue }: { issue: Issue }) {
-    return (
-        <div className="grid grid-cols-6 text-sm border-r border-b [&>*]:p-2 [&>*]:border-l [&>*]:border-t">
-            <h2>{issue.title}</h2>
-            <p className="col-span-3">{issue.description}</p>
-            <p>Estimate: {issue.estimate}</p>
-            <p>Status: {issue.status}</p>
-        </div>
-    );
-}
-````
-
-</CodeGroup>
-
-Simple enough!
-
-### Creating CoValues
-
-To actually see an Issue, we have to create one. This is where things start to get interesting...
-
-Let's modify `src/App.tsx` to prepare for creating an Issue and then rendering it:
-
-<CodeGroup>
-{/* prettier-ignore */}
-```tsx
-
-function App() {
-const [issue, setIssue] = useState<Issue>();
-
-    if (issue) {
-        return <IssueComponent issue={issue} />;
-    } else {
-        return <button>Create Issue</button>;
-    }
-
-}
-
-export default App;
-
-````
-</CodeGroup>
-
-Now, finally, let's implement creating an issue:
-
-<CodeGroup>
-{/* prettier-ignore */}
-```tsx
-
-function App() {
-    const [issue, setIssue] = useState<Issue>();
-
-    const createIssue = () => { // [!code ++:11]
-        const newIssue = Issue.create(
-            {
-                title: "Buy terrarium",
-                description: "Make sure it's big enough for 10 snails.",
-                estimate: 5,
-                status: "backlog",
-            },
-        );
-        setIssue(newIssue);
-    };
-
-    if (issue) {
-        return <IssueComponent issue={issue} />;
-    } else {
-        return <button onClick={createIssue}>Create Issue</button>;
-    }
-}
-
-export default App;
-````
-
-</CodeGroup>
-
-🏁 Now you should be able to create a new issue by clicking the button and then see it rendered!
-
-<div className="text-xs uppercase text-muted tracking-wider -mb-3">
-    Preview
-</div>
-<div className="p-3 md:-mx-3 rounded border border-stone-100 bg-white dark:bg-black not-prose">
-    <div className="grid grid-cols-6 text-sm border-r border-b [&>*]:p-2 [&>*]:border-l [&>*]:border-t">
-        <h2>Buy terrarium</h2>
-        <p className="col-span-3">Make sure it's big enough for 10 snails.</p>
-        <p>Estimate: 5</p>
-        <p>Status: backlog</p>
-    </div>
-</div>
-
-We'll already notice one interesting thing here:
-
-- We have to create every CoValue with an `owner`!
-  - this will determine access rights on the CoValue, which we'll learn about in "Groups & Permissions"
-  - here the `owner` is set automatically to a group managed by the current user because we have not declared any
-
-**Behind the scenes, Jazz not only creates the Issue in memory but also automatically syncs an encrypted version to the cloud and persists it locally. The Issue also has a globally unique ID.**
-
-We'll make use of both of these facts in a bit, but for now let's start with local editing and subscribing.
-
-### Editing CoValues and subscribing to edits
-
-Since we're the owner of the CoValue, we should be able to edit it, right?
-
-And since this is a React app, it would be nice to subscribe to edits of the CoValue and reactively re-render the UI, like we can with local state.
-
-This is exactly what the `useCoState` hook is for!
-
-- Note that `useCoState` doesn't take a CoValue directly, but rather a CoValue's schema, plus its `ID`.
-  - So we'll slightly adapt our `useState` to only keep track of an issue ID...
-  - ...and then use `useCoState` to get the actual issue
-
-Let's modify `src/App.tsx`:
-
-<CodeGroup>
-{/* prettier-ignore */}
-```tsx
-
-function App() {
-const [issue, setIssue] = useState<Issue>(); // [!code --]
-const [issueID, setIssueID] = useState<ID<Issue>>(); // [!code ++]
-
-    const issue = useCoState(Issue, issueID); // [!code ++]
-
-    const createIssue = () => {
-        const newIssue = Issue.create(
-            {
-                title: "Buy terrarium",
-                description: "Make sure it's big enough for 10 snails.",
-                estimate: 5,
-                status: "backlog",
-            },
-        );
-        setIssueID(newIssue.id);
-    };
-
-    if (issue) {
-        return <IssueComponent issue={issue} />;
-    } else {
-        return <button onClick={createIssue}>Create Issue</button>;
-    }
-
-}
-
-export default App;
-
-````
-</CodeGroup>
-
-And now for the exciting part! Let's make `src/components/Issue.tsx` an editing component.
-
-<CodeGroup>
-{/* prettier-ignore */}
-```tsx
-
-export function IssueComponent({ issue }: { issue: Issue }) {
-    return (
-        <div className="grid grid-cols-6 text-sm border-r border-b [&>*]:p-2 [&>*]:border-l [&>*]:border-t">
-            <input type="text" // [!code ++:22]
-                value={issue.title}
-                onChange={(event) => { issue.title = event.target.value }}/>
-            <textarea className="col-span-3"
-                value={issue.description}
-                onChange={(event) => { issue.description = event.target.value }}/>
-            <label className="flex">
-                Estimate:
-                <input type="number" className="text-right min-w-0"
-                    value={issue.estimate}
-                    onChange={(event) => { issue.estimate = Number(event.target.value) }}/>
-            </label>
-            <select
-                value={issue.status}
-                onChange={(event) => {
-                    issue.status = event.target.value as "backlog" | "in progress" | "done"
-                }}
-            >
-                <option value="backlog">Backlog</option>
-                <option value="in progress">In Progress</option>
-                <option value="done">Done</option>
-            </select>
-        </div>
-    );
-}
-````
-
-</CodeGroup>
-
-<div className="text-xs uppercase text-muted tracking-wider -mb-3">
-    Preview
-</div>
-
-<IssueTrackerPreview />
-
-🏁 Now you should be able to edit the issue after creating it!
-
-You'll immediately notice that we're doing something non-idiomatic for React: we mutate the issue directly, by assigning to its properties.
-
-This works because CoValues
-
-- intercept these edits
-- update their local view accordingly (React doesn't really care after rendering)
-- notify subscribers of the change (who will receive a fresh, updated view of the CoValue)
-
-<aside className="text-sm border border-muted rounded px-4 my-4 max-w-3xl [&_pre]:mx-0">
-    <h4 className="not-prose text-base py-2 mb-3 px-4 border-b border-muted">💡 A Quick Overview of Subscribing to CoValues</h4>
-
-    There are three main ways to subscribe to a CoValue:
-
-    1.  Directly on an instance:
-
-  <CodeGroup>
-        ```ts
-        const unsub = issue.subscribe({ resolve: true }, (updatedIssue) => console.log(updatedIssue));
-        ```
-  </CodeGroup>
-
-    2.  If you only have an ID (this will load the issue if needed):
-
-  <CodeGroup>
-        ```ts
-        const unsub = Issue.subscribe(issueID, me, { resolve: true }, (updatedIssue) => {
-            console.log(updatedIssue);
-        });
-        ```
-  </CodeGroup>
-
-    3.  If you're in a React component, to re-render reactively:
-
-        `tsx
-        const issue = useCoState(Issue, issueID);
-        `
-
-
-            By the way, `useCoState` is basically just an optimized version of
-
-  <CodeGroup>
-            ```ts
-            function useCoState<V extends CoValue>(Schema: CoValueClass<V>, id?: ID<V>): V | undefined {
-                const [value, setValue] = useState<V>();
-
-                useEffect(() => Schema.subscribe(id, { resolve: true }, setValue), [id]);
-
-                return value;
-            }
-            ```
-
-  </CodeGroup>
-
-</aside>
-
-We have one subscriber on our Issue, with `useCoState` in `src/App.tsx`, which will cause the `App` component and its children **to** re-render whenever the Issue changes.
-
-### Automatic local & cloud persistence
-
-So far our Issue CoValues just looked like ephemeral local state. We'll now start exploring the first main feature that makes CoValues special: **automatic persistence.**
-
-Actually, all the Issue CoValues we've created so far **have already been automatically persisted** to the cloud and locally - but we lose track of their ID after a reload.
-
-So let's store the ID in the browser's URL and make sure our useState is in sync with that.
-
-<CodeGroup>
-{/* prettier-ignore */}
-```tsx
-
-function App() {
-const [issueID, setIssueID] = useState<ID<Issue> | undefined>( // [!code ++:3]
-(window.location.search?.replace("?issue=", "") || undefined) as ID<Issue> | undefined,
-);
-
-    const issue = useCoState(Issue, issueID);
-
-    const createIssue = () => {
-        const newIssue = Issue.create(
-            {
-                title: "Buy terrarium",
-                description: "Make sure it's big enough for 10 snails.",
-                estimate: 5,
-                status: "backlog",
-            },
-        );
-        setIssueID(newIssue.id);
-        window.history.pushState({}, "", `?issue=${newIssue.id}`); // [!code ++]
-    };
-
-    if (issue) {
-        return <IssueComponent issue={issue} />;
-    } else {
-        return <button onClick={createIssue}>Create Issue</button>;
-    }
-
-}
-
-export default App;
-
-````
-</CodeGroup>
-
-🏁 Now you should be able to create an issue, edit it, reload the page, and still see the same issue.
-
-### Remote sync
-
-To see that sync is also already working, try the following:
-
--   copy the URL to a new tab in the same browser window and see the same issue
--   edit the issue and see the changes reflected in the other tab!
-
-This works because we load the issue as the same account that created it and owns it (remember how you set `{ owner: me }`).
-
-But how can we share an Issue with someone else?
-
-### Simple public sharing
-
-We'll learn more about access control in "Groups & Permissions", but for now let's build a super simple way of sharing an Issue by just making it publicly readable & writable.
-
-All we have to do is create a new group to own each new issue and add "everyone" as a "writer":
-
-<CodeGroup>
-{/* prettier-ignore */}
-```tsx
-
-function App() {
-    const { me } = useAccount(); // [!code ++]
-    const [issueID, setIssueID] = useState<ID<Issue> | undefined>(
-        (window.location.search?.replace("?issue=", "") || undefined) as ID<Issue> | undefined,
-    );
-
-    const issue = useCoState(Issue, issueID);
-
-    const createIssue = () => {
-        const group = Group.create(); // [!code ++:2]
-        group.addMember("everyone", "writer");
-
-        const newIssue = Issue.create(
-            {
-                title: "Buy terrarium",
-                description: "Make sure it's big enough for 10 snails.",
-                estimate: 5,
-                status: "backlog",
-            },
-            { owner: group }, // [!code ++]
-        );
-        setIssueID(newIssue.id);
-        window.history.pushState({}, "", `?issue=${newIssue.id}`);
-    };
-
-    if (issue) {
-        return <IssueComponent issue={issue} />;
-    } else {
-        return <button onClick={createIssue}>Create Issue</button>;
-    }
-}
-
-export default App;
-````
-
-</CodeGroup>
-
-🏁 Now you should be able to open the Issue (with its unique URL) on another device or browser, or send it to a friend and you should be able to **edit it together in realtime!**
-
-This concludes our intro to the essence of CoValues. Hopefully you're starting to have a feeling for how CoValues behave and how they're magically available everywhere.
-
-## Refs & auto-subscribe
-
-Now let's have a look at how to compose CoValues into more complex structures and build a whole app around them.
-
-Let's extend our two data model to include "Projects" which have a list of tasks and some properties of their own.
-
-Using plain objects, you would probably type a Project like this:
-
-<CodeGroup>
-```ts
-type Project = {
-    name: string;
-    issues: Issue[];
-};
-```
-</CodeGroup>
-
-In order to create this more complex structure in a fully collaborative way, we're going to need _references_ that allow us to nest or link CoValues.
-
-Add the following to `src/schema.ts`:
-
-<CodeGroup>
-```ts
-
-export class Issue extends CoMap {
-title = co.string;
-description = co.string;
-estimate = co.number;
-status? = co.optional.literal("backlog", "in progress", "done");
-}
-
-export class ListOfIssues extends CoList.Of(co.ref(Issue)) {} // [!code ++:6]
-
-export class Project extends CoMap {
-name = co.string;
-issues = co.ref(ListOfIssues);
-}
-
-````
-</CodeGroup>
-
-Now let's change things up a bit in terms of components as well.
-
-First, we'll change `App.tsx` to create and render `Project`s instead of `Issue`s. (We'll move the `useCoState` into the `ProjectComponent` we'll create in a second).
-
-<CodeGroup>
-{/* prettier-ignore */}
-```tsx
-
-function App() {
-    const [projectID, setProjectID] = useState<ID<Project> | undefined>( // [!code ++:3]
-        (window.location.search?.replace("?project=", "") || undefined) as ID<Project> | undefined
-    );
-
-    const issue = useCoState(Issue, issueID); // [!code --]
-
-    const createProject = () => { // [!code ++:14]
-        const group = Group.create();
-        group.addMember("everyone", "writer");
-
-        const newProject = Project.create(
-            {
-                name: "New Project",
-                issues: ListOfIssues.create([], { owner: group })
-            },
-            group,
-        );
-        setProjectID(newProject.id);
-        window.history.pushState({}, "", `?project=${newProject.id}`);
-    };
-
-    if (projectID) { // [!code ++:4]
-        return <ProjectComponent projectID={projectID} />;
-    } else {
-        return <button onClick={createProject}>Create Project</button>;
-    }
-}
-
-export default App;
-````
-
-</CodeGroup>
-
-Now we'll actually create the `ProjectComponent` that renders a `Project` and its `Issue`s.
-
-Create a new file `src/components/Project.tsx` and add the following:
-
-<CodeGroup>
-{/* prettier-ignore */}
-```tsx
-
-export function ProjectComponent({ projectID }: { projectID: ID<Project> }) {
-const project = useCoState(Project, projectID);
-
-    const createAndAddIssue = () => {
-        project?.issues?.push(Issue.create({
-            title: "",
-            description: "",
-            estimate: 0,
-            status: "backlog",
-        },  project._owner));
-    };
-
-    return project ? (
-        <div>
-            <h1>{project.name}</h1>
-            <div className="border-r border-b">
-                {project.issues?.map((issue) => (
-                    issue && <IssueComponent key={issue.id} issue={issue} />
-                ))}
-                <button onClick={createAndAddIssue}>Create Issue</button>
-            </div>
-        </div>
-    ) : project === null ? (
-        <div>Project not found or access denied</div>
-    ) : (
-        <div>Loading project...</div>
-    );
-
-}
-
-````
-</CodeGroup>
-
-🏁 Now you should be able to create a project, add issues to it, share it, and edit it collaboratively!
-
-Two things to note here:
-
--   We create a new Issue like before, and then push it into the `issues` list of the Project. By setting the `owner` to the Project's owner, we ensure that the Issue has the same access rights as the project itself.
--   We only need to use `useCoState` on the Project, and the nested `ListOfIssues` and each `Issue` will be **automatically loaded and subscribed to when we access them.**
--   However, because either the `Project`, `ListOfIssues`, or each `Issue` might not be loaded yet, we have to check for them being defined.
-
-### Precise resolve queries
-
-The load-and-subscribe-on-access is a convenient way to have your rendering drive data loading (including in nested components!) and lets you quickly chuck UIs together without worrying too much about the shape of all data you'll need.
-
-But you can also take more precise control over loading by defining a minimum-depth to load in `useCoState`:
-
-<CodeGroup>
-{/* prettier-ignore */}
-```tsx
-
-export function ProjectComponent({ projectID }: { projectID: ID<Project> }) {
-    const project = useCoState(
-      Project,
-      projectID,
-      { resolve: { issues: { $each: true } } } // [!code ++]
-    );
-
-    const createAndAddIssue = () => {
-        project?.issues.push(Issue.create({
-            title: "",
-            description: "",
-            estimate: 0,
-            status: "backlog",
-        }, project._owner));
-    };
-
-    return project ? (
-        <div>
-            <h1>{project.name}</h1>
-            <div className="border-r border-b">
-                {project.issues.map((issue) => (
-                    <IssueComponent key={issue.id} issue={issue} />
-                ))}
-                <button onClick={createAndAddIssue}>Create Issue</button>
-            </div>
-        </div>
-    ) : (
-        <div>Loading project...</div>
-    );
-}
-````
-
-</CodeGroup>
-
-The resolve query `{ resolve: { issues: { $each: true } } }` means "in `Project`, load `issues` and load each item in `issues` deeply". (Since an `Issue` doesn't have any further references, "deeply" actually means all its properties will be available).
-
-- Now, we can get rid of a lot of conditional accesses because we know that once `project` is loaded, `project.issues` and each `Issue` in it will be loaded as well.
-- This also results in only one rerender and visual update when everything is loaded, which is faster (especially for long lists) and gives you more control over the loading UX.
-
-{/_ TODO: explain about not loaded vs not set/defined and `_refs` basics _/}
-
-## Groups & permissions
-
-We've seen briefly how we can use Groups to give everyone access to a Project,
-and how we can use `{ owner: me }` to make something private to the current user.
-
-### Groups / Accounts as permission scopes
-
-This gives us a hint of how permissions work in Jazz: **every CoValue has an owner,
-and the access rights on that CoValue are determined by its owner.**
-
-- If the owner is an Account, only that Account can read and write the CoValue.
-- If the owner is a Group, the access rights depend on the _role_ of the Account (that is trying to access the CoValue) in that Group.
-  - `"reader"`s can read but not write to CoValues belonging to the Group.
-  - `"writer"`s can read and write to CoValues belonging to the Group.
-  - `"admin"`s can read and write to CoValues belonging to the Group _and can add and remove other members from the Group itself._
-
-### Creating invites
-
-There is also an abstraction for creating _invitations to join a Group_ (with a specific role) that you can use
-to add people without having to know their Account ID.
-
-Let's use these abstractions to build teams for a Project that we can invite people to.
-
-Turns out, we're already mostly there! First, let's remove making the Project public:
-
-<CodeGroup>
-{/* prettier-ignore */}
-```tsx
-
-function App() {
-const [projectID, setProjectID] = useState<ID<Project> | undefined>(
-(window.location.search?.replace("?project=", "") || undefined) as ID<Project> | undefined,
-);
-
-    const createProject = () => {
-        const group = Group.create();
-        group.addMember("everyone", "writer"); // [!code --]
-
-        const newProject = Project.create(
-            {
-                name: "New Project",
-                issues: ListOfIssues.create([], { owner: group })
-            },
-            group,
-        );
-        setProjectID(newProject.id);
-        window.history.pushState({}, "", `?project=${newProject.id}`);
-    };
-
-    if (projectID) {
-        return <ProjectComponent projectID={projectID} />;
-    } else {
-        return <button onClick={createProject}>Create Project</button>;
-    }
-
-}
-
-export default App;
-
-````
-</CodeGroup>
-
-Now, inside ProjectComponent, let's add a button to invite guests (read-only) or members (read-write) to the Project.
-
-<CodeGroup>
-{/* prettier-ignore */}
-```tsx
-
-
-export function ProjectComponent({ projectID }: { projectID: ID<Project> }) {
-    const project = useCoState(Project, projectID, { resolve: { issues:  { $each: true } } });
-
-    const { me } = useAccount(); // [!code ++:6]
-
-    const invite = (role: "reader" | "writer") => {
-        const link = createInviteLink(project, role, { valueHint: "project" });
-        navigator.clipboard.writeText(link);
-    };
-
-    const createAndAddIssue = () => {
-        project?.issues.push(Issue.create({
-            title: "",
-            description: "",
-            estimate: 0,
-            status: "backlog",
-        }, project._owner));
-    };
-
-    return project ? (
-        <div>
-            <h1>{project.name}</h1>
-            {me.canAdmin(project) && ( // [!code ++:6]
-                <>
-                    <button onClick={() => invite("reader")}>Invite Guest</button>
-                    <button onClick={() => invite("writer")}>Invite Member</button>
-                </>
-            )}
-            <div className="border-r border-b">
-                {project.issues.map((issue) => (
-                    <IssueComponent key={issue.id} issue={issue} />
-                ))}
-                <button onClick={createAndAddIssue}>Create Issue</button>
-            </div>
-        </div>
-    ) : (
-        <div>Loading project...</div>
-    );
-}
-````
-
-</CodeGroup>
-
-### Consuming invites
-
-<ComingSoon/>
 
 #### Example apps
 
@@ -875,8 +94,8 @@ Tested with:
 
 <CodeGroup>
 ```json
-"expo": "~52.0.0",
-"react-native": "0.76.7",
+"expo": "~53.0.0",
+"react-native": "0.79.2",
 "react": "18.3.1"
 ```
 </CodeGroup>
@@ -1067,7 +286,7 @@ Tested with:
 
 <CodeGroup>
 ```json
-"react-native": "0.78.22",
+"react-native": "0.79.2",
 "react": "18.3.1"
 ```
 </CodeGroup>
@@ -1165,8 +384,8 @@ resolver: {
 resolveRequest: MetroSymlinksResolver(),
 extraNodeModules,
 nodeModulesPaths,
-},
 sourceExts: ["mjs", "js", "json", "ts", "tsx"],
+},
 watchFolders,
 });
 
@@ -1288,98 +507,382 @@ npx pod-install
 
 ### react Implementation
 
-# <span id="react">React</span>
+# Installation and Setup
 
-Wrap your application with `<JazzProvider />`, this is where you specify the sync & storage server to connect to (see [Sync and storage](/docs/react/sync-and-storage)).
+Add Jazz to your React application in minutes. This setup covers standard React apps, Next.js, and gives an overview of experimental SSR approaches.
+
+Integrating Jazz with React is straightforward. You'll define data schemas that describe your application's structure, then wrap your app with a provider that handles sync and storage. The whole process takes just three steps:
+
+1. [Install dependencies](#install-dependencies)
+2. [Write your schema](#write-your-schema)
+3. [Wrap your app in `<JazzProvider />`](#standard-react-setup)
+
+Looking for complete examples? Check out our [example applications](/examples) for chat apps, collaborative editors, and more.
+
+## Install dependencies
+
+First, install the required packages:
 
 <CodeGroup>
-{/* prettier-ignore */}
-```tsx
+```bash
+pnpm install jazz-react jazz-tools
+```
+</CodeGroup>
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-<JazzProvider // [!code ++:6]
+## Write your schema
+
+Define your data schema using [CoValues](/docs/schemas/covalues) from `jazz-tools`.
+
+<CodeGroup>
+```tsx twoslash
+// schema.ts
+
+export const TodoItem = co.map({
+title: z.string(),
+completed: z.boolean(),
+});
+
+export const AccountRoot = co.map({
+todos: co.list(TodoItem),
+});
+
+export const MyAppAccount = co.account({
+root: AccountRoot,
+profile: co.map({ name: z.string() }),
+});
+
+````
+</CodeGroup>
+
+See [CoValues](/docs/schemas/covalues) for more information on how to define your schema.
+
+## Standard React Setup
+
+Wrap your application with `<JazzProvider />` to connect to the Jazz network and define your data schema:
+
+<CodeGroup>
+```tsx twoslash
+// @filename: schema.ts
+
+export const TodoItem = co.map({
+  title: z.string(),
+  completed: z.boolean(),
+});
+
+export const AccountRoot = co.map({
+  todos: co.list(TodoItem),
+});
+
+export const MyAppAccount = co.account({
+  root: AccountRoot,
+  profile: co.map({ name: z.string() }),
+});
+// @filename: app.tsx
+
+function App() {
+    return <div>Hello, world!</div>;
+}
+// ---cut---
+// app.tsx
+
+createRoot(document.getElementById("root")!).render(
+  <JazzProvider
+    sync={{ peer: "wss://cloud.jazz.tools/?key=you@example.com" }}
+    AccountSchema={MyAppAccount}
+  >
+    <App />
+  </JazzProvider>
+);
+````
+
+</CodeGroup>
+
+This setup handles:
+
+- Connection to the Jazz sync server
+- Schema registration for type-safe data handling
+- Local storage configuration
+
+With this in place, you're ready to start using Jazz hooks in your components. [Learn how to access and update your data](/docs/using-covalues/subscription-and-loading#subscription-hooks).
+
+## Next.js Integration
+
+### Client-side Only (Easiest)
+
+The simplest approach for Next.js is client-side only integration:
+
+<CodeGroup>
+```tsx twoslash
+// @filename: schema.ts
+
+export const TodoItem = co.map({
+title: z.string(),
+completed: z.boolean(),
+});
+
+export const AccountRoot = co.map({
+todos: co.list(TodoItem),
+});
+
+export const MyAppAccount = co.account({
+root: AccountRoot,
+profile: co.map({ name: z.string() }),
+});
+// @filename: app.tsx
+// ---cut---
+// app.tsx
+"use client" // Mark as client component
+
+export function JazzWrapper({ children }: { children: React.ReactNode }) {
+return (
+<JazzProvider
 sync={{ peer: "wss://cloud.jazz.tools/?key=you@example.com" }}
 AccountSchema={MyAppAccount} >
-<App />
+{children}
 </JazzProvider>
 );
-
-// [!code ++:6]
-// Register the Account schema so `useAccount` returns our custom `MyAppAccount`
-declare module "jazz-react" {
-interface Register {
-Account: MyAppAccount;
-}
 }
 
 ````
 </CodeGroup>
 
-
-
-## Next.js
-
-### Client-side only
-
-The easiest way to use Jazz with Next.JS is to only use it on the client side. You can ensure this by:
-
-- marking the Jazz provider file as `"use client"`
+Remember to mark any component that uses Jazz hooks with `"use client"`:
 
 <CodeGroup>
-  {/* prettier-ignore */}
-```tsx
-"use client" // [!code ++]
+```tsx twoslash
+// @filename: schema.ts
 
-export function MyJazzProvider(props: { children: React.ReactNode }) {
-    return (
-        <JazzProvider
-            sync={{ peer: "wss://cloud.jazz.tools/?key=you@example.com" }}
-            AccountSchema={MyAppAccount}
-        >
-            {props.children}
-        </JazzProvider>
-    );
+export const TodoItem = co.map({
+  title: z.string(),
+  completed: z.boolean(),
+});
+
+export const AccountRoot = co.map({
+  todos: co.list(TodoItem),
+});
+
+export const MyAppAccount = co.account({
+  root: AccountRoot,
+  profile: co.map({ name: z.string() }),
+});
+// @filename: Profile.tsx
+
+// ---cut---
+// Profile.tsx
+"use client"; // [!code ++]
+
+
+export function Profile() {
+  const { me } = useAccount(MyAppAccount, { resolve: { profile: true } });
+
+  return <div>Hello, {me?.profile.name}</div>;
 }
 ````
 
 </CodeGroup>
 
-- marking any file with components where you use Jazz hooks (such as `useAccount` or `useCoState`) as `"use client"`
+### SSR Support (Experimental)
 
-### SSR use (experimental)
+For server-side rendering, Jazz offers experimental approaches:
 
-Pure SSR use of Jazz is basically just using jazz-nodejs (see [Node.JS / Server Workers](/docs/react/project-setup/server-side)) inside Server Components.
+- Pure SSR
+- Hybrid SSR + Client Hydration
 
-Instead of using hooks as you would on the client, you await promises returned by `CoValue.load(...)` inside your Server Components.
+#### Pure SSR
 
-TODO: code example
+Use Jazz in server components by directly loading data with `CoValue.load()`.
 
-This should work well for cases like rendering publicly-readable information, since the worker account will be able to load them.
+{/\*
+<CodeGroup>
 
-In the future, it will be possible to use trusted auth methods (such as Clerk, Auth0, etc.) that let you act as the same Jazz user both on the client and on the server, letting you use SSR even for data private to that user.
+```tsx twoslash
+// @errors: 18047
+// @filename: schema.ts
 
-### SSR + client-side (experimental)
+export class MyItem extends CoMap {
+  title = co.string;
+}
 
-You can combine the two approaches by creating
+export class MyCollection extends CoList.Of(co.ref(MyItem)) {}
+// @filename: PublicData.tsx
+const collectionID = "co_z123" as ID<MyCollection>;
+// ---cut---
+// Server Component (no "use client" directive)
 
-1. A pure "rendering" component that renders an already-loaded CoValue (in JSON-ified form)
+export default async function PublicData() {
+  // Load data directly in the server component
+  const items = await MyCollection.load(collectionID);
 
-TODO: code example
+  if (!items) {
+    return <div>Loading...</div>;
+  }
 
-2. A "hydrating" component (with `"use client"`) that
+  return (
+    <ul>
+      {items.map((item) => (item ? <li key={item.id}>{item.title}</li> : null))}
+    </ul>
+  );
+}
+```
 
-- expects a pre-loaded CoValue as a prop (in JSON-ified form)
-- uses one of the client-side Jazz hooks (such as `useAccount` or `useCoState`) to subscribe to that same CoValue
-- passing the client-side subscribed state to the "rendering" component, with the pre-loaded CoValue as a fallback until the client receives the first subscribed state
+</CodeGroup>
+*/}
 
-TODO: code example
+This works well for public data accessible to the server account.
 
-3. A "pre-loading" Server Component that
+#### Hybrid SSR + Client Hydration
 
-- pre-loads the CoValue by awaiting it's `load(...)` method (as described above)
-- renders the "hydrating" component, passing the pre-loaded CoValue as a prop
+For more complex cases, you can pre-render on the server and hydrate on the client:
 
-TODO: code example
+1. Create a shared rendering component.
+
+{/\*
+<CodeGroup>
+
+```tsx twoslash
+// @filename: schema.ts
+
+export class MyItem extends CoMap {
+  title = co.string;
+}
+// @filename: ItemList.tsx
+// ---cut---
+// ItemList.tsx - works in both server and client contexts
+export function ItemList({ items }: { items: MyItem[] }) {
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={item.id}>{item.title}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+</CodeGroup>
+*/}
+
+2. Create a client hydration component.
+
+{/\*
+<CodeGroup>
+
+```tsx twoslash
+// @filename: schema.ts
+
+export class MyItem extends CoMap {
+  title = co.string;
+}
+export class MyCollection extends CoList.Of(co.ref(MyItem)) {}
+// @filename: ItemList.tsx
+
+export function ItemList({ items }: { items: MyItem[] }) {
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={item.id}>{item.title}</li>
+      ))}
+    </ul>
+  );
+}
+// @filename: ItemListHydrator.tsx
+// ItemListHydrator.tsx
+const myCollectionID = "co_z123" as ID<MyCollection>;
+// ---cut---
+("use client");
+
+export function ItemListHydrator({ initialItems }: { initialItems: MyItem[] }) {
+  // Hydrate with real-time data once client loads
+  const myCollection = useCoState(MyCollection, myCollectionID);
+
+  // Filter out nulls for type safety
+  const items = Array.from(myCollection?.values() || []).filter(
+    (item): item is MyItem => !!item,
+  );
+
+  // Use server data until client data is available
+  const displayItems = items || initialItems;
+
+  return <ItemList items={displayItems} />;
+}
+```
+
+</CodeGroup>
+*/}
+
+3. Create a server component that pre-loads data.
+
+{/\*
+<CodeGroup>
+
+```tsx twoslash
+// @filename: schema.ts
+
+export class MyItem extends CoMap {
+  title = co.string;
+}
+
+export class MyCollection extends CoList.Of(co.ref(MyItem)) {}
+// @filename: ItemList.tsx
+
+export function ItemList({ items }: { items: MyItem[] }) {
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={item.id}>{item.title}</li>
+      ))}
+    </ul>
+  );
+}
+// @filename: ItemListHydrator.tsx
+// ItemListHydrator.tsx
+const myCollectionID = "co_z123" as ID<MyCollection>;
+// ---cut---
+("use client");
+
+export function ItemListHydrator({ initialItems }: { initialItems: MyItem[] }) {
+  // Hydrate with real-time data once client loads
+  const myCollection = useCoState(MyCollection, myCollectionID);
+
+  // Filter out nulls for type safety
+  const items = Array.from(myCollection?.values() || []).filter(
+    (item): item is MyItem => !!item,
+  );
+
+  // Use server data until client data is available
+  const displayItems = items || initialItems;
+
+  return <ItemList items={displayItems} />;
+}
+// @filename: ServerItemPage.tsx
+const myCollectionID = "co_z123" as ID<MyCollection>;
+// ---cut---
+// ServerItemPage.tsx
+export default async function ServerItemPage() {
+  // Pre-load data on the server
+  const initialItems = await MyCollection.load(myCollectionID);
+
+  // Filter out nulls for type safety
+  const items = Array.from(initialItems?.values() || []).filter(
+    (item): item is MyItem => !!item,
+  );
+
+  // Pass to client hydrator
+  return <ItemListHydrator initialItems={items} />;
+}
+```
+
+</CodeGroup>
+*/}
+
+This approach gives you the best of both worlds: fast initial loading with server rendering, plus real-time updates on the client.
+
+## Further Reading
+
+- [Schemas](/docs/schemas/covalues) - Learn about defining your data model
+- [Provider Configuration](/docs/project-setup/providers) - Learn about other configuration options for Providers
+- [Authentication](/docs/authentication/overview) - Set up user authentication
+- [Sync and Storage](/docs/sync-and-storage) - Learn about data persistence
 
 ---
 
@@ -1391,6 +894,8 @@ The main detail to understand when using Jazz server-side is that Server Workers
 
 This lets you share CoValues with Server Workers, having precise access control by adding the Worker to `Groups` with specific roles just like you would with other users.
 
+[See the full example here.](https://github.com/garden-co/jazz/tree/main/examples/jazz-paper-scissors)
+
 ## Generating credentials
 
 Server Workers typically have static credentials, consisting of a public Account ID and a private Account Secret.
@@ -1398,7 +903,6 @@ Server Workers typically have static credentials, consisting of a public Account
 To generate new credentials for a Server Worker, you can run:
 
 <CodeGroup>
-{/* prettier-ignore */}
 ```sh
 npx jazz-run account create --name "My Server Worker"
 ```
@@ -1422,8 +926,9 @@ You can use `startWorker` from `jazz-nodejs` to start a Server Worker. Similarly
 `startWorker` expects credentials in the `JAZZ_WORKER_ACCOUNT` and `JAZZ_WORKER_SECRET` environment variables by default (as printed by `npx account create ...`), but you can also pass them manually as `accountID` and `accountSecret` parameters if you get them from elsewhere.
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
+```ts twoslash
+class MyWorkerAccount extends Account {}
+// ---cut---
 
 const { worker } = await startWorker({
 AccountSchema: MyWorkerAccount,
@@ -1477,12 +982,12 @@ See the [schema docs](/docs/schemas/covalues) for more information.
 // src/lib/schema.ts
 
 export class MyProfile extends Profile {
-name = co.string;
-counter = co.number; // This will be publically visible
+name = coField.string;
+counter = coField.number; // This will be publically visible
 }
 
 export class MyAccount extends Account {
-profile = co.ref(MyProfile);
+profile = coField.ref(MyProfile);
 
 // ...
 }
@@ -1602,26 +1107,26 @@ Example schema inside `src/schema.ts` for a todo app:
 ```typescript
 
 export class ToDoItem extends CoMap {
-name = co.string;
-completed = co.boolean;
+name = coField.string;
+completed = coField.boolean;
 }
 
-export class ToDoList extends CoList.Of(co.ref(ToDoItem)) {}
+export class ToDoList extends CoList.Of(coField.ref(ToDoItem)) {}
 
 export class Folder extends CoMap {
-name = co.string;
-items = co.ref(ToDoList);
+name = coField.string;
+items = coField.ref(ToDoList);
 }
 
-export class FolderList extends CoList.Of(co.ref(Folder)) {}
+export class FolderList extends CoList.Of(coField.ref(Folder)) {}
 
 export class ToDoAccountRoot extends CoMap {
-folders = co.ref(FolderList);
+folders = coField.ref(FolderList);
 }
 
 export class ToDoAccount extends Account {
-profile = co.ref(Profile);
-root = co.ref(ToDoAccountRoot);
+profile = coField.ref(Profile);
+root = coField.ref(ToDoAccountRoot);
 
 migrate() {
 if (!this.\_refs.root) {
@@ -1858,6 +1363,8 @@ The main detail to understand when using Jazz server-side is that Server Workers
 
 This lets you share CoValues with Server Workers, having precise access control by adding the Worker to `Groups` with specific roles just like you would with other users.
 
+[See the full example here.](https://github.com/garden-co/jazz/tree/main/examples/jazz-paper-scissors)
+
 ## Generating credentials
 
 Server Workers typically have static credentials, consisting of a public Account ID and a private Account Secret.
@@ -1865,7 +1372,6 @@ Server Workers typically have static credentials, consisting of a public Account
 To generate new credentials for a Server Worker, you can run:
 
 <CodeGroup>
-{/* prettier-ignore */}
 ```sh
 npx jazz-run account create --name "My Server Worker"
 ```
@@ -1889,8 +1395,9 @@ You can use `startWorker` from `jazz-nodejs` to start a Server Worker. Similarly
 `startWorker` expects credentials in the `JAZZ_WORKER_ACCOUNT` and `JAZZ_WORKER_SECRET` environment variables by default (as printed by `npx account create ...`), but you can also pass them manually as `accountID` and `accountSecret` parameters if you get them from elsewhere.
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
+```ts twoslash
+class MyWorkerAccount extends Account {}
+// ---cut---
 
 const { worker } = await startWorker({
 AccountSchema: MyWorkerAccount,
@@ -1923,8 +1430,6 @@ What's less clear is how you can trigger this work to happen.
 ### react-native-expo Implementation
 
 # Providers
-
-## Introduction
 
 `<JazzProvider />` is the core component that connects your Expo application to Jazz. It handles:
 
@@ -2039,8 +1544,6 @@ Local persistence is enabled by default with no additional configuration require
 
 # Providers
 
-## Introduction
-
 `<JazzProvider />` is the core component that connects your React Native application to Jazz. It handles:
 
 - **Data Synchronization**: Manages connections to peers and the Jazz cloud
@@ -2152,8 +1655,6 @@ Local persistence is enabled by default with no additional configuration require
 
 # Providers
 
-## Introduction
-
 `<JazzProvider />` is the core component that connects your React application to Jazz. It handles:
 
 - **Data Synchronization**: Manages connections to peers and the Jazz cloud
@@ -2171,10 +1672,19 @@ The `<JazzProvider />` accepts several configuration options:
 ```tsx twoslash
 // @filename: schema.ts
 
-export class MyAppAccount extends Account {
-  name = co.string;
-}
+export const TodoItem = co.map({
+  title: z.string(),
+  completed: z.boolean(),
+});
 
+export const AccountRoot = co.map({
+  todos: co.list(TodoItem),
+});
+
+export const MyAppAccount = co.account({
+  root: AccountRoot,
+  profile: co.map({ name: z.string() }),
+});
 // @filename: app.tsx
 // ---cut---
 // App.tsx
@@ -2191,13 +1701,6 @@ export function MyApp({ children }: { children: React.ReactNode }) {
       {children}
     </JazzProvider>
   );
-}
-
-// Register the Account schema so `useAccount` returns our custom `MyAppAccount`
-declare module "jazz-react" {
-  interface Register {
-    Account: MyAppAccount;
-  }
 }
 ````
 
@@ -2233,17 +1736,20 @@ The `AccountSchema` property defines your application's account structure:
 ```tsx twoslash
 
 // @filename: schema.ts
-// schema.ts
-class Preferences extends CoMap {
-  theme = co.string;
-  notifications = co.boolean;
-}
 
-// Define your custom account schema
-export class MyAppAccount extends Account {
-  name = co.string;
-  preferences = co.ref(Preferences);
-}
+export const TodoItem = co.map({
+  title: z.string(),
+  completed: z.boolean(),
+});
+
+export const AccountRoot = co.map({
+  todos: co.list(TodoItem),
+});
+
+export const MyAppAccount = co.account({
+  root: AccountRoot,
+  profile: co.map({ name: z.string() }),
+});
 
 // @filename: app.tsx
 
@@ -2260,19 +1766,11 @@ export function MyApp ({ children }: { children: React.ReactNode }) {
   return (
     <JazzProvider
       sync={syncConfig}
-
       AccountSchema={MyAppAccount}
     >
       {children}
     </JazzProvider>
   );
-}
-
-// Register type for useAccount
-declare module "jazz-react" {
-  interface Register {
-    Account: MyAppAccount;
-  }
 }
 ````
 
@@ -2320,6 +1818,168 @@ sync={syncConfig}
 
 );
 }
+
+````
+</CodeGroup>
+
+See [Authentication States](/docs/authentication/authentication-states) for more information on authentication states, guest mode, and handling anonymous accounts.
+
+## Authentication
+
+`<JazzProvider />` works with various authentication methods to enable users to access their data across multiple devices. For a complete guide to authentication, see our [Authentication Overview](/docs/authentication/overview).
+
+## Need Help?
+
+If you have questions about configuring the Jazz Provider for your specific use case, [join our Discord community](https://discord.gg/utDMjHYg42) for help.
+
+---
+
+### svelte Implementation
+
+# Providers
+
+`<JazzProvider />` is the core component that connects your Svelte application to Jazz. It handles:
+
+- **Data Synchronization**: Manages connections to peers and the Jazz cloud
+- **Local Storage**: Persists data locally between app sessions
+- **Schema Types**: Provides APIs for the [AccountSchema](/docs/schemas/accounts-and-migrations)
+- **Authentication**: Connects your authentication system to Jazz
+
+Our [File Share example app](https://github.com/garden-co/jazz/blob/main/examples/file-share-svelte/src/routes/%2Blayout.svelte) provides an implementation of JazzProvider with authentication and real-time data sync.
+
+## Setting up the Provider
+
+The `<JazzProvider />` accepts several configuration options:
+
+<CodeGroup>
+```svelte
+<!-- src/routes/+layout.svelte -->
+<script lang="ts" module>
+  // Register the Account schema so `useAccount` returns our custom `MyAppAccount`
+  declare module 'jazz-svelte' {
+    interface Register {
+      Account: MyAppAccount;
+    }
+  }
+</script>
+
+<script lang="ts">
+  import { JazzProvider } from "jazz-svelte";
+  import { MyAppAccount } from "$lib/schema";
+  let { children } = $props();
+</script>
+
+<JazzProvider
+  sync={{
+    peer: "wss://cloud.jazz.tools/?key=your-api-key",
+    when: "always" // When to sync: "always", "never", or "signedUp"
+  }}
+  AccountSchema={MyAppAccount}
+>
+  {@render children()}
+</JazzProvider>
+````
+
+</CodeGroup>
+
+## Provider Options
+
+### Sync Options
+
+The `sync` property configures how your application connects to the Jazz network:
+
+<CodeGroup>
+```ts twoslash
+// @filename: src/routes/layout.svelte
+
+// ---cut---
+
+const syncConfig: SyncConfig = {
+// Connection to Jazz Cloud or your own sync server
+peer: "wss://cloud.jazz.tools/?key=your-api-key",
+
+// When to sync: "always" (default), "never", or "signedUp"
+when: "always",
+}
+
+````
+</CodeGroup>
+
+
+See [Authentication States](/docs/authentication/authentication-states#controlling-sync-for-different-authentication-states) for more details on how the `when` property affects synchronization based on authentication state.
+
+### Account Schema
+
+The `AccountSchema` property defines your application's account structure:
+
+<CodeGroup>
+```svelte
+<!-- src/routes/+layout.svelte -->>
+<script lang="ts" module>
+  // Register the Account schema so `useAccount` returns our custom `MyAppAccount`
+  declare module 'jazz-svelte' {
+    interface Register {
+      Account: MyAppAccount;
+    }
+  }
+</script>
+
+<script lang="ts">
+  import { JazzProvider } from "jazz-svelte";
+  import { MyAppAccount } from "$lib/schema";
+  let { children } = $props();
+</script>
+
+<JazzProvider
+  sync={syncConfig}
+  AccountSchema={MyAppAccount}
+>
+  {@render children()}
+</JazzProvider>
+````
+
+</CodeGroup>
+
+### Additional Options
+
+The provider accepts these additional options:
+
+<CodeGroup>
+```svelte
+<!-- src/routes/+layout.svelte -->
+<script lang="ts">
+  import { JazzProvider } from "jazz-svelte";
+  import { syncConfig } from "$lib/syncConfig";
+  let { children } = $props();
+
+// Enable guest mode for account-less access
+const guestMode = false;
+
+// Default name for new user profiles
+const defaultProfileName = "New User";
+
+// Handle user logout
+const onLogOut = () => {
+console.log("User logged out");
+};
+
+// Handle anonymous account data when user logs in to existing account
+const onAnonymousAccountDiscarded = (account) => {
+console.log("Anonymous account discarded", account.id);
+// Migrate data here
+return Promise.resolve();
+};
+</script>
+
+<JazzProvider
+sync={syncConfig}
+{guestMode}
+{defaultProfileName}
+{onLogOut}
+{onAnonymousAccountDiscarded}
+
+> {@render children}
+> </JazzProvider>
 
 ```
 </CodeGroup>
@@ -2498,15 +2158,14 @@ For now, you can get your account credentials from the `jazz-logged-in-secret` l
 ## Exporting current account to Inspector from your app [!framework=react,svelte,vue,vanilla]
 
 In development mode, you can launch the Inspector from your Jazz app to inspect your account by pressing `Cmd+J`.
-</ContentByFramework>
 
-<ContentByFramework framework="react">
-## Embedding the Inspector widget into your app [!framework=react]
+## Embedding the Inspector widget into your app [!framework=react,svelte,vue,vanilla]
 
 Alternatively, you can embed the Inspector directly into your app, so you don't need to open a separate window.
 
 Install the package.
 
+<ContentByFramework framework="react">
 <CodeGroup>
 ```sh
 npm install jazz-inspector
@@ -2524,9 +2183,44 @@ Render the component within your `JazzProvider`.
 </JazzProvider>
 ```
 </CodeGroup>
+</ContentByFramework>
+
+<ContentByFramework framework={["svelte", "vue", "vanilla"]}>
+<CodeGroup>
+
+```sh
+npm install jazz-inspector-element
+```
+
+</CodeGroup>
+
+Render the component.
+
+<CodeGroup>
+```ts
+
+document.body.appendChild(document.createElement("jazz-inspector"))
+
+````
+</CodeGroup>
+
+Or
+
+<CodeGroup>
+```tsx
+
+<jazz-inspector />
+````
+
+</CodeGroup>
+
+</ContentByFramework>
 
 This will show the Inspector launch button on the right of your page.
 
+</ContentByFramework>
+
+<ContentByFramework framework="react">
 ### Positioning the Inspector button [!framework=react]
 
 You can also customize the button position with the following options:
@@ -2539,12 +2233,11 @@ You can also customize the button position with the following options:
 - top left
 
 For example:
+
 <CodeGroup>
-
 ```tsx
-<JazzInspector position="bottom left" />
+<JazzInspector position="bottom left"/>
 ```
-
 </CodeGroup>
 
 <div className="bg-stone-200 flex items-center justify-center h-72 relative dark:bg-stone-900 mt-5">
@@ -2554,849 +2247,441 @@ For example:
     <JazzIcon className="w-full h-auto"/>
   </button>
 </div>
+</ContentByFramework>
 
+<ContentByFramework framework="react">
 Check out the [music player app](https://github.com/garden-co/jazz/blob/main/examples/music-player/src/2_main.tsx) for a full example.
+</ContentByFramework>
+
+<ContentByFramework framework="svelte">
+Check out the [file share app](https://github.com/garden-co/jazz/blob/main/examples/file-share-svelte/src/src/routes/%2Blayout.svelte) for a full example.
 </ContentByFramework>
 
 ### Upgrade guides
 
-#### 0.13.0 - React Native Split
+#### 0.14.0 - Zod-based schemas
 
-### react-native-expo Implementation
+# Jazz 0.14.0 Introducing Zod-based schemas
 
-# Upgrade to Jazz 0.13.0 for React Native Expo
+We're excited to move from our own schema syntax to using Zod v4.
 
-Version 0.13.0 introduces a significant architectural change in how Jazz supports React Native applications. We've separated the React Native implementation into two distinct packages to better serve different React Native development approaches:
+This is the first step in a series of releases to make Jazz more familiar and to make CoValues look more like regular data structures.
 
-1. **jazz-expo**: Dedicated package for Expo applications
-2. **jazz-react-native**: Focused package for framework-less React Native applications
-3. **jazz-react-native-core**: Shared core functionality used by both implementations (probably not imported directly)
+**Note: This is a huge release that we're still cleaning up and documenting.**
 
-This guide focuses on upgrading **Expo applications**. If you're using framework-less React Native, please see the [React Native upgrade guide](/docs/react-native/upgrade/0-13-0).
+<small className="leading-tight">
+We're still in the process of:
+- updating all our docs
+- double-checking all our framework bindings
+- completing all the details of this upgrade guide
+</small>
 
-## Migration Steps for Expo
+If you see something broken, please let us know on [Discord](https://discord.gg/utDMjHYg42) and check back in a couple hours.
 
-1. **Update Dependencies**
+Thanks for your patience!
 
-Remove the old packages and install the new `jazz-expo` package.
+## Overview:
 
-<CodeGroup>
-```bash
-# Remove the old package
-npm uninstall jazz-react-native
-
-# Install the new Expo-specific packages
-
-npx expo install expo-sqlite expo-secure-store expo-file-system @react-native-community/netinfo
-
-# Install the new packages
-
-npm install jazz-expo jazz-react-native-media-images
-
-````
-</CodeGroup>
-
-2. **Update Imports**
-
-Update your imports to use the new `jazz-expo` package.
+So far, Jazz has relied on our own idiosyncratic schema definition syntax where you had to extend classes and be careful to use `co.ref` for references.
 
 <CodeGroup>
-```tsx twoslash
-// @noErrors: 2300 2307
-// Before
-
-// After
-````
-
-</CodeGroup>
-
-3. **Update Type Declarations**
-
-Update your type declarations to use the new `jazz-expo` package.
-
-<CodeGroup>
-```tsx twoslash
-// @noErrors: 2664 2304
-// Before
-declare module "jazz-react-native" { // [!code --:5]
-  interface Register {
-    Account: MyAppAccount;
-  }
-}
-
-// After
-declare module "jazz-expo" { // [!code ++:5]
-interface Register {
-Account: MyAppAccount;
-}
-}
-
-````
-</CodeGroup>
-
-## Clerk Authentication
-
-Clerk authentication has been moved inside the `jazz-expo` package. This is a breaking change that requires updating both your imports and providers.
-
-If you're using Clerk auth in your Expo application, you'll need to:
-
-<CodeGroup>
-```tsx twoslash
-// @noErrors: 2300 2307
-// Before
-
-// After
-````
-
-</CodeGroup>
-
-Since Clerk only supports Expo applications, this consolidation makes sense and simplifies your dependency structure. You'll need to completely remove the `jazz-react-native-clerk` package from your dependencies and use the Clerk functionality that's now built into `jazz-expo`.
-
-## Storage Adapter Changes
-
-The `jazz-expo` package now uses:
-
-- `ExpoSQLiteAdapter` for database storage (using `expo-sqlite`)
-- `ExpoSecureStoreAdapter` for key-value storage (using `expo-secure-store`)
-
-These are now the default storage adapters in the `JazzProvider` for Expo applications, so you don't need to specify them explicitly.
-
-## Example Provider Setup
-
-<CodeGroup>
-```tsx twoslash
-// @noErrors: 2300 2307 2686 2664 2435 1005
-
-export function MyJazzProvider({ children }: { children: React.ReactNode }) {
-return (
-<JazzProvider
-sync={{ peer: "wss://cloud.jazz.tools/?key=you@example.com" }}
-AccountSchema={MyAppAccount} >
-{children}
-</JazzProvider>
-);
-}
-
-// Register the Account schema
-declare module "jazz-react-native" { // [!code --:5]
-interface Register {
-Account: MyAppAccount;
-}
-}
-declare module "jazz-expo" { // [!code ++:5]
-interface Register {
-Account: MyAppAccount;
-}
-}
-
-````
-</CodeGroup>
-
-## New Architecture Support
-
-The `jazz-expo` implementation supports the Expo New Architecture.
-
-## For More Information
-
-For detailed setup instructions, refer to the [React Native Expo Setup Guide](/docs/react-native-expo/project-setup)
-
----
-
-### react-native Implementation
-
-# Jazz 0.13.0 - React Native Split
-
-Version 0.13.0 introduces a significant architectural change in how Jazz supports React Native applications. We've separated the React Native implementation into two distinct packages to better serve different React Native development approaches:
-
-1. **[jazz-react-native](https://www.npmjs.com/package/jazz-react-native)**: Focused package for framework-less React Native applications
-2. **[jazz-expo](https://www.npmjs.com/package/jazz-expo)**: Dedicated package for Expo applications
-3. **[jazz-react-native-core](https://www.npmjs.com/package/jazz-react-native-core)**: Shared core functionality used by both implementations
-
-This guide focuses on upgrading **React Native without Expo** applications. If you're using Expo, please see the [Expo upgrade guide](/docs/react-native-expo/upgrade/0-13-0).
-
-## Migration Steps for React Native
-
-1. **Update Dependencies**
-<CodeGroup>
-```bash
-# Ensure you have the required dependencies
-npm install @op-engineering/op-sqlite react-native-mmkv @react-native-community/netinfo
-
-# Remove the old packages
-npm install jazz-react-native-expo  # [!code --]
-
-# Install the new packages
-npm install jazz-react-native jazz-react-native-media-images # [!code ++]
-
-# Run pod install for iOS
-npx pod-install
-````
-
-</CodeGroup>
-2. **No Import Changes Required**
-Your existing imports from `jazz-react-native` should continue to work, but the implementation now uses a different storage solution (op-sqlite and MMKV).
-## Storage Adapter Changes
-The `jazz-react-native` package now uses:
-- `OpSQLiteAdapter` for database storage (using `@op-engineering/op-sqlite`)
-- `MMKVStoreAdapter` for key-value storage (using `react-native-mmkv`)
-These are now the default storage adapters in the `JazzProvider` for framework-less React Native applications.
-## Example Provider Setup
-<CodeGroup>
-```tsx twoslash
-// @noErrors: 2307 2686 2664
-// App.tsx
-export function MyJazzProvider({ children }: { children: React.ReactNode }) {
-  return (
-    <JazzProvider
-      sync={{ peer: "wss://cloud.jazz.tools/?key=you@example.com" }}
-      AccountSchema={MyAppAccount}
-    >
-      {children}
-    </JazzProvider>
-  );
-}
-// Register the Account schema
-declare module "jazz-react-native" {
-  interface Register {
-    Account: MyAppAccount;
-  }
-}
-```
-</CodeGroup>
-
-## New Architecture Support
-
-The `jazz-react-native` implementation fully supports [the React Native New Architecture](https://reactnative.dev/docs/the-new-architecture/landing-page). This includes compatibility with:
-
-- JavaScript Interface (JSI) for more efficient JavaScript-to-native communication
-- Fabric rendering system for improved UI performance
-- TurboModules for better native module management
-- Codegen for type-safe interfaces
-
-No additional configuration is needed to use Jazz with the New Architecture.
-
-## Potential Podfile Issues
-
-If you encounter pod installation issues in a pnpm workspace environment (such as `undefined method '[]' for nil` in the Podfile at the line `config = use_native_modules!`), replace the problematic line with a manual path reference:
-<CodeGroup>
-
 ```ts
-react_native_path = "../node_modules/react-native"
-config = { :reactNativePath => react_native_path }
+// BEFORE
+
+export class Message extends CoMap {
+text = co.ref(CoPlainText);
+image = co.optional.ref(ImageDefinition);
+important = co.boolean;
+}
+
+export class Chat extends CoList.Of(co.ref(Message)) {}
+
+````
+</CodeGroup>
+
+While this had certain ergonomic benefits it relied on unclean hacks to work.
+
+In addition, many of our adopters expressed a preference for avoiding class syntax, and LLMs consistently expected to be able to use Zod.
+
+For this reason, we completely overhauled how you define and use CoValue schemas:
+
+<CodeGroup>
+```ts twoslash
+// AFTER
+
+export const Message = co.map({
+  text: co.plainText(),
+  image: z.optional(co.image()),
+  important: z.boolean(),
+});
+
+export const Chat = co.list(Message);
+````
+
+</CodeGroup>
+
+## Major breaking changes
+
+### Schema definitions
+
+You now define CoValue schemas using two new exports from `jazz-tools`:
+
+- a new `co` definer that mirrors Zod's object/record/array syntax to define CoValue types
+  - `co.map()`, `co.record()`, `co.list()`, `co.feed()`
+  - `co.account()`, `co.profile()`
+  - `co.plainText()`, `co.richText()`,
+  - `co.fileStream()`, `co.image()`
+  - see the updated [Defining CoValue Schemas](/docs/schemas/covalues)
+- `z` re-exported from Zod v4
+  - primitives like `z.string()`, `z.number()`, `z.literal()`
+    - **note**: additional constraints like `z.min()` and `z.max()` are not yet enforced, we'll add validation in future releases
+  - complex types like `z.object()` and `z.array()` to define JSON-like fields without internal collaboration
+  - combinators like `z.optional()` and `z.discriminatedUnion()`
+    - these also work on CoValue types!
+  - see the updated [Docs on Primitive Fields](/docs/schemas/covalues#primitive-fields),
+    [Docs on Optional References](/docs/schemas/covalues#optional-references)
+    and [Docs on Unions of CoMaps](/docs/schemas/covalues#unions-of-comaps-declaration)
+
+Similar to Zod v4's new object syntax, recursive and mutually recursive types are now [much easier to express](/docs/react/schemas/covalues#recursive-references).
+
+### How to pass loaded CoValues
+
+<ContentByFramework framework={["react", "react-native", "vue", "vanilla", "react-native-expo"]}>
+Calls to `useCoState()` work just the same, but they return a slightly different type than before.
+
+And while you can still read from the type just as before...
+
+<CodeGroup>
+```tsx twoslash
+// ---cut---
+
+const Pet = co.map({
+name: z.string(),
+age: z.number(),
+});
+type Pet = co.loaded<typeof Pet>;
+
+const Person = co.map({
+name: z.string(),
+age: z.number(),
+pets: co.list(Pet),
+});
+type Person = co.loaded<typeof Person>;
+
+function MyComponent({ id }: { id: string }) {
+const person = useCoState(Person, id);
+
+return person && <PersonName person={person} />;
+}
+
+function PersonName({ person }: {
+person: Person
+}) {
+return <div>{person.name}</div>;
+}
+
+````
+</CodeGroup>
+
+`co.loaded` can also take a second argument to specify the loading depth of the expected CoValue, mirroring the `resolve` options for `useCoState`, `load`, `subscribe`, etc.
+
+<CodeGroup>
+```tsx twoslash
+// ---cut---
+
+const Pet = co.map({
+  name: z.string(),
+  age: z.number(),
+});
+type Pet = co.loaded<typeof Pet>;
+
+const Person = co.map({
+  name: z.string(),
+  age: z.number(),
+  pets: co.list(Pet),
+});
+type Person = co.loaded<typeof Person>;
+
+function MyComponent({ id }: { id: string }) {
+  const personWithPets = useCoState(Person, id, {
+    resolve: { pets: { $each: true } }  // [!code ++]
+  });
+
+  return personWithPets && <PersonAndFirstPetName person={personWithPets} />;
+}
+
+function PersonAndFirstPetName({ person }: {
+  person: co.loaded<typeof Person, { pets: { $each: true } }> // [!code ++]
+}) {
+  return <div>{person.name} & {person.pets[0].name}</div>;
+}
+````
+
+</CodeGroup>
+</ContentByFramework>
+<ContentByFramework framework="svelte">
+We've removed the `useCoState`, `useAccount` and `useAccountOrGuest` hooks.
+
+You should now use the `CoState` and `AccountCoState` reactive classes instead. These provide greater stability and are significantly easier to work with.
+
+Calls to `new CoState()` work just the same, but they return a slightly different type than before.
+
+And while you can still read from the type just as before...
+
+<CodeGroup>
+```ts twoslash filename="schema.ts"
+// @filename: schema.ts
+
+const Pet = co.map({
+name: z.string(),
+age: z.number(),
+});
+type Pet = co.loaded<typeof Pet>;
+
+const Person = co.map({
+name: z.string(),
+age: z.number(),
+pets: co.list(Pet),
+});
+type Person = co.loaded<typeof Person>;
+
+````
+```svelte twoslash filename="app.svelte"
+// @filename: app.svelte
+<script lang="ts">
+
+const person = new CoState(Person, id);
+</script>
+
+<div>
+  {person.current?.name}
+</div>
+````
+
+</CodeGroup>
+
+`co.loaded` can also take a second argument to specify the loading depth of the expected CoValue, mirroring the `resolve` options for `CoState`, `load`, `subscribe`, etc.
+
+<CodeGroup>
+```svelte twoslash
+<script lang="ts" module>
+  export type Props = {
+    person: co.loaded<typeof Person, { pets: { $each: true } }>;  // [!code ++]
+  };
+</script>
+
+<script lang="ts">
+  import { Person } from './schema';
+
+  let props: Props = $props();
+</script>
+
+<div>
+  {props.person.name}
+</div>
+<ul>
+  {#each props.person.pets as pet}
+    <li>{pet.name}</li>
+  {/each}
+</ul>
 ```
-
 </CodeGroup>
-This approach bypasses issues with dependency resolution in workspace setups where packages may be hoisted to the root `node_modules`.
-## For More Information
-For detailed setup instructions, refer to the [React Native Setup Guide](/docs/react-native/project-setup)
+</ContentByFramework>
 
-#### 0.12.0 - Deeply Resolved Data
+### Removing AccountSchema registration
 
-# Jazz 0.12.0 - Deeply resolved data
+We have removed the Typescript AccountSchema registration.
 
-Jazz 0.12.0 makes it easier and safer to load nested data. You can now specify exactly which nested data you want to load, and Jazz will check permissions and handle missing data gracefully. This helps catch errors earlier during development and makes your code more reliable.
+It was causing some deal of confusion to new adopters so we have decided to replace the magic inference with a more explicit approach.
 
-## What's new?
-
-- New resolve API for a more type-safe deep loading
-- A single, consistent load option for all loading methods
-- Improved permission checks on deep loading
-- Easier type safety with the `Resolved` type helper
-
-## Breaking changes
-
-### New Resolve API
-
-We're introducing a new resolve API for deep loading, more friendly to TypeScript, IDE autocompletion and LLMs.
-
-**Major changes:**
-
-1. Functions and hooks for loading now take the resolve query as an explicit nested `resolve` prop
-2. Shallowly loading a collection is now done with `true` instead of `[]` or `{}`
+<ContentByFramework framework={["react", "react-native", "vue", "vanilla", "react-native-expo"]}>
+When using `useAccount` you should now pass the `Account` schema directly:
 
 <CodeGroup>
 ```tsx twoslash
-// @noErrors: 2451
-class AccountRoot extends CoMap { friends = co.ref(ListOfAccounts); }
-class ListOfAccounts extends CoList.Of(co.ref(Account)) {}
-class MyAppAccount extends Account { root = co.ref(AccountRoot);}
-declare module "jazz-react" { interface Register { Account: MyAppAccount; } }
-// ---cut-before---
-// Before
-// @ts-expect-error
-const { me } = useAccount({ root: { friends: [] } }); // [!code --]
+// @filename: schema.ts
 
-// After
-const { me } = useAccount({ // [!code ++]
-resolve: { root: { friends: true } } // [!code ++]
-}); // [!code ++]
+export const MyAccount = co.account({
+profile: co.profile(),
+root: co.map({})
+});
 
-````
-</CodeGroup>
+// @filename: app.tsx
+// ---cut---
 
-3. For collections, resolving items deeply is now done with a special `$each` key.
-
-For a `CoList`:
-
-<CodeGroup>
-```tsx twoslash
-// @noErrors: 2451
-
-// ---cut-before---
-class Task extends CoMap { }
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
-
-const id = "co_123" as ID<Task>;
-
-// Before
-// @ts-expect-error
-const tasks = useCoState(ListOfTasks, id, [{}]); // [!code --]
-
-// After
-const tasks = useCoState(ListOfTasks, id, { resolve: { $each: true } }); // [!code ++]
-````
-
-</CodeGroup>
-
-For a `CoMap.Record`:
-
-<CodeGroup>
-```tsx twoslash
-// @noErrors: 2451
-class MyAppAccount extends Account {}
-const id = "co_123" as ID<UsersByUsername>;
-
-// ---cut-before---
-class UsersByUsername extends CoMap.Record(co.ref(MyAppAccount)) {}
-
-// Before
-// @ts-expect-error
-const usersByUsername = useCoState(UsersByUsername, id, [{}]); // [!code --]
-
-// After
-const usersByUsername = useCoState(UsersByUsername, id, { // [!code ++]
-resolve: { $each: true } // [!code ++]
-}); // [!code ++]
-
-````
-</CodeGroup>
-
-Nested loading &mdash; note how it's now less terse, but more readable:
-
-<CodeGroup>
-```tsx twoslash
-// @noErrors: 2451
-
-const id = "co_123" as ID<ListOfTasks>;
-
-// ---cut-before---
-class Org extends CoMap {
-  name = co.string;
-}
-
-class Assignee extends CoMap {
-  name = co.string;
-  org = co.ref(Org);
-}
-class ListOfAssignees extends CoList.Of(co.ref(Assignee)) {}
-
-class Task extends CoMap {
-  content = co.string;
-  assignees = co.ref(ListOfAssignees);
-}
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
-
-// Before
-// @ts-expect-error
-const tasksWithAssigneesAndTheirOrgs = useCoState(ListOfTasks, id, [{ // [!code --]
-  assignees: [{ org: {}}]} // [!code --]
-]); // [!code --]
-
-// After
-const tasksWithAssigneesAndTheirOrgs = useCoState(ListOfTasks, id, { // [!code ++]
-  resolve: { // [!code ++]
-    $each: { // [!code ++]
-      assignees: { // [!code ++]
-        $each: { org: true } // [!code ++]
-      } // [!code ++]
-    } // [!code ++]
-  } // [!code ++]
-}); // [!code ++]
-````
-
-</CodeGroup>
-
-It's also a lot more auto-complete friendly:
-
-<CodeGroup>
-```tsx twoslash
-// @noErrors: 2451 2353 2581
-
-class Org extends CoMap { name = co.string; }
-class Assignee extends CoMap { org = co.ref(Org); }
-class ListOfAssignees extends CoList.Of(co.ref(Assignee)) {}
-class Task extends CoMap { assignees = co.ref(ListOfAssignees); }
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
-const id = "co_123" as ID<ListOfTasks>;
-
-// ---cut-before---
-const tasksWithAssigneesAndTheirOrgs = useCoState(ListOfTasks, id, {
+function MyComponent() {
+const { me } = useAccount(MyAccount, {
 resolve: {
-$each: {
-assignees: {
-$
-// ^|
+profile: true,
+},
+});
+
+return <div>{me?.profile.name}</div>;
 }
+
+````
+</CodeGroup>
+</ContentByFramework>
+
+<ContentByFramework framework="svelte">
+When using `AccountCoState` you should now pass the `Account` schema directly:
+
+<CodeGroup>
+```svelte twoslash filename="app.svelte"
+<script lang="ts">
+
+const account = new AccountCoState(MyAccount, {
+  resolve: {
+    profile: true,
+  },
+});
+</script>
+
+<div>
+  {account.current?.profile.name}
+</div>
+````
+
+</CodeGroup>
+</ContentByFramework>
+
+### Defining migrations
+
+Now account schemas need to be defined with `co.account()` and migrations can be declared using `withMigration()`:
+
+<CodeGroup>
+```ts twoslash
+
+const Pet = co.map({
+name: z.string(),
+age: z.number(),
+});
+
+const MyAppRoot = co.map({
+pets: co.list(Pet),
+});
+
+const MyAppProfile = co.profile({
+name: z.string(),
+age: z.number().optional(),
+});
+
+export const MyAppAccount = co.account({
+root: MyAppRoot,
+profile: MyAppProfile,
+}).withMigration((account, creationProps?: { name: string }) => {
+if (account.root === undefined) {
+account.root = MyAppRoot.create({
+pets: co.list(Pet).create([]),
+});
 }
+
+if (account.profile === undefined) {
+const profileGroup = Group.create();
+profileGroup.addMember("everyone", "reader");
+
+    account.profile = MyAppProfile.create({
+      name: creationProps?.name ?? "New user",
+    }, profileGroup);
+
 }
 });
 
 ````
 </CodeGroup>
 
-### A single, consistent load option
+### Defining Schema helper methods
 
-The new API works across all loading methods, and separating out the resolve query means
-other options with default values are easier to manage, for example: loading a value as a specific account instead of using the implicit current account:
+TODO
+
+## Minor breaking changes
+
+### `_refs` and `_edits` are now potentially null
+
+The type of `_refs` and `_edits` is now nullable.
 
 <CodeGroup>
 ```ts twoslash
-// @noErrors: 2451
+// ---cut---
+const Person = co.map({
+  name: z.string(),
+  age: z.number(),
+});
 
-class Track extends CoMap {}
-class ListOfTracks extends CoList.Of(co.ref(Track)) {}
-class Playlist extends CoMap { tracks = co.ref(ListOfTracks); }
-const id = "co_123" as ID<Playlist>;
-const otherAccount = {} as Account;
+const person = Person.create({ name: "John", age: 30 });
 
-// ---cut-before---
-// Before
-// @ts-expect-error
-Playlist.load(id, otherAccount, { // [!code --]
-  tracks: [], // [!code --]
-}); // [!code --]
-
-// After
-Playlist.load(id, { // [!code ++]
-  loadAs: otherAccount, // [!code ++]
-  resolve: { tracks: true } // [!code ++]
-}); // [!code ++]
+person._refs; // now nullable
+person._edits; // now nullable
 ````
 
 </CodeGroup>
 
-### Improved permission checks on deep loading
+### `members` and `by` now return basic `Account`
 
-Now `useCoState` will return `null` when the current user lacks permissions to load requested data.
+We have removed the Account schema registration, so now `members` and `by` methods now always return basic `Account`.
 
-Previously, `useCoState` would return `undefined` if the current user lacked permissions, making it hard to tell if the value is loading or if it's missing.
-
-Now `undefined` means that the value is definitely loading, and `null` means that the value is temporarily missing.
-
-We also have implemented a more granular permission checking, where if an _optional_ CoValue cannot be accessed, `useCoState` will return the data stripped of that CoValue.
-
-**Note:** The state handling around loading and error states will become more detailed and easy-to-handle in future releases, so this is just a small step towards consistency.
-
-<CodeGroup>
-{/* prettier-ignore */}
-```tsx twoslash
-// @noErrors: 2451
-class Track extends CoMap {}
-function TrackComponent({ track }: { track: Track }) {return ""}
-
-// ---cut-before---
-class ListOfTracks extends CoList.Of(co.optional.ref(Track)) {}
-
-function TrackListComponent({ id }: { id: ID<ListOfTracks> }) {
-// Before (ambiguous states)
-// @ts-expect-error
-const tracks = useCoState(ListOfTracks, id, [{}]); // [!code --]
-if (tracks === undefined) return <div>Loading or access denied</div>; // [!code --]
-if (tracks === null) return <div>Not found</div>; // [!code --]
-
-// After
-const tracks = useCoState(ListOfTracks, id, { resolve: { $each: true } }); // [!code ++]
-if (tracks === undefined) return <div>Loading...</div>; // [!code ++]
-if (tracks === null) return <div>Not found or access denied</div>; // [!code ++]
-
-// This will only show tracks that we have access to and that are loaded.
-return tracks.map(track => track && <TrackComponent track={track} />);
-}
-
-````
-</CodeGroup>
-
-The same change is applied to the load function, so now it returns `null` instead of `undefined` when the value is missing.
+This means that you now need to rely on `useCoState` on them to load their using your account schema.
 
 <CodeGroup>
 ```tsx twoslash
-// @noErrors: 2451
 
-class MyCoMap extends CoMap {}
-const id = "co_123" as ID<MyCoMap>;
+const Pet = co.map({
+name: z.string(),
+age: z.number(),
+});
 
-// ---cut-before---
-// Before
-// @ts-expect-error
-const map = await MyCoMap.load(id);
-if (map === undefined) {
-  throw new Error("Map not found");
+const MyAppRoot = co.map({
+pets: co.list(Pet),
+});
+
+const MyAppProfile = co.profile({
+name: z.string(),
+age: z.number().optional(),
+});
+
+export const MyAppAccount = co.account({
+root: MyAppRoot,
+profile: MyAppProfile,
+});
+
+// ---cut---
+function GroupMembers({ group }: { group: Group }) {
+const members = group.members;
+
+return (
+<div>
+{members.map((member) => (
+<GroupMemberDetails
+          accountId={member.account.id}
+          key={member.account.id}
+        />
+))}
+</div>
+);
 }
 
-// After
-const map = await MyCoMap.load(id);
-if (map === null) {
-  throw new Error("Map not found or access denied");
-}
-````
-
-</CodeGroup>
-
-## New Features
-
-### The `Resolved` type helper
-
-The new `Resolved` type can be used to define what kind of deeply loaded data you expect in your parameters, using the same resolve query syntax as the new loading APIs:
-
-<CodeGroup>
-```tsx twoslash
-// @noErrors: 2451
-class Track extends CoMap {}
-class ListOfTracks extends CoList.Of(co.ref(Track)) {}
-class Playlist extends CoMap { tracks = co.ref(ListOfTracks); }
-function TrackComponent({ track }: { track: Track }) {return ""}
-
-// ---cut-before---
-type PlaylistResolved = Resolved<Playlist, {
-tracks: { $each: true }
-}>;
-
-function TrackListComponent({ playlist }: { playlist: PlaylistResolved }) {
-// Safe access to resolved tracks
-return playlist.tracks.map(track => <TrackComponent track={track} />);
-}
-
-````
-</CodeGroup>
-
-
-
-#### 0.11.0 - Roles and permissions
-
-# Jazz 0.11.0 is out!
-
-Jazz 0.11.0 brings several improvements to member handling, roles, and permissions management. This guide will help you upgrade your application to the latest version.
-
-## What's new?
-Here is what's changed in this release:
-- [New permissions check APIs](#new-permissions-check-apis): New methods like `canRead`, `canWrite`, `canAdmin`, and `getRoleOf` to simplify permission checks.
-- [Group.revokeExtend](#grouprevokeextend): New method to revoke group extension permissions.
-- [Group.getParentGroups](#accountgetparentgroups): New method to get all the parent groups of an account.
-- [Account Profile & Migrations](#account-profile--migrations): Fixed issues with custom account profile migrations for a more consistent experience
-- [Dropped support for Accounts owning Profiles](#dropped-support-for-accounts-owning-profiles): Profiles can now only be owned by Groups.
-- [Group.members now includes inherited members](#member-inheritance-changes): Updated behavior for the `members` getter method to include inherited members and have a more intuitive type definition.
-
-## New Features
-
-### New permissions check APIs
-
-New methods have been added to both `Account` and `Group` classes to improve permission handling:
-
-#### Permission checks
-
-The new `canRead`, `canWrite` and `canAdmin` methods on `Account` allow you to easily check if the account has specific permissions on a CoValue:
-
-<CodeGroup>
-{/* prettier-ignore */}
-```typescript
-const me = Account.getMe();
-
-if (me.canAdmin(value)) {
-  console.log("I can share value with others");
-} else if (me.canWrite(value)) {
-  console.log("I can edit value");
-} else if (me.canRead(value)) {
-  console.log("I can view value");
-} else {
-  console.log("I cannot access value");
-}
-````
-
-</CodeGroup>
-
-#### Getting the role of an account
-
-The `getRoleOf` method has been added to query the role of specific entities:
-
-<CodeGroup>
-```typescript
-const group = Group.create();
-group.getRoleOf(me); // admin
-group.getRoleOf(Eve); // undefined
-
-group.addMember(Eve, "writer");
-group.getRoleOf(Eve); // writer
-
-````
-</CodeGroup>
-
-#### Group.revokeExtend
-
-We added a new method to revoke the extend of a Group:
-<CodeGroup>
-```typescript
-function addTrackToPlaylist(playlist: Playlist, track: MusicTrack) {
-  const trackGroup = track._owner.castAs(Group);
-  trackGroup.extend(playlist._owner, "reader"); // Grant read access to the track to the playlist accounts
-
-  playlist.tracks.push(track);
-}
-
-function removeTrackFromPlaylist(playlist: Playlist, track: MusicTrack) {
-  const trackGroup = track._owner.castAs(Group);
-  trackGroup.revokeExtend(playlist._owner); // Revoke access to the track to the playlist accounts
-
-  const index = playlist.tracks.findIndex(t => t.id === track.id);
-  if (index !== -1) {
-    playlist.tracks.splice(index, 1);
-  }
-}
-````
-
-</CodeGroup>
-
-### Group.getParentGroups
-
-The `getParentGroups` method has been added to `Group` to get all the parent groups of a group.
-
-<CodeGroup>
-```ts
-const childGroup = Group.create();
-const parentGroup = Group.create();
-childGroup.extend(parentGroup);
-
-console.log(childGroup.getParentGroups()); // [parentGroup]
-
-````
-</CodeGroup>
-
-## Breaking Changes
-
-### Account Profile & Migrations
-
-The previous way of making the `Profile` migration work was to assume that the profile was always already there:
-
-<CodeGroup>
-```ts
-export class MyAppAccount extends Account {
-  profile = co.ref(MyAppProfile);
-
-  async migrate(this: MyAppAccount, creationProps: { name: string, lastName: string }) {
-    if (creationProps) {
-      const { profile } = await this.ensureLoaded({ profile: {} });
-
-      profile.name = creationProps.name;
-      profile.bookmarks = ListOfBookmarks.create([], profileGroup);
-    }
-  }
-}
-````
-
-</CodeGroup>
-
-This was kind-of tricky to picture, and having different migration strategies for different CoValues was confusing.
-
-We changed the logic so the default profile is created only if you didn't provide one in your migration.
-
-This way you can use the same pattern for both `root` and `profile` migrations:
-<CodeGroup>
-
-```ts
-export class MyAppAccount extends Account {
-  profile = co.ref(MyAppProfile);
-
-  async migrate(this: MyAppAccount, creationProps?: { name: string }) {
-    if (this.profile === undefined) {
-      const profileGroup = Group.create();
-      profileGroup.addMember('everyone', 'reader');
-
-      this.profile = MyAppProfile.create(
-        {
-          name: creationProps?.name,
-          bookmarks: ListOfBookmarks.create([], profileGroup),
-        },
-        profileGroup,
-      );
-    }
-  }
-}
-```
-
-</CodeGroup>
-
-<Alert variant="warning" title="Warning" className="mt-4">
-If you provide a custom `Profile` in your `Account` schema and migration for a Worker account,
-make sure to also add  `everyone` as member with `reader` role to the owning group.
-Failing to do so will prevent any account from sending messages to the Worker's Inbox.
-</Alert>
-
-### Dropped support for Accounts owning Profiles
-
-Starting from `0.11.0` `Profile`s can only be owned by `Group`s.
-
-<Alert variant="info" title="Note" className="mt-4">
-Existing profiles owned by `Account`s will still work, but you will get incorrect types when accessing a `Profile`'s `_owner`.
-</Alert>
-
-### Member Inheritance Changes
-
-The behavior of groups' `members` getter method has been updated to return both direct members and inherited ones from ancestor groups.
-This might affect your application if you were relying on only direct members being returned.
-
-<CodeGroup>
-```ts
-/**
- *  The following pseudocode only illustrates the inheritance logic,
- *  the actual implementation is different.
-*/
-
-const parentGroup = Group.create();
-parentGroup.addMember(John, "admin");
-
-const childGroup = Group.create();
-childGroup.addMember(Eve, "admin");
-
-childGroup.extend(parentGroup);
-
-console.log(childGroup.members);
-// Before 0.11.0
-// [Eve]
-
-// After 0.11.0
-// [Eve, John]
-
-````
-</CodeGroup>
-
-Additionally:
-- now `Group.members` doesn't include the `everyone` member anymore
-- the account type in `Group.members` is now the globally registered Account schema and we have removed the `co.members` way to define an AccountSchema for members
-
-If you need to explicitly check if "everyone" is a member of a group, you can use the `getRoleOf` method instead:
-<CodeGroup>
-```ts
-if (group.getRoleOf("everyone")) {
-  console.log("Everyone has access to the group");
-}
-````
-
-</CodeGroup>
-
-#### Migration Steps
-
-1. Review your member querying logic to account for inherited members.
-2. Update your permission checking code to utilize the new [`hasPermissions` and `getRoleOf`](#enhanced-permission-management) methods.
-3. Consider implementing `"everyone"` role checks where appropriate.
-
-### Removed auto-update of `profile.name` in `usePasskeyAuth`
-
-The `usePasskeyAuth` hook now doesn't update the `profile.name` if the provided username is empty.
-
-## Troubleshooting
-
-> I'm getting the following error: `Error: Profile must be owned by a Group`
-
-If you previously forced a migration of your `Account` schema to include a custom `Profile`,
-and assigned its ownership to an `Account`, you need to recreate your profile code and assign it to a `Group` instead.
-
-<CodeGroup>
-```ts
-export class MyAppAccount extends Account {
-  profile = co.ref(MyAppProfile);
-
-override async migrate() {
-// ...
-
-    const me = await this.ensureLoaded({
-      profile: {},
-    });
-
-    if ((me.profile._owner as Group | Account)._type === "Account") {
-      const profileGroup = Group.create();
-      profileGroup.addMember("everyone", "reader");
-
-      // recreate your profile here...
-      me.profile = Profile.create(
-        {
-          name: me.profile.name,
-        },
-        profileGroup,
-      );
-    }
-
-}
+function GroupMemberDetails({ accountId }: { accountId: string }) {
+const account = useCoState(MyAppAccount, accountId, {
+resolve: {
+profile: true,
+root: {
+pets: { $each: true },
+},
+},
+});
+
+return (
+<div>
+<div>{account?.profile.name}</div>
+<ul>{account?.root.pets.map((pet) => <li>{pet.name}</li>)}</ul>
+</div>
+);
 }
 
 ````
 </CodeGroup>
 
 
-
-#### 0.9.2 - Local persistence on React Native Expo
-
-# Enable local persistence
-
-Version 0.9.2 introduces local persistence for React Native apps using SQLite. In version 0.12, we've separated the implementations for Expo and framework-less React Native.
-
-If you are upgrading from a version before 0.9.2, you need to enable local persistence by following the steps below.
-
-Local persistence is enabled by default in version 0.12 and higher.
-
-## Choose your implementation
-
-Depending on whether you're using Expo or framework-less React Native, you'll need to follow different steps:
-
-- For Expo applications, refer to the [React Native - Expo](/docs/react-native-expo/project-setup) guide
-- For framework-less React Native applications, refer to the [React Native](/docs/react-native/project-setup) guide
-
-## Add the required dependencies
-
-### For Expo
-
-As SQLite package, Expo uses `expo-sqlite`. Install it with:
-
-```bash
-npx expo install expo-sqlite
-npx expo install expo-secure-store
-````
-
-### For framework-less React Native
-
-As SQLite package, we use `@op-engineering/op-sqlite` and `react-native-mmkv` for key-value storage:
-
-```bash
-npm install @op-engineering/op-sqlite react-native-mmkv
-npx pod-install
-```
-
-## Update your JazzProvider
-
-In version 0.12 and higher, you need to use either the `jazz-expo` package (for Expo) or the `jazz-react-native` package (for framework-less React Native). Local persistence is enabled by default in both packages.
-
-To enable it, you need to pass the `storage` option to the `JazzProvider` component:
-
-<CodeGroup>
-  ```tsx
-  <JazzProvider
-    auth={auto}
-    storage="sqlite"
-    peer="wss://cloud.jazz.tools/?key=you@example.com"
-    AccountSchema={MyAppAccount}
-  >
-    <App />
-  </JazzProvider>
-  ```
-</CodeGroup>
 
 ### Defining schemas
 
@@ -3412,7 +2697,7 @@ As their name suggests, CoValues are inherently collaborative, meaning **multipl
 
 - CoValues keep their full edit histories, from which they derive their "current state".
 - The fact that this happens in an eventually-consistent way makes them [CRDTs](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type).
-- Having the full history also means that you often don't need explicit timestamps and author info - you get this for free as part of a CoValue's [edit metadata](/docs/using-covalues/metadata).
+- Having the full history also means that you often don't need explicit timestamps and author info - you get this for free as part of a CoValue's [edit metadata](/docs/using-covalues/history).
 
 CoValues model JSON with CoMaps and CoLists, but also offer CoFeeds for simple per-user value feeds, and let you represent binary data with FileStreams.
 
@@ -3421,7 +2706,6 @@ CoValues model JSON with CoMaps and CoLists, but also offer CoFeeds for simple p
 Fundamentally, CoValues are as dynamic and flexible as JSON, but in Jazz you use them by defining fixed schemas to describe the shape of data in your app.
 
 This helps correctness and development speed, but is particularly important...
-
 - when you evolve your app and need migrations
 - when different clients and server workers collaborate on CoValues and need to make compatible changes
 
@@ -3429,27 +2713,42 @@ Thinking about the shape of your data is also a great first step to model your a
 
 Even before you know the details of how your app will work, you'll probably know which kinds of objects it will deal with, and how they relate to each other.
 
-Jazz makes it quick to declare schemas, since they are simple TypeScript classes:
+In Jazz, you define schemas using `co` for CoValues and `z` (from [Zod](https://zod.dev/)) for their primitive fields.
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
-export class TodoProject extends CoMap {
-    title = co.string;
-    tasks = co.ref(ListOfTasks);
-}
-```
+```ts twoslash
+// schema.ts
+
+const ListOfTasks = co.list(z.string());
+
+export const TodoProject = co.map({
+  title: z.string(),
+  tasks: ListOfTasks,
+});
+````
+
 </CodeGroup>
 
-Here you can see how we extend a CoValue type and use `co` for declaring (collaboratively) editable fields. This means that schema info is available for type inference _and_ at runtime.
+This gives us schema info that is available for type inference _and_ at runtime.
 
-Classes might look old-fashioned, but Jazz makes use of them being both types and values in TypeScript, letting you refer to either with a single definition and import.
+Check out the inferred type of `project` in the example below, as well as the input `.create()` expects.
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
+```ts twoslash
+// @filename: schema.ts
 
-const project: TodoProject = TodoProject.create(
+export const ListOfTasks = co.list(z.string());
+
+export const TodoProject = co.map({
+title: z.string(),
+tasks: ListOfTasks,
+});
+
+// @filename: app.ts
+// ---cut---
+// app.ts
+
+const project = TodoProject.create(
 {
 title: "New Project",
 tasks: ListOfTasks.create([], Group.create()),
@@ -3464,18 +2763,18 @@ Group.create()
 
 ### `CoMap` (declaration)
 
-CoMaps are the most commonly used type of CoValue. They are the equivalent of JSON objects. (Collaborative editing follows a last-write-wins strategy per-key.)
+CoMaps are the most commonly used type of CoValue. They are the equivalent of JSON objects (Collaborative editing follows a last-write-wins strategy per-key).
 
 You can either declare struct-like CoMaps:
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
-class Person extends CoMap {
-    name = co.string;
-    age = co.number;
-    pet = co.optional.ref(Pet);
-}
+```ts twoslash
+// schema.ts
+// ---cut---
+const Task = co.map({
+  title: z.string(),
+  completed: z.boolean(),
+});
 ````
 
 </CodeGroup>
@@ -3483,20 +2782,24 @@ class Person extends CoMap {
 Or record-like CoMaps (key-value pairs, where keys are always `string`):
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
-class ColorToHex extends CoMap.Record(co.string) {}
+```ts twoslash
+const Fruit = co.map({
+  name: z.string(),
+  color: z.string(),
+});
+// ---cut---
+const ColorToHex = co.record(z.string(), z.string());
 
-class ColorToFruit extends CoMap.Record(co.ref(Fruit)) {}
+const ColorToFruit = co.record(z.string(), Fruit);
 
 ````
 </CodeGroup>
 
 
-See the corresponding sections for [creating](/docs/using-covalues/creation#comap-creation),
+See the corresponding sections for [creating](/docs/using-covalues/comaps#creating-comaps),
 [subscribing/loading](/docs/using-covalues/subscription-and-loading),
-[reading from](/docs/using-covalues/reading#comap-reading) and
-[writing to](/docs/using-covalues/writing#comap-writing) CoMaps.
+[reading from](/docs/using-covalues/comaps#reading-from-comaps) and
+[updating](/docs/using-covalues/comaps#updating-comaps) CoMaps.
 
 ### `CoList` (declaration)
 
@@ -3505,104 +2808,99 @@ CoLists are ordered lists and are the equivalent of JSON arrays. (They support c
 You define them by specifying the type of the items they contain:
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
-class ListOfColors extends CoList.Of(co.string) {}
-
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
+```ts twoslash
+const Task = co.map({
+  title: z.string(),
+  completed: z.boolean(),
+});
+// ---cut---
+const ListOfColors = co.list(z.string());
+const ListOfTasks = co.list(Task);
 ````
 
 </CodeGroup>
 
-See the corresponding sections for [creating](/docs/using-covalues/creation#colist-creation),
+See the corresponding sections for [creating](/docs/using-covalues/colists#creating-colists),
 [subscribing/loading](/docs/using-covalues/subscription-and-loading),
-[reading from](/docs/using-covalues/reading#colist-reading) and
-[writing to](/docs/using-covalues/writing#colist-writing) CoLists.
+[reading from](/docs/using-covalues/colists#reading-from-colists) and
+[updating](/docs/using-covalues/colists#updating-colists) CoLists.
 
 ### `CoFeed` (declaration)
 
-CoFeeds are a special CoValue type that represent a feed of values for a set of users / sessions. (Each session of a user gets its own append-only feed.)
+CoFeeds are a special CoValue type that represent a feed of values for a set of users/sessions (Each session of a user gets its own append-only feed).
 
 They allow easy access of the latest or all items belonging to a user or their sessions. This makes them particularly useful for user presence, reactions, notifications, etc.
 
 You define them by specifying the type of feed item:
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
-class FeedOfTasks extends CoFeed.Of(co.ref(Task)) {}
+```ts twoslash
+const Task = co.map({
+  title: z.string(),
+  completed: z.boolean(),
+});
+// ---cut---
+const FeedOfTasks = co.feed(Task);
 ```
 </CodeGroup>
 
-See the corresponding sections for [creating](/docs/using-covalues/creation#cofeed-creation),
+See the corresponding sections for [creating](/docs/using-covalues/cofeeds#creating-cofeeds),
 [subscribing/loading](/docs/using-covalues/subscription-and-loading),
-[reading from](/docs/using-covalues/reading#cofeed-reading) and
-[writing to](/docs/using-covalues/writing#cofeed-writing) CoFeeds.
+[reading from](/docs/using-covalues/cofeeds#reading-from-cofeeds) and
+[writing to](/docs/using-covalues/cofeeds#writing-to-cofeeds) CoFeeds.
 
 ### `FileStream` (declaration)
 
 FileStreams are a special type of CoValue that represent binary data. (They are created by a single user and offer no internal collaboration.)
 
-They allow you to upload and reference files, images, etc.
+They allow you to upload and reference files.
 
-You typically don't need to declare or extend them yourself, you simply refer to the built-in `FileStream` from another CoValue:
-
-<CodeGroup>
-{/* prettier-ignore */}
-```ts
-
-class UserProfile extends CoMap {
-name = co.string;
-avatar = co.ref(FileStream);
-}
-
-````
-</CodeGroup>
-
-See the corresponding sections for [creating](/docs/using-covalues/creation#filestream-creation),
-[subscribing/loading](/docs/using-covalues/subscription-and-loading),
-[reading from](/docs/using-covalues/reading#filestream-reading) and
-[writing to](/docs/using-covalues/writing#filestream-writing) FileStreams.
-
-### `SchemaUnion` (declaration)
-
-SchemaUnion is a helper type that allows you to load and refer to multiple subclasses of a CoMap schema, distinguished by a discriminating field.
-
-You declare them with a base class type and discriminating lambda, in which you have access to the `RawCoMap`, on which you can call `get` with the field name to get the discriminating value.
+You typically don't need to declare or extend them yourself, you simply refer to the built-in `co.fileStream()` from another CoValue:
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
-
-class BaseWidget extends CoMap {
-  type = co.string;
-}
-
-class ButtonWidget extends BaseWidget {
-  type = co.literal("button");
-  label = co.string;
-}
-
-class SliderWidget extends BaseWidget {
-  type = co.literal("slider");
-  min = co.number;
-  max = co.number;
-}
-
-const WidgetUnion = SchemaUnion.Of<BaseWidget>((raw) => {
-  switch (raw.get("type")) {
-    case "button": return ButtonWidget;
-    case "slider": return SliderWidget;
-    default: throw new Error("Unknown widget type");
-  }
+```ts twoslash
+// ---cut---
+const Document = co.map({
+  title: z.string(),
+  file: co.fileStream(),
 });
-````
-
+```
 </CodeGroup>
 
-See the corresponding sections for [creating](/docs/using-covalues/creation#schemaunion-creation),
+See the corresponding sections for [creating](/docs/using-covalues/filestreams#creating-filestreams),
+[subscribing/loading](/docs/using-covalues/subscription-and-loading),
+[reading from](/docs/using-covalues/filestreams#reading-from-filestreams) and
+[writing to](/docs/using-covalues/filestreams#writing-to-filestreams) FileStreams.
+
+**Note: For images, we have a special, higher-level `co.image()` helper, see [ImageDefinition](/docs/using-covalues/imagedef).**
+
+### Unions of CoMaps (declaration)
+
+You can declare unions of CoMaps that have discriminating fields, using `z.discriminatedUnion()`.
+
+<CodeGroup>
+```ts twoslash
+// ---cut---
+
+const ButtonWidget = co.map({
+type: z.literal("button"),
+label: z.string(),
+});
+
+const SliderWidget = co.map({
+type: z.literal("slider"),
+min: z.number(),
+max: z.number(),
+});
+
+const WidgetUnion = z.discriminatedUnion([ButtonWidget, SliderWidget]);
+
+````
+</CodeGroup>
+
+See the corresponding sections for [creating](/docs/using-covalues/schemaunions#creating-schemaunions),
 [subscribing/loading](/docs/using-covalues/subscription-and-loading) and
-[narrowing](/docs/using-covalues/reading#schemaunion-narrowing) SchemaUnions.
+[narrowing](/docs/using-covalues/schemaunions#narrowing) SchemaUnions.
 
 ## CoValue field/item types
 
@@ -3610,48 +2908,61 @@ Now that we've seen the different types of CoValues, let's see more precisely ho
 
 ### Primitive fields
 
-You can declare primitive field types using the `co` declarer:
+You can declare primitive field types using `z` (re-exported in `jazz-tools` from [Zod](https://zod.dev/)):
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
+```ts twoslash
 
-export class Person extends CoMap {
-title = co.string;
-}
+const Person = co.map({
+  title: z.string(),
+})
 
-export class ListOfColors extends CoList.Of(co.string) {}
-
+export const ListOfColors = co.list(z.string());
 ````
+
 </CodeGroup>
 
 Here's a quick overview of the primitive types you can use:
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
-co.string;
-co.number;
-co.boolean;
-co.null;
-co.Date;
-co.literal("waiting", "ready");
-````
-
-</CodeGroup>
-
-Finally, for more complex JSON data, that you _don't want to be collaborative internally_ (but only ever update as a whole), you can use `co.json<T>()`:
-
-<CodeGroup>
-{/* prettier-ignore */}
-```ts
-co.json<{ name: string }>();
+```ts twoslash
+// ---cut---
+z.string();  // For simple strings
+z.number();  // For numbers
+z.boolean(); // For booleans
+z.null();    // For null
+z.date();    // For dates
+z.literal(["waiting", "ready"]); // For enums
 ```
 </CodeGroup>
 
-For more detail, see the API Reference for the [`co` field declarer](/api-reference/jazz-tools#co).
+Finally, for more complex JSON data, that you _don't want to be collaborative internally_ (but only ever update as a whole), you can use more complex Zod types.
 
-### Refs to other CoValues
+For example, you can use `z.object()` to represent an internally immutable position:
+
+<CodeGroup>
+```ts twoslash
+// ---cut---
+const Sprite = co.map({
+  // assigned as a whole
+  position: z.object({ x: z.number(), y: z.number() }),
+});
+```
+</CodeGroup>
+
+Or you could use a `z.tuple()`:
+
+<CodeGroup>
+```ts twoslash
+// ---cut---
+const Sprite = co.map({
+  // assigned as a whole
+  position: z.tuple([z.number(), z.number()]),
+});
+```
+</CodeGroup>
+
+### References to other CoValues
 
 To represent complex structured data with Jazz, you form trees or graphs of CoValues that reference each other.
 
@@ -3659,55 +2970,125 @@ Internally, this is represented by storing the IDs of the referenced CoValues in
 
 The important caveat here is that **a referenced CoValue might or might not be loaded yet,** but we'll see what exactly that means in [Subscribing and Deep Loading](/docs/using-covalues/subscription-and-loading).
 
-In Schemas, you declare Refs using the `co.ref<T>()` declarer:
+In Schemas, you declare references by just using the schema of the referenced CoValue:
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
-class Company extends CoMap {
-    members = co.ref(ListOfPeople);
-}
+```ts twoslash
+// ---cut---
+// schema.ts
+const Person = co.map({
+  name: z.string(),
+});
 
-class ListOfPeople extends CoList.Of(co.ref(Person)) {}
+const ListOfPeople = co.list(Person);
+
+const Company = co.map({
+members: ListOfPeople,
+});
 
 ````
 </CodeGroup>
 
-#### Optional Refs
+#### Optional References
 
-⚠️ If you want to make a referenced CoValue field optional, you *have to* use `co.optional.ref<T>()`: ⚠️
+You can make references optional with `z.optional()`:
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
-class Person extends CoMap {
-    pet = co.optional.ref(Pet);
-}
+```ts twoslash
+const Pet = co.map({
+  name: z.string(),
+});
+// ---cut---
+const Person = co.map({
+  pet: z.optional(Pet),
+});
 ````
 
 </CodeGroup>
 
-### Computed fields & methods
+#### Recursive References
 
-Since CoValue schemas are based on classes, you can easily add computed fields and methods:
+You can refer to the same schema from within itself using getters:
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
-class Person extends CoMap {
-    firstName = co.string;
-    lastName = co.string;
-    dateOfBirth = co.Date;
+```ts twoslash
+// ---cut---
+const Person = co.map({
+  name: z.string(),
+  get bestFriend() {
+    return Person;
+  }
+});
+```
+</CodeGroup>
 
-    get name() {
-        return `${this.firstName} ${this.lastName}`;
-    }
+You can use the same technique for mutually recursive references, but you'll need to help TypeScript along:
 
-    ageAsOf(date: Date) {
-        return differenceInYears(date, this.dateOfBirth);
-    }
+<CodeGroup>
+```ts twoslash
+// ---cut---
 
+const Person = co.map({
+name: z.string(),
+get friends(): CoListSchema<typeof Person> {
+return ListOfPeople;
 }
+});
+
+const ListOfPeople = co.list(Person);
+
+````
+</CodeGroup>
+
+Note: similarly, if you use modifiers like `z.optional()` you'll need to help TypeScript along:
+
+<CodeGroup>
+```ts twoslash
+// ---cut---
+const Person = co.map({
+  name: z.string(),
+  get bestFriend(): z.ZodOptional<typeof Person> {
+    return z.optional(Person);
+  }
+});
+````
+
+</CodeGroup>
+
+### Helper methods
+
+You should define helper methods of CoValue schemas separately, in standalone functions.
+
+<CodeGroup>
+```ts twoslash
+function differenceInYears(date1: Date, date2: Date) {
+  const diffTime = Math.abs(date1.getTime() - date2.getTime());
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 365.25));
+}
+// ---cut---
+const Person = co.map({
+  firstName: z.string(),
+  lastName: z.string(),
+  dateOfBirth: z.date(),
+})
+type Person = co.loaded<typeof Person>;
+
+export function getPersonFullName(person: Person) {
+return `${person.firstName} ${person.lastName}`;
+}
+
+export function getPersonAgeAsOf(person: Person, date: Date) {
+return differenceInYears(date, person.dateOfBirth);
+}
+
+const person = Person.create({
+firstName: "John",
+lastName: "Doe",
+dateOfBirth: new Date("1990-01-01"),
+});
+
+const fullName = getPersonFullName(person);
+const age = getPersonAgeAsOf(person, new Date());
 
 ````
 </CodeGroup>
@@ -3734,24 +3115,18 @@ These root references are modeled explicitly in your schema, distinguishing betw
 Every Jazz app that wants to refer to per-user data needs to define a custom root `CoMap` schema and declare it in a custom `Account` schema as the `root` field:
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
+```ts twoslash
+const Chat = co.map({});
+// ---cut---
 
-export class MyAppAccount extends Account {
-  root = co.ref(MyAppRoot);
-}
+const MyAppRoot = co.map({
+  myChats: co.list(Chat),
+});
 
-export class MyAppRoot extends CoMap {
-  myChats = co.ref(ListOfChats);
-  myContacts = co.ref(ListOfAccounts);
-}
-
-// Register the Account schema so `useAccount` returns our custom `MyAppAccount`
-declare module "jazz-react" {
-    interface Register {
-        Account: MyAppAccount;
-    }
-}
+export const MyAppAccount = co.account({
+  root: MyAppRoot,
+  profile: co.profile(),
+});
 ````
 
 </CodeGroup>
@@ -3764,94 +3139,115 @@ that is set up for you based on the username the `AuthMethod` provides on accoun
 Their pre-defined schemas roughly look like this:
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
-// ...somehwere in jazz-tools itself...
-export class Account extends Group {
-  profile = co.ref(Profile);
-}
+```ts twoslash
+// @noErrors: 2416
+// ---cut---
+// ...somewhere in jazz-tools itself...
+const Account = co.account({
+  root: co.map({}),
+  profile: co.profile({
+    name: z.string(),
+  }),
+});
+```
+</CodeGroup>
 
-export class Profile extends CoMap {
-name = co.string;
-}
+If you want to keep the default `co.profile()` schema, but customise your account's private `root`, all you have to do is define a new `root` field in your account schema and use `co.profile()` without options:
+
+<CodeGroup>
+```ts twoslash
+const Chat = co.map({});
+// ---cut---
+const MyAppRoot = co.map({ // [!code ++:3]
+  myChats: co.list(Chat),
+});
+
+export const MyAppAccount = co.account({
+root: MyAppRoot, // [!code ++]
+profile: co.profile(),
+});
 
 ````
 </CodeGroup>
 
-If you want to keep the default `Profile` schema, but customise your account's private `root`, all you have to do is define a new `root` field in your account schema:
-
-(You don't have to explicitly re-define the `profile` field, but it makes it more readable that the Account contains both `profile` and `root`)
+If you want to extend the `profile` to contain additional fields (such as an avatar `co.image()`), you can declare your own profile schema class using `co.profile({...})`:
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
+```ts twoslash
+const Chat = co.map({});
+// ---cut---
+export const MyAppRoot = co.map({
+  myChats: co.list(Chat),
+});
 
-export class MyAppAccount extends Account {
-  profile = co.ref(Profile);
-  root = co.ref(MyAppRoot);
-}
+export const MyAppProfile = co.profile({ // [!code ++:4]
+  name: z.string(), // compatible with default Profile schema
+  avatar: z.optional(co.image()),
+});
+
+export const MyAppAccount = co.account({
+  root: MyAppRoot,
+  profile: MyAppProfile, // [!code ++]
+});
 ````
 
-</CodeGroup>
-If you want to extend the `profile` to contain additional fields (such as an avatar `ImageDefinition`), you can declare your own profile schema class that extends `Profile`:
-
-<CodeGroup>
-{/* prettier-ignore */}
-```ts
-
-export class MyAppAccount extends Account {
-profile = co.ref(MyAppProfile); // [!code ++]
-root = co.ref(MyAppRoot);
-}
-
-export class MyAppRoot extends CoMap {
-myChats = co.ref(ListOfChats);
-myContacts = co.ref(ListOfAccounts);
-}
-
-export class MyAppProfile extends Profile { // [!code ++:4]
-name = co.string; // compatible with default Profile schema
-avatar = co.optional.ref(ImageDefinition);
-}
-
-// Register the Account schema so `useAccount` returns our custom `MyAppAccount`
-declare module "jazz-react" {
-interface Register {
-Account: MyAppAccount;
-}
-}
-
-````
 </CodeGroup>
 
 ## Resolving CoValues starting at `profile` or `root`
 
 <ContentByFramework framework="react">
-To use per-user data in your app, you typically use `useAccount` somewhere in a high-level component, specifying which references to resolve using a resolve query (see [Subscribing & deep loading](/docs/using-covalues/subscription-and-loading)).
+To use per-user data in your app, you typically use `useAccount` somewhere in a high-level component, pass it your custom Account schema and specify which references to resolve using a resolve query (see [Subscribing & deep loading](/docs/using-covalues/subscription-and-loading)).
 
 <CodeGroup>
-{/* prettier-ignore */}
-```tsx
+```tsx twoslash
+
+const Chat = co.map({});
+
+const MyAppRoot = co.map({
+myChats: co.list(Chat),
+});
+
+const MyAppProfile = co.profile();
+
+const MyAppAccount = co.account({
+root: MyAppRoot,
+profile: MyAppProfile,
+});
+
+class ChatPreview extends React.Component<{ chat: Loaded<typeof Chat> }> {};
+class ContactPreview extends React.Component<{ contact: Loaded<typeof MyAppAccount> }> {};
+// ---cut---
 
 function DashboardPageComponent() {
-  const { me } = useAccount({ profile: {}, root: { myChats: {}, myContacts: {}}});
+const { me } = useAccount(MyAppAccount, { resolve: {
+profile: true,
+root: {
+myChats: { $each: true },
+}
+}});
 
-  return <div>
-    <h1>Dashboard</h1>
-    {me ? <div>
-      <p>Logged in as {me.profile.name}</p>
-      <h2>My chats</h2>
-      {me.root.myChats.map((chat) => <ChatPreview key={chat.id} chat={chat} />)}
-      <h2>My contacts</h2>
-      {me.root.myContacts.map((contact) => <ContactPreview key={contact.id} contact={contact} />)}
-    </div> : "Loading..."}
-  </div>
+return (
+<div>
+<h1>Dashboard</h1>
+{me ? (
+<div>
+<p>Logged in as {me.profile.name}</p>
+<h2>My chats</h2>
+{me.root.myChats.map((chat) => (
+<ChatPreview key={chat.id} chat={chat} />
+))}
+</div>
+) : (
+"Loading..."
+)}
+</div>
+);
 }
 
 ````
-
 </CodeGroup>
 </ContentByFramework>
+
 
 ## Populating and evolving `root` and `profile` schemas with migrations
 
@@ -3870,40 +3266,47 @@ Jazz waits for the migration to finish before passing the account to your app's 
 ### Initialising user data after account creation
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
-export class MyAppAccount extends Account {
-  root = co.ref(MyAppRoot);
-  profile = co.ref(MyAppProfile);
+```ts twoslash
+const Chat = co.map({});
+const Bookmark = co.map({});
 
-async migrate(this: MyAppAccount, creationProps?: { name: string }) {
-// we specifically need to check for undefined,
-// because the root might simply be not loaded (`null`) yet
-if (this.root === undefined) {
-this.root = MyAppRoot.create({
-// Using a group to set the owner is always a good idea.
-// This way if in the future we want to share
-// this coValue we can do so easily.
-myChats: ListOfChats.create([], Group.create()),
-myContacts: ListOfAccounts.create([], Group.create())
+const MyAppRoot = co.map({
+  myChats: co.list(Chat),
 });
-}
 
-    if (this.profile === undefined) {
-      const profileGroup = Group.create();
-      // Unlike the root, we want the profile to be publicly readable.
-      profileGroup.addMember("everyone", "reader");
+const MyAppProfile = co.profile({
+  name: z.string(),
+  bookmarks: co.list(Bookmark),
+});
+// ---cut---
+export const MyAppAccount = co.account({
+  root: MyAppRoot,
+  profile: MyAppProfile,
+}).withMigration((account, creationProps?: { name: string }) => {
+  // we specifically need to check for undefined,
+  // because the root might simply be not loaded (`null`) yet
+  if (account.root === undefined) {
+    account.root = MyAppRoot.create({
+      // Using a group to set the owner is always a good idea.
+      // This way if in the future we want to share
+      // this coValue we can do so easily.
+      myChats: co.list(Chat).create([], Group.create()),
+    });
+  }
 
-      this.profile = MyAppProfile.create({
-        name: creationProps?.name,
-        bookmarks: ListOfBookmarks.create([], profileGroup),
-      }, profileGroup);
-    }
+  if (account.profile === undefined) {
+    const profileGroup = Group.create();
+    // Unlike the root, we want the profile to be publicly readable.
+    profileGroup.addMember("everyone", "reader");
 
-}
-}
-
+    account.profile = MyAppProfile.create({
+      name: creationProps?.name ?? "New user",
+      bookmarks: co.list(Bookmark).create([], profileGroup),
+    }, profileGroup);
+  }
+});
 ````
+
 </CodeGroup>
 
 ### Adding/changing fields to `root` and `profile`
@@ -3916,41 +3319,54 @@ To do deeply nested migrations, you might need to use the asynchronous `ensureLo
 Now let's say we want to add a `myBookmarks` field to the `root` schema:
 
 <CodeGroup>
-{/* prettier-ignore */}
-```ts
-export class MyAppAccount extends Account {
-    root = co.ref(MyAppRoot);
+```ts twoslash
+const Chat = co.map({});
+const Bookmark = co.map({});
 
-    async migrate(this: MyAppAccount) {
-      if (this.root === undefined) {
-        this.root = MyAppRoot.create({
-          myChats: ListOfChats.create([], Group.create()),
-          myContacts: ListOfAccounts.create([], Group.create())
-        });
-      }
+const MyAppProfile = co.profile({
+name: z.string(),
+bookmarks: co.list(Bookmark),
+});
 
-      // We need to load the root field to check for the myContacts field
-      const { root } = await this.ensureLoaded({
-        resolve: { root: true }
-      });
+// ---cut---
+const MyAppRoot = co.map({
+myChats: co.list(Chat),
+myBookmarks: z.optional(co.list(Bookmark)), // [!code ++:1]
+});
 
-      // we specifically need to check for undefined,
-      // because myBookmarks might simply be not loaded (`null`) yet
-      if (root.myBookmarks === undefined) { // [!code ++:3]
-        root.myBookmarks = ListOfBookmarks.create([], Group.create());
-      }
-    }
-  }
+export const MyAppAccount = co.account({
+root: MyAppRoot,
+profile: MyAppProfile,
+}).withMigration(async (account) => {
+if (account.root === undefined) {
+account.root = MyAppRoot.create({
+myChats: co.list(Chat).create([], Group.create()),
+});
+}
+
+// We need to load the root field to check for the myContacts field
+const { root } = await account.ensureLoaded({
+resolve: { root: true }
+});
+
+// we specifically need to check for undefined,
+// because myBookmarks might simply be not loaded (`null`) yet
+if (root.myBookmarks === undefined) { // [!code ++:3]
+root.myBookmarks = co.list(Bookmark).create([], Group.create());
+}
+});
+
 ````
-
 </CodeGroup>
 
-{/\*
-TODO: Add best practice: only ever add fields
+{/*
+ TODO: Add best practice: only ever add fields
 
-Note: explain and reassure that there will be more guardrails in the future
-https://github.com/garden-co/jazz/issues/1160
-\*/}
+ Note: explain and reassure that there will be more guardrails in the future
+ https://github.com/garden-co/jazz/issues/1160
+*/}
+
+
 
 ### Using CoValues
 
@@ -3962,31 +3378,50 @@ CoMaps are key-value objects that work like JavaScript objects. You can access p
 
 ## Creating CoMaps
 
-CoMaps are typically defined by extending the `CoMap` class and specifying primitive fields using the `co` declarer (see [Defining schemas: CoValues](/docs/schemas/covalues) for more details on primitive fields):
+CoMaps are typically defined with `co.map()` and specifying primitive fields using `z` (see [Defining schemas: CoValues](/docs/schemas/covalues) for more details on primitive fields):
 
 <CodeGroup>
-```ts
-class Project extends CoMap {
-  name = co.string;
-  startDate = co.Date;
-  status = co.literal("planning", "active", "completed");
-  coordinator = co.optional.ref(Member);
-}
-```
+```ts twoslash
+const Member = co.map({
+  name: z.string(),
+});
+// ---cut---
+
+const Project = co.map({
+  name: z.string(),
+  startDate: z.date(),
+  status: z.literal(["planning", "active", "completed"]),
+  coordinator: z.optional(Member),
+});
+````
+
 </CodeGroup>
 
 You can create either struct-like CoMaps with fixed fields (as above) or record-like CoMaps for key-value pairs:
 
 <CodeGroup>
-```ts
-class Inventory extends CoMap.Record(co.number) {}
+```ts twoslash
+// ---cut---
+const Inventory = co.record(z.string(), z.number());
 ```
 </CodeGroup>
 
 To instantiate a CoMap:
 
 <CodeGroup>
-```ts
+```ts twoslash
+const me = await createJazzTestAccount();
+const Member = co.map({
+  name: z.string(),
+});
+const Project = co.map({
+  name: z.string(),
+  startDate: z.date(),
+  status: z.literal(["planning", "active", "completed"]),
+  coordinator: z.optional(Member),
+});
+const Inventory = co.record(z.string(), z.number());
+// ---cut---
 const project = Project.create({
   name: "Spring Planting",
   startDate: new Date("2025-03-15"),
@@ -4010,16 +3445,16 @@ When creating CoMaps, you can specify ownership to control access:
 const me = await createJazzTestAccount();
 const memberAccount = await createJazzTestAccount();
 
-class Member extends CoMap {
-  name = co.string;
-}
+const Member = co.map({
+  name: z.string(),
+});
 
-class Project extends CoMap {
-  name = co.string;
-  startDate = co.Date;
-  status = co.literal("planning", "active", "completed");
-  coordinator = co.optional.ref(Member);
-}
+const Project = co.map({
+  name: z.string(),
+  startDate: z.date(),
+  status: z.literal(["planning", "active", "completed"]),
+  coordinator: z.optional(Member),
+});
 
 // ---cut---
 // Create with default owner (current user)
@@ -4052,7 +3487,25 @@ See [Groups as permission scopes](/docs/groups/intro) for more information on ho
 CoMaps can be accessed using familiar JavaScript object notation:
 
 <CodeGroup>
-```ts
+```ts twoslash
+const me = await createJazzTestAccount();
+const Member = co.map({
+  name: z.string(),
+});
+const Project = co.map({
+  name: z.string(),
+  startDate: z.date(),
+  status: z.literal(["planning", "active", "completed"]),
+  coordinator: z.optional(Member),
+});
+const project = Project.create(
+  {
+    name: "Spring Planting",
+    startDate: new Date("2025-03-20"),
+    status: "planning",
+  },
+);
+// ---cut---
 console.log(project.name);      // "Spring Planting"
 console.log(project.status);    // "planning"
 ```
@@ -4063,7 +3516,25 @@ console.log(project.status);    // "planning"
 Optional fields require checks before access:
 
 <CodeGroup>
-```ts
+```ts twoslash
+const me = await createJazzTestAccount();
+const Member = co.map({
+  name: z.string(),
+});
+const Project = co.map({
+  name: z.string(),
+  startDate: z.date(),
+  status: z.literal(["planning", "active", "completed"]),
+  coordinator: z.optional(Member),
+});
+const project = Project.create(
+  {
+    name: "Spring Planting",
+    startDate: new Date("2025-03-20"),
+    status: "planning"
+  },
+);
+// ---cut---
 if (project.coordinator) {
   console.log(project.coordinator.name);  // Safe access
 }
@@ -4075,7 +3546,10 @@ if (project.coordinator) {
 For record-type CoMaps, you can access values using bracket notation:
 
 <CodeGroup>
-```ts
+```ts twoslash
+const me = await createJazzTestAccount();
+const Inventory = co.record(z.string(), z.number());
+// ---cut---
 const inventory = Inventory.create({
   tomatoes: 48,
   peppers: 24,
@@ -4092,7 +3566,26 @@ console.log(inventory["tomatoes"]); // 48
 Updating CoMap properties uses standard JavaScript assignment:
 
 <CodeGroup>
-```ts
+```ts twoslash
+const me = await createJazzTestAccount();
+const Member = co.map({
+  name: z.string(),
+});
+const Project = co.map({
+  name: z.string(),
+  startDate: z.date(),
+  status: z.literal(["planning", "active", "completed"]),
+  coordinator: z.optional(Member),
+});
+const Inventory = co.record(z.string(), z.number());
+const project = Project.create(
+  {
+    name: "Spring Planting",
+    startDate: new Date("2025-03-20"),
+    status: "planning"
+  },
+);
+// ---cut---
 project.name = "Spring Vegetable Garden";    // Update name
 project.startDate = new Date("2025-03-20");  // Update date
 ````
@@ -4104,9 +3597,29 @@ project.startDate = new Date("2025-03-20");  // Update date
 CoMaps are fully typed in TypeScript, giving you autocomplete and error checking:
 
 <CodeGroup>
-```ts
+```ts twoslash
+const me = await createJazzTestAccount();
+const Member = co.map({
+  name: z.string(),
+});
+const Project = co.map({
+  name: z.string(),
+  startDate: z.date(),
+  status: z.literal(["planning", "active", "completed"]),
+  coordinator: z.optional(Member),
+});
+const Inventory = co.record(z.string(), z.number());
+const project = Project.create(
+  {
+    name: "Spring Planting",
+    startDate: new Date("2025-03-20"),
+    status: "planning"
+  },
+);
+// ---cut---
 project.name = "Spring Vegetable Planting";  // ✓ Valid string
-project.startDate = "2025-03-15";  // ✗ Type error: expected Date
+// @errors: 2322
+project.startDate = "2025-03-15"; // ✗ Type error: expected Date
 ```
 </CodeGroup>
 
@@ -4115,11 +3628,35 @@ project.startDate = "2025-03-15";  // ✗ Type error: expected Date
 You can delete properties from CoMaps:
 
 <CodeGroup>
-```ts
+```ts twoslash
+const me = await createJazzTestAccount();
+const Member = co.map({
+  name: z.string(),
+});
+const Project = co.map({
+  name: z.string(),
+  startDate: z.date(),
+  status: z.literal(["planning", "active", "completed"]),
+  coordinator: z.optional(Member),
+});
+const Inventory = co.record(z.string(), z.number());
+const project = Project.create(
+  {
+    name: "Spring Planting",
+    startDate: new Date("2025-03-20"),
+    status: "planning"
+  },
+);
+const inventory = Inventory.create({
+  tomatoes: 48,
+  peppers: 24,
+  basil: 12
+});
+// ---cut---
 delete inventory["basil"];  // Remove a key-value pair
 
 // For optional fields in struct-like CoMaps
-project.coordinator = null; // Remove the reference
+project.coordinator = undefined; // Remove the reference
 
 ````
 </CodeGroup>
@@ -4134,41 +3671,49 @@ project.coordinator = null; // Remove the reference
 
 ### Common Patterns
 
-#### Using Computed Properties
+#### Helper methods
 
-CoMaps support computed properties and methods:
+You should define helper methods of CoValue schemas separately, in standalone functions:
 
 <CodeGroup>
-```ts
-class ComputedProject extends CoMap {
-  name = co.string;
-  startDate = co.Date;
-  endDate = co.optional.Date;
+```ts twoslash
+const me = await createJazzTestAccount();
+// ---cut---
 
-  get isActive() {
-    const now = new Date();
-    return now >= this.startDate && (!this.endDate || now <= this.endDate);
-  }
+const Project = co.map({
+  name: z.string(),
+  startDate: z.date(),
+  endDate: z.optional(z.date()),
+});
+type Project = co.loaded<typeof Project>;
 
-  formatDuration(format: "short" | "full") {
-    const start = this.startDate.toLocaleDateString();
-    if (!this.endDate) {
-      return format === "full"
-        ? `Started on ${start}, ongoing`
-        : `From ${start}`;
-    }
-
-    const end = this.endDate.toLocaleDateString();
-    return format === "full"
-      ? `From ${start} to ${end}`
-      : `${(this.endDate.getTime() - this.startDate.getTime()) / 86400000} days`;
-  }
+export function isProjectActive(project: Project) {
+  const now = new Date();
+  return now >= project.startDate && (!project.endDate || now <= project.endDate);
 }
 
-// ...
+export function formatProjectDuration(project: Project, format: "short" | "full") {
+  const start = project.startDate.toLocaleDateString();
+  if (!project.endDate) {
+    return format === "full"
+        ? `Started on ${start}, ongoing`
+        : `From ${start}`;
+  }
 
-console.log(computedProject.isActive); // false
-console.log(computedProject.formatDuration("short")); // "3 days"
+  const end = project.endDate.toLocaleDateString();
+  return format === "full"
+    ? `From ${start} to ${end}`
+    : `${(project.endDate.getTime() - project.startDate.getTime()) / 86400000} days`;
+}
+
+const project = Project.create({
+  name: "My project",
+  startDate: new Date("2025-04-01"),
+  endDate: new Date("2025-04-04"),
+});
+
+console.log(isProjectActive(project)); // false
+console.log(formatProjectDuration(project, "short")); // "3 days"
 ````
 
 </CodeGroup>
@@ -4184,10 +3729,17 @@ CoLists are ordered collections that work like JavaScript arrays. They provide i
 CoLists are defined by specifying the type of items they contain:
 
 <CodeGroup>
-```ts
-class ListOfResources extends CoList.Of(co.string) {}
+```ts twoslash
+const Task = co.map({
+  title: z.string(),
+  status: z.literal(["todo", "in-progress", "complete"]),
+});
 
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
+// ---cut---
+
+const ListOfResources = co.list(z.string());
+
+const ListOfTasks = co.list(Task);
 
 ````
 </CodeGroup>
@@ -4195,12 +3747,18 @@ class ListOfTasks extends CoList.Of(co.ref(Task)) {}
 To create a `CoList`:
 
 <CodeGroup>
-```ts
+```ts twoslash
+
+const Task = co.map({
+  title: z.string(),
+  status: z.literal(["todo", "in-progress", "complete"]),
+});
+// ---cut---
 // Create an empty list
-const resources = ListOfResources.create([]);
+const resources = co.list(z.string()).create([]);
 
 // Create a list with initial items
-const tasks = ListOfTasks.create([
+const tasks = co.list(Task).create([
   Task.create({ title: "Prepare soil beds", status: "in-progress" }),
   Task.create({ title: "Order compost", status: "todo" })
 ]);
@@ -4216,18 +3774,17 @@ Like other CoValues, you can specify ownership when creating CoLists.
 ```ts twoslash
 const me = await createJazzTestAccount();
 const colleagueAccount = await createJazzTestAccount();
-class Task extends CoMap {
-  title = co.string;
-  status = co.string;
-}
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
+const Task = co.map({
+  title: z.string(),
+  status: z.string(),
+});
 
 // ---cut---
 // Create with shared ownership
 const teamGroup = Group.create();
 teamGroup.addMember(colleagueAccount, "writer");
 
-const teamList = ListOfTasks.create([], { owner: teamGroup });
+const teamList = co.list(Task).create([], { owner: teamGroup });
 
 ````
 </CodeGroup>
@@ -4239,7 +3796,21 @@ See [Groups as permission scopes](/docs/groups/intro) for more information on ho
 CoLists support standard array access patterns:
 
 <CodeGroup>
-```ts
+```ts twoslash
+
+
+const Task = co.map({
+  title: z.string(),
+  status: z.literal(["todo", "in-progress", "complete"]),
+});
+
+const ListOfTasks = co.list(Task);
+
+const tasks = ListOfTasks.create([
+  Task.create({ title: "Prepare soil beds", status: "todo" }),
+  Task.create({ title: "Order compost", status: "todo" }),
+]);
+// ---cut---
 // Access by index
 const firstTask = tasks[0];
 console.log(firstTask.title);  // "Prepare soil beds"
@@ -4266,13 +3837,27 @@ console.log(todoTasks.length); // 1
 Update `CoList`s just like you would JavaScript arrays:
 
 <CodeGroup>
-```ts
+```ts twoslash
+
+const Task = co.map({
+title: z.string(),
+status: z.literal(["todo", "in-progress", "complete"]),
+});
+
+const ListOfTasks = co.list(Task);
+
+const ListOfResources = co.list(z.string());
+
+const resources = ListOfResources.create([]);
+const tasks = ListOfTasks.create([]);
+
+// ---cut---
 // Add items
-resources.push("Tomatoes");       // Add to end
-resources.unshift("Lettuce");     // Add to beginning
-tasks.push(Task.create({          // Add complex items
-  title: "Install irrigation",
-  status: "todo"
+resources.push("Tomatoes"); // Add to end
+resources.unshift("Lettuce"); // Add to beginning
+tasks.push(Task.create({ // Add complex items
+title: "Install irrigation",
+status: "todo"
 }));
 
 // Replace items
@@ -4289,7 +3874,17 @@ tasks[0].status = "complete"; // Update properties of references
 Remove specific items by index with `splice`, or remove the first or last item with `pop` or `shift`:
 
 <CodeGroup>
-```ts
+```ts twoslash
+
+const ListOfResources = co.list(z.string());
+
+const resources = ListOfResources.create([
+  "Tomatoes",
+  "Cucumber",
+  "Peppers",
+]);
+
+// ---cut---
 // Remove 2 items starting at index 1
 resources.splice(1, 2);
 console.log(resources);              // ["Cucumber", "Peppers"]
@@ -4310,7 +3905,13 @@ resources.shift();                   // Remove first item
 `CoList`s support the standard JavaScript array methods you already know:
 
 <CodeGroup>
-```ts
+```ts twoslash
+
+const ListOfResources = co.list(z.string());
+
+const resources = ListOfResources.create([]);
+
+// ---cut---
 // Add multiple items at once
 resources.push("Tomatoes", "Basil", "Peppers");
 
@@ -4333,9 +3934,22 @@ console.log(resources); // ["Basil", "Peppers", "Tomatoes"]
 CoLists maintain type safety for their items:
 
 <CodeGroup>
-```ts
+```ts twoslash
+
+const Task = co.map({
+  title: z.string(),
+  status: z.literal(["todo", "in-progress", "complete"]),
+});
+
+const ListOfTasks = co.list(Task);
+const ListOfResources = co.list(z.string());
+
+const resources = ListOfResources.create([]);
+const tasks = ListOfTasks.create([]);
+// ---cut---
 // TypeScript catches type errors
 resources.push("Carrots");        // ✓ Valid string
+// @errors: 2345
 resources.push(42);               // ✗ Type error: expected string
 
 // For lists of references
@@ -4354,17 +3968,29 @@ tasks.forEach(task => {
 CoLists work well with UI rendering libraries:
 
 <CodeGroup>
-```tsx
+```tsx twoslash
+
+const Task = co.map({
+title: z.string(),
+status: z.literal(["todo", "in-progress", "complete"]),
+});
+
+// ---cut---
+const ListOfTasks = co.list(Task);
+
 // React example
-function TaskList({ tasks }) {
-  return (
-    <ul>
-      {tasks.map(task => (
+function TaskList({ tasks }: { tasks: Loaded<typeof ListOfTasks> }) {
+return (
+
+   <ul>
+     {tasks.map(task => (
+       task ? (
         <li key={task.id}>
           {task.title} - {task.status}
         </li>
-      ))}
-    </ul>
+      ): null
+     ))}
+   </ul>
   );
 }
 ```
@@ -4375,13 +4001,33 @@ function TaskList({ tasks }) {
 CoLists can be used to create one-to-many relationships:
 
 <CodeGroup>
-```ts
-class Project extends CoMap {
-  name = co.string;
-  tasks = co.ref(ListOfTasks);
-}
+```ts twoslash
 
-// ...
+const Task = co.map({
+title: z.string(),
+status: z.literal(["todo", "in-progress", "complete"]),
+
+get project(): z.ZodOptional<typeof Project> {
+return z.optional(Project);
+}
+});
+
+const ListOfTasks = co.list(Task);
+
+const Project = co.map({
+name: z.string(),
+
+get tasks(): CoListSchema<typeof Task> {
+return ListOfTasks;
+}
+});
+
+const project = Project.create(
+{
+name: "Garden Project",
+tasks: ListOfTasks.create([]),
+},
+);
 
 const task = Task.create({
 title: "Plant seedlings",
@@ -4417,16 +4063,17 @@ The following examples demonstrate a practical use of CoFeeds:
 CoFeeds are defined by specifying the type of items they'll contain, similar to how you define CoLists:
 
 <CodeGroup>
-```ts
+```ts twoslash
+// ---cut---
 // Define a schema for feed items
-class Activity extends CoMap {
-  timestamp = co.Date;
-  action = co.literal("watering", "planting", "harvesting", "maintenance");
-  notes = co.optional.string;
-}
+const Activity = co.map({
+  timestamp: z.date(),
+  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
+  notes: z.optional(z.string()),
+});
 
 // Define a feed of garden activities
-class ActivityFeed extends CoFeed.Of(co.ref(Activity)) {}
+const ActivityFeed = co.feed(Activity);
 
 // Create a feed instance
 const activityFeed = ActivityFeed.create([]);
@@ -4443,13 +4090,13 @@ Like other CoValues, you can specify ownership when creating CoFeeds.
 const me = await createJazzTestAccount();
 const colleagueAccount = await createJazzTestAccount();
 
-class Activity extends CoMap {
-timestamp = co.Date;
-action = co.literal("watering", "planting", "harvesting", "maintenance");
-notes = co.optional.string;
-}
+const Activity = co.map({
+timestamp: z.date(),
+action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
+notes: z.optional(z.string()),
+});
 
-class ActivityFeed extends CoFeed.Of(co.ref(Activity)) {}
+const ActivityFeed = co.feed(Activity);
 
 // ---cut---
 const teamGroup = Group.create();
@@ -4471,12 +4118,25 @@ Since CoFeeds are made of entries from users over multiple sessions, you can acc
 To retrieve entries from a session:
 
 <CodeGroup>
-```ts
+```ts twoslash
+const me = await createJazzTestAccount();
+
+const Activity = co.map({
+  timestamp: z.date(),
+  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
+  notes: z.optional(z.string()),
+});
+
+const ActivityFeed = co.feed(Activity);
+const activityFeed = ActivityFeed.create([]);
+const sessionId = `${me.id}_session_z1` as SessionID;
+
+// ---cut---
 // Get the feed for a specific session
 const sessionFeed = activityFeed.perSession[sessionId];
 
 // Latest entry from a session
-console.log(sessionFeed.value.action); // "watering"
+console.log(sessionFeed?.value?.action); // "watering"
 ````
 
 </CodeGroup>
@@ -4484,27 +4144,53 @@ console.log(sessionFeed.value.action); // "watering"
 For convenience, you can also access the latest entry from the current session with `inCurrentSession`:
 
 <CodeGroup>
-```ts
+```ts twoslash
+const me = await createJazzTestAccount();
+
+const Activity = co.map({
+timestamp: z.date(),
+action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
+notes: z.optional(z.string()),
+});
+
+const ActivityFeed = co.feed(Activity);
+const activityFeed = ActivityFeed.create([]);
+const sessionId = `${me.id}_session_z1` as SessionID;
+
+// ---cut---
 // Get the feed for the current session
 const currentSessionFeed = activityFeed.inCurrentSession;
 
 // Latest entry from the current session
-console.log(currentSessionFeed.value.action); // "harvesting"
+console.log(currentSessionFeed?.value?.action); // "harvesting"
 
 ````
 </CodeGroup>
 
 ### Per-Account Access
 
-To retrieve entries from a specific account you can use bracket notation with the account ID:
+To retrieve entries from a specific account (with entries from all sessions combined) use `perAccount`:
 
 <CodeGroup>
-```ts
+```ts twoslash
+const me = await createJazzTestAccount();
+
+const Activity = co.map({
+  timestamp: z.date(),
+  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
+  notes: z.optional(z.string()),
+});
+
+const ActivityFeed = co.feed(Activity);
+const activityFeed = ActivityFeed.create([]);
+const accountId = me.id;
+
+// ---cut---
 // Get the feed for a specific account
-const accountFeed = activityFeed[accountId];
+const accountFeed = activityFeed.perAccount[accountId];
 
 // Latest entry from the account
-console.log(accountFeed.value.action); // "watering"
+console.log(accountFeed.value?.action); // "watering"
 ````
 
 </CodeGroup>
@@ -4512,12 +4198,25 @@ console.log(accountFeed.value.action); // "watering"
 For convenience, you can also access the latest entry from the current account with `byMe`:
 
 <CodeGroup>
-```ts
+```ts twoslash
+const me = await createJazzTestAccount();
+
+const Activity = co.map({
+timestamp: z.date(),
+action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
+notes: z.optional(z.string()),
+});
+
+const ActivityFeed = co.feed(Activity);
+const activityFeed = ActivityFeed.create([]);
+const accountId = me.id;
+
+// ---cut---
 // Get the feed for the current account
 const myLatestEntry = activityFeed.byMe;
 
 // Latest entry from the current account
-console.log(myLatestEntry.value.action); // "harvesting"
+console.log(myLatestEntry?.value?.action); // "harvesting"
 
 ````
 </CodeGroup>
@@ -4529,9 +4228,23 @@ console.log(myLatestEntry.value.action); // "harvesting"
 To retrieve all entries from a CoFeed:
 
 <CodeGroup>
-```ts
+```ts twoslash
+const me = await createJazzTestAccount();
+
+const Activity = co.map({
+  timestamp: z.date(),
+  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
+  notes: z.optional(z.string()),
+});
+
+const ActivityFeed = co.feed(Activity);
+const activityFeed = ActivityFeed.create([]);
+const accountId = me.id;
+const sessionId = `${me.id}_session_z1` as SessionID;
+
+// ---cut---
 // Get the feeds for a specific account and session
-const accountFeed = activityFeed[accountId];
+const accountFeed = activityFeed.perAccount[accountId];
 const sessionFeed = activityFeed.perSession[sessionId];
 
 // Iterate over all entries from the account
@@ -4552,15 +4265,27 @@ for (const entry of sessionFeed.all) {
 To retrieve the latest entry from a CoFeed, ie. the last update:
 
 <CodeGroup>
-```ts
+```ts twoslash
+const me = await createJazzTestAccount();
+
+const Activity = co.map({
+timestamp: z.date(),
+action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
+notes: z.optional(z.string()),
+});
+
+const ActivityFeed = co.feed(Activity);
+const activityFeed = ActivityFeed.create([]);
+
+// ---cut---
 // Get the latest entry from the current account
 const latestEntry = activityFeed.byMe;
 
-console.log(`My last action was ${latestEntry.value.action}`);
+console.log(`My last action was ${latestEntry?.value?.action}`);
 // "My last action was harvesting"
 
 // Get the latest entry from each account
-const latestEntriesByAccount = Object.values(activityFeed).map(entry => ({
+const latestEntriesByAccount = Object.values(activityFeed.perAccount).map(entry => ({
 accountName: entry.by?.profile?.name,
 value: entry.value,
 }));
@@ -4575,7 +4300,19 @@ CoFeeds are append-only; you can add new items, but not modify existing ones. Th
 ### Adding Items
 
 <CodeGroup>
-```ts
+```ts twoslash
+const me = await createJazzTestAccount();
+
+const Activity = co.map({
+  timestamp: z.date(),
+  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
+  notes: z.optional(z.string()),
+});
+
+const ActivityFeed = co.feed(Activity);
+const activityFeed = ActivityFeed.create([]);
+
+// ---cut---
 // Log a new activity
 activityFeed.push(Activity.create({
   timestamp: new Date(),
@@ -4593,19 +4330,32 @@ Each item is automatically associated with the current user's session. You don't
 Each entry is automatically added to the current session's feed. When a user has multiple open sessions (like both a mobile app and web browser), each session creates its own separate entries:
 
 <CodeGroup>
-```ts
+```ts twoslash
+const me = await createJazzTestAccount();
+
+const Activity = co.map({
+timestamp: z.date(),
+action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
+notes: z.optional(z.string()),
+});
+
+const ActivityFeed = co.feed(Activity);
+const fromMobileFeed = ActivityFeed.create([]);
+const fromBrowserFeed = ActivityFeed.create([]);
+
+// ---cut---
 // On mobile device:
 fromMobileFeed.push(Activity.create({
-  timestamp: new Date(),
-  action: "harvesting",
-  location: "Vegetable patch"
+timestamp: new Date(),
+action: "harvesting",
+notes: "Vegetable patch"
 }));
 
 // On web browser (same user):
 fromBrowserFeed.push(Activity.create({
 timestamp: new Date(),
 action: "planting",
-location: "Flower bed"
+notes: "Flower bed"
 }));
 
 // These are separate entries in the same feed, from the same account
@@ -4622,8 +4372,21 @@ CoFeeds support metadata, which is useful for tracking information about the fee
 The `by` property is the account that made the entry.
 
 <CodeGroup>
-```ts
-const accountFeed = activityFeed[accountId];
+```ts twoslash
+const me = await createJazzTestAccount();
+
+const Activity = co.map({
+  timestamp: z.date(),
+  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
+  notes: z.optional(z.string()),
+});
+
+const ActivityFeed = co.feed(Activity);
+const activityFeed = ActivityFeed.create([]);
+const accountId = me.id;
+
+// ---cut---
+const accountFeed = activityFeed.perAccount[accountId];
 
 // Get the account that made the last entry
 console.log(accountFeed?.by);
@@ -4636,8 +4399,21 @@ console.log(accountFeed?.by);
 The `madeAt` property is a timestamp of when the entry was added to the feed.
 
 <CodeGroup>
-```ts
-const accountFeed = activityFeed[accountId];
+```ts twoslash
+const me = await createJazzTestAccount();
+
+const Activity = co.map({
+timestamp: z.date(),
+action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
+notes: z.optional(z.string()),
+});
+
+const ActivityFeed = co.feed(Activity);
+const activityFeed = ActivityFeed.create([]);
+const accountId = me.id;
+
+// ---cut---
+const accountFeed = activityFeed.perAccount[accountId];
 
 // Get the timestamp of the last update
 console.log(accountFeed?.madeAt);
@@ -4670,8 +4446,8 @@ console.log(entry.madeAt);
 
 Jazz provides two CoValue types for collaborative text editing, collectively referred to as "CoText" values:
 
-- **CoPlainText** for simple text editing without formatting
-- **CoRichText** for rich text with HTML-based formatting (extends CoPlainText)
+- **co.plainText()** for simple text editing without formatting
+- **co.richText()** for rich text with HTML-based formatting (extends co.plainText())
 
 Both types enable real-time collaborative editing of text content while maintaining consistency across multiple users.
 
@@ -4682,7 +4458,7 @@ Both types enable real-time collaborative editing of text content while maintain
 const me = await createJazzTestAccount();
 
 // ---cut---
-const note = CoPlainText.create("Meeting notes", { owner: me });
+const note = co.plainText().create("Meeting notes", { owner: me });
 
 // Update the text
 note.applyDiff("Meeting notes for Tuesday");
@@ -4694,16 +4470,17 @@ console.log(note.toString());  // "Meeting notes for Tuesday"
 
 For a full example of CoTexts in action, see [our Richtext example app](https://github.com/garden-co/jazz/tree/main/examples/richtext), which shows plain text and rich text editing.
 
-## CoPlainText vs co.string
+## co.plainText() vs z.string()
 
-While `co.string` is perfect for simple text fields, `CoPlainText` is the right choice when you need:
+While `z.string()` is perfect for simple text fields, `co.plainText()` is the right choice when you need:
 
-- Multiple users editing the same text simultaneously
+- Frequent text edits that aren't just replacing the whole field
 - Fine-grained control over text edits (inserting, deleting at specific positions)
+- Multiple users editing the same text simultaneously
 - Character-by-character collaboration
 - Efficient merging of concurrent changes
 
-Both support real-time updates, but `CoPlainText` provides specialized tools for collaborative editing scenarios.
+Both support real-time updates, but `co.plainText()` provides specialized tools for collaborative editing scenarios.
 
 ## Creating CoText Values
 
@@ -4713,11 +4490,11 @@ CoText values are typically used as fields in your schemas:
 ```ts twoslash
 
 // ---cut---
-class Profile extends CoMap {
-name = co.string;
-bio = co.ref(CoPlainText); // Plain text field
-description = co.ref(CoRichText); // Rich text with formatting
-}
+const Profile = co.profile({
+name: z.string(),
+bio: co.plainText(), // Plain text field
+description: co.richText(), // Rich text with formatting
+});
 
 ````
 </CodeGroup>
@@ -4730,10 +4507,10 @@ const me = await createJazzTestAccount();
 
 // ---cut---
 // Create plaintext with default ownership (current user)
-const note = CoPlainText.create("Meeting notes", { owner: me });
+const note = co.plainText().create("Meeting notes", { owner: me });
 
 // Create rich text with HTML content
-const document = CoRichText.create("<p>Project <strong>overview</strong></p>",
+const document = co.richText().create("<p>Project <strong>overview</strong></p>",
   { owner: me }
 );
 ````
@@ -4754,7 +4531,7 @@ const colleagueAccount = await createJazzTestAccount();
 const teamGroup = Group.create();
 teamGroup.addMember(colleagueAccount, "writer");
 
-const teamNote = CoPlainText.create("Team updates", { owner: teamGroup });
+const teamNote = co.plainText().create("Team updates", { owner: teamGroup });
 
 ````
 </CodeGroup>
@@ -4763,22 +4540,40 @@ See [Groups as permission scopes](/docs/groups/intro) for more information on ho
 
 ## Reading Text
 
-CoText values work like JavaScript strings:
+CoText values work similarly to JavaScript strings:
 
 <CodeGroup>
 ```ts twoslash
 const me = await createJazzTestAccount();
-const note = CoPlainText.create("Meeting notes", { owner: me });
+const note = co.plainText().create("Meeting notes", { owner: me });
 
 // ---cut---
 // Get the text content
 console.log(note.toString());  // "Meeting notes"
+console.log(`${note}`);    // "Meeting notes"
 
 // Check the text length
 console.log(note.length);      // 14
 ````
 
 </CodeGroup>
+
+<ContentByFramework framework="react">
+When using CoTexts in JSX, you can read the text directly:
+<CodeGroup>
+```tsx twoslash
+const me = await createJazzTestAccount();
+const note = co.plainText().create("Meeting notes", { owner: me });
+
+// ---cut---
+<>
+
+  <p>{note.toString()}</p>
+  <p>{note}</p>
+</>
+```
+</CodeGroup>
+</ContentByFramework>
 
 ## Making Edits
 
@@ -4787,7 +4582,7 @@ Insert and delete text with intuitive methods:
 <CodeGroup>
 ```ts twoslash
 const me = await createJazzTestAccount();
-const note = CoPlainText.create("Meeting notes", { owner: me });
+const note = co.plainText().create("Meeting notes", { owner: me });
 
 // ---cut---
 // Insert text at a specific position
@@ -4815,7 +4610,7 @@ const me = await createJazzTestAccount();
 
 // ---cut---
 // Original text: "Team status update"
-const minutes = CoPlainText.create("Team status update", { owner: me });
+const minutes = co.plainText().create("Team status update", { owner: me });
 
 // Replace the entire text with a new version
 minutes.applyDiff("Weekly team status update for Project X");
@@ -4836,11 +4631,11 @@ Perfect for handling user input in form controls:
 const me = await createJazzTestAccount();
 
 // ---cut---
-function TextEditor() {
-const [note, setNote] = useState(CoPlainText.create("", { owner: me }));
+function TextEditor({ textId }: { textId: string }) {
+const note = useCoState(co.plainText(), textId);
 
 return (
-<textarea
+note && <textarea
 value={note.toString()}
 onChange={(e) => {
 // Efficiently update only what the user changed
@@ -4860,7 +4655,7 @@ note.applyDiff(e.target.value);
 const me = await createJazzTestAccount();
 
 // ---cut---
-const note = CoPlainText.create("", { owner: me });
+const note = co.plainText().create("", { owner: me });
 
 // Create and set up the textarea
 const textarea = document.createElement('textarea');
@@ -4890,7 +4685,7 @@ const textContent = ref("");
 
 onMounted(async () => {
 const me = await createJazzTestAccount();
-note.value = CoPlainText.create("", { owner: me });
+note.value = co.plainText().create("", { owner: me });
 textContent.value = note.value.toString();
 });
 
@@ -4918,7 +4713,7 @@ textContent.value = note.value.toString();
 <script lang="ts">
 const me = await createJazzTestAccount();
 
-const note = CoPlainText.create("", { owner: me });
+const note = co.plainText().create("", { owner: me });
 </script>
 
 <textarea
@@ -4932,13 +4727,13 @@ oninput={e => note.applyDiff(e.target.value)}
 
 ## Using Rich Text with ProseMirror
 
-Jazz provides a dedicated plugin for integrating CoRichText with the popular ProseMirror editor. This plugin, [`jazz-richtext-prosemirror`](https://www.npmjs.com/package/jazz-richtext-prosemirror), enables bidirectional synchronization between your CoRichText instances and ProseMirror editors.
+Jazz provides a dedicated plugin for integrating co.richText() with the popular ProseMirror editor. This plugin, [`jazz-richtext-prosemirror`](https://www.npmjs.com/package/jazz-richtext-prosemirror), enables bidirectional synchronization between your co.richText() instances and ProseMirror editors.
 
 ### ProseMirror Plugin Features
 
-- **Bidirectional Sync**: Changes in the editor automatically update the CoRichText and vice versa
+- **Bidirectional Sync**: Changes in the editor automatically update the co.richText() and vice versa
 - **Real-time Collaboration**: Multiple users can edit the same document simultaneously
-- **HTML Conversion**: Automatically converts between HTML (used by CoRichText) and ProseMirror's document model
+- **HTML Conversion**: Automatically converts between HTML (used by co.richText()) and ProseMirror's document model
 
 ### Installation
 
@@ -4967,25 +4762,20 @@ For use with React:
 <CodeGroup>
 
 ```tsx twoslash
-class JazzProfile extends Profile {
-  bio = co.ref(CoRichText);
-}
+const JazzProfile = co.profile({
+  bio: co.richText(),
+});
 
-class JazzAccount extends Account {
-  profile = co.ref(JazzProfile);
-}
-
-declare module 'jazz-react' {
-  interface Register {
-    Account: JazzAccount;
-  }
-}
+const JazzAccount = co.account({
+  profile: JazzProfile,
+  root: co.map({}),
+});
 
 // ---cut---
 // RichTextEditor.tsx
 
 function RichTextEditor() {
-  const { me } = useAccount({ resolve: { profile: true } });
+  const { me } = useAccount(JazzAccount, { resolve: { profile: true } });
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
 
@@ -4993,7 +4783,7 @@ function RichTextEditor() {
     if (!me?.profile.bio || !editorRef.current) return;
 
     // Create the Jazz plugin for ProseMirror
-    // Providing a CoRichText instance to the plugin to automatically sync changes
+    // Providing a co.richText() instance to the plugin to automatically sync changes
     const jazzPlugin = createJazzPlugin(me.profile.bio); // [!code ++]
 
     // Set up ProseMirror with the Jazz plugin
@@ -5045,7 +4835,7 @@ For use without a framework:
 ```js twoslash
 function setupRichTextEditor(coRichText, container) {
   // Create the Jazz plugin for ProseMirror
-  // Providing a CoRichText instance to the plugin to automatically sync changes
+  // Providing a co.richText() instance to the plugin to automatically sync changes
   const jazzPlugin = createJazzPlugin(coRichText); // [!code ++]
 
   // Set up ProseMirror with Jazz plugin
@@ -5066,8 +4856,8 @@ function setupRichTextEditor(coRichText, container) {
 }
 
 // Usage
-const document = CoRichText.create('<p>Initial content</p>', { owner: me });
-const editorContainer = document.getElementById('editor');
+const document = co.richText().create("<p>Initial content</p>", { owner: me });
+const editorContainer = document.getElementById("editor");
 const cleanup = setupRichTextEditor(document, editorContainer);
 
 // Later when done with the editor
@@ -5099,10 +4889,10 @@ In your schema, reference FileStreams like any other CoValue:
 ```ts twoslash
 // schema.ts
 
-class Document extends CoMap {
-title = co.string;
-file = co.ref(FileStream); // Store a document file
-}
+const Document = co.map({
+title: z.string(),
+file: co.fileStream(), // Store a document file
+});
 
 ````
 </CodeGroup>
@@ -5117,7 +4907,6 @@ For files from input elements or drag-and-drop interfaces, use `createFromBlob`:
 
 <CodeGroup>
 ```ts twoslash
-// @errors: 18047
 const myGroup = Group.create();
 const progressBar: HTMLElement = document.querySelector('.progress-bar')!;
 
@@ -5130,10 +4919,10 @@ fileInput.addEventListener('change', async () => {
   if (!file) return;
 
   // Create FileStream from user-selected file
-  const fileStream = await FileStream.createFromBlob(file, { owner: myGroup });
+  const fileStream = await co.fileStream().createFromBlob(file, { owner: myGroup });
 
   // Or with progress tracking for better UX
-  const fileWithProgress = await FileStream.createFromBlob(file, {
+  const fileWithProgress = await co.fileStream().createFromBlob(file, {
     onProgress: (progress) => {
       // progress is a value between 0 and 1
       const percent = Math.round(progress * 100);
@@ -5269,7 +5058,7 @@ const blob = await FileStream.loadAsBlob(fileStreamId);
 // By default, waits for complete uploads
 // For in-progress uploads:
 const partialBlob = await FileStream.loadAsBlob(fileStreamId, {
-  allowUnfinished: true
+  allowUnfinished: true,
 });
 ````
 
@@ -5381,7 +5170,7 @@ Load a `FileStream` when you have its ID:
 
 <CodeGroup>
 ```ts twoslash
-const fileStreamId = "co_z123" as ID<FileStream>;
+const fileStreamId = "co_z123";
 // ---cut---
 // Load a FileStream by ID
 const fileStream = await FileStream.load(fileStreamId);
@@ -5405,7 +5194,7 @@ Subscribe to a `FileStream` to be notified when chunks are added or when the upl
 
 <CodeGroup>
 ```ts twoslash
-const fileStreamId = "co_z123" as ID<FileStream>;
+const fileStreamId = "co_z123";
 // ---cut---
 // Subscribe to a FileStream by ID
 const unsubscribe = FileStream.subscribe(fileStreamId, (fileStream: FileStream) => {
@@ -5959,16 +5748,43 @@ The [Image Upload example](https://github.com/gardencmp/jazz/tree/main/examples/
 The easiest way to create and use images in your Jazz application is with the `createImage()` function:
 
 <CodeGroup>
-```ts
+```ts twoslash
+
+const MyProfile = co.profile({
+name: z.string(),
+image: z.optional(co.image()),
+});
+
+const MyAccount = co.account({
+root: co.map({}),
+profile: MyProfile,
+});
+
+MyAccount.withMigration((account, creationProps) => {
+if (account.profile === undefined) {
+const profileGroup = Group.create();
+profileGroup.addMember("everyone", "reader");
+account.profile = MyProfile.create(
+{
+name: creationProps?.name ?? "New user",
+},
+profileGroup,
+);
+}
+});
+
+const me = await MyAccount.create({});
+
+const myGroup = Group.create();
+
+// ---cut---
 
 // Create an image from a file input
-async function handleFileUpload(event) {
-const file = event.target.files[0];
+async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
+const file = event.target.files?.[0];
 if (file) {
 // Creates ImageDefinition with multiple resolutions automatically
-const image = await createImage(file, {
-owner: me.profile.\_owner,
-});
+const image = await createImage(file, { owner: myGroup });
 
     // Store the image in your application data
     me.profile.image = image;
@@ -5979,7 +5795,7 @@ owner: me.profile.\_owner,
 ````
 </CodeGroup>
 
-> Note: `createImage()` requires a browser environment as it uses browser APIs to process images.
+**Note:** `createImage()` requires a browser environment as it uses browser APIs to process images.
 
 The `createImage()` function:
 - Creates an `ImageDefinition` with the right properties
@@ -5992,11 +5808,14 @@ The `createImage()` function:
 You can configure `createImage()` with additional options:
 
 <CodeGroup>
-```tsx
+```ts twoslash
+const me = await createJazzTestAccount();
+const file = new File([], "test.jpg", { type: "image/jpeg" });
+// ---cut---
 // Configuration options
 const options = {
   owner: me,                // Owner for access control
-  maxSize: 1024             // Maximum resolution to generate
+  maxSize: 1024 as 1024     // Maximum resolution to generate
 };
 
 // Setting maxSize controls which resolutions are generated:
@@ -6038,9 +5857,11 @@ See [Groups as permission scopes](/docs/groups/intro) for more information on ho
 For a complete progressive loading experience, use the `ProgressiveImg` component:
 
 <CodeGroup>
-```tsx
+```tsx twoslash
+// ---cut---
+const Image = co.image();
 
-function GalleryView({ image }) {
+function GalleryView({ image }: { image: Loaded<typeof Image> }) {
   return (
     <div className="image-container">
       <ProgressiveImg
@@ -6074,9 +5895,11 @@ The `ProgressiveImg` component handles:
 For more control over image loading, you can implement your own progressive image component:
 
 <CodeGroup>
-```tsx
+```tsx twoslash
+const Image = co.image();
+// ---cut---
 
-function CustomImageComponent({ image }) {
+function CustomImageComponent({ image }: { image: Loaded<typeof Image> }) {
 const {
 src, // Data URI containing the image data as a base64 string,
 // or a placeholder image URI
@@ -6126,7 +5949,8 @@ Behind the scenes, `ImageDefinition` is a specialized CoValue that stores:
 Each resolution is stored with a key in the format `"widthxheight"` (e.g., `"1920x1080"`, `"800x450"`).
 
 <CodeGroup>
-```ts
+```ts twoslash
+// ---cut---
 // Structure of an ImageDefinition
 const image = ImageDefinition.create({
   originalSize: [1920, 1080],
@@ -6134,7 +5958,7 @@ const image = ImageDefinition.create({
 });
 
 // Accessing the highest available resolution
-const highestRes = image.highestResAvailable();
+const highestRes = ImageDefinition.highestResAvailable(image);
 if (highestRes) {
   console.log(`Found resolution: ${highestRes.res}`);
   console.log(`Stream: ${highestRes.stream}`);
@@ -6150,16 +5974,19 @@ For more details on using `ImageDefinition` directly, see the [VanillaJS docs](/
 `highestResAvailable` returns the largest resolution that fits your constraints. If a resolution has incomplete data, it falls back to the next available lower resolution.
 
 <CodeGroup>
-```ts
+```ts twoslash
+const mediumSizeBlob = new Blob([], { type: "image/jpeg" });
+
+// ---cut---
 const image = ImageDefinition.create({
-  originalSize: [1920, 1080],
+originalSize: [1920, 1080],
 });
 
 image["1920x1080"] = FileStream.create(); // Empty image upload
 image["800x450"] = await FileStream.createFromBlob(mediumSizeBlob);
 
-const highestRes = image.highestResAvailable();
-console.log(highestRes.res); // 800x450
+const highestRes = ImageDefinition.highestResAvailable(image);
+console.log(highestRes?.res); // 800x450
 
 ````
 </CodeGroup>
@@ -6190,26 +6017,25 @@ If you're using React in your project, check out our [React hooks](/docs/react/u
 
 <CodeGroup>
 ```ts twoslash
-const taskId = "co_123" as ID<Task>;
+const taskId = "co_123";
 // ---cut-before---
-class Task extends CoMap {
-  title = co.string;
-  description = co.string;
-  status = co.literal("todo", "in-progress", "completed");
-  assignedTo = co.optional.string;
-}
+const Task = co.map({
+  title: z.string(),
+  description: z.string(),
+  status: z.literal(["todo", "in-progress", "completed"]),
+  assignedTo: z.optional(z.string()),
+});
 
 // ...
 
 // Subscribe to a Task by ID
-const unsubscribe = Task.subscribe(taskId, (updatedTask) => {
+const unsubscribe = Task.subscribe(taskId, {}, (updatedTask) => {
   console.log("Task updated:", updatedTask.title);
   console.log("New status:", updatedTask.status);
 });
 
 // Clean up when you're done
 unsubscribe();
-
 ````
 
 </CodeGroup>
@@ -6219,12 +6045,12 @@ If you already have a CoValue instance, you can subscribe to it by calling its `
 <CodeGroup>
 ```ts twoslash
 
-class Task extends CoMap {
-title = co.string;
-description = co.string;
-status = co.literal("todo", "in-progress", "completed");
-assignedTo = co.optional.string;
-}
+const Task = co.map({
+title: z.string(),
+description: z.string(),
+status: z.literal(["todo", "in-progress", "completed"]),
+assignedTo: z.optional(z.string()),
+});
 const otherProps = {} as any;
 // ---cut-before---
 const task = Task.create({
@@ -6252,19 +6078,17 @@ Jazz provides a `useCoState` hook that provides a convenient way to subscribe to
 <CodeGroup>
 ```tsx twoslash
 
-class Task extends CoMap {
-  title = co.string;
-  status = co.literal("todo", "in-progress", "completed");
-}
-class Project extends CoMap {
-  name = co.string;
-  tasks = co.ref(ListOfTasks);
-}
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
-
+const Task = co.map({
+  title: z.string(),
+  status: z.literal(["todo", "in-progress", "completed"]),
+});
+const Project = co.map({
+  name: z.string(),
+  tasks: co.list(Task),
+});
 // ---cut-before---
 
-function GardenPlanner({ projectId }: { projectId: ID<Project> }) {
+function GardenPlanner({ projectId }: { projectId: string }) {
   // Subscribe to a project and its tasks
   const project = useCoState(Project, projectId, {
     resolve: {
@@ -6286,7 +6110,7 @@ function GardenPlanner({ projectId }: { projectId: ID<Project> }) {
   );
 }
 
-function TaskList({ tasks }: { tasks: Task[] }) {
+function TaskList({ tasks }: { tasks: Loaded<typeof Task>[] }) {
   return (
     <ul>
       {tasks.map((task) => (
@@ -6313,35 +6137,36 @@ Like `useCoState`, you can specify a resolve query to also subscribe to CoValues
 
 <CodeGroup>
 ```tsx twoslash
-class Task extends CoMap {
-  title = co.string;
-}
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
-class Project extends CoMap {
-  name = co.string;
-  tasks = co.ref(ListOfTasks);
-}
-class ListOfProjects extends CoList.Of(co.ref(Project)) {}
+const Task = co.map({
+  title: z.string(),
+});
 
-class AccountRoot extends CoMap {
-myProjects = co.ref(ListOfProjects);
-}
-class MyAppAccount extends Account {
-root = co.ref(AccountRoot);
-}
-declare module "jazz-react" { interface Register { Account: MyAppAccount; } }
+const Project = co.map({
+name: z.string(),
+tasks: co.list(Task),
+});
+
+const AccountRoot = co.map({
+myProjects: co.list(Project),
+});
+
+const MyAppAccount = co.account({
+root: AccountRoot,
+profile: co.profile(),
+});
+
 // ---cut-before---
 
 function ProjectList() {
-const { me } = useAccount({
+const { me } = useAccount(MyAppAccount, {
 resolve: {
 profile: true,
 root: {
 myProjects: {
 $each: {
-tasks: true
-}
-}
+tasks: true,
+},
+},
 },
 },
 });
@@ -6350,19 +6175,21 @@ if (!me) {
 return <div>Loading...</div>;
 }
 
-return <div>
+return (
+<div>
 <h1>{me.profile.name}'s projects</h1>
 <ul>
-{me.root.myProjects.map(project => (
+{me.root.myProjects.map((project) => (
 <li key={project.id}>
 {project.name} ({project.tasks.length} tasks)
 </li>
 ))}
 </ul>
-
-  </div>
+</div>
+);
 }
-```
+
+````
 </CodeGroup>
 
 </ContentByFramework>
@@ -6379,23 +6206,23 @@ This allows you to handle loading, error, and success states in your application
 
 <CodeGroup>
 ```ts twoslash
-class Task extends CoMap {
-  title = co.string;
-}
-
-const taskId = "co_123" as ID<Task>;
-// ---cut-before---
-Task.subscribe(taskId, (task) => {
-if (task === undefined) {
-console.log("Task is loading...");
-} else if (task === null) {
-console.log("Task not found or not accessible");
-} else {
-console.log("Task loaded:", task.title);
-}
+const Task = co.map({
+  title: z.string(),
 });
 
+const taskId = "co_123";
+// ---cut-before---
+Task.subscribe(taskId, {}, (task: Loaded<typeof Task>) => {
+  if (task === undefined) {
+    console.log("Task is loading...");
+  } else if (task === null) {
+    console.log("Task not found or not accessible");
+  } else {
+    console.log("Task loaded:", task.title);
+  }
+});
 ````
+
 </CodeGroup>
 
 ## Deep Loading
@@ -6408,26 +6235,24 @@ Resolve queries let you declare exactly which references to load and how deep to
 
 <CodeGroup>
 ```ts twoslash
-const projectId = "co_123" as ID<Project>;
+const projectId = "co_123";
 
 // ---cut-before---
-class Project extends CoMap {
-  name = co.string;
-  tasks = co.ref(ListOfTasks);
-  owner = co.ref(TeamMember);
-}
+const TeamMember = co.map({
+name: z.string(),
+});
 
-class Task extends CoMap {
-  title = co.string;
-  subtasks = co.ref(ListOfTasks);
-  assignee = co.optional.ref(TeamMember);
-}
+const Task = co.map({
+title: z.string(),
+assignee: z.optional(TeamMember),
+get subtasks(): CoListSchema<typeof Task> { return co.list(Task) },
+});
 
-class TeamMember extends CoMap {
-  name = co.string;
-}
-
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
+const Project = co.map({
+name: z.string(),
+tasks: co.list(Task),
+owner: TeamMember,
+});
 
 // Load just the project, not its references
 const project = await Project.load(projectId);
@@ -6440,9 +6265,9 @@ project.tasks;
 
 // Load the project and shallowly load its list of tasks
 const projectWithTasksShallow = await Project.load(projectId, {
-  resolve: {
-    tasks: true
-  }
+resolve: {
+tasks: true
+}
 });
 if (!projectWithTasksShallow) { throw new Error("Project or required references not found or not accessible"); }
 
@@ -6455,11 +6280,11 @@ projectWithTasksShallow.tasks[0];
 
 // Load the project and its tasks
 const projectWithTasks = await Project.load(projectId, {
-  resolve: {
-    tasks: {
-      $each: true
-    }
-  }
+resolve: {
+tasks: {
+$each: true
+}
+}
 });
 if (!projectWithTasks) { throw new Error("Project or required references not found or not accessible"); }
 
@@ -6474,28 +6299,28 @@ projectWithTasks.tasks[0].subtasks;
 
 // Load the project, its tasks, and their subtasks
 const projectDeep = await Project.load(projectId, {
-  resolve: {
-    tasks: {
-      $each: {
-        subtasks: {
-          $each: true
-        },
-        assignee: true
-      }
-    }
-  }
+resolve: {
+tasks: {
+$each: {
+subtasks: {
+$each: true
+},
+assignee: true
+}
+}
+}
 });
 if (!projectDeep) { throw new Error("Project or required references not found or not accessible"); }
 
 // string - primitive fields are always loaded
 projectDeep.tasks[0].subtasks[0].title;
 // undefined | null | TeamMember - since assignee is optional:
-//   TeamMember - set and definitely loaded
-//   null - set but unavailable/inaccessible
-//   undefined - not set, or loading (in case of subscription)
+// TeamMember - set and definitely loaded
+// null - set but unavailable/inaccessible
+// undefined - not set, or loading (in case of subscription)
 projectDeep.tasks[0].assignee;
-````
 
+````
 </CodeGroup>
 
 The resolve query defines which parts of the graph you want to load, making it intuitive to express complex loading patterns.
@@ -6509,37 +6334,35 @@ When loading data with references, the load operation will fail if one of the re
 When a user tries to load a reference they don't have access to:
 
 <CodeGroup>
-```typescript twoslash
+```ts twoslash
 
-class Project extends CoMap {
-name = co.string;
-tasks = co.ref(ListOfTasks);
-owner = co.ref(TeamMember);
-}
+const TeamMember = co.map({
+  name: z.string(),
+});
 
-class Task extends CoMap {
-title = co.string;
-subtasks = co.ref(ListOfTasks);
-assignee = co.optional.ref(TeamMember);
-}
+const Task = co.map({
+  title: z.string(),
+  assignee: z.optional(TeamMember),
+  get subtasks(): CoListSchema<typeof Task> { return co.list(Task) },
+});
 
-class TeamMember extends CoMap {
-name = co.string;
-}
+const Project = co.map({
+  name: z.string(),
+  tasks: co.list(Task),
+  owner: TeamMember,
+});
 
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
-
-const taskId = "co_123" as ID<Task>;
+const taskId = "co_123";
 
 // ---cut-before---
 // If assignee is not accessible to the user:
 const task = await Task.load(taskId, {
-resolve: { assignee: true }
+  resolve: { assignee: true }
 });
 
 task // => null
-
 ````
+
 </CodeGroup>
 The load operation will fail and return `null` if any requested reference is inaccessible. This maintains data consistency by ensuring all requested references are available before returning the object.
 
@@ -6550,36 +6373,34 @@ The behavior is the same for optional and required references.
 When a list contains references to items the user can't access:
 
 <CodeGroup>
-```typescript twoslash
+```ts twoslash
 
-class Project extends CoMap {
-  name = co.string;
-  tasks = co.ref(ListOfTasks);
-  owner = co.ref(TeamMember);
-}
+const TeamMember = co.map({
+name: z.string(),
+});
 
-class Task extends CoMap {
-  title = co.string;
-  subtasks = co.ref(ListOfTasks);
-  assignee = co.optional.ref(TeamMember);
-}
+const Task = co.map({
+title: z.string(),
+assignee: z.optional(TeamMember),
+get subtasks(): CoListSchema<typeof Task> { return co.list(Task) },
+});
 
-class TeamMember extends CoMap {
-  name = co.string;
-}
+const Project = co.map({
+name: z.string(),
+tasks: co.list(Task),
+owner: TeamMember,
+});
 
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
-
-const projectId = "co_123" as ID<Project>;
+const projectId = "co_123";
 // ---cut-before---
 // If any item in the list is not accessible:
 const project = await Project.load(projectId, {
-  resolve: { tasks: { $each: true } }
+resolve: { tasks: { $each: true } }
 });
 
 project // => null
-````
 
+````
 </CodeGroup>
 If any item in a list is inaccessible to the user, the entire load operation will fail and return `null`. This is because lists expect all their items to be accessible - a partially loaded list could lead to data inconsistencies.
 
@@ -6588,84 +6409,265 @@ If any item in a list is inaccessible to the user, the entire load operation wil
 When trying to load an object with an inaccessible reference without directly resolving it:
 
 <CodeGroup>
-```typescript twoslash
+```ts twoslash
 
-class Project extends CoMap {
-name = co.string;
-tasks = co.ref(ListOfTasks);
-owner = co.ref(TeamMember);
-}
+const TeamMember = co.map({
+  name: z.string(),
+});
 
-class Task extends CoMap {
-title = co.string;
-subtasks = co.ref(ListOfTasks);
-assignee = co.optional.ref(TeamMember);
-}
+const Task = co.map({
+  title: z.string(),
+  assignee: z.optional(TeamMember),
+  get subtasks(): CoListSchema<typeof Task> { return co.list(Task) },
+});
 
-class TeamMember extends CoMap {
-name = co.string;
-}
+const Project = co.map({
+  name: z.string(),
+  tasks: co.list(Task),
+  owner: TeamMember,
+});
 
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
-
-const projectId = "co_123" as ID<Project>;
+const projectId = "co_123";
 // ---cut-before---
 const project = await Project.load(projectId, {
-resolve: true
+  resolve: true
 });
 
 project // => Project
 
 // The user doesn't have access to the owner
 project?.owner // => always null
-
 ````
+
 </CodeGroup>
 
 The load operation will succeed and return the object, but the inaccessible reference will always be `null`.
 
+#### Deep loading lists with shared items
 
-## Type Safety with Resolved Type
+When loading a list with shared items, you can use the `$onError` option to safely load the list skipping any inaccessible items.
 
-Jazz provides the `Resolved` type to help you define and enforce the structure of deeply loaded data in your application. This makes it easier to ensure that components receive the data they expect with proper TypeScript validation.
+This is especially useful when in your app access to these items might be revoked.
 
-The `Resolved` type is especially useful when passing data between components, as it guarantees that all necessary nested data has been loaded:
+This way the inaccessible items are replaced with `null` in the returned list.
+
+<CodeGroup>
+```ts twoslash
+
+const me = await createJazzTestAccount();
+const account2 = await createJazzTestAccount();
+
+const Person = co.map({
+name: z.string(),
+});
+
+const Friends = co.list(Person);
+
+const privateGroup = Group.create({ owner: account2 });
+const publicGroup = Group.create({ owner: me });
+
+// ---cut-before---
+const source = co.list(Person).create(
+[
+Person.create(
+{
+name: "Jane",
+},
+privateGroup, // We don't have access to Jane
+),
+Person.create(
+{
+name: "Alice",
+},
+publicGroup, // We have access to Alice
+),
+],
+publicGroup,
+);
+
+const friends = await co.list(Person).load(source.id, {
+resolve: {
+$each: { $onError: null }
+},
+loadAs: me,
+});
+
+// Thanks to $onError catching the errors, the list is loaded
+// because we have access to friends
+console.log(friends); // Person[]
+
+// Jane is null because we lack access rights
+// and we have used $onError to catch the error on the list items
+console.log(friends?.[0]); // null
+
+// Alice is not null because we have access
+// the type is nullable because we have used $onError
+console.log(friends?.[1]); // Person
+
+````
+</CodeGroup>
+
+The `$onError` works as a "catch" clause option to block any error in the resolved children.
+
+<CodeGroup>
+```ts twoslash
+const me = await createJazzTestAccount();
+const account2 = await createJazzTestAccount();
+
+
+const Dog = co.map({
+  name: z.string(),
+});
+
+const Person = co.map({
+  name: z.string(),
+  dog: Dog,
+});
+
+const User = co.map({
+  name: z.string(),
+  friends: co.list(Person),
+});
+
+const privateGroup = Group.create({ owner: account2 });
+const publicGroup = Group.create({ owner: me });
+
+// ---cut-before---
+const source = co.list(Person).create(
+  [
+    Person.create(
+      {
+        name: "Jane",
+        dog: Dog.create(
+          { name: "Rex" },
+          privateGroup,
+        ), // We don't have access to Rex
+      },
+      publicGroup,
+    ),
+  ],
+  publicGroup,
+);
+
+const friends = await co.list(Person).load(source.id, {
+  resolve: {
+    $each: { dog: true, $onError: null }
+  },
+  loadAs: me,
+});
+
+// Jane is null because we don't have access to Rex
+// and we have used $onError to catch the error on the list items
+console.log(friends?.[0]); // null
+````
+
+</CodeGroup>
+
+We can actually use `$onError` everywhere in the resolve query, so we can use it to catch the error on dog:
+
+<CodeGroup>
+```ts twoslash
+const me = await createJazzTestAccount();
+const account2 = await createJazzTestAccount();
+
+const Dog = co.map({
+name: z.string(),
+});
+
+const Person = co.map({
+name: z.string(),
+dog: Dog,
+});
+
+const User = co.map({
+name: z.string(),
+friends: co.list(Person),
+});
+
+const privateGroup = Group.create({ owner: account2 });
+const publicGroup = Group.create({ owner: me });
+
+const source = co.list(Person).create(
+[
+Person.create(
+{
+name: "Jane",
+dog: Dog.create(
+{ name: "Rex" },
+privateGroup,
+), // We don't have access to Rex
+},
+publicGroup,
+),
+],
+publicGroup,
+);
+
+// ---cut-before---
+const friends = await co.list(Person).load(source.id, {
+resolve: {
+$each: { dog: { $onError: null } }
+},
+loadAs: me,
+});
+
+// Jane now is not-nullable at type level because
+// we have moved $onError down to the dog field
+//
+// This also means that if we don't have access to Jane
+// the entire friends list will be null
+console.log(friends?.[0]); // => Person
+
+// Jane's dog is null because we don't have access to Rex
+// and we have used $onError to catch the error
+console.log(friends?.[0]?.dog); // => null
+
+````
+</CodeGroup>
+
+## Type Safety with Loaded Type
+
+Jazz provides the `Loaded` type to help you define and enforce the structure of deeply loaded data in your application. This makes it easier to ensure that components receive the data they expect with proper TypeScript validation.
+
+The `Loaded` type is especially useful when passing data between components, as it guarantees that all necessary nested data has been loaded:
 
 <ContentByFramework framework="react">
 <CodeGroup>
 ```tsx twoslash
 
-class Project extends CoMap {
-  name = co.string;
-  tasks = co.ref(ListOfTasks);
-  owner = co.ref(TeamMember);
-}
+const TeamMember = co.map({
+  name: z.string(),
+});
 
-class Task extends CoMap {
-  title = co.string;
-  subtasks = co.ref(ListOfTasks);
-  assignee = co.optional.ref(TeamMember);
-}
+const Task = co.map({
+  title: z.string(),
+  assignee: z.optional(TeamMember),
+  get subtasks(): CoListSchema<typeof Task> {
+    return co.list(Task);
+  },
+});
 
-class TeamMember extends CoMap {
-  name = co.string;
-}
-
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
-
+const Project = co.map({
+  name: z.string(),
+  tasks: co.list(Task),
+  owner: TeamMember,
+});
 
 // ---cut-before---
-// Define a type that includes resolved nested data
-type ProjectWithTasks = Resolved<Project, {
-  tasks: { $each: true }
-}>;
+// Define a type that includes loaded nested data
+type ProjectWithTasks = Loaded<
+  typeof Project,
+  {
+    tasks: { $each: true };
+  }
+>;
 
-// Component that expects a fully resolved project
+// Component that expects a fully loaded project
 function TaskList({ project }: { project: ProjectWithTasks }) {
   // TypeScript knows tasks are loaded, so this is type-safe
   return (
     <ul>
-      {project.tasks.map(task => (
+      {project.tasks.map((task) => (
         <li key={task.id}>{task.title}</li>
       ))}
     </ul>
@@ -6673,26 +6675,30 @@ function TaskList({ project }: { project: ProjectWithTasks }) {
 }
 
 // For more complex resolutions
-type FullyLoadedProject = Resolved<Project, {
-  tasks: {
-    $each: {
-      subtasks: true,
-      assignee: true
-    }
-  },
-  owner: true
-}>;
+type FullyLoadedProject = Loaded<
+  typeof Project,
+  {
+    tasks: {
+      $each: {
+        subtasks: true;
+        assignee: true;
+      };
+    };
+    owner: true;
+  }
+>;
 
-// Function that requires deeply resolved data
+// Function that requires deeply loaded data
 function processProject(project: FullyLoadedProject) {
-  // Safe access to all resolved properties
+  // Safe access to all loaded properties
   console.log(`Project ${project.name} owned by ${project.owner.name}`);
 
-  project.tasks.forEach(task => {
+  project.tasks.forEach((task) => {
     console.log(`Task: ${task.title}, Assigned to: ${task.assignee?.name}`);
     console.log(`Subtasks: ${task.subtasks.length}`);
   });
 }
+
 ````
 
 </CodeGroup>
@@ -6702,56 +6708,62 @@ function processProject(project: FullyLoadedProject) {
 <CodeGroup>
 ```ts twoslash
 
-class Project extends CoMap {
-name = co.string;
-tasks = co.ref(ListOfTasks);
-owner = co.ref(TeamMember);
-}
+const TeamMember = co.map({
+name: z.string(),
+});
 
-class Task extends CoMap {
-title = co.string;
-subtasks = co.ref(ListOfTasks);
-assignee = co.optional.ref(TeamMember);
-}
+const Task = co.map({
+title: z.string(),
+assignee: z.optional(TeamMember),
+get subtasks(): CoListSchema<typeof Task> {
+return co.list(Task);
+},
+});
 
-class TeamMember extends CoMap {
-name = co.string;
-}
-
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
+const Project = co.map({
+name: z.string(),
+tasks: co.list(Task),
+owner: TeamMember,
+});
 
 // ---cut-before---
-// Define a type that includes resolved nested data
-type ProjectWithTasks = Resolved<Project, {
-tasks: { $each: true }
-}>;
+// Define a type that includes loaded nested data
+type ProjectWithTasks = Loaded<
+typeof Project,
+{
+tasks: { $each: true };
+}
 
-// Function that expects resolved data
-async function taskList({project}: {project: ProjectWithTasks}) {
+> ;
+
+// Function that expects loaded data
+async function taskList({ project }: { project: ProjectWithTasks }) {
 // TypeScript knows tasks are loaded, so this is type-safe
-return project.tasks
-.map(task => task.title)
-.join(`\n - `);
+return project.tasks.map((task) => task.title).join(`\n - `);
 }
 
 // For more complex resolutions
-type FullyLoadedProject = Resolved<Project, {
+type FullyLoadedProject = Loaded<
+typeof Project,
+{
 tasks: {
 $each: {
-title: true,
-subtasks: true,
-assignee: true
+title: true;
+subtasks: true;
+assignee: true;
+};
+};
+owner: true;
 }
-},
-owner: true
-}>;
 
-// Function that requires deeply resolved data
+> ;
+
+// Function that requires deeply loaded data
 function processProject(project: FullyLoadedProject) {
-// Safe access to all resolved properties
+// Safe access to all loaded properties
 console.log(`Project ${project.name} owned by ${project.owner.name}`);
 
-project.tasks.forEach(task => {
+project.tasks.forEach((task) => {
 console.log(`Task: ${task.title}, Assigned to: ${task.assignee?.name}`);
 console.log(`Subtasks: ${task.subtasks.length}`);
 });
@@ -6761,7 +6773,7 @@ console.log(`Subtasks: ${task.subtasks.length}`);
 </CodeGroup>
 </ContentByFramework>
 
-Using the `Resolved` type helps catch errors at compile time rather than runtime, ensuring that your components and functions receive data with the proper resolution depth. This is especially useful for larger applications where data is passed between many components.
+Using the `Loaded` type helps catch errors at compile time rather than runtime, ensuring that your components and functions receive data with the proper resolution depth. This is especially useful for larger applications where data is passed between many components.
 
 ## Ensuring Data is Loaded
 
@@ -6770,27 +6782,27 @@ Sometimes you need to make sure data is loaded before proceeding with an operati
 <CodeGroup>
 ```ts twoslash
 
-class Project extends CoMap {
-  name = co.string;
-  tasks = co.ref(ListOfTasks);
-  owner = co.ref(TeamMember);
-}
+const TeamMember = co.map({
+  name: z.string(),
+});
 
-class Task extends CoMap {
-  title = co.string;
-  status = co.literal("todo", "in-progress", "completed");
-  subtasks = co.ref(ListOfTasks);
-  assignee = co.optional.ref(TeamMember);
-}
+const Task = co.map({
+  title: z.string(),
+  status: z.literal(["todo", "in-progress", "completed"]),
+  assignee: z.string().optional(),
+  get subtasks(): CoListSchema<typeof Task> {
+    return co.list(Task);
+  },
+});
 
-class TeamMember extends CoMap {
-  name = co.string;
-}
-
-class ListOfTasks extends CoList.Of(co.ref(Task)) {}
+const Project = co.map({
+  name: z.string(),
+  tasks: co.list(Task),
+  owner: TeamMember,
+});
 
 // ---cut-before---
-async function completeAllTasks(projectId: ID<Project>) {
+async function completeAllTasks(projectId: string) {
   // Ensure the project is loaded
   const project = await Project.load(projectId, { resolve: true });
   if (!project) return;
@@ -6799,13 +6811,13 @@ async function completeAllTasks(projectId: ID<Project>) {
   const loadedProject = await project.ensureLoaded({
     resolve: {
       tasks: {
-        $each: true
-      }
-    }
+        $each: true,
+      },
+    },
   });
 
   // Now we can safely access and modify tasks
-  loadedProject.tasks.forEach(task => {
+  loadedProject.tasks.forEach((task) => {
     task.status = "completed";
   });
 }
@@ -6819,7 +6831,7 @@ async function completeAllTasks(projectId: ID<Project>) {
 2. **Use framework integrations**: They handle subscription lifecycle automatically
 3. **Clean up subscriptions**: Always store and call the unsubscribe function when you're done
 4. **Handle all loading states**: Check for undefined (loading), null (not found), and success states
-5. **Use the Resolved type**: Add compile-time type safety for components that require specific resolution patterns
+5. **Use the Loaded type**: Add compile-time type safety for components that require specific resolution patterns
 
 ### Groups, permissions & sharing
 
@@ -6829,7 +6841,7 @@ async function completeAllTasks(projectId: ID<Project>) {
 
 Every CoValue has an owner, which can be a `Group` or an `Account`.
 
-You can use a `Group` to grant access to a CoValue to multiple users. These users can
+You can use a `Group` to grant access to a CoValue to **multiple users**. These users can
 have different roles, such as "writer", "reader" or "admin".
 
 ## Creating a Group
@@ -6837,7 +6849,7 @@ have different roles, such as "writer", "reader" or "admin".
 Here's how you can create a `Group`.
 
 <CodeGroup>
-```tsx
+```tsx twoslash
 
 const group = Group.create();
 
@@ -6854,53 +6866,125 @@ But if you already know their ID, you can add them directly (see below).
 You can add group members by ID by using `Account.load` and `Group.addMember`.
 
 <CodeGroup>
-```tsx
+```tsx twoslash
+
+const bobsID = "co_z123" as ID<Account>;
+
+// ---cut---
 
 const group = Group.create();
 
-const bob = await Account.load(bobsID, []);
-group.addMember(bob, "writer");
+const bob = await Account.load(bobsID);
+
+if (bob) {
+  group.addMember(bob, "writer");
+}
 ````
 
 </CodeGroup>
 
-Note: if the account ID is of type `string`, because it comes from a URL parameter or something similar, you need to cast it to `ID<Account>` first:
+**Note:** if the account ID is of type `string`, because it comes from a URL parameter or something similar, you need to cast it to `ID<Account>` first:
 
 <CodeGroup>
-```tsx
+```tsx twoslash
+const bobsID = "co_z123" as ID<Account>;
 
-const bob = await Account.load(bobsID as ID<Account>, []);
+const group = Group.create();
+
+// ---cut---
+
+const bob = await Account.load(bobsID as ID<Account>);
+
+if (bob) {
 group.addMember(bob, "writer");
+}
 
 ````
 </CodeGroup>
+
+## Changing a member's role
+
+To change a member's role, use the `addMember` method.
+
+<CodeGroup>
+```ts twoslash
+const bob = await createJazzTestAccount();
+const group = Group.create();
+// ---cut---
+group.addMember(bob, "reader");
+````
+
+</CodeGroup>
+
+Bob just went from a writer to a reader.
+
+**Note:** only admins can change a member's role.
+
+## Removing a member
+
+To remove a member, use the `removeMember` method.
+
+<CodeGroup>
+```ts twoslash
+const bob = await createJazzTestAccount();
+const group = Group.create();
+// ---cut---
+group.removeMember(bob);
+```
+</CodeGroup>
+
+Rules:
+
+- All roles can remove themselves.
+- Only admins can remove other users.
+- An admin cannot remove other admins.
+- As an admin, you cannot remove yourself if you are the only admin in the Group, because there has to be at least one admin present.
 
 ## Getting the Group of an existing CoValue
 
 You can get the group of an existing CoValue by using `coValue._owner`.
 
 <CodeGroup>
-```tsx
-const group = existingCoValue._owner;
-const newValue = MyCoMap.create(
-  { color: "red"},
-  { owner: group }
-);
-````
+```ts twoslash
+const existingCoValue = await createJazzTestAccount();
 
+const MyCoMap = co.map({
+color: z.string(),
+});
+
+// ---cut---
+const group = existingCoValue.\_owner;
+const newValue = MyCoMap.create(
+{ color: "red"},
+{ owner: group }
+);
+
+````
 </CodeGroup>
 
 Because `._owner` can be an `Account` or a `Group`, in cases where you specifically need to use `Group` methods (such as for adding members or getting your own role), you can cast it to assert it to be a Group:
 
 <CodeGroup>
-```tsx
+```ts twoslash
+const bob = await createJazzTestAccount();
 
-const group = existingCoValue.\_owner.castAs(Group);
+const MyCoMap = co.map({
+  color: z.string(),
+});
+
+const existingCoValue = MyCoMap.create(
+  { color: "red"},
+  { owner: bob }
+);
+
+// ---cut---
+
+const group = existingCoValue._owner.castAs(Group);
 group.addMember(bob, "writer");
 
-const role = group.getRoleOf(bob);
-
+const role = group.getRoleOf(bob.id);
 ````
+
 </CodeGroup>
 
 ## Checking the permissions
@@ -6908,50 +6992,60 @@ const role = group.getRoleOf(bob);
 You can check the permissions of an account on a CoValue by using the `canRead`, `canWrite` and `canAdmin` methods.
 
 <CodeGroup>
-```tsx
-const value = await MyCoMap.load(valueID, {});
+```ts twoslash
+
+const MyCoMap = co.map({
+color: z.string(),
+});
+// ---cut---
+const value = await MyCoMap.create({ color: "red"})
 const me = Account.getMe();
 
 if (me.canAdmin(value)) {
-  console.log("I can share value with others");
+console.log("I can share value with others");
 } else if (me.canWrite(value)) {
-  console.log("I can edit value");
+console.log("I can edit value");
 } else if (me.canRead(value)) {
-  console.log("I can view value");
+console.log("I can view value");
 } else {
-  console.log("I cannot access value");
+console.log("I cannot access value");
 }
-````
 
+````
 </CodeGroup>
 
 To check the permissions of another account, you need to load it first:
 
 <CodeGroup>
-```tsx
-const value = await MyCoMap.load(valueID, {});
-const bob = await Account.load(accountID, []);
+```ts twoslash
 
-if (bob.canAdmin(value)) {
-console.log("Bob can share value with others");
-} else if (bob.canWrite(value)) {
-console.log("Bob can edit value");
-} else if (bob.canRead(value)) {
-console.log("Bob can view value");
-} else {
-console.log("Bob cannot access value");
+const MyCoMap = co.map({
+  color: z.string(),
+});
+const account = await createJazzTestAccount();
+const accountID = account.id;
+// ---cut---
+const value = await MyCoMap.create({ color: "red"})
+const bob = await Account.load(accountID);
+
+if (bob) {
+  if (bob.canAdmin(value)) {
+    console.log("Bob can share value with others");
+  } else if (bob.canWrite(value)) {
+    console.log("Bob can edit value");
+  } else if (bob.canRead(value)) {
+    console.log("Bob can view value");
+  } else {
+    console.log("Bob cannot access value");
+  }
 }
-
 ````
+
 </CodeGroup>
-
-
 
 #### Public sharing & invites
 
 # Public sharing and invites
-
-...more docs coming soon
 
 ## Public sharing
 
@@ -6959,11 +7053,11 @@ You can share CoValues publicly by setting the `owner` to a `Group`, and grantin
 access to "everyone".
 
 <CodeGroup>
-  ```ts
-  const group = Group.create();
-  group.addMember("everyone", "writer"); // *highlight*
-````
-
+```ts twoslash
+// ---cut---
+const group = Group.create();
+group.addMember("everyone", "writer");
+```
 </CodeGroup>
 
 This is done in the [chat example](https://github.com/garden-co/jazz/tree/main/examples/chat) where anyone can join the chat, and send messages.
@@ -6977,53 +7071,19 @@ You can grant users access to a CoValue by sending them an invite link.
 This is used in the [pet example](https://github.com/garden-co/jazz/tree/main/examples/pets)
 and the [todo example](https://github.com/garden-co/jazz/tree/main/examples/todo).
 
-<ContentByFramework  framework="react">
+<ContentByFramework framework={["react", "react-native", "react-native-expo", "vue", "svelte"]}>
 <CodeGroup>
-```ts
 
-createInviteLink(organization, "writer"); // or reader, or admin
+```ts twoslash
+const Organization = co.map({
+  name: z.string(),
+});
+const organization = Organization.create({ name: "Garden Computing" });
+// ---cut---
 
-````
-</CodeGroup>
-</ContentByFramework>
+createInviteLink(organization, "writer"); // or reader, admin, writeOnly
+```
 
-<ContentByFramework  framework="react-native">
-<CodeGroup>
-```ts
-
-createInviteLink(organization, "writer"); // or reader, or admin
-````
-
-</CodeGroup>
-</ContentByFramework>
-
-<ContentByFramework  framework="react-native-expo">
-<CodeGroup>
-```ts
-
-createInviteLink(organization, "writer"); // or reader, or admin
-
-````
-</CodeGroup>
-</ContentByFramework>
-
-<ContentByFramework  framework="vue">
-<CodeGroup>
-```ts
-
-createInviteLink(organization, "writer"); // or reader, or admin
-````
-
-</CodeGroup>
-</ContentByFramework>
-
-<ContentByFramework  framework="svelte">
-<CodeGroup>
-```ts
-
-createInviteLink(organization, "writer"); // or reader, or admin
-
-````
 </CodeGroup>
 </ContentByFramework>
 
@@ -7033,11 +7093,121 @@ In your app, you need to handle this route, and let the user accept the invitati
 as done [here](https://github.com/garden-co/jazz/tree/main/examples/pets/src/2_main.tsx).
 
 <CodeGroup>
-```ts
-useAcceptInvite({
-  invitedObjectSchema: PetPost,
-  onAccept: (petPostID) => navigate("/pet/" + petPostID),
+```ts twoslash
+
+const Organization = co.map({
+name: z.string(),
 });
+const organization = Organization.create({ name: "Garden Computing" });
+const organizationID = organization.id;
+// ---cut---
+
+useAcceptInvite({
+invitedObjectSchema: Organization,
+onAccept: (organizationID) => {
+console.log("Accepted invite!")
+// navigate to the organization page
+},
+});
+
+````
+</CodeGroup>
+
+
+### Requesting Invites
+
+To allow a non-group member to request an invitation to a group you can use the `writeOnly` role.
+This means that users only have write access to a specific requests list (they can't read other requests).
+However, Administrators can review and approve these requests.
+
+Create the data models.
+
+<CodeGroup>
+```ts twoslash
+// ---cut---
+const JoinRequest = co.map({
+  account: Account,
+  status: z.literal(["pending", "approved", "rejected"]),
+});
+
+const RequestsList = co.list(JoinRequest);
+````
+
+</CodeGroup>
+
+Set up the request system with appropriate access controls.
+
+<CodeGroup>
+```ts twoslash
+
+const JoinRequest = co.map({
+account: Account,
+status: z.literal(["pending", "approved", "rejected"]),
+});
+
+const RequestsList = co.list(JoinRequest);
+
+// ---cut-before---
+function createRequestsToJoin() {
+const requestsGroup = Group.create();
+requestsGroup.addMember("everyone", "writeOnly");
+
+return RequestsList.create([], requestsGroup);
+}
+
+async function sendJoinRequest(
+requestsList: Loaded<typeof RequestsList>,
+account: Account,
+) {
+const request = JoinRequest.create(
+{
+account,
+status: "pending",
+},
+requestsList.\_owner // Inherit the access controls of the requestsList
+);
+
+requestsList.push(request);
+
+return request;
+}
+
+````
+</CodeGroup>
+
+Using the write-only access users can submit requests that only administrators can review and approve.
+
+<CodeGroup>
+```ts twoslash
+
+const JoinRequest = co.map({
+  account: Account,
+  status: z.literal(["pending", "approved", "rejected"]),
+});
+
+const RequestsList = co.list(JoinRequest);
+
+const RequestsToJoin = co.map({
+  writeOnlyInvite: z.string(),
+  requests: RequestsList,
+});
+
+// ---cut-before---
+async function approveJoinRequest(
+  joinRequest: Loaded<typeof JoinRequest, { account: true }>,
+  targetGroup: Group,
+) {
+  const account = await Account.load(joinRequest._refs.account.id);
+
+  if (account) {
+    targetGroup.addMember(account, "reader");
+    joinRequest.status = "approved";
+
+    return true;
+  } else {
+    return false;
+  }
+}
 ````
 
 </CodeGroup>
@@ -7055,7 +7225,8 @@ When a group extends another group, members of the parent group will become auto
 Here's how to extend a group:
 
 <CodeGroup>
-```typescript
+```ts twoslash
+// ---cut---
 const playlistGroup = Group.create();
 const trackGroup = Group.create();
 
@@ -7075,7 +7246,9 @@ When you extend a group:
 In some cases you might want to inherit all members from a parent group but override/flatten their roles to the same specific role in the child group. You can do so by passing an "override role" as a second argument to `extend`:
 
 <CodeGroup>
-```typescript
+```ts twoslash
+const bob = await createJazzTestAccount();
+// ---cut---
 const organizationGroup = Group.create();
 organizationGroup.addMember(bob, "admin");
 
@@ -7090,7 +7263,10 @@ billingGroup.extend(organizationGroup, "reader");
 The "override role" works in both directions:
 
 <CodeGroup>
-```typescript
+```ts twoslash
+const bob = await createJazzTestAccount();
+const alice = await createJazzTestAccount();
+// ---cut---
 const parentGroup = Group.create();
 parentGroup.addMember(bob, "reader");
 parentGroup.addMember(alice, "admin");
@@ -7108,7 +7284,8 @@ childGroup.extend(parentGroup, "writer");
 Groups can be extended multiple levels deep:
 
 <CodeGroup>
-```typescript
+```ts twoslash
+// ---cut---
 const grandParentGroup = Group.create();
 const parentGroup = Group.create();
 const childGroup = Group.create();
@@ -7126,7 +7303,10 @@ Members of the grandparent group will get access to all descendant groups based 
 When you remove a member from a parent group, they automatically lose access to all child groups. We handle key rotation automatically to ensure security.
 
 <CodeGroup>
-```typescript
+```ts twoslash
+const bob = await createJazzTestAccount();
+const parentGroup = Group.create();
+// ---cut---
 // Remove member from parent
 await parentGroup.removeMember(bob);
 
@@ -7139,7 +7319,9 @@ await parentGroup.removeMember(bob);
 
 If the account is already a member of the child group, it will get the more permissive role:
 <CodeGroup>
-```typescript
+```ts twoslash
+const bob = await createJazzTestAccount();
+// ---cut---
 const parentGroup = Group.create();
 parentGroup.addMember(bob, "reader");
 
@@ -7156,9 +7338,11 @@ childGroup.extend(parentGroup);
 When extending groups, only admin, writer and reader roles are inherited:
 <CodeGroup>
 
-```typescript
+```ts twoslash
+const bob = await createJazzTestAccount();
+// ---cut---
 const parentGroup = Group.create();
-parentGroup.addMember(bob, 'writeOnly');
+parentGroup.addMember(bob, "writeOnly");
 
 const childGroup = Group.create();
 childGroup.extend(parentGroup);
@@ -7174,7 +7358,12 @@ To extend a group:
 2. The current account must be a member of the parent group
 
 <CodeGroup>
-```typescript
+```ts twoslash
+const Company = co.map({
+  name: z.string(),
+});
+const company = Company.create({ name: "Garden Computing" });
+// ---cut---
 const companyGroup = company._owner.castAs(Group)
 const teamGroup = Group.create();
 
@@ -7189,7 +7378,8 @@ teamGroup.extend(companyGroup);
 You can revoke a group extension by using the `revokeExtend` method:
 
 <CodeGroup>
-```typescript
+```ts twoslash
+// ---cut---
 const parentGroup = Group.create();
 const childGroup = Group.create();
 
@@ -7206,7 +7396,8 @@ await childGroup.revokeExtend(parentGroup);
 You can get all the parent groups of a group by calling the `getParentGroups` method:
 
 <CodeGroup>
-```typescript
+```ts twoslash
+// ---cut---
 const childGroup = Group.create();
 const parentGroup = Group.create();
 childGroup.extend(parentGroup);
@@ -7221,7 +7412,12 @@ console.log(childGroup.getParentGroups()); // [parentGroup]
 Here's a practical example of using group inheritance for team permissions:
 
 <CodeGroup>
-```typescript
+```ts twoslash
+const CEO = await createJazzTestAccount();
+const teamLead = await createJazzTestAccount();
+const developer = await createJazzTestAccount();
+const client = await createJazzTestAccount();
+// ---cut---
 // Company-wide group
 const companyGroup = Group.create();
 companyGroup.addMember(CEO, "admin");
@@ -7284,6 +7480,8 @@ Jazz provides several ways to authenticate users:
 - [**Passkeys**](./passkey): Secure, biometric authentication using WebAuthn
 - [**Passphrases**](./passphrase): Bitcoin-style word phrases that users store
 - [**Clerk Integration**](./clerk): Third-party authentication service with OAuth support
+- [**Jazz Cloud Integration**](./jazz-cloud): Authentication service provided through Jazz Cloud
+- [**Self-Hosting**](./self-hosting): Self-hosted authentication service
 
 #### Authentication States
 
@@ -7361,20 +7559,20 @@ This example from our [music player example app](https://github.com/garden-co/ja
 ```ts twoslash
 
 class MusicTrack extends CoMap {
-  title = co.string;
-  duration = co.number;
-  isExampleTrack = co.optional.boolean;
+  title = coField.string;
+  duration = coField.number;
+  isExampleTrack = coField.optional.boolean;
 }
-class ListOfTracks extends CoList.Of(co.ref(MusicTrack)) {}
+class ListOfTracks extends CoList.Of(coField.ref(MusicTrack)) {}
 class Playlist extends CoMap {
-  title = co.string;
-  tracks = co.ref(ListOfTracks);
+  title = coField.string;
+  tracks = coField.ref(ListOfTracks);
 }
 class MusicaAccountRoot extends CoMap {
-  rootPlaylist = co.ref(Playlist);
+  rootPlaylist = coField.ref(Playlist);
 }
 class MusicaAccount extends Account {
-  root = co.ref(MusicaAccountRoot);
+  root = coField.ref(MusicaAccountRoot);
 }
 
 // ---cut---
@@ -7705,28 +7903,28 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 ```tsx twoslash
 // @filename: wordlist.ts
 export const wordlist = [
-  'apple',
-  'banana',
-  'cherry',
-  'date',
-  'elderberry',
-  'fig',
-  'grape',
-  'honeydew',
-  'kiwi',
-  'lemon',
-  'mango',
-  'orange',
-  'pear',
-  'quince',
-  'raspberry',
-  'strawberry',
-  'tangerine',
-  'uva',
-  'watermelon',
-  'xigua',
-  'yuzu',
-  'zucchini',
+  "apple",
+  "banana",
+  "cherry",
+  "date",
+  "elderberry",
+  "fig",
+  "grape",
+  "honeydew",
+  "kiwi",
+  "lemon",
+  "mango",
+  "orange",
+  "pear",
+  "quince",
+  "raspberry",
+  "strawberry",
+  "tangerine",
+  "uva",
+  "watermelon",
+  "xigua",
+  "yuzu",
+  "zucchini",
 ];
 // @filename: AuthModal.tsx
 
@@ -7737,13 +7935,13 @@ type AuthModalProps = {
 // ---cut---
 
 export function AuthModal({ open, onOpenChange }: AuthModalProps) {
-  const [loginPassphrase, setLoginPassphrase] = useState('');
+  const [loginPassphrase, setLoginPassphrase] = useState("");
 
   const auth = usePassphraseAuth({
     wordlist: wordlist,
   });
 
-  if (auth.state === 'signedIn') {
+  if (auth.state === "signedIn") {
     return <Text>You are already signed in</Text>;
   }
 
@@ -7761,7 +7959,12 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     <View>
       <View>
         <Text>Your current passphrase</Text>
-        <TextInput editable={false} value={auth.passphrase} multiline numberOfLines={5} />
+        <TextInput
+          editable={false}
+          value={auth.passphrase}
+          multiline
+          numberOfLines={5}
+        />
       </View>
 
       <Button title="I have stored my passphrase" onPress={handleSignUp} />
@@ -7821,24 +8024,25 @@ We do not currently support Clerk in React Native, but we do have support for [R
 
 ### Design patterns
 
-#### Form
+#### Autosaving forms
 
-# Creating and updating CoValues in a form
+# How to write autosaving forms to create and update CoValues
 
-Normally, we implement forms using
-[the onSubmit handler](https://react.dev/reference/react-dom/components/form#handle-form-submission-on-the-client),
-or by making [a controlled form with useState](https://christinakozanian.medium.com/building-controlled-forms-with-usestate-in-react-f9053ad255a0),
-or by using special libraries like [react-hook-form](https://www.react-hook-form.com).
+This guide shows you a simple and powerful way to implement forms for creating and updating CoValues.
 
-In Jazz, we can do something simpler and more powerful, because CoValues give us reactive,
-persisted state which we can use to directly edit live objects, and represent auto-saved drafts.
+We'll build:
+
+1. An update form that saves changes as you make them, removing the need for a save button.
+2. A create form that autosaves your changes into a draft, so you can come back to it later.
 
 [See the full example here.](https://github.com/garden-co/jazz/tree/main/examples/form)
 
+**Note**: If you do need a save button on your update form, this guide is not for you. Another option
+is to use [react-hook-form](https://www.react-hook-form.com), which you can see in [this example](https://github.com/garden-co/jazz/tree/main/examples/password-manager).
+
 ## Updating a CoValue
 
-To update a CoValue, we simply assign the new value directly as changes happen. These changes are synced to the server, so
-we don't need to handle form submissions either.
+To update a CoValue, we simply assign the new value directly as changes happen. These changes are synced to the server.
 
 <CodeGroup>
 ```tsx
@@ -7850,7 +8054,7 @@ we don't need to handle form submissions either.
 ```
 </CodeGroup>
 
-This means we can write update forms in fewer lines of code.
+It's that simple!
 
 ## Creating a CoValue
 
@@ -7867,15 +8071,16 @@ a new CoValue.
 A `DraftBubbleTeaOrder` is essentially a copy of `BubbleTeaOrder`, but with all the fields made optional.
 
 <CodeGroup>
-```tsx
+```tsx twoslash
+// ---cut---
 // schema.ts
-export class BubbleTeaOrder extends CoMap {
-  name = co.string;
-}
+export const BubbleTeaOrder = co.map({
+  name: z.string(),
+});
 
-export class DraftBubbleTeaOrder extends CoMap {
-name = co.optional.string;
-}
+export const DraftBubbleTeaOrder = co.map({
+name: z.optional(z.string()),
+});
 
 ````
 </CodeGroup>
@@ -7885,13 +8090,22 @@ name = co.optional.string;
 Let's write the form component that will be used for both create and update.
 
 <CodeGroup>
-```tsx
+```tsx twoslash
+
+export const BubbleTeaOrder = co.map({
+  name: z.string(),
+});
+
+export const DraftBubbleTeaOrder = co.map({
+  name: z.optional(z.string()),
+});
+// ---cut---
 // OrderForm.tsx
 export function OrderForm({
   order,
   onSave,
 }: {
-  order: BubbleTeaOrder | DraftBubbleTeaOrder;
+  order: Loaded<typeof BubbleTeaOrder> | Loaded<typeof DraftBubbleTeaOrder>;
   onSave?: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
   return (
@@ -7919,10 +8133,44 @@ export function OrderForm({
 To make the edit form, simply pass the `BubbleTeaOrder`.
 
 <CodeGroup>
-```tsx
+```tsx twoslash
+
+export const BubbleTeaOrder = co.map({
+name: z.string(),
+});
+
+export const DraftBubbleTeaOrder = co.map({
+name: z.optional(z.string()),
+});
+
+export function OrderForm({
+order,
+onSave,
+}: {
+order: Loaded<typeof BubbleTeaOrder> | Loaded<typeof DraftBubbleTeaOrder>;
+onSave?: (e: React.FormEvent<HTMLFormElement>) => void;
+}) {
+return (
+<form onSubmit={onSave}>
+<label>
+Name
+<input
+type="text"
+value={order.name}
+onChange={(e) => (order.name = e.target.value)}
+required
+/>
+</label>
+
+      {onSave && <button type="submit">Submit</button>}
+    </form>
+
+);
+}
+// ---cut---
 // EditOrder.tsx
-export function EditOrder(props: { id: ID<BubbleTeaOrder> }) {
-  const order = useCoState(BubbleTeaOrder, props.id, []);
+export function EditOrder(props: { id: string }) {
+const order = useCoState(BubbleTeaOrder, props.id);
 
 if (!order) return;
 
@@ -7942,11 +8190,53 @@ For the create form, we need to:
 Here's how that looks like:
 
 <CodeGroup>
-```tsx
+```tsx twoslash
+
+export const BubbleTeaOrder = co.map({
+  name: z.string(),
+});
+
+export const DraftBubbleTeaOrder = co.map({
+  name: z.optional(z.string()),
+});
+
+export const AccountRoot = co.map({
+  draft: DraftBubbleTeaOrder,
+});
+
+export const JazzAccount = co.account({
+  root: AccountRoot,
+  profile: co.map({ name: z.string() }),
+});
+
+export function OrderForm({
+  order,
+  onSave,
+}: {
+  order: Loaded<typeof BubbleTeaOrder> | Loaded<typeof DraftBubbleTeaOrder>;
+  onSave?: (e: React.FormEvent<HTMLFormElement>) => void;
+}) {
+  return (
+    <form onSubmit={onSave}>
+      <label>
+        Name
+        <input
+          type="text"
+          value={order.name}
+          onChange={(e) => (order.name = e.target.value)}
+          required
+        />
+      </label>
+
+      {onSave && <button type="submit">Submit</button>}
+    </form>
+  );
+}
+// ---cut---
 // CreateOrder.tsx
 export function CreateOrder() {
   const { me } = useAccount();
-  const [draft, setDraft] = useState<DraftBubbleTeaOrder>();
+  const [draft, setDraft] = useState<Loaded<typeof DraftBubbleTeaOrder>>();
 
   useEffect(() => {
     setDraft(DraftBubbleTeaOrder.create({}));
@@ -7954,9 +8244,9 @@ export function CreateOrder() {
 
   const onSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!draft) return;
+    if (!draft || !draft.name) return;
 
-    const order = draft as BubbleTeaOrder;
+    const order = draft as Loaded<typeof BubbleTeaOrder>; // TODO: this should narrow correctly
 
     console.log("Order created:", order);
   };
@@ -7973,25 +8263,26 @@ export function CreateOrder() {
 
 In a `BubbleTeaOrder`, the `name` field is required, so it would be a good idea to validate this before turning the draft into a real order.
 
-Update the schema to include a `validate` method.
+Update the schema to include a `validate` helper.
 
 <CodeGroup>
-```ts
+```ts twoslash
+// ---cut---
 // schema.ts
-export class DraftBubbleTeaOrder extends CoMap {
-  name = co.optional.string;
+export const DraftBubbleTeaOrder = co.map({
+  name: z.optional(z.string()),
+}).withHelpers((Self) => ({ // [!code ++:11]
+  validate(draft: Loaded<typeof Self>) {
+    const errors: string[] = [];
 
-validate() { // [!code ++:9]
-const errors: string[] = [];
-
-    if (!this.name) {
+    if (!draft.name) {
       errors.push("Please enter a name.");
     }
 
     return { errors };
 
-}
-}
+},
+}));
 
 ````
 </CodeGroup>
@@ -7999,11 +8290,63 @@ const errors: string[] = [];
 Then perform the validation on submit.
 
 <CodeGroup>
-```tsx
+```tsx twoslash
+
+export const BubbleTeaOrder = co.map({
+  name: z.string(),
+});
+
+export const DraftBubbleTeaOrder = co.map({
+  name: z.optional(z.string()),
+}).withHelpers((Self) => ({
+  validate(draft: Loaded<typeof Self>) {
+    const errors: string[] = [];
+
+    if (!draft.name) {
+      errors.push("Please enter a name.");
+    }
+
+    return { errors };
+  },
+}));
+
+export const AccountRoot = co.map({
+  draft: DraftBubbleTeaOrder,
+});
+
+export const JazzAccount = co.account({
+  root: AccountRoot,
+  profile: co.map({ name: z.string() }),
+});
+
+export function OrderForm({
+  order,
+  onSave,
+}: {
+  order: Loaded<typeof BubbleTeaOrder> | Loaded<typeof DraftBubbleTeaOrder>;
+  onSave?: (e: React.FormEvent<HTMLFormElement>) => void;
+}) {
+  return (
+    <form onSubmit={onSave}>
+      <label>
+        Name
+        <input
+          type="text"
+          value={order.name}
+          onChange={(e) => (order.name = e.target.value)}
+          required
+        />
+      </label>
+
+      {onSave && <button type="submit">Submit</button>}
+    </form>
+  );
+}
+// ---cut---
 // CreateOrder.tsx
 export function CreateOrder() {
   const { me } = useAccount();
-  const [draft, setDraft] = useState<DraftBubbleTeaOrder>();
+  const [draft, setDraft] = useState<Loaded<typeof DraftBubbleTeaOrder>>();
 
   useEffect(() => {
     setDraft(DraftBubbleTeaOrder.create({}));
@@ -8013,13 +8356,13 @@ export function CreateOrder() {
     e.preventDefault();
     if (!draft) return;
 
-    const validation = draft.validate(); // [!code ++:5]
+    const validation = DraftBubbleTeaOrder.validate(draft); // [!code ++:5]
     if (validation.errors.length > 0) {
       console.log(validation.errors);
       return;
     }
 
-    const order = draft as BubbleTeaOrder;
+    const order = draft as Loaded<typeof BubbleTeaOrder>;
 
     console.log("Order created:", order);
   };
@@ -8039,32 +8382,32 @@ It turns out that using this pattern also provides a UX improvement.
 By storing the draft in the user's account, they can come back to it anytime without losing their work. 🙌
 
 <CodeGroup>
-```ts
+```ts twoslash
+// ---cut---
 // schema.ts
-export class BubbleTeaOrder extends CoMap {
-  name = co.string;
-}
+export const BubbleTeaOrder = co.map({
+  name: z.string(),
+});
 
-export class DraftBubbleTeaOrder extends CoMap {
-name = co.optional.string;
-}
+export const DraftBubbleTeaOrder = co.map({
+name: z.optional(z.string()),
+});
 
-export class AccountRoot extends CoMap { // [!code ++:15]
-draft = co.ref(DraftBubbleTeaOrder);
-}
+export const AccountRoot = co.map({ // [!code ++:15]
+draft: DraftBubbleTeaOrder,
+});
 
-export class JazzAccount extends Account {
-root = co.ref(AccountRoot);
-
-migrate(this: JazzAccount, creationProps?: { name: string }) {
-if (this.root === undefined) {
+export const JazzAccount = co.account({
+root: AccountRoot,
+profile: co.map({ name: z.string() }),
+}).withMigration((account, creationProps?: { name: string }) => {
+if (account.root === undefined) {
 const draft = DraftBubbleTeaOrder.create({});
 
-      this.root = AccountRoot.create({ draft });
-    }
+    account.root = AccountRoot.create({ draft });
 
 }
-}
+});
 
 ````
 </CodeGroup>
@@ -8072,7 +8415,33 @@ const draft = DraftBubbleTeaOrder.create({});
 Let's not forget to update the `AccountSchema`.
 
 <CodeGroup>
-```ts
+```ts twoslash
+// @filename: schema.tsx
+export const BubbleTeaOrder = co.map({
+  name: z.string(),
+});
+
+export const DraftBubbleTeaOrder = co.map({
+  name: z.optional(z.string()),
+});
+
+export const AccountRoot = co.map({
+  draft: DraftBubbleTeaOrder,
+});
+
+export const JazzAccount = co.account({
+  root: AccountRoot,
+  profile: co.map({ name: z.string() }),
+}).withMigration((account, creationProps?: { name: string }) => {
+  if (account.root === undefined) {
+    const draft = DraftBubbleTeaOrder.create({});
+
+    account.root = AccountRoot.create({ draft });
+  }
+});
+
+// @filename: App.tsx
+// ---cut---
 
 export function MyJazzProvider({ children }: { children: React.ReactNode }) {
     return (
@@ -8084,13 +8453,6 @@ export function MyJazzProvider({ children }: { children: React.ReactNode }) {
         </JazzProvider>
     );
 }
-
-// Register the Account schema so `useAccount` returns our custom `JazzAccount`
-declare module "jazz-react" { // [!code ++:5]
-    interface Register {
-        Account: JazzAccount;
-    }
-}
 ````
 
 </CodeGroup>
@@ -8098,10 +8460,77 @@ declare module "jazz-react" { // [!code ++:5]
 Instead of creating a new draft every time we use the create form, let's use the draft from the account root.
 
 <CodeGroup>
-```tsx
+```tsx twoslash
+// @filename: schema.ts
+
+export const BubbleTeaOrder = co.map({
+name: z.string(),
+});
+
+export const DraftBubbleTeaOrder = co.map({
+name: z.optional(z.string()),
+}).withHelpers((Self) => ({
+validate(draft: Loaded<typeof Self>) {
+const errors: string[] = [];
+
+    if (!draft.name) {
+      errors.push("Please enter a name.");
+    }
+
+    return { errors };
+
+},
+}));
+
+export const AccountRoot = co.map({
+draft: DraftBubbleTeaOrder,
+});
+
+export const JazzAccount = co.account({
+root: AccountRoot,
+profile: co.map({ name: z.string() }),
+}).withMigration((account, creationProps?: { name: string }) => {
+if (account.root === undefined) {
+const draft = DraftBubbleTeaOrder.create({});
+
+    account.root = AccountRoot.create({ draft });
+
+}
+});
+
+// @filename: CreateOrder.tsx
+
+export function OrderForm({
+order,
+onSave,
+}: {
+order: Loaded<typeof BubbleTeaOrder> | Loaded<typeof DraftBubbleTeaOrder>;
+onSave?: (e: React.FormEvent<HTMLFormElement>) => void;
+}) {
+return (
+<form onSubmit={onSave}>
+<label>
+Name
+<input
+type="text"
+value={order.name}
+onChange={(e) => (order.name = e.target.value)}
+required
+/>
+</label>
+
+      {onSave && <button type="submit">Submit</button>}
+    </form>
+
+);
+}
+
+// ---cut---
 // CreateOrder.tsx
 export function CreateOrder() {
-  const { me } = useAccount({ root: { draft: {} } }); // [!code ++:3]
+const { me } = useAccount(JazzAccount, { // [!code ++:5]
+resolve: { root: { draft: true } },
+});
 
 if (!me?.root) return;
 
@@ -8111,13 +8540,13 @@ e.preventDefault();
     const draft = me.root.draft; // [!code ++:2]
     if (!draft) return;
 
-    const validation = draft.validate();
+    const validation = DraftBubbleTeaOrder.validate(draft);
     if (validation.errors.length > 0) {
       console.log(validation.errors);
       return;
     }
 
-    const order = draft as BubbleTeaOrder;
+    const order = draft as Loaded<typeof BubbleTeaOrder>;
     console.log("Order created:", order);
 
     // create a new empty draft
@@ -8134,7 +8563,7 @@ function CreateOrderForm({ // [!code ++:13]
 id,
 onSave,
 }: {
-id: ID<DraftBubbleTeaOrder>;
+id: string
 onSave: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
 const draft = useCoState(DraftBubbleTeaOrder, id);
@@ -8156,28 +8585,29 @@ There you have it! Notice that when you refresh the page, you will see your unsa
 
 To improve the UX even further, in just a few more steps, we can tell the user that they currently have unsaved changes.
 
-Simply add a `hasChanges` checker to your schema.
+Simply add a `hasChanges` helper to your schema.
 
 <CodeGroup>
-```ts
+```ts twoslash
+// ---cut---
 // schema.ts
-export class DraftBubbleTeaOrder extends CoMap {
-  name = co.optional.string;
-
-  validate() {
+export const DraftBubbleTeaOrder = co.map({
+  name: z.optional(z.string()),
+}).withHelpers((Self) => ({
+  validate(draft: Loaded<typeof Self>) {
     const errors: string[] = [];
 
-    if (!this.name) {
+    if (!draft.name) {
       errors.push("Plese enter a name.");
     }
 
     return { errors };
-  }
+  },
 
-  get hasChanges() { // [!code ++:3]
-    return Object.keys(this._edits).length;
-  }
-}
+  hasChanges(draft?: Loaded<typeof Self>) { // [!code ++:3]
+    return draft ? Object.keys(draft._edits).length : false;
+  },
+}));
 ````
 
 </CodeGroup>
@@ -8185,14 +8615,55 @@ export class DraftBubbleTeaOrder extends CoMap {
 In the UI, you can choose how you want to show the draft indicator.
 
 <CodeGroup>
-```tsx
+```tsx twoslash
+
+export const BubbleTeaOrder = co.map({
+name: z.string(),
+});
+
+export const DraftBubbleTeaOrder = co.map({
+name: z.optional(z.string()),
+}).withHelpers((Self) => ({
+validate(draft: Loaded<typeof Self>) {
+const errors: string[] = [];
+
+    if (!draft.name) {
+      errors.push("Plese enter a name.");
+    }
+
+    return { errors };
+
+},
+
+hasChanges(draft?: Loaded<typeof Self>) { // [!code ++:3]
+return draft ? Object.keys(draft.\_edits).length : false;
+},
+}));
+
+export const AccountRoot = co.map({
+draft: DraftBubbleTeaOrder,
+});
+
+export const JazzAccount = co.account({
+root: AccountRoot,
+profile: co.map({ name: z.string() }),
+}).withMigration((account, creationProps?: { name: string }) => {
+if (account.root === undefined) {
+const draft = DraftBubbleTeaOrder.create({});
+
+    account.root = AccountRoot.create({ draft });
+
+}
+});
+
+// ---cut---
 // DraftIndicator.tsx
 export function DraftIndicator() {
-  const { me } = useAccount({
-    root: { draft: {} },
-  });
+const { me } = useAccount(JazzAccount, {
+resolve: { root: { draft: true } },
+});
 
-if (me?.root.draft?.hasChanges) {
+if (DraftBubbleTeaOrder.hasChanges(me?.root.draft)) {
 return (
 <p>You have a draft</p>
 );
@@ -8223,24 +8694,38 @@ how to handle single-select, multi-select, date, and boolean inputs.
 [See the full example here.](https://github.com/garden-co/jazz/tree/main/examples/form)
 
 <CodeGroup>
-```tsx
-export class BubbleTeaOrder extends CoMap {
-  baseTea = co.literal(...BubbleTeaBaseTeaTypes);
-  addOns = co.ref(ListOfBubbleTeaAddOns);
-  deliveryDate = co.Date;
-  withMilk = co.boolean;
-  instructions = co.optional.string;
-}
+```tsx twoslash
+
+export const BubbleTeaAddOnTypes = [
+  "Pearl",
+  "Lychee jelly",
+  "Red bean",
+  "Brown sugar",
+  "Taro",
+] as const;
+
+export const ListOfBubbleTeaAddOns = co.list(
+  z.literal([...BubbleTeaAddOnTypes]),
+);
+
+// ---cut---
+// schema.ts
+export const BubbleTeaOrder = co.map({
+  baseTea: z.literal(["Black", "Oolong", "Jasmine", "Thai"]),
+  addOns: ListOfBubbleTeaAddOns,
+  deliveryDate: z.date(),
+  withMilk: z.boolean(),
+  instructions: z.optional(z.string()),
+});
 ````
 
 </CodeGroup>
 
 #### Organization/Team
 
-# Sharing data through Organizations
+# How to share data between users through Organizations
 
-Organizations are a way to share a set of data between users.
-Different apps have different names for this concept, such as "teams" or "workspaces".
+This guide shows you how to share a set of CoValues between users. Different apps have different names for this concept, such as "teams" or "workspaces".
 
 We'll use the term Organization.
 
@@ -8253,22 +8738,21 @@ Create a CoMap shared by the users of the same organization to act as a root (or
 For this example, users within an `Organization` will be sharing `Project`s.
 
 <CodeGroup>
-```ts
+```ts twoslash
+// ---cut---
 // schema.ts
-export class Project extends CoMap {
-  name = co.string;
-}
+export const Project = co.map({
+  name: z.string(),
+});
 
-export class ListOfProjects extends CoList.Of(co.ref(Project)) {}
-
-export class Organization extends CoMap {
-name = co.string;
+export const Organization = co.map({
+name: z.string(),
 
 // shared data between users of each organization
-projects = co.ref(ListOfProjects);
-}
+projects: co.list(Project),
+});
 
-export class ListOfOrganizations extends CoList.Of(co.ref(Organization)) {}
+export const ListOfOrganizations = co.list(Organization);
 
 ````
 </CodeGroup>
@@ -8280,39 +8764,47 @@ Learn more about [defining schemas](/docs/schemas/covalues).
 Let's add the list of `Organization`s to the user's Account `root` so they can access them.
 
 <CodeGroup>
-```ts
+```ts twoslash
+export const Project = co.map({
+  name: z.string(),
+});
+
+export const Organization = co.map({
+  name: z.string(),
+
+  // shared data between users of each organization
+  projects: co.list(Project),
+});
+
+// ---cut---
 // schema.ts
-export class JazzAccountRoot extends CoMap {
-  organizations = co.ref(ListOfOrganizations);
-}
+export const JazzAccountRoot = co.map({
+  organizations: co.list(Organization),
+});
 
-export class JazzAccount extends Account {
-  root = co.ref(JazzAccountRoot);
-
-  async migrate() {
-    if (this.root === undefined) {
+export const JazzAccount = co
+  .account({
+    root: JazzAccountRoot,
+    profile: co.profile({}),
+  })
+  .withMigration((account) => {
+    if (account.root === undefined) {
       // Using a Group as an owner allows you to give access to other users
       const organizationGroup = Group.create();
 
-      const organizations = ListOfOrganizations.create(
-        [
-          // Create the first Organization so users can start right away
-          Organization.create(
-            {
-              name: "My organization",
-              projects: ListOfProjects.create([], organizationGroup),
-            },
-            organizationGroup,
-          ),
-        ],
-      );
-
-      this.root = JazzAccountRoot.create(
-        { organizations },
-      );
+      const organizations = co.list(Organization).create([
+        // Create the first Organization so users can start right away
+        Organization.create(
+          {
+            name: "My organization",
+            projects: co.list(Project).create([], organizationGroup),
+          },
+          organizationGroup,
+        ),
+      ]);
+      account.root = JazzAccountRoot.create({ organizations });
     }
-  }
-}
+  });
 ````
 
 </CodeGroup>
@@ -8321,38 +8813,63 @@ This schema now allows users to create `Organization`s and add `Project`s to the
 
 [See the schema for the example app here.](https://github.com/garden-co/jazz/blob/main/examples/organization/src/schema.ts)
 
-## Adding other users to an Organization
+## Adding members to an Organization
 
-To give users access to an `Organization`, you can either send them an invite link, or
-add their `Account` manually.
+Here are different ways to add members to an `Organization`.
 
-### Adding users through invite links
+- Send users an invite link.
+- [The user requests to join.](/docs/groups/sharing#requesting-invites)
+
+This guide and the example app show you the first method.
+
+### Adding members through invite links
 
 Here's how you can generate an [invite link](/docs/groups/sharing#invites).
 
 When the user accepts the invite, add the `Organization` to the user's `organizations` list.
 
 <CodeGroup>
-```ts
-const onAccept = async (organizationId: ID<Organization>) => {
-  const me = await MusicaAccount.getMe().ensureLoaded({
-    root: {
-      organizations: [],
-    },
-  });
+```tsx twoslash
 
-const organization = await Organization.load(organizationId, []);
+const Project = z.object({
+name: z.string(),
+});
 
-if (!organization) throw new Error("Failed to load organization data");
+const Organization = co.map({
+name: z.string(),
+projects: co.list(Project),
+});
 
+const JazzAccountRoot = co.map({
+organizations: co.list(Organization),
+});
+
+const JazzAccount = co.account({
+root: JazzAccountRoot,
+profile: co.profile({}),
+});
+
+// ---cut---
+export function AcceptInvitePage() {
+const { me } = useAccount(JazzAccount, {
+resolve: { root: { organizations: { $each: { $onError: null } } } },
+});
+
+const onAccept = (organizationId: string) => {
+if (me) {
+Organization.load(organizationId).then((organization) => {
+if (organization) {
+// avoid duplicates
 const ids = me.root.organizations.map(
 (organization) => organization?.id,
 );
-
 if (ids.includes(organizationId)) return;
 
-me.root.organizations.push(organization);
-navigate("/organizations/" + organizationId);
+          me.root.organizations.push(organization);
+        }
+      });
+    }
+
 };
 
 useAcceptInvite({
@@ -8360,16 +8877,17 @@ invitedObjectSchema: Organization,
 onAccept,
 });
 
+return <p>Accepting invite...</p>;
+}
+
 ````
 </CodeGroup>
 
-### Adding users through their Account ID
+## Further reading
 
-...more on this coming soon
+- [Allowing users to request an invite to join a Group](/docs/groups/sharing#requesting-invites)
+- [Groups as permission scopes](/docs/groups/intro#adding-group-members-by-id)
 
-
-
-## API Reference
 
 
 ## Resources
@@ -8385,7 +8903,7 @@ onAccept,
 ### /vercel/path0/examples/music-player/src/1_schema.ts
 
 ```ts
-import { Account, CoList, CoMap, FileStream, Profile, co } from "jazz-tools";
+import { co, z } from "jazz-tools";
 
 /** Walkthrough: Defining the data model with CoJSON
  *
@@ -8397,23 +8915,23 @@ import { Account, CoList, CoMap, FileStream, Profile, co } from "jazz-tools";
  *  - other CoValues
  **/
 
-export class MusicTrack extends CoMap {
+export const MusicTrackWaveform = co.map({
+  data: z.array(z.number()),
+});
+export type MusicTrackWaveform = co.loaded<typeof MusicTrackWaveform>;
+
+export const MusicTrack = co.map({
   /**
-   *  Attributes are defined as class properties
-   *  and you can get the types from the `co` module
-   *  here we are defining the title and duration for our music track
-   *
-   *  Tip: try to follow the co.string defintion to discover the other available primitives!
+   *  Attributes are defined using zod schemas
    */
-  title = co.string;
-  duration = co.number;
+  title: z.string(),
+  duration: z.number(),
 
   /**
-   * With `co.ref` you can define relations between your coValues.
-   *
-   * Attributes are required by default unless you mark them as optional.
+   * You can define relations between coValues using the other CoValue schema
+   * You can mark them optional using z.optional()
    */
-  sourceTrack = co.optional.ref(MusicTrack);
+  waveform: MusicTrackWaveform,
 
   /**
    * In Jazz you can upload files using FileStream.
@@ -8421,77 +8939,72 @@ export class MusicTrack extends CoMap {
    * As for any other coValue the music files we put inside FileStream
    * is available offline and end-to-end encrypted 😉
    */
-  file = co.ref(FileStream);
-  waveform = co.ref(MusicTrackWaveform);
+  file: co.fileStream(),
 
-  isExampleTrack = co.optional.boolean;
-}
+  isExampleTrack: z.optional(z.boolean()),
 
-export class MusicTrackWaveform extends CoMap {
-  data = co.json<number[]>();
-}
+  /**
+   * You can use getters for recusrive relations
+   */
+  get sourceTrack(): z.ZodOptional<typeof MusicTrack> {
+    return z.optional(MusicTrack);
+  },
+});
+export type MusicTrack = co.loaded<typeof MusicTrack>;
 
-/**
- * CoList is the collaborative version of Array
- *
- * They are strongly typed and accept only the type you define here
- * as "CoList.Of" argument
- */
-export class ListOfTracks extends CoList.Of(co.ref(MusicTrack)) {}
-
-export class Playlist extends CoMap {
-  title = co.string;
-  tracks = co.ref(ListOfTracks);
-}
-
-export class ListOfPlaylists extends CoList.Of(co.ref(Playlist)) {}
-
+export const Playlist = co.map({
+  title: z.string(),
+  tracks: co.list(MusicTrack), // CoList is the collaborative version of Array
+});
+export type Playlist = co.loaded<typeof Playlist>;
 /** The account root is an app-specific per-user private `CoMap`
  *  where you can store top-level objects for that user */
-export class MusicaAccountRoot extends CoMap {
+export const MusicaAccountRoot = co.map({
   // The root playlist works as container for the tracks that
   // the user has uploaded
-  rootPlaylist = co.ref(Playlist);
+  rootPlaylist: Playlist,
   // Here we store the list of playlists that the user has created
   // or that has been invited to
-  playlists = co.ref(ListOfPlaylists);
+  playlists: co.list(Playlist),
   // We store the active track and playlist as coValue here
   // so when the user reloads the page can see the last played
   // track and playlist
   // You can also add the position in time if you want make it possible
   // to resume the song
-  activeTrack = co.optional.ref(MusicTrack);
-  activePlaylist = co.ref(Playlist);
+  activeTrack: z.optional(MusicTrack),
+  activePlaylist: Playlist,
 
-  exampleDataLoaded = co.optional.boolean;
-}
-
-export class MusicaAccount extends Account {
-  profile = co.ref(Profile);
-  root = co.ref(MusicaAccountRoot);
-
-  /**
-   *  The account migration is run on account creation and on every log-in.
-   *  You can use it to set up the account root and any other initial CoValues you need.
-   */
-  migrate() {
-    if (this.root === undefined) {
-      const tracks = ListOfTracks.create([]);
+  exampleDataLoaded: z.optional(z.boolean()),
+});
+export type MusicaAccountRoot = co.loaded<typeof MusicaAccountRoot>;
+export const MusicaAccount = co
+  .account({
+    /** the default user profile with a name */
+    profile: co.profile(),
+    root: MusicaAccountRoot,
+  })
+  .withMigration((account) => {
+    /**
+     *  The account migration is run on account creation and on every log-in.
+     *  You can use it to set up the account root and any other initial CoValues you need.
+     */
+    if (account.root === undefined) {
+      const tracks = co.list(MusicTrack).create([]);
       const rootPlaylist = Playlist.create({
         tracks,
         title: "",
       });
 
-      this.root = MusicaAccountRoot.create({
+      account.root = MusicaAccountRoot.create({
         rootPlaylist,
-        playlists: ListOfPlaylists.create([]),
-        activeTrack: null,
+        playlists: co.list(Playlist).create([]),
+        activeTrack: undefined,
         activePlaylist: rootPlaylist,
         exampleDataLoaded: false,
       });
     }
-  }
-}
+  });
+export type MusicaAccount = co.loaded<typeof MusicaAccount>;
 
 /** Walkthrough: Continue with ./2_main.tsx */
 
@@ -8509,11 +9022,11 @@ import { RouterProvider, createHashRouter } from "react-router-dom";
 import { HomePage } from "./3_HomePage";
 import { useMediaPlayer } from "./5_useMediaPlayer";
 import { InvitePage } from "./6_InvitePage";
-import { PlayerControls } from "./components/PlayerControls";
 import "./index.css";
 
 import { MusicaAccount } from "@/1_schema";
 import { apiKey } from "@/apiKey.ts";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { JazzProvider } from "jazz-react";
 import { onAnonymousAccountDiscarded } from "./4_actions";
 import { useUploadExampleData } from "./lib/useUploadExampleData";
@@ -8552,7 +9065,7 @@ function Main() {
   return (
     <>
       <RouterProvider router={router} />
-      <PlayerControls mediaPlayer={mediaPlayer} />
+      {/* <PlayerControls mediaPlayer={mediaPlayer} /> */}
       <Toaster />
     </>
   );
@@ -8562,12 +9075,6 @@ const peer =
   (new URL(window.location.href).searchParams.get(
     "peer",
   ) as `ws://${string}`) ?? `wss://cloud.jazz.tools/?key=${apiKey}`;
-
-declare module "jazz-react" {
-  interface Register {
-    Account: MusicaAccount;
-  }
-}
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -8580,8 +9087,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       defaultProfileName="Anonymous unicorn"
       onAnonymousAccountDiscarded={onAnonymousAccountDiscarded}
     >
-      <Main />
-      <JazzInspector />
+      <SidebarProvider>
+        <Main />
+        <JazzInspector />
+      </SidebarProvider>
     </JazzProvider>
   </React.StrictMode>,
 );
@@ -8598,17 +9107,16 @@ import {
   useCoState,
   useIsAuthenticated,
 } from "jazz-react";
-import { ID } from "jazz-tools";
-import { useNavigate, useParams } from "react-router";
-import { Playlist } from "./1_schema";
-import { createNewPlaylist, uploadMusicTracks } from "./4_actions";
+import { useParams } from "react-router";
+import { MusicaAccount, Playlist } from "./1_schema";
+import { uploadMusicTracks } from "./4_actions";
 import { MediaPlayer } from "./5_useMediaPlayer";
-import { AuthButton } from "./components/AuthButton";
 import { FileUploadButton } from "./components/FileUploadButton";
 import { MusicTrackRow } from "./components/MusicTrackRow";
 import { PlaylistTitleInput } from "./components/PlaylistTitleInput";
 import { SidePanel } from "./components/SidePanel";
 import { Button } from "./components/ui/button";
+import { SidebarInset, SidebarTrigger } from "./components/ui/sidebar";
 import { usePlayState } from "./lib/audio/usePlayState";
 
 export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
@@ -8616,11 +9124,10 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
    * `me` represents the current user account, which will determine
    *  access rights to CoValues. We get it from the top-level provider `<WithJazz/>`.
    */
-  const { me } = useAccount({
+  const { me } = useAccount(MusicaAccount, {
     resolve: { root: { rootPlaylist: true, playlists: true } },
   });
 
-  const navigate = useNavigate();
   const playState = usePlayState();
   const isPlaying = playState.value === "play";
   const { toast } = useToast();
@@ -8633,13 +9140,7 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
     await uploadMusicTracks(files);
   }
 
-  async function handleCreatePlaylist() {
-    const playlist = await createNewPlaylist();
-
-    navigate(`/playlist/${playlist.id}`);
-  }
-
-  const params = useParams<{ playlistId: ID<Playlist> }>();
+  const params = useParams<{ playlistId: string }>();
   const playlistId = params.playlistId ?? me?.root._refs.rootPlaylist.id;
 
   const playlist = useCoState(Playlist, playlistId, {
@@ -8665,10 +9166,11 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
   const isAuthenticated = useIsAuthenticated();
 
   return (
-    <div className="flex flex-col h-screen text-gray-800 bg-blue-50">
+    <SidebarInset className="flex flex-col h-screen text-gray-800 bg-blue-50">
       <div className="flex flex-1 overflow-hidden">
-        <SidePanel />
+        <SidePanel mediaPlayer={mediaPlayer} />
         <main className="flex-1 p-6 overflow-y-auto">
+          <SidebarTrigger />
           <div className="flex items-center justify-between mb-6">
             {isRootPlaylist ? (
               <h1 className="text-2xl font-bold text-blue-800">All tracks</h1>
@@ -8681,7 +9183,6 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
                   <FileUploadButton onFileLoad={handleFileLoad}>
                     Add file
                   </FileUploadButton>
-                  <Button onClick={handleCreatePlaylist}>New playlist</Button>
                 </>
               )}
               {!isRootPlaylist && isAuthenticated && (
@@ -8689,7 +9190,6 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
                   Share playlist
                 </Button>
               )}
-              <AuthButton />
             </div>
           </div>
           <ul className="flex flex-col">
@@ -8715,7 +9215,7 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
           </ul>
         </main>
       </div>
-    </div>
+    </SidebarInset>
   );
 }
 
@@ -8724,9 +9224,14 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
 ### /vercel/path0/examples/music-player/src/4_actions.ts
 
 ```ts
-import { getAudioFileData } from '@/lib/audio/getAudioFileData';
-import { FileStream, Group } from 'jazz-tools';
-import { ListOfTracks, MusicaAccount, MusicTrack, MusicTrackWaveform, Playlist } from './1_schema';
+import { getAudioFileData } from "@/lib/audio/getAudioFileData";
+import { FileStream, Group, co } from "jazz-tools";
+import {
+  MusicTrack,
+  MusicTrackWaveform,
+  MusicaAccount,
+  Playlist,
+} from "./1_schema";
 
 /**
  * Walkthrough: Actions
@@ -8742,7 +9247,10 @@ import { ListOfTracks, MusicaAccount, MusicTrack, MusicTrackWaveform, Playlist }
  * pattern that best fits your app.
  */
 
-export async function uploadMusicTracks(files: Iterable<File>, isExampleTrack: boolean = false) {
+export async function uploadMusicTracks(
+  files: Iterable<File>,
+  isExampleTrack: boolean = false,
+) {
   const { root } = await MusicaAccount.getMe().ensureLoaded({
     resolve: {
       root: {
@@ -8798,8 +9306,8 @@ export async function createNewPlaylist() {
 
   const playlist = Playlist.create(
     {
-      title: 'New Playlist',
-      tracks: ListOfTracks.create([], playlistGroup),
+      title: "New Playlist",
+      tracks: co.list(MusicTrack).create([], playlistGroup),
     },
     playlistGroup,
   );
@@ -8811,7 +9319,10 @@ export async function createNewPlaylist() {
   return playlist;
 }
 
-export async function addTrackToPlaylist(playlist: Playlist, track: MusicTrack) {
+export async function addTrackToPlaylist(
+  playlist: Playlist,
+  track: MusicTrack,
+) {
   const alreadyAdded = playlist.tracks?.some(
     (t) => t?.id === track.id || t?._refs.sourceTrack?.id === track.id,
   );
@@ -8819,7 +9330,7 @@ export async function addTrackToPlaylist(playlist: Playlist, track: MusicTrack) 
   if (alreadyAdded) return;
 
   // Check if the track has been created after the Group inheritance was introduced
-  if (track._owner._type === 'Group' && playlist._owner._type === 'Group') {
+  if (track._owner._type === "Group" && playlist._owner._type === "Group") {
     /**
      * Extending the track with the Playlist group in order to make the music track
      * visible to the Playlist user
@@ -8832,14 +9343,17 @@ export async function addTrackToPlaylist(playlist: Playlist, track: MusicTrack) 
   }
 }
 
-export async function removeTrackFromPlaylist(playlist: Playlist, track: MusicTrack) {
+export async function removeTrackFromPlaylist(
+  playlist: Playlist,
+  track: MusicTrack,
+) {
   const notAdded = !playlist.tracks?.some(
     (t) => t?.id === track.id || t?._refs.sourceTrack?.id === track.id,
   );
 
   if (notAdded) return;
 
-  if (track._owner._type === 'Group' && playlist._owner._type === 'Group') {
+  if (track._owner._type === "Group" && playlist._owner._type === "Group") {
     const trackGroup = track._owner;
     await trackGroup.revokeExtend(playlist._owner);
 
@@ -8885,7 +9399,9 @@ export async function updateActiveTrack(track: MusicTrack) {
   root.activeTrack = track;
 }
 
-export async function onAnonymousAccountDiscarded(anonymousAccount: MusicaAccount) {
+export async function onAnonymousAccountDiscarded(
+  anonymousAccount: MusicaAccount,
+) {
   const { root: anonymousAccountRoot } = await anonymousAccount.ensureLoaded({
     resolve: {
       root: {
@@ -8912,7 +9428,7 @@ export async function onAnonymousAccountDiscarded(anonymousAccount: MusicaAccoun
     if (track.isExampleTrack) continue;
 
     const trackGroup = track._owner.castAs(Group);
-    trackGroup.addMember(me, 'admin');
+    trackGroup.addMember(me, "admin");
 
     me.root.rootPlaylist.tracks.push(track);
   }
@@ -8937,36 +9453,36 @@ export async function deletePlaylist(playlistId: string) {
 ### /vercel/path0/examples/music-player/src/5_useMediaPlayer.ts
 
 ```ts
-import { MusicTrack, Playlist } from '@/1_schema';
-import { usePlayMedia } from '@/lib/audio/usePlayMedia';
-import { usePlayState } from '@/lib/audio/usePlayState';
-import { useAccount } from 'jazz-react';
-import { FileStream, ID } from 'jazz-tools';
-import { useRef, useState } from 'react';
-import { updateActivePlaylist, updateActiveTrack } from './4_actions';
-import { getNextTrack, getPrevTrack } from './lib/getters';
+import { MusicTrack, MusicaAccount, Playlist } from "@/1_schema";
+import { usePlayMedia } from "@/lib/audio/usePlayMedia";
+import { usePlayState } from "@/lib/audio/usePlayState";
+import { useAccount } from "jazz-react";
+import { FileStream } from "jazz-tools";
+import { useRef, useState } from "react";
+import { updateActivePlaylist, updateActiveTrack } from "./4_actions";
+import { getNextTrack, getPrevTrack } from "./lib/getters";
 
 export function useMediaPlayer() {
-  const { me } = useAccount({
+  const { me } = useAccount(MusicaAccount, {
     resolve: { root: true },
   });
 
   const playState = usePlayState();
   const playMedia = usePlayMedia();
 
-  const [loading, setLoading] = useState<ID<MusicTrack> | null>(null);
+  const [loading, setLoading] = useState<string | null>(null);
 
   const activeTrackId = me?.root._refs.activeTrack?.id;
 
   // Reference used to avoid out-of-order track loads
-  const lastLoadedTrackId = useRef<ID<MusicTrack> | null>(null);
+  const lastLoadedTrackId = useRef<string | null>(null);
 
   async function loadTrack(track: MusicTrack) {
     lastLoadedTrackId.current = track.id;
 
     setLoading(track.id);
 
-    const file = await FileStream.loadAsBlob(track._refs.file.id);
+    const file = await FileStream.loadAsBlob(track._refs.file!.id); // TODO: see if we can avoid !
 
     if (!file) {
       setLoading(null);
@@ -9013,7 +9529,7 @@ export function useMediaPlayer() {
 
     await loadTrack(track);
 
-    if (playState.value === 'pause') {
+    if (playState.value === "pause") {
       playState.toggle();
     }
   }
@@ -9034,7 +9550,6 @@ export type MediaPlayer = ReturnType<typeof useMediaPlayer>;
 
 ```ts
 import { useAcceptInvite, useIsAuthenticated } from "jazz-react";
-import { ID } from "jazz-tools";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { MusicaAccount, Playlist } from "./1_schema";
@@ -9047,7 +9562,7 @@ export function InvitePage() {
   useAcceptInvite({
     invitedObjectSchema: Playlist,
     onAccept: useCallback(
-      async (playlistId: ID<Playlist>) => {
+      async (playlistId: string) => {
         const playlist = await Playlist.load(playlistId, {});
 
         const me = await MusicaAccount.getMe().ensureLoaded({
@@ -9083,7 +9598,7 @@ export function InvitePage() {
 ### /vercel/path0/examples/music-player/src/apiKey.ts
 
 ```ts
-export const apiKey = 'music-player-example-jazz@garden.co';
+export const apiKey = "music-player-example-jazz@garden.co";
 ```
 
 ### /vercel/path0/examples/music-player/src/components/AuthButton.tsx
@@ -9111,7 +9626,7 @@ export function AuthButton() {
 
   if (isAuthenticated) {
     return (
-      <Button variant="outline" onClick={handleSignOut}>
+      <Button variant="ghost" onClick={handleSignOut}>
         Sign out
       </Button>
     );
@@ -9119,10 +9634,7 @@ export function AuthButton() {
 
   return (
     <>
-      <Button
-        onClick={() => setOpen(true)}
-        className="bg-white text-black hover:bg-gray-100"
-      >
+      <Button onClick={() => setOpen(true)} variant="ghost">
         Sign up
       </Button>
       <AuthModal open={open} onOpenChange={setOpen} />
@@ -9135,6 +9647,7 @@ export function AuthButton() {
 ### /vercel/path0/examples/music-player/src/components/AuthModal.tsx
 
 ```ts
+import { MusicaAccount } from "@/1_schema";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9158,7 +9671,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [isSignUp, setIsSignUp] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { me } = useAccount({
+  const { me } = useAccount(MusicaAccount, {
     resolve: {
       root: {
         rootPlaylist: {
@@ -9348,7 +9861,7 @@ export function LogoutButton() {
 ### /vercel/path0/examples/music-player/src/components/MusicTrackRow.tsx
 
 ```ts
-import { MusicTrack, Playlist } from "@/1_schema";
+import { MusicTrack, MusicaAccount, Playlist } from "@/1_schema";
 import { addTrackToPlaylist, removeTrackFromPlaylist } from "@/4_actions";
 import {
   DropdownMenu,
@@ -9358,7 +9871,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useAccount, useCoState } from "jazz-react";
-import { ID } from "jazz-tools";
+import { Loaded } from "jazz-tools";
 import { MoreHorizontal } from "lucide-react";
 import { Fragment } from "react/jsx-runtime";
 import { MusicTrackTitleInput } from "./MusicTrackTitleInput";
@@ -9371,15 +9884,15 @@ export function MusicTrackRow({
   onClick,
   showAddToPlaylist,
 }: {
-  trackId: ID<MusicTrack>;
+  trackId: string;
   isLoading: boolean;
   isPlaying: boolean;
-  onClick: (track: MusicTrack) => void;
+  onClick: (track: Loaded<typeof MusicTrack>) => void;
   showAddToPlaylist: boolean;
 }) {
   const track = useCoState(MusicTrack, trackId);
 
-  const { me } = useAccount({
+  const { me } = useAccount(MusicaAccount, {
     resolve: { root: { playlists: { $each: true } } },
   });
 
@@ -9390,12 +9903,12 @@ export function MusicTrackRow({
     onClick(track);
   }
 
-  function handleAddToPlaylist(playlist: Playlist) {
+  function handleAddToPlaylist(playlist: Loaded<typeof Playlist>) {
     if (!track) return;
     addTrackToPlaylist(playlist, track);
   }
 
-  function handleRemoveFromPlaylist(playlist: Playlist) {
+  function handleRemoveFromPlaylist(playlist: Loaded<typeof Playlist>) {
     if (!track) return;
     removeTrackFromPlaylist(playlist, track);
   }
@@ -9489,13 +10002,12 @@ export function MusicTrackRow({
 import { MusicTrack } from "@/1_schema";
 import { updateMusicTrackTitle } from "@/4_actions";
 import { useCoState } from "jazz-react";
-import { ID } from "jazz-tools";
 import { ChangeEvent, useState } from "react";
 
 export function MusicTrackTitleInput({
   trackId,
 }: {
-  trackId: ID<MusicTrack> | undefined;
+  trackId: string | undefined;
 }) {
   const track = useCoState(MusicTrack, trackId);
   const [isEditing, setIsEditing] = useState(false);
@@ -9544,7 +10056,7 @@ export function MusicTrackTitleInput({
 ### /vercel/path0/examples/music-player/src/components/PlayerControls.tsx
 
 ```ts
-import { MusicTrack } from "@/1_schema";
+import { MusicTrack, MusicaAccount } from "@/1_schema";
 import { MediaPlayer } from "@/5_useMediaPlayer";
 import { useMediaEndListener } from "@/lib/audio/useMediaEndListener";
 import { usePlayState } from "@/lib/audio/usePlayState";
@@ -9557,7 +10069,7 @@ export function PlayerControls({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
   const playState = usePlayState();
   const isPlaying = playState.value === "play";
 
-  const activePlaylist = useAccount({
+  const activePlaylist = useAccount(MusicaAccount, {
     resolve: { root: { activePlaylist: true } },
   }).me?.root.activePlaylist;
 
@@ -9628,13 +10140,12 @@ export function PlayerControls({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
 import { Playlist } from "@/1_schema";
 import { updatePlaylistTitle } from "@/4_actions";
 import { useCoState } from "jazz-react";
-import { ID } from "jazz-tools";
 import { ChangeEvent, useState } from "react";
 
 export function PlaylistTitleInput({
   playlistId,
 }: {
-  playlistId: ID<Playlist> | undefined;
+  playlistId: string | undefined;
 }) {
   const playlist = useCoState(Playlist, playlistId);
   const [isEditing, setIsEditing] = useState(false);
@@ -9674,29 +10185,43 @@ export function PlaylistTitleInput({
 ### /vercel/path0/examples/music-player/src/components/SidePanel.tsx
 
 ```ts
-import { deletePlaylist } from "@/4_actions";
-import { useAccount } from "jazz-react";
-import { Trash2 } from "lucide-react";
+import { MusicTrack, MusicaAccount } from "@/1_schema";
+import { createNewPlaylist, deletePlaylist } from "@/4_actions";
+import { MediaPlayer } from "@/5_useMediaPlayer";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { usePlayState } from "@/lib/audio/usePlayState";
+import { useAccount, useCoState } from "jazz-react";
+import { Home, Music, Pause, Play, Plus, Trash2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
-import { LocalOnlyTag } from "./LocalOnlyTag";
+import { AuthButton } from "./AuthButton";
 
-export function SidePanel() {
+export function SidePanel({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
   const { playlistId } = useParams();
   const navigate = useNavigate();
-  const { me } = useAccount({
+  const { me } = useAccount(MusicaAccount, {
     resolve: { root: { playlists: { $each: true } } },
   });
 
-  function handleAllTracksClick(evt: React.MouseEvent<HTMLAnchorElement>) {
-    evt.preventDefault();
+  const playState = usePlayState();
+  const isPlaying = playState.value === "play";
+
+  function handleAllTracksClick() {
     navigate(`/`);
   }
 
-  function handlePlaylistClick(
-    evt: React.MouseEvent<HTMLAnchorElement>,
-    playlistId: string,
-  ) {
-    evt.preventDefault();
+  function handlePlaylistClick(playlistId: string) {
     navigate(`/playlist/${playlistId}`);
   }
 
@@ -9707,74 +10232,122 @@ export function SidePanel() {
     }
   }
 
+  async function handleCreatePlaylist() {
+    const playlist = await createNewPlaylist();
+    navigate(`/playlist/${playlist.id}`);
+  }
+
+  const activeTrack = useCoState(MusicTrack, mediaPlayer.activeTrackId, {
+    resolve: { waveform: true },
+  });
+
+  const activeTrackTitle = activeTrack?.title;
+
   return (
-    <aside className="w-64 p-6 bg-white overflow-y-auto">
-      <div className="flex items-center mb-1">
-        <svg
-          className="w-8 h-8 mr-2"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M9 18V5l12-2v13"
-            stroke="#3b82f6"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M6 15H3c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h3c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2zM18 13h-3c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h3c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2z"
-            fill="#3b82f6"
-          />
-        </svg>
-        <span className="text-xl font-bold text-blue-600">Music Player</span>
-      </div>
-      <div className="mb-6">
-        <LocalOnlyTag />
-      </div>
-      <nav>
-        <h2 className="mb-2 text-sm font-semibold text-gray-600">Playlists</h2>
-        <ul className="space-y-1">
-          <li>
-            <a
-              href="#"
-              className={`block px-2 py-1 text-sm rounded ${
-                !playlistId ? "bg-blue-100 text-blue-600" : "hover:bg-blue-100"
-              }`}
-              onClick={handleAllTracksClick}
-            >
-              All tracks
-            </a>
-          </li>
-          {me?.root.playlists.map((playlist, index) => (
-            <li
-              key={index}
-              className={`px-2 py-1 flex transition-all duration-300 rounded items-center justify-between ${
-                playlist.id === playlistId ? "bg-blue-100" : ""
-              }`}
-            >
-              <a
-                href="#"
-                className={`w-full text-sm`}
-                onClick={(evt) => handlePlaylistClick(evt, playlist.id)}
+    <Sidebar>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem className="flex items-center gap-2">
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-blue-600 text-white">
+              <svg
+                className="size-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                {playlist.title}
-              </a>
-              {playlist.id === playlistId && (
-                <button
-                  onClick={() => handleDeletePlaylist(playlist.id)}
-                  className="ml-2 text-red-600 hover:text-red-800 animate-in fade-in scale-in duration-200"
-                  aria-label={`Delete ${playlist.title}`}
-                >
-                  <Trash2 size={16} />
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </aside>
+                <path
+                  d="M9 18V5l12-2v13"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M6 15H3c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h3c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2zM18 13h-3c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h3c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2z"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-semibold">Music Player</span>
+            </div>
+            <AuthButton />
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={handleAllTracksClick}>
+                  <Home className="size-4" />
+                  <span>Go to all tracks</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Playlists</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={handleCreatePlaylist}>
+                  <Plus className="size-4" />
+                  <span>Add a new playlist</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              {me?.root.playlists.map((playlist) => (
+                <SidebarMenuItem key={playlist.id}>
+                  <SidebarMenuButton
+                    onClick={() => handlePlaylistClick(playlist.id)}
+                    isActive={playlist.id === playlistId}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Music className="size-4" />
+                      <span>{playlist.title}</span>
+                    </div>
+                  </SidebarMenuButton>
+                  {playlist.id === playlistId && (
+                    <SidebarMenuAction
+                      onClick={() => handleDeletePlaylist(playlist.id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      <Trash2 className="size-4" />
+                      <span className="sr-only">Delete {playlist.title}</span>
+                    </SidebarMenuAction>
+                  )}
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      {activeTrack && (
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem className="flex justify-end">
+              <SidebarMenuButton
+                onClick={playState.toggle}
+                aria-label={
+                  isPlaying ? "Pause active track" : "Play active track"
+                }
+              >
+                <div className="w-[28px] h-[28px] flex items-center justify-center bg-blue-600 rounded-full text-white hover:bg-blue-700">
+                  {isPlaying ? (
+                    <Pause size={16} fill="currentColor" />
+                  ) : (
+                    <Play size={16} fill="currentColor" />
+                  )}
+                </div>
+                <span>{activeTrackTitle}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      )}
+    </Sidebar>
   );
 }
 
@@ -9787,12 +10360,16 @@ import { MusicTrack, MusicTrackWaveform } from "@/1_schema";
 import { usePlayerCurrentTime } from "@/lib/audio/usePlayerCurrentTime";
 import { cn } from "@/lib/utils";
 import { useCoState } from "jazz-react";
+import { Loaded } from "jazz-tools";
 
-export function Waveform(props: { track: MusicTrack; height: number }) {
+export function Waveform(props: {
+  track: Loaded<typeof MusicTrack>;
+  height: number;
+}) {
   const { track, height } = props;
   const waveformData = useCoState(
     MusicTrackWaveform,
-    track._refs.waveform.id,
+    track._refs.waveform?.id,
   )?.data;
   const duration = track.duration;
 
@@ -9898,7 +10475,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -9946,7 +10523,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 Button.displayName = "Button";
 
-// eslint-disable-next-line react-refresh/only-export-components
 export { Button, buttonVariants };
 
 ```
@@ -10339,6 +10915,993 @@ export { Label };
 
 ```
 
+### /vercel/path0/examples/music-player/src/components/ui/separator.tsx
+
+```ts
+import * as SeparatorPrimitive from "@radix-ui/react-separator";
+import * as React from "react";
+
+import { cn } from "@/lib/utils";
+
+const Separator = React.forwardRef<
+  React.ElementRef<typeof SeparatorPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>
+>(
+  (
+    { className, orientation = "horizontal", decorative = true, ...props },
+    ref,
+  ) => (
+    <SeparatorPrimitive.Root
+      ref={ref}
+      decorative={decorative}
+      orientation={orientation}
+      className={cn(
+        "shrink-0 bg-border",
+        orientation === "horizontal" ? "h-[1px] w-full" : "h-full w-[1px]",
+        className,
+      )}
+      {...props}
+    />
+  ),
+);
+Separator.displayName = SeparatorPrimitive.Root.displayName;
+
+export { Separator };
+
+```
+
+### /vercel/path0/examples/music-player/src/components/ui/sheet.tsx
+
+```ts
+"use client";
+
+import * as SheetPrimitive from "@radix-ui/react-dialog";
+import { type VariantProps, cva } from "class-variance-authority";
+import { X } from "lucide-react";
+import * as React from "react";
+
+import { cn } from "@/lib/utils";
+
+const Sheet = SheetPrimitive.Root;
+
+const SheetTrigger = SheetPrimitive.Trigger;
+
+const SheetClose = SheetPrimitive.Close;
+
+const SheetPortal = SheetPrimitive.Portal;
+
+const SheetOverlay = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Overlay>,
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
+>(({ className, ...props }, ref) => (
+  <SheetPrimitive.Overlay
+    className={cn(
+      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      className,
+    )}
+    {...props}
+    ref={ref}
+  />
+));
+SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
+
+const sheetVariants = cva(
+  "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
+  {
+    variants: {
+      side: {
+        top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+        bottom:
+          "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+        left: "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
+        right:
+          "inset-y-0 right-0 h-full w-3/4  border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
+      },
+    },
+    defaultVariants: {
+      side: "right",
+    },
+  },
+);
+
+interface SheetContentProps
+  extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
+    VariantProps<typeof sheetVariants> {}
+
+const SheetContent = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Content>,
+  SheetContentProps
+>(({ side = "right", className, children, ...props }, ref) => (
+  <SheetPortal>
+    <SheetOverlay />
+    <SheetPrimitive.Content
+      ref={ref}
+      className={cn(sheetVariants({ side }), className)}
+      {...props}
+    >
+      {children}
+      <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+        <X className="h-4 w-4" />
+        <span className="sr-only">Close</span>
+      </SheetPrimitive.Close>
+    </SheetPrimitive.Content>
+  </SheetPortal>
+));
+SheetContent.displayName = SheetPrimitive.Content.displayName;
+
+const SheetHeader = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      "flex flex-col space-y-2 text-center sm:text-left",
+      className,
+    )}
+    {...props}
+  />
+);
+SheetHeader.displayName = "SheetHeader";
+
+const SheetFooter = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      className,
+    )}
+    {...props}
+  />
+);
+SheetFooter.displayName = "SheetFooter";
+
+const SheetTitle = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Title>,
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Title>
+>(({ className, ...props }, ref) => (
+  <SheetPrimitive.Title
+    ref={ref}
+    className={cn("text-lg font-semibold text-foreground", className)}
+    {...props}
+  />
+));
+SheetTitle.displayName = SheetPrimitive.Title.displayName;
+
+const SheetDescription = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Description>,
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Description>
+>(({ className, ...props }, ref) => (
+  <SheetPrimitive.Description
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+));
+SheetDescription.displayName = SheetPrimitive.Description.displayName;
+
+export {
+  Sheet,
+  SheetPortal,
+  SheetOverlay,
+  SheetTrigger,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetFooter,
+  SheetTitle,
+  SheetDescription,
+};
+
+```
+
+### /vercel/path0/examples/music-player/src/components/ui/sidebar.tsx
+
+```ts
+import { Slot } from "@radix-ui/react-slot";
+import { VariantProps, cva } from "class-variance-authority";
+import { PanelLeft } from "lucide-react";
+import * as React from "react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
+
+const SIDEBAR_COOKIE_NAME = "sidebar_state";
+const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+const SIDEBAR_WIDTH = "16rem";
+const SIDEBAR_WIDTH_MOBILE = "18rem";
+const SIDEBAR_WIDTH_ICON = "3rem";
+const SIDEBAR_KEYBOARD_SHORTCUT = "b";
+
+type SidebarContextProps = {
+  state: "expanded" | "collapsed";
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  openMobile: boolean;
+  setOpenMobile: (open: boolean) => void;
+  isMobile: boolean;
+  toggleSidebar: () => void;
+};
+
+const SidebarContext = React.createContext<SidebarContextProps | null>(null);
+
+function useSidebar() {
+  const context = React.useContext(SidebarContext);
+  if (!context) {
+    throw new Error("useSidebar must be used within a SidebarProvider.");
+  }
+
+  return context;
+}
+
+const SidebarProvider = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div"> & {
+    defaultOpen?: boolean;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+  }
+>(
+  (
+    {
+      defaultOpen = true,
+      open: openProp,
+      onOpenChange: setOpenProp,
+      className,
+      style,
+      children,
+      ...props
+    },
+    ref,
+  ) => {
+    const isMobile = useIsMobile();
+    const [openMobile, setOpenMobile] = React.useState(false);
+
+    // This is the internal state of the sidebar.
+    // We use openProp and setOpenProp for control from outside the component.
+    const [_open, _setOpen] = React.useState(defaultOpen);
+    const open = openProp ?? _open;
+    const setOpen = React.useCallback(
+      (value: boolean | ((value: boolean) => boolean)) => {
+        const openState = typeof value === "function" ? value(open) : value;
+        if (setOpenProp) {
+          setOpenProp(openState);
+        } else {
+          _setOpen(openState);
+        }
+
+        // This sets the cookie to keep the sidebar state.
+        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      },
+      [setOpenProp, open],
+    );
+
+    // Helper to toggle the sidebar.
+    const toggleSidebar = React.useCallback(() => {
+      return isMobile
+        ? setOpenMobile((open) => !open)
+        : setOpen((open) => !open);
+    }, [isMobile, setOpen, setOpenMobile]);
+
+    // Adds a keyboard shortcut to toggle the sidebar.
+    React.useEffect(() => {
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (
+          event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
+          (event.metaKey || event.ctrlKey)
+        ) {
+          event.preventDefault();
+          toggleSidebar();
+        }
+      };
+
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [toggleSidebar]);
+
+    // We add a state so that we can do data-state="expanded" or "collapsed".
+    // This makes it easier to style the sidebar with Tailwind classes.
+    const state = open ? "expanded" : "collapsed";
+
+    const contextValue = React.useMemo<SidebarContextProps>(
+      () => ({
+        state,
+        open,
+        setOpen,
+        isMobile,
+        openMobile,
+        setOpenMobile,
+        toggleSidebar,
+      }),
+      [
+        state,
+        open,
+        setOpen,
+        isMobile,
+        openMobile,
+        setOpenMobile,
+        toggleSidebar,
+      ],
+    );
+
+    return (
+      <SidebarContext.Provider value={contextValue}>
+        <TooltipProvider delayDuration={0}>
+          <div
+            style={
+              {
+                "--sidebar-width": SIDEBAR_WIDTH,
+                "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
+                ...style,
+              } as React.CSSProperties
+            }
+            className={cn(
+              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
+              className,
+            )}
+            ref={ref}
+            {...props}
+          >
+            {children}
+          </div>
+        </TooltipProvider>
+      </SidebarContext.Provider>
+    );
+  },
+);
+SidebarProvider.displayName = "SidebarProvider";
+
+const Sidebar = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div"> & {
+    side?: "left" | "right";
+    variant?: "sidebar" | "floating" | "inset";
+    collapsible?: "offcanvas" | "icon" | "none";
+  }
+>(
+  (
+    {
+      side = "left",
+      variant = "sidebar",
+      collapsible = "offcanvas",
+      className,
+      children,
+      ...props
+    },
+    ref,
+  ) => {
+    const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+
+    if (collapsible === "none") {
+      return (
+        <div
+          className={cn(
+            "flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground",
+            className,
+          )}
+          ref={ref}
+          {...props}
+        >
+          {children}
+        </div>
+      );
+    }
+
+    if (isMobile) {
+      return (
+        <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+          <SheetContent
+            data-sidebar="sidebar"
+            data-mobile="true"
+            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+            style={
+              {
+                "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+              } as React.CSSProperties
+            }
+            side={side}
+          >
+            <SheetHeader className="sr-only">
+              <SheetTitle>Sidebar</SheetTitle>
+              <SheetDescription>Displays the mobile sidebar.</SheetDescription>
+            </SheetHeader>
+            <div className="flex h-full w-full flex-col">{children}</div>
+          </SheetContent>
+        </Sheet>
+      );
+    }
+
+    return (
+      <div
+        ref={ref}
+        className="group peer hidden text-sidebar-foreground md:block"
+        data-state={state}
+        data-collapsible={state === "collapsed" ? collapsible : ""}
+        data-variant={variant}
+        data-side={side}
+      >
+        {/* This is what handles the sidebar gap on desktop */}
+        <div
+          className={cn(
+            "relative w-[--sidebar-width] bg-transparent transition-[width] duration-200 ease-linear",
+            "group-data-[collapsible=offcanvas]:w-0",
+            "group-data-[side=right]:rotate-180",
+            variant === "floating" || variant === "inset"
+              ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
+              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]",
+          )}
+        />
+        <div
+          className={cn(
+            "fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] duration-200 ease-linear md:flex",
+            side === "left"
+              ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
+              : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
+            // Adjust the padding for floating and inset variants.
+            variant === "floating" || variant === "inset"
+              ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
+              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
+            className,
+          )}
+          {...props}
+        >
+          <div
+            data-sidebar="sidebar"
+            className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
+          >
+            {children}
+          </div>
+        </div>
+      </div>
+    );
+  },
+);
+Sidebar.displayName = "Sidebar";
+
+const SidebarTrigger = React.forwardRef<
+  React.ElementRef<typeof Button>,
+  React.ComponentProps<typeof Button>
+>(({ className, onClick, ...props }, ref) => {
+  const { toggleSidebar } = useSidebar();
+
+  return (
+    <Button
+      ref={ref}
+      data-sidebar="trigger"
+      variant="ghost"
+      size="icon"
+      className={cn("h-7 w-7", className)}
+      onClick={(event) => {
+        onClick?.(event);
+        toggleSidebar();
+      }}
+      {...props}
+    >
+      <PanelLeft />
+      <span className="sr-only">Toggle Sidebar</span>
+    </Button>
+  );
+});
+SidebarTrigger.displayName = "SidebarTrigger";
+
+const SidebarRail = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<"button">
+>(({ className, ...props }, ref) => {
+  const { toggleSidebar } = useSidebar();
+
+  return (
+    <button
+      ref={ref}
+      data-sidebar="rail"
+      aria-label="Toggle Sidebar"
+      tabIndex={-1}
+      onClick={toggleSidebar}
+      title="Toggle Sidebar"
+      className={cn(
+        "absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex",
+        "[[data-side=left]_&]:cursor-w-resize [[data-side=right]_&]:cursor-e-resize",
+        "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize",
+        "group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full group-data-[collapsible=offcanvas]:hover:bg-sidebar",
+        "[[data-side=left][data-collapsible=offcanvas]_&]:-right-2",
+        "[[data-side=right][data-collapsible=offcanvas]_&]:-left-2",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+SidebarRail.displayName = "SidebarRail";
+
+const SidebarInset = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"main">
+>(({ className, ...props }, ref) => {
+  return (
+    <main
+      ref={ref}
+      className={cn(
+        "relative flex w-full flex-1 flex-col bg-background",
+        "md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+SidebarInset.displayName = "SidebarInset";
+
+const SidebarInput = React.forwardRef<
+  React.ElementRef<typeof Input>,
+  React.ComponentProps<typeof Input>
+>(({ className, ...props }, ref) => {
+  return (
+    <Input
+      ref={ref}
+      data-sidebar="input"
+      className={cn(
+        "h-8 w-full bg-background shadow-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+SidebarInput.displayName = "SidebarInput";
+
+const SidebarHeader = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div">
+>(({ className, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      data-sidebar="header"
+      className={cn("flex flex-col gap-2 p-2", className)}
+      {...props}
+    />
+  );
+});
+SidebarHeader.displayName = "SidebarHeader";
+
+const SidebarFooter = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div">
+>(({ className, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      data-sidebar="footer"
+      className={cn("flex flex-col gap-2 p-2", className)}
+      {...props}
+    />
+  );
+});
+SidebarFooter.displayName = "SidebarFooter";
+
+const SidebarSeparator = React.forwardRef<
+  React.ElementRef<typeof Separator>,
+  React.ComponentProps<typeof Separator>
+>(({ className, ...props }, ref) => {
+  return (
+    <Separator
+      ref={ref}
+      data-sidebar="separator"
+      className={cn("mx-2 w-auto bg-sidebar-border", className)}
+      {...props}
+    />
+  );
+});
+SidebarSeparator.displayName = "SidebarSeparator";
+
+const SidebarContent = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div">
+>(({ className, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      data-sidebar="content"
+      className={cn(
+        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+SidebarContent.displayName = "SidebarContent";
+
+const SidebarGroup = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div">
+>(({ className, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      data-sidebar="group"
+      className={cn("relative flex w-full min-w-0 flex-col p-2", className)}
+      {...props}
+    />
+  );
+});
+SidebarGroup.displayName = "SidebarGroup";
+
+const SidebarGroupLabel = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div"> & { asChild?: boolean }
+>(({ className, asChild = false, ...props }, ref) => {
+  const Comp = asChild ? Slot : "div";
+
+  return (
+    <Comp
+      ref={ref}
+      data-sidebar="group-label"
+      className={cn(
+        "flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+        "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+SidebarGroupLabel.displayName = "SidebarGroupLabel";
+
+const SidebarGroupAction = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<"button"> & { asChild?: boolean }
+>(({ className, asChild = false, ...props }, ref) => {
+  const Comp = asChild ? Slot : "button";
+
+  return (
+    <Comp
+      ref={ref}
+      data-sidebar="group-action"
+      className={cn(
+        "absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+        // Increases the hit area of the button on mobile.
+        "after:absolute after:-inset-2 after:md:hidden",
+        "group-data-[collapsible=icon]:hidden",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+SidebarGroupAction.displayName = "SidebarGroupAction";
+
+const SidebarGroupContent = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div">
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    data-sidebar="group-content"
+    className={cn("w-full text-sm", className)}
+    {...props}
+  />
+));
+SidebarGroupContent.displayName = "SidebarGroupContent";
+
+const SidebarMenu = React.forwardRef<
+  HTMLUListElement,
+  React.ComponentProps<"ul">
+>(({ className, ...props }, ref) => (
+  <ul
+    ref={ref}
+    data-sidebar="menu"
+    className={cn("flex w-full min-w-0 flex-col gap-1", className)}
+    {...props}
+  />
+));
+SidebarMenu.displayName = "SidebarMenu";
+
+const SidebarMenuItem = React.forwardRef<
+  HTMLLIElement,
+  React.ComponentProps<"li">
+>(({ className, ...props }, ref) => (
+  <li
+    ref={ref}
+    data-sidebar="menu-item"
+    className={cn("group/menu-item relative", className)}
+    {...props}
+  />
+));
+SidebarMenuItem.displayName = "SidebarMenuItem";
+
+const sidebarMenuButtonVariants = cva(
+  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  {
+    variants: {
+      variant: {
+        default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        outline:
+          "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
+      },
+      size: {
+        default: "h-8 text-sm",
+        sm: "h-7 text-xs",
+        lg: "h-12 text-sm group-data-[collapsible=icon]:!p-0",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  },
+);
+
+const SidebarMenuButton = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<"button"> & {
+    asChild?: boolean;
+    isActive?: boolean;
+    tooltip?: string | React.ComponentProps<typeof TooltipContent>;
+  } & VariantProps<typeof sidebarMenuButtonVariants>
+>(
+  (
+    {
+      asChild = false,
+      isActive = false,
+      variant = "default",
+      size = "default",
+      tooltip,
+      className,
+      ...props
+    },
+    ref,
+  ) => {
+    const Comp = asChild ? Slot : "button";
+    const { isMobile, state } = useSidebar();
+
+    const button = (
+      <Comp
+        ref={ref}
+        data-sidebar="menu-button"
+        data-size={size}
+        data-active={isActive}
+        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+        {...props}
+      />
+    );
+
+    if (!tooltip) {
+      return button;
+    }
+
+    if (typeof tooltip === "string") {
+      tooltip = {
+        children: tooltip,
+      };
+    }
+
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{button}</TooltipTrigger>
+        <TooltipContent
+          side="right"
+          align="center"
+          hidden={state !== "collapsed" || isMobile}
+          {...tooltip}
+        />
+      </Tooltip>
+    );
+  },
+);
+SidebarMenuButton.displayName = "SidebarMenuButton";
+
+const SidebarMenuAction = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<"button"> & {
+    asChild?: boolean;
+    showOnHover?: boolean;
+  }
+>(({ className, asChild = false, showOnHover = false, ...props }, ref) => {
+  const Comp = asChild ? Slot : "button";
+
+  return (
+    <Comp
+      ref={ref}
+      data-sidebar="menu-action"
+      className={cn(
+        "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
+        // Increases the hit area of the button on mobile.
+        "after:absolute after:-inset-2 after:md:hidden",
+        "peer-data-[size=sm]/menu-button:top-1",
+        "peer-data-[size=default]/menu-button:top-1.5",
+        "peer-data-[size=lg]/menu-button:top-2.5",
+        "group-data-[collapsible=icon]:hidden",
+        showOnHover &&
+          "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+SidebarMenuAction.displayName = "SidebarMenuAction";
+
+const SidebarMenuBadge = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div">
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    data-sidebar="menu-badge"
+    className={cn(
+      "pointer-events-none absolute right-1 flex h-5 min-w-5 select-none items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums text-sidebar-foreground",
+      "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
+      "peer-data-[size=sm]/menu-button:top-1",
+      "peer-data-[size=default]/menu-button:top-1.5",
+      "peer-data-[size=lg]/menu-button:top-2.5",
+      "group-data-[collapsible=icon]:hidden",
+      className,
+    )}
+    {...props}
+  />
+));
+SidebarMenuBadge.displayName = "SidebarMenuBadge";
+
+const SidebarMenuSkeleton = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div"> & {
+    showIcon?: boolean;
+  }
+>(({ className, showIcon = false, ...props }, ref) => {
+  // Random width between 50 to 90%.
+  const width = React.useMemo(() => {
+    return `${Math.floor(Math.random() * 40) + 50}%`;
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      data-sidebar="menu-skeleton"
+      className={cn("flex h-8 items-center gap-2 rounded-md px-2", className)}
+      {...props}
+    >
+      {showIcon && (
+        <Skeleton
+          className="size-4 rounded-md"
+          data-sidebar="menu-skeleton-icon"
+        />
+      )}
+      <Skeleton
+        className="h-4 max-w-[--skeleton-width] flex-1"
+        data-sidebar="menu-skeleton-text"
+        style={
+          {
+            "--skeleton-width": width,
+          } as React.CSSProperties
+        }
+      />
+    </div>
+  );
+});
+SidebarMenuSkeleton.displayName = "SidebarMenuSkeleton";
+
+const SidebarMenuSub = React.forwardRef<
+  HTMLUListElement,
+  React.ComponentProps<"ul">
+>(({ className, ...props }, ref) => (
+  <ul
+    ref={ref}
+    data-sidebar="menu-sub"
+    className={cn(
+      "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5",
+      "group-data-[collapsible=icon]:hidden",
+      className,
+    )}
+    {...props}
+  />
+));
+SidebarMenuSub.displayName = "SidebarMenuSub";
+
+const SidebarMenuSubItem = React.forwardRef<
+  HTMLLIElement,
+  React.ComponentProps<"li">
+>(({ ...props }, ref) => <li ref={ref} {...props} />);
+SidebarMenuSubItem.displayName = "SidebarMenuSubItem";
+
+const SidebarMenuSubButton = React.forwardRef<
+  HTMLAnchorElement,
+  React.ComponentProps<"a"> & {
+    asChild?: boolean;
+    size?: "sm" | "md";
+    isActive?: boolean;
+  }
+>(({ asChild = false, size = "md", isActive, className, ...props }, ref) => {
+  const Comp = asChild ? Slot : "a";
+
+  return (
+    <Comp
+      ref={ref}
+      data-sidebar="menu-sub-button"
+      data-size={size}
+      data-active={isActive}
+      className={cn(
+        "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
+        size === "sm" && "text-xs",
+        size === "md" && "text-sm",
+        "group-data-[collapsible=icon]:hidden",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+SidebarMenuSubButton.displayName = "SidebarMenuSubButton";
+
+export {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupAction,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInput,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSkeleton,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarSeparator,
+  SidebarTrigger,
+  useSidebar,
+};
+
+```
+
+### /vercel/path0/examples/music-player/src/components/ui/skeleton.tsx
+
+```ts
+import { cn } from "@/lib/utils";
+
+function Skeleton({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={cn("animate-pulse rounded-md bg-muted", className)}
+      {...props}
+    />
+  );
+}
+
+export { Skeleton };
+
+```
+
 ### /vercel/path0/examples/music-player/src/components/ui/toast.tsx
 
 ```ts
@@ -10514,8 +12077,6 @@ export function Toaster() {
 ### /vercel/path0/examples/music-player/src/components/ui/tooltip.tsx
 
 ```ts
-"use client";
-
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as React from "react";
 
@@ -10535,7 +12096,7 @@ const TooltipContent = React.forwardRef<
     ref={ref}
     sideOffset={sideOffset}
     className={cn(
-      "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+      "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-tooltip-content-transform-origin]",
       className,
     )}
     {...props}
@@ -10547,11 +12108,38 @@ export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
 
 ```
 
+### /vercel/path0/examples/music-player/src/hooks/use-mobile.tsx
+
+```ts
+import * as React from "react";
+
+const MOBILE_BREAKPOINT = 768;
+
+export function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(
+    undefined,
+  );
+
+  React.useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    const onChange = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    };
+    mql.addEventListener("change", onChange);
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+
+  return !!isMobile;
+}
+```
+
 ### /vercel/path0/examples/music-player/src/hooks/use-toast.ts
 
 ```ts
-import * as React from 'react';
-import type { ToastActionElement, ToastProps } from '@/components/ui/toast';
+import * as React from "react";
+
+import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
 
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000000;
@@ -10564,10 +12152,10 @@ type ToasterToast = ToastProps & {
 };
 
 const actionTypes = {
-  ADD_TOAST: 'ADD_TOAST',
-  UPDATE_TOAST: 'UPDATE_TOAST',
-  DISMISS_TOAST: 'DISMISS_TOAST',
-  REMOVE_TOAST: 'REMOVE_TOAST',
+  ADD_TOAST: "ADD_TOAST",
+  UPDATE_TOAST: "UPDATE_TOAST",
+  DISMISS_TOAST: "DISMISS_TOAST",
+  REMOVE_TOAST: "REMOVE_TOAST",
 } as const;
 
 let count = 0;
@@ -10581,20 +12169,20 @@ type ActionType = typeof actionTypes;
 
 type Action =
   | {
-      type: ActionType['ADD_TOAST'];
+      type: ActionType["ADD_TOAST"];
       toast: ToasterToast;
     }
   | {
-      type: ActionType['UPDATE_TOAST'];
+      type: ActionType["UPDATE_TOAST"];
       toast: Partial<ToasterToast>;
     }
   | {
-      type: ActionType['DISMISS_TOAST'];
-      toastId?: ToasterToast['id'];
+      type: ActionType["DISMISS_TOAST"];
+      toastId?: ToasterToast["id"];
     }
   | {
-      type: ActionType['REMOVE_TOAST'];
-      toastId?: ToasterToast['id'];
+      type: ActionType["REMOVE_TOAST"];
+      toastId?: ToasterToast["id"];
     };
 
 interface State {
@@ -10611,7 +12199,7 @@ const addToRemoveQueue = (toastId: string) => {
   const timeout = setTimeout(() => {
     toastTimeouts.delete(toastId);
     dispatch({
-      type: 'REMOVE_TOAST',
+      type: "REMOVE_TOAST",
       toastId: toastId,
     });
   }, TOAST_REMOVE_DELAY);
@@ -10621,19 +12209,21 @@ const addToRemoveQueue = (toastId: string) => {
 
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case 'ADD_TOAST':
+    case "ADD_TOAST":
       return {
         ...state,
         toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
       };
 
-    case 'UPDATE_TOAST':
+    case "UPDATE_TOAST":
       return {
         ...state,
-        toasts: state.toasts.map((t) => (t.id === action.toast.id ? { ...t, ...action.toast } : t)),
+        toasts: state.toasts.map((t) =>
+          t.id === action.toast.id ? { ...t, ...action.toast } : t,
+        ),
       };
 
-    case 'DISMISS_TOAST': {
+    case "DISMISS_TOAST": {
       const { toastId } = action;
 
       // ! Side effects ! - This could be extracted into a dismissToast() action,
@@ -10658,7 +12248,7 @@ export const reducer = (state: State, action: Action): State => {
         ),
       };
     }
-    case 'REMOVE_TOAST':
+    case "REMOVE_TOAST":
       if (action.toastId === undefined) {
         return {
           ...state,
@@ -10683,20 +12273,20 @@ function dispatch(action: Action) {
   });
 }
 
-type Toast = Omit<ToasterToast, 'id'>;
+type Toast = Omit<ToasterToast, "id">;
 
 function toast({ ...props }: Toast) {
   const id = genId();
 
   const update = (props: ToasterToast) =>
     dispatch({
-      type: 'UPDATE_TOAST',
+      type: "UPDATE_TOAST",
       toast: { ...props, id },
     });
-  const dismiss = () => dispatch({ type: 'DISMISS_TOAST', toastId: id });
+  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id });
 
   dispatch({
-    type: 'ADD_TOAST',
+    type: "ADD_TOAST",
     toast: {
       ...props,
       id,
@@ -10730,7 +12320,7 @@ function useToast() {
   return {
     ...state,
     toast,
-    dismiss: (toastId?: string) => dispatch({ type: 'DISMISS_TOAST', toastId }),
+    dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
   };
 }
 
@@ -10775,6 +12365,22 @@ export { useToast, toast };
     --ring: 20 14.3% 4.1%;
 
     --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
@@ -10805,6 +12411,14 @@ export { useToast, toast };
     --border: 12 6.5% 15.1%;
     --input: 12 6.5% 15.1%;
     --ring: 24 5.7% 82.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -10822,7 +12436,7 @@ export { useToast, toast };
 ### /vercel/path0/examples/music-player/src/lib/audio/AudioManager.ts
 
 ```ts
-import { createContext, useContext } from 'react';
+import { createContext, useContext } from "react";
 
 export class AudioManager {
   mediaElement: HTMLAudioElement;
@@ -10895,7 +12509,10 @@ export async function getAudioFileData(file: Blob, samples = 200) {
   };
 }
 
-const transformDecodedAudioToWaveformData = (audioBuffer: AudioBuffer, samples: number) => {
+const transformDecodedAudioToWaveformData = (
+  audioBuffer: AudioBuffer,
+  samples: number,
+) => {
   const rawData = audioBuffer.getChannelData(0); // We only need to work with one channel of data
   const blockSize = Math.floor(rawData.length / samples); // the number of samples in each subdivision
 
@@ -10930,17 +12547,17 @@ const transformDecodedAudioToWaveformData = (audioBuffer: AudioBuffer, samples: 
 ### /vercel/path0/examples/music-player/src/lib/audio/useMediaEndListener.ts
 
 ```ts
-import { useEffect } from 'react';
-import { useAudioManager } from './AudioManager';
+import { useEffect } from "react";
+import { useAudioManager } from "./AudioManager";
 
 export function useMediaEndListener(callback: () => void) {
   const audioManager = useAudioManager();
 
   useEffect(() => {
-    audioManager.mediaElement.addEventListener('ended', callback);
+    audioManager.mediaElement.addEventListener("ended", callback);
 
     return () => {
-      audioManager.mediaElement.removeEventListener('ended', callback);
+      audioManager.mediaElement.removeEventListener("ended", callback);
     };
   }, [audioManager, callback]);
 }
@@ -10949,13 +12566,13 @@ export function useMediaEndListener(callback: () => void) {
 ### /vercel/path0/examples/music-player/src/lib/audio/usePlayMedia.ts
 
 ```ts
-import { useRef } from 'react';
-import { useAudioManager } from './AudioManager';
+import { useRef } from "react";
+import { useAudioManager } from "./AudioManager";
 
 export function usePlayMedia() {
   const audioManager = useAudioManager();
 
-  const previousMediaLoad = useRef<Promise<unknown>>();
+  const previousMediaLoad = useRef<Promise<unknown> | undefined>(undefined);
 
   async function playMedia(file: Blob) {
     // Wait for the previous load to finish
@@ -10978,37 +12595,37 @@ export function usePlayMedia() {
 ### /vercel/path0/examples/music-player/src/lib/audio/usePlayState.ts
 
 ```ts
-import { useLayoutEffect, useState } from 'react';
-import { useAudioManager } from './AudioManager';
+import { useLayoutEffect, useState } from "react";
+import { useAudioManager } from "./AudioManager";
 
-export type PlayState = 'pause' | 'play';
+export type PlayState = "pause" | "play";
 
 export function usePlayState() {
   const audioManager = useAudioManager();
-  const [value, setValue] = useState<PlayState>('pause');
+  const [value, setValue] = useState<PlayState>("pause");
 
   useLayoutEffect(() => {
-    setValue(audioManager.mediaElement.paused ? 'pause' : 'play');
+    setValue(audioManager.mediaElement.paused ? "pause" : "play");
 
     const onPlay = () => {
-      setValue('play');
+      setValue("play");
     };
 
     const onPause = () => {
-      setValue('pause');
+      setValue("pause");
     };
 
-    audioManager.mediaElement.addEventListener('play', onPlay);
-    audioManager.mediaElement.addEventListener('pause', onPause);
+    audioManager.mediaElement.addEventListener("play", onPlay);
+    audioManager.mediaElement.addEventListener("pause", onPause);
 
     return () => {
-      audioManager.mediaElement.removeEventListener('play', onPlay);
-      audioManager.mediaElement.removeEventListener('pause', onPause);
+      audioManager.mediaElement.removeEventListener("play", onPlay);
+      audioManager.mediaElement.removeEventListener("pause", onPause);
     };
   }, [audioManager]);
 
   function togglePlayState() {
-    if (value === 'pause') {
+    if (value === "pause") {
       audioManager.play();
     } else {
       audioManager.pause();
@@ -11022,8 +12639,8 @@ export function usePlayState() {
 ### /vercel/path0/examples/music-player/src/lib/audio/usePlayerCurrentTime.ts
 
 ```ts
-import { useLayoutEffect, useState } from 'react';
-import { useAudioManager } from './AudioManager';
+import { useLayoutEffect, useState } from "react";
+import { useAudioManager } from "./AudioManager";
 
 export function usePlayerCurrentTime() {
   const audioManager = useAudioManager();
@@ -11036,10 +12653,10 @@ export function usePlayerCurrentTime() {
       setValue(audioManager.mediaElement.currentTime);
     };
 
-    audioManager.mediaElement.addEventListener('timeupdate', onTimeUpdate);
+    audioManager.mediaElement.addEventListener("timeupdate", onTimeUpdate);
 
     return () => {
-      audioManager.mediaElement.removeEventListener('timeupdate', onTimeUpdate);
+      audioManager.mediaElement.removeEventListener("timeupdate", onTimeUpdate);
     };
   }, [audioManager]);
 
@@ -11060,7 +12677,7 @@ export function usePlayerCurrentTime() {
 ### /vercel/path0/examples/music-player/src/lib/getters.ts
 
 ```ts
-import { MusicaAccount } from '../1_schema';
+import { MusicaAccount } from "../1_schema";
 
 export async function getNextTrack() {
   const me = await MusicaAccount.getMe().ensureLoaded({
@@ -11076,7 +12693,7 @@ export async function getNextTrack() {
   const tracks = me.root.activePlaylist.tracks;
   const activeTrack = me.root._refs.activeTrack;
 
-  const currentIndex = tracks.findIndex((item) => item?.id === activeTrack.id);
+  const currentIndex = tracks.findIndex((item) => item?.id === activeTrack?.id);
 
   const nextIndex = (currentIndex + 1) % tracks.length;
 
@@ -11097,7 +12714,7 @@ export async function getPrevTrack() {
   const tracks = me.root.activePlaylist.tracks;
   const activeTrack = me.root._refs.activeTrack;
 
-  const currentIndex = tracks.findIndex((item) => item?.id === activeTrack.id);
+  const currentIndex = tracks.findIndex((item) => item?.id === activeTrack?.id);
 
   const previousIndex = (currentIndex - 1 + tracks.length) % tracks.length;
   return tracks[previousIndex];
@@ -11107,7 +12724,7 @@ export async function getPrevTrack() {
 ### /vercel/path0/examples/music-player/src/lib/useKeyboardListener.ts
 
 ```ts
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 export function useKeyboardListener(code: string, callback: () => void) {
   useEffect(() => {
@@ -11116,10 +12733,10 @@ export function useKeyboardListener(code: string, callback: () => void) {
         callback();
       }
     };
-    window.addEventListener('keyup', handler);
+    window.addEventListener("keyup", handler);
 
     return () => {
-      window.removeEventListener('keyup', handler);
+      window.removeEventListener("keyup", handler);
     };
   }, [callback, code]);
 }
@@ -11128,10 +12745,10 @@ export function useKeyboardListener(code: string, callback: () => void) {
 ### /vercel/path0/examples/music-player/src/lib/useUploadExampleData.ts
 
 ```ts
-import { MusicaAccount } from '@/1_schema';
-import { useAccount } from 'jazz-react';
-import { useEffect } from 'react';
-import { uploadMusicTracks } from '../4_actions';
+import { MusicaAccount } from "@/1_schema";
+import { useAccount } from "jazz-react";
+import { useEffect } from "react";
+import { uploadMusicTracks } from "../4_actions";
 
 export function useUploadExampleData() {
   const { me } = useAccount();
@@ -11151,9 +12768,9 @@ async function uploadOnboardingData() {
   me.root.exampleDataLoaded = true;
 
   try {
-    const trackFile = await (await fetch('/example.mp3')).blob();
+    const trackFile = await (await fetch("/example.mp3")).blob();
 
-    await uploadMusicTracks([new File([trackFile], 'Example song')], true);
+    await uploadMusicTracks([new File([trackFile], "Example song")], true);
   } catch (error) {
     me.root.exampleDataLoaded = false;
     throw error;
@@ -11164,8 +12781,8 @@ async function uploadOnboardingData() {
 ### /vercel/path0/examples/music-player/src/lib/utils.ts
 
 ```ts
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
