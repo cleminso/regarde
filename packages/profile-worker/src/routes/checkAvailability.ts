@@ -1,0 +1,79 @@
+import { createRoute } from "@hono/zod-openapi";
+import { CheckAvailabilityRequestSchema, CheckAvailabilityResponseSchema } from "../schemas/checkAvailability";
+import { ErrorResponseSchema } from "../schemas/common";
+
+export const checkAvailabilityRoute = createRoute({
+  method: "post",
+  path: "/checkAvailability",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: CheckAvailabilityRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: CheckAvailabilityResponseSchema,
+        },
+      },
+      description: "Nickname availability check result",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+      description: "Bad request - invalid nickname provided",
+    },
+    429: {
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+      description: "Too many requests - rate limit exceeded",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+      description: "Internal server error",
+    },
+  },
+  tags: ["Nickname Registry"],
+  summary: "Check nickname availability",
+  description: "Check if a nickname is available for registration without making any changes to the registry",
+});
+
+export const checkAvailabilityHandler = (nicknameRegistry: any) => {
+  return async (c: any) => {
+    try {
+      const { nickname } = c.req.valid("json");
+
+      console.log(`Checking availability for nickname: "${nickname}"`);
+
+      const existingAccountForNickname = nicknameRegistry[nickname];
+      const isAvailable = !existingAccountForNickname;
+
+      return c.json({
+        nickname,
+        available: isAvailable,
+        ...(existingAccountForNickname && {
+          takenBy: existingAccountForNickname,
+        }),
+      }, 200);
+
+    } catch (error: any) {
+      console.error(`Error processing /checkAvailability request: ${error}`);
+      return c.json({ error: error.message || "Internal server error" }, 500);
+    }
+  };
+};
