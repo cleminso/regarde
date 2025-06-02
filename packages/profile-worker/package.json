@@ -18,7 +18,9 @@
   "dependencies": {
     "dotenv": "^16.5.0",
     "jazz-nodejs": "^0.14.17",
-    "jazz-tools": "^0.14.17"
+    "jazz-tools": "^0.14.17",
+    "hono": "^4.6.3",
+    "@hono/node-server": "^1.12.2"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
