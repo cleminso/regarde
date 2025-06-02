@@ -1,2 +1,2 @@
 packages:
-  - packages/* # Secondary packages
+  - packages/*

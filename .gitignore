@@ -26,7 +26,7 @@ dist-ssr
 *.sw?
 
 .aider*
-.env.*
+.env*
 ai*
 
 playwright-report
