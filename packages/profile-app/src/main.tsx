@@ -46,6 +46,8 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/profile" element={<ProfilePage />} />
               </Route>
             </Route>
+            {/* Route for viewing profiles by nickname */}
+            <Route path="/@:nickname" element={<ProfilePage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>

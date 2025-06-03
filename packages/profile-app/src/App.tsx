@@ -1,10 +1,12 @@
 import { useAccount, useIsAuthenticated, usePasskeyAuth } from 'jazz-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { AuthButton } from './AuthButton.tsx';
+import NicknameEditor from './components/NicknameEditor.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
 import { Button } from './components/ui/button.tsx';
+import { fetchUserDetails } from './lib/api.ts';
 import { OnboardingAccount } from './lib/schema.ts';
 import { APPLICATION_NAME } from './main.tsx';
 
@@ -12,12 +14,31 @@ export function App() {
   const { me } = useAccount(OnboardingAccount, {
     resolve: { profile: true, root: true },
   });
+  const accountId = me?.id;
   const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
+  const [currentNickname, setCurrentNickname] = useState<string | undefined>(undefined);
+  const [isLoadingNickname, setIsLoadingNickname] = useState(false);
 
   const auth = usePasskeyAuth({
     appName: APPLICATION_NAME,
   });
+
+  useEffect(() => {
+    if (isAuthenticated && accountId) {
+      setIsLoadingNickname(true);
+       fetchUserDetails(accountId).then(userDetails => {
+         setCurrentNickname(userDetails.nickname);
+        setIsLoadingNickname(false);
+      }).catch(err => {
+        console.error("Failed to fetch user details", err);
+        setIsLoadingNickname(false);
+      });
+    } else {
+      // Clear nickname if user logs out or accountId is not available
+      setCurrentNickname(undefined);
+    }
+  }, [isAuthenticated, accountId]);
 
   const handleLogin = async () => {
     try {
@@ -38,10 +59,28 @@ export function App() {
   };
 
   useEffect(() => {
+    // This useEffect handles redirection, so NicknameEditor will be on the /profile page effectively
     if (isAuthenticated) {
       navigate('/profile', { replace: true });
     }
   }, [isAuthenticated, navigate]);
+
+  // Determine what to display based on auth state and nickname loading
+  // This logic is simplified; actual app might have routes for /profile
+  // For now, NicknameEditor is added to the authenticated view.
+  const renderAuthenticatedContent = () => {
+     // Add a guard in case accountId is somehow not available yet, though `isAuthenticated && accountId` check above should cover
+     if (!accountId) return <p>Account details are not available yet.</p>;
+    if (isLoadingNickname) {
+      return <p>Loading nickname details...</p>;
+    }
+    return (
+      <section style={{ marginTop: '20px', padding: '20px', border: '1px solid #ccc' }}>
+        <h2>Manage Your Nickname</h2>
+        <NicknameEditor accountId={accountId} currentNickname={currentNickname} />
+      </section>
+    );
+  };
 
   return (
     <>
@@ -70,19 +109,23 @@ export function App() {
       </header>
 
       <main className="container mt-16 flex flex-col">
-        {isAuthenticated ? (
+        {isAuthenticated && accountId ? (
           <div className="content-center">
             <h1 className="text-center">
               Welcome{me?.profile?.name ? <>, {me.profile.name}</> : ''}!
             </h1>
+            {/* Render NicknameEditor or loading state here */}
+            {renderAuthenticatedContent()}
           </div>
         ) : (
+          // Content for unauthenticated users (marketing page)
           <div className="flex flex-col items-center text-center gap-6 py-12">
             <h1 className="text-4xl font-sans">profile.jazz.dev</h1>
             <p className="text-lg text-muted-foreground max-w-md">
               The last public profile you will ever need. Build one, share
               everywhere.
             </p>
+            {/* Auth related buttons */}
             <div className="flex gap-4 mt-4">
               <Button
                 size="lg"
@@ -96,6 +139,8 @@ export function App() {
                 Register Handle
               </Button>
             </div>
+            {/* Optionally, a message if auth is loading and not yet authenticated */}
+            {auth.state === 'loading' && <p>Loading authentication...</p>}
           </div>
         )}
       </main>
