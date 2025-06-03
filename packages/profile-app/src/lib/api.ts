@@ -4,11 +4,12 @@
 const API_BASE_URL = 'http://localhost:3000';
 
 interface UserDetails {
-  jazzAccountId: string;
+  jazzAccountId?: string;
   nickname?: string;
   requestedNickname?: string;
-  exists: boolean;
-  nicknameStatus: {
+  exists?: boolean;
+  error?: string;
+  nicknameStatus?: {
     hasNickname: boolean;
     isRegistered: boolean;
     registrationDate?: string; // Or Date
@@ -73,7 +74,7 @@ interface CheckAvailabilityResponse {
  * });
  *
  * @throws {Error} When neither accountId nor nickname is provided
- * @throws {Error} When API request fails with non-2xx status
+ * @throws {Error} When API request fails (excluding 400/404 which are handled as validation data)
  */
 export async function fetchUserDetails(options: {
   accountId?: string;
@@ -96,19 +97,47 @@ export async function fetchUserDetails(options: {
   const response = await fetch(
     `${API_BASE_URL}/users?${searchParams.toString()}`,
   );
-  if (!response.ok) {
-    const errorData = await response
-      .json()
-      .catch(() => ({ message: 'Failed to fetch user details' }));
-    console.error('API Error fetchUserDetails:', errorData);
-
-    throw new Error(
-      errorData.message ||
-        errorData.error ||
-        `Failed to fetch user details. Status: ${response.status}`,
-    );
+  
+  // Handle successful responses
+  if (response.ok) {
+    return response.json();
   }
-  return response.json();
+  
+  // Handle 400 and 404 as valid data for validation scenarios
+  if (response.status === 400 || response.status === 404) {
+    try {
+      const data = await response.json();
+      // Return any valid JSON data for frontend validation
+      // The frontend validation logic will handle determining what to do with it
+      return data;
+    } catch (parseError) {
+      console.warn('Failed to parse 400/404 response:', parseError);
+      // Even if parsing fails, return a minimal object for frontend handling
+      return {
+        exists: false,
+        jazzAccountId: '',
+        nickname: undefined,
+        requestedNickname: nickname,
+        nicknameStatus: {
+          hasNickname: false,
+          isRegistered: false,
+          canRegisterNickname: false
+        }
+      };
+    }
+  }
+  
+  // Handle other error cases
+  const errorData = await response
+    .json()
+    .catch(() => ({ message: 'Failed to fetch user details' }));
+  console.error('API Error fetchUserDetails:', errorData);
+
+  throw new Error(
+    errorData.message ||
+      errorData.error ||
+      `Failed to fetch user details. Status: ${response.status}`,
+  );
 }
 
 /**
@@ -203,6 +232,11 @@ export function validateNicknameOwnership(
   redirectTo?: string;
   reason: 'valid' | 'wrong_nickname' | 'not_owned' | 'not_found';
 } {
+  // Handle cases where userDetails might be partial (from 400/404 responses)
+  if (!userDetails || typeof userDetails !== 'object') {
+    return { isValid: false, reason: 'not_found' };
+  }
+
   // Account owns the requested nickname
   if (isNicknameOwnedByAccount(userDetails, accountId, requestedNickname)) {
     return { isValid: true, reason: 'valid' };
@@ -218,12 +252,22 @@ export function validateNicknameOwnership(
     };
   }
 
-  // Account doesn't own this nickname
-  if (userDetails.jazzAccountId !== accountId) {
+  // Check if the response indicates the account ID doesn't match
+  if (userDetails.jazzAccountId && userDetails.jazzAccountId !== accountId) {
     return { isValid: false, reason: 'not_owned' };
   }
 
-  // Nickname not found or other cases
+  // Handle case where exists field is explicitly false
+  if (userDetails.exists === false) {
+    return { isValid: false, reason: 'not_found' };
+  }
+
+  // Handle cases where we have minimal data (e.g., error responses)
+  if (!userDetails.jazzAccountId && !userDetails.nickname) {
+    return { isValid: false, reason: 'not_found' };
+  }
+
+  // Default case
   return { isValid: false, reason: 'not_found' };
 }
 

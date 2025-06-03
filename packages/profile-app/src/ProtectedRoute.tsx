@@ -1,14 +1,20 @@
 import { OnboardingAccount } from '@onboarding.jazz/shared-schemas';
 import { useAccount, useIsAuthenticated } from 'jazz-react';
-import { Navigate, Outlet, useParams } from 'react-router';
 import { useEffect, useState } from 'react';
+import { Navigate, Outlet, useParams } from 'react-router';
 
-import { fetchUserDetailsWithValidation, validateNicknameOwnership } from './lib/api';
+import {
+  fetchUserDetailsByAccountId,
+  fetchUserDetailsWithValidation,
+  validateNicknameOwnership,
+} from './lib/api';
 
 export function ProtectedRoute() {
   const isAuthenticated = useIsAuthenticated();
   const { nickname } = useParams();
-  const [validationState, setValidationState] = useState<'loading' | 'valid' | 'invalid' | 'error'>('loading');
+  const [validationState, setValidationState] = useState<
+    'loading' | 'valid' | 'invalid' | 'error'
+  >('loading');
   const [actualNickname, setActualNickname] = useState<string>('');
 
   const { me } = useAccount(OnboardingAccount, {
@@ -23,11 +29,39 @@ export function ProtectedRoute() {
     if (!me?.id || !nickname) return;
 
     setValidationState('loading');
-    
+
     fetchUserDetailsWithValidation(me.id, nickname)
       .then((userDetails) => {
-        const validation = validateNicknameOwnership(userDetails, me.id, nickname);
-        
+        // Handle specific case where backend says nickname is not owned by account
+        if (
+          userDetails.error ===
+          'Provided nickname is not owned by the provided jazzAccountId'
+        ) {
+          // Fetch account details to get the actual nickname
+          return fetchUserDetailsByAccountId(me.id)
+            .then((accountDetails) => {
+              if (
+                accountDetails.nickname &&
+                accountDetails.nickname !== nickname
+              ) {
+                setActualNickname(accountDetails.nickname);
+                setValidationState('invalid');
+              } else {
+                setValidationState('error');
+              }
+            })
+            .catch((error) => {
+              console.error('Failed to fetch account details:', error);
+              setValidationState('error');
+            });
+        }
+
+        const validation = validateNicknameOwnership(
+          userDetails,
+          me.id,
+          nickname,
+        );
+
         if (validation.isValid) {
           setValidationState('valid');
         } else if (validation.redirectTo) {
@@ -37,7 +71,8 @@ export function ProtectedRoute() {
           setValidationState('error');
         }
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('ProtectedRoute validation error:', error);
         setValidationState('error');
       });
   }, [me?.id, nickname]);
@@ -51,7 +86,7 @@ export function ProtectedRoute() {
   }
 
   if (validationState === 'invalid' && actualNickname) {
-    return <Navigate to={`/${actualNickname}`} replace />;
+    return <Navigate to={`/${actualNickname}/edit`} replace />;
   }
 
   return <Outlet />;
