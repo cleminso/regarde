@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const ErrorResponseSchema = z.object({
-  error: z.string().describe("Error message")
+  error: z.string(),
+  message: z.string().optional(),
+  details: z.any().optional(),
 });
 
-export const SuccessResponseSchema = z.object({
-  message: z.string().describe("Success message")
-});
+export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;

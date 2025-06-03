@@ -1,0 +1,32 @@
+{
+  "name": "@onboarding.jazz/shared-schemas",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cleminso/onboarding.jazz.git",
+    "directory": "packages/shared-schemas"
+  },
+  "version": "0.1.0",
+  "description": "Shared Jazz schemas for onboarding application",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "jazz-tools": "^0.14.14"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ]
+}

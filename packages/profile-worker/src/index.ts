@@ -10,6 +10,7 @@ import { RegistryWorkerAccount } from "./schema";
 import { rateLimit } from "./middleware/rateLimit";
 import { checkAvailabilityRoute, checkAvailabilityHandler } from "./routes/checkAvailability";
 import { registerRoute, registerHandler } from "./routes/register";
+import { userDetailsRoute, userDetailsHandler } from "./routes/userDetails";
 
 const PORT = process.env.PORT || 3000;
 const JAZZ_SYNC_SERVER_URL =
@@ -81,6 +82,7 @@ async function main() {
 
   app.openapi(checkAvailabilityRoute, checkAvailabilityHandler(nicknameRegistry));
   app.openapi(registerRoute, registerHandler(nicknameRegistry, reverseNicknameRegistry));
+  app.openapi(userDetailsRoute, userDetailsHandler(reverseNicknameRegistry));
 
   app.notFound((c) => {
     return c.json({ error: "Not Found" }, 404);

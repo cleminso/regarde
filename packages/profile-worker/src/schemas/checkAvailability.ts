@@ -1,11 +1,14 @@
 import { z } from "zod";
 
 export const CheckAvailabilityRequestSchema = z.object({
-  nickname: z.string().min(1).describe("Nickname to check availability for")
+  nickname: z.string().min(1, "Nickname is required"),
 });
 
 export const CheckAvailabilityResponseSchema = z.object({
-  nickname: z.string().describe("The nickname that was checked"),
-  available: z.boolean().describe("Whether the nickname is available for registration"),
-  takenBy: z.string().optional().describe("Jazz account ID that owns this nickname (only present if not available)")
+  nickname: z.string(),
+  available: z.boolean(),
+  takenBy: z.string().optional(),
 });
+
+export type CheckAvailabilityRequest = z.infer<typeof CheckAvailabilityRequestSchema>;
+export type CheckAvailabilityResponse = z.infer<typeof CheckAvailabilityResponseSchema>;
