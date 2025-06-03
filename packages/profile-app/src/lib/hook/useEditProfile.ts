@@ -11,11 +11,13 @@ export function useEditProfile() {
   const { syncState, triggerSyncIndicator } = useSyncState();
 
   const profile = me?.profile;
+  const accountId = me?.id;
 
   const isLoading = !me || !profile;
 
   return {
     profile,
+    accountId,
     isLoading,
     syncState,
     triggerSyncIndicator,

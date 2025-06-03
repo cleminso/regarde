@@ -16,6 +16,28 @@ const PORT = process.env.PORT || 3000;
 const JAZZ_SYNC_SERVER_URL =
   process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
 
+// Global error handlers to prevent server crashes
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  console.error('Stack:', error.stack);
+  // Don't exit the process - log and continue
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit the process - log and continue
+});
+
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received. Shutting down gracefully...');
+  process.exit(0);
+});
+
 async function main() {
   if (!process.env.JAZZ_WORKER_ACCOUNT || !process.env.JAZZ_WORKER_SECRET) {
     console.error(
@@ -30,21 +52,36 @@ async function main() {
     console.log(`Using API Key: ${process.env.JAZZ_API_KEY}`);
   }
 
-  const { worker } = await startWorker({
-    AccountSchema: RegistryWorkerAccount,
-    syncServer:
-      JAZZ_SYNC_SERVER_URL +
-      (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
-  });
+  let worker;
+  try {
+    const workerResult = await startWorker({
+      AccountSchema: RegistryWorkerAccount,
+      syncServer:
+        JAZZ_SYNC_SERVER_URL +
+        (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
+    });
+    worker = workerResult.worker;
+  } catch (workerError) {
+    console.error('Failed to start Jazz worker:', workerError);
+    console.error('This is a critical error. Exiting...');
+    process.exit(1);
+  }
 
   console.log(`Worker started with Account ID: ${worker.id}`);
 
-  const loadedWorker = await worker.ensureLoaded({
-    resolve: { root: { registry: true, reverseRegistry: true } },
-  });
+  let loadedWorker;
+  try {
+    loadedWorker = await worker.ensureLoaded({
+      resolve: { root: { registry: true, reverseRegistry: true } },
+    });
+  } catch (loadError) {
+    console.error('Failed to load worker data:', loadError);
+    console.error('This is a critical error. Exiting...');
+    process.exit(1);
+  }
 
-  const nicknameRegistry = loadedWorker.root.registry;
-  const reverseNicknameRegistry = loadedWorker.root.reverseRegistry;
+  const nicknameRegistry = loadedWorker?.root?.registry;
+  const reverseNicknameRegistry = loadedWorker?.root?.reverseRegistry;
 
   if (!nicknameRegistry || !reverseNicknameRegistry) {
     console.error(
@@ -80,22 +117,97 @@ async function main() {
 
   app.get("/ui", swaggerUI({ url: "/doc" }));
 
-  app.openapi(checkAvailabilityRoute, checkAvailabilityHandler(nicknameRegistry));
-  app.openapi(registerRoute, registerHandler(nicknameRegistry, reverseNicknameRegistry));
-  app.openapi(userDetailsRoute, userDetailsHandler(reverseNicknameRegistry));
+  // Wrap handlers with additional error protection
+  const safeCheckAvailabilityHandler = async (c: any) => {
+    try {
+      return await checkAvailabilityHandler(nicknameRegistry)(c);
+    } catch (error) {
+      console.error('Error in checkAvailabilityHandler:', error);
+      return c.json({ error: 'Internal server error' }, 500);
+    }
+  };
+
+  const safeRegisterHandler = async (c: any) => {
+    try {
+      return await registerHandler(nicknameRegistry, reverseNicknameRegistry)(c);
+    } catch (error) {
+      console.error('Error in registerHandler:', error);
+      return c.json({ error: 'Internal server error' }, 500);
+    }
+  };
+
+  const safeUserDetailsHandler = async (c: any) => {
+    try {
+      return await userDetailsHandler(reverseNicknameRegistry)(c);
+    } catch (error) {
+      console.error('Error in userDetailsHandler:', error);
+      return c.json({
+        error: 'Internal server error',
+        jazzAccountId: c.req.param('jazzAccountId') || 'unknown',
+        exists: false
+      }, 500);
+    }
+  };
+
+  app.openapi(checkAvailabilityRoute, safeCheckAvailabilityHandler);
+  app.openapi(registerRoute, safeRegisterHandler);
+  app.openapi(userDetailsRoute, safeUserDetailsHandler);
+
+  // Add health check endpoint
+  app.get('/health', (c) => {
+    try {
+      return c.json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        workerId: worker?.id || 'unknown'
+      });
+    } catch (error) {
+      console.error('Health check error:', error);
+      return c.json({ status: 'unhealthy' }, 500);
+    }
+  });
 
   app.notFound((c) => {
-    return c.json({ error: "Not Found" }, 404);
+    try {
+      console.log(`404 - Path not found: ${c.req.path}`);
+      return c.json({ error: "Not Found" }, 404);
+    } catch (error) {
+      console.error('Error in notFound handler:', error);
+      return c.json({ error: "Not Found" }, 404);
+    }
+  });
+
+  // Global error handler
+  app.onError((error, c) => {
+    console.error('Global error handler caught:', error);
+    console.error('Stack:', error.stack);
+
+    try {
+      return c.json({
+        error: 'Internal server error',
+        timestamp: new Date().toISOString()
+      }, 500);
+    } catch (responseError) {
+      console.error('Error creating error response:', responseError);
+      return new Response('Internal server error', { status: 500 });
+    }
   });
 
   console.log(`Nickname Registry Worker HTTP server listening on port ${PORT}`);
   console.log(`Swagger UI available at: http://localhost:${PORT}/ui`);
   console.log(`OpenAPI spec available at: http://localhost:${PORT}/doc`);
+  console.log(`Health check available at: http://localhost:${PORT}/health`);
 
-  serve({
-    fetch: app.fetch,
-    port: Number(PORT),
-  });
+  try {
+    serve({
+      fetch: app.fetch,
+      port: Number(PORT),
+    });
+    console.log('Server started successfully');
+  } catch (serverError) {
+    console.error('Failed to start HTTP server:', serverError);
+    process.exit(1);
+  }
 }
 
 main().catch((err) => {

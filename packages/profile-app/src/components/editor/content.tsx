@@ -17,7 +17,7 @@ import {
 import { editorSections, SectionType } from './shared.ts';
 
 export function ProfileEditor() {
-  const { profile, isLoading, syncState, triggerSyncIndicator } =
+  const { profile, accountId, isLoading, syncState, triggerSyncIndicator } =
     useEditProfile();
   const [activeSection, setActiveSection] = useState<SectionType>(
     editorSections.general,
@@ -96,6 +96,7 @@ export function ProfileEditor() {
                 profile={profile!}
                 triggerSyncIndicator={triggerSyncIndicator}
                 onCloseEditor={handleCloseEditor}
+                accountId={accountId!}
               />
             )}
 

@@ -54,18 +54,64 @@ export const userDetailsRoute = createRoute({
 
 export const userDetailsHandler = (reverseNicknameRegistry: any) => {
   return async (c: any) => {
+    let jazzAccountId: string;
+    
     try {
-      const { jazzAccountId } = c.req.valid("param");
-
-      console.log(
-        `Looking up user details for Jazz Account ID: "${jazzAccountId}"`,
-      );
-
-      // Get nickname from reverse registry
-      const nickname = reverseNicknameRegistry[jazzAccountId];
-
+      // Safely extract and validate parameters
       try {
-        const account = await OnboardingAccount.load(jazzAccountId, {
+        const params = c.req.valid("param");
+        jazzAccountId = params?.jazzAccountId;
+        
+        if (!jazzAccountId || typeof jazzAccountId !== 'string' || jazzAccountId.trim() === '') {
+          console.warn(`Invalid jazzAccountId provided: ${jazzAccountId}`);
+          return c.json({ 
+            error: "Invalid or missing jazzAccountId parameter" 
+          }, 400);
+        }
+        
+        jazzAccountId = jazzAccountId.trim();
+      } catch (paramError) {
+        console.error(`Parameter validation failed: ${paramError}`);
+        return c.json({ 
+          error: "Invalid request parameters" 
+        }, 400);
+      }
+
+      console.log(`Looking up user details for Jazz Account ID: "${jazzAccountId}"`);
+
+      // Safely access nickname registry with null checks
+      let nickname: string | undefined;
+      try {
+        if (reverseNicknameRegistry && typeof reverseNicknameRegistry === 'object') {
+          nickname = reverseNicknameRegistry[jazzAccountId];
+        } else {
+          console.warn('ReverseNicknameRegistry is not available or invalid');
+          nickname = undefined;
+        }
+      } catch (registryError) {
+        console.error(`Error accessing nickname registry: ${registryError}`);
+        nickname = undefined;
+      }
+
+      // Determine nickname registration status safely
+      const hasNickname = Boolean(nickname);
+      const isRegistered = hasNickname;
+      const canRegisterNickname = !hasNickname;
+
+      const nicknameStatus = {
+        hasNickname,
+        isRegistered,
+        registrationDate: undefined, // Not tracked in current implementation
+        canRegisterNickname,
+      };
+
+      // Attempt to load account with comprehensive error handling
+      let account: any = null;
+      let accountLoadError: string | null = null;
+      
+      try {
+        // Add timeout and additional safety measures for account loading
+        const loadPromise = OnboardingAccount.load(jazzAccountId, {
           resolve: {
             profile: {
               projects: {
@@ -81,50 +127,78 @@ export const userDetailsHandler = (reverseNicknameRegistry: any) => {
           },
         });
 
-        if (!account) {
-          return c.json(
-            {
-              jazzAccountId,
-              nickname: nickname || undefined,
-              exists: false,
-            },
-            200,
-          );
-        }
+        // Set a reasonable timeout for account loading
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Account loading timeout')), 10000);
+        });
 
-        const publicData: Record<string, any> = {
-          ...account.profile,
+        account = await Promise.race([loadPromise, timeoutPromise]);
+      } catch (accountError: any) {
+        accountLoadError = accountError?.message || 'Unknown account loading error';
+        console.warn(`Account ${jazzAccountId} could not be loaded: ${accountLoadError}`);
+        account = null;
+      }
+
+      // Build response safely
+      try {
+        const baseResponse = {
+          jazzAccountId,
+          nickname: nickname || undefined,
+          nicknameStatus,
         };
 
-        return c.json(
-          {
-            jazzAccountId,
-            nickname: nickname || undefined,
-            publicData,
-            exists: true,
-          },
-          200,
-        );
-      } catch (accountError) {
-        console.log(
-          `Account ${jazzAccountId} could not be loaded: ${accountError}`,
-        );
+        if (account && account.profile) {
+          // Account exists and has profile data
+          const publicData: Record<string, any> = {};
+          
+          try {
+            // Safely extract profile data
+            if (account.profile) {
+              Object.assign(publicData, account.profile);
+            }
+          } catch (profileError) {
+            console.warn(`Error extracting profile data for ${jazzAccountId}: ${profileError}`);
+          }
 
-        // Return what we know even if account loading failed
-        return c.json(
-          {
-            jazzAccountId,
-            nickname: nickname || undefined,
+          return c.json({
+            ...baseResponse,
+            publicData: Object.keys(publicData).length > 0 ? publicData : undefined,
+            exists: true,
+          }, 200);
+        } else {
+          // Account doesn't exist or couldn't be loaded
+          return c.json({
+            ...baseResponse,
             exists: !!nickname, // If they have a nickname, they probably exist
+          }, 200);
+        }
+      } catch (responseError) {
+        console.error(`Error building response for ${jazzAccountId}: ${responseError}`);
+        
+        // Fallback minimal response
+        return c.json({
+          jazzAccountId,
+          nickname: nickname || undefined,
+          exists: !!nickname,
+          nicknameStatus: {
+            hasNickname: !!nickname,
+            isRegistered: !!nickname,
+            registrationDate: undefined,
+            canRegisterNickname: !nickname,
           },
-          200,
-        );
+        }, 200);
       }
-    } catch (error: any) {
-      console.error(
-        `Error processing /users/${c.req.param("jazzAccountId")} request: ${error}`,
-      );
-      return c.json({ error: error.message || "Internal server error" }, 500);
+    } catch (outerError: any) {
+      // Final catch-all to prevent server crashes
+      console.error(`Critical error in userDetailsHandler: ${outerError}`);
+      console.error(`Stack trace: ${outerError?.stack}`);
+      
+      // Return a safe fallback response
+      return c.json({ 
+        error: "Internal server error",
+        jazzAccountId: jazzAccountId || 'unknown',
+        exists: false,
+      }, 500);
     }
   };
 };

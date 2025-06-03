@@ -2,12 +2,13 @@ import { z } from "zod";
 
 export const RegisterRequestSchema = z.object({
   nickname: z.string().min(1, "Nickname is required"),
-  accountId: z.string().min(1, "Account ID is required"),
+  jazzAccountID: z.string().min(1, "Jazz Account ID is required"),
+  oldNickname: z.string().optional(),
 });
 
 export const RegisterResponseSchema = z.object({
   nickname: z.string(),
-  accountId: z.string(),
+  jazzAccountID: z.string(),
   registered: z.boolean(),
   message: z.string().optional(),
 });

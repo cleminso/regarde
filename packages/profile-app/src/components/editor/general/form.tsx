@@ -9,12 +9,14 @@ type GeneralEditProps = {
   profile: Loaded<typeof OnboardingProfile>;
   triggerSyncIndicator: () => void;
   onCloseEditor: () => void;
+  accountId: string;
 };
 
 export function GeneralEdit({
   profile,
   triggerSyncIndicator,
   onCloseEditor,
+  accountId,
 }: GeneralEditProps) {
   const {
     fileInputRef,
@@ -26,7 +28,8 @@ export function GeneralEdit({
     handleRemoveAvatar,
     updateName,
     updateBio,
-  } = useGeneral({ profile, triggerSyncIndicator });
+    nickname,
+  } = useGeneral({ profile, triggerSyncIndicator, accountId });
 
   return (
     <>
@@ -114,6 +117,70 @@ export function GeneralEdit({
             />
             {!profile.name?.trim() && (
               <small className="text-destructive">Name is required.</small>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <label
+              htmlFor="nickname"
+              className="text-sm font-sans block text-foreground"
+            >
+              Nickname (optional)
+            </label>
+            <div className="relative">
+              <Input
+                type="text"
+                id="nickname"
+                value={profile.nickname || ''}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const value = e.target.value;
+                  nickname.updateNicknameValue(value);
+                  if (value.trim() === '') {
+                    nickname.resetValidation();
+                  } else {
+                    nickname.checkAvailability(value);
+                  }
+                }}
+                onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
+                  const value = e.target.value.trim();
+                  if (value && nickname.validation.isValid && nickname.validation.isAvailable) {
+                    nickname.updateNickname(value).catch((error) => {
+                      console.error('Failed to update nickname:', error);
+                    });
+                  }
+                }}
+                placeholder="your_nickname"
+                className="w-full"
+                disabled={nickname.isRegistering}
+              />
+              {nickname.validation.isChecking && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <div className="animate-spin h-4 w-4 border-2 border-muted-foreground border-t-transparent rounded-full"></div>
+                </div>
+              )}
+            </div>
+            {nickname.validation.error && (
+              <small className="text-destructive">{nickname.validation.error}</small>
+            )}
+            {nickname.validation.message && !nickname.validation.error && (
+              <small className={nickname.validation.isAvailable ? "text-green-600" : "text-destructive"}>
+                {nickname.validation.message}
+              </small>
+            )}
+            {profile.nickname && (
+              <div className="flex items-center space-x-2 mt-1">
+                <small className="text-muted-foreground">Current: {profile.nickname}</small>
+                <button
+                  type="button"
+                  onClick={() => nickname.removeNickname().catch((error) => {
+                    console.error('Failed to remove nickname:', error);
+                  })}
+                  className="text-xs text-destructive hover:underline"
+                  disabled={nickname.isRegistering}
+                >
+                  Remove
+                </button>
+              </div>
             )}
           </div>
 

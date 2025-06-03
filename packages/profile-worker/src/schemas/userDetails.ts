@@ -8,6 +8,12 @@ export const UserDetailsResponseSchema = z.object({
   jazzAccountId: z.string(),
   nickname: z.string().optional(),
   exists: z.boolean(),
+  nicknameStatus: z.object({
+    hasNickname: z.boolean(),
+    isRegistered: z.boolean(),
+    registrationDate: z.string().optional(),
+    canRegisterNickname: z.boolean(),
+  }),
   publicData: z.object({
     name: z.string(),
     bio: z.string().optional(),

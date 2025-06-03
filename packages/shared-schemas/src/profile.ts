@@ -49,6 +49,7 @@ export const ListOfWorkExp = co.list(WorkExp);
 export const OnboardingProfile = co
   .profile({
     name: z.string(),
+    nickname: z.optional(z.string()),
     bio: z.optional(z.string()),
     avatar: z.optional(z.string()),
     socialLinks: z.optional(SocialLinks),

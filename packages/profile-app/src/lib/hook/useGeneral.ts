@@ -2,14 +2,18 @@ import { Loaded } from 'jazz-tools';
 import React, { useRef } from 'react';
 
 import { OnboardingProfile } from '../schema';
+import { useNickname } from './useNickname';
 
 type UseGeneralProps = {
   profile: Loaded<typeof OnboardingProfile>;
   triggerSyncIndicator: () => void;
+  accountId: string;
 };
 
-export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
+export function useGeneral({ profile, triggerSyncIndicator, accountId }: UseGeneralProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const nickname = useNickname({ profile, triggerSyncIndicator, accountId });
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -81,5 +85,6 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
     handleRemoveAvatar,
     updateName,
     updateBio,
+    nickname,
   };
 }
