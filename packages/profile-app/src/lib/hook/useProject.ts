@@ -93,7 +93,9 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
       console.warn('No projects list to delete from.');
       return;
     }
-    const projectIndex = projectsList.findIndex((p) => p && p.id === projectId);
+    const projectIndex = projectsList.findIndex(
+      (p: any) => p && p.id === projectId,
+    );
 
     if (projectIndex !== -1) {
       projectsList.splice(projectIndex, 1);

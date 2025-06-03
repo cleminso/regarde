@@ -149,7 +149,7 @@ export function App() {
               </Button>
             </div>
             {/* Optionally, a message if auth is loading and not yet authenticated */}
-            {auth.state === 'loading' && <p>Loading authentication...</p>}
+            {auth.state !== 'signedIn' && <p>Loading authentication...</p>}
           </div>
         )}
       </main>

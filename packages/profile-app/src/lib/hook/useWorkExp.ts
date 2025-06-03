@@ -124,7 +124,9 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
       console.warn('No work experiences list to delete from.');
       return;
     }
-    const workExpIndex = workExpList.findIndex((w) => w && w.id === workExpId);
+    const workExpIndex = workExpList.findIndex(
+      (w: any) => w && w.id === workExpId,
+    );
 
     if (workExpIndex !== -1) {
       workExpList.splice(workExpIndex, 1);

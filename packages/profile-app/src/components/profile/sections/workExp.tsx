@@ -32,7 +32,7 @@ const getHref = (url?: string): string | undefined => {
 
 export function WorkExp({ profile }: WorkExpProps) {
   const workExperiences = profile.workExp?.filter(
-    (exp): exp is Loaded<typeof WorkExpSchema> => exp !== null,
+    (exp: any): exp is Loaded<typeof WorkExpSchema> => exp !== null,
   );
 
   if (!workExperiences || workExperiences.length === 0) {
@@ -46,7 +46,7 @@ export function WorkExp({ profile }: WorkExpProps) {
     >
       <h3 className="text-md font-sans">Work Experience</h3>
       <div className="space-y-6">
-        {workExperiences.map((workExp) => {
+        {workExperiences.map((workExp: any) => {
           const displayTitle = `${workExp.title || 'Untitled Role'} @ ${
             workExp.company || 'Unnamed Company'
           }`;

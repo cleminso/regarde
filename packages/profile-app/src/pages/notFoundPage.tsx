@@ -1,4 +1,3 @@
-import { useIsAuthenticated } from 'jazz-react';
 import { Link } from 'react-router';
 
 import { Button } from '#/components/ui';

@@ -9,7 +9,7 @@ type ProjectsProps = {
 
 export function Projects({ profile }: ProjectsProps) {
   const projects = profile.projects?.filter(
-    (project): project is Loaded<typeof Project> => project !== null,
+    (project: any): project is Loaded<typeof Project> => project !== null,
   );
 
   if (!projects || projects.length === 0) {
@@ -23,7 +23,7 @@ export function Projects({ profile }: ProjectsProps) {
     >
       <h3 className="text-md font-sans">Projects</h3>
       <div className="space-y-6">
-        {projects.map((project) => {
+        {projects.map((project: any) => {
           const displayTitle = project.client
             ? `${project.title || 'Untitled Project'} @${project.client}`
             : project.title || 'Untitled Project';
