@@ -22,6 +22,21 @@ export interface ApiError {
   details?: any;
 }
 
+export interface UserDetailsResponse {
+  jazzAccountId: string;
+  nickname?: string;
+  exists: boolean;
+  nicknameStatus: {
+    hasNickname: boolean;
+    isRegistered: boolean;
+    registrationDate?: string;
+    canRegisterNickname: boolean;
+  };
+  publicData?: {
+    name?: string;
+  };
+}
+
 export async function checkNicknameAvailability(nickname: string): Promise<CheckAvailabilityResponse> {
   const response = await fetch(`${API_BASE_URL}/checkAvailability`, {
     method: 'POST',
@@ -52,4 +67,14 @@ export async function registerNickname(request: RegisterRequest): Promise<void> 
     const errorData: ApiError = await response.json();
     throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
   }
+}
+
+export async function getUserDetails(jazzAccountId: string): Promise<UserDetailsResponse> {
+  const response = await fetch(`${API_BASE_URL}/users/${jazzAccountId}`);
+
+  if (!response.ok) {
+    const errorData: ApiError = await response.json();
+    throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
 }
