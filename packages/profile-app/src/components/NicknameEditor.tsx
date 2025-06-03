@@ -90,7 +90,7 @@ const NicknameEditor: React.FC<NicknameEditorProps> = ({
 
     if (buttonState === 'View') {
       if (nickname) {
-        navigate(`/@${nickname}`);
+        navigate(`/${nickname}`);
       }
     } else if (buttonState === 'Update') {
       setIsLoading(true);
@@ -104,7 +104,7 @@ const NicknameEditor: React.FC<NicknameEditorProps> = ({
         if (success) {
           // Optionally, update currentNickname state here if the parent component relies on it
           // Or expect parent to refetch/update based on navigation or other signals
-          navigate(`/@${nickname}`);
+          navigate(`/${nickname}`);
         } else {
           // This path might not be hit if updateUserNickname throws an error for non-success cases
           setError('Failed to update nickname.');

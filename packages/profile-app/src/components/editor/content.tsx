@@ -38,6 +38,7 @@ export function ProfileEditor() {
   const navigate = useNavigate();
 
   const handleCloseEditor = () => {
+    // TODO: get nickname and navigate to /:nickname
     navigate('/profile');
   };
 

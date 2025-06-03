@@ -1,10 +1,12 @@
 // packages/profile-app/src/lib/api.ts
 
-const API_BASE_URL = 'http://localhost:3000'; // Assuming APIs are served from the same origin or proxied
+// TODO: Make this configurable at build-time via Vite
+const API_BASE_URL = 'http://localhost:3000';
 
 interface UserDetails {
   jazzAccountId: string;
   nickname?: string;
+  requestedNickname?: string;
   exists: boolean;
   nicknameStatus: {
     hasNickname: boolean;
@@ -12,7 +14,33 @@ interface UserDetails {
     registrationDate?: string; // Or Date
     canRegisterNickname: boolean;
   };
-  publicData?: any; // Define further if needed
+  publicData?: {
+    name: string;
+    bio?: string;
+    avatar?: string;
+    nickname?: string;
+    socialLinks?: {
+      github?: string;
+      twitter?: string;
+      website?: string;
+    };
+    projects?: Array<{
+      title: string;
+      year: string;
+      client?: string;
+      link?: string;
+      description?: string;
+    }>;
+    workExp?: Array<{
+      title: string;
+      company: string;
+      location?: string;
+      url?: string;
+      description?: string;
+      from: string;
+      to?: string;
+    }>;
+  };
 }
 
 interface CheckAvailabilityResponse {
@@ -21,21 +49,182 @@ interface CheckAvailabilityResponse {
   takenBy?: string;
 }
 
-export async function fetchUserDetails(
-  accountId: string,
-): Promise<UserDetails> {
-  const response = await fetch(`${API_BASE_URL}/users/${accountId}`);
+/**
+ * Fetch user details by Jazz Account ID, nickname, or both for validation.
+ *
+ * @param options - Query options
+ * @param options.accountId - The Jazz Account ID to look up (optional)
+ * @param options.nickname - The registered nickname to resolve (optional)
+ * @returns Promise resolving to user details including profile data and nickname status
+ *
+ * @example
+ * // Fetch by account ID only
+ * const user = await fetchUserDetails({ accountId: 'co_zdpuB2Ww8jKvjq7Kp9M4N5o6P7q8R9s0T' });
+ *
+ * @example
+ * // Fetch by nickname only
+ * const user = await fetchUserDetails({ nickname: 'john_doe' });
+ *
+ * @example
+ * // Fetch with validation (nickname must be owned by account)
+ * const user = await fetchUserDetails({
+ *   accountId: 'co_zdpuB2Ww8jKvjq7Kp9M4N5o6P7q8R9s0T',
+ *   nickname: 'john_doe'
+ * });
+ *
+ * @throws {Error} When neither accountId nor nickname is provided
+ * @throws {Error} When API request fails with non-2xx status
+ */
+export async function fetchUserDetails(options: {
+  accountId?: string;
+  nickname?: string;
+}): Promise<UserDetails> {
+  const { accountId, nickname } = options;
+
+  if (!accountId && !nickname) {
+    throw new Error('Either accountId or nickname must be provided');
+  }
+
+  const searchParams = new URLSearchParams();
+  if (accountId) {
+    searchParams.append('jazzAccountId', accountId);
+  }
+  if (nickname) {
+    searchParams.append('nickname', nickname);
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/users?${searchParams.toString()}`,
+  );
   if (!response.ok) {
     const errorData = await response
       .json()
       .catch(() => ({ message: 'Failed to fetch user details' }));
     console.error('API Error fetchUserDetails:', errorData);
+
     throw new Error(
       errorData.message ||
-        `Failed to fetch user details for ${accountId}. Status: ${response.status}`,
+        errorData.error ||
+        `Failed to fetch user details. Status: ${response.status}`,
     );
   }
   return response.json();
+}
+
+/**
+ * Convenience function to fetch user details by Jazz Account ID only.
+ *
+ * @param accountId - The Jazz Account ID to look up
+ * @returns Promise resolving to user details
+ *
+ * @example
+ * const user = await fetchUserDetailsByAccountId('co_zdpuB2Ww8jKvjq7Kp9M4N5o6P7q8R9s0T');
+ */
+export async function fetchUserDetailsByAccountId(
+  accountId: string,
+): Promise<UserDetails> {
+  return fetchUserDetails({ accountId });
+}
+
+/**
+ * Convenience function to fetch user details by nickname only.
+ * Resolves the nickname to an account ID internally.
+ *
+ * @param nickname - The registered nickname to look up
+ * @returns Promise resolving to user details
+ *
+ * @example
+ * const user = await fetchUserDetailsByNickname('john_doe');
+ */
+export async function fetchUserDetailsByNickname(
+  nickname: string,
+): Promise<UserDetails> {
+  return fetchUserDetails({ nickname });
+}
+
+/**
+ * Convenience function to fetch user details with nickname ownership validation.
+ * Returns user details - check the response fields to determine validation status.
+ *
+ * @param accountId - The Jazz Account ID that should own the nickname
+ * @param nickname - The nickname that should be owned by the account
+ * @returns Promise resolving to user details with validation information
+ *
+ * @example
+ * const user = await fetchUserDetailsWithValidation(
+ *   'co_zdpuB2Ww8jKvjq7Kp9M4N5o6P7q8R9s0T',
+ *   'john_doe'
+ * );
+ * // Check user.nickname vs user.requestedNickname and user.jazzAccountId for validation
+ */
+export async function fetchUserDetailsWithValidation(
+  accountId: string,
+  nickname: string,
+): Promise<UserDetails> {
+  return fetchUserDetails({ accountId, nickname });
+}
+
+/**
+ * Validates if a nickname is owned by the specified account ID
+ */
+export function isNicknameOwnedByAccount(
+  userDetails: UserDetails,
+  accountId: string,
+  requestedNickname: string
+): boolean {
+  return (
+    userDetails.jazzAccountId === accountId &&
+    userDetails.nickname === requestedNickname
+  );
+}
+
+/**
+ * Gets the actual nickname owned by an account (if any)
+ */
+export function getAccountNickname(
+  userDetails: UserDetails,
+  accountId: string
+): string | null {
+  if (userDetails.jazzAccountId === accountId && userDetails.nickname) {
+    return userDetails.nickname;
+  }
+  return null;
+}
+
+/**
+ * Determines the validation result for a nickname/account combination
+ */
+export function validateNicknameOwnership(
+  userDetails: UserDetails,
+  accountId: string,
+  requestedNickname: string
+): {
+  isValid: boolean;
+  redirectTo?: string;
+  reason: 'valid' | 'wrong_nickname' | 'not_owned' | 'not_found';
+} {
+  // Account owns the requested nickname
+  if (isNicknameOwnedByAccount(userDetails, accountId, requestedNickname)) {
+    return { isValid: true, reason: 'valid' };
+  }
+
+  // Account exists but owns a different nickname
+  const actualNickname = getAccountNickname(userDetails, accountId);
+  if (actualNickname && actualNickname !== requestedNickname) {
+    return {
+      isValid: false,
+      redirectTo: actualNickname,
+      reason: 'wrong_nickname'
+    };
+  }
+
+  // Account doesn't own this nickname
+  if (userDetails.jazzAccountId !== accountId) {
+    return { isValid: false, reason: 'not_owned' };
+  }
+
+  // Nickname not found or other cases
+  return { isValid: false, reason: 'not_found' };
 }
 
 export async function checkNicknameAvailability(

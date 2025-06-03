@@ -8,9 +8,9 @@ import { OnboardingAccount } from "../schemas/profile";
 
 export const userDetailsRoute = createRoute({
   method: "get",
-  path: "/users/{jazzAccountId}",
+  path: "/users",
   request: {
-    params: UserDetailsRequestSchema,
+    query: UserDetailsRequestSchema,
   },
   responses: {
     200: {
@@ -19,7 +19,15 @@ export const userDetailsRoute = createRoute({
           schema: UserDetailsResponseSchema,
         },
       },
-      description: "User details retrieved successfully",
+      description: "User details retrieved successfully - returns complete user profile information including nickname status and public data",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: ErrorResponseSchema,
+        },
+      },
+      description: "Bad request - missing required parameters, invalid parameter format, or nickname/account ID mismatch when both provided",
     },
     404: {
       content: {
@@ -27,7 +35,7 @@ export const userDetailsRoute = createRoute({
           schema: ErrorResponseSchema,
         },
       },
-      description: "User not found",
+      description: "Not found - specified nickname does not exist in the registry or cannot be resolved to an account",
     },
     429: {
       content: {
@@ -35,7 +43,7 @@ export const userDetailsRoute = createRoute({
           schema: ErrorResponseSchema,
         },
       },
-      description: "Too many requests - rate limit exceeded",
+      description: "Too many requests - rate limit exceeded, please wait before making additional requests",
     },
     500: {
       content: {
@@ -43,33 +51,109 @@ export const userDetailsRoute = createRoute({
           schema: ErrorResponseSchema,
         },
       },
-      description: "Internal server error",
+      description: "Internal server error - unexpected server failure during account loading or registry access",
     },
   },
   tags: ["User Management"],
-  summary: "Get user public details",
-  description:
-    "Retrieve public information about a user by their Jazz Account ID, including their nickname and public profile data",
+  summary: "Get user public details by Jazz Account ID or nickname",
+  description: `
+    Flexible endpoint for retrieving public user information. Supports multiple query patterns based on available identifiers:
+
+    **1. Fetch by Jazz Account ID only:**
+    - Query: ?jazzAccountId=account123
+    - Use case: When you have the account ID and want to get profile info + nickname
+    - Example: GET /users?jazzAccountId=co_zdpuB2Ww8jKvjq7Kp9M4N5o6P7q8R9s0T
+
+    **2. Fetch by nickname only:**
+    - Query: ?nickname=john_doe  
+    - Use case: Profile page URLs, user search by handle
+    - Resolves nickname to account ID internally
+    - Example: GET /users?nickname=john_doe
+
+    **3. Fetch with both (validation mode):**
+    - Query: ?jazzAccountId=account123&nickname=john_doe
+    - Use case: Verify nickname ownership, prevent impersonation
+    - Returns error if nickname is not owned by the specified account
+    - Example: GET /users?jazzAccountId=co_zdpuB2Ww8jKvjq7Kp9M4N5o6P7q8R9s0T&nickname=john_doe
+
+    **Query Parameters:**
+    - jazzAccountId (optional): The Jazz Account ID to look up
+    - nickname (optional): The registered nickname to resolve
+    - At least one parameter is required
+
+    **Response Fields:**
+    - jazzAccountId: The resolved Jazz Account ID
+    - nickname: Current registered nickname (if any)
+    - requestedNickname: The nickname used in the request (for transparency)
+    - exists: Whether the user account exists and has data
+    - nicknameStatus: Detailed nickname registration information
+    - publicData: Available profile information (name, bio, projects, etc.)
+
+    **Validation Rules:**
+    - At least one of jazzAccountId or nickname must be provided
+    - If both provided, nickname must be owned by the specified account
+    - Nickname resolution uses the live nickname registry
+    - Non-existent nicknames return 404 error
+  `,
 });
 
-export const userDetailsHandler = (reverseNicknameRegistry: any) => {
+export const userDetailsHandler = (reverseNicknameRegistry: any, nicknameRegistry: any) => {
   return async (c: any) => {
-    let jazzAccountId: string;
+    let jazzAccountId: string | undefined;
+    let requestedNickname: string | undefined;
     
     try {
-      // Safely extract and validate parameters
+      // Safely extract and validate query parameters
       try {
-        const params = c.req.valid("param");
-        jazzAccountId = params?.jazzAccountId;
+        const query = c.req.valid("query");
+        jazzAccountId = query?.jazzAccountId;
+        requestedNickname = query?.nickname;
         
-        if (!jazzAccountId || typeof jazzAccountId !== 'string' || jazzAccountId.trim() === '') {
-          console.warn(`Invalid jazzAccountId provided: ${jazzAccountId}`);
+        // Validate that at least one parameter is provided
+        if ((!jazzAccountId || jazzAccountId.trim() === '') && (!requestedNickname || requestedNickname.trim() === '')) {
+          console.warn(`Neither jazzAccountId nor nickname provided`);
           return c.json({ 
-            error: "Invalid or missing jazzAccountId parameter" 
+            error: "Either jazzAccountId or nickname parameter is required" 
           }, 400);
         }
         
-        jazzAccountId = jazzAccountId.trim();
+        // Clean up parameters
+        if (jazzAccountId) jazzAccountId = jazzAccountId.trim();
+        if (requestedNickname) requestedNickname = requestedNickname.trim();
+        
+        // If nickname is provided, resolve it to jazzAccountId
+        if (requestedNickname) {
+          let resolvedAccountId: string | undefined;
+          try {
+            if (nicknameRegistry && typeof nicknameRegistry === 'object') {
+              resolvedAccountId = nicknameRegistry[requestedNickname];
+            }
+          } catch (registryError) {
+            console.error(`Error accessing nickname registry: ${registryError}`);
+          }
+          
+          if (!resolvedAccountId) {
+            return c.json({ 
+              error: "Nickname not found" 
+            }, 404);
+          }
+          
+          // If both parameters provided, validate they match
+          if (jazzAccountId && jazzAccountId !== resolvedAccountId) {
+            return c.json({ 
+              error: "Provided nickname is not owned by the provided jazzAccountId" 
+            }, 400);
+          }
+          
+          jazzAccountId = resolvedAccountId;
+        }
+        
+        if (!jazzAccountId) {
+          return c.json({ 
+            error: "Unable to resolve user account" 
+          }, 400);
+        }
+        
       } catch (paramError) {
         console.error(`Parameter validation failed: ${paramError}`);
         return c.json({ 
@@ -162,6 +246,7 @@ export const userDetailsHandler = (reverseNicknameRegistry: any) => {
 
           return c.json({
             ...baseResponse,
+            requestedNickname: requestedNickname || undefined,
             publicData: Object.keys(publicData).length > 0 ? publicData : undefined,
             exists: true,
           }, 200);
@@ -169,6 +254,7 @@ export const userDetailsHandler = (reverseNicknameRegistry: any) => {
           // Account doesn't exist or couldn't be loaded
           return c.json({
             ...baseResponse,
+            requestedNickname: requestedNickname || undefined,
             exists: !!nickname, // If they have a nickname, they probably exist
           }, 200);
         }
@@ -179,6 +265,7 @@ export const userDetailsHandler = (reverseNicknameRegistry: any) => {
         return c.json({
           jazzAccountId,
           nickname: nickname || undefined,
+          requestedNickname: requestedNickname || undefined,
           exists: !!nickname,
           nicknameStatus: {
             hasNickname: !!nickname,

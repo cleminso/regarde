@@ -6,7 +6,7 @@ import { AuthButton } from './AuthButton.tsx';
 import NicknameEditor from './components/NicknameEditor.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
 import { Button } from './components/ui/button.tsx';
-import { fetchUserDetails } from './lib/api.ts';
+import { fetchUserDetailsByAccountId } from './lib/api.ts';
 import { OnboardingAccount } from './lib/schema.ts';
 import { APPLICATION_NAME } from './main.tsx';
 
@@ -29,7 +29,7 @@ export function App() {
   useEffect(() => {
     if (isAuthenticated && accountId) {
       setIsLoadingNickname(true);
-      fetchUserDetails(accountId)
+      fetchUserDetailsByAccountId(accountId)
         .then((userDetails) => {
           setCurrentNickname(userDetails.nickname);
           setIsLoadingNickname(false);

@@ -1,46 +1,69 @@
 import { z } from "zod";
 
-export const UserDetailsRequestSchema = z.object({
-  jazzAccountId: z.string().min(1, "Jazz Account ID is required"),
-});
+export const UserDetailsRequestSchema = z
+  .object({
+    jazzAccountId: z.string().min(1).optional().describe("The Jazz Account ID to look up. Format: co_[base58 string]. Example: co_zdpuB2Ww8jKvjq7Kp9M4N5o6P7q8R9s0T"),
+    nickname: z.string().min(1).optional().describe("The registered nickname to resolve to an account. Must be an existing nickname in the registry. Example: john_doe"),
+  })
+  .refine((data) => data.jazzAccountId || data.nickname, {
+    message: "Either jazzAccountId or nickname is required",
+  })
+  .describe("Query parameters for user lookup. Provide either jazzAccountId, nickname, or both for validation.");
 
 export const UserDetailsResponseSchema = z.object({
-  jazzAccountId: z.string(),
-  nickname: z.string().optional(),
-  exists: z.boolean(),
+  jazzAccountId: z.string().describe("The resolved Jazz Account ID for this user"),
+  nickname: z.string().optional().describe("The current registered nickname for this account, if any"),
+  requestedNickname: z.string().optional().describe("The nickname that was used in the request (for transparency when nickname was provided)"),
+  exists: z.boolean().describe("Whether the user account exists and has profile data available"),
   nicknameStatus: z.object({
-    hasNickname: z.boolean(),
-    isRegistered: z.boolean(),
-    registrationDate: z.string().optional(),
-    canRegisterNickname: z.boolean(),
-  }),
-  publicData: z.object({
-    name: z.string(),
-    bio: z.string().optional(),
-    avatar: z.string().optional(),
-    socialLinks: z.object({
-      github: z.string().optional(),
-      twitter: z.string().optional(),
-      website: z.string().optional(),
-    }).optional(),
-    projects: z.array(z.object({
-      title: z.string(),
-      year: z.string(),
-      client: z.string().optional(),
-      link: z.string().optional(),
-      description: z.string().optional(),
-    })).optional(),
-    workExp: z.array(z.object({
-      title: z.string(),
-      from: z.string(),
-      to: z.string().optional(),
-      company: z.string(),
-      location: z.string().optional(),
-      url: z.string().optional(),
-      description: z.string().optional(),
-    })).optional(),
-  }).optional(),
-});
+    hasNickname: z.boolean().describe("Whether this account has a registered nickname"),
+    isRegistered: z.boolean().describe("Whether this account is registered in the nickname system (same as hasNickname)"),
+    registrationDate: z.string().optional().describe("When the nickname was registered (not currently tracked)"),
+    canRegisterNickname: z.boolean().describe("Whether this account can register a new nickname (inverse of hasNickname)"),
+  }).describe("Detailed information about the nickname registration status for this account"),
+  publicData: z
+    .object({
+      name: z.string().describe("The user's display name"),
+      bio: z.string().optional().describe("User's biography or description"),
+      avatar: z.string().optional().describe("URL or identifier for the user's profile picture"),
+      socialLinks: z
+        .object({
+          github: z.string().optional().describe("GitHub username or profile URL"),
+          twitter: z.string().optional().describe("Twitter/X handle or profile URL"),
+          website: z.string().optional().describe("Personal website URL"),
+        })
+        .optional()
+        .describe("Collection of social media and web presence links"),
+      projects: z
+        .array(
+          z.object({
+            title: z.string().describe("Project name or title"),
+            year: z.string().describe("Year the project was completed or started"),
+            client: z.string().optional().describe("Client or organization the project was for"),
+            link: z.string().optional().describe("URL to view the project (portfolio, demo, etc.)"),
+            description: z.string().optional().describe("Detailed description of the project"),
+          }),
+        )
+        .optional()
+        .describe("Array of user's portfolio projects"),
+      workExp: z
+        .array(
+          z.object({
+            title: z.string().describe("Job title or position name"),
+            from: z.string().describe("Start date of employment (flexible format)"),
+            to: z.string().optional().describe("End date of employment (optional for current positions)"),
+            company: z.string().describe("Company or organization name"),
+            location: z.string().optional().describe("Work location (city, remote, etc.)"),
+            url: z.string().optional().describe("Company website or LinkedIn profile URL"),
+            description: z.string().optional().describe("Description of role and responsibilities"),
+          }),
+        )
+        .optional()
+        .describe("Array of work experience entries"),
+    })
+    .optional()
+    .describe("Public profile information including bio, projects, work experience, and social links. Only present if user has set up their profile."),
+}).describe("Complete user details response including account info, nickname status, and public profile data");
 
 export type UserDetailsRequest = z.infer<typeof UserDetailsRequestSchema>;
 export type UserDetailsResponse = z.infer<typeof UserDetailsResponseSchema>;

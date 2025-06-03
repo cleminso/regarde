@@ -4,8 +4,7 @@ import { Link } from 'react-router';
 import { Button } from '#/components/ui';
 
 export function NotFoundPage() {
-  const isAuthenticated = useIsAuthenticated();
-  const homePath = isAuthenticated ? '/profile' : '/';
+  const homePath = '/';
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>

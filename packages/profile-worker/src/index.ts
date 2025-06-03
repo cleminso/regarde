@@ -145,13 +145,13 @@ async function main() {
 
   const safeUserDetailsHandler = async (c: any) => {
     try {
-      return await userDetailsHandler(reverseNicknameRegistry)(c);
+      return await userDetailsHandler(reverseNicknameRegistry, nicknameRegistry)(c);
     } catch (error) {
       console.error("Error in userDetailsHandler:", error);
       return c.json(
         {
           error: "Internal server error",
-          jazzAccountId: c.req.param("jazzAccountId") || "unknown",
+          jazzAccountId: c.req.query("jazzAccountId") || "unknown",
           exists: false,
         },
         500,
