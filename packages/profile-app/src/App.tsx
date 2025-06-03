@@ -1,10 +1,10 @@
 import { useAccount, useIsAuthenticated, usePasskeyAuth } from 'jazz-react';
-import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { AuthButton } from './AuthButton.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
 import { Button } from './components/ui/button.tsx';
+import { LandingNicknameForm } from './components/editor/general/LandingNicknameForm.tsx';
 import { OnboardingAccount } from './lib/schema.ts';
 import { APPLICATION_NAME } from './main.tsx';
 
@@ -37,12 +37,6 @@ export function App() {
     }
   };
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/profile', { replace: true });
-    }
-  }, [isAuthenticated, navigate]);
-
   return (
     <>
       {/* Header from Layout.tsx */}
@@ -69,14 +63,19 @@ export function App() {
         </nav>
       </header>
 
-      <main className="container mt-16 flex flex-col">
-        {isAuthenticated ? (
-          <div className="content-center">
-            <h1 className="text-center">
-              Welcome{me?.profile?.name ? <>, {me.profile.name}</> : ''}!
-            </h1>
-          </div>
-        ) : (
+      <main className="container mt-16 flex flex-col items-center">
+        {isAuthenticated && me?.profile && me.id ? (
+          <LandingNicknameForm
+            profile={me.profile}
+            accountId={me.id}
+            triggerSyncIndicator={() => {
+              // TODO: This is a placeholder.
+              // Implement proper sync indicator logic if required for API calls,
+              // or adapt LandingNicknameForm/useNickname to use internal loading states.
+              console.warn('triggerSyncIndicator not implemented in App.tsx for LandingNicknameForm');
+            }}
+          />
+        ) : !isAuthenticated ? (
           <div className="flex flex-col items-center text-center gap-6 py-12">
             <h1 className="text-4xl font-sans">profile.jazz.dev</h1>
             <p className="text-lg text-muted-foreground max-w-md">
@@ -96,6 +95,11 @@ export function App() {
                 Register Handle
               </Button>
             </div>
+          </div>
+        ) : (
+          // Authenticated, but profile or id is still loading
+          <div className="py-12 text-center">
+            <p className="text-lg text-muted-foreground">Loading profile...</p>
           </div>
         )}
       </main>
