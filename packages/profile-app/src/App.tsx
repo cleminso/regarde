@@ -1,6 +1,6 @@
 import { useAccount, useIsAuthenticated, usePasskeyAuth } from 'jazz-react';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router';
 
 import { AuthButton } from './AuthButton.tsx';
 import NicknameEditor from './components/NicknameEditor.tsx';
@@ -17,7 +17,9 @@ export function App() {
   const accountId = me?.id;
   const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
-  const [currentNickname, setCurrentNickname] = useState<string | undefined>(undefined);
+  const [currentNickname, setCurrentNickname] = useState<string | undefined>(
+    undefined,
+  );
   const [isLoadingNickname, setIsLoadingNickname] = useState(false);
 
   const auth = usePasskeyAuth({
@@ -27,13 +29,15 @@ export function App() {
   useEffect(() => {
     if (isAuthenticated && accountId) {
       setIsLoadingNickname(true);
-       fetchUserDetails(accountId).then(userDetails => {
-         setCurrentNickname(userDetails.nickname);
-        setIsLoadingNickname(false);
-      }).catch(err => {
-        console.error("Failed to fetch user details", err);
-        setIsLoadingNickname(false);
-      });
+      fetchUserDetails(accountId)
+        .then((userDetails) => {
+          setCurrentNickname(userDetails.nickname);
+          setIsLoadingNickname(false);
+        })
+        .catch((err) => {
+          console.error('Failed to fetch user details', err);
+          setIsLoadingNickname(false);
+        });
     } else {
       // Clear nickname if user logs out or accountId is not available
       setCurrentNickname(undefined);
@@ -43,7 +47,7 @@ export function App() {
   const handleLogin = async () => {
     try {
       await auth.logIn();
-      navigate('/profile');
+      // navigate('/profile');
     } catch (error) {
       console.error('Login failed:', error);
     }
@@ -52,7 +56,7 @@ export function App() {
   const handleCreateProfile = async () => {
     try {
       await auth.signUp('');
-      navigate('/edit');
+      // navigate('/edit');
     } catch (error) {
       console.error('Sign up failed:', error);
     }
@@ -61,7 +65,7 @@ export function App() {
   useEffect(() => {
     // This useEffect handles redirection, so NicknameEditor will be on the /profile page effectively
     if (isAuthenticated) {
-      navigate('/profile', { replace: true });
+      // navigate('/profile', { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
@@ -69,15 +73,20 @@ export function App() {
   // This logic is simplified; actual app might have routes for /profile
   // For now, NicknameEditor is added to the authenticated view.
   const renderAuthenticatedContent = () => {
-     // Add a guard in case accountId is somehow not available yet, though `isAuthenticated && accountId` check above should cover
-     if (!accountId) return <p>Account details are not available yet.</p>;
+    // Add a guard in case accountId is somehow not available yet, though `isAuthenticated && accountId` check above should cover
+    if (!accountId) return <p>Account details are not available yet.</p>;
     if (isLoadingNickname) {
       return <p>Loading nickname details...</p>;
     }
     return (
-      <section style={{ marginTop: '20px', padding: '20px', border: '1px solid #ccc' }}>
+      <section
+        style={{ marginTop: '20px', padding: '20px', border: '1px solid #ccc' }}
+      >
         <h2>Manage Your Nickname</h2>
-        <NicknameEditor accountId={accountId} currentNickname={currentNickname} />
+        <NicknameEditor
+          accountId={accountId}
+          currentNickname={currentNickname}
+        />
       </section>
     );
   };

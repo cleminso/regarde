@@ -1,7 +1,7 @@
 'use client';
 
 import { useAccount, usePasskeyAuth } from 'jazz-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { Button } from './components/ui/button';
 import { OnboardingAccount } from './lib/schema';
@@ -35,7 +35,7 @@ export function AuthButton() {
         size="sm"
         onClick={() => {
           auth.logIn().then(() => {
-            navigate('/profile');
+            // navigate('/profile');
           });
         }}
       >

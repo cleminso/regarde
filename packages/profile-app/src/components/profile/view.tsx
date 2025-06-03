@@ -1,11 +1,14 @@
 import { useAccount } from 'jazz-react';
 import { Loaded } from 'jazz-tools';
+import { useParams } from 'react-router';
 
 import { OnboardingAccount, OnboardingProfile } from '#/lib/schema.ts';
 import { ProfileHeader } from './header.tsx';
 import { About, Contact, Projects, WorkExp } from './index.tsx';
 
 export function ProfileView() {
+  const { nickname } = useParams();
+  console.log('Nickname', nickname);
   const { me } = useAccount(OnboardingAccount, {
     resolve: {
       profile: {

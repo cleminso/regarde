@@ -1,6 +1,6 @@
 import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { useEditProfile } from '../../lib/hook/useEditProfile.ts';
 import { Project, WorkExp } from '../../lib/schema.ts';

@@ -1,6 +1,6 @@
 import { Loaded } from 'jazz-tools';
 import { MoreHorizontalIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { OnboardingProfile } from '#/lib/schema.ts';
 import { Button } from '../ui/button.tsx';

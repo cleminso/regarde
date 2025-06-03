@@ -3,7 +3,7 @@ import { JazzProvider } from 'jazz-react';
 import { InstanceOfSchema } from 'jazz-tools';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router';
 
 import { ThemeProvider } from './components/theme-provider.tsx';
 import { apiKey } from './lib/apiKey.ts';
@@ -33,6 +33,11 @@ createRoot(document.getElementById('root')!).render(
         sync={{
           peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
         }}
+        guestMode={false}
+        onLogOut={() => {
+          console.log('Going back to /');
+          window.location.href = '/';
+        }}
         AccountSchema={OnboardingAccount}
       >
         <BrowserRouter>
@@ -40,14 +45,13 @@ createRoot(document.getElementById('root')!).render(
           <Routes>
             <Route path="/" element={<HomePage />} />
 
-            <Route element={<ProtectedRoute />}>
-              <Route element={<AppLayout />}>
-                <Route path="/edit" element={<EditorPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/:nickname" element={<AppLayout />}>
+              <Route index element={<ProfilePage />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="edit" element={<EditorPage />} />
               </Route>
             </Route>
-            {/* Route for viewing profiles by nickname */}
-            <Route path="/@:nickname" element={<ProfilePage />} />
+
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>

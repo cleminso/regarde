@@ -1,5 +1,5 @@
 import { useIsAuthenticated } from 'jazz-react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router';
 
 export function ProtectedRoute() {
   const isAuthenticated = useIsAuthenticated();

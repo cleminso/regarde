@@ -1,5 +1,5 @@
 import { useAccount, useIsAuthenticated } from 'jazz-react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router';
 
 import { AuthButton } from './AuthButton.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
