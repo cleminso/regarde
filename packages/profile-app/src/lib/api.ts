@@ -97,12 +97,12 @@ export async function fetchUserDetails(options: {
   const response = await fetch(
     `${API_BASE_URL}/users?${searchParams.toString()}`,
   );
-  
+
   // Handle successful responses
   if (response.ok) {
     return response.json();
   }
-  
+
   // Handle 400 and 404 as valid data for validation scenarios
   if (response.status === 400 || response.status === 404) {
     try {
@@ -121,12 +121,12 @@ export async function fetchUserDetails(options: {
         nicknameStatus: {
           hasNickname: false,
           isRegistered: false,
-          canRegisterNickname: false
-        }
+          canRegisterNickname: false,
+        },
       };
     }
   }
-  
+
   // Handle other error cases
   const errorData = await response
     .json()
@@ -199,7 +199,7 @@ export async function fetchUserDetailsWithValidation(
 export function isNicknameOwnedByAccount(
   userDetails: UserDetails,
   accountId: string,
-  requestedNickname: string
+  requestedNickname: string,
 ): boolean {
   return (
     userDetails.jazzAccountId === accountId &&
@@ -212,7 +212,7 @@ export function isNicknameOwnedByAccount(
  */
 export function getAccountNickname(
   userDetails: UserDetails,
-  accountId: string
+  accountId: string,
 ): string | null {
   if (userDetails.jazzAccountId === accountId && userDetails.nickname) {
     return userDetails.nickname;
@@ -226,7 +226,7 @@ export function getAccountNickname(
 export function validateNicknameOwnership(
   userDetails: UserDetails,
   accountId: string,
-  requestedNickname: string
+  requestedNickname: string,
 ): {
   isValid: boolean;
   redirectTo?: string;
@@ -248,7 +248,7 @@ export function validateNicknameOwnership(
     return {
       isValid: false,
       redirectTo: actualNickname,
-      reason: 'wrong_nickname'
+      reason: 'wrong_nickname',
     };
   }
 

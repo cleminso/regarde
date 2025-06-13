@@ -8,7 +8,11 @@
 
 # Learn some <span className="sr-only">Jazz</span> <JazzLogo className="h-[41px] -ml-0.5 -mt-[3px] inline" />
 
-Welcome to the Jazz documentation!
+**Jazz is a toolkit for building backendless apps**. You get data without needing a database — plus auth, permissions, files and multiplayer without needing a backend. Jazz lets you do everything right from the frontend and you'll ship better apps, faster.
+
+Instead of wrestling with databases, APIs, and server infrastructure, you work with **CoValues** ("collaborative values") — your new cloud-synced building blocks that feel like local state but automatically sync across all devices and users in real-time.
+
+---
 
 **Note:** We just released [Jazz 0.14.0](/docs/upgrade/0-14-0) with a bunch of breaking changes and are still cleaning the docs up - see the [upgrade guide](/docs/upgrade/0-14-0) for details.
 
@@ -22,40 +26,47 @@ npx create-jazz-app@latest --api-key you@example.com
 ```
 </CodeGroup>
 
-Or set up Jazz yourself, using the following instructions for your framework of choice:
-
-- [React](/docs/react/project-setup)
-- [Next.js](/docs/react/project-setup#nextjs)
-- [React Native](/docs/react-native/project-setup)
-- [React Native Expo](/docs/react-native-expo/project-setup)
-- [Vue](/docs/vue/project-setup)
-- [Svelte](/docs/svelte/project-setup)
-
 {/_ <ContentByFramework framework="react">
 Or you can follow this [React step-by-step guide](/docs/react/guide) where we walk you through building an issue tracker app.
 </ContentByFramework> _/}
 
-## Example apps
+## Why Jazz is different
 
-You can also find [example apps](/examples) with code most similar to what you want to build. These apps
-make use of different features such as auth, file upload, and more.
+Most apps rebuild the same thing: shared state that syncs between users and devices. Jazz starts from that shared state, giving you:
+
+- **No backend required** — Focus on building features, not infrastructure
+- **Real-time sync** — Changes appear everywhere immediately
+- **Multiplayer by default** — Collaboration just works
+- **Local-first** — Your app works offline and feels instant
+
+Think Figma, Notion, or Linear — but you don't need years to build a custom stack.
+
+## How it works
+
+1. **Define your data** with CoValues schemas
+2. **Connect to sync infrastructure** (Jazz Cloud or self-hosted)
+3. **Create and edit CoValues** like normal objects
+4. **Get automatic sync and persistence** across all devices and users
+
+Your UI updates instantly on every change, everywhere. It's like having reactive local state that happens to be shared with the world.
+
+## Ready to see Jazz in action?
+
+Have a look at our [example apps](/examples) for inspiration and to see what's possible with Jazz. From real-time chat and collaborative editors to file sharing and social features — these are just the beginning of what you can build.
+
+## Core concepts
+
+Learn how to structure your data using [collaborative values](/docs/schemas/covalues) — the building blocks that make Jazz apps work.
 
 ## Sync and storage
 
-Sync and persist your data by setting up a [sync and storage infrastructure](/docs/sync-and-storage) using Jazz Cloud, or do it yourself.
+Sync and persist your data by setting up [sync and storage infrastructure](/docs/sync-and-storage) using Jazz Cloud, or host it yourself.
 
-## Collaborative values
-
-Learn how to structure your data using [collaborative values](/docs/schemas/covalues).
-
-## LLM Docs
+## Going deeper
 
 Get better results with AI by [importing the Jazz docs](/docs/ai-tools) into your context window.
 
-## Get support
-
-If you have any questions or need assistance, please don't hesitate to reach out to us on [Discord](https://discord.gg/utDMjHYg42).
-We would love to help you get started.
+If you have any questions or need assistance, please don't hesitate to reach out to us on [Discord](https://discord.gg/utDMjHYg42). We'd love to help you get started.
 
 #### Example apps
 
@@ -77,6 +88,19 @@ That's why we've designed Jazz with longevity in mind from the start:
 - We're designing the protocol as an open specification
 
 This approach creates a foundation that can continue regardless of any single company's involvement. The local-first architecture means your apps will always work, even offline, and your data remains yours.
+
+## How secure is my data?
+
+Jazz encrypts all your data by default using modern cryptographic standards. Every transaction is cryptographically signed, and data is encrypted using industry-standard algorithms including Blake3 hashing, ed25519 signatures, and xsalsa20 stream ciphers.
+
+Key features of Jazz's security:
+
+- **Privacy by default**: Your data is encrypted even on Jazz Cloud servers
+- **Automatic key rotation**: When members are removed from Groups, encryption keys rotate automatically
+- **Verifiable authenticity**: Every change is cryptographically signed
+- **Zero-trust architecture**: Only people you explicitly grant access can read your data
+
+For technical details, see our [encryption documentation](/docs/resources/encryption).
 
 ### Project setup
 
@@ -217,6 +241,45 @@ If you're using `pnpm`, you'll need to make sure that your expo app's `package.j
 </CodeGroup>
 
 For more information, refer to [this Expo monorepo example](https://github.com/byCedric/expo-monorepo-example#pnpm-workarounds).
+
+### Add polyfills
+
+Create a file `polyfills.js` at the project root with the following content:
+
+<CodeGroup>
+```ts twoslash
+// @noErrors: 7016
+// polyfills.js
+polyfillGlobal("Buffer", () => Buffer); // polyfill Buffer
+
+polyfillGlobal("ReadableStream", () => ReadableStream); // polyfill ReadableStream
+
+````
+</CodeGroup>
+
+Update `index.js`:
+
+<CodeGroup>
+```ts twoslash
+// @noErrors: 2307
+// index.js
+
+AppRegistry.registerComponent(appName, () => App);
+````
+
+</CodeGroup>
+
+Lastly, ensure that the `"main"` field in your `package.json` points to `index.js`:
+
+<CodeGroup>
+```json
+// package.json
+{
+  "main": "index.js",
+  ...
+}
+```
+</CodeGroup>
 
 ## Authentication
 
@@ -507,7 +570,7 @@ npx pod-install
 
 ### react Implementation
 
-# Installation and Setup
+# React Installation and Setup
 
 Add Jazz to your React application in minutes. This setup covers standard React apps, Next.js, and gives an overview of experimental SSR approaches.
 
@@ -927,7 +990,8 @@ You can use `startWorker` from `jazz-nodejs` to start a Server Worker. Similarly
 
 <CodeGroup>
 ```ts twoslash
-class MyWorkerAccount extends Account {}
+const MyWorkerAccount = co.account();
+type MyWorkerAccount = co.loaded<typeof MyWorkerAccount>;
 // ---cut---
 
 const { worker } = await startWorker({
@@ -958,7 +1022,7 @@ What's less clear is how you can trigger this work to happen.
 
 ### svelte Implementation
 
-# Svelte Installation
+# Svelte Installation and Setup
 
 Jazz can be used with Svelte or in a SvelteKit app.
 
@@ -1305,7 +1369,7 @@ See the full example [here](https://github.com/garden-co/jazz/tree/main/examples
 
 #### Sync and storage
 
-# Sync and storage
+# Sync and storage: Jazz Cloud or self-hosted
 
 ## Using Jazz Cloud
 
@@ -1330,7 +1394,7 @@ Jazz Cloud will
 
   Once we support per-app API keys, we'll email you an API key you can use instead.
 
-## Running your own sync server
+## Self-hosting your sync server
 
 You can run your own sync server using:
 
@@ -1396,7 +1460,8 @@ You can use `startWorker` from `jazz-nodejs` to start a Server Worker. Similarly
 
 <CodeGroup>
 ```ts twoslash
-class MyWorkerAccount extends Account {}
+const MyWorkerAccount = co.account();
+type MyWorkerAccount = co.loaded<typeof MyWorkerAccount>;
 // ---cut---
 
 const { worker } = await startWorker({
@@ -1538,6 +1603,63 @@ Jazz for Expo includes built-in local persistence using SQLite. Following Expo's
 
 Local persistence is enabled by default with no additional configuration required. Your data will automatically persist across app restarts.
 
+## Quick Crypto
+
+For accelerated crypto operations, you can use the `RNQuickCrypto` crypto provider.
+
+To use it, install the following Packages:
+
+<CodeGroup>
+```bash
+pnpm add react-native-quick-crypto@1.0.0-beta.18 react-native-nitro-modules
+````
+
+</CodeGroup>
+
+Then add the following to your `JazzProvider`:
+
+<CodeGroup>
+```tsx twoslash
+// @noErrors: 2307 2322
+function SignInScreen({ auth }: { auth: any }) {
+  return null;
+}
+// ---cut-before---
+
+function MyJazzProvider({ children }: { children: ReactNode }) {
+return (
+<JazzProvider
+sync={{ peer: "wss://cloud.jazz.tools/?key=your-api-key" }}
+CryptoProvider={RNQuickCrypto} >
+{children}
+</JazzProvider>
+);
+}
+
+````
+</CodeGroup>
+
+For configuration, use the RNQC Expo config plugin:
+
+<CodeGroup>
+```json twoslash
+// app.json
+{
+  "expo": {
+    "plugins": [
+      [
+        "react-native-quick-crypto",
+        {
+          "sodiumEnabled": true
+        }
+      ]
+    ]
+  }
+}
+````
+
+</CodeGroup>
+
 ---
 
 ### react-native Implementation
@@ -1561,24 +1683,23 @@ Wrap your app components with the `<JazzProvider />` component:
 // App.tsx
 
 export function MyJazzProvider({ children }: { children: React.ReactNode }) {
-  return (
-    <JazzProvider
-      sync={{ peer: "wss://cloud.jazz.tools/?key=you@example.com" }}
-      AccountSchema={MyAppAccount}
-    >
-      {children}
-    </JazzProvider>
-  );
+return (
+<JazzProvider
+sync={{ peer: "wss://cloud.jazz.tools/?key=you@example.com" }}
+AccountSchema={MyAppAccount} >
+{children}
+</JazzProvider>
+);
 }
 
 // Register the Account schema so `useAccount` returns our custom `MyAppAccount`
 declare module "jazz-react-native" {
-  interface Register {
-    Account: MyAppAccount;
-  }
+interface Register {
+Account: MyAppAccount;
 }
-````
+}
 
+````
 </CodeGroup>
 
 ## Provider Options
@@ -1613,31 +1734,32 @@ function SignInScreen({ auth }: { auth: any }) {
 // Example with PassphraseAuth
 
 function JazzAuthentication({ children }: { children: ReactNode }) {
-const auth = usePassphraseAuth({
-wordlist: englishWordlist,
-});
+  const auth = usePassphraseAuth({
+    wordlist: englishWordlist,
+  });
 
-// If the user is already signed in, render the App
-if (auth.state === "signedIn") {
-return children
-}
+  // If the user is already signed in, render the App
+  if (auth.state === "signedIn") {
+    return children
+  }
 
-// Otherwise, show a sign-in screen
-return <SignInScreen auth={auth} />;
+  // Otherwise, show a sign-in screen
+  return <SignInScreen auth={auth} />;
 }
 
 function AuthenticatedProvider({ children }: { children: ReactNode }) {
-return (
-<JazzProvider
-sync={{ peer: "wss://cloud.jazz.tools/?key=your-api-key" }} >
-<JazzAuthentication>
-{children}
-</JazzAuthentication>
-</JazzProvider>
-);
+  return (
+    <JazzProvider
+      sync={{ peer: "wss://cloud.jazz.tools/?key=your-api-key" }}
+    >
+      <JazzAuthentication>
+        {children}
+      </JazzAuthentication>
+    </JazzProvider>
+  );
 }
-
 ````
+
 </CodeGroup>
 
 ## Local Persistence
@@ -1648,6 +1770,58 @@ Jazz for React Native includes built-in local persistence using SQLite. This imp
 - **Key-Value Storage**: `react-native-mmkv` - A fast key-value storage system
 
 Local persistence is enabled by default with no additional configuration required. Your data will automatically persist across app restarts.
+
+## Quick Crypto
+
+For accelerated crypto operations, you can use the `RNQuickCrypto` crypto provider.
+
+To use it, install the following Packages:
+
+<CodeGroup>
+```bash
+pnpm add react-native-quick-crypto@1.0.0-beta.18 react-native-nitro-modules
+```
+</CodeGroup>
+
+Then add the following to your `JazzProvider`:
+
+<CodeGroup>
+```tsx twoslash
+// @noErrors: 2307 2322
+function SignInScreen({ auth }: { auth: any }) {
+  return null;
+}
+// ---cut-before---
+
+function MyJazzProvider({ children }: { children: ReactNode }) {
+return (
+<JazzProvider
+sync={{ peer: "wss://cloud.jazz.tools/?key=your-api-key" }}
+CryptoProvider={RNQuickCrypto} >
+{children}
+</JazzProvider>
+);
+}
+
+````
+</CodeGroup>
+
+For configuration, add the following settings:
+
+<CodeGroup>
+```ruby twoslash
+# ios/Podfile
+ENV['SODIUM_ENABLED'] = '1'
+````
+
+</CodeGroup>
+and
+<CodeGroup>
+```groovy twoslash
+// android/gradle.properties
+sodiumEnabled=true
+```
+</CodeGroup>
 
 ---
 
@@ -1673,37 +1847,36 @@ The `<JazzProvider />` accepts several configuration options:
 // @filename: schema.ts
 
 export const TodoItem = co.map({
-  title: z.string(),
-  completed: z.boolean(),
+title: z.string(),
+completed: z.boolean(),
 });
 
 export const AccountRoot = co.map({
-  todos: co.list(TodoItem),
+todos: co.list(TodoItem),
 });
 
 export const MyAppAccount = co.account({
-  root: AccountRoot,
-  profile: co.map({ name: z.string() }),
+root: AccountRoot,
+profile: co.map({ name: z.string() }),
 });
 // @filename: app.tsx
 // ---cut---
 // App.tsx
 
 export function MyApp({ children }: { children: React.ReactNode }) {
-  return (
-    <JazzProvider
-      sync={{
+return (
+<JazzProvider
+sync={{
         peer: "wss://cloud.jazz.tools/?key=your-api-key",
         when: "always" // When to sync: "always", "never", or "signedUp"
       }}
-      AccountSchema={MyAppAccount}
-    >
-      {children}
-    </JazzProvider>
-  );
+AccountSchema={MyAppAccount} >
+{children}
+</JazzProvider>
+);
 }
-````
 
+````
 </CodeGroup>
 
 ## Provider Options
@@ -1716,14 +1889,14 @@ The `sync` property configures how your application connects to the Jazz network
 ```tsx twoslash
 
 const syncConfig: SyncConfig = {
-// Connection to Jazz Cloud or your own sync server
-peer: "wss://cloud.jazz.tools/?key=your-api-key",
+  // Connection to Jazz Cloud or your own sync server
+  peer: "wss://cloud.jazz.tools/?key=your-api-key",
 
-// When to sync: "always" (default), "never", or "signedUp"
-when: "always",
+  // When to sync: "always" (default), "never", or "signedUp"
+  when: "always",
 }
-
 ````
+
 </CodeGroup>
 
 See [Authentication States](/docs/authentication/authentication-states#controlling-sync-for-different-authentication-states) for more details on how the `when` property affects synchronization based on authentication state.
@@ -1738,42 +1911,42 @@ The `AccountSchema` property defines your application's account structure:
 // @filename: schema.ts
 
 export const TodoItem = co.map({
-  title: z.string(),
-  completed: z.boolean(),
+title: z.string(),
+completed: z.boolean(),
 });
 
 export const AccountRoot = co.map({
-  todos: co.list(TodoItem),
+todos: co.list(TodoItem),
 });
 
 export const MyAppAccount = co.account({
-  root: AccountRoot,
-  profile: co.map({ name: z.string() }),
+root: AccountRoot,
+profile: co.map({ name: z.string() }),
 });
 
 // @filename: app.tsx
 
 const syncConfig: SyncConfig = {
-  peer: "wss://cloud.jazz.tools/?key=your-api-key",
-  when: "always",
+peer: "wss://cloud.jazz.tools/?key=your-api-key",
+when: "always",
 }
 
 // ---cut---
 // app.tsx
 
 export function MyApp ({ children }: { children: React.ReactNode }) {
-  // Use in provider
-  return (
-    <JazzProvider
+// Use in provider
+return (
+<JazzProvider
       sync={syncConfig}
       AccountSchema={MyAppAccount}
     >
-      {children}
-    </JazzProvider>
-  );
+{children}
+</JazzProvider>
+);
 }
-````
 
+````
 </CodeGroup>
 
 ### Additional Options
@@ -1784,16 +1957,16 @@ The provider accepts these additional options:
 ```tsx twoslash
 
 const syncConfig: SyncConfig = {
-peer: "wss://cloud.jazz.tools/?key=your-api-key",
-when: "always",
+  peer: "wss://cloud.jazz.tools/?key=your-api-key",
+  when: "always",
 }
 
 // ---cut---
 // app.tsx
 export function MyApp ({ children }: { children: React.ReactNode }) {
-return (
-<JazzProvider
-sync={syncConfig}
+  return (
+    <JazzProvider
+      sync={syncConfig}
 
       // Enable guest mode for account-less access
       guestMode={false}
@@ -1815,11 +1988,10 @@ sync={syncConfig}
     >
       {children}
     </JazzProvider>
-
-);
+  );
 }
-
 ````
+
 </CodeGroup>
 
 See [Authentication States](/docs/authentication/authentication-states) for more information on authentication states, guest mode, and handling anonymous accounts.
@@ -1870,16 +2042,16 @@ The `<JazzProvider />` accepts several configuration options:
 </script>
 
 <JazzProvider
-  sync={{
+sync={{
     peer: "wss://cloud.jazz.tools/?key=your-api-key",
     when: "always" // When to sync: "always", "never", or "signedUp"
   }}
-  AccountSchema={MyAppAccount}
->
-  {@render children()}
-</JazzProvider>
-````
+AccountSchema={MyAppAccount}
 
+> {@render children()}
+> </JazzProvider>
+
+````
 </CodeGroup>
 
 ## Provider Options
@@ -1888,6 +2060,7 @@ The `<JazzProvider />` accepts several configuration options:
 
 The `sync` property configures how your application connects to the Jazz network:
 
+
 <CodeGroup>
 ```ts twoslash
 // @filename: src/routes/layout.svelte
@@ -1895,16 +2068,15 @@ The `sync` property configures how your application connects to the Jazz network
 // ---cut---
 
 const syncConfig: SyncConfig = {
-// Connection to Jazz Cloud or your own sync server
-peer: "wss://cloud.jazz.tools/?key=your-api-key",
+  // Connection to Jazz Cloud or your own sync server
+  peer: "wss://cloud.jazz.tools/?key=your-api-key",
 
-// When to sync: "always" (default), "never", or "signedUp"
-when: "always",
+  // When to sync: "always" (default), "never", or "signedUp"
+  when: "always",
 }
-
 ````
-</CodeGroup>
 
+</CodeGroup>
 
 See [Authentication States](/docs/authentication/authentication-states#controlling-sync-for-different-authentication-states) for more details on how the `when` property affects synchronization based on authentication state.
 
@@ -1931,13 +2103,13 @@ The `AccountSchema` property defines your application's account structure:
 </script>
 
 <JazzProvider
-  sync={syncConfig}
-  AccountSchema={MyAppAccount}
->
-  {@render children()}
-</JazzProvider>
-````
+sync={syncConfig}
+AccountSchema={MyAppAccount}
 
+> {@render children()}
+> </JazzProvider>
+
+````
 </CodeGroup>
 
 ### Additional Options
@@ -1952,36 +2124,36 @@ The provider accepts these additional options:
   import { syncConfig } from "$lib/syncConfig";
   let { children } = $props();
 
-// Enable guest mode for account-less access
-const guestMode = false;
+  // Enable guest mode for account-less access
+  const guestMode = false;
 
-// Default name for new user profiles
-const defaultProfileName = "New User";
+  // Default name for new user profiles
+  const defaultProfileName = "New User";
 
-// Handle user logout
-const onLogOut = () => {
-console.log("User logged out");
-};
+  // Handle user logout
+  const onLogOut = () => {
+    console.log("User logged out");
+  };
 
-// Handle anonymous account data when user logs in to existing account
-const onAnonymousAccountDiscarded = (account) => {
-console.log("Anonymous account discarded", account.id);
-// Migrate data here
-return Promise.resolve();
-};
+  // Handle anonymous account data when user logs in to existing account
+  const onAnonymousAccountDiscarded = (account) => {
+    console.log("Anonymous account discarded", account.id);
+    // Migrate data here
+    return Promise.resolve();
+  };
 </script>
 
 <JazzProvider
-sync={syncConfig}
-{guestMode}
-{defaultProfileName}
-{onLogOut}
-{onAnonymousAccountDiscarded}
+  sync={syncConfig}
+  {guestMode}
+  {defaultProfileName}
+  {onLogOut}
+  {onAnonymousAccountDiscarded}
+>
+  {@render children}
+</JazzProvider>
+````
 
-> {@render children}
-> </JazzProvider>
-
-```
 </CodeGroup>
 
 See [Authentication States](/docs/authentication/authentication-states) for more information on authentication states, guest mode, and handling anonymous accounts.
@@ -1993,8 +2165,6 @@ See [Authentication States](/docs/authentication/authentication-states) for more
 ## Need Help?
 
 If you have questions about configuring the Jazz Provider for your specific use case, [join our Discord community](https://discord.gg/utDMjHYg42) for help.
-
-
 
 ### Tools
 
@@ -2028,10 +2198,8 @@ Upload the txt file in your prompt.
 
 <CodeGroup>
 ```
-
 https://jazz.tools/llms-full.txt
-
-````
+```
 </CodeGroup>
 
 ## llms.txt convention
@@ -2043,8 +2211,6 @@ We follow the llms.txt [proposed standard](https://llmstxt.org/) for providing d
 AI is amazing, but it's not perfect. What works well this week could break next week (or be twice as good).
 
 We're keen to keep up with changes in tooling to help support you building the best apps, but if you need help from humans (or you have issues getting set up), please let us know on [Discord](https://discord.gg/utDMjHYg42).
-
-
 
 #### create-jazz-app
 
@@ -2062,8 +2228,7 @@ Create a new Jazz app from a starter template in seconds:
 <CodeGroup>
 ```bash
 npx create-jazz-app@latest --api-key you@example.com
-````
-
+```
 </CodeGroup>
 
 This launches an interactive CLI that guides you through selecting:
@@ -2149,7 +2314,10 @@ When you run `create-jazz-app`, we'll:
 
 [Jazz Inspector](https://inspector.jazz.tools) is a tool to visually inspect a Jazz account or other CoValues.
 
-For now, you can get your account credentials from the `jazz-logged-in-secret` local storage key from within your Jazz app.
+To pass your account credentials, go to your Jazz app, copy the full JSON from the `jazz-logged-in-secret` local storage key,
+and paste it into the Inspector's Account ID field.
+
+Alternatively, you can pass the Account ID and Account Secret separately.
 
 [https://inspector.jazz.tools](https://inspector.jazz.tools)
 
@@ -2161,7 +2329,7 @@ In development mode, you can launch the Inspector from your Jazz app to inspect 
 
 ## Embedding the Inspector widget into your app [!framework=react,svelte,vue,vanilla]
 
-Alternatively, you can embed the Inspector directly into your app, so you don't need to open a separate window.
+You can also embed the Inspector directly into your app, so you don't need to open a separate window.
 
 Install the package.
 
@@ -2706,6 +2874,7 @@ CoValues model JSON with CoMaps and CoLists, but also offer CoFeeds for simple p
 Fundamentally, CoValues are as dynamic and flexible as JSON, but in Jazz you use them by defining fixed schemas to describe the shape of data in your app.
 
 This helps correctness and development speed, but is particularly important...
+
 - when you evolve your app and need migrations
 - when different clients and server workers collaborate on CoValues and need to make compatible changes
 
@@ -2757,6 +2926,7 @@ Group.create()
 );
 
 ````
+
 </CodeGroup>
 
 ## Types of CoValues
@@ -2793,6 +2963,7 @@ const ColorToHex = co.record(z.string(), z.string());
 const ColorToFruit = co.record(z.string(), Fruit);
 
 ````
+
 </CodeGroup>
 
 
@@ -2893,9 +3064,10 @@ min: z.number(),
 max: z.number(),
 });
 
-const WidgetUnion = z.discriminatedUnion([ButtonWidget, SliderWidget]);
+const WidgetUnion = z.discriminatedUnion("type", [ButtonWidget, SliderWidget]);
 
 ````
+
 </CodeGroup>
 
 See the corresponding sections for [creating](/docs/using-covalues/schemaunions#creating-schemaunions),
@@ -2930,7 +3102,6 @@ Here's a quick overview of the primitive types you can use:
 z.string();  // For simple strings
 z.number();  // For numbers
 z.boolean(); // For booleans
-z.null();    // For null
 z.date();    // For dates
 z.literal(["waiting", "ready"]); // For enums
 ```
@@ -2987,6 +3158,7 @@ members: ListOfPeople,
 });
 
 ````
+
 </CodeGroup>
 
 #### Optional References
@@ -3038,6 +3210,7 @@ return ListOfPeople;
 const ListOfPeople = co.list(Person);
 
 ````
+
 </CodeGroup>
 
 Note: similarly, if you use modifiers like `z.optional()` you'll need to help TypeScript along:
@@ -3090,10 +3263,9 @@ dateOfBirth: new Date("1990-01-01"),
 const fullName = getPersonFullName(person);
 const age = getPersonAgeAsOf(person, new Date());
 
-````
+```
 </CodeGroup>
-
-
+```
 
 #### Accounts & migrations
 
@@ -3120,15 +3292,15 @@ const Chat = co.map({});
 // ---cut---
 
 const MyAppRoot = co.map({
-  myChats: co.list(Chat),
+myChats: co.list(Chat),
 });
 
 export const MyAppAccount = co.account({
-  root: MyAppRoot,
-  profile: co.profile(),
+root: MyAppRoot,
+profile: co.profile(),
 });
-````
 
+````
 </CodeGroup>
 
 ### `Account.profile` - public data associated with a user
@@ -3149,7 +3321,8 @@ const Account = co.account({
     name: z.string(),
   }),
 });
-```
+````
+
 </CodeGroup>
 
 If you want to keep the default `co.profile()` schema, but customise your account's private `root`, all you have to do is define a new `root` field in your account schema and use `co.profile()` without options:
@@ -3214,8 +3387,8 @@ root: MyAppRoot,
 profile: MyAppProfile,
 });
 
-class ChatPreview extends React.Component<{ chat: Loaded<typeof Chat> }> {};
-class ContactPreview extends React.Component<{ contact: Loaded<typeof MyAppAccount> }> {};
+class ChatPreview extends React.Component<{ chat: co.loaded<typeof Chat> }> {};
+class ContactPreview extends React.Component<{ contact: co.loaded<typeof MyAppAccount> }> {};
 // ---cut---
 
 function DashboardPageComponent() {
@@ -3297,7 +3470,7 @@ export const MyAppAccount = co.account({
   if (account.profile === undefined) {
     const profileGroup = Group.create();
     // Unlike the root, we want the profile to be publicly readable.
-    profileGroup.addMember("everyone", "reader");
+    profileGroup.makePublic();
 
     account.profile = MyAppProfile.create({
       name: creationProps?.name ?? "New user",
@@ -3661,6 +3834,89 @@ project.coordinator = undefined; // Remove the reference
 ````
 </CodeGroup>
 
+## Running migrations on CoMaps
+
+Migrations are functions that run when a CoMap is loaded, allowing you to update existing data to match new schema versions. Use them when you need to modify the structure of CoMaps that already exist in your app. Unlike [Account migrations](/docs/schemas/accounts-and-migrations#when-migrations-run), CoMap migrations are not run when a CoMap is created.
+
+**Note:** Migrations are run synchronously and cannot be run asynchronously.
+
+Here's an example of a migration that adds the `priority` field to the `Task` CoMap:
+
+<CodeGroup>
+```ts twoslash
+
+// ---cut---
+const Task = co
+  .map({
+    done: z.boolean(),
+    text: co.plainText(),
+    version: z.literal([1, 2]),
+    priority: z.enum(["low", "medium", "high"]), // new field
+  })
+  .withMigration((task) => {
+    if (task.version === 1) {
+      task.priority = "medium";
+      // Upgrade the version so the migration won't run again
+      task.version = 2;
+    }
+  });
+````
+
+</CodeGroup>
+
+### Migration best practices
+
+Design your schema changes to be compatible with existing data:
+
+- **Add, don't change:** Only add new fields; avoid renaming or changing types of existing fields
+- **Make new fields optional:** This prevents errors when loading older data
+- **Use version fields:** Track schema versions to run migrations only when needed
+
+### Migration & reader permissions
+
+Migrations need write access to modify CoMaps. If some users only have read permissions, they can't run migrations on those CoMaps.
+
+**Forward-compatible schemas** (where new fields are optional) handle this gracefully - users can still use the app even if migrations haven't run.
+
+**Non-compatible changes** require handling both schema versions in your app code using discriminated unions.
+
+When you can't guarantee all users can run migrations, handle multiple schema versions explicitly:
+
+<CodeGroup>
+```ts twoslash
+
+// ---cut---
+const TaskV1 = co.map({
+version: z.literal(1),
+done: z.boolean(),
+text: z.string(),
+});
+
+const TaskV2 = co.map({
+// We need to be more strict about the version to make the
+// discriminated union work
+version: z.literal(2),
+done: z.boolean(),
+text: z.string(),
+priority: z.enum(["low", "medium", "high"]),
+}).withMigration((task) => {
+// @ts-expect-error - check if we need to run the migration
+if (task.version === 1) {
+task.version = 2;
+task.priority = "medium";
+}
+});
+
+// Export the discriminated union; because some users might
+// not be able to run the migration
+export const Task = z.discriminatedUnion("version", [
+TaskV1,
+TaskV2,
+]);
+
+````
+</CodeGroup>
+
 ## Best Practices
 
 ### Structuring Data
@@ -3979,7 +4235,7 @@ status: z.literal(["todo", "in-progress", "complete"]),
 const ListOfTasks = co.list(Task);
 
 // React example
-function TaskList({ tasks }: { tasks: Loaded<typeof ListOfTasks> }) {
+function TaskList({ tasks }: { tasks: co.loaded<typeof ListOfTasks> }) {
 return (
 
    <ul>
@@ -4446,8 +4702,8 @@ console.log(entry.madeAt);
 
 Jazz provides two CoValue types for collaborative text editing, collectively referred to as "CoText" values:
 
-- **co.plainText()** for simple text editing without formatting
-- **co.richText()** for rich text with HTML-based formatting (extends co.plainText())
+- **`co.plainText()`** for simple text editing without formatting
+- **`co.richText()`** for rich text with HTML-based formatting (extends `co.plainText()`)
 
 Both types enable real-time collaborative editing of text content while maintaining consistency across multiple users.
 
@@ -4470,7 +4726,7 @@ console.log(note.toString());  // "Meeting notes for Tuesday"
 
 For a full example of CoTexts in action, see [our Richtext example app](https://github.com/garden-co/jazz/tree/main/examples/richtext), which shows plain text and rich text editing.
 
-## co.plainText() vs z.string()
+## `co.plainText()` vs `z.string()`
 
 While `z.string()` is perfect for simple text fields, `co.plainText()` is the right choice when you need:
 
@@ -4727,13 +4983,13 @@ oninput={e => note.applyDiff(e.target.value)}
 
 ## Using Rich Text with ProseMirror
 
-Jazz provides a dedicated plugin for integrating co.richText() with the popular ProseMirror editor. This plugin, [`jazz-richtext-prosemirror`](https://www.npmjs.com/package/jazz-richtext-prosemirror), enables bidirectional synchronization between your co.richText() instances and ProseMirror editors.
+Jazz provides a dedicated plugin for integrating `co.richText()` with the popular ProseMirror editor. This plugin, [`jazz-richtext-prosemirror`](https://www.npmjs.com/package/jazz-richtext-prosemirror), enables bidirectional synchronization between your co.richText() instances and ProseMirror editors.
 
 ### ProseMirror Plugin Features
 
-- **Bidirectional Sync**: Changes in the editor automatically update the co.richText() and vice versa
+- **Bidirectional Sync**: Changes in the editor automatically update the `co.richText()` and vice versa
 - **Real-time Collaboration**: Multiple users can edit the same document simultaneously
-- **HTML Conversion**: Automatically converts between HTML (used by co.richText()) and ProseMirror's document model
+- **HTML Conversion**: Automatically converts between HTML (used by `co.richText()`) and ProseMirror's document model
 
 ### Installation
 
@@ -5763,7 +6019,7 @@ profile: MyProfile,
 MyAccount.withMigration((account, creationProps) => {
 if (account.profile === undefined) {
 const profileGroup = Group.create();
-profileGroup.addMember("everyone", "reader");
+profileGroup.makePublic();
 account.profile = MyProfile.create(
 {
 name: creationProps?.name ?? "New user",
@@ -5861,7 +6117,7 @@ For a complete progressive loading experience, use the `ProgressiveImg` componen
 // ---cut---
 const Image = co.image();
 
-function GalleryView({ image }: { image: Loaded<typeof Image> }) {
+function GalleryView({ image }: { image: co.loaded<typeof Image> }) {
   return (
     <div className="image-container">
       <ProgressiveImg
@@ -5899,7 +6155,7 @@ For more control over image loading, you can implement your own progressive imag
 const Image = co.image();
 // ---cut---
 
-function CustomImageComponent({ image }: { image: Loaded<typeof Image> }) {
+function CustomImageComponent({ image }: { image: co.loaded<typeof Image> }) {
 const {
 src, // Data URI containing the image data as a base64 string,
 // or a placeholder image URI
@@ -6110,7 +6366,7 @@ function GardenPlanner({ projectId }: { projectId: string }) {
   );
 }
 
-function TaskList({ tasks }: { tasks: Loaded<typeof Task>[] }) {
+function TaskList({ tasks }: { tasks: co.loaded<typeof Task>[] }) {
   return (
     <ul>
       {tasks.map((task) => (
@@ -6212,7 +6468,7 @@ const Task = co.map({
 
 const taskId = "co_123";
 // ---cut-before---
-Task.subscribe(taskId, {}, (task: Loaded<typeof Task>) => {
+Task.subscribe(taskId, {}, (task: co.loaded<typeof Task>) => {
   if (task === undefined) {
     console.log("Task is loading...");
   } else if (task === null) {
@@ -6625,11 +6881,11 @@ console.log(friends?.[0]?.dog); // => null
 ````
 </CodeGroup>
 
-## Type Safety with Loaded Type
+## Type Safety with `co.loaded` Type
 
-Jazz provides the `Loaded` type to help you define and enforce the structure of deeply loaded data in your application. This makes it easier to ensure that components receive the data they expect with proper TypeScript validation.
+Jazz provides the `co.loaded` type to help you define and enforce the structure of deeply loaded data in your application. This makes it easier to ensure that components receive the data they expect with proper TypeScript validation.
 
-The `Loaded` type is especially useful when passing data between components, as it guarantees that all necessary nested data has been loaded:
+The `co.loaded` type is especially useful when passing data between components, as it guarantees that all necessary nested data has been loaded:
 
 <ContentByFramework framework="react">
 <CodeGroup>
@@ -6655,7 +6911,7 @@ const Project = co.map({
 
 // ---cut-before---
 // Define a type that includes loaded nested data
-type ProjectWithTasks = Loaded<
+type ProjectWithTasks = co.loaded<
   typeof Project,
   {
     tasks: { $each: true };
@@ -6675,7 +6931,7 @@ function TaskList({ project }: { project: ProjectWithTasks }) {
 }
 
 // For more complex resolutions
-type FullyLoadedProject = Loaded<
+type FullyLoadedProject = co.loaded<
   typeof Project,
   {
     tasks: {
@@ -6728,7 +6984,7 @@ owner: TeamMember,
 
 // ---cut-before---
 // Define a type that includes loaded nested data
-type ProjectWithTasks = Loaded<
+type ProjectWithTasks = co.loaded<
 typeof Project,
 {
 tasks: { $each: true };
@@ -6743,7 +6999,7 @@ return project.tasks.map((task) => task.title).join(`\n - `);
 }
 
 // For more complex resolutions
-type FullyLoadedProject = Loaded<
+type FullyLoadedProject = co.loaded<
 typeof Project,
 {
 tasks: {
@@ -6773,7 +7029,7 @@ console.log(`Subtasks: ${task.subtasks.length}`);
 </CodeGroup>
 </ContentByFramework>
 
-Using the `Loaded` type helps catch errors at compile time rather than runtime, ensuring that your components and functions receive data with the proper resolution depth. This is especially useful for larger applications where data is passed between many components.
+Using the `co.loaded` type helps catch errors at compile time rather than runtime, ensuring that your components and functions receive data with the proper resolution depth. This is especially useful for larger applications where data is passed between many components.
 
 ## Ensuring Data is Loaded
 
@@ -6831,7 +7087,203 @@ async function completeAllTasks(projectId: string) {
 2. **Use framework integrations**: They handle subscription lifecycle automatically
 3. **Clean up subscriptions**: Always store and call the unsubscribe function when you're done
 4. **Handle all loading states**: Check for undefined (loading), null (not found), and success states
-5. **Use the Loaded type**: Add compile-time type safety for components that require specific resolution patterns
+5. **Use the `co.loaded` type**: Add compile-time type safety for components that require specific resolution patterns
+
+#### History
+
+# History
+
+Jazz tracks every change to your data automatically. See who changed what, when they did it, and even look at your data from any point in the past.
+
+See the [version history example](https://github.com/garden-co/jazz/tree/main/examples/version-history) for reference.
+
+Let's use the following schema to see how we can use the edit history.
+
+<CodeGroup>
+  ```ts twoslash
+// ---cut---
+const Task = co.map({
+    title: z.string(),
+    status: z.literal(["todo", "in-progress", "completed"]),
+});
+  ```
+</CodeGroup>
+
+## The \_edits Property
+
+Every CoValue has an `_edits` property that contains the complete history for each field. Here's
+how to get the edit history for `task.status`:
+
+<CodeGroup>
+```ts twoslash
+const me = await createJazzTestAccount();
+
+const Task = co.map({
+title: z.string(),
+status: z.literal(["todo", "in-progress", "completed"]),
+});
+
+const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
+// ---cut---
+// Access edit history for a field
+task.\_edits.status
+// Returns the latest edit
+
+task.\_edits.status?.all
+// Returns array of all edits in chronological order
+
+// Check if edits exist
+if (task.\_edits.status) {
+const name = task.\_edits.status.by?.profile?.name;
+console.log(`Last changed by ${name}`);
+}
+
+````
+</CodeGroup>
+
+## Edit Structure
+
+Each edit contains:
+
+<CodeGroup>
+```ts twoslash
+
+const me = await createJazzTestAccount();
+
+const Task = co.map({
+  title: z.string(),
+  status: z.literal(["todo", "in-progress", "completed"]),
+});
+
+const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
+task.status = "in-progress";
+// ---cut---
+const edit = task._edits.status;
+
+// The edit object contains:
+edit?.value     // The new value: "in-progress"
+edit?.by        // Account that made the change
+edit?.madeAt    // Date when the change occurred
+````
+
+</CodeGroup>
+
+## Accessing History
+
+### Latest Edit
+
+Get the most recent change to a field:
+
+<CodeGroup>
+```ts twoslash
+
+const me = await createJazzTestAccount();
+
+const Task = co.map({
+title: z.string(),
+status: z.literal(["todo", "in-progress", "completed"]),
+});
+
+const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
+// ---cut---
+// Direct access to latest edit
+const latest = task.\_edits.title;
+if (latest) {
+console.log(`Title is now "${latest.value}"`);
+}
+
+````
+</CodeGroup>
+
+### All Edits
+
+Get the complete history for a field:
+
+<CodeGroup>
+```ts twoslash
+
+const me = await createJazzTestAccount();
+
+const Task = co.map({
+  title: z.string(),
+  status: z.literal(["todo", "in-progress", "completed"]),
+});
+
+const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
+task.status = "in-progress";
+task.status = "completed";
+// ---cut---
+// Get all edits (chronologically)
+const allStatusEdits = task._edits.status?.all || [];
+
+allStatusEdits.forEach((edit, index) => {
+  console.log(`Edit ${index}: ${edit.value} at ${edit.madeAt.toISOString()}`);
+});
+// Edit 0: todo at 2025-05-22T13:00:00.000Z
+// Edit 1: in-progress at 2025-05-22T14:00:00.000Z
+// Edit 2: completed at 2025-05-22T15:30:00.000Z
+````
+
+</CodeGroup>
+
+### Initial Values
+
+The first edit contains the initial value:
+
+<CodeGroup>
+```ts twoslash
+
+const me = await createJazzTestAccount();
+
+const Task = co.map({
+title: z.string(),
+status: z.literal(["todo", "in-progress", "completed"]),
+});
+
+const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
+task.status = "in-progress";
+// ---cut---
+const allEdits = task.\_edits.status?.all || [];
+const initialValue = allEdits[0]?.value;
+console.log(`Started as: ${initialValue}`);
+// Started as: todo
+
+````
+</CodeGroup>
+
+### Created Date and Last Updated Date
+
+To show created date and last updated date, use the `_createdAt` and `_lastUpdatedAt` getters.
+
+<CodeGroup>
+```tsx twoslash
+const Task = co.map({
+    title: z.string(),
+    status: z.literal(["todo", "in-progress", "completed"]),
+});
+const task = Task.create({ title: "New task", status: "todo" });
+// ---cut---
+console.log(new Date(task._createdAt));
+console.log(new Date(task._lastUpdatedAt));
+````
+
+</CodeGroup>
+
+## Requirements
+
+- CoValues must be loaded to access history (see [Subscription & Loading](/docs/using-covalues/subscription-and-loading))
+- History is only available for fields defined in your schema
+- Edit arrays are ordered chronologically (oldest to newest)
+
+## Common Patterns
+
+For practical implementations using history, see [History Patterns](/docs/design-patterns/history-patterns):
+
+- Building audit logs
+- Creating activity feeds
+- Implementing undo/redo
+- Showing change indicators
+- Querying historical data
 
 ### Groups, permissions & sharing
 
@@ -6867,14 +7319,13 @@ You can add group members by ID by using `Account.load` and `Group.addMember`.
 
 <CodeGroup>
 ```tsx twoslash
-
-const bobsID = "co_z123" as ID<Account>;
+const bobsID = "co_z123";
 
 // ---cut---
 
 const group = Group.create();
 
-const bob = await Account.load(bobsID);
+const bob = await co.account().load(bobsID);
 
 if (bob) {
   group.addMember(bob, "writer");
@@ -6887,13 +7338,13 @@ if (bob) {
 
 <CodeGroup>
 ```tsx twoslash
-const bobsID = "co_z123" as ID<Account>;
+const bobsID = "co_z123";
 
 const group = Group.create();
 
 // ---cut---
 
-const bob = await Account.load(bobsID as ID<Account>);
+const bob = await co.account().load(bobsID);
 
 if (bob) {
 group.addMember(bob, "writer");
@@ -6962,7 +7413,7 @@ const newValue = MyCoMap.create(
 ````
 </CodeGroup>
 
-Because `._owner` can be an `Account` or a `Group`, in cases where you specifically need to use `Group` methods (such as for adding members or getting your own role), you can cast it to assert it to be a Group:
+Because `._owner` can be an `co.account` or a `Group`, in cases where you specifically need to use `Group` methods (such as for adding members or getting your own role), you can cast it to assert it to be a Group:
 
 <CodeGroup>
 ```ts twoslash
@@ -6999,7 +7450,7 @@ color: z.string(),
 });
 // ---cut---
 const value = await MyCoMap.create({ color: "red"})
-const me = Account.getMe();
+const me = await co.account().getMe();
 
 if (me.canAdmin(value)) {
 console.log("I can share value with others");
@@ -7026,7 +7477,7 @@ const account = await createJazzTestAccount();
 const accountID = account.id;
 // ---cut---
 const value = await MyCoMap.create({ color: "red"})
-const bob = await Account.load(accountID);
+const bob = await co.account().load(accountID);
 
 if (bob) {
   if (bob.canAdmin(value)) {
@@ -7049,14 +7500,25 @@ if (bob) {
 
 ## Public sharing
 
-You can share CoValues publicly by setting the `owner` to a `Group`, and granting
-access to "everyone".
+You can share CoValues publicly by setting the `owner` to a `Group`, and granting access to "everyone".
 
 <CodeGroup>
 ```ts twoslash
 // ---cut---
 const group = Group.create();
 group.addMember("everyone", "writer");
+```
+</CodeGroup>
+
+You can also use `makePublic(role)` alias to grant access to everyone with a specific role (defaults to `reader`).
+
+<CodeGroup>
+```ts twoslash
+// ---cut---
+const group = Group.create();
+group.addMember("everyone", "writer"); // [!code --]
+group.makePublic("writer"); // [!code ++]
+// group.makePublic(); // Defaults to "reader" access
 ```
 </CodeGroup>
 
@@ -7126,7 +7588,7 @@ Create the data models.
 ```ts twoslash
 // ---cut---
 const JoinRequest = co.map({
-  account: Account,
+  account: co.account,
   status: z.literal(["pending", "approved", "rejected"]),
 });
 
@@ -7141,11 +7603,13 @@ Set up the request system with appropriate access controls.
 ```ts twoslash
 
 const JoinRequest = co.map({
-account: Account,
+account: co.account(),
 status: z.literal(["pending", "approved", "rejected"]),
 });
 
 const RequestsList = co.list(JoinRequest);
+const Account = co.account();
+type Account = co.loaded<typeof Account>;
 
 // ---cut-before---
 function createRequestsToJoin() {
@@ -7156,7 +7620,7 @@ return RequestsList.create([], requestsGroup);
 }
 
 async function sendJoinRequest(
-requestsList: Loaded<typeof RequestsList>,
+requestsList: co.loaded<typeof RequestsList>,
 account: Account,
 ) {
 const request = JoinRequest.create(
@@ -7180,6 +7644,9 @@ Using the write-only access users can submit requests that only administrators c
 <CodeGroup>
 ```ts twoslash
 
+const Account = co.account();
+type Account = co.loaded<typeof Account>;
+
 const JoinRequest = co.map({
   account: Account,
   status: z.literal(["pending", "approved", "rejected"]),
@@ -7194,7 +7661,7 @@ const RequestsToJoin = co.map({
 
 // ---cut-before---
 async function approveJoinRequest(
-  joinRequest: Loaded<typeof JoinRequest, { account: true }>,
+  joinRequest: co.loaded<typeof JoinRequest, { account: true }>,
   targetGroup: Group,
 ) {
   const account = await Account.load(joinRequest._refs.account.id);
@@ -7212,17 +7679,17 @@ async function approveJoinRequest(
 
 </CodeGroup>
 
-#### Group inheritance
+#### Groups as members
 
-# Group Inheritance
+# Groups as members
 
-Groups can inherit members from other groups using the `extend` method.
+Groups can be added to other groups using the `addMember` method.
 
-When a group extends another group, members of the parent group will become automatically part of the child group.
+When a group is added as a member of another group, members of the added group will become part of the containing group.
 
-## Basic Usage
+## Basic usage
 
-Here's how to extend a group:
+Here's how to add a group as a member of another group:
 
 <CodeGroup>
 ```ts twoslash
@@ -7230,20 +7697,99 @@ Here's how to extend a group:
 const playlistGroup = Group.create();
 const trackGroup = Group.create();
 
-// This way track becomes visible to the members of playlist
-trackGroup.extend(playlistGroup);
+// Tracks are now visible to the members of playlist
+trackGroup.addMember(playlistGroup);
 
 ````
 </CodeGroup>
 
-When you extend a group:
-- Members of the parent group get access to the child group
-- Their roles are inherited (with some exceptions, see [below](#role-inheritance-rules))
-- Removing a member from the parent group also removes their access to child groups
+When you add groups as members:
+- Members of the added group become members of the container group
+- Their roles are inherited (with some exceptions, see [below](#the-rules-of-role-inheritance))
+- Revoking access from the member group also removes its access to the container group
 
-## Inheriting members but overriding their role
+## Levels of inheritance
 
-In some cases you might want to inherit all members from a parent group but override/flatten their roles to the same specific role in the child group. You can do so by passing an "override role" as a second argument to `extend`:
+Adding a group as a member of another is not limited in depth:
+
+<CodeGroup>
+```ts twoslash
+// ---cut---
+const grandParentGroup = Group.create();
+const parentGroup = Group.create();
+const childGroup = Group.create();
+
+childGroup.addMember(parentGroup);
+parentGroup.addMember(grandParentGroup);
+````
+
+</CodeGroup>
+
+Members of the grandparent group will get access to all descendant groups based on their roles.
+
+## Roles
+
+### The rules of role inheritance
+
+If the account is already a member of the container group, it will get the more permissive role:
+<CodeGroup>
+
+```ts twoslash
+const bob = await createJazzTestAccount();
+// ---cut---
+const addedGroup = Group.create();
+addedGroup.addMember(bob, "reader");
+
+const containingGroup = Group.create();
+addedGroup.addMember(bob, "writer");
+containingGroup.addMember(addedGroup);
+
+// Bob stays a writer because his role is higher
+// than the inherited reader role.
+```
+
+</CodeGroup>
+
+When adding a group to another group, only admin, writer and reader roles are inherited:
+<CodeGroup>
+
+```ts twoslash
+const bob = await createJazzTestAccount();
+// ---cut---
+const addedGroup = Group.create();
+addedGroup.addMember(bob, "writeOnly");
+
+const containingGroup = Group.create();
+containingGroup.addMember(addedGroup);
+
+// Bob does not become a member of the containing group
+```
+
+</CodeGroup>
+
+To add a group to another group:
+
+1. The current account must be an admin in the containing group
+2. The current account must be a member of the added group
+
+<CodeGroup>
+```ts twoslash
+const group = Group.create();
+const Company = co.map({});
+const company = Company.create({ owner: group });
+// ---cut---
+const companyGroup = company._owner.castAs(Group);
+const teamGroup = Group.create();
+
+// Works only if I'm a member of `companyGroup`
+teamGroup.addMember(companyGroup);
+
+````
+</CodeGroup>
+
+### Overriding the added group's roles
+
+In some cases you might want to inherit all members from an added group but override their roles to the same specific role in the containing group. You can do so by passing an "override role" as a second argument to `addMember`:
 
 <CodeGroup>
 ```ts twoslash
@@ -7254,8 +7800,9 @@ organizationGroup.addMember(bob, "admin");
 
 const billingGroup = Group.create();
 
-// This way the members of the organization can only read the billing data
-billingGroup.extend(organizationGroup, "reader");
+// This way the members of the organization
+// can only read the billing data
+billingGroup.addMember(organizationGroup, "reader");
 ````
 
 </CodeGroup>
@@ -7264,147 +7811,72 @@ The "override role" works in both directions:
 
 <CodeGroup>
 ```ts twoslash
-const bob = await createJazzTestAccount();
 const alice = await createJazzTestAccount();
+const bob = await createJazzTestAccount();
 // ---cut---
-const parentGroup = Group.create();
-parentGroup.addMember(bob, "reader");
-parentGroup.addMember(alice, "admin");
+const addedGroup = Group.create();
+addedGroup.addMember(bob, "reader");
+addedGroup.addMember(alice, "admin");
 
-const childGroup = Group.create();
-childGroup.extend(parentGroup, "writer");
+const containingGroup = Group.create();
+containingGroup.addMember(addedGroup, "writer");
 
-// Bob and Alice are now writers in the child group
+// Bob and Alice are now writers in the containing group
 
 ````
 </CodeGroup>
 
-## Multiple Levels of Inheritance
+### Permission changes
 
-Groups can be extended multiple levels deep:
-
-<CodeGroup>
-```ts twoslash
-// ---cut---
-const grandParentGroup = Group.create();
-const parentGroup = Group.create();
-const childGroup = Group.create();
-
-childGroup.extend(parentGroup);
-parentGroup.extend(grandParentGroup);
-````
-
-</CodeGroup>
-
-Members of the grandparent group will get access to all descendant groups based on their roles.
-
-## Permission Changes
-
-When you remove a member from a parent group, they automatically lose access to all child groups. We handle key rotation automatically to ensure security.
+When you remove a member from an added group, they automatically lose access to all containing groups. We handle key rotation automatically to ensure security.
 
 <CodeGroup>
 ```ts twoslash
 const bob = await createJazzTestAccount();
-const parentGroup = Group.create();
+const addedGroup = Group.create();
 // ---cut---
-// Remove member from parent
-await parentGroup.removeMember(bob);
+// Remove member from added group
+await addedGroup.removeMember(bob);
 
-// Bob loses access to both parent and child groups
-
-````
-</CodeGroup>
-
-## Role Inheritance Rules
-
-If the account is already a member of the child group, it will get the more permissive role:
-<CodeGroup>
-```ts twoslash
-const bob = await createJazzTestAccount();
-// ---cut---
-const parentGroup = Group.create();
-parentGroup.addMember(bob, "reader");
-
-const childGroup = Group.create();
-parentGroup.addMember(bob, "writer");
-childGroup.extend(parentGroup);
-
-// Bob stays a writer because his role is higher
-// than the inherited reader role.
+// Bob loses access to both groups.
+// If Bob was also a member of the containing group,
+// he wouldn't have lost access.
 ````
 
 </CodeGroup>
 
-When extending groups, only admin, writer and reader roles are inherited:
-<CodeGroup>
+## Removing groups from other groups
 
-```ts twoslash
-const bob = await createJazzTestAccount();
-// ---cut---
-const parentGroup = Group.create();
-parentGroup.addMember(bob, "writeOnly");
-
-const childGroup = Group.create();
-childGroup.extend(parentGroup);
-
-// Bob does not become a member of the child group
-```
-
-</CodeGroup>
-
-To extend a group:
-
-1. The current account must be an admin in the child group
-2. The current account must be a member of the parent group
-
-<CodeGroup>
-```ts twoslash
-const Company = co.map({
-  name: z.string(),
-});
-const company = Company.create({ name: "Garden Computing" });
-// ---cut---
-const companyGroup = company._owner.castAs(Group)
-const teamGroup = Group.create();
-
-// Works only if I'm a member of companyGroup
-teamGroup.extend(companyGroup);
-
-````
-</CodeGroup>
-
-## Revoking a group extension
-
-You can revoke a group extension by using the `revokeExtend` method:
+You can remove a group from another group by using the `removeMember` method:
 
 <CodeGroup>
 ```ts twoslash
 // ---cut---
-const parentGroup = Group.create();
-const childGroup = Group.create();
+const addedGroup = Group.create();
+const containingGroup = Group.create();
 
-childGroup.extend(parentGroup);
+containingGroup.addMember(addedGroup);
 
 // Revoke the extension
-await childGroup.revokeExtend(parentGroup);
-````
+await containingGroup.removeMember(addedGroup);
 
+````
 </CodeGroup>
 
-## Getting all parent groups
+## Getting all added groups
 
-You can get all the parent groups of a group by calling the `getParentGroups` method:
+You can get all of the groups added to a group by calling the `getParentGroups` method:
 
 <CodeGroup>
 ```ts twoslash
 // ---cut---
-const childGroup = Group.create();
-const parentGroup = Group.create();
-childGroup.extend(parentGroup);
+const containingGroup = Group.create();
+const addedGroup = Group.create();
+containingGroup.addMember(addedGroup);
 
-console.log(childGroup.getParentGroups()); // [parentGroup]
-
+console.log(containingGroup.getParentGroups()); // [addedGroup]
 ````
+
 </CodeGroup>
 
 ## Example: Team Hierarchy
@@ -7424,24 +7896,25 @@ companyGroup.addMember(CEO, "admin");
 
 // Team group with elevated permissions
 const teamGroup = Group.create();
-teamGroup.extend(companyGroup); // Inherits company-wide access
+teamGroup.addMember(companyGroup); // Inherits company-wide access
 teamGroup.addMember(teamLead, "admin");
 teamGroup.addMember(developer, "writer");
 
 // Project group with specific permissions
 const projectGroup = Group.create();
-projectGroup.extend(teamGroup); // Inherits team permissions
+projectGroup.addMember(teamGroup); // Inherits team permissions
 projectGroup.addMember(client, "reader"); // Client can only read project items
-````
 
+````
 </CodeGroup>
 
 This creates a hierarchy where:
-
 - The CEO has admin access to everything
 - Team members get writer access to team and project content
 - Team leads get admin access to team and project content
 - The client can only read project content
+
+
 
 ### Authentication
 
@@ -7482,6 +7955,8 @@ Jazz provides several ways to authenticate users:
 - [**Clerk Integration**](./clerk): Third-party authentication service with OAuth support
 - [**Jazz Cloud Integration**](./jazz-cloud): Authentication service provided through Jazz Cloud
 - [**Self-Hosting**](./self-hosting): Self-hosted authentication service
+
+
 
 #### Authentication States
 
@@ -7526,24 +8001,24 @@ You can detect the current authentication state using `useAccountOrGuest` and `u
 // ---cut---
 
 function AuthStateIndicator() {
-const { me } = useAccountOrGuest();
-const isAuthenticated = useIsAuthenticated();
+  const { me } = useAccountOrGuest();
+  const isAuthenticated = useIsAuthenticated();
 
-// Check if guest mode is enabled in JazzProvider
-const isGuest = me.\_type !== "Account"
+  // Check if guest mode is enabled in JazzProvider
+  const isGuest = me._type !== "Account"
 
-// Anonymous authentication: has an account but not fully authenticated
-const isAnonymous = me.\_type === "Account" && !isAuthenticated;
-return (
-<div>
-{isGuest && <span>Guest Mode</span>}
-{isAnonymous && <span>Anonymous Account</span>}
-{isAuthenticated && <span>Authenticated</span>}
-</div>
-);
+  // Anonymous authentication: has an account but not fully authenticated
+  const isAnonymous =  me._type === "Account" && !isAuthenticated;
+  return (
+    <div>
+      {isGuest && <span>Guest Mode</span>}
+      {isAnonymous && <span>Anonymous Account</span>}
+      {isAuthenticated && <span>Authenticated</span>}
+    </div>
+  );
 }
-
 ````
+
 </CodeGroup>
 </ContentByFramework>
 
@@ -7558,63 +8033,66 @@ This example from our [music player example app](https://github.com/garden-co/ja
 <CodeGroup>
 ```ts twoslash
 
-class MusicTrack extends CoMap {
-  title = coField.string;
-  duration = coField.number;
-  isExampleTrack = coField.optional.boolean;
-}
-class ListOfTracks extends CoList.Of(coField.ref(MusicTrack)) {}
-class Playlist extends CoMap {
-  title = coField.string;
-  tracks = coField.ref(ListOfTracks);
-}
-class MusicaAccountRoot extends CoMap {
-  rootPlaylist = coField.ref(Playlist);
-}
-class MusicaAccount extends Account {
-  root = coField.ref(MusicaAccountRoot);
-}
+const MusicTrack = co.map({
+title: z.string(),
+duration: z.number(),
+isExampleTrack: z.boolean().optional(),
+});
+const Playlist = co.map({
+title: z.string(),
+tracks: co.list(MusicTrack),
+});
+const MusicaAccountRoot = co.map({
+rootPlaylist: Playlist,
+});
+
+const MusicaAccount = co.account({
+root: MusicaAccountRoot,
+profile: co.profile({}),
+});
+type MusicaAccount = co.loaded<typeof MusicaAccount>
 
 // ---cut---
 export async function onAnonymousAccountDiscarded(
-  anonymousAccount: MusicaAccount,
+anonymousAccount: MusicaAccount,
 ) {
-  const { root: anonymousAccountRoot } = await anonymousAccount.ensureLoaded({
-    resolve: {
-      root: {
-        rootPlaylist: {
-          tracks: {
-            $each: true,
-          },
-        },
-      },
-    },
-  });
+const { root: anonymousAccountRoot } = await anonymousAccount.ensureLoaded({
+resolve: {
+root: {
+rootPlaylist: {
+tracks: {
+$each: true,
+},
+},
+},
+},
+});
 
-  const me = await MusicaAccount.getMe().ensureLoaded({
-    resolve: {
-      root: {
-        rootPlaylist: {
-          tracks: true,
-        },
-      },
-    },
-  });
+const me = await MusicaAccount.getMe().ensureLoaded({
+resolve: {
+root: {
+rootPlaylist: {
+tracks: true,
+},
+},
+},
+});
 
-  for (const track of anonymousAccountRoot.rootPlaylist.tracks) {
-    if (track.isExampleTrack) continue;
+for (const track of anonymousAccountRoot.rootPlaylist.tracks) {
+if (track.isExampleTrack) continue;
 
     const trackGroup = track._owner.castAs(Group);
     trackGroup.addMember(me, "admin");
 
     me.root.rootPlaylist.tracks.push(track);
-  }
-}
-````
 
+}
+}
+
+````
 </CodeGroup>
 
-To see how this works, try uploading a song in the [music player demo](https://music-demo.jazz.tools/) and then log in with an existing account.
+To see how this works, try uploading a song in the [music player demo](https://music.demo.jazz.tools/) and then log in with an existing account.
 
 ## Provider Configuration for Authentication
 
@@ -7653,7 +8131,8 @@ function App() {
 >
   <App />
 </JazzProvider>
-```
+````
+
 </CodeGroup>
 </ContentByFramework>
 
@@ -7779,7 +8258,7 @@ return (
 
 ## Examples
 
-You can try passkey authentication using our [passkey example](https://passkey-demo.jazz.tools/) or the [music player demo](https://music-demo.jazz.tools/).
+You can try passkey authentication using our [passkey example](https://passkey.demo.jazz.tools/) or the [music player demo](https://music.demo.jazz.tools/).
 
 ## When to use Passkeys
 
@@ -7991,7 +8470,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
 ## Examples
 
-You can see passphrase authentication in our [passphrase example](https://passphrase-demo.jazz.tools/) or the [todo list demo](https://todo-demo.jazz.tools/).
+You can see passphrase authentication in our [passphrase example](https://passphrase.demo.jazz.tools/) or the [todo list demo](https://todo.demo.jazz.tools/).
 
 ## When to use Passphrases
 
@@ -8105,7 +8584,7 @@ export function OrderForm({
   order,
   onSave,
 }: {
-  order: Loaded<typeof BubbleTeaOrder> | Loaded<typeof DraftBubbleTeaOrder>;
+  order: co.loaded<typeof BubbleTeaOrder> | co.loaded<typeof DraftBubbleTeaOrder>;
   onSave?: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
   return (
@@ -8147,7 +8626,7 @@ export function OrderForm({
 order,
 onSave,
 }: {
-order: Loaded<typeof BubbleTeaOrder> | Loaded<typeof DraftBubbleTeaOrder>;
+order: co.loaded<typeof BubbleTeaOrder> | co.loaded<typeof DraftBubbleTeaOrder>;
 onSave?: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
 return (
@@ -8213,7 +8692,7 @@ export function OrderForm({
   order,
   onSave,
 }: {
-  order: Loaded<typeof BubbleTeaOrder> | Loaded<typeof DraftBubbleTeaOrder>;
+  order: co.loaded<typeof BubbleTeaOrder> | co.loaded<typeof DraftBubbleTeaOrder>;
   onSave?: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
   return (
@@ -8236,7 +8715,7 @@ export function OrderForm({
 // CreateOrder.tsx
 export function CreateOrder() {
   const { me } = useAccount();
-  const [draft, setDraft] = useState<Loaded<typeof DraftBubbleTeaOrder>>();
+  const [draft, setDraft] = useState<co.loaded<typeof DraftBubbleTeaOrder>>();
 
   useEffect(() => {
     setDraft(DraftBubbleTeaOrder.create({}));
@@ -8246,7 +8725,7 @@ export function CreateOrder() {
     e.preventDefault();
     if (!draft || !draft.name) return;
 
-    const order = draft as Loaded<typeof BubbleTeaOrder>; // TODO: this should narrow correctly
+    const order = draft as co.loaded<typeof BubbleTeaOrder>; // TODO: this should narrow correctly
 
     console.log("Order created:", order);
   };
@@ -8272,7 +8751,7 @@ Update the schema to include a `validate` helper.
 export const DraftBubbleTeaOrder = co.map({
   name: z.optional(z.string()),
 }).withHelpers((Self) => ({ // [!code ++:11]
-  validate(draft: Loaded<typeof Self>) {
+  validate(draft: co.loaded<typeof Self>) {
     const errors: string[] = [];
 
     if (!draft.name) {
@@ -8299,7 +8778,7 @@ export const BubbleTeaOrder = co.map({
 export const DraftBubbleTeaOrder = co.map({
   name: z.optional(z.string()),
 }).withHelpers((Self) => ({
-  validate(draft: Loaded<typeof Self>) {
+  validate(draft: co.loaded<typeof Self>) {
     const errors: string[] = [];
 
     if (!draft.name) {
@@ -8323,7 +8802,7 @@ export function OrderForm({
   order,
   onSave,
 }: {
-  order: Loaded<typeof BubbleTeaOrder> | Loaded<typeof DraftBubbleTeaOrder>;
+  order: co.loaded<typeof BubbleTeaOrder> | co.loaded<typeof DraftBubbleTeaOrder>;
   onSave?: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
   return (
@@ -8346,7 +8825,7 @@ export function OrderForm({
 // CreateOrder.tsx
 export function CreateOrder() {
   const { me } = useAccount();
-  const [draft, setDraft] = useState<Loaded<typeof DraftBubbleTeaOrder>>();
+  const [draft, setDraft] = useState<co.loaded<typeof DraftBubbleTeaOrder>>();
 
   useEffect(() => {
     setDraft(DraftBubbleTeaOrder.create({}));
@@ -8362,7 +8841,7 @@ export function CreateOrder() {
       return;
     }
 
-    const order = draft as Loaded<typeof BubbleTeaOrder>;
+    const order = draft as co.loaded<typeof BubbleTeaOrder>;
 
     console.log("Order created:", order);
   };
@@ -8470,7 +8949,7 @@ name: z.string(),
 export const DraftBubbleTeaOrder = co.map({
 name: z.optional(z.string()),
 }).withHelpers((Self) => ({
-validate(draft: Loaded<typeof Self>) {
+validate(draft: co.loaded<typeof Self>) {
 const errors: string[] = [];
 
     if (!draft.name) {
@@ -8504,7 +8983,7 @@ export function OrderForm({
 order,
 onSave,
 }: {
-order: Loaded<typeof BubbleTeaOrder> | Loaded<typeof DraftBubbleTeaOrder>;
+order: co.loaded<typeof BubbleTeaOrder> | co.loaded<typeof DraftBubbleTeaOrder>;
 onSave?: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
 return (
@@ -8546,7 +9025,7 @@ e.preventDefault();
       return;
     }
 
-    const order = draft as Loaded<typeof BubbleTeaOrder>;
+    const order = draft as co.loaded<typeof BubbleTeaOrder>;
     console.log("Order created:", order);
 
     // create a new empty draft
@@ -8594,7 +9073,7 @@ Simply add a `hasChanges` helper to your schema.
 export const DraftBubbleTeaOrder = co.map({
   name: z.optional(z.string()),
 }).withHelpers((Self) => ({
-  validate(draft: Loaded<typeof Self>) {
+  validate(draft: co.loaded<typeof Self>) {
     const errors: string[] = [];
 
     if (!draft.name) {
@@ -8604,7 +9083,7 @@ export const DraftBubbleTeaOrder = co.map({
     return { errors };
   },
 
-  hasChanges(draft?: Loaded<typeof Self>) { // [!code ++:3]
+  hasChanges(draft?: co.loaded<typeof Self>) { // [!code ++:3]
     return draft ? Object.keys(draft._edits).length : false;
   },
 }));
@@ -8624,7 +9103,7 @@ name: z.string(),
 export const DraftBubbleTeaOrder = co.map({
 name: z.optional(z.string()),
 }).withHelpers((Self) => ({
-validate(draft: Loaded<typeof Self>) {
+validate(draft: co.loaded<typeof Self>) {
 const errors: string[] = [];
 
     if (!draft.name) {
@@ -8635,7 +9114,7 @@ const errors: string[] = [];
 
 },
 
-hasChanges(draft?: Loaded<typeof Self>) { // [!code ++:3]
+hasChanges(draft?: co.loaded<typeof Self>) { // [!code ++:3]
 return draft ? Object.keys(draft.\_edits).length : false;
 },
 }));
@@ -8890,6 +9369,334 @@ return <p>Accepting invite...</p>;
 
 
 
+#### History Patterns
+
+# History Patterns
+
+Jazz's automatic history tracking enables powerful patterns for building collaborative features. Here's how to implement common history-based functionality.
+
+## Audit Logs
+
+Build a complete audit trail showing all changes to your data:
+
+<CodeGroup>
+```ts twoslash
+const me = await createJazzTestAccount();
+
+const Task = co.map({
+  title: z.string(),
+  status: z.literal(["todo", "in-progress", "completed"]),
+});
+type Task = co.loaded<typeof Task>;
+const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
+
+// ---cut---
+function getAuditLog(task: Task) {
+  const changes = [];
+
+  // Collect edits for all fields
+  const fields = Object.keys(task);
+  for (const field of fields) {
+    const editField = field as keyof typeof task._edits;
+    if (!task._edits[editField]) continue;
+
+    for (const edit of task._edits[editField].all) {
+      changes.push({
+        field,
+        value: edit.value,
+        by: edit.by,
+        at: edit.madeAt,
+      });
+    }
+  }
+
+  // Sort by timestamp (newest first)
+  return changes.sort((a, b) => b.at.getTime() - a.at.getTime());
+}
+
+// Use it to show change history
+const auditLog = getAuditLog(task);
+auditLog.forEach((entry) => {
+  const when = entry.at.toLocaleString();
+  const who = entry.by?.profile?.name;
+  const what = entry.field;
+  const value = entry.value;
+
+  console.log(`${when} - ${who} changed ${what} to "${value}"`);
+  // 22/05/2025, 12:00:00 - Alice changed title to "New task"
+});
+````
+
+</CodeGroup>
+
+## Activity Feeds
+
+Show recent activity across your application:
+
+<CodeGroup>
+```ts twoslash
+const me = await createJazzTestAccount();
+
+const Project = co.map({
+name: z.string(),
+status: z.literal(["todo", "in-progress", "completed"]),
+});
+type Project = co.loaded<typeof Project>;
+
+const project = Project.create({ name: "New project", status: "todo" }, { owner: me });
+const myProjects = [project];
+
+// ---cut---
+function getRecentActivity(projects: Project[], since: Date) {
+const activity = [];
+
+for (const project of projects) {
+// Get all fields that might have edits
+const fields = Object.keys(project);
+
+    // Check each field for edit history
+    for (const field of fields) {
+      const editField = field as keyof typeof project._edits;
+      // Skip if no edits exist for this field
+      if (!project._edits[editField]) continue;
+
+      for (const edit of project._edits[editField].all) {
+        // Only include edits made after the 'since' date
+        if (edit.madeAt > since) {
+          activity.push({
+            project: project.name,
+            field,
+            value: edit.value,
+            by: edit.by,
+            at: edit.madeAt
+          });
+        }
+      }
+    }
+
+}
+
+return activity.sort((a, b) => b.at.getTime() - a.at.getTime());
+}
+
+// Show activity from the last hour
+const hourAgo = new Date(Date.now() - 60 _ 60 _ 1000);
+const recentActivity = getRecentActivity(myProjects, hourAgo);
+// [{
+// project: "New project",
+// field: "name",
+// value: "New project",
+// by: Account,
+// at: Date
+// }]
+
+````
+</CodeGroup>
+
+## Change Indicators
+
+Show when something was last updated:
+
+<CodeGroup>
+```ts twoslash
+
+const me = await createJazzTestAccount();
+
+const Task = co.map({
+  title: z.string(),
+  status: z.literal(["todo", "in-progress", "completed"]),
+});
+type Task = co.loaded<typeof Task>;
+const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
+
+// ---cut---
+function getLastUpdated(task: Task) {
+  // Find the most recent edit across all fields
+  let lastEdit: any = null;
+
+  for (const field of Object.keys(task)) {
+    const editField = field as keyof typeof task._edits;
+    // Skip if no edits exist for this field
+    if (!task._edits[editField]) continue;
+
+    const fieldEdit = task._edits[editField];
+    if (fieldEdit && (!lastEdit || fieldEdit.madeAt > lastEdit.madeAt)) {
+      lastEdit = fieldEdit;
+    }
+  }
+
+  if (!lastEdit) return null;
+
+  return {
+    updatedBy: lastEdit.by?.profile?.name,
+    updatedAt: lastEdit.madeAt,
+    message: `Last updated by ${lastEdit.by?.profile?.name} at ${lastEdit.madeAt.toLocaleString()}`
+  };
+}
+
+const lastUpdated = getLastUpdated(task);
+console.log(lastUpdated?.message);
+// "Last updated by Alice at 22/05/2025, 12:00:00"
+````
+
+</CodeGroup>
+
+## Finding Specific Changes
+
+Query history for specific events:
+
+<CodeGroup>
+```ts twoslash
+
+const me = await createJazzTestAccount();
+
+const Task = co.map({
+title: z.string(),
+status: z.literal(["todo", "in-progress", "completed"]),
+});
+type Task = co.loaded<typeof Task>;
+const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
+
+task.status = "completed";
+task.status = "in-progress";
+task.status = "completed";
+
+// ---cut---
+// Find when a task was completed
+function findCompletionTime(task: Task): Date | null {
+if (!task.\_edits.status) return null;
+
+// find() returns the FIRST completion time
+// If status toggles (completed → in-progress → completed),
+// this gives you the earliest completion, not the latest
+const completionEdit = task.\_edits.status.all.find(
+edit => edit.value === "completed"
+);
+
+return completionEdit?.madeAt || null;
+}
+
+// To get the LATEST completion time instead reverse the array, then find:
+function findLatestCompletionTime(task: Task): Date | null {
+if (!task.\_edits.status) return null;
+
+// Reverse and find (stops at first match)
+const latestCompletionEdit = task.\_edits.status.all
+.slice() // Create copy to avoid mutating original
+.reverse()
+.find(edit => edit.value === "completed");
+
+return latestCompletionEdit?.madeAt || null;
+}
+
+console.log(findCompletionTime(task)); // First completion
+console.log(findLatestCompletionTime(task)); // Most recent completion
+
+// Find who made a specific change
+function findWhoChanged(task: Task, field: string, value: any) {
+const edits = task.\_edits[field as keyof typeof task._edits];
+if (!edits) return null;
+
+const matchingEdit = edits.all.find(edit => edit.value === value);
+return matchingEdit?.by || null;
+}
+const account = findWhoChanged(task, "status", "completed");
+console.log(account?.profile?.name);
+// Alice
+
+````
+</CodeGroup>
+
+## Further Reading
+
+- [History](/docs/using-covalues/history) - Complete reference for the history API
+- [Subscription & Loading](/docs/using-covalues/subscription-and-loading) - Ensure CoValues are loaded before accessing history
+
+
+
+### Resources
+
+#### Encryption
+
+# Encryption
+
+Jazz uses proven cryptographic primitives in a novel, but simple protocol to implement auditable permissions while allowing real-time collaboration and offline editing.
+
+## How encryption works
+
+Jazz uses proven cryptographic primitives in a novel, but simple protocol to implement auditable permissions while allowing real-time collaboration and offline editing.
+
+### Write permissions: Signing with your keys
+
+When you create or modify CoValues, Jazz cryptographically signs every transaction:
+
+- All transactions are signed with your account's signing keypair
+- This proves the transaction came from you
+- Whether transactions are valid depends on your permissions in the Group that owns the CoValue
+- Groups have internal logic ensuring only admins can change roles or create invites
+- You can add yourself to a Group only with a specific role via invites
+
+### Read permissions: Symmetric encryption
+
+Groups use a shared "read key" for encrypting data:
+
+- Admins reveal this symmetric encryption key to accounts with "reader" role or higher
+- All transactions in CoValues owned by that Group are encrypted with the current read key
+- When someone is removed from a Group, the read key rotates and gets revealed to all remaining members
+- CoValues start using the new read key for future transactions
+
+This means removed members can't read new data, but existing data they already had access to remains readable to them.
+
+## Key rotation and security
+
+Jazz automatically handles key management:
+
+- **Member removal triggers rotation**: When you remove someone from a Group, Jazz generates a new read key
+- **Seamless transition**: New transactions use the new key immediately
+- **No data loss**: Existing members get the new key automatically
+
+## Streaming encryption
+
+Jazz encrypts data efficiently for real-time collaboration:
+
+- **Incremental hashing**: CoValue sessions use [Blake3](https://github.com/BLAKE3-team/BLAKE3) for append-only hashing
+- **Session signatures**: Each session is signed with [ed25519](https://ed25519.cr.yp.to/) after each transaction
+- **Stream ciphers**: Data is encrypted using [xsalsa20](https://cr.yp.to/salsa20.html) stream cipher
+- **Integrity protection**: Hashing and signing ensure data hasn't been tampered with
+
+## Content addressing
+
+CoValue IDs are the [Blake3](https://github.com/BLAKE3-team/BLAKE3) hash of their immutable "header" (containing CoValue type and owning group). This allows CoValues to be "content addressed" while remaining dynamic and changeable.
+
+## What this means for you
+
+**Privacy by default**: Your data is always encrypted, even on Jazz Cloud servers. Only people you explicitly give access to can read your data.
+
+**Flexible permissions**: Use Groups to control exactly who can read, write, or admin your CoValues.
+
+**Automatic security**: Key rotation and encryption happen behind the scenes - you don't need to think about it.
+
+**Verifiable authenticity**: Every change is cryptographically signed, so you always know who made what changes.
+
+## Further reading
+
+- [Blake3](https://github.com/BLAKE3-team/BLAKE3) - append-only hashing
+- [ed25519](https://ed25519.cr.yp.to/) - signature scheme
+- [xsalsa20](https://cr.yp.to/salsa20.html) - stream cipher for data encryption
+
+### Implementation details
+
+The cryptographic primitives are implemented in the [`cojson/src/crypto`](https://github.com/garden-co/jazz/tree/main/packages/cojson/src/crypto) package.
+
+Key files to explore:
+
+- [`permissions.ts`](https://github.com/garden-co/jazz/blob/main/packages/cojson/src/permissions.ts) - Permission logic
+- [`permissions.test.ts`](https://github.com/garden-co/jazz/blob/main/packages/cojson/src/tests/permissions.test.ts) - Permission tests
+- [`verifiedState.ts`](https://github.com/garden-co/jazz/blob/main/packages/cojson/src/coValueCore/verifiedState.ts) - State verification
+- [`coValueCore.test.ts`](https://github.com/garden-co/jazz/blob/main/packages/cojson/src/tests/coValueCore.test.ts) - Core functionality tests
+
+
+
 ## Resources
 
 
@@ -8946,8 +9753,8 @@ export const MusicTrack = co.map({
   /**
    * You can use getters for recusrive relations
    */
-  get sourceTrack(): z.ZodOptional<typeof MusicTrack> {
-    return z.optional(MusicTrack);
+  get sourceTrack() {
+    return MusicTrack.optional();
   },
 });
 export type MusicTrack = co.loaded<typeof MusicTrack>;
@@ -9029,6 +9836,7 @@ import { apiKey } from "@/apiKey.ts";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { JazzProvider } from "jazz-react";
 import { onAnonymousAccountDiscarded } from "./4_actions";
+import { KeyboardListener } from "./components/PlayerControls";
 import { useUploadExampleData } from "./lib/useUploadExampleData";
 
 /**
@@ -9065,7 +9873,7 @@ function Main() {
   return (
     <>
       <RouterProvider router={router} />
-      {/* <PlayerControls mediaPlayer={mediaPlayer} /> */}
+      <KeyboardListener mediaPlayer={mediaPlayer} />
       <Toaster />
     </>
   );
@@ -9169,7 +9977,7 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
     <SidebarInset className="flex flex-col h-screen text-gray-800 bg-blue-50">
       <div className="flex flex-1 overflow-hidden">
         <SidePanel mediaPlayer={mediaPlayer} />
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-6 overflow-y-auto overflow-x-hidden">
           <SidebarTrigger />
           <div className="flex items-center justify-between mb-6">
             {isRootPlaylist ? (
@@ -9192,7 +10000,7 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
               )}
             </div>
           </div>
-          <ul className="flex flex-col">
+          <ul className="flex flex-col max-w-full">
             {playlist?.tracks?.map(
               (track) =>
                 track && (
@@ -9336,7 +10144,7 @@ export async function addTrackToPlaylist(
      * visible to the Playlist user
      */
     const trackGroup = track._owner;
-    trackGroup.extend(playlist._owner);
+    trackGroup.addMember(playlist._owner);
 
     playlist.tracks?.push(track);
     return;
@@ -9355,7 +10163,7 @@ export async function removeTrackFromPlaylist(
 
   if (track._owner._type === "Group" && playlist._owner._type === "Group") {
     const trackGroup = track._owner;
-    await trackGroup.revokeExtend(playlist._owner);
+    await trackGroup.removeMember(playlist._owner);
 
     const index =
       playlist.tracks?.findIndex(
@@ -9703,7 +10511,15 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       }
       onOpenChange(false);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Unknown error");
+      if (error instanceof Error) {
+        if (error.cause instanceof Error) {
+          setError(error.cause.message);
+        } else {
+          setError(error.message);
+        }
+      } else {
+        setError("Unknown error");
+      }
     }
   };
 
@@ -9925,9 +10741,7 @@ export function MusicTrackRow({
 
   return (
     <li
-      className={
-        "flex gap-1  hover:bg-slate-200 group py-2 px-2 cursor-pointer"
-      }
+      className={"flex gap-1 hover:bg-slate-200 group py-2 px-2 cursor-pointer"}
       onClick={handleTrackClick}
     >
       <button
@@ -10032,7 +10846,7 @@ export function MusicTrackTitleInput({
 
   return (
     <div
-      className="relative flex-grow"
+      className="relative flex-grow max-w-64"
       onClick={(evt) => evt.stopPropagation()}
     >
       <input
@@ -10072,13 +10886,6 @@ export function PlayerControls({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
   const activePlaylist = useAccount(MusicaAccount, {
     resolve: { root: { activePlaylist: true } },
   }).me?.root.activePlaylist;
-
-  useMediaEndListener(mediaPlayer.playNextTrack);
-  useKeyboardListener("Space", () => {
-    if (document.activeElement !== document.body) return;
-
-    playState.toggle();
-  });
 
   const activeTrack = useCoState(MusicTrack, mediaPlayer.activeTrackId, {
     resolve: { waveform: true },
@@ -10130,6 +10937,21 @@ export function PlayerControls({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
       </div>
     </footer>
   );
+}
+
+export function KeyboardListener({
+  mediaPlayer,
+}: { mediaPlayer: MediaPlayer }) {
+  const playState = usePlayState();
+
+  useMediaEndListener(mediaPlayer.playNextTrack);
+  useKeyboardListener("Space", () => {
+    if (document.activeElement !== document.body) return;
+
+    playState.toggle();
+  });
+
+  return null;
 }
 
 ```

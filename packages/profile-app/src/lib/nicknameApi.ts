@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'https://api.jazz.dev';
 
 export interface CheckAvailabilityRequest {
   nickname: string;
@@ -37,7 +37,9 @@ export interface UserDetailsResponse {
   };
 }
 
-export async function checkNicknameAvailability(nickname: string): Promise<CheckAvailabilityResponse> {
+export async function checkNicknameAvailability(
+  nickname: string,
+): Promise<CheckAvailabilityResponse> {
   const response = await fetch(`${API_BASE_URL}/checkAvailability`, {
     method: 'POST',
     headers: {
@@ -48,13 +50,17 @@ export async function checkNicknameAvailability(nickname: string): Promise<Check
 
   if (!response.ok) {
     const errorData: ApiError = await response.json();
-    throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+    throw new Error(
+      errorData.error || `HTTP ${response.status}: ${response.statusText}`,
+    );
   }
 
   return response.json();
 }
 
-export async function registerNickname(request: RegisterRequest): Promise<void> {
+export async function registerNickname(
+  request: RegisterRequest,
+): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/register`, {
     method: 'POST',
     headers: {
@@ -65,16 +71,22 @@ export async function registerNickname(request: RegisterRequest): Promise<void> 
 
   if (!response.ok) {
     const errorData: ApiError = await response.json();
-    throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+    throw new Error(
+      errorData.error || `HTTP ${response.status}: ${response.statusText}`,
+    );
   }
 }
 
-export async function getUserDetails(jazzAccountId: string): Promise<UserDetailsResponse> {
+export async function getUserDetails(
+  jazzAccountId: string,
+): Promise<UserDetailsResponse> {
   const response = await fetch(`${API_BASE_URL}/users/${jazzAccountId}`);
 
   if (!response.ok) {
     const errorData: ApiError = await response.json();
-    throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+    throw new Error(
+      errorData.error || `HTTP ${response.status}: ${response.statusText}`,
+    );
   }
   return response.json();
 }
