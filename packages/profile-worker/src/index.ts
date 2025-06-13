@@ -15,27 +15,29 @@ import {
 import { registerRoute, registerHandler } from "./routes/register";
 import { userDetailsRoute, userDetailsHandler } from "./routes/userDetails";
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; // This is the INTERNAL port Nginx will proxy to
 const JAZZ_SYNC_SERVER_URL =
   process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
 
-// Global error handlers to prevent server crashes
+const APP_PUBLIC_HOSTNAME =
+  process.env.APP_PUBLIC_HOSTNAME || `localhost:${PORT}`;
+const IS_PRODUCTION_LIKE =
+  APP_PUBLIC_HOSTNAME !== `localhost:${PORT}` &&
+  !APP_PUBLIC_HOSTNAME.startsWith("localhost");
+const PUBLIC_PROTOCOL = IS_PRODUCTION_LIKE ? "https" : "http";
+const PUBLIC_BASE_URL = `${PUBLIC_PROTOCOL}://${APP_PUBLIC_HOSTNAME}`;
+
 process.on("uncaughtException", (error) => {
   console.error("Uncaught Exception:", error);
   console.error("Stack:", error.stack);
-  // Don't exit the process - log and continue
 });
-
 process.on("unhandledRejection", (reason, promise) => {
   console.error("Unhandled Rejection at:", promise, "reason:", reason);
-  // Don't exit the process - log and continue
 });
-
 process.on("SIGTERM", () => {
   console.log("SIGTERM received. Shutting down gracefully...");
   process.exit(0);
 });
-
 process.on("SIGINT", () => {
   console.log("SIGINT received. Shutting down gracefully...");
   process.exit(0);
@@ -49,8 +51,21 @@ async function main() {
     process.exit(1);
   }
 
+  if (
+    IS_PRODUCTION_LIKE &&
+    (!process.env.APP_PUBLIC_HOSTNAME ||
+      process.env.APP_PUBLIC_HOSTNAME.includes("localhost"))
+  ) {
+    console.warn(
+      "Warning: APP_PUBLIC_HOSTNAME is not set or is localhost. For production behind Nginx/HTTPS, set it to your public domain (e.g., api.jazz.dev) for correct documentation links.",
+    );
+  }
+
   console.log(`Starting Nickname Registry Worker...`);
+  console.log(`Internal HTTP server will listen on port ${PORT}`);
+  console.log(`Publicly accessible via Nginx at: ${PUBLIC_BASE_URL}`);
   console.log(`Connecting to Jazz server: ${JAZZ_SYNC_SERVER_URL}`);
+
   if (process.env.JAZZ_API_KEY) {
     console.log(`Using API Key: ${process.env.JAZZ_API_KEY}`);
   }
@@ -113,15 +128,16 @@ async function main() {
     },
     servers: [
       {
-        url: `http://localhost:${PORT}`,
-        description: "Local development server",
+        url: PUBLIC_BASE_URL,
+        description: IS_PRODUCTION_LIKE
+          ? "Production Server (via Nginx/HTTPS)"
+          : "Local Development Server",
       },
     ],
   });
 
-  app.get("/ui", swaggerUI({ url: "/doc" }));
+  app.get("/ui", swaggerUI({ url: `${PUBLIC_BASE_URL}/doc` }));
 
-  // Wrap handlers with additional error protection
   const safeCheckAvailabilityHandler = async (c: any) => {
     try {
       return await checkAvailabilityHandler(nicknameRegistry)(c);
@@ -145,7 +161,10 @@ async function main() {
 
   const safeUserDetailsHandler = async (c: any) => {
     try {
-      return await userDetailsHandler(reverseNicknameRegistry, nicknameRegistry)(c);
+      return await userDetailsHandler(
+        reverseNicknameRegistry,
+        nicknameRegistry,
+      )(c);
     } catch (error) {
       console.error("Error in userDetailsHandler:", error);
       return c.json(
@@ -163,13 +182,17 @@ async function main() {
   app.openapi(registerRoute, safeRegisterHandler);
   app.openapi(userDetailsRoute, safeUserDetailsHandler);
 
-  // Add health check endpoint
   app.get("/health", (c) => {
     try {
+      const requestProtocol =
+        c.req.header("x-forwarded-proto") || c.req.url.startsWith("https://")
+          ? "https"
+          : "http";
       return c.json({
         status: "healthy",
         timestamp: new Date().toISOString(),
         workerId: worker?.id || "unknown",
+        requestProtocol: requestProtocol,
       });
     } catch (error) {
       console.error("Health check error:", error);
@@ -187,17 +210,12 @@ async function main() {
     }
   });
 
-  // Global error handler
   app.onError((error, c) => {
     console.error("Global error handler caught:", error);
     console.error("Stack:", error.stack);
-
     try {
       return c.json(
-        {
-          error: "Internal server error",
-          timestamp: new Date().toISOString(),
-        },
+        { error: "Internal server error", timestamp: new Date().toISOString() },
         500,
       );
     } catch (responseError) {
@@ -206,17 +224,24 @@ async function main() {
     }
   });
 
-  console.log(`Nickname Registry Worker HTTP server listening on port ${PORT}`);
-  console.log(`Swagger UI available at: http://localhost:${PORT}/ui`);
-  console.log(`OpenAPI spec available at: http://localhost:${PORT}/doc`);
-  console.log(`Health check available at: http://localhost:${PORT}/health`);
+  // Remove explicit 'ServeOptions' type annotation here
+  const serverOptions = {
+    fetch: app.fetch,
+    port: Number(PORT),
+  };
+
+  console.log(
+    `Nickname Registry Worker HTTP server starting on internal port ${PORT}`,
+  );
+  console.log(`Public Swagger UI available at: ${PUBLIC_BASE_URL}/ui`);
+  console.log(`Public OpenAPI spec available at: ${PUBLIC_BASE_URL}/doc`);
+  console.log(`Public Health check available at: ${PUBLIC_BASE_URL}/health`);
 
   try {
-    serve({
-      fetch: app.fetch,
-      port: Number(PORT),
-    });
-    console.log("Server started successfully");
+    serve(serverOptions);
+    console.log(
+      `Server started successfully. Nginx should be proxying public requests from ${PUBLIC_BASE_URL} to http://localhost:${PORT}`,
+    );
   } catch (serverError) {
     console.error("Failed to start HTTP server:", serverError);
     process.exit(1);

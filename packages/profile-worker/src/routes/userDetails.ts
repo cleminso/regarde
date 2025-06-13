@@ -19,7 +19,8 @@ export const userDetailsRoute = createRoute({
           schema: UserDetailsResponseSchema,
         },
       },
-      description: "User details retrieved successfully - returns complete user profile information including nickname status and public data",
+      description:
+        "User details retrieved successfully - returns complete user profile information including nickname status and public data",
     },
     400: {
       content: {
@@ -27,7 +28,8 @@ export const userDetailsRoute = createRoute({
           schema: ErrorResponseSchema,
         },
       },
-      description: "Bad request - missing required parameters, invalid parameter format, or nickname/account ID mismatch when both provided",
+      description:
+        "Bad request - missing required parameters, invalid parameter format, or nickname/account ID mismatch when both provided",
     },
     404: {
       content: {
@@ -35,7 +37,8 @@ export const userDetailsRoute = createRoute({
           schema: ErrorResponseSchema,
         },
       },
-      description: "Not found - specified nickname does not exist in the registry or cannot be resolved to an account",
+      description:
+        "Not found - specified nickname does not exist in the registry or cannot be resolved to an account",
     },
     429: {
       content: {
@@ -43,7 +46,8 @@ export const userDetailsRoute = createRoute({
           schema: ErrorResponseSchema,
         },
       },
-      description: "Too many requests - rate limit exceeded, please wait before making additional requests",
+      description:
+        "Too many requests - rate limit exceeded, please wait before making additional requests",
     },
     500: {
       content: {
@@ -51,7 +55,8 @@ export const userDetailsRoute = createRoute({
           schema: ErrorResponseSchema,
         },
       },
-      description: "Internal server error - unexpected server failure during account loading or registry access",
+      description:
+        "Internal server error - unexpected server failure during account loading or registry access",
     },
   },
   tags: ["User Management"],
@@ -65,7 +70,7 @@ export const userDetailsRoute = createRoute({
     - Example: GET /users?jazzAccountId=co_zdpuB2Ww8jKvjq7Kp9M4N5o6P7q8R9s0T
 
     **2. Fetch by nickname only:**
-    - Query: ?nickname=john_doe  
+    - Query: ?nickname=john_doe
     - Use case: Profile page URLs, user search by handle
     - Resolves nickname to account ID internally
     - Example: GET /users?nickname=john_doe
@@ -97,195 +102,259 @@ export const userDetailsRoute = createRoute({
   `,
 });
 
-export const userDetailsHandler = (reverseNicknameRegistry: any, nicknameRegistry: any) => {
+export const userDetailsHandler = (
+  reverseNicknameRegistry: any,
+  nicknameRegistry: any,
+) => {
   return async (c: any) => {
-    let jazzAccountId: string | undefined;
-    let requestedNickname: string | undefined;
-    
+    // Variable to hold the Jazz Account ID once it's successfully resolved for the main logic.
+    // It will be a string if parameter processing is successful.
+    let processedJazzAccountId: string | undefined;
+    // Store the originally requested nickname from the query for inclusion in responses.
+    let requestedNicknameFromQuery: string | undefined;
+
     try {
-      // Safely extract and validate query parameters
+      // Inner try-catch specifically for parameter validation and initial ID resolution.
+      // This helps isolate errors from this stage.
       try {
-        const query = c.req.valid("query");
-        jazzAccountId = query?.jazzAccountId;
-        requestedNickname = query?.nickname;
-        
-        // Validate that at least one parameter is provided
-        if ((!jazzAccountId || jazzAccountId.trim() === '') && (!requestedNickname || requestedNickname.trim() === '')) {
+        const query = c.req.valid("query"); // This can throw if Zod validation fails.
+        const queryJazzAccountId = query?.jazzAccountId?.trim();
+        const queryNickname = query?.nickname?.trim();
+
+        requestedNicknameFromQuery = queryNickname; // Store for consistent response.
+
+        if (!queryJazzAccountId && !queryNickname) {
           console.warn(`Neither jazzAccountId nor nickname provided`);
-          return c.json({ 
-            error: "Either jazzAccountId or nickname parameter is required" 
-          }, 400);
+          return c.json(
+            { error: "Either jazzAccountId or nickname parameter is required" },
+            400,
+          );
         }
-        
-        // Clean up parameters
-        if (jazzAccountId) jazzAccountId = jazzAccountId.trim();
-        if (requestedNickname) requestedNickname = requestedNickname.trim();
-        
-        // If nickname is provided, resolve it to jazzAccountId
-        if (requestedNickname) {
-          let resolvedAccountId: string | undefined;
+
+        if (queryNickname) {
+          let accountIdFromNickname: string | undefined;
           try {
-            if (nicknameRegistry && typeof nicknameRegistry === 'object') {
-              resolvedAccountId = nicknameRegistry[requestedNickname];
+            if (
+              nicknameRegistry &&
+              typeof nicknameRegistry === "object" &&
+              nicknameRegistry[queryNickname]
+            ) {
+              accountIdFromNickname = nicknameRegistry[queryNickname];
             }
-          } catch (registryError) {
-            console.error(`Error accessing nickname registry: ${registryError}`);
+          } catch (registryError: any) {
+            console.error(
+              `Error accessing nickname registry for nickname "${queryNickname}": ${registryError.message || registryError}`,
+            );
+            // This is a server-side issue if the registry is expected to be valid.
+            return c.json(
+              { error: "Internal server error during nickname lookup" },
+              500,
+            );
           }
-          
-          if (!resolvedAccountId) {
-            return c.json({ 
-              error: "Nickname not found" 
-            }, 404);
-          }
-          
-          // If both parameters provided, validate they match
-          if (jazzAccountId && jazzAccountId !== resolvedAccountId) {
-            return c.json({ 
-              error: "Provided nickname is not owned by the provided jazzAccountId" 
-            }, 400);
-          }
-          
-          jazzAccountId = resolvedAccountId;
-        }
-        
-        if (!jazzAccountId) {
-          return c.json({ 
-            error: "Unable to resolve user account" 
-          }, 400);
-        }
-        
-      } catch (paramError) {
-        console.error(`Parameter validation failed: ${paramError}`);
-        return c.json({ 
-          error: "Invalid request parameters" 
-        }, 400);
-      }
 
-      console.log(`Looking up user details for Jazz Account ID: "${jazzAccountId}"`);
+          if (!accountIdFromNickname) {
+            return c.json({ error: "Nickname not found" }, 404);
+          }
 
-      // Safely access nickname registry with null checks
-      let nickname: string | undefined;
-      try {
-        if (reverseNicknameRegistry && typeof reverseNicknameRegistry === 'object') {
-          nickname = reverseNicknameRegistry[jazzAccountId];
+          // If both jazzAccountId and nickname were provided, they must match.
+          if (
+            queryJazzAccountId &&
+            queryJazzAccountId !== accountIdFromNickname
+          ) {
+            return c.json(
+              {
+                error:
+                  "Provided nickname is not owned by the provided jazzAccountId",
+              },
+              400,
+            );
+          }
+          processedJazzAccountId = accountIdFromNickname; // ID is resolved from nickname.
+        } else if (queryJazzAccountId) {
+          // Only jazzAccountId was provided (and no nickname).
+          processedJazzAccountId = queryJazzAccountId; // ID is from the query.
         } else {
-          console.warn('ReverseNicknameRegistry is not available or invalid');
-          nickname = undefined;
+          // This state should ideally be caught by the first check, but as a fallback.
+          console.error(
+            "Logical error: Reached unexpected state in parameter validation.",
+          );
+          return c.json(
+            {
+              error: "Unable to resolve user account due to missing parameters",
+            },
+            400,
+          );
         }
-      } catch (registryError) {
-        console.error(`Error accessing nickname registry: ${registryError}`);
-        nickname = undefined;
+      } catch (paramError: any) {
+        // Catches errors from c.req.valid("query") or other synchronous errors in the block above.
+        console.error(
+          `Parameter validation or extraction failed: ${paramError.message || paramError}`,
+        );
+        // For error reporting, try to get original query params as processedJazzAccountId might not be set.
+        const originalReqJazzId = c.req.query("jazzAccountId");
+        const originalReqNickname = c.req.query("nickname");
+        return c.json(
+          {
+            error: "Invalid request parameters",
+            details: `Input: jazzAccountId='${originalReqJazzId || ""}', nickname='${originalReqNickname || ""}'`,
+          },
+          400,
+        );
       }
 
-      // Determine nickname registration status safely
-      const hasNickname = Boolean(nickname);
-      const isRegistered = hasNickname;
-      const canRegisterNickname = !hasNickname;
+      // If we proceed beyond the inner try-catch, processedJazzAccountId should be a string.
+      // Add a strict check for safety; if not, it's an unhandled logic path in param processing.
+      if (
+        typeof processedJazzAccountId !== "string" ||
+        !processedJazzAccountId
+      ) {
+        console.error(
+          "Critical internal error: processedJazzAccountId is not a valid string after parameter block.",
+        );
+        return c.json(
+          { error: "Internal server error determining account ID" },
+          500,
+        );
+      }
 
+      // Main application logic now uses processedJazzAccountId (guaranteed to be a string here).
+      console.log(
+        `Looking up user details for Jazz Account ID: "${processedJazzAccountId}"`,
+      );
+
+      let currentNicknameInRegistry: string | undefined;
+      try {
+        if (
+          reverseNicknameRegistry &&
+          typeof reverseNicknameRegistry === "object"
+        ) {
+          currentNicknameInRegistry =
+            reverseNicknameRegistry[processedJazzAccountId];
+        } else {
+          console.warn("ReverseNicknameRegistry is not available or invalid");
+        }
+      } catch (registryError: any) {
+        console.error(
+          `Error accessing reverse nickname registry for ${processedJazzAccountId}: ${registryError.message || registryError}`,
+        );
+        // Depending on policy, might return 500 or proceed without reverse lookup.
+      }
+
+      const hasNickname = Boolean(currentNicknameInRegistry);
       const nicknameStatus = {
         hasNickname,
-        isRegistered,
+        isRegistered: hasNickname,
         registrationDate: undefined, // Not tracked in current implementation
-        canRegisterNickname,
+        canRegisterNickname: !hasNickname,
       };
 
-      // Attempt to load account with comprehensive error handling
-      let account: any = null;
+      let account: any = null; // Consider using 'InstanceType<typeof OnboardingAccount>' or a more specific type
       let accountLoadError: string | null = null;
-      
       try {
-        // Add timeout and additional safety measures for account loading
-        const loadPromise = OnboardingAccount.load(jazzAccountId, {
+        const loadPromise = OnboardingAccount.load(processedJazzAccountId, {
           resolve: {
             profile: {
-              projects: {
-                $each: true,
-              },
-              socialLinks: {
-                $each: true,
-              },
-              workExp: {
-                $each: true,
-              },
+              projects: { $each: true },
+              socialLinks: { $each: true },
+              workExp: { $each: true },
             },
           },
         });
-
-        // Set a reasonable timeout for account loading
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Account loading timeout')), 10000);
-        });
-
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Account loading timeout")), 10000),
+        ); // 10s timeout
         account = await Promise.race([loadPromise, timeoutPromise]);
       } catch (accountError: any) {
-        accountLoadError = accountError?.message || 'Unknown account loading error';
-        console.warn(`Account ${jazzAccountId} could not be loaded: ${accountLoadError}`);
-        account = null;
+        accountLoadError =
+          accountError?.message || "Unknown account loading error";
+        console.warn(
+          `Account ${processedJazzAccountId} could not be loaded: ${accountLoadError}`,
+        );
+        // Account remains null
       }
 
-      // Build response safely
+      // Build the response
       try {
         const baseResponse = {
-          jazzAccountId,
-          nickname: nickname || undefined,
+          jazzAccountId: processedJazzAccountId, // Known to be a string here
+          nickname: currentNicknameInRegistry || undefined,
           nicknameStatus,
         };
 
         if (account && account.profile) {
-          // Account exists and has profile data
           const publicData: Record<string, any> = {};
-          
           try {
             // Safely extract profile data
             if (account.profile) {
               Object.assign(publicData, account.profile);
             }
-          } catch (profileError) {
-            console.warn(`Error extracting profile data for ${jazzAccountId}: ${profileError}`);
+          } catch (profileError: any) {
+            console.warn(
+              `Error extracting profile data for ${processedJazzAccountId}: ${profileError.message || profileError}`,
+            );
           }
-
-          return c.json({
-            ...baseResponse,
-            requestedNickname: requestedNickname || undefined,
-            publicData: Object.keys(publicData).length > 0 ? publicData : undefined,
-            exists: true,
-          }, 200);
+          return c.json(
+            {
+              ...baseResponse,
+              requestedNickname: requestedNicknameFromQuery || undefined,
+              publicData:
+                Object.keys(publicData).length > 0 ? publicData : undefined,
+              exists: true,
+            },
+            200,
+          );
         } else {
-          // Account doesn't exist or couldn't be loaded
-          return c.json({
-            ...baseResponse,
-            requestedNickname: requestedNickname || undefined,
-            exists: !!nickname, // If they have a nickname, they probably exist
-          }, 200);
+          // Account doesn't exist or couldn't be loaded, or has no profile
+          return c.json(
+            {
+              ...baseResponse,
+              requestedNickname: requestedNicknameFromQuery || undefined,
+              exists: !!currentNicknameInRegistry, // If they have/had a nickname, the "user" entry might be considered to exist.
+            },
+            200,
+          );
         }
-      } catch (responseError) {
-        console.error(`Error building response for ${jazzAccountId}: ${responseError}`);
-        
-        // Fallback minimal response
-        return c.json({
-          jazzAccountId,
-          nickname: nickname || undefined,
-          requestedNickname: requestedNickname || undefined,
-          exists: !!nickname,
-          nicknameStatus: {
-            hasNickname: !!nickname,
-            isRegistered: !!nickname,
-            registrationDate: undefined,
-            canRegisterNickname: !nickname,
+      } catch (responseError: any) {
+        console.error(
+          `Error building response for ${processedJazzAccountId}: ${responseError.message || responseError}`,
+        );
+        // Fallback response if building the main response fails
+        return c.json(
+          {
+            jazzAccountId: processedJazzAccountId, // Still a string here
+            nickname: currentNicknameInRegistry || undefined,
+            requestedNickname: requestedNicknameFromQuery || undefined,
+            exists: !!currentNicknameInRegistry,
+            nicknameStatus, // Use the already computed nicknameStatus
           },
-        }, 200);
+          200,
+        ); // Or 500 if this is a server error
       }
     } catch (outerError: any) {
-      // Final catch-all to prevent server crashes
-      console.error(`Critical error in userDetailsHandler: ${outerError}`);
+      // Final catch-all for unexpected errors
+      console.error(
+        `Critical error in userDetailsHandler: ${outerError.message || outerError}`,
+      );
       console.error(`Stack trace: ${outerError?.stack}`);
-      
-      // Return a safe fallback response
-      return c.json({ 
-        error: "Internal server error",
-        jazzAccountId: jazzAccountId || 'unknown',
-        exists: false,
-      }, 500);
+
+      // In this outermost catch, processedJazzAccountId *might* be undefined if an error
+      // occurred very early (e.g., if Hono middleware threw before c.req.valid,
+      // or some other unexpected error before parameter processing block completed).
+      // So, we provide robust fallbacks for the ID used in the error message.
+      const accountIdForErrorMsg =
+        processedJazzAccountId ??
+        c.req.query("jazzAccountId") ??
+        c.req.query("nickname") ??
+        "unknown";
+
+      return c.json(
+        {
+          error: "Internal server error",
+          jazzAccountId: accountIdForErrorMsg,
+          exists: false,
+        },
+        500,
+      );
     }
   };
 };
