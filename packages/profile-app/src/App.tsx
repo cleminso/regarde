@@ -63,7 +63,6 @@ export function App() {
   };
 
   useEffect(() => {
-    // This useEffect handles redirection, so NicknameEditor will be on the /profile page effectively
     if (isAuthenticated) {
       // navigate('/profile', { replace: true });
     }
@@ -73,7 +72,6 @@ export function App() {
   // This logic is simplified; actual app might have routes for /profile
   // For now, NicknameEditor is added to the authenticated view.
   const renderAuthenticatedContent = () => {
-    // Add a guard in case accountId is somehow not available yet, though `isAuthenticated && accountId` check above should cover
     if (!accountId) return <p>Account details are not available yet.</p>;
     if (isLoadingNickname) {
       return <p>Loading nickname details...</p>;
@@ -93,7 +91,6 @@ export function App() {
 
   return (
     <>
-      {/* Header from Layout.tsx */}
       <header className="bg-background text-card-foreground">
         <nav className="@container-normal flex justify-between items-center py-4 mx-16">
           <div>
@@ -123,18 +120,15 @@ export function App() {
             <h1 className="text-center">
               Welcome{me?.profile?.name ? <>, {me.profile.name}</> : ''}!
             </h1>
-            {/* Render NicknameEditor or loading state here */}
             {renderAuthenticatedContent()}
           </div>
         ) : (
-          // Content for unauthenticated users (marketing page)
           <div className="flex flex-col items-center text-center gap-6 py-12">
             <h1 className="text-4xl font-sans">profile.jazz.dev</h1>
             <p className="text-lg text-muted-foreground max-w-md">
               The last public profile you will ever need. Build one, share
               everywhere.
             </p>
-            {/* Auth related buttons */}
             <div className="flex gap-4 mt-4">
               <Button
                 size="lg"
@@ -148,7 +142,6 @@ export function App() {
                 Register Handle
               </Button>
             </div>
-            {/* Optionally, a message if auth is loading and not yet authenticated */}
             {auth.state !== 'signedIn' && <p>Loading authentication...</p>}
           </div>
         )}
