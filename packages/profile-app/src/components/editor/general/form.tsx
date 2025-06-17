@@ -143,8 +143,13 @@ export function GeneralEdit({
                 }}
                 onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
                   const value = e.target.value.trim();
-                  if (value && nickname.validation.isValid && nickname.validation.isAvailable) {
-                    nickname.updateNickname(value).catch((error) => {
+                  if (
+                    value &&
+                    nickname.validation.isValid &&
+                    nickname.validation.isAvailable
+                  ) {
+                    nickname.updateNickname().catch((error: any) => {
+                      // Explicitly type error
                       console.error('Failed to update nickname:', error);
                     });
                   }
@@ -160,21 +165,34 @@ export function GeneralEdit({
               )}
             </div>
             {nickname.validation.error && (
-              <small className="text-destructive">{nickname.validation.error}</small>
+              <small className="text-destructive">
+                {nickname.validation.error}
+              </small>
             )}
             {nickname.validation.message && !nickname.validation.error && (
-              <small className={nickname.validation.isAvailable ? "text-green-600" : "text-destructive"}>
+              <small
+                className={
+                  nickname.validation.isAvailable
+                    ? 'text-green-600'
+                    : 'text-destructive'
+                }
+              >
                 {nickname.validation.message}
               </small>
             )}
             {profile.nickname && (
               <div className="flex items-center space-x-2 mt-1">
-                <small className="text-muted-foreground">Current: {profile.nickname}</small>
+                <small className="text-muted-foreground">
+                  Current: {profile.nickname}
+                </small>
                 <button
                   type="button"
-                  onClick={() => nickname.removeNickname().catch((error) => {
-                    console.error('Failed to remove nickname:', error);
-                  })}
+                  onClick={() =>
+                    nickname.removeNickname().catch((error: any) => {
+                      // Explicitly type error
+                      console.error('Failed to remove nickname:', error);
+                    })
+                  }
                   className="text-xs text-destructive hover:underline"
                   disabled={nickname.isRegistering}
                 >
