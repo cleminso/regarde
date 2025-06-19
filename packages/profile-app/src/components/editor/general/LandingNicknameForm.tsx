@@ -1,6 +1,7 @@
 import { useAccount, useIsAuthenticated, usePasskeyAuth } from 'jazz-react';
 import { Loaded } from 'jazz-tools';
-import React, { useCallback, useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import {
@@ -17,208 +18,180 @@ export function LandingNicknameForm() {
   const { me } = useAccount(OnboardingAccount, {
     resolve: { profile: true, root: true },
   });
-  const accountId = me?.id;
-  const profile: Loaded<typeof OnboardingProfile> | undefined = me?.profile;
 
+  const profile: Loaded<typeof OnboardingProfile> | undefined = me?.profile;
   const auth = usePasskeyAuth({ appName: APPLICATION_NAME });
 
   const [nickname, setNickname] = useState(profile?.nickname || '');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [authTriggered, setAuthTriggered] = useState(false);
-  const [registrationError, setRegistrationError] = useState<string | null>(
-    null,
-  );
+  const [pendingNickname, setPendingNickname] = useState<string>('');
+  const [authAttempted, setAuthAttempted] = useState(false);
 
-  const { validation, checkAvailability, validateNickname } =
-    useNicknameValidation({
-      profile,
-    });
-
-  const debouncedCheckAvailability = useCallback(
-    (value: string) => {
-      if (value.trim() === '') {
-        checkAvailability('');
-        return () => {};
-      }
-      const handler = setTimeout(() => {
-        checkAvailability(value.trim());
-      }, 300);
-
-      return () => {
-        clearTimeout(handler);
-      };
-    },
-    [checkAvailability],
-  );
+  const { status, errorMessage, checkAvailability } = useNicknameValidation({
+    profile,
+  });
 
   useEffect(() => {
-    const initialNickname = profile?.nickname || '';
-    setNickname(initialNickname);
-    const handler = setTimeout(() => {
-      debouncedCheckAvailability(initialNickname);
-    }, 50);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [profile, debouncedCheckAvailability]);
+    if (isAuthenticated && profile?.nickname && !isProcessing) {
+      navigate(`/${profile.nickname}/edit`, { replace: true });
+    }
+  }, [isAuthenticated, profile?.nickname, navigate, isProcessing]);
 
   useEffect(() => {
-    const cleanup = debouncedCheckAvailability(nickname);
-    return () => cleanup();
-  }, [nickname, debouncedCheckAvailability]);
+    const timer = setTimeout(() => {
+      checkAvailability(nickname);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [nickname, checkAvailability]);
 
   useEffect(() => {
     if (
-      authTriggered &&
+      authAttempted &&
       isAuthenticated &&
-      accountId &&
-      profile &&
-      !profile.nickname
+      pendingNickname &&
+      me?.id &&
+      profile
     ) {
-      console.log(
-        'Auth triggered and now authenticated. Attempting to register nickname...',
-      );
-      const registerNewlyAuthenticatedNickname = async () => {
-        setIsProcessing(true);
-        setRegistrationError(null);
+      const completeRegistration = async () => {
         try {
           await registerProfileNickname({
-            accountId: accountId!,
-            profile: profile!,
-            nickname: nickname.trim(),
-            oldNickname: undefined,
+            accountId: me.id,
+            profile,
+            nickname: pendingNickname,
+            oldNickname: profile.nickname,
           });
-          console.log('Nickname registration successful post-auth.');
+          navigate(`/${pendingNickname}/edit`);
         } catch (error) {
-          console.error(
-            'Failed to register nickname after authentication:',
-            error,
-          );
-          setRegistrationError(
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred during registration.',
-          );
+          console.error('Registration failed after auth:', error);
         } finally {
           setIsProcessing(false);
-          setAuthTriggered(false);
+          setAuthAttempted(false);
+          setPendingNickname('');
         }
       };
-      registerNewlyAuthenticatedNickname();
-    } else if (
-      isAuthenticated &&
-      profile?.nickname &&
-      !isProcessing &&
-      !authTriggered
-    ) {
-      console.log(
-        `Authenticated user "${profile.nickname}" detected in LandingNicknameForm, navigating to edit page.`,
-      );
-      navigate(`/${profile.nickname}/edit`, { replace: true });
+      completeRegistration();
     }
   }, [
-    authTriggered,
+    authAttempted,
     isAuthenticated,
-    accountId,
+    pendingNickname,
+    me?.id,
     profile,
-    nickname,
     navigate,
-    isProcessing,
   ]);
 
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setNickname(value);
+    setNickname(e.target.value);
   };
 
-  const handleButtonClick = async () => {
-    if (!validation.isValid || validation.isChecking || isProcessing) {
-      return;
-    }
+  const handleRegister = async () => {
+    const trimmed = nickname.trim();
+    setIsProcessing(true);
 
-    const trimmedNickname = nickname.trim();
+    if (!isAuthenticated) {
+      setPendingNickname(trimmed);
+      setAuthAttempted(true);
 
-    if (validation.isAvailable) {
-      const finalValidation = validateNickname(trimmedNickname);
-      if (!finalValidation.isValid) {
-        setRegistrationError(finalValidation.message || 'Invalid nickname.');
-        return;
-      }
-      setRegistrationError(null);
-
-      setIsProcessing(true);
-      setAuthTriggered(true);
-
-      if (!isAuthenticated) {
-        console.log(
-          'Nickname available, user not authenticated. Triggering signup...',
-        );
-        try {
-          await auth.signUp('');
-          console.log('auth.signUp completed. Waiting for state update...');
-        } catch (error) {
-          console.error('Passkey signup failed:', error);
-          setIsProcessing(false);
-          setAuthTriggered(false);
-          setRegistrationError('Authentication failed. Please try again.');
-        }
-      } else {
-        console.log(
-          'Nickname available, user already authenticated. Proceeding to register...',
-        );
-
-        if (!accountId || !profile) {
-          console.error(
-            'Missing context for authenticated registration attempt.',
-          );
-          setRegistrationError(
-            'Missing account context. Please try logging in again.',
-          );
-          setIsProcessing(false);
-          setAuthTriggered(false);
-          return;
-        }
-        try {
-          await registerProfileNickname({
-            accountId: accountId,
-            profile: profile,
-            nickname: trimmedNickname,
-            oldNickname: profile.nickname,
-          });
-          console.log(
-            'Nickname registration successful for existing authenticated user.',
-          );
-        } catch (error) {
-          console.error(
-            'Failed to register nickname for authenticated user:',
-            error,
-          );
-          // Display error
-          setRegistrationError(
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred during registration.',
-          );
-        } finally {
-          setIsProcessing(false);
-          setAuthTriggered(false);
-        }
+      try {
+        await auth.signUp('');
+      } catch (error) {
+        console.error('Auth error:', error);
+        setIsProcessing(false);
+        setAuthAttempted(false);
+        setPendingNickname('');
       }
     } else {
-      if (trimmedNickname) {
-        console.log(`Navigating to view profile: /${trimmedNickname}`);
-        navigate(`/${trimmedNickname}`);
+      try {
+        if (me?.id && profile) {
+          await registerProfileNickname({
+            accountId: me.id,
+            profile,
+            nickname: trimmed,
+            oldNickname: profile.nickname,
+          });
+          navigate(`/${trimmed}/edit`);
+        }
+      } catch (error) {
+        console.error('Registration failed:', error);
+      } finally {
+        setIsProcessing(false);
       }
     }
   };
 
-  if (isAuthenticated && profile?.nickname && !isProcessing && !authTriggered) {
-    console.log(
-      'Authenticated user with nickname detected in LandingNicknameForm, rendering null - expecting redirect.',
-    );
+  const handleView = () => {
+    const trimmed = nickname.trim();
+    if (trimmed) {
+      window.open(`${window.location.origin}/${trimmed}`, '_blank');
+    }
+  };
+
+  const renderButton = () => {
+    if (isProcessing) {
+      return (
+        <Button
+          disabled
+          size="sm"
+          className="rounded-sm px-4 py-2 transition-all duration-200"
+        >
+          <Loader2 size={16} className="animate-spin" />
+        </Button>
+      );
+    }
+
+    switch (status) {
+      case 'empty':
+        return null;
+
+      case 'available':
+        return (
+          <Button
+            onClick={handleRegister}
+            size="sm"
+            className="rounded-sm px-4 py-2 bg-green-300 hover:bg-green-300/90 text-green-700 transition-all duration-200 cursor-pointer"
+          >
+            Register
+          </Button>
+        );
+
+      case 'taken':
+        return (
+          <Button
+            onClick={handleView}
+            size="sm"
+            className="rounded-sm px-4 py-2 bg-blue-300 hover:bg-blue-300/90 text-blue-700 transition-all duration-200 cursor-pointer"
+          >
+            View
+          </Button>
+        );
+
+      case 'invalid':
+        return (
+          <Button
+            variant="default"
+            size="sm"
+            className="rounded-sm px-4 py-2 bg-red-300 hover:bg-red-300/90 text-red-700 transition-all duration-200"
+          >
+            Invalid
+          </Button>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  if (isAuthenticated && profile?.nickname && !isProcessing) {
     return null;
   }
+
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    const input = e.target;
+    setTimeout(() => {
+      input.setSelectionRange(input.value.length, input.value.length);
+    }, 0);
+  };
 
   return (
     <div className="flex flex-col items-center text-center gap-6 py-12">
@@ -226,53 +199,33 @@ export function LandingNicknameForm() {
       <p className="text-lg text-muted-foreground max-w-md">
         The last public profile you will ever need. Build one, share everywhere.
       </p>
-      <div className="flex flex-col items-center gap-4 mt-4">
-        <div className="relative w-full max-w-md">
-          <Input
-            type="text"
-            id="nickname"
-            value={nickname}
-            onChange={handleNicknameChange}
-            placeholder="your_nickname"
-            className="w-full"
-            disabled={isProcessing || validation.isChecking}
-          />
-          {validation.isChecking && (
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <div className="animate-spin h-4 w-4 border-2 border-muted-foreground border-t-transparent rounded-full"></div>
-            </div>
+
+      <div className="flex flex-col items-center gap-3 mt-4 w-full max-w-lg">
+        <div className="flex items-stretch w-full bg-muted rounded-sm overflow-hidden">
+          <div className="flex items-center px-3 py-3 text-md text-foreground whitespace-nowrap">
+            profile.jazz.dev/
+          </div>
+          <div className="relative flex-grow">
+            <Input
+              type="text"
+              value={nickname}
+              onChange={handleNicknameChange}
+              onFocus={handleInputFocus}
+              placeholder="your_name"
+              className="h-full border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none bg-transparent text-lg px-0 py-3 shadow-none rounded-none"
+              disabled={isProcessing}
+            />
+          </div>
+          <div className="flex items-center px-2 min-w-[100px] justify-end">
+            {renderButton()}
+          </div>{' '}
+        </div>
+
+        <div className="h-6 text-sm">
+          {status === 'invalid' && errorMessage && (
+            <small className="text-destructive">{errorMessage}</small>
           )}
         </div>
-        {validation.message && !validation.error && (
-          <small
-            className={
-              validation.isAvailable ? 'text-green-600' : 'text-destructive'
-            }
-          >
-            {validation.message}
-          </small>
-        )}
-        {validation.error && (
-          <small className="text-destructive">{validation.error}</small>
-        )}
-        {registrationError && (
-          <small className="text-destructive">{registrationError}</small>
-        )}
-
-        <Button
-          size="lg"
-          variant="default"
-          onClick={handleButtonClick}
-          disabled={
-            validation.isChecking || isProcessing || !validation.isValid
-          }
-        >
-          {isProcessing
-            ? 'Processing...'
-            : validation.isAvailable
-              ? 'Register Handle'
-              : 'View Profile'}
-        </Button>
       </div>
     </div>
   );

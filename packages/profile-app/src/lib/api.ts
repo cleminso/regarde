@@ -1,7 +1,4 @@
-// packages/profile-app/src/lib/api.ts
-
-// TODO: Make this configurable at build-time via Vite
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'http://api.jazz.dev';
 
 interface UserDetails {
   jazzAccountId?: string;
@@ -12,7 +9,7 @@ interface UserDetails {
   nicknameStatus?: {
     hasNickname: boolean;
     isRegistered: boolean;
-    registrationDate?: string; // Or Date
+    registrationDate?: string;
     canRegisterNickname: boolean;
   };
   publicData?: {

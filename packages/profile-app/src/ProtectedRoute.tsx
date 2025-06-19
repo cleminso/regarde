@@ -37,7 +37,6 @@ export function ProtectedRoute() {
           userDetails.error ===
           'Provided nickname is not owned by the provided jazzAccountId'
         ) {
-          // Fetch account details to get the actual nickname
           return fetchUserDetailsByAccountId(me.id)
             .then((accountDetails) => {
               if (
@@ -76,10 +75,6 @@ export function ProtectedRoute() {
         setValidationState('error');
       });
   }, [me?.id, nickname]);
-
-  if (validationState === 'loading') {
-    return <div>Loading...</div>;
-  }
 
   if (validationState === 'error') {
     return <Navigate to="/" replace />;

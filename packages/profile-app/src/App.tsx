@@ -1,13 +1,11 @@
-import { useAccount, useIsAuthenticated, usePasskeyAuth } from 'jazz-react';
-import { useEffect } from 'react'; // Removed useState, removed unused imports
+import { useAccount, useIsAuthenticated } from 'jazz-react';
+import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
 
 import { AuthButton } from './AuthButton.tsx';
 import { LandingNicknameForm } from './components/editor/general/LandingNicknameForm.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
-import { Button } from './components/ui/button.tsx';
 import { OnboardingAccount } from './lib/schema.ts';
-import { APPLICATION_NAME } from './main.tsx';
 
 export function App() {
   const { me } = useAccount(OnboardingAccount, {
@@ -18,22 +16,6 @@ export function App() {
 
   const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
-
-  const auth = usePasskeyAuth({
-    appName: APPLICATION_NAME,
-  });
-
-  const handleLogin = async () => {
-    try {
-      console.log('Login button clicked, triggering login...');
-      await auth.logIn();
-      console.log(
-        'auth.logIn completed. Expecting useEffect to handle navigation...',
-      );
-    } catch (error) {
-      console.error('Login failed:', error);
-    }
-  };
 
   useEffect(() => {
     if (isAuthenticated && profile?.nickname) {
@@ -63,19 +45,6 @@ export function App() {
           <div className="flex items-center gap-4">
             <AuthButton />
             <ThemeToggle />
-            {!isAuthenticated && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleLogin}
-                className="border-border"
-              >
-                Log in
-              </Button>
-            )}
-            {isAuthenticated && profile?.nickname && (
-              <span>Hello, @{profile.nickname}</span>
-            )}
           </div>
         </nav>
       </header>
