@@ -7,10 +7,10 @@ import { useNavigate } from 'react-router';
 import {
   registerProfileNickname,
   useNicknameValidation,
-} from '../../../lib/hook/useNickname';
-import { OnboardingAccount, OnboardingProfile } from '../../../lib/schema';
-import { APPLICATION_NAME } from '../../../main';
-import { Button, Input } from '../../ui';
+} from '../../lib/hook/useNickname';
+import { OnboardingAccount, OnboardingProfile } from '../../lib/schema';
+import { APPLICATION_NAME } from '../../main';
+import { Button, Input } from '../ui';
 
 export function LandingNicknameForm() {
   const navigate = useNavigate();
@@ -201,24 +201,22 @@ export function LandingNicknameForm() {
       </p>
 
       <div className="flex flex-col items-center gap-3 mt-4 w-full max-w-lg">
-        <div className="flex items-stretch w-full bg-muted rounded-sm overflow-hidden">
-          <div className="flex items-center px-3 py-3 text-md text-foreground whitespace-nowrap">
-            profile.jazz.dev/
+        <div className="flex items-center bg-background border border-border rounded-lg overflow-hidden w-full">
+          <div className="flex items-center px-3 py-2 bg-muted border-r border-border">
+            <span className="text-sm text-foreground">profile.jazz.dev/</span>
           </div>
-          <div className="relative flex-grow">
-            <Input
-              type="text"
-              value={nickname}
-              onChange={handleNicknameChange}
-              onFocus={handleInputFocus}
-              placeholder="your_name"
-              className="h-full border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none bg-transparent text-lg px-0 py-3 shadow-none rounded-none"
-              disabled={isProcessing}
-            />
-          </div>
+          <Input
+            type="text"
+            value={nickname}
+            onChange={handleNicknameChange}
+            onFocus={handleInputFocus}
+            placeholder="your_name"
+            className="border-0 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1"
+            disabled={isProcessing}
+          />
           <div className="flex items-center px-2 min-w-[100px] justify-end">
             {renderButton()}
-          </div>{' '}
+          </div>
         </div>
 
         <div className="h-6 text-sm">

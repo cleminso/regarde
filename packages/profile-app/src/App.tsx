@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
 
 import { AuthButton } from './AuthButton.tsx';
-import { LandingNicknameForm } from './components/editor/general/LandingNicknameForm.tsx';
+import { LandingNicknameForm } from './components/onbording/landingNicknameForm.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
 import { OnboardingAccount } from './lib/schema.ts';
 
