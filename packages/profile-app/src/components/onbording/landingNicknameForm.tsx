@@ -202,7 +202,7 @@ export function LandingNicknameForm() {
 
       <div className="flex flex-col items-center gap-3 mt-4 w-full max-w-lg">
         <div className="flex items-center bg-background border border-border rounded-lg overflow-hidden w-full">
-          <div className="flex items-center px-3 py-2 bg-muted border-r border-border">
+          <div className="flex items-center px-3 py-3 bg-muted border-r border-border">
             <span className="text-sm text-foreground">profile.jazz.dev/</span>
           </div>
           <Input

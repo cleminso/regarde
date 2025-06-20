@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 import { useGeneral } from '#/lib/hook/useGeneral';
 import { OnboardingProfile } from '../../../lib/schema';
 import { Button, Input, Textarea } from '../../ui';
+import { AvatarUpload } from './avatarUpload';
 
 type GeneralEditProps = {
   profile: Loaded<typeof OnboardingProfile>;
@@ -145,53 +146,16 @@ export function GeneralEdit({
   return (
     <>
       <section className="flex items-center mb-6 space-x-2">
-        <div>
-          <input
-            type="file"
-            id="avatar-upload"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept="image/png, image/jpeg, image/gif"
-            className="hidden"
-          />
-          <div
-            onClick={handleAvatarClick}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            className="w-24 h-24 rounded-full bg-background flex justify-center text-sm text-center text-muted-foreground cursor-pointer transition-colors overflow-hidden"
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) =>
-              (e.key === 'Enter' || e.key === ' ') && handleAvatarClick()
-            }
-            aria-label="Upload avatar"
-          >
-            {profile.avatar ? (
-              <img
-                src={profile.avatar}
-                alt="Avatar Preview"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center p-2 text-xs">
-                <span>Upload</span>
-              </div>
-            )}
-          </div>
-        </div>
-        {profile.avatar && (
-          <div className="h-full flex flex-col justify-end">
-            <button
-              type="button"
-              onClick={handleRemoveAvatar}
-              className="text-sm font-sans text-muted-foreground hover:text-destructive cursor-pointer"
-              aria-label="Remove current avatar"
-            >
-              Remove
-            </button>
-          </div>
-        )}
+        <AvatarUpload
+          avatar={profile.avatar}
+          fileInputRef={fileInputRef}
+          onAvatarClick={handleAvatarClick}
+          onFileChange={handleFileChange}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onRemoveAvatar={handleRemoveAvatar}
+        />
         <div className="flex flex-col w-full h-full">
           <div className="flex items-center justify-end mb-4 space-x-2">
             <Button
@@ -230,21 +194,21 @@ export function GeneralEdit({
                   </small>
                 )}
             </div>
-            <div className="flex items-stretch w-full bg-muted rounded-sm overflow-hidden">
-              <div className="flex items-center pl-3 pr-1 py-3 text-sm text-foreground whitespace-nowrap">
-                profile.jazz.dev/
+            <div className="flex items-center bg-background border border-border rounded-lg overflow-hidden w-full">
+              <div className="flex items-center px-3 py-3 bg-muted border-r border-border">
+                <span className="text-sm text-foreground">
+                  profile.jazz.dev/
+                </span>
               </div>
-              <div className="relative flex-grow">
-                <Input
-                  type="text"
-                  value={nickname.nicknameValue}
-                  onChange={handleNicknameChange}
-                  onFocus={handleInputFocus}
-                  placeholder="your_name"
-                  className="h-full text-base border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none bg-transparent  px-0 py-3 shadow-none rounded-none"
-                  disabled={nickname.isRegistering}
-                />
-              </div>
+              <Input
+                type="text"
+                value={nickname.nicknameValue}
+                onChange={handleNicknameChange}
+                onFocus={handleInputFocus}
+                placeholder="your_name"
+                className="border-0 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1"
+                disabled={nickname.isRegistering}
+              />
               <div className="flex items-center px-2 min-w-[100px] justify-end">
                 {renderNicknameButton()}
               </div>
@@ -266,7 +230,7 @@ export function GeneralEdit({
                 updateName(e.target.value)
               }
               placeholder="Your name"
-              className="w-full text-sm border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+              className="w-full h-11 text-sm border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
             />
           </div>
 
