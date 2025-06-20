@@ -78,44 +78,51 @@ export function ProfileView() {
     if (!nickname) {
       setNicknameExists(false);
       setIsLoading(false);
-    } else {
-      fetchUserDetailsByNickname(nickname ?? '').then(
-        ({ exists, jazzAccountId, publicData }) => {
-          if (!exists) {
-            setNicknameExists(false);
-            setIsLoading(false);
-          } else {
-            if (jazzAccountId === me?.id) {
-              if (me && me.profile) {
-                setProfile(me.profile);
-                setWebsiteHref(
-                  getHref(me.profile.socialLinks?.website) ?? null,
-                );
-                setWebsiteDisplayName(
-                  getWebsiteDisplayName(me.profile.socialLinks?.website) ??
-                    null,
-                );
-                setNicknameExists(true);
-                setIsLoading(false);
-              }
-            } else {
-              if (publicData) {
-                setProfile(publicData);
-                setWebsiteHref(
-                  getHref(publicData.socialLinks?.website) ?? null,
-                );
-                setWebsiteDisplayName(
-                  getWebsiteDisplayName(publicData.socialLinks?.website) ??
-                    null,
-                );
-                setNicknameExists(true);
-                setIsLoading(false);
-              }
-            }
-          }
-        },
-      );
+      return;
     }
+
+    if (me?.profile?.nickname === nickname) {
+      setProfile(me.profile);
+      setWebsiteHref(getHref(me.profile.socialLinks?.website) ?? null);
+      setWebsiteDisplayName(
+        getWebsiteDisplayName(me.profile.socialLinks?.website) ?? null,
+      );
+      setNicknameExists(true);
+      setIsLoading(false);
+      return;
+    }
+
+    fetchUserDetailsByNickname(nickname).then(
+      ({ exists, jazzAccountId, publicData }) => {
+        if (!exists) {
+          setNicknameExists(false);
+          setIsLoading(false);
+          return;
+        }
+
+        if (jazzAccountId === me?.id) {
+          if (me && me.profile) {
+            setProfile(me.profile);
+            setWebsiteHref(getHref(me.profile.socialLinks?.website) ?? null);
+            setWebsiteDisplayName(
+              getWebsiteDisplayName(me.profile.socialLinks?.website) ?? null,
+            );
+            setNicknameExists(true);
+            setIsLoading(false);
+          }
+        } else {
+          if (publicData) {
+            setProfile(publicData);
+            setWebsiteHref(getHref(publicData.socialLinks?.website) ?? null);
+            setWebsiteDisplayName(
+              getWebsiteDisplayName(publicData.socialLinks?.website) ?? null,
+            );
+            setNicknameExists(true);
+            setIsLoading(false);
+          }
+        }
+      },
+    );
   }, [me, nickname]);
 
   return (
@@ -132,11 +139,8 @@ export function ProfileView() {
             websiteDisplayName={websiteDisplayName ?? ''}
           />
           <About profile={profile} />
-
           <Contact profile={profile} />
-
           <Projects profile={profile} />
-
           <WorkExp profile={profile} />
         </main>
       ) : (

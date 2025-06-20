@@ -68,7 +68,7 @@ export function ProfileHeader({
             >
               <DropdownMenuItem
                 className="w-full"
-                onClick={() => navigate('/edit')}
+                onClick={() => navigate(`/${profile.nickname}/edit`)}
               >
                 Edit
               </DropdownMenuItem>

@@ -38,8 +38,11 @@ export function ProfileEditor() {
   const navigate = useNavigate();
 
   const handleCloseEditor = () => {
-    // TODO: get nickname and navigate to /:nickname
-    navigate('/profile');
+    if (profile?.nickname) {
+      navigate(`/${profile.nickname}`);
+    } else {
+      navigate('/profile');
+    }
   };
 
   const handleSectionChange = (section: SectionType) => {
@@ -119,6 +122,7 @@ export function ProfileEditor() {
                     setProjectView('form');
                   }}
                   onEditProject={handleEditProject}
+                  onClose={handleCloseEditor}
                 />
               ) : (
                 <ProjectEdit
@@ -142,6 +146,7 @@ export function ProfileEditor() {
                     setWorkExpViewMode('form');
                   }}
                   onEditWorkExp={handleEditWorkExp}
+                  onClose={handleCloseEditor}
                 />
               ) : (
                 <WorkExpEdit

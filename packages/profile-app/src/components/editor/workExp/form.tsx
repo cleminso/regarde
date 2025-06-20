@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { useWorkExp } from '../../../lib/hook/useWorkExp';
 import { OnboardingProfile, WorkExp } from '../../../lib/schema';
 import { Input, Textarea } from '../../ui/index';
-import { SectionHeader } from '../header';
-import { SelectorDate } from '../selectorDate';
+import { EditorFooter } from '../index';
+import { SectionHeader } from './../layout/header';
+import { SelectorDate } from './../selectorDate';
 
 type WorkExpEditProps = {
   profile: Loaded<typeof OnboardingProfile>;
@@ -32,12 +33,14 @@ export function WorkExpEdit({
     triggerSyncIndicator,
   });
 
+  const currentYear = new Date().getFullYear().toString();
+
   const [title, setTitle] = useState('');
   const [company, setCompany] = useState('');
   const [location, setLocation] = useState('');
   const [url, setUrl] = useState('');
   const [description, setDescription] = useState('');
-  const [fromDate, setFromDate] = useState('');
+  const [fromDate, setFromDate] = useState(currentYear);
   const [toDate, setToDate] = useState('');
 
   useEffect(() => {
@@ -47,7 +50,7 @@ export function WorkExpEdit({
       setLocation(workExpToEdit.location || '');
       setUrl(workExpToEdit.url || '');
       setDescription(workExpToEdit.description || '');
-      setFromDate(formatDate(workExpToEdit.from));
+      setFromDate(formatDate(workExpToEdit.from) || currentYear);
       setToDate(workExpToEdit.to || '');
     } else {
       setTitle('');
@@ -55,10 +58,10 @@ export function WorkExpEdit({
       setLocation('');
       setUrl('');
       setDescription('');
-      setFromDate('');
+      setFromDate(currentYear);
       setToDate('');
     }
-  }, [workExpToEdit]);
+  }, [workExpToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
     if (!title.trim() || !company.trim() || !fromDate.trim()) {
@@ -85,162 +88,173 @@ export function WorkExpEdit({
   };
 
   return (
-    <div className="space-y-4 w-full">
-      <SectionHeader
-        title={workExpToEdit ? 'Edit Work Experience' : 'Work Experience'}
-        description="Add your work experiences and responsibilities."
-        onActionClick={handleSaveAndClose}
-        actionText={workExpToEdit ? 'Save Changes' : 'Add Work'}
-        onCancelClick={onDoneEditing}
-        cancelText="Cancel"
+    <div className="flex flex-col h-full">
+      <div className="flex-1">
+        <SectionHeader
+          title="Work Experience"
+          description="Detail your professional roles and responsibilities."
+        />
+
+        <div className="space-y-4">
+          <section>
+            <div className="space-y-1 flex flex-row gap-4">
+              <div className="flex flex-col gap-1 w-full">
+                <label
+                  htmlFor="work-from-date"
+                  className="block text-xs font-sans text-foreground"
+                >
+                  From<sup>*</sup>
+                </label>
+                <SelectorDate
+                  id="work-from-date"
+                  value={fromDate}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                    setFromDate(e.target.value);
+                  }}
+                  placeholderOption={{
+                    value: '',
+                    label: 'Select Year',
+                    disabled: true,
+                  }}
+                  buttonDisplayValue={fromDate || 'Select Year'}
+                />
+              </div>
+              <div className="flex flex-col gap-1 w-full">
+                <label
+                  htmlFor="work-to-date"
+                  className="block text-xs font-sans  text-foreground"
+                >
+                  To
+                </label>
+                <SelectorDate
+                  id="work-to-date"
+                  value={toDate}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                    setToDate(e.target.value);
+                  }}
+                  placeholderOption={{ value: '', label: 'Present' }}
+                  buttonDisplayValue={toDate || 'Present'}
+                />
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div className="space-y-1 flex flex-row gap-4">
+              <div className="flex flex-col gap-1 w-full">
+                <label
+                  htmlFor="work-title"
+                  className="block text-xs font-sans  text-foreground"
+                >
+                  Title<sup>*</sup>
+                </label>
+                <Input
+                  type="text"
+                  id="work-title"
+                  value={title}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setTitle(e.target.value)
+                  }
+                  placeholder="Designer, Engineer, etc"
+                  className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              </div>
+              <div className="flex flex-col gap-1 w-full">
+                <label
+                  htmlFor="work-company"
+                  className="block text-xs font-sans text-foreground"
+                >
+                  At Company<sup>*</sup>
+                </label>
+                <Input
+                  type="text"
+                  id="work-company"
+                  value={company}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setCompany(e.target.value)
+                  }
+                  placeholder="Acme Inc."
+                  className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div className="space-y-1 flex flex-row gap-4">
+              <div className="flex flex-col gap-1 w-full">
+                <label
+                  htmlFor="work-location"
+                  className="block text-xs font-sans  text-foreground"
+                >
+                  Location
+                </label>
+                <Input
+                  type="text"
+                  id="work-location"
+                  value={location}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setLocation(e.target.value)
+                  }
+                  placeholder="Where was it"
+                  className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              </div>
+              <div className="flex flex-col gap-1 w-full">
+                <label
+                  htmlFor="work-url"
+                  className="block text-xs font-sans  text-foreground"
+                >
+                  URL
+                </label>
+                <Input
+                  type="text"
+                  id="work-url"
+                  value={url}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setUrl(e.target.value)
+                  }
+                  placeholder="https://company.example.com"
+                  className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div className="space-y-1 flex flex-row gap-4">
+              <div className="flex flex-col gap-1 w-full">
+                <label
+                  htmlFor="Description"
+                  className="block text-xs font-sans  text-foreground "
+                >
+                  Description
+                </label>
+                <Textarea
+                  id="Description"
+                  value={description}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    setDescription(e.target.value)
+                  }
+                  placeholder="Describe your role and achievements..."
+                  className="w-full text-sm font-sans placeholder:text-muted-foreground min-h-[200px] resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <EditorFooter
+        primaryAction={{
+          text: 'Save',
+          onClick: handleSaveAndClose,
+        }}
+        secondaryAction={{
+          text: 'Cancel',
+          onClick: onDoneEditing,
+        }}
       />
-
-      <section>
-        <div className="space-y-1 flex flex-row gap-4">
-          <div className="flex flex-col gap-1 w-full">
-            <label
-              htmlFor="work-from-date"
-              className="block text-xs font-sans text-foreground"
-            >
-              From<sup>*</sup>
-            </label>
-            <SelectorDate
-              id="work-from-date"
-              value={fromDate}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                setFromDate(e.target.value);
-              }}
-              placeholderOption={{
-                value: '',
-                label: 'Select Year',
-                disabled: true,
-              }}
-              buttonDisplayValue={fromDate || 'Select Year'}
-            />
-          </div>
-          <div className="flex flex-col gap-1 w-full">
-            <label
-              htmlFor="work-to-date"
-              className="block text-xs font-sans  text-foreground"
-            >
-              To
-            </label>
-            <SelectorDate
-              id="work-to-date"
-              value={toDate}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                setToDate(e.target.value);
-              }}
-              placeholderOption={{ value: '', label: 'Present' }}
-              buttonDisplayValue={toDate || 'Present'}
-            />
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <div className="space-y-1 flex flex-row gap-4">
-          <div className="flex flex-col gap-1 w-full">
-            <label
-              htmlFor="work-title"
-              className="block text-xs font-sans  text-foreground"
-            >
-              Title<sup>*</sup>
-            </label>
-            <Input
-              type="text"
-              id="work-title"
-              value={title}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setTitle(e.target.value)
-              }
-              placeholder="Designer, Engineer, etc"
-              className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </div>
-          <div className="flex flex-col gap-1 w-full">
-            <label
-              htmlFor="work-company"
-              className="block text-xs font-sans text-foreground"
-            >
-              At Company<sup>*</sup>
-            </label>
-            <Input
-              type="text"
-              id="work-company"
-              value={company}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setCompany(e.target.value)
-              }
-              placeholder="Acme Inc."
-              className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <div className="space-y-1 flex flex-row gap-4">
-          <div className="flex flex-col gap-1 w-full">
-            <label
-              htmlFor="work-location"
-              className="block text-xs font-sans  text-foreground"
-            >
-              Location
-            </label>
-            <Input
-              type="text"
-              id="work-location"
-              value={location}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setLocation(e.target.value)
-              }
-              placeholder="Where was it"
-              className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </div>
-          <div className="flex flex-col gap-1 w-full">
-            <label
-              htmlFor="work-url"
-              className="block text-xs font-sans  text-foreground"
-            >
-              URL
-            </label>
-            <Input
-              type="text"
-              id="work-url"
-              value={url}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setUrl(e.target.value)
-              }
-              placeholder="https://company.example.com"
-              className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <div className="space-y-1 flex flex-row gap-4">
-          <div className="flex flex-col gap-1 w-full">
-            <label
-              htmlFor="Description"
-              className="block text-xs font-sans  text-foreground "
-            >
-              Description
-            </label>
-            <Textarea
-              id="Description"
-              value={description}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                setDescription(e.target.value)
-              }
-              placeholder="Describe your role and achievements..."
-              className="w-full text-sm font-sans placeholder:text-muted-foreground min-h-[200px] resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

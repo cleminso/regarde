@@ -5,7 +5,8 @@ import { ConfirmationDialog } from '#/components/confirmation-dialog';
 import { Button } from '#/components/ui';
 import { ListOfProjects, OnboardingProfile, Project } from '#/lib/schema';
 import { useProject } from '../../../lib/hook/useProject.ts';
-import { SectionHeader } from '../header';
+import { EditorFooter } from '../index';
+import { SectionHeader } from './../layout/header';
 import { ProjectCard } from './card';
 
 type ProjectViewProps = {
@@ -57,47 +58,53 @@ export function ProjectView({
   };
 
   return (
-    <div className="space-y-4 w-full">
-      <SectionHeader
-        title="Projects"
-        description="Showcase your projects and contributions."
-        onActionClick={onAddProject}
-        actionText="Add Project"
-      />
-      {onClose && (
-        <Button variant="default" onClick={onClose} className="">
-          Close
-        </Button>
-      )}
+    <div className="flex flex-col h-full">
+      <div className="flex-1">
+        <SectionHeader
+          title="Projects"
+          description="Showcase your projects and contributions."
+          onActionClick={onAddProject}
+          actionText="Add Project"
+        />
 
-      {(!projects || projects.length === 0) && (
-        <div className="flex flex-col items-center py-50">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onAddProject}
-            className="border-none"
-          >
-            Add projects eveyone should know you work hard on it.
-          </Button>
-        </div>
-      )}
-      {projects && projects.length > 0 && (
-        <div className="space-y-6">
-          {projects
-            .filter(
-              (project): project is Loaded<typeof Project> => project !== null,
-            )
-            .map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                onEdit={onEditProject}
-                onDelete={initiateDeleteProject}
-              />
-            ))}
-        </div>
-      )}
+        {(!projects || projects.length === 0) && (
+          <div className="flex flex-col items-center py-20">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onAddProject}
+              className="border-none"
+            >
+              Add a work project you're proud of
+            </Button>
+          </div>
+        )}
+
+        {projects && projects.length > 0 && (
+          <div className="space-y-6">
+            {projects
+              .filter(
+                (project): project is Loaded<typeof Project> =>
+                  project !== null,
+              )
+              .map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  onEdit={onEditProject}
+                  onDelete={initiateDeleteProject}
+                />
+              ))}
+          </div>
+        )}
+      </div>
+
+      <EditorFooter
+        primaryAction={{
+          text: 'Done',
+          onClick: onClose || (() => {}),
+        }}
+      />
 
       <ConfirmationDialog
         open={isDeleteDialogOpen}

@@ -5,6 +5,8 @@ import React, { useEffect } from 'react';
 import { useGeneral } from '#/lib/hook/useGeneral';
 import { OnboardingProfile } from '../../../lib/schema';
 import { Button, Input, Textarea } from '../../ui';
+import { EditorFooter } from '../layout/footer';
+import { SectionHeader } from '../layout/header';
 import { AvatarUpload } from './avatarUpload';
 
 type GeneralEditProps = {
@@ -144,97 +146,92 @@ export function GeneralEdit({
   };
 
   return (
-    <>
-      <section className="flex items-center mb-6 space-x-2">
-        <AvatarUpload
-          avatar={profile.avatar}
-          fileInputRef={fileInputRef}
-          onAvatarClick={handleAvatarClick}
-          onFileChange={handleFileChange}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onRemoveAvatar={handleRemoveAvatar}
+    <div className="flex flex-col h-full">
+      <div className="flex-1">
+        <SectionHeader
+          title="General"
+          description="Share some details about yourself."
         />
-        <div className="flex flex-col w-full h-full">
-          <div className="flex items-center justify-end mb-4 space-x-2">
-            <Button
-              variant="outline"
-              onClick={onCloseEditor}
-              aria-label="Close editor and go to profile"
-              title="Close editor"
-              className="text-sm font-sans text-foreground hover:text-foreground rounded-sm hover:bg-accent border-none cursor-pointer"
-            >
-              Close
-            </Button>
-          </div>
-        </div>
-      </section>
 
-      <section className="mb-5 h-1/2">
-        <div className="space-y-4 w-full h-full">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label
-                htmlFor="nickname"
-                className="text-sm font-sans block text-foreground"
-              >
-                Nickname<sup>*</sup>
-              </label>
-              {!nickname.nicknameValue.trim() && (
-                <small className="text-destructive">
-                  Nickname is required.
-                </small>
-              )}
-              {nickname.nicknameValue.trim() &&
-                nickname.status === 'invalid' &&
-                nickname.errorMessage && (
+        <div className="space-y-6">
+          <section className="flex items-center gap-3">
+            <AvatarUpload
+              avatar={profile.avatar}
+              fileInputRef={fileInputRef}
+              onAvatarClick={handleAvatarClick}
+              onFileChange={handleFileChange}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onRemoveAvatar={handleRemoveAvatar}
+            />
+            <div className="flex items-center"></div>
+          </section>
+
+          <section className="space-y-3">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label
+                  htmlFor="nickname"
+                  className="text-sm font-sans block text-foreground"
+                >
+                  Nickname<sup>*</sup>
+                </label>
+                {!nickname.nicknameValue.trim() && (
                   <small className="text-destructive">
-                    {nickname.errorMessage}
+                    Nickname is required.
                   </small>
                 )}
-            </div>
-            <div className="flex items-center bg-background border border-border rounded-lg overflow-hidden w-full">
-              <div className="flex items-center px-3 py-3 bg-muted border-r border-border">
-                <span className="text-sm text-foreground">
-                  profile.jazz.dev/
-                </span>
+                {nickname.nicknameValue.trim() &&
+                  nickname.status === 'invalid' &&
+                  nickname.errorMessage && (
+                    <small className="text-destructive">
+                      {nickname.errorMessage}
+                    </small>
+                  )}
               </div>
+              <div className="flex items-center bg-background border border-border rounded-lg overflow-hidden w-full">
+                <div className="flex items-center px-3 py-3 bg-muted border-r border-border">
+                  <span className="text-sm text-foreground">
+                    profile.jazz.dev/
+                  </span>
+                </div>
+                <Input
+                  type="text"
+                  value={nickname.nicknameValue}
+                  onChange={handleNicknameChange}
+                  onFocus={handleInputFocus}
+                  placeholder="your_name"
+                  className="border-0 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1"
+                  disabled={nickname.isRegistering}
+                />
+                <div className="flex items-center px-2 min-w-[100px] justify-end">
+                  {renderNicknameButton()}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="name"
+                className="text-sm font-sans block text-foreground mb-2"
+              >
+                Name
+              </label>
               <Input
                 type="text"
-                value={nickname.nicknameValue}
-                onChange={handleNicknameChange}
-                onFocus={handleInputFocus}
-                placeholder="your_name"
-                className="border-0 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1"
-                disabled={nickname.isRegistering}
+                id="name"
+                value={profile.name || ''}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  updateName(e.target.value)
+                }
+                placeholder="Your name"
+                className="w-full h-11 text-sm border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
               />
-              <div className="flex items-center px-2 min-w-[100px] justify-end">
-                {renderNicknameButton()}
-              </div>
             </div>
-          </div>
+          </section>
 
-          <div>
-            <label
-              htmlFor="name"
-              className="text-sm font-sans block text-foreground mb-2"
-            >
-              Name
-            </label>
-            <Input
-              type="text"
-              id="name"
-              value={profile.name || ''}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                updateName(e.target.value)
-              }
-              placeholder="Your name"
-              className="w-full h-11 text-sm border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
-            />
-          </div>
-
-          <div className="h-full">
+          <section>
             <label
               htmlFor="bio"
               className="block text-sm font-sans text-foreground mb-2"
@@ -248,11 +245,18 @@ export function GeneralEdit({
                 updateBio(e.target.value)
               }
               placeholder="Share what people should know about you."
-              className="text-sm font-sans w-full min-h-full h-max resize-none border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+              className="text-sm font-sans w-full min-h-[150px] resize-none border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
             />
-          </div>
+          </section>
         </div>
-      </section>
-    </>
+      </div>
+
+      <EditorFooter
+        primaryAction={{
+          text: 'Done',
+          onClick: onCloseEditor,
+        }}
+      />
+    </div>
   );
 }

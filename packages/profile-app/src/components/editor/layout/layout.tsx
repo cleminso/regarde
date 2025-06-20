@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Card } from '../ui/index.ts';
+import { Card } from '../../ui/index.ts';
 
 type EditorLayoutProps = {
   sidebar: React.ReactNode;

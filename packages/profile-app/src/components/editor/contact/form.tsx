@@ -2,7 +2,8 @@ import { Loaded } from 'jazz-tools';
 
 import { useContact } from '#/lib/hook/useContact';
 import { OnboardingProfile } from '../../../lib/schema';
-import { SectionHeader } from '../header';
+import { EditorFooter } from '../layout/footer';
+import { SectionHeader } from '../layout/header';
 import { contactFields } from './config';
 import { ContactInput } from './input';
 
@@ -20,27 +21,34 @@ export function ContactEdit({
   const { updateSocialLink } = useContact({ profile, triggerSyncIndicator });
 
   return (
-    <div className="space-y-6 w-full">
-      <SectionHeader
-        title="Contact Links"
-        description="Connect your social profiles and website"
-        onActionClick={onCloseEditor}
-        actionText="Close"
-      />
+    <div className="flex flex-col h-full">
+      <div className="flex-1">
+        <SectionHeader
+          title="Contact Links"
+          description="Connect your social profiles and website."
+        />
 
-      <div className="space-y-4">
-        {contactFields.map((field) => (
-          <ContactInput
-            key={field.id}
-            id={field.id}
-            icon={field.icon}
-            prefix={field.prefix}
-            value={profile.socialLinks?.[field.id] || ''}
-            onChange={(value) => updateSocialLink(field.id, value)}
-            placeholder={field.placeholder}
-          />
-        ))}
+        <div className="space-y-4">
+          {contactFields.map((field) => (
+            <ContactInput
+              key={field.id}
+              id={field.id}
+              icon={field.icon}
+              prefix={field.prefix}
+              value={profile.socialLinks?.[field.id] || ''}
+              onChange={(value) => updateSocialLink(field.id, value)}
+              placeholder={field.placeholder}
+            />
+          ))}
+        </div>
       </div>
+
+      <EditorFooter
+        primaryAction={{
+          text: 'Done',
+          onClick: onCloseEditor,
+        }}
+      />
     </div>
   );
 }
