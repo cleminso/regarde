@@ -1,33 +1,33 @@
 import { Loaded } from 'jazz-tools';
 import { ArrowUpRight } from 'lucide-react';
 
+import { Button } from '#/components/ui/button';
 import { OnboardingProfile, WorkExp as WorkExpSchema } from '#/lib/schema';
+import { getValidUrl } from '#/lib/utils';
 
 type WorkExpProps = {
   profile: Loaded<typeof OnboardingProfile>;
 };
 
-const formatDate = (
-  date: Date | string | undefined,
-  isEndDate?: boolean,
-): string => {
-  if (isEndDate && !date) return 'Now';
-  if (!date) return 'N/A';
+const formatDate = (date: Date | string | undefined): string => {
+  if (!date) return 'Now';
 
   if (date instanceof Date) {
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
     });
   }
-  return String(date);
-};
 
-const getHref = (url?: string): string | undefined => {
-  if (!url) return undefined;
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
+  if (typeof date === 'string') {
+    const parsedDate = new Date(date);
+    if (!isNaN(parsedDate.getTime())) {
+      return parsedDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+      });
+    }
   }
-  return `https://${url}`;
+
+  return String(date);
 };
 
 export function WorkExp({ profile }: WorkExpProps) {
@@ -50,8 +50,8 @@ export function WorkExp({ profile }: WorkExpProps) {
           const displayTitle = `${workExp.title || 'Untitled Role'} @ ${
             workExp.company || 'Unnamed Company'
           }`;
-          const dateRange = `${formatDate(workExp.from)} - ${formatDate(workExp.to, true)}`;
-          const companyLink = getHref(workExp.url);
+          const dateRange = `${formatDate(workExp.from)} - ${formatDate(workExp.to)}`;
+          const companyLink = getValidUrl(workExp.url);
 
           return (
             <div
@@ -60,37 +60,43 @@ export function WorkExp({ profile }: WorkExpProps) {
             >
               <div className="flex flex-row gap-4">
                 <div className="flex flex-col w-28 flex-shrink-0">
-                  <span className="text-sm font-sans text-muted-foreground">
+                  <span className="text-sm font-sans text-secondary-foreground">
                     {dateRange}
                   </span>
                 </div>
-                <div className="flex flex-col flex-grow gap-1">
+                <div className="flex flex-col flex-grow gap-0.5">
                   <div>
                     {companyLink ? (
-                      <a
-                        href={companyLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-md font-sans text-foreground hover:underline hover:underline-offset-4 inline-flex items-center"
+                      <Button
+                        variant="link-title"
+                        asChild
+                        size="title"
+                        className="inline-flex items-center group"
                       >
-                        {displayTitle}
-                        <ArrowUpRight className="h-4 w-4 ml-1" />
-                      </a>
+                        <a
+                          href={companyLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {displayTitle}
+                          <ArrowUpRight className="h-4 w-4 ml-1" />
+                        </a>
+                      </Button>
                     ) : (
-                      <h4 className="text-md font-sans text-foreground">
+                      <Button variant="link-title" disabled size="title">
                         {displayTitle}
-                      </h4>
+                      </Button>
                     )}
                   </div>
                   {workExp.location && (
-                    <div>
-                      <span className="text-sm text-muted-foreground">
+                    <div className="mb-2">
+                      <span className="text-sm text-secondary-foreground">
                         {workExp.location}
                       </span>
                     </div>
                   )}
                   {workExp.description && (
-                    <p className="text-sm text-muted-foreground whitespace-pre-line">
+                    <p className="text-sm text-secondary-foreground whitespace-pre-line">
                       {workExp.description}
                     </p>
                   )}

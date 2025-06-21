@@ -2,27 +2,27 @@ import { Loaded } from 'jazz-tools';
 import { MoreHorizontalIcon } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
-import { OnboardingProfile } from '#/lib/schema.ts';
-import { Button } from '../ui/button.tsx';
+import { Button } from '#/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu.tsx';
+} from '#/components/ui/dropdown-menu';
+import { OnboardingProfile } from '#/lib/schema';
+import { getValidUrl, getWebsiteDisplayName } from '#/lib/utils';
 
 type ProfileHeaderProps = {
   profile: Loaded<typeof OnboardingProfile>;
-  websiteHref?: string;
-  websiteDisplayName?: string;
 };
 
-export function ProfileHeader({
-  profile,
-  websiteHref,
-  websiteDisplayName,
-}: ProfileHeaderProps) {
+export function ProfileHeader({ profile }: ProfileHeaderProps) {
   const navigate = useNavigate();
+
+  const websiteHref = getValidUrl(profile.socialLinks?.website);
+  const websiteDisplayName = getWebsiteDisplayName(
+    profile.socialLinks?.website,
+  );
 
   return (
     <section
@@ -43,15 +43,17 @@ export function ProfileHeader({
       <div className="flex flex-col gap-2 pt-2">
         <h2 className="text-lg font">{profile.name}</h2>
         {websiteHref && websiteDisplayName && (
-          <a
-            href={websiteHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200 transition-colors"
+          <Button
+            asChild
+            variant="link"
+            size="sm"
+            className="bg-accent text-accent-foreground hover:bg-accent hover:text-accent-foreground"
             title={`Visit ${profile.name}'s website: ${websiteHref}`}
           >
-            <span>{websiteDisplayName}</span>
-          </a>
+            <a href={websiteHref} target="_blank" rel="noopener noreferrer">
+              {websiteDisplayName}
+            </a>
+          </Button>
         )}
       </div>
       <div className="flex flex-col w-full h-full">
@@ -59,12 +61,12 @@ export function ProfileHeader({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="w-8 h-8 p-0">
-                <MoreHorizontalIcon className="w-4 h-4 text-muted-foreground" />
+                <MoreHorizontalIcon className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="py-1 px-0 border border-border shadow-none"
+              className="border-border shadow-none"
             >
               <DropdownMenuItem
                 className="w-full"

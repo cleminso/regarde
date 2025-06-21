@@ -1,25 +1,25 @@
 import { Loaded } from 'jazz-tools';
 
-import { OnboardingProfile } from '#/lib/schema.ts';
+import { OnboardingProfile } from '#/lib/schema';
 
 type AboutProps = {
   profile: Loaded<typeof OnboardingProfile>;
 };
 
 export function About({ profile }: AboutProps) {
+  if (!profile.bio) {
+    return null;
+  }
+
   return (
     <section
       className="mx-auto flex flex-col gap-2 my-8"
       style={{ width: '540px' }}
     >
-      <h3 className="text-md font-sans">About</h3>{' '}
-      {profile.bio ? (
-        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-          {profile.bio}
-        </p>
-      ) : (
-        <p className="text-sm text-muted-foreground italic">No bio provided.</p>
-      )}
+      <h3 className="text-md font-sans text-foreground">About</h3>
+      <p className="text-sm text-secondary-foreground whitespace-pre-wrap">
+        {profile.bio}
+      </p>
     </section>
   );
 }

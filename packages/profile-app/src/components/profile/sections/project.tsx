@@ -1,7 +1,9 @@
 import { Loaded } from 'jazz-tools';
 import { ArrowUpRight } from 'lucide-react';
 
+import { Button } from '#/components/ui/button';
 import { OnboardingProfile, Project } from '#/lib/schema';
+import { getValidUrl } from '#/lib/utils';
 
 type ProjectsProps = {
   profile: Loaded<typeof OnboardingProfile>;
@@ -28,12 +30,7 @@ export function Projects({ profile }: ProjectsProps) {
             ? `${project.title || 'Untitled Project'} @${project.client}`
             : project.title || 'Untitled Project';
 
-          const projectLink = project.link
-            ? project.link.startsWith('http://') ||
-              project.link.startsWith('https://')
-              ? project.link
-              : `https://${project.link}`
-            : undefined;
+          const projectLink = getValidUrl(project.link);
 
           return (
             <div
@@ -42,30 +39,36 @@ export function Projects({ profile }: ProjectsProps) {
             >
               <div className="flex flex-row gap-4">
                 <div className="flex flex-col w-20 flex-shrink-0">
-                  <span className="text-sm font-sans text-muted-foreground">
+                  <span className="text-sm font-sans text-secondary-foreground">
                     {project.year || 'N/A'}
                   </span>
                 </div>
                 <div className="flex flex-col flex-grow gap-1">
                   <div>
                     {projectLink ? (
-                      <a
-                        href={projectLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-base font-medium text-foreground hover:underline hover:underline-offset-4 inline-flex items-center group"
+                      <Button
+                        variant="link-title"
+                        asChild
+                        size="title"
+                        className="inline-flex items-center group"
                       >
-                        {displayTitle}
-                        <ArrowUpRight className="h-4 w-4 ml-1" />
-                      </a>
+                        <a
+                          href={projectLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {displayTitle}
+                          <ArrowUpRight className="h-4 w-4 ml-1" />
+                        </a>
+                      </Button>
                     ) : (
-                      <h4 className="text-base font-medium text-foreground">
+                      <Button variant="link-title" disabled size="title">
                         {displayTitle}
-                      </h4>
+                      </Button>
                     )}
                   </div>
                   {project.description && (
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    <p className="text-sm text-secondary-foreground whitespace-pre-wrap">
                       {project.description}
                     </p>
                   )}

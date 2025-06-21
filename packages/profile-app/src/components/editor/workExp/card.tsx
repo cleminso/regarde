@@ -12,11 +12,22 @@ type WorkExpCardProps = {
 
 const formatDate = (date: Date | string | undefined): string => {
   if (!date) return 'Now';
+
   if (date instanceof Date) {
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
     });
   }
+
+  if (typeof date === 'string') {
+    const parsedDate = new Date(date);
+    if (!isNaN(parsedDate.getTime())) {
+      return parsedDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+      });
+    }
+  }
+
   return String(date);
 };
 

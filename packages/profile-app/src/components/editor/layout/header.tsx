@@ -32,9 +32,9 @@ export function SectionHeader({
       {hasAction && (
         <div className="ml-4 flex-shrink-0">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={onActionClick}
-            className="text-sm font-sans text-foreground hover:text-foreground rounded-sm hover:bg-accent border-none cursor-pointer"
+            className="text-sm font-sans text-foreground bg-accent hover:bg-accent/90 hover:text-foreground rounded-md cursor-pointer"
           >
             {actionText}
           </Button>

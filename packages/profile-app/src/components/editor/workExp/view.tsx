@@ -62,7 +62,7 @@ export function WorkExpView({
       <div className="flex-1">
         <SectionHeader
           title="Work Experience"
-          description="Detail your professional roles and responsibilities."
+          description="Detail your roles and responsibilities."
           actionText="Add Experience"
           onActionClick={onAddWorkExp}
         />

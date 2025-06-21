@@ -26,12 +26,14 @@ export function EditorFooter({
       className={`flex justify-end items-center gap-2 pt-4 border-t border-border ${className}`}
     >
       {secondaryAction && (
-        <Button variant="ghost" onClick={secondaryAction.onClick}>
+        <Button variant="ghost" onClick={secondaryAction.onClick} className="">
           {secondaryAction.text}
         </Button>
       )}
       {primaryAction && (
-        <Button onClick={primaryAction.onClick}>{primaryAction.text}</Button>
+        <Button variant="secondary" onClick={primaryAction.onClick}>
+          {primaryAction.text}
+        </Button>
       )}
     </div>
   );
