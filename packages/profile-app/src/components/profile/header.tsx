@@ -58,6 +58,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
       </div>
       <div className="flex flex-col w-full h-full">
         <div className="flex justify-end my-2">
+          {/*TODO: add sharing porifle profile view | hide edit */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="w-8 h-8 p-0">
