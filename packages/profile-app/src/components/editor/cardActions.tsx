@@ -1,4 +1,5 @@
-import { Button } from '#/components/ui';
+import { cn } from '../../lib/utils.ts';
+import { Button } from '../ui/button.tsx';
 
 type EditorCardActionsProps<T> = {
   item: T;
@@ -17,7 +18,9 @@ export function EditorCardActions<T>({
         variant="ghost"
         size="sm"
         onClick={() => onEdit(item)}
-        className="text-xs font-sans hover:bg-transparent hover:underline underline-offset-4 cursor-pointer "
+        className={cn(
+          'hover:text-foreground hover:bg-transparent hover:underline underline-offset-4',
+        )}
       >
         Edit
       </Button>
@@ -25,7 +28,9 @@ export function EditorCardActions<T>({
         variant="ghost"
         size="sm"
         onClick={() => onDelete(item)}
-        className="text-xs font-sans hover:bg-transparent hover:underline underline-offset-4 cursor-pointer"
+        className={cn(
+          'hover:text-foreground hover:bg-transparent hover:underline underline-offset-4',
+        )}
       >
         Delete
       </Button>

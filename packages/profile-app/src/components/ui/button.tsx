@@ -26,9 +26,9 @@ const buttonVariants = cva(
           'text-base font-medium justify-start text-foreground rounded-md hover:bg-accent hover:text-accent-foreground disabled:text-foreground disabled:opacity-100 disabled:cursor-default',
       },
       size: {
-        default: 'h-9 px-4 py-2',
+        default: 'h-9 px-4 py-2 text-sm',
         sm: 'h-8 rounded-md px-2 text-xs',
-        md: 'h-9 rounded-me px-4 text-md',
+        md: 'h-9 rounded-md px-4 text-sm',
         lg: 'h-10 rounded-md px-8',
         icon: 'h-9 w-9 rounded-md',
         title: `h-auto px-1 py-0`,

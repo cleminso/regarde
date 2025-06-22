@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { Button } from '../ui';
+import { cn } from '../../lib/utils.ts';
+import { Button } from '../ui/button.tsx';
 
 type SelectorDateProps = {
   id: string;
@@ -25,15 +26,16 @@ export function SelectorDate({
   onChange,
   placeholderOption,
   buttonDisplayValue,
-  buttonClassName = 'w-full justify-start font-normal h-9 py-2 px-3 text-sm font-sans',
-  selectClassName = 'absolute inset-0 w-full h-full opacity-0 cursor-pointer',
-  wrapperClassName = 'relative w-full',
+  buttonClassName,
+  selectClassName,
+  wrapperClassName,
 }: SelectorDateProps) {
   return (
-    <div className={wrapperClassName}>
+    <div className={cn('relative w-full', wrapperClassName)}>
       <Button
         variant="outline"
-        className={buttonClassName}
+        size="default"
+        className={cn('w-full bg-background justify-start', buttonClassName)}
         aria-hidden="true"
         tabIndex={-1}
       >
@@ -43,7 +45,10 @@ export function SelectorDate({
         id={id}
         value={value}
         onChange={onChange}
-        className={selectClassName}
+        className={cn(
+          'absolute inset-0 w-full h-full opacity-0 cursor-pointer',
+          selectClassName,
+        )}
       >
         <option
           value={placeholderOption.value}

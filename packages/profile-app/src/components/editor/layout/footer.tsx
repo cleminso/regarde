@@ -39,7 +39,11 @@ export function EditorFooter({
         </Button>
       )}
       {primaryAction && (
-        <Button variant="outline" onClick={primaryAction.onClick}>
+        <Button
+          variant="outline"
+          className="bg-background"
+          onClick={primaryAction.onClick}
+        >
           {primaryAction.text}
         </Button>
       )}
