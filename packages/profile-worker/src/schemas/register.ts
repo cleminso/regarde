@@ -1,9 +1,15 @@
 import { z } from "zod";
 
 export const RegisterRequestSchema = z.object({
-  nickname: z.string().min(1, "Nickname is required"),
+  nickname: z
+    .string()
+    .min(1, "Nickname is required")
+    .transform((val) => val.toLowerCase().trim()),
   jazzAccountID: z.string().min(1, "Jazz Account ID is required"),
-  oldNickname: z.string().optional(),
+  oldNickname: z
+    .string()
+    .optional()
+    .transform((val) => (val ? val.toLowerCase().trim() : val)),
 });
 
 export const RegisterResponseSchema = z.object({

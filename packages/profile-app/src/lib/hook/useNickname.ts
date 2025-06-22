@@ -18,7 +18,7 @@ export function useNicknameValidation({ profile }: UseNicknameValidationProps) {
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const isValidFormat = (nickname: string): boolean => {
-    const trimmed = nickname.trim();
+    const trimmed = nickname.toLowerCase().trim();
     return (
       trimmed.length >= 1 &&
       trimmed.length <= 20 &&
@@ -74,13 +74,14 @@ export async function registerProfileNickname({
   nickname: string;
   oldNickname: string | undefined;
 }) {
-  const trimmedNickname = nickname.trim();
+  const trimmedNickname = nickname.toLowerCase().trim();
+  const oldNicknameLower = oldNickname?.toLowerCase().trim();
 
   if (!accountId || !profile) {
     throw new Error('Authentication context missing for registration');
   }
 
-  if (trimmedNickname !== oldNickname) {
+  if (trimmedNickname !== oldNicknameLower) {
     const availabilityCheck = await checkNicknameAvailability(trimmedNickname);
     if (!availabilityCheck.available) {
       throw new Error(`Nickname "${trimmedNickname}" is no longer available.`);
@@ -90,7 +91,7 @@ export async function registerProfileNickname({
   await registerNickname({
     nickname: trimmedNickname,
     jazzAccountID: accountId,
-    oldNickname: oldNickname,
+    oldNickname: oldNicknameLower,
   });
 
   profile.nickname = trimmedNickname || undefined;
