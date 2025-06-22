@@ -8,6 +8,7 @@ import {
   fetchUserDetailsWithValidation,
   validateNicknameOwnership,
 } from './lib/api';
+import { createNicknameUrl } from './lib/utils';
 
 export function ProtectedRoute() {
   const isAuthenticated = useIsAuthenticated();
@@ -32,7 +33,6 @@ export function ProtectedRoute() {
 
     fetchUserDetailsWithValidation(me.id, nickname)
       .then((userDetails) => {
-        // Handle specific case where backend says nickname is not owned by account
         if (
           userDetails.error ===
           'Provided nickname is not owned by the provided jazzAccountId'
@@ -81,7 +81,7 @@ export function ProtectedRoute() {
   }
 
   if (validationState === 'invalid' && actualNickname) {
-    return <Navigate to={`/${actualNickname}/edit`} replace />;
+    return <Navigate to={createNicknameUrl(actualNickname, '/edit')} replace />;
   }
 
   return <Outlet />;

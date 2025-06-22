@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 
 import { useEditProfile } from '../../lib/hook/useEditProfile.ts';
 import { Project, WorkExp } from '../../lib/schema.ts';
+import { createNicknameUrl } from '../../lib/utils.ts';
 import {
   ContactEdit,
   EditorLayout,
@@ -39,7 +40,7 @@ export function ProfileEditor() {
 
   const handleCloseEditor = () => {
     if (profile?.nickname) {
-      navigate(`/${profile.nickname}`);
+      navigate(createNicknameUrl(profile.nickname));
     } else {
       navigate('/profile');
     }

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router';
 import { APPLICATION_NAME } from '../../main';
 import { checkNicknameAvailability, registerNickname } from '../nicknameApi';
 import { OnboardingAccount, OnboardingProfile } from '../schema';
+import { createNicknameUrl } from '../utils';
 
 type NicknameStatus = 'empty' | 'available' | 'taken' | 'invalid';
 
@@ -18,38 +19,35 @@ export function useNicknameValidation({ profile }: UseNicknameValidationProps) {
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const isValidFormat = (nickname: string): boolean => {
-    const trimmed = nickname.toLowerCase().trim();
     return (
-      trimmed.length >= 1 &&
-      trimmed.length <= 20 &&
-      /^[a-zA-Z0-9_-]+$/.test(trimmed)
+      nickname.length >= 1 &&
+      nickname.length <= 20 &&
+      /^[a-zA-Z0-9_-]+$/.test(nickname)
     );
   };
 
   const checkAvailability = useCallback(
     async (nickname: string) => {
-      const trimmed = nickname.trim();
-
-      if (!trimmed) {
+      if (!nickname) {
         setStatus('empty');
         setErrorMessage('');
         return;
       }
 
-      if (!isValidFormat(trimmed)) {
+      if (!isValidFormat(nickname)) {
         setStatus('invalid');
         setErrorMessage('Nickname must be alphanumerical, dashes are allowed.');
         return;
       }
 
-      if (profile?.nickname === trimmed) {
+      if (profile?.nickname === nickname) {
         setStatus('available');
         setErrorMessage('');
         return;
       }
 
       try {
-        const result = await checkNicknameAvailability(trimmed);
+        const result = await checkNicknameAvailability(nickname);
         setStatus(result.available ? 'available' : 'taken');
         setErrorMessage('');
       } catch (error) {
@@ -74,30 +72,26 @@ export async function registerProfileNickname({
   nickname: string;
   oldNickname: string | undefined;
 }) {
-  const trimmedNickname = nickname.toLowerCase().trim();
-  const oldNicknameLower = oldNickname?.toLowerCase().trim();
-
   if (!accountId || !profile) {
     throw new Error('Authentication context missing for registration');
   }
 
-  if (trimmedNickname !== oldNicknameLower) {
-    const availabilityCheck = await checkNicknameAvailability(trimmedNickname);
+  if (nickname !== oldNickname) {
+    const availabilityCheck = await checkNicknameAvailability(nickname);
     if (!availabilityCheck.available) {
-      throw new Error(`Nickname "${trimmedNickname}" is no longer available.`);
+      throw new Error(`Nickname "${nickname}" is no longer available.`);
     }
   }
 
   await registerNickname({
-    nickname: trimmedNickname,
+    nickname,
     jazzAccountID: accountId,
-    oldNickname: oldNicknameLower,
+    oldNickname,
   });
 
-  profile.nickname = trimmedNickname || undefined;
+  profile.nickname = nickname;
 }
 
-// Registration hook for landing page
 export function useNicknameRegistration() {
   const navigate = useNavigate();
   const isAuthenticated = useIsAuthenticated();
@@ -133,7 +127,7 @@ export function useNicknameRegistration() {
             nickname: pendingNickname,
             oldNickname: profile.nickname,
           });
-          navigate(`/${pendingNickname}/edit`);
+          navigate(createNicknameUrl(pendingNickname, '/edit'));
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Registration failed');
         } finally {
@@ -154,25 +148,24 @@ export function useNicknameRegistration() {
   ]);
 
   const register = async (nickname: string): Promise<void> => {
-    const trimmed = nickname.trim();
-    if (!trimmed) return;
+    if (!nickname) return;
 
     setIsProcessing(true);
     setError(null);
 
     try {
       if (!isAuthenticated) {
-        setPendingNickname(trimmed);
+        setPendingNickname(nickname);
         setAuthAttempted(true);
         await auth.signUp('');
       } else if (accountId && profile) {
         await registerProfileNickname({
           accountId,
           profile,
-          nickname: trimmed,
+          nickname,
           oldNickname: profile.nickname,
         });
-        navigate(`/${trimmed}/edit`);
+        navigate(createNicknameUrl(nickname, '/edit'));
         setIsProcessing(false);
       }
     } catch (err) {
@@ -184,9 +177,11 @@ export function useNicknameRegistration() {
   };
 
   const view = (nickname: string): void => {
-    const trimmed = nickname.trim();
-    if (trimmed) {
-      window.open(`${window.location.origin}/${trimmed}`, '_blank');
+    if (nickname) {
+      window.open(
+        `${window.location.origin}${createNicknameUrl(nickname)}`,
+        '_blank',
+      );
     }
   };
 
@@ -202,7 +197,6 @@ export function useNicknameRegistration() {
   };
 }
 
-// Update hook for editor page
 interface UseNicknameUpdateParams {
   profile: Loaded<typeof OnboardingProfile>;
   accountId: string;
@@ -220,8 +214,7 @@ export function useNicknameUpdate({
   const validation = useNicknameValidation({ profile });
 
   const update = async (nickname: string): Promise<void> => {
-    const trimmed = nickname.trim();
-    if (!trimmed || trimmed === profile.nickname) return;
+    if (!nickname || nickname === profile.nickname) return;
 
     setIsProcessing(true);
     setError(null);
@@ -230,7 +223,7 @@ export function useNicknameUpdate({
       await registerProfileNickname({
         accountId,
         profile,
-        nickname: trimmed,
+        nickname,
         oldNickname: profile.nickname,
       });
       triggerSyncIndicator();

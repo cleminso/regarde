@@ -46,3 +46,15 @@ export const getWebsiteDisplayName = (url?: string): string | undefined => {
     return displayName;
   }
 };
+
+export const normalizeNickname = (nickname: string): string => {
+  return nickname.toLowerCase().trim();
+};
+
+export const createNicknameUrl = (
+  nickname: string,
+  path: string = '',
+): string => {
+  const normalized = normalizeNickname(nickname);
+  return `/${normalized}${path}`;
+};

@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 
 import { useNicknameValidation } from '../../lib/hook/useNickname';
 import { OnboardingProfile } from '../../lib/schema';
+import { normalizeNickname } from '../../lib/utils';
 import { Button, Input } from './';
 
 interface NicknameInputProps {
@@ -54,6 +55,11 @@ export function NicknameInput({
     return () => clearTimeout(timer);
   }, [value, checkAvailability]);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const normalized = normalizeNickname(e.target.value);
+    onChange(normalized);
+  };
+
   const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     const input = e.target;
     setTimeout(() => {
@@ -70,15 +76,14 @@ export function NicknameInput({
       );
     }
 
-    const trimmed = value.trim();
-    if (!trimmed) return null;
+    if (!value) return null;
 
-    const isUnchanged = trimmed === (profile?.nickname || '');
+    const isUnchanged = value === (profile?.nickname || '');
 
     if (status === 'available') {
       if (isUnchanged) {
         return (
-          <Button variant="outline" size="sm" disabled>
+          <Button variant="ghost" size="sm" disabled>
             Current
           </Button>
         );
@@ -86,7 +91,7 @@ export function NicknameInput({
 
       if (onAction) {
         return (
-          <Button variant="success" size="sm" onClick={() => onAction(trimmed)}>
+          <Button variant="success" size="sm" onClick={() => onAction(value)}>
             {actionText}
           </Button>
         );
@@ -96,7 +101,7 @@ export function NicknameInput({
     if (status === 'taken') {
       if (onView) {
         return (
-          <Button variant="view" size="sm" onClick={() => onView(trimmed)}>
+          <Button variant="view" size="sm" onClick={() => onView(value)}>
             View
           </Button>
         );
@@ -121,19 +126,17 @@ export function NicknameInput({
   };
 
   const renderError = () => {
-    const trimmed = value.trim();
-
     if (errorDisplay.externalError) {
       return (
         <small className="text-destructive">{errorDisplay.externalError}</small>
       );
     }
 
-    if (!trimmed && errorDisplay.showRequiredMessage) {
+    if (!value && errorDisplay.showRequiredMessage) {
       return <small className="text-destructive">Nickname is required.</small>;
     }
 
-    if (trimmed && status === 'invalid' && errorMessage) {
+    if (value && status === 'invalid' && errorMessage) {
       return <small className="text-destructive">{errorMessage}</small>;
     }
 
@@ -159,7 +162,7 @@ export function NicknameInput({
         <Input
           type="text"
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={handleInputChange}
           onFocus={handleInputFocus}
           placeholder={placeholder}
           className="border-0 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1"

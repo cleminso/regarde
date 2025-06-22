@@ -6,6 +6,7 @@ import { AuthButton } from './AuthButton.tsx';
 import { LandingNicknameForm } from './components/onbording/landingNicknameForm.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
 import { OnboardingAccount } from './lib/schema.ts';
+import { createNicknameUrl } from './lib/utils.ts';
 
 export function App() {
   const { me } = useAccount(OnboardingAccount, {
@@ -22,7 +23,7 @@ export function App() {
       console.log(
         `User "${profile.nickname}" is authenticated, navigating to edit page.`,
       );
-      navigate(`/${profile.nickname}/edit`, { replace: true });
+      navigate(createNicknameUrl(profile.nickname, '/edit'), { replace: true });
     } else if (isAuthenticated && !profile?.nickname) {
       console.log(
         'User is authenticated but has no nickname, remaining on landing page.',

@@ -10,7 +10,11 @@ import {
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu';
 import { OnboardingProfile } from '#/lib/schema';
-import { getValidUrl, getWebsiteDisplayName } from '#/lib/utils';
+import {
+  createNicknameUrl,
+  getValidUrl,
+  getWebsiteDisplayName,
+} from '#/lib/utils';
 
 type ProfileHeaderProps = {
   profile: Loaded<typeof OnboardingProfile>;
@@ -23,6 +27,12 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
   const websiteDisplayName = getWebsiteDisplayName(
     profile.socialLinks?.website,
   );
+
+  const handleEditClick = () => {
+    if (profile.nickname) {
+      navigate(createNicknameUrl(profile.nickname, '/edit'));
+    }
+  };
 
   return (
     <section
@@ -56,9 +66,9 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
           </Button>
         )}
       </div>
+      {/*TODO: add sharing porifle profile view | hide edit */}
       <div className="flex flex-col w-full h-full">
         <div className="flex justify-end my-2">
-          {/*TODO: add sharing porifle profile view | hide edit */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="w-8 h-8 p-0">
@@ -69,10 +79,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
               align="end"
               className="border-border shadow-none"
             >
-              <DropdownMenuItem
-                className="w-full"
-                onClick={() => navigate(`/${profile.nickname}/edit`)}
-              >
+              <DropdownMenuItem className="w-full" onClick={handleEditClick}>
                 Edit
               </DropdownMenuItem>
             </DropdownMenuContent>
