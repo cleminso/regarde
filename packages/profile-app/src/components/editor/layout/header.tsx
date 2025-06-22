@@ -1,4 +1,5 @@
-import { Button } from '../../ui/button';
+import { cn } from '../../../lib/utils.ts';
+import { Button } from '../../ui/button.tsx';
 
 type SectionHeaderProps = {
   title: string;
@@ -19,23 +20,23 @@ export function SectionHeader({
 
   return (
     <div
-      className={`${hasAction ? 'flex justify-between items-start' : ''} mb-6 border-b border-border pb-4 ${className}`}
+      className={cn(
+        'mb-6 border-b border-border pb-4',
+        hasAction && 'flex justify-between items-start',
+        className,
+      )}
     >
       <div className="flex-grow">
-        <h3 className="text-lg font-sans text-foreground">{title}</h3>
+        <h3 className="text-lg font-medium text-foreground">{title}</h3>
         {description && (
-          <p className="text-sm font-sans text-muted-foreground mt-1">
+          <p className="text-sm text-secondary-foreground mt-1">
             {description}
           </p>
         )}
       </div>
       {hasAction && (
         <div className="ml-4 flex-shrink-0">
-          <Button
-            variant="ghost"
-            onClick={onActionClick}
-            className="text-sm font-sans text-foreground bg-accent hover:bg-accent/90 hover:text-foreground rounded-md cursor-pointer"
-          >
+          <Button variant="view" size="sm" onClick={onActionClick}>
             {actionText}
           </Button>
         </div>

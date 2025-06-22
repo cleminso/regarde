@@ -1,4 +1,5 @@
-import { Button } from '../../ui/button';
+import { cn } from '../../../lib/utils.ts';
+import { Button } from '../../ui/button.tsx';
 
 type EditorFooterProps = {
   primaryAction?: {
@@ -23,15 +24,22 @@ export function EditorFooter({
 
   return (
     <div
-      className={`flex justify-end items-center gap-2 pt-4 border-t border-border ${className}`}
+      className={cn(
+        'flex justify-end items-center gap-2 pt-4 border-t border-border',
+        className,
+      )}
     >
       {secondaryAction && (
-        <Button variant="ghost" onClick={secondaryAction.onClick} className="">
+        <Button
+          variant="ghost"
+          className="!bg-transparent !text-foreground cursor-pointer"
+          onClick={secondaryAction.onClick}
+        >
           {secondaryAction.text}
         </Button>
       )}
       {primaryAction && (
-        <Button variant="secondary" onClick={primaryAction.onClick}>
+        <Button variant="outline" onClick={primaryAction.onClick}>
           {primaryAction.text}
         </Button>
       )}

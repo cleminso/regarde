@@ -1,3 +1,4 @@
+import { cn } from '../../../lib/utils.ts';
 import { Button } from '../../ui/button.tsx';
 import { editorSections, SectionType } from '../shared.ts';
 import { SyncStateBadge } from '../syncState.tsx';
@@ -8,68 +9,66 @@ type EditorSidebarProps = {
   syncState: 'saved' | 'syncing';
 };
 
+type SidebarButtonProps = {
+  isActive: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+};
+
+function SidebarButton({ isActive, onClick, children }: SidebarButtonProps) {
+  return (
+    <Button
+      variant="ghost"
+      onClick={onClick}
+      size="md"
+      className={cn(
+        'w-full justify-start px-6 text-sm font-medium',
+        isActive
+          ? 'bg-sidebar-accent text-foreground border-border hover:bg-sidebar-accent hover:text-foreground cursor-pointer'
+          : 'text-foreground hover:bg-sidebar-accent hover:text-foreground cursor-pointer',
+      )}
+    >
+      {children}
+    </Button>
+  );
+}
+
 export function EditorSidebar({
   activeSection,
   onSectionChange,
   syncState,
 }: EditorSidebarProps) {
-  const baseButton = 'w-full text-sm justify-start px-6 text-left';
-  const activeButton =
-    'border-l-2 border-border bg-background text-sm  text-foreground hover:bg-background hover:text-foreground';
-  const inactiveButton =
-    'text-sm text-muted-foreground hover:text-foreground hover:bg-background cursor-pointer';
-
   return (
-    <div className="w-[25%] flex flex-col pt-6 border-r border-border">
+    <div className="w-[25%] flex flex-col bg-sidebar pt-6 border-r border-border">
       <div className="flex items-center justify-between px-6 pb-3">
         <h2 className="text-lg font-sans">Profile</h2>
         <SyncStateBadge syncState={syncState} />
       </div>
-      <div className="space-y-1">
-        <Button
-          variant="ghost"
+      <div className="">
+        <SidebarButton
+          isActive={activeSection === editorSections.general}
           onClick={() => onSectionChange(editorSections.general)}
-          className={`${baseButton} ${
-            activeSection === editorSections.general
-              ? activeButton
-              : inactiveButton
-          }`}
         >
           General
-        </Button>
-        <Button
-          variant="ghost"
+        </SidebarButton>
+        <SidebarButton
+          isActive={activeSection === editorSections.contact}
           onClick={() => onSectionChange(editorSections.contact)}
-          className={`${baseButton} ${
-            activeSection === editorSections.contact
-              ? activeButton
-              : inactiveButton
-          }`}
         >
           Contact
-        </Button>
-        <Button
-          variant="ghost"
+        </SidebarButton>
+        <SidebarButton
+          isActive={activeSection === editorSections.project}
           onClick={() => onSectionChange(editorSections.project)}
-          className={`${baseButton} ${
-            activeSection === editorSections.project
-              ? activeButton
-              : inactiveButton
-          }`}
         >
           Project
-        </Button>
-        <Button
-          variant="ghost"
+        </SidebarButton>
+        <SidebarButton
+          isActive={activeSection === editorSections.workExp}
           onClick={() => onSectionChange(editorSections.workExp)}
-          className={`${baseButton} ${
-            activeSection === editorSections.workExp
-              ? activeButton
-              : inactiveButton
-          }`}
         >
           Work Experience
-        </Button>
+        </SidebarButton>
       </div>
     </div>
   );
