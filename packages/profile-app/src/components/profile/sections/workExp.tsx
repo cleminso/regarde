@@ -59,7 +59,7 @@ export function WorkExp({ profile }: WorkExpProps) {
               className="flex flex-col border-b border-border pb-4 gap-3"
             >
               <div className="flex flex-row gap-4">
-                <div className="flex flex-col w-28 flex-shrink-0">
+                <div className="flex flex-col w-24 flex-shrink-0">
                   <span className="text-sm font-sans text-secondary-foreground">
                     {dateRange}
                   </span>

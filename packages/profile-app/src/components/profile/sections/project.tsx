@@ -38,7 +38,7 @@ export function Projects({ profile }: ProjectsProps) {
               className="flex flex-col border-b border-border pb-4 gap-3"
             >
               <div className="flex flex-row gap-4">
-                <div className="flex flex-col w-20 flex-shrink-0">
+                <div className="flex flex-col w-24 flex-shrink-0">
                   <span className="text-sm font-sans text-secondary-foreground">
                     {project.year || 'N/A'}
                   </span>
