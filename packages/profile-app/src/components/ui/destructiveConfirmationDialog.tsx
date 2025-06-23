@@ -10,10 +10,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from './ui/alert-dialog';
-import { buttonVariants } from './ui/button';
+} from './alert-dialog';
+import { buttonVariants } from './button';
 
-export interface ConfirmationDialogProps {
+export interface DestructiveConfirmationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
@@ -24,29 +24,40 @@ export interface ConfirmationDialogProps {
   confirmButtonVariant?: VariantProps<typeof buttonVariants>['variant'];
 }
 
-export function ConfirmationDialog({
+export function DestructiveConfirmationDialog({
   open,
   onOpenChange,
   title,
   description,
   onConfirm,
-  confirmButtonText = 'Confirm',
+  confirmButtonText = 'Delete',
   cancelButtonText = 'Cancel',
-  confirmButtonVariant = 'default',
-}: ConfirmationDialogProps) {
+  confirmButtonVariant = 'destructive',
+}: DestructiveConfirmationDialogProps) {
+  const handleConfirm = () => {
+    onConfirm();
+    onOpenChange(false);
+  };
+
+  const handleCancel = () => {
+    onOpenChange(false);
+  };
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogDescription asChild>
+            <div>{description}</div>
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => onOpenChange(false)}>
+          <AlertDialogCancel onClick={handleCancel}>
             {cancelButtonText}
           </AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirm}
+            onClick={handleConfirm}
             className={buttonVariants({ variant: confirmButtonVariant })}
           >
             {confirmButtonText}

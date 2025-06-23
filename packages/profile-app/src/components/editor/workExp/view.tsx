@@ -1,6 +1,7 @@
 import { Loaded } from 'jazz-tools';
+import { useState } from 'react';
 
-import { Button } from '#/components/ui';
+import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import { ListOfWorkExp, OnboardingProfile, WorkExp } from '#/lib/schema';
 import { useWorkExp } from '../../../lib/hook/useWorkExp';
 import { EditorFooter } from '../index';
@@ -26,14 +27,40 @@ export function WorkExpView({
 }: WorkExpViewProps) {
   const { deleteWorkExp } = useWorkExp({ profile, triggerSyncIndicator });
 
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    isOpen: boolean;
+    workExp: Loaded<typeof WorkExp> | null;
+  }>({
+    isOpen: false,
+    workExp: null,
+  });
+
   const handleDeleteWorkExp = (workExp: Loaded<typeof WorkExp>) => {
-    if (workExp.id) {
-      deleteWorkExp(workExp.id);
+    setDeleteConfirmation({
+      isOpen: true,
+      workExp,
+    });
+  };
+
+  const confirmDelete = () => {
+    if (deleteConfirmation.workExp?.id) {
+      deleteWorkExp(deleteConfirmation.workExp.id);
     }
+    setDeleteConfirmation({ isOpen: false, workExp: null });
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmation({ isOpen: false, workExp: null });
   };
 
   const handleClose = () => {
     onClose?.();
+  };
+
+  const getWorkExpDisplayName = (workExp: Loaded<typeof WorkExp>) => {
+    const title = workExp.title || 'Untitled Role';
+    const company = workExp.company || 'Unnamed Company';
+    return `${title} at ${company}`;
   };
 
   return (
@@ -83,6 +110,28 @@ export function WorkExpView({
           }}
         />
       </div>
+
+      <DestructiveConfirmationDialog
+        open={deleteConfirmation.isOpen}
+        onOpenChange={(open) => !open && cancelDelete()}
+        title="Delete Work Experience"
+        description={
+          deleteConfirmation.workExp ? (
+            <>
+              Please confirme you'd to delete{' '}
+              <strong>
+                {getWorkExpDisplayName(deleteConfirmation.workExp)}
+              </strong>
+              ?
+              <br />
+              <br />
+              This action cannot be undone.
+            </>
+          ) : null
+        }
+        onConfirm={confirmDelete}
+        confirmButtonText="Delete"
+      />
     </div>
   );
 }

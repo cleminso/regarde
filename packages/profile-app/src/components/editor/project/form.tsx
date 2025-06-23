@@ -136,7 +136,7 @@ export function ProjectEdit({
                   id="project-link"
                   value={link}
                   onChange={(e) => setLink(e.target.value)}
-                  placeholder="example.com or https://example.com"
+                  placeholder="https://example.com"
                 />
               </div>
             </div>

@@ -1,6 +1,7 @@
 import { Loaded } from 'jazz-tools';
+import { useState } from 'react';
 
-import { Button } from '#/components/ui';
+import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import { ListOfProjects, OnboardingProfile, Project } from '#/lib/schema';
 import { useProject } from '../../../lib/hook/useProject.ts';
 import { EditorFooter } from '../index';
@@ -26,14 +27,38 @@ export function ProjectView({
 }: ProjectViewProps) {
   const { deleteProject } = useProject({ profile, triggerSyncIndicator });
 
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    isOpen: boolean;
+    project: Loaded<typeof Project> | null;
+  }>({
+    isOpen: false,
+    project: null,
+  });
+
   const handleDeleteProject = (project: Loaded<typeof Project>) => {
-    if (project.id) {
-      deleteProject(project.id);
+    setDeleteConfirmation({
+      isOpen: true,
+      project,
+    });
+  };
+
+  const confirmDelete = () => {
+    if (deleteConfirmation.project?.id) {
+      deleteProject(deleteConfirmation.project.id);
     }
+    setDeleteConfirmation({ isOpen: false, project: null });
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmation({ isOpen: false, project: null });
   };
 
   const handleClose = () => {
     onClose?.();
+  };
+
+  const getProjectDisplayName = (project: Loaded<typeof Project>) => {
+    return project.title || 'Untitled Project';
   };
 
   return (
@@ -83,6 +108,28 @@ export function ProjectView({
           }}
         />
       </div>
+
+      <DestructiveConfirmationDialog
+        open={deleteConfirmation.isOpen}
+        onOpenChange={(open) => !open && cancelDelete()}
+        title="Delete Project"
+        description={
+          deleteConfirmation.project ? (
+            <>
+              Are you sure you want to delete the project{' '}
+              <strong>
+                {getProjectDisplayName(deleteConfirmation.project)}
+              </strong>
+              ?
+              <br />
+              <br />
+              This action cannot be undone.
+            </>
+          ) : null
+        }
+        onConfirm={confirmDelete}
+        confirmButtonText="Delete"
+      />
     </div>
   );
 }
