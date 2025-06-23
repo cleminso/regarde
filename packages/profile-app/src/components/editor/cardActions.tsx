@@ -19,7 +19,7 @@ export function EditorCardActions<T>({
         size="sm"
         onClick={() => onEdit(item)}
         className={cn(
-          'hover:text-foreground hover:bg-transparent hover:underline underline-offset-4',
+          'hover:text-foreground hover:bg-transparent hover:underline underline-offset-4 pl-1',
         )}
       >
         Edit

@@ -1,6 +1,7 @@
 import { Loaded } from 'jazz-tools';
 import { ArrowUpRight } from 'lucide-react';
 
+import { Button } from '#/components/ui/button';
 import { WorkExp } from '#/lib/schema';
 import { EditorCardActions } from '../cardActions';
 
@@ -38,47 +39,54 @@ export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
   const dateRange = `${formatDate(workExp.from)} - ${formatDate(workExp.to)}`;
 
   return (
-    <div className="flex flex-col border-b border-border pb-4 gap-3">
+    <div className="flex flex-col border-b border-border pb-4 gap-4">
       <div className="flex flex-row gap-10">
-        <div className="flex flex-col w-22.5 flex-shrink-0">
-          <span className="text-sm font-sans text-muted-foreground inline-flex items-center">
-            {dateRange}
-          </span>
+        <div className="flex flex-col w-21.5 flex-shrink-0">
+          <span className="text-sm text-muted-foreground">{dateRange}</span>
         </div>
-        <div className="flex flex-col flex-grow">
+        <div className="flex flex-col flex-grow gap-2">
           <div>
             {workExp.url ? (
-              <a
-                href={workExp.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-md hover:underline hover:underline-offset-4 inline-flex items-center group"
+              <Button
+                variant="link-title"
+                size="title"
+                asChild
+                className="inline-flex items-center group"
+              >
+                <a href={workExp.url} target="_blank" rel="noopener noreferrer">
+                  {displayTitle}
+                  <ArrowUpRight className="h-4 w-4 ml-1 opacity-70 group-hover:opacity-100" />
+                </a>
+              </Button>
+            ) : (
+              <Button
+                variant="link-title"
+                size="title"
+                disabled
+                className="cursor-default"
               >
                 {displayTitle}
-                <ArrowUpRight className="h-4 w-4 ml-1 opacity-70 group-hover:opacity-100" />
-              </a>
-            ) : (
-              <h3 className="text-md font-sans">{displayTitle}</h3>
+              </Button>
             )}
           </div>
-          <div className="pb-2">
-            {workExp.location && (
-              <span className="text-sm font-sans text-muted-foreground">
-                {workExp.location}
-              </span>
-            )}
-          </div>
+          {workExp.location && (
+            <div className="text-sm text-muted-foreground">
+              {workExp.location}
+            </div>
+          )}
           {workExp.description && (
-            <p className="text-sm font-sans text-muted-foreground whitespace-pre-line">
+            <p className="text-sm text-muted-foreground whitespace-pre-line">
               {workExp.description}
             </p>
           )}
+          <div className="mt-2">
+            <EditorCardActions
+              item={workExp}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          </div>
         </div>
-      </div>
-
-      <div className="pl-30">
-        {' '}
-        <EditorCardActions item={workExp} onEdit={onEdit} onDelete={onDelete} />
       </div>
     </div>
   );

@@ -3,10 +3,11 @@ import { useEffect, useState } from 'react';
 
 import { useWorkExp } from '../../../lib/hook/useWorkExp';
 import { OnboardingProfile, WorkExp } from '../../../lib/schema';
-import { Input, Textarea } from '../../ui/index';
-import { EditorFooter } from '../index';
-import { SectionHeader } from './../layout/header';
-import { SelectorDate } from './../selectorDate';
+import { getValidUrl } from '../../../lib/utils';
+import { Input, Label, Textarea } from '../../ui/index';
+import { EditorFooter } from '../layout/footer';
+import { SectionHeader } from '../layout/header';
+import { SelectorDate } from '../selectorDate';
 
 type WorkExpEditProps = {
   profile: Loaded<typeof OnboardingProfile>;
@@ -73,7 +74,7 @@ export function WorkExpEdit({
       title: title.trim(),
       company: company.trim(),
       location: location.trim() || undefined,
-      url: url.trim() || undefined,
+      url: getValidUrl(url.trim()),
       description: description.trim() || undefined,
       from: new Date(parseInt(fromDate, 10), 0, 1),
       to: toDate.trim() || undefined,
@@ -95,22 +96,17 @@ export function WorkExpEdit({
           description="Detail your professional roles and responsibilities."
         />
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           <section>
-            <div className="space-y-1 flex flex-row gap-4">
-              <div className="flex flex-col gap-1 w-full">
-                <label
-                  htmlFor="work-from-date"
-                  className="block text-xs font-sans text-foreground"
-                >
+            <div className="flex flex-row gap-4">
+              <div className="flex flex-col gap-2 w-full">
+                <Label htmlFor="work-from-date">
                   From<sup>*</sup>
-                </label>
+                </Label>
                 <SelectorDate
                   id="work-from-date"
                   value={fromDate}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                    setFromDate(e.target.value);
-                  }}
+                  onChange={(e) => setFromDate(e.target.value)}
                   placeholderOption={{
                     value: '',
                     label: 'Select Year',
@@ -119,19 +115,13 @@ export function WorkExpEdit({
                   buttonDisplayValue={fromDate || 'Select Year'}
                 />
               </div>
-              <div className="flex flex-col gap-1 w-full">
-                <label
-                  htmlFor="work-to-date"
-                  className="block text-xs font-sans  text-foreground"
-                >
-                  To
-                </label>
+
+              <div className="flex flex-col gap-2 w-full">
+                <Label htmlFor="work-to-date">To</Label>
                 <SelectorDate
                   id="work-to-date"
                   value={toDate}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                    setToDate(e.target.value);
-                  }}
+                  onChange={(e) => setToDate(e.target.value)}
                   placeholderOption={{ value: '', label: 'Present' }}
                   buttonDisplayValue={toDate || 'Present'}
                 />
@@ -140,106 +130,71 @@ export function WorkExpEdit({
           </section>
 
           <section>
-            <div className="space-y-1 flex flex-row gap-4">
-              <div className="flex flex-col gap-1 w-full">
-                <label
-                  htmlFor="work-title"
-                  className="block text-xs font-sans  text-foreground"
-                >
+            <div className="flex flex-row gap-4">
+              <div className="flex flex-col gap-2 w-full">
+                <Label htmlFor="work-title">
                   Title<sup>*</sup>
-                </label>
+                </Label>
                 <Input
                   type="text"
                   id="work-title"
                   value={title}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setTitle(e.target.value)
-                  }
+                  onChange={(e) => setTitle(e.target.value)}
                   placeholder="Designer, Engineer, etc"
-                  className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
-              <div className="flex flex-col gap-1 w-full">
-                <label
-                  htmlFor="work-company"
-                  className="block text-xs font-sans text-foreground"
-                >
+
+              <div className="flex flex-col gap-2 w-full">
+                <Label htmlFor="work-company">
                   At Company<sup>*</sup>
-                </label>
+                </Label>
                 <Input
                   type="text"
                   id="work-company"
                   value={company}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setCompany(e.target.value)
-                  }
+                  onChange={(e) => setCompany(e.target.value)}
                   placeholder="Acme Inc."
-                  className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
             </div>
           </section>
 
           <section>
-            <div className="space-y-1 flex flex-row gap-4">
-              <div className="flex flex-col gap-1 w-full">
-                <label
-                  htmlFor="work-location"
-                  className="block text-xs font-sans  text-foreground"
-                >
-                  Location
-                </label>
+            <div className="flex flex-row gap-4">
+              <div className="flex flex-col gap-2 w-full">
+                <Label htmlFor="work-location">Location</Label>
                 <Input
                   type="text"
                   id="work-location"
                   value={location}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setLocation(e.target.value)
-                  }
+                  onChange={(e) => setLocation(e.target.value)}
                   placeholder="Where was it"
-                  className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
-              <div className="flex flex-col gap-1 w-full">
-                <label
-                  htmlFor="work-url"
-                  className="block text-xs font-sans  text-foreground"
-                >
-                  URL
-                </label>
+
+              <div className="flex flex-col gap-2 w-full">
+                <Label htmlFor="work-url">URL</Label>
                 <Input
                   type="text"
                   id="work-url"
                   value={url}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setUrl(e.target.value)
-                  }
-                  placeholder="https://company.example.com"
-                  className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="company.com or https://company.com"
                 />
               </div>
             </div>
           </section>
 
           <section>
-            <div className="space-y-1 flex flex-row gap-4">
-              <div className="flex flex-col gap-1 w-full">
-                <label
-                  htmlFor="Description"
-                  className="block text-xs font-sans  text-foreground "
-                >
-                  Description
-                </label>
-                <Textarea
-                  id="Description"
-                  value={description}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                    setDescription(e.target.value)
-                  }
-                  placeholder="Describe your role and achievements..."
-                  className="w-full text-sm font-sans placeholder:text-muted-foreground min-h-[200px] resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </div>
+            <div className="flex flex-col gap-2 w-full">
+              <Label htmlFor="work-description">Description</Label>
+              <Textarea
+                id="work-description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe your role and achievements..."
+                className="min-h-[180px] resize-none"
+              />
             </div>
           </section>
         </div>

@@ -1,12 +1,13 @@
 import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
-import { useProject } from '../../../lib/hook/useProject.ts';
-import { OnboardingProfile, Project } from '../../../lib/schema.ts';
-import { Input, Textarea } from '../../ui/index.ts';
+import { useProject } from '../../../lib/hook/useProject';
+import { OnboardingProfile, Project } from '../../../lib/schema';
+import { getValidUrl } from '../../../lib/utils';
+import { Input, Label, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
-import { SectionHeader } from '../layout/header.tsx';
-import { SelectorDate } from '../selectorDate.tsx';
+import { SectionHeader } from '../layout/header';
+import { SelectorDate } from '../selectorDate';
 
 type ProjectEditProps = {
   profile: Loaded<typeof OnboardingProfile>;
@@ -26,11 +27,10 @@ export function ProjectEdit({
     triggerSyncIndicator,
   });
 
-  // Get current year as default
   const currentYear = new Date().getFullYear().toString();
 
   const [title, setTitle] = useState('');
-  const [year, setYear] = useState(currentYear); // Set current year as default
+  const [year, setYear] = useState(currentYear);
   const [client, setClient] = useState('');
   const [link, setLink] = useState('');
   const [description, setDescription] = useState('');
@@ -38,12 +38,11 @@ export function ProjectEdit({
   useEffect(() => {
     if (projectToEdit) {
       setTitle(projectToEdit.title || '');
-      setYear(projectToEdit.year || currentYear); // Use current year as fallback
+      setYear(projectToEdit.year || currentYear);
       setClient(projectToEdit.client || '');
       setLink(projectToEdit.link || '');
       setDescription(projectToEdit.description || '');
     } else {
-      // When adding new project, reset to defaults with current year
       setTitle('');
       setYear(currentYear);
       setClient('');
@@ -62,7 +61,7 @@ export function ProjectEdit({
       title: title.trim(),
       year: year.trim(),
       client: client.trim() || undefined,
-      link: link.trim() || undefined,
+      link: getValidUrl(link.trim()),
       description: description.trim() || undefined,
     };
 
@@ -82,35 +81,26 @@ export function ProjectEdit({
           description="Showcase your projects and contributions."
         />
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           <section>
-            <div className="space-y-1 flex flex-row gap-4">
-              <div className="flex flex-col gap-1 w-full">
-                <label
-                  htmlFor="project-title"
-                  className="block text-xs font-sans text-foreground"
-                >
+            <div className="flex flex-row gap-4">
+              <div className="flex flex-col gap-2 w-full">
+                <Label htmlFor="project-title">
                   Title<sup>*</sup>
-                </label>
+                </Label>
                 <Input
                   type="text"
                   id="project-title"
                   value={title}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setTitle(e.target.value)
-                  }
+                  onChange={(e) => setTitle(e.target.value)}
                   placeholder="My Great Project"
-                  className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
 
-              <div className="flex flex-col gap-1 w-full">
-                <label
-                  htmlFor="project-year"
-                  className="block text-xs font-sans text-foreground"
-                >
+              <div className="flex flex-col gap-2 w-full">
+                <Label htmlFor="project-year">
                   Year<sup>*</sup>
-                </label>
+                </Label>
                 <SelectorDate
                   id="project-year"
                   value={year}
@@ -127,63 +117,40 @@ export function ProjectEdit({
           </section>
 
           <section>
-            <div className="space-y-1 flex flex-row gap-4">
-              <div className="flex flex-col gap-1 w-full">
-                <label
-                  htmlFor="project-client"
-                  className="block text-xs font-sans text-foreground"
-                >
-                  Company or client
-                </label>
+            <div className="flex flex-row gap-4">
+              <div className="flex flex-col gap-2 w-full">
+                <Label htmlFor="project-client">Company or client</Label>
                 <Input
                   type="text"
                   id="project-client"
                   value={client}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setClient(e.target.value)
-                  }
+                  onChange={(e) => setClient(e.target.value)}
                   placeholder="Acme Inc."
-                  className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
 
-              <div className="flex flex-col gap-1 w-full">
-                <label
-                  htmlFor="project-link"
-                  className="block text-xs font-sans text-foreground"
-                >
-                  Link to project
-                </label>
+              <div className="flex flex-col gap-2 w-full">
+                <Label htmlFor="project-link">Link to project</Label>
                 <Input
                   type="text"
                   id="project-link"
                   value={link}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setLink(e.target.value)
-                  }
-                  placeholder="https://example.com"
-                  className="w-full text-sm font-sans placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+                  onChange={(e) => setLink(e.target.value)}
+                  placeholder="example.com or https://example.com"
                 />
               </div>
             </div>
           </section>
 
           <section>
-            <div className="flex flex-col gap-1 w-full">
-              <label
-                htmlFor="project-description"
-                className="block text-xs font-sans text-foreground"
-              >
-                Description
-              </label>
+            <div className="flex flex-col gap-2 w-full">
+              <Label htmlFor="project-description">Description</Label>
               <Textarea
                 id="project-description"
                 value={description}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setDescription(e.target.value)
-                }
+                onChange={(e) => setDescription(e.target.value)}
                 placeholder="Add some details"
-                className="w-full text-sm placeholder:text-muted-foreground min-h-[200px] resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="min-h-[200px] resize-none"
               />
             </div>
           </section>
