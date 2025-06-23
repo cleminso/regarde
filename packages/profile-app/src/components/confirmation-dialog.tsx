@@ -34,26 +34,15 @@ export function ConfirmationDialog({
   cancelButtonText = 'Cancel',
   confirmButtonVariant = 'default',
 }: ConfirmationDialogProps) {
-  if (!open) {
-    return null;
-  }
-
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="border-none">
+      <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-lg font-sans text-foreground">
-            {title}
-          </AlertDialogTitle>
-          <AlertDialogDescription className="text-sm font-sans text-muted-foreground">
-            {description}
-          </AlertDialogDescription>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel
-            onClick={() => onOpenChange(false)}
-            className="text-sm font-sans text-foreground shadow-none"
-          >
+          <AlertDialogCancel onClick={() => onOpenChange(false)}>
             {cancelButtonText}
           </AlertDialogCancel>
           <AlertDialogAction

@@ -24,8 +24,8 @@ function SidebarButton({ isActive, onClick, children }: SidebarButtonProps) {
       className={cn(
         'w-full justify-start px-6 text-sm font-medium',
         isActive
-          ? 'bg-sidebar-accent text-foreground border-border hover:bg-sidebar-accent hover:text-foreground cursor-pointer'
-          : 'text-foreground hover:bg-sidebar-accent hover:text-foreground cursor-pointer',
+          ? 'bg-background text-foreground border-border hover:bg-background hover:text-foreground cursor-pointer'
+          : 'text-foreground hover:bg-background hover:text-foreground cursor-pointer',
       )}
     >
       {children}

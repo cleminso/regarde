@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useGeneral } from '#/lib/hook/useGeneral';
 import { useNicknameUpdate } from '../../../lib/hook/useNickname';
 import { OnboardingProfile } from '../../../lib/schema';
-import { Input, Textarea } from '../../ui';
+import { Input, Label, Textarea } from '../../ui';
 import { NicknameInput } from '../../ui/nicknameInput';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';
@@ -56,7 +56,7 @@ export function GeneralEdit({
           description="Share some details about yourself."
         />
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           <section className="flex items-center gap-3">
             <AvatarUpload
               avatar={profile.avatar}
@@ -91,35 +91,25 @@ export function GeneralEdit({
           </section>
 
           <section>
-            <label
-              htmlFor="name"
-              className="text-sm font-sans block text-foreground mb-2"
-            >
-              Name
-            </label>
+            <Label htmlFor="name">Name</Label>
             <Input
               type="text"
               id="name"
               value={profile.name || ''}
               onChange={(e) => updateName(e.target.value)}
               placeholder="Your name"
-              className="w-full h-11 text-sm border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+              className="mt-2"
             />
           </section>
 
           <section>
-            <label
-              htmlFor="bio"
-              className="block text-sm font-sans text-foreground mb-2"
-            >
-              Bio
-            </label>
+            <Label htmlFor="bio">Bio</Label>
             <Textarea
               id="bio"
               value={profile.bio || ''}
               onChange={(e) => updateBio(e.target.value)}
               placeholder="Share what people should know about you."
-              className="text-sm font-sans w-full min-h-[150px] resize-none border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+              className="mt-2 min-h-[150px] resize-none"
             />
           </section>
         </div>

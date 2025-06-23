@@ -37,7 +37,7 @@ export function AvatarUpload({
           onDrop={onDrop}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
-          className="w-24 h-24 rounded-full bg-background flex justify-center text-sm text-center text-muted-foreground cursor-pointer transition-colors overflow-hidden"
+          className="w-24 h-24 rounded-full bg-background flex justify-center text-sm text-center text-muted-foreground cursor-pointer transition-colors overflow-hidden hover:bg-accent"
           role="button"
           tabIndex={0}
           onKeyDown={(e) =>
@@ -63,7 +63,7 @@ export function AvatarUpload({
           <button
             type="button"
             onClick={onRemoveAvatar}
-            className="text-sm font-sans text-muted-foreground hover:text-destructive cursor-pointer"
+            className="text-sm text-muted-foreground hover:text-destructive cursor-pointer"
             aria-label="Remove current avatar"
           >
             Remove

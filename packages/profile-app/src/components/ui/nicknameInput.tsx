@@ -5,7 +5,7 @@ import React, { useEffect } from 'react';
 import { useNicknameValidation } from '../../lib/hook/useNickname';
 import { OnboardingProfile } from '../../lib/schema';
 import { normalizeNickname } from '../../lib/utils';
-import { Button, Input } from './';
+import { Button, Input } from './../ui';
 
 interface NicknameInputProps {
   value: string;

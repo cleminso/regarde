@@ -34,7 +34,7 @@ export function SelectorDate({
     <div className={cn('relative w-full', wrapperClassName)}>
       <Button
         variant="outline"
-        size="default"
+        size="lg"
         className={cn('w-full bg-background justify-start', buttonClassName)}
         aria-hidden="true"
         tabIndex={-1}
