@@ -141,6 +141,23 @@ export declare const ListOfVolunteering: import('jazz-tools').CoListSchema<impor
     url: z.ZodOptional<z.z.ZodString>;
     description: z.ZodOptional<z.z.ZodString>;
 }>>;
+export declare const SideProject: import('jazz-tools').CoMapSchema<{
+    title: z.z.ZodString;
+    year: z.z.ZodDate;
+    client: z.ZodOptional<z.z.ZodString>;
+    location: z.ZodOptional<z.z.ZodString>;
+    url: z.ZodOptional<z.z.ZodString>;
+    description: z.ZodOptional<z.z.ZodString>;
+}>;
+export type SideProject = z.infer<typeof SideProject>;
+export declare const ListOfSideProject: import('jazz-tools').CoListSchema<import('jazz-tools').CoMapSchema<{
+    title: z.z.ZodString;
+    year: z.z.ZodDate;
+    client: z.ZodOptional<z.z.ZodString>;
+    location: z.ZodOptional<z.z.ZodString>;
+    url: z.ZodOptional<z.z.ZodString>;
+    description: z.ZodOptional<z.z.ZodString>;
+}>>;
 export declare const OnboardingProfile: import('jazz-tools/dist/internal').WithHelpers<import('jazz-tools/dist/internal').CoProfileSchema<{
     name: z.z.ZodString;
     nickname: z.ZodOptional<z.z.ZodString>;
@@ -211,6 +228,14 @@ export declare const OnboardingProfile: import('jazz-tools/dist/internal').WithH
         to: z.ZodOptional<z.z.ZodString>;
         title: z.z.ZodString;
         organization: z.z.ZodString;
+        location: z.ZodOptional<z.z.ZodString>;
+        url: z.ZodOptional<z.z.ZodString>;
+        description: z.ZodOptional<z.z.ZodString>;
+    }>>>;
+    sideProjects: z.ZodOptional<import('jazz-tools').CoListSchema<import('jazz-tools').CoMapSchema<{
+        title: z.z.ZodString;
+        year: z.z.ZodDate;
+        client: z.ZodOptional<z.z.ZodString>;
         location: z.ZodOptional<z.z.ZodString>;
         url: z.ZodOptional<z.z.ZodString>;
         description: z.ZodOptional<z.z.ZodString>;
@@ -286,6 +311,14 @@ export declare const OnboardingProfile: import('jazz-tools/dist/internal').WithH
             to: z.ZodOptional<z.z.ZodString>;
             title: z.z.ZodString;
             organization: z.z.ZodString;
+            location: z.ZodOptional<z.z.ZodString>;
+            url: z.ZodOptional<z.z.ZodString>;
+            description: z.ZodOptional<z.z.ZodString>;
+        }>>>;
+        sideProjects: z.ZodOptional<import('jazz-tools').CoListSchema<import('jazz-tools').CoMapSchema<{
+            title: z.z.ZodString;
+            year: z.z.ZodDate;
+            client: z.ZodOptional<z.z.ZodString>;
             location: z.ZodOptional<z.z.ZodString>;
             url: z.ZodOptional<z.z.ZodString>;
             description: z.ZodOptional<z.z.ZodString>;
@@ -378,6 +411,14 @@ export declare const OnboardingAccount: import('jazz-tools').AccountSchema<{
             url: z.ZodOptional<z.z.ZodString>;
             description: z.ZodOptional<z.z.ZodString>;
         }>>>;
+        sideProjects: z.ZodOptional<import('jazz-tools').CoListSchema<import('jazz-tools').CoMapSchema<{
+            title: z.z.ZodString;
+            year: z.z.ZodDate;
+            client: z.ZodOptional<z.z.ZodString>;
+            location: z.ZodOptional<z.z.ZodString>;
+            url: z.ZodOptional<z.z.ZodString>;
+            description: z.ZodOptional<z.z.ZodString>;
+        }>>>;
     }>, {
         validate(profile: Loaded<import('jazz-tools/dist/internal').CoProfileSchema<{
             name: z.z.ZodString;
@@ -449,6 +490,14 @@ export declare const OnboardingAccount: import('jazz-tools').AccountSchema<{
                 to: z.ZodOptional<z.z.ZodString>;
                 title: z.z.ZodString;
                 organization: z.z.ZodString;
+                location: z.ZodOptional<z.z.ZodString>;
+                url: z.ZodOptional<z.z.ZodString>;
+                description: z.ZodOptional<z.z.ZodString>;
+            }>>>;
+            sideProjects: z.ZodOptional<import('jazz-tools').CoListSchema<import('jazz-tools').CoMapSchema<{
+                title: z.z.ZodString;
+                year: z.z.ZodDate;
+                client: z.ZodOptional<z.z.ZodString>;
                 location: z.ZodOptional<z.z.ZodString>;
                 url: z.ZodOptional<z.z.ZodString>;
                 description: z.ZodOptional<z.z.ZodString>;

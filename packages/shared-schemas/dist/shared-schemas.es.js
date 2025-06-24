@@ -59,7 +59,14 @@ const m = i.map({
   location: t.optional(t.string()),
   url: t.optional(t.string()),
   description: t.optional(t.string())
-}), E = i.list(A), a = i.profile({
+}), j = i.list(A), E = i.map({
+  title: t.string(),
+  year: t.date(),
+  client: t.optional(t.string()),
+  location: t.optional(t.string()),
+  url: t.optional(t.string()),
+  description: t.optional(t.string())
+}), M = i.list(E), a = i.profile({
   // TODO: make `name` optional and nickname required
   name: t.string(),
   nickname: t.optional(t.string()),
@@ -73,7 +80,8 @@ const m = i.map({
   certification: t.optional(O),
   speaking: t.optional(C),
   award: t.optional(x),
-  volunteering: t.optional(E)
+  volunteering: t.optional(j),
+  sideProjects: t.optional(M)
 }).withHelpers((n) => ({
   validate(o) {
     return !o.name || o.name.trim() === "" ? {
@@ -167,8 +175,9 @@ export {
   O as ListOfCertification,
   b as ListOfEducation,
   f as ListOfProjects,
+  M as ListOfSideProject,
   C as ListOfSpeaking,
-  E as ListOfVolunteering,
+  j as ListOfVolunteering,
   R as ListOfWorkExp,
   v as ListOfWriting,
   r as NicknameRegistryCoRecord,
@@ -178,6 +187,7 @@ export {
   z as RegistryWorkerAccount,
   g as RegistryWorkerAccountRoot,
   s as ReverseNicknameRegistryCoRecord,
+  E as SideProject,
   m as SocialLinks,
   h as Speaking,
   A as Volunteering,

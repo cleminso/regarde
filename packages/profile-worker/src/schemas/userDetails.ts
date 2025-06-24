@@ -323,6 +323,33 @@ export const UserDetailsResponseSchema = z
       )
       .optional()
       .describe("Array of volunteering experiences and community service"),
+    sideProject: z
+      .array(
+        z.object({
+          title: z.string().describe("Side project name or title"),
+          year: z
+            .string()
+            .describe("Year the side project was completed or started"),
+          client: z
+            .string()
+            .optional()
+            .describe("Client or organization the side project was for"),
+          location: z
+            .string()
+            .optional()
+            .describe("Location where the side project was developed"),
+          url: z
+            .string()
+            .optional()
+            .describe("URL to view the side project (portfolio, demo, etc.)"),
+          description: z
+            .string()
+            .optional()
+            .describe("Detailed description of the side project"),
+        }),
+      )
+      .optional()
+      .describe("Array of user's side projects"),
   })
   .describe(
     "Complete user details response including account info, nickname status, and public profile data",

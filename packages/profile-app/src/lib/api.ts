@@ -86,6 +86,14 @@ interface UserDetails {
       from: string;
       to?: string;
     }>;
+    sideProject?: Array<{
+      title: string;
+      year: string;
+      client?: string;
+      location?: string;
+      url?: string;
+      description?: string;
+    }>;
   };
 }
 

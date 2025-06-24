@@ -112,6 +112,19 @@ export type Volunteering = z.infer<typeof Volunteering>;
 
 export const ListOfVolunteering = co.list(Volunteering);
 
+export const SideProject = co.map({
+  title: z.string(),
+  year: z.date(),
+  client: z.optional(z.string()),
+  location: z.optional(z.string()),
+  url: z.optional(z.string()),
+  description: z.optional(z.string()),
+});
+
+export type SideProject = z.infer<typeof SideProject>;
+
+export const ListOfSideProject = co.list(SideProject);
+
 // TODO:
 // export const Attachments = co.map({
 // url: z.string(),
@@ -140,6 +153,7 @@ export const OnboardingProfile = co
     speaking: z.optional(ListOfSpeaking),
     award: z.optional(ListOfAward),
     volunteering: z.optional(ListOfVolunteering),
+    sideProject: z.optional(ListOfSideProject),
   })
   .withHelpers((Self) => ({
     validate(profile: Loaded<typeof Self>): {

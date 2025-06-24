@@ -263,6 +263,7 @@ export const userDetailsHandler = (
               speaking: { $each: true },
               award: { $each: true },
               volunteering: { $each: true },
+              sideProject: { $each: true },
             },
           },
         });
