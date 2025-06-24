@@ -45,7 +45,13 @@ const m = i.map({
   location: t.optional(t.string()),
   url: t.optional(t.string()),
   description: t.optional(t.string())
-}), N = i.list(C), a = i.profile({
+}), N = i.list(C), O = i.map({
+  title: t.string(),
+  year: t.date(),
+  presenter: t.string(),
+  url: t.optional(t.string()),
+  description: t.optional(t.string())
+}), x = i.list(O), a = i.profile({
   // TODO: make `name` optional and nickname required
   name: t.string(),
   nickname: t.optional(t.string()),
@@ -57,7 +63,8 @@ const m = i.map({
   writing: t.optional(v),
   education: t.optional(b),
   certification: t.optional(h),
-  speaking: t.optional(N)
+  speaking: t.optional(N),
+  award: t.optional(x)
 }).withHelpers((n) => ({
   validate(o) {
     return !o.name || o.name.trim() === "" ? {
@@ -65,11 +72,11 @@ const m = i.map({
       message: "Name must be present and non-empty."
     } : { isValid: !0 };
   }
-})), g = i.map({
+})), c = i.map({
   creationMessage: t.optional(t.string())
 }), l = i.map({
-  container: g
-}), x = i.account({
+  container: c
+}), E = i.account({
   // Rule 1.3 (paraphrased): An account schema should define `profile` and `root`. `profile` points to a `co.profile` schema. `root` points to a `co.map` schema for private per-user data.
   profile: a,
   root: l
@@ -91,7 +98,7 @@ const m = i.map({
       }
     if (n.root === void 0)
       try {
-        const e = o != null && o.name ? `Container initialized for ${o.name}.` : "Container initialized.", p = g.create({
+        const e = o != null && o.name ? `Container initialized for ${o.name}.` : "Container initialized.", p = c.create({
           creationMessage: e
         });
         n.root = l.create({ container: p });
@@ -99,12 +106,12 @@ const m = i.map({
         console.warn("Container could not be created, likely unlogged", e);
       }
   }
-), r = i.record(t.string(), t.string()), s = i.record(t.string(), t.string()), c = i.map({
+), r = i.record(t.string(), t.string()), s = i.record(t.string(), t.string()), g = i.map({
   registry: r,
   reverseRegistry: s
-}), E = i.account({
+}), M = i.account({
   profile: i.profile(),
-  root: c
+  root: g
 }).withMigration(async (n) => {
   try {
     const o = await n.ensureLoaded({
@@ -122,7 +129,7 @@ const m = i.map({
     }
   } catch (o) {
     if (console.log("EnsureLoaded Root failed, fallback", n, o), n.root === void 0) {
-      const e = c.create({
+      const e = g.create({
         registry: r.create({}),
         reverseRegistry: s.create({})
       });
@@ -143,9 +150,11 @@ const m = i.map({
 });
 export {
   l as AccountRoot,
+  O as Award,
   L as Certification,
-  g as Container,
+  c as Container,
   w as Education,
+  x as ListOfAward,
   h as ListOfCertification,
   b as ListOfEducation,
   f as ListOfProjects,
@@ -153,11 +162,11 @@ export {
   u as ListOfWorkExp,
   v as ListOfWriting,
   r as NicknameRegistryCoRecord,
-  x as OnboardingAccount,
+  E as OnboardingAccount,
   a as OnboardingProfile,
   y as Project,
-  E as RegistryWorkerAccount,
-  c as RegistryWorkerAccountRoot,
+  M as RegistryWorkerAccount,
+  g as RegistryWorkerAccountRoot,
   s as ReverseNicknameRegistryCoRecord,
   m as SocialLinks,
   C as Speaking,

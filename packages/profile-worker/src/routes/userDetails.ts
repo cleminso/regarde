@@ -261,6 +261,7 @@ export const userDetailsHandler = (
               education: { $each: true },
               certification: { $each: true },
               speaking: { $each: true },
+              award: { $each: true },
             },
           },
         });

@@ -70,6 +70,13 @@ interface UserDetails {
       url?: string;
       description?: string;
     }>;
+    award?: Array<{
+      title: string;
+      year: string;
+      presenter: string;
+      url?: string;
+      description?: string;
+    }>;
   };
 }
 

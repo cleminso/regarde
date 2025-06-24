@@ -269,6 +269,26 @@ export const UserDetailsResponseSchema = z
       )
       .optional()
       .describe("Array of speaking engagements and presentations"),
+    award: z
+      .array(
+        z.object({
+          title: z.string().describe("Title or name of the award"),
+          year: z.string().describe("Year when the award was received"),
+          presenter: z
+            .string()
+            .describe("Organization or entity that presented the award"),
+          url: z
+            .string()
+            .optional()
+            .describe("URL to view award details or verification"),
+          description: z
+            .string()
+            .optional()
+            .describe("Description of the award or achievement"),
+        }),
+      )
+      .optional()
+      .describe("Array of award and recognitions received"),
   })
   .describe(
     "Complete user details response including account info, nickname status, and public profile data",
