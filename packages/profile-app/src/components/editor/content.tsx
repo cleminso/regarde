@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 
 import { useEditProfile } from '../../lib/hook/useEditProfile.ts';
 import {
+  Award,
   Certification,
   Education,
   Project,
@@ -13,6 +14,8 @@ import {
 } from '../../lib/schema.ts';
 import { createNicknameUrl } from '../../lib/utils.ts';
 import {
+  AwardEdit,
+  AwardView,
   CertificationEdit,
   CertificationView,
   ContactEdit,
@@ -74,6 +77,12 @@ export function ProfileEditor() {
   const [speakingToEdit, setSpeakingToEdit] = useState<
     Loaded<typeof Speaking> | undefined
   >(undefined);
+  const [awardSectionViewMode, setAwardViewMode] = useState<'view' | 'form'>(
+    'view',
+  );
+  const [awardToEdit, setAwardToEdit] = useState<
+    Loaded<typeof Award> | undefined
+  >(undefined);
 
   const navigate = useNavigate();
 
@@ -128,6 +137,13 @@ export function ProfileEditor() {
       setSpeakingViewMode('view');
       setSpeakingToEdit(undefined);
     }
+    if (
+      activeSection === editorSections.award &&
+      section !== editorSections.award
+    ) {
+      setAwardViewMode('view');
+      setAwardToEdit(undefined);
+    }
     setActiveSection(section);
   };
 
@@ -161,6 +177,11 @@ export function ProfileEditor() {
   const handleEditSpeaking = (speaking: Loaded<typeof Speaking>) => {
     setSpeakingToEdit(speaking);
     setSpeakingViewMode('form');
+  };
+
+  const handleEditAward = (award: Loaded<typeof Award>) => {
+    setAwardToEdit(award);
+    setAwardViewMode('form');
   };
 
   if (isLoading) {
@@ -343,6 +364,30 @@ export function ProfileEditor() {
                     setSpeakingToEdit(undefined);
                   }}
                   speakingToEdit={speakingToEdit}
+                />
+              ))}
+            {activeSection === editorSections.award &&
+              (awardSectionViewMode === 'view' ? (
+                <AwardView
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  awards={profile?.award ?? undefined}
+                  onAddAward={() => {
+                    setAwardToEdit(undefined);
+                    setAwardViewMode('form');
+                  }}
+                  onEditAward={handleEditAward}
+                  onClose={handleCloseEditor}
+                />
+              ) : (
+                <AwardEdit
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  onDoneEditing={() => {
+                    setAwardViewMode('view');
+                    setAwardToEdit(undefined);
+                  }}
+                  awardToEdit={awardToEdit}
                 />
               ))}
           </>

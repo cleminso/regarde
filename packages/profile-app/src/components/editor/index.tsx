@@ -15,3 +15,5 @@ export { CertificationEdit } from './certification/form';
 export { CertificationView } from './certification/view';
 export { SpeakingEdit } from './speaking/form';
 export { SpeakingView } from './speaking/view';
+export { AwardEdit } from './award/form';
+export { AwardView } from './award/view';

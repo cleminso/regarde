@@ -93,6 +93,13 @@ export function EditorSidebar({
         >
           Speaking
         </SidebarButton>
+
+        <SidebarButton
+          isActive={activeSection === editorSections.award}
+          onClick={() => onSectionChange(editorSections.award)}
+        >
+          Award
+        </SidebarButton>
       </div>
     </div>
   );
