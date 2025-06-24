@@ -13,3 +13,5 @@ export { EducationEdit } from './education/form';
 export { EducationView } from './education/view';
 export { CertificationEdit } from './certification/form';
 export { CertificationView } from './certification/view';
+export { SpeakingEdit } from './speaking/form';
+export { SpeakingView } from './speaking/view';

@@ -12,6 +12,7 @@ import {
   Contact,
   Educations,
   Projects,
+  Speakings,
   WorkExperiences,
   Writings,
 } from './index';
@@ -32,6 +33,8 @@ export function ProfileView() {
         workExp: true,
         writing: true,
         education: true,
+        certification: true,
+        speaking: true,
       },
     },
   });
@@ -93,6 +96,7 @@ export function ProfileView() {
           <Writings profile={profile} />
           <Certifications profile={profile} />
           <Educations profile={profile} />
+          <Speakings profile={profile} />
         </main>
       ) : (
         <div className="flex w-full justify-center items-center min-h-screen">

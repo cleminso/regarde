@@ -87,6 +87,12 @@ export function EditorSidebar({
         >
           Certification
         </SidebarButton>
+        <SidebarButton
+          isActive={activeSection === editorSections.speaking}
+          onClick={() => onSectionChange(editorSections.speaking)}
+        >
+          Speaking
+        </SidebarButton>
       </div>
     </div>
   );

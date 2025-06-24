@@ -6,6 +6,7 @@ export const editorSections = {
   writing: 'writing',
   education: 'education',
   certification: 'certification',
+  speaking: 'speaking',
 } as const;
 
 export type SectionType = (typeof editorSections)[keyof typeof editorSections];

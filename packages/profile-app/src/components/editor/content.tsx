@@ -7,6 +7,7 @@ import {
   Certification,
   Education,
   Project,
+  Speaking,
   WorkExp,
   Writing,
 } from '../../lib/schema.ts';
@@ -22,6 +23,8 @@ import {
   GeneralEdit,
   ProjectEdit,
   ProjectView,
+  SpeakingEdit,
+  SpeakingView,
   WorkExpEdit,
   WorkExpView,
   WritingEdit,
@@ -64,6 +67,12 @@ export function ProfileEditor() {
   >('view');
   const [certificationToEdit, setCertificationToEdit] = useState<
     Loaded<typeof Certification> | undefined
+  >(undefined);
+  const [speakingSectionViewMode, setSpeakingViewMode] = useState<
+    'view' | 'form'
+  >('view');
+  const [speakingToEdit, setSpeakingToEdit] = useState<
+    Loaded<typeof Speaking> | undefined
   >(undefined);
 
   const navigate = useNavigate();
@@ -112,6 +121,13 @@ export function ProfileEditor() {
       setCertificationViewMode('view');
       setCertificationToEdit(undefined);
     }
+    if (
+      activeSection === editorSections.speaking &&
+      section !== editorSections.speaking
+    ) {
+      setSpeakingViewMode('view');
+      setSpeakingToEdit(undefined);
+    }
     setActiveSection(section);
   };
 
@@ -140,6 +156,11 @@ export function ProfileEditor() {
   ) => {
     setCertificationToEdit(certification);
     setCertificationViewMode('form');
+  };
+
+  const handleEditSpeaking = (speaking: Loaded<typeof Speaking>) => {
+    setSpeakingToEdit(speaking);
+    setSpeakingViewMode('form');
   };
 
   if (isLoading) {
@@ -298,6 +319,30 @@ export function ProfileEditor() {
                     setCertificationToEdit(undefined);
                   }}
                   certificationToEdit={certificationToEdit}
+                />
+              ))}
+            {activeSection === editorSections.speaking &&
+              (speakingSectionViewMode === 'view' ? (
+                <SpeakingView
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  speaking={profile?.speaking ?? undefined}
+                  onAddSpeaking={() => {
+                    setSpeakingToEdit(undefined);
+                    setSpeakingViewMode('form');
+                  }}
+                  onEditSpeaking={handleEditSpeaking}
+                  onClose={handleCloseEditor}
+                />
+              ) : (
+                <SpeakingEdit
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  onDoneEditing={() => {
+                    setSpeakingViewMode('view');
+                    setSpeakingToEdit(undefined);
+                  }}
+                  speakingToEdit={speakingToEdit}
                 />
               ))}
           </>
