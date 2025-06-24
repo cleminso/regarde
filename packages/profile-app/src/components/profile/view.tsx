@@ -8,6 +8,7 @@ import { OnboardingAccount, OnboardingProfile } from '#/lib/schema';
 import { ProfileHeader } from './header';
 import {
   About,
+  Certifications,
   Contact,
   Educations,
   Projects,
@@ -90,6 +91,7 @@ export function ProfileView() {
           <Projects profile={profile} />
           <WorkExperiences profile={profile} />
           <Writings profile={profile} />
+          <Certifications profile={profile} />
           <Educations profile={profile} />
         </main>
       ) : (

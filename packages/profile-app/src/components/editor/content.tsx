@@ -3,9 +3,17 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { useEditProfile } from '../../lib/hook/useEditProfile.ts';
-import { Education, Project, WorkExp, Writing } from '../../lib/schema.ts';
+import {
+  Certification,
+  Education,
+  Project,
+  WorkExp,
+  Writing,
+} from '../../lib/schema.ts';
 import { createNicknameUrl } from '../../lib/utils.ts';
 import {
+  CertificationEdit,
+  CertificationView,
   ContactEdit,
   EditorLayout,
   EditorSidebar,
@@ -51,6 +59,12 @@ export function ProfileEditor() {
   const [educationToEdit, setEducationToEdit] = useState<
     Loaded<typeof Education> | undefined
   >(undefined);
+  const [certificationSectionViewMode, setCertificationViewMode] = useState<
+    'view' | 'form'
+  >('view');
+  const [certificationToEdit, setCertificationToEdit] = useState<
+    Loaded<typeof Certification> | undefined
+  >(undefined);
 
   const navigate = useNavigate();
 
@@ -91,6 +105,13 @@ export function ProfileEditor() {
       setEducationViewMode('view');
       setEducationToEdit(undefined);
     }
+    if (
+      activeSection === editorSections.certification &&
+      section !== editorSections.certification
+    ) {
+      setCertificationViewMode('view');
+      setCertificationToEdit(undefined);
+    }
     setActiveSection(section);
   };
 
@@ -112,6 +133,13 @@ export function ProfileEditor() {
   const handleEditEducation = (education: Loaded<typeof Education>) => {
     setEducationToEdit(education);
     setEducationViewMode('form');
+  };
+
+  const handleEditCertification = (
+    certification: Loaded<typeof Certification>,
+  ) => {
+    setCertificationToEdit(certification);
+    setCertificationViewMode('form');
   };
 
   if (isLoading) {
@@ -246,6 +274,30 @@ export function ProfileEditor() {
                     setEducationToEdit(undefined);
                   }}
                   educationToEdit={educationToEdit}
+                />
+              ))}
+            {activeSection === editorSections.certification &&
+              (certificationSectionViewMode === 'view' ? (
+                <CertificationView
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  certifications={profile?.certification ?? undefined}
+                  onAddCertification={() => {
+                    setCertificationToEdit(undefined);
+                    setCertificationViewMode('form');
+                  }}
+                  onEditCertification={handleEditCertification}
+                  onClose={handleCloseEditor}
+                />
+              ) : (
+                <CertificationEdit
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  onDoneEditing={() => {
+                    setCertificationViewMode('view');
+                    setCertificationToEdit(undefined);
+                  }}
+                  certificationToEdit={certificationToEdit}
                 />
               ))}
           </>

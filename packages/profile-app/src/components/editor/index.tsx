@@ -11,3 +11,5 @@ export { WritingEdit } from './writing/form';
 export { WritingView } from './writing/view';
 export { EducationEdit } from './education/form';
 export { EducationView } from './education/view';
+export { CertificationEdit } from './certification/form';
+export { CertificationView } from './certification/view';
