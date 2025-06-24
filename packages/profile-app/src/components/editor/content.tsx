@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { useEditProfile } from '../../lib/hook/useEditProfile.ts';
-import { Project, WorkExp } from '../../lib/schema.ts';
+import { Project, WorkExp, Writing } from '../../lib/schema.ts';
 import { createNicknameUrl } from '../../lib/utils.ts';
 import {
   ContactEdit,
@@ -14,6 +14,8 @@ import {
   ProjectView,
   WorkExpEdit,
   WorkExpView,
+  WritingEdit,
+  WritingView,
 } from './index.tsx';
 import { editorSections, SectionType } from './shared.ts';
 
@@ -34,6 +36,12 @@ export function ProfileEditor() {
   >('view');
   const [workExpToEdit, setWorkExpToEdit] = useState<
     Loaded<typeof WorkExp> | undefined
+  >(undefined);
+  const [writingSectionViewMode, setWritingViewMode] = useState<
+    'view' | 'form'
+  >('view');
+  const [writingToEdit, setWritingToEdit] = useState<
+    Loaded<typeof Writing> | undefined
   >(undefined);
 
   const navigate = useNavigate();
@@ -61,6 +69,13 @@ export function ProfileEditor() {
       setWorkExpViewMode('view');
       setWorkExpToEdit(undefined);
     }
+    if (
+      activeSection === editorSections.writing &&
+      section !== editorSections.writing
+    ) {
+      setWritingViewMode('view');
+      setWritingToEdit(undefined);
+    }
     setActiveSection(section);
   };
 
@@ -72,6 +87,11 @@ export function ProfileEditor() {
   const handleEditWorkExp = (workExp: Loaded<typeof WorkExp>) => {
     setWorkExpToEdit(workExp);
     setWorkExpViewMode('form');
+  };
+
+  const handleEditWriting = (writing: Loaded<typeof Writing>) => {
+    setWritingToEdit(writing);
+    setWritingViewMode('form');
   };
 
   if (isLoading) {
@@ -158,6 +178,30 @@ export function ProfileEditor() {
                     setWorkExpToEdit(undefined);
                   }}
                   workExpToEdit={workExpToEdit}
+                />
+              ))}
+            {activeSection === editorSections.writing &&
+              (writingSectionViewMode === 'view' ? (
+                <WritingView
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  writing={profile?.writing ?? undefined}
+                  onAddWriting={() => {
+                    setWritingToEdit(undefined);
+                    setWritingViewMode('form');
+                  }}
+                  onEditWriting={handleEditWriting}
+                  onClose={handleCloseEditor}
+                />
+              ) : (
+                <WritingEdit
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  onDoneEditing={() => {
+                    setWritingViewMode('view');
+                    setWritingToEdit(undefined);
+                  }}
+                  writingToEdit={writingToEdit}
                 />
               ))}
           </>
