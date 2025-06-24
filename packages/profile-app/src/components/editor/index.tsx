@@ -19,3 +19,5 @@ export { AwardEdit } from './award/form';
 export { AwardView } from './award/view';
 export { VolunteeringEdit } from './volunteering/form';
 export { VolunteeringView } from './volunteering/view';
+export { SideProjectEdit } from './sideProject/form';
+export { SideProjectView } from './sideProject/view';

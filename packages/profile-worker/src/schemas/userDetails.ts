@@ -334,10 +334,6 @@ export const UserDetailsResponseSchema = z
             .string()
             .optional()
             .describe("Client or organization the side project was for"),
-          location: z
-            .string()
-            .optional()
-            .describe("Location where the side project was developed"),
           url: z
             .string()
             .optional()

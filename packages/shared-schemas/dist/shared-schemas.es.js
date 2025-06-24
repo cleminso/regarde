@@ -61,9 +61,8 @@ const m = i.map({
   description: t.optional(t.string())
 }), j = i.list(A), E = i.map({
   title: t.string(),
-  year: t.date(),
+  year: t.string(),
   client: t.optional(t.string()),
-  location: t.optional(t.string()),
   url: t.optional(t.string()),
   description: t.optional(t.string())
 }), M = i.list(E), a = i.profile({
@@ -81,7 +80,7 @@ const m = i.map({
   speaking: t.optional(C),
   award: t.optional(x),
   volunteering: t.optional(j),
-  sideProjects: t.optional(M)
+  sideProject: t.optional(M)
 }).withHelpers((n) => ({
   validate(o) {
     return !o.name || o.name.trim() === "" ? {

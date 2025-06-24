@@ -106,6 +106,12 @@ export function EditorSidebar({
         >
           Volunteering
         </SidebarButton>
+        <SidebarButton
+          isActive={activeSection === editorSections.sideProject}
+          onClick={() => onSectionChange(editorSections.sideProject)}
+        >
+          Side Project
+        </SidebarButton>
       </div>
     </div>
   );

@@ -114,9 +114,8 @@ export const ListOfVolunteering = co.list(Volunteering);
 
 export const SideProject = co.map({
   title: z.string(),
-  year: z.date(),
+  year: z.string(),
   client: z.optional(z.string()),
-  location: z.optional(z.string()),
   url: z.optional(z.string()),
   description: z.optional(z.string()),
 });

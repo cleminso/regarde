@@ -13,6 +13,7 @@ import {
   Contact,
   Educations,
   Projects,
+  SideProjects,
   Speakings,
   Volunteerings,
   WorkExperiences,
@@ -32,6 +33,7 @@ export function ProfileView() {
       profile: {
         socialLinks: true,
         projects: true,
+        sideProject: true,
         workExp: true,
         writing: true,
         education: true,
@@ -103,6 +105,7 @@ export function ProfileView() {
           <Educations profile={profile} />
           <Speakings profile={profile} />
           <Volunteerings profile={profile} />
+          <SideProjects profile={profile} />
         </main>
       ) : (
         <div className="flex w-full justify-center items-center min-h-screen">

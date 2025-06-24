@@ -8,3 +8,4 @@ export { Certifications } from './sections/certification';
 export { Speakings } from './sections/speaking';
 export { Awards } from './sections/award';
 export { Volunteerings } from './sections/volunteering';
+export { SideProjects } from './sections/sideProject';

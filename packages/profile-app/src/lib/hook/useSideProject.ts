@@ -7,6 +7,14 @@ type UseSideProjectProps = {
   triggerSyncIndicator: () => void;
 };
 
+interface SideProjectFormData {
+  title: string;
+  year: string;
+  client?: string;
+  url?: string;
+  description?: string;
+}
+
 export function useSideProject({
   profile,
   triggerSyncIndicator,
@@ -30,7 +38,7 @@ export function useSideProject({
   };
 
   const addSideProject = (
-    sideProjectData: SideProject,
+    sideProjectData: SideProjectFormData,
   ): Loaded<typeof SideProject> | undefined => {
     const sideProjectList = ensureSideProjectList();
     if (!sideProjectList) return undefined;
@@ -43,14 +51,11 @@ export function useSideProject({
       return undefined;
     }
 
-    const yearDate = new Date(sideProjectData.year);
-
     const newSideProject = SideProject.create(
       {
         title: sideProjectData.title,
-        year: yearDate,
+        year: sideProjectData.year,
         client: sideProjectData.client,
-        location: sideProjectData.location,
         url: sideProjectData.url,
         description: sideProjectData.description,
       },
@@ -63,7 +68,7 @@ export function useSideProject({
 
   const updateSideProject = (
     sideProjectToUpdate: Loaded<typeof SideProject>,
-    dataToUpdate: SideProject,
+    dataToUpdate: SideProjectFormData,
   ) => {
     if (!sideProjectToUpdate) {
       console.error('Side project instance not provided for update.');
@@ -84,20 +89,13 @@ export function useSideProject({
       dataToUpdate.year !== undefined &&
       sideProjectToUpdate.year !== dataToUpdate.year
     ) {
-      sideProjectToUpdate.year = new Date(dataToUpdate.year);
+      sideProjectToUpdate.year = dataToUpdate.year;
       changed = true;
     }
 
     if (dataToUpdate.hasOwnProperty('client')) {
       if (sideProjectToUpdate.client !== dataToUpdate.client) {
         sideProjectToUpdate.client = dataToUpdate.client;
-        changed = true;
-      }
-    }
-
-    if (dataToUpdate.hasOwnProperty('location')) {
-      if (sideProjectToUpdate.location !== dataToUpdate.location) {
-        sideProjectToUpdate.location = dataToUpdate.location;
         changed = true;
       }
     }

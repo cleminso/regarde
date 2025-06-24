@@ -8,6 +8,7 @@ import {
   Certification,
   Education,
   Project,
+  SideProject,
   Speaking,
   Volunteering,
   WorkExp,
@@ -27,6 +28,8 @@ import {
   GeneralEdit,
   ProjectEdit,
   ProjectView,
+  SideProjectEdit,
+  SideProjectView,
   SpeakingEdit,
   SpeakingView,
   VolunteeringEdit,
@@ -49,6 +52,12 @@ export function ProfileEditor() {
   );
   const [projectToEdit, setProjectToEdit] = useState<
     Loaded<typeof Project> | undefined
+  >(undefined);
+  const [sideProjectSectionViewMode, setSideProjectViewMode] = useState<
+    'view' | 'form'
+  >('view');
+  const [sideProjectToEdit, setSideProjectToEdit] = useState<
+    Loaded<typeof SideProject> | undefined
   >(undefined);
   const [workExpSectionViewMode, setWorkExpViewMode] = useState<
     'view' | 'form'
@@ -112,6 +121,13 @@ export function ProfileEditor() {
       setProjectToEdit(undefined);
     }
     if (
+      activeSection === editorSections.sideProject &&
+      section !== editorSections.sideProject
+    ) {
+      setSideProjectViewMode('view');
+      setSideProjectToEdit(undefined);
+    }
+    if (
       activeSection === editorSections.workExp &&
       section !== editorSections.workExp
     ) {
@@ -166,6 +182,11 @@ export function ProfileEditor() {
   const handleEditProject = (project: Loaded<typeof Project>) => {
     setProjectToEdit(project);
     setProjectView('form');
+  };
+
+  const handleEditSideProject = (sideProject: Loaded<typeof SideProject>) => {
+    setSideProjectToEdit(sideProject);
+    setSideProjectViewMode('form');
   };
 
   const handleEditWorkExp = (workExp: Loaded<typeof WorkExp>) => {
@@ -267,6 +288,30 @@ export function ProfileEditor() {
                     setProjectToEdit(undefined);
                   }}
                   projectToEdit={projectToEdit}
+                />
+              ))}
+            {activeSection === editorSections.sideProject &&
+              (sideProjectSectionViewMode === 'view' ? (
+                <SideProjectView
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  sideProjects={profile?.sideProject ?? undefined}
+                  onAddSideProject={() => {
+                    setSideProjectToEdit(undefined);
+                    setSideProjectViewMode('form');
+                  }}
+                  onEditSideProject={handleEditSideProject}
+                  onClose={handleCloseEditor}
+                />
+              ) : (
+                <SideProjectEdit
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  onDoneEditing={() => {
+                    setSideProjectViewMode('view');
+                    setSideProjectToEdit(undefined);
+                  }}
+                  sideProjectToEdit={sideProjectToEdit}
                 />
               ))}
             {activeSection === editorSections.workExp &&
