@@ -38,6 +38,13 @@ interface UserDetails {
       from: string;
       to?: string;
     }>;
+    writing?: Array<{
+      title: string;
+      year: string;
+      publisher?: string;
+      url?: string;
+      description?: string;
+    }>;
   };
 }
 

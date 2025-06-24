@@ -257,6 +257,7 @@ export const userDetailsHandler = (
               projects: { $each: true },
               socialLinks: { $each: true },
               workExp: { $each: true },
+              writing: { $each: true },
             },
           },
         });
