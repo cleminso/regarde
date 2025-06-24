@@ -260,6 +260,7 @@ export const userDetailsHandler = (
               writing: { $each: true },
               education: { $each: true },
               certification: { $each: true },
+              speaking: { $each: true },
             },
           },
         });

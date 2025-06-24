@@ -73,6 +73,19 @@ export type Certification = z.infer<typeof Certification>;
 
 export const ListOfCertification = co.list(Certification);
 
+export const Speaking = co.map({
+  title: z.string(),
+  year: z.date(),
+  event: z.optional(z.string()),
+  location: z.optional(z.string()),
+  url: z.optional(z.string()),
+  description: z.optional(z.string()),
+});
+
+export type Speaking = z.infer<typeof Speaking>;
+
+export const ListOfSpeaking = co.list(Speaking);
+
 // TODO:
 // export const Attachments = co.map({
 // url: z.string(),
@@ -98,6 +111,7 @@ export const OnboardingProfile = co
     writing: z.optional(ListOfWriting),
     education: z.optional(ListOfEducation),
     certification: z.optional(ListOfCertification),
+    speaking: z.optional(ListOfSpeaking),
   })
   .withHelpers((Self) => ({
     validate(profile: Loaded<typeof Self>): {

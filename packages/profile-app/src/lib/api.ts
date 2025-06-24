@@ -62,6 +62,14 @@ interface UserDetails {
       url?: string;
       description?: string;
     }>;
+    speaking?: Array<{
+      title: string;
+      year: string;
+      event?: string;
+      location?: string;
+      url?: string;
+      description?: string;
+    }>;
   };
 }
 

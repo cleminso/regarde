@@ -240,6 +240,35 @@ export const UserDetailsResponseSchema = z
       )
       .optional()
       .describe("Array of professional certifications and credentials"),
+    speaking: z
+      .array(
+        z.object({
+          title: z.string().describe("Title of the speaking engagement"),
+          year: z
+            .string()
+            .describe("Year when the speaking engagement took place"),
+          event: z
+            .string()
+            .optional()
+            .describe("Name of the event, conference, or venue"),
+          location: z
+            .string()
+            .optional()
+            .describe("Location where the speaking engagement took place"),
+          url: z
+            .string()
+            .optional()
+            .describe("URL to view recording, slides, or event details"),
+          description: z
+            .string()
+            .optional()
+            .describe(
+              "Description of the speaking engagement or topic covered",
+            ),
+        }),
+      )
+      .optional()
+      .describe("Array of speaking engagements and presentations"),
   })
   .describe(
     "Complete user details response including account info, nickname status, and public profile data",

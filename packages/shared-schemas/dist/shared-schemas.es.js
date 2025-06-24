@@ -1,15 +1,15 @@
-import { co as e, z as t, Group as p } from "jazz-tools";
-const m = e.map({
+import { co as i, z as t, Group as d } from "jazz-tools";
+const m = i.map({
   github: t.optional(t.string()),
   twitter: t.optional(t.string()),
   website: t.optional(t.string())
-}), y = e.map({
+}), y = i.map({
   title: t.string(),
   year: t.string(),
   client: t.optional(t.string()),
   link: t.optional(t.string()),
   description: t.optional(t.string())
-}), f = e.list(y), R = e.map({
+}), f = i.list(y), R = i.map({
   title: t.string(),
   from: t.date(),
   to: t.optional(t.string()),
@@ -17,13 +17,13 @@ const m = e.map({
   location: t.optional(t.string()),
   url: t.optional(t.string()),
   description: t.optional(t.string())
-}), u = e.list(R), k = e.map({
+}), u = i.list(R), k = i.map({
   title: t.string(),
   year: t.string(),
   publisher: t.optional(t.string()),
   url: t.optional(t.string()),
   description: t.optional(t.string())
-}), v = e.list(k), w = e.map({
+}), v = i.list(k), w = i.map({
   from: t.date(),
   to: t.optional(t.string()),
   degree: t.string(),
@@ -31,14 +31,21 @@ const m = e.map({
   location: t.optional(t.string()),
   url: t.optional(t.string()),
   description: t.optional(t.string())
-}), b = e.list(w), L = e.map({
+}), b = i.list(w), L = i.map({
   issued: t.date(),
   expire: t.optional(t.string()),
   name: t.string(),
   organization: t.string(),
   url: t.optional(t.string()),
   description: t.optional(t.string())
-}), h = e.list(L), a = e.profile({
+}), h = i.list(L), C = i.map({
+  title: t.string(),
+  year: t.date(),
+  event: t.optional(t.string()),
+  location: t.optional(t.string()),
+  url: t.optional(t.string()),
+  description: t.optional(t.string())
+}), N = i.list(C), a = i.profile({
   // TODO: make `name` optional and nickname required
   name: t.string(),
   nickname: t.optional(t.string()),
@@ -49,86 +56,87 @@ const m = e.map({
   workExp: t.optional(u),
   writing: t.optional(v),
   education: t.optional(b),
-  certification: t.optional(h)
-}).withHelpers((r) => ({
-  validate(i) {
-    return !i.name || i.name.trim() === "" ? {
+  certification: t.optional(h),
+  speaking: t.optional(N)
+}).withHelpers((n) => ({
+  validate(o) {
+    return !o.name || o.name.trim() === "" ? {
       isValid: !1,
       message: "Name must be present and non-empty."
     } : { isValid: !0 };
   }
-})), g = e.map({
+})), g = i.map({
   creationMessage: t.optional(t.string())
-}), l = e.map({
+}), l = i.map({
   container: g
-}), N = e.account({
+}), x = i.account({
   // Rule 1.3 (paraphrased): An account schema should define `profile` and `root`. `profile` points to a `co.profile` schema. `root` points to a `co.map` schema for private per-user data.
   profile: a,
   root: l
 }).withMigration(
-  (r, i) => {
-    if (r.profile === void 0)
+  (n, o) => {
+    if (n.profile === void 0)
       try {
-        const o = p.create({
-          owner: r
+        const e = d.create({
+          owner: n
         });
-        o.addMember("everyone", "reader"), r.profile = a.create(
+        e.addMember("everyone", "reader"), n.profile = a.create(
           {
-            name: (i == null ? void 0 : i.name) || "Public Profile"
+            name: (o == null ? void 0 : o.name) || "Public Profile"
           },
-          { owner: o }
+          { owner: e }
         );
-      } catch (o) {
-        console.warn("Group could not be created, likely unlogged", o);
+      } catch (e) {
+        console.warn("Group could not be created, likely unlogged", e);
       }
-    if (r.root === void 0)
+    if (n.root === void 0)
       try {
-        const o = i != null && i.name ? `Container initialized for ${i.name}.` : "Container initialized.", d = g.create({
-          creationMessage: o
+        const e = o != null && o.name ? `Container initialized for ${o.name}.` : "Container initialized.", p = g.create({
+          creationMessage: e
         });
-        r.root = l.create({ container: d });
-      } catch (o) {
-        console.warn("Container could not be created, likely unlogged", o);
+        n.root = l.create({ container: p });
+      } catch (e) {
+        console.warn("Container could not be created, likely unlogged", e);
       }
   }
-), n = e.record(t.string(), t.string()), s = e.record(t.string(), t.string()), c = e.map({
-  registry: n,
+), r = i.record(t.string(), t.string()), s = i.record(t.string(), t.string()), c = i.map({
+  registry: r,
   reverseRegistry: s
-}), x = e.account({
-  profile: e.profile(),
+}), E = i.account({
+  profile: i.profile(),
   root: c
-}).withMigration(async (r) => {
+}).withMigration(async (n) => {
   try {
-    const i = await r.ensureLoaded({
+    const o = await n.ensureLoaded({
       resolve: {
         root: !0
       }
     });
-    if (console.dir("Loaded via ensureLoaded", i), i.root.registry === void 0) {
-      const o = n.create({});
-      i.root.registry = o, console.log("NicknameRegistry created in worker account root.");
+    if (console.dir("Loaded via ensureLoaded", o), o.root.registry === void 0) {
+      const e = r.create({});
+      o.root.registry = e, console.log("NicknameRegistry created in worker account root.");
     }
-    if (i.root.reverseRegistry === void 0) {
-      const o = s.create({});
-      i.root.reverseRegistry = o, console.log("ReverseNicknameRegistry created in worker account root.");
+    if (o.root.reverseRegistry === void 0) {
+      const e = s.create({});
+      o.root.reverseRegistry = e, console.log("ReverseNicknameRegistry created in worker account root.");
     }
-  } catch (i) {
-    if (console.log("EnsureLoaded Root failed, fallback", r, i), r.root === void 0) {
-      const o = c.create({
-        registry: n.create({}),
+  } catch (o) {
+    if (console.log("EnsureLoaded Root failed, fallback", n, o), n.root === void 0) {
+      const e = c.create({
+        registry: r.create({}),
         reverseRegistry: s.create({})
       });
-      r.root = o, console.log(
+      n.root = e, console.log(
         "Root created with NicknameRegistry and ReverseNicknameRegistry in worker account since it was missing."
       );
     } else {
-      if (r.root.registry === void 0) {
-        const o = n.create({});
-        r.root.registry = o, console.log("NicknameRegistry created in existing root during fallback.");
+      if (n.root.registry === void 0) {
+        const e = r.create({});
+        n.root.registry = e, console.log("NicknameRegistry created in existing root during fallback.");
       }
-      if (r.root.reverseRegistry === void 0) {
-        const o = s.create({});
-        r.root.reverseRegistry = o, console.log("ReverseNicknameRegistry created in existing root during fallback.");
+      if (n.root.reverseRegistry === void 0) {
+        const e = s.create({});
+        n.root.reverseRegistry = e, console.log("ReverseNicknameRegistry created in existing root during fallback.");
       }
     }
   }
@@ -141,16 +149,18 @@ export {
   h as ListOfCertification,
   b as ListOfEducation,
   f as ListOfProjects,
+  N as ListOfSpeaking,
   u as ListOfWorkExp,
   v as ListOfWriting,
-  n as NicknameRegistryCoRecord,
-  N as OnboardingAccount,
+  r as NicknameRegistryCoRecord,
+  x as OnboardingAccount,
   a as OnboardingProfile,
   y as Project,
-  x as RegistryWorkerAccount,
+  E as RegistryWorkerAccount,
   c as RegistryWorkerAccountRoot,
   s as ReverseNicknameRegistryCoRecord,
   m as SocialLinks,
+  C as Speaking,
   R as WorkExp,
   k as Writing
 };
