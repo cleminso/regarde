@@ -60,6 +60,19 @@ export type Education = z.infer<typeof Education>;
 
 export const ListOfEducation = co.list(Education);
 
+export const Certification = co.map({
+  issued: z.date(),
+  expire: z.optional(z.string()),
+  name: z.string(),
+  organization: z.string(),
+  url: z.optional(z.string()),
+  description: z.optional(z.string()),
+});
+
+export type Certification = z.infer<typeof Certification>;
+
+export const ListOfCertification = co.list(Certification);
+
 // TODO:
 // export const Attachments = co.map({
 // url: z.string(),
@@ -84,6 +97,7 @@ export const OnboardingProfile = co
     workExp: z.optional(ListOfWorkExp),
     writing: z.optional(ListOfWriting),
     education: z.optional(ListOfEducation),
+    certification: z.optional(ListOfCertification),
   })
   .withHelpers((Self) => ({
     validate(profile: Loaded<typeof Self>): {

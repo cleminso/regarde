@@ -73,6 +73,23 @@ export declare const ListOfEducation: import('jazz-tools').CoListSchema<import('
     url: z.ZodOptional<z.z.ZodString>;
     description: z.ZodOptional<z.z.ZodString>;
 }>>;
+export declare const Certification: import('jazz-tools').CoMapSchema<{
+    issued: z.z.ZodDate;
+    expire: z.ZodOptional<z.z.ZodString>;
+    name: z.z.ZodString;
+    organization: z.z.ZodString;
+    url: z.ZodOptional<z.z.ZodString>;
+    description: z.ZodOptional<z.z.ZodString>;
+}>;
+export type Certification = z.infer<typeof Certification>;
+export declare const ListOfCertification: import('jazz-tools').CoListSchema<import('jazz-tools').CoMapSchema<{
+    issued: z.z.ZodDate;
+    expire: z.ZodOptional<z.z.ZodString>;
+    name: z.z.ZodString;
+    organization: z.z.ZodString;
+    url: z.ZodOptional<z.z.ZodString>;
+    description: z.ZodOptional<z.z.ZodString>;
+}>>;
 export declare const OnboardingProfile: import('jazz-tools/dist/internal').WithHelpers<import('jazz-tools/dist/internal').CoProfileSchema<{
     name: z.z.ZodString;
     nickname: z.ZodOptional<z.z.ZodString>;
@@ -112,6 +129,14 @@ export declare const OnboardingProfile: import('jazz-tools/dist/internal').WithH
         degree: z.z.ZodString;
         institution: z.z.ZodString;
         location: z.ZodOptional<z.z.ZodString>;
+        url: z.ZodOptional<z.z.ZodString>;
+        description: z.ZodOptional<z.z.ZodString>;
+    }>>>;
+    certification: z.ZodOptional<import('jazz-tools').CoListSchema<import('jazz-tools').CoMapSchema<{
+        issued: z.z.ZodDate;
+        expire: z.ZodOptional<z.z.ZodString>;
+        name: z.z.ZodString;
+        organization: z.z.ZodString;
         url: z.ZodOptional<z.z.ZodString>;
         description: z.ZodOptional<z.z.ZodString>;
     }>>>;
@@ -155,6 +180,14 @@ export declare const OnboardingProfile: import('jazz-tools/dist/internal').WithH
             degree: z.z.ZodString;
             institution: z.z.ZodString;
             location: z.ZodOptional<z.z.ZodString>;
+            url: z.ZodOptional<z.z.ZodString>;
+            description: z.ZodOptional<z.z.ZodString>;
+        }>>>;
+        certification: z.ZodOptional<import('jazz-tools').CoListSchema<import('jazz-tools').CoMapSchema<{
+            issued: z.z.ZodDate;
+            expire: z.ZodOptional<z.z.ZodString>;
+            name: z.z.ZodString;
+            organization: z.z.ZodString;
             url: z.ZodOptional<z.z.ZodString>;
             description: z.ZodOptional<z.z.ZodString>;
         }>>>;
@@ -214,6 +247,14 @@ export declare const OnboardingAccount: import('jazz-tools').AccountSchema<{
             url: z.ZodOptional<z.z.ZodString>;
             description: z.ZodOptional<z.z.ZodString>;
         }>>>;
+        certification: z.ZodOptional<import('jazz-tools').CoListSchema<import('jazz-tools').CoMapSchema<{
+            issued: z.z.ZodDate;
+            expire: z.ZodOptional<z.z.ZodString>;
+            name: z.z.ZodString;
+            organization: z.z.ZodString;
+            url: z.ZodOptional<z.z.ZodString>;
+            description: z.ZodOptional<z.z.ZodString>;
+        }>>>;
     }>, {
         validate(profile: Loaded<import('jazz-tools/dist/internal').CoProfileSchema<{
             name: z.z.ZodString;
@@ -254,6 +295,14 @@ export declare const OnboardingAccount: import('jazz-tools').AccountSchema<{
                 degree: z.z.ZodString;
                 institution: z.z.ZodString;
                 location: z.ZodOptional<z.z.ZodString>;
+                url: z.ZodOptional<z.z.ZodString>;
+                description: z.ZodOptional<z.z.ZodString>;
+            }>>>;
+            certification: z.ZodOptional<import('jazz-tools').CoListSchema<import('jazz-tools').CoMapSchema<{
+                issued: z.z.ZodDate;
+                expire: z.ZodOptional<z.z.ZodString>;
+                name: z.z.ZodString;
+                organization: z.z.ZodString;
                 url: z.ZodOptional<z.z.ZodString>;
                 description: z.ZodOptional<z.z.ZodString>;
             }>>>;

@@ -259,6 +259,7 @@ export const userDetailsHandler = (
               workExp: { $each: true },
               writing: { $each: true },
               education: { $each: true },
+              certification: { $each: true },
             },
           },
         });

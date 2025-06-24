@@ -208,6 +208,38 @@ export const UserDetailsResponseSchema = z
       )
       .optional()
       .describe("Array of educational background entries"),
+    certification: z
+      .array(
+        z.object({
+          issued: z
+            .string()
+            .describe(
+              "Date when the certification was issued (flexible format)",
+            ),
+          expire: z
+            .string()
+            .optional()
+            .describe(
+              "Expiration date of certification (optional for non-expiring certifications)",
+            ),
+          name: z.string().describe("Name or title of the certification"),
+          organization: z
+            .string()
+            .describe(
+              "Organization or institution that issued the certification",
+            ),
+          url: z
+            .string()
+            .optional()
+            .describe("URL to verify or view the certification"),
+          description: z
+            .string()
+            .optional()
+            .describe("Description of the certification or skills covered"),
+        }),
+      )
+      .optional()
+      .describe("Array of professional certifications and credentials"),
   })
   .describe(
     "Complete user details response including account info, nickname status, and public profile data",

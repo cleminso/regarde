@@ -54,6 +54,14 @@ interface UserDetails {
       url?: string;
       description?: string;
     }>;
+    certification?: Array<{
+      issued: string;
+      expire?: string;
+      name: string;
+      organization: string;
+      url?: string;
+      description?: string;
+    }>;
   };
 }
 

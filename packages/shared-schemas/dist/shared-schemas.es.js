@@ -1,64 +1,72 @@
-import { co as i, z as e, Group as p } from "jazz-tools";
-const y = i.map({
-  github: e.optional(e.string()),
-  twitter: e.optional(e.string()),
-  website: e.optional(e.string())
-}), m = i.map({
-  title: e.string(),
-  year: e.string(),
-  client: e.optional(e.string()),
-  link: e.optional(e.string()),
-  description: e.optional(e.string())
-}), R = i.list(m), f = i.map({
-  title: e.string(),
-  from: e.date(),
-  to: e.optional(e.string()),
-  company: e.string(),
-  location: e.optional(e.string()),
-  url: e.optional(e.string()),
-  description: e.optional(e.string())
-}), u = i.list(f), k = i.map({
-  title: e.string(),
-  year: e.string(),
-  publisher: e.optional(e.string()),
-  url: e.optional(e.string()),
-  description: e.optional(e.string())
-}), v = i.list(k), w = i.map({
-  from: e.date(),
-  to: e.optional(e.string()),
-  degree: e.string(),
-  institution: e.string(),
-  location: e.optional(e.string()),
-  url: e.optional(e.string()),
-  description: e.optional(e.string())
-}), b = i.list(w), a = i.profile({
+import { co as e, z as t, Group as p } from "jazz-tools";
+const m = e.map({
+  github: t.optional(t.string()),
+  twitter: t.optional(t.string()),
+  website: t.optional(t.string())
+}), y = e.map({
+  title: t.string(),
+  year: t.string(),
+  client: t.optional(t.string()),
+  link: t.optional(t.string()),
+  description: t.optional(t.string())
+}), f = e.list(y), R = e.map({
+  title: t.string(),
+  from: t.date(),
+  to: t.optional(t.string()),
+  company: t.string(),
+  location: t.optional(t.string()),
+  url: t.optional(t.string()),
+  description: t.optional(t.string())
+}), u = e.list(R), k = e.map({
+  title: t.string(),
+  year: t.string(),
+  publisher: t.optional(t.string()),
+  url: t.optional(t.string()),
+  description: t.optional(t.string())
+}), v = e.list(k), w = e.map({
+  from: t.date(),
+  to: t.optional(t.string()),
+  degree: t.string(),
+  institution: t.string(),
+  location: t.optional(t.string()),
+  url: t.optional(t.string()),
+  description: t.optional(t.string())
+}), b = e.list(w), L = e.map({
+  issued: t.date(),
+  expire: t.optional(t.string()),
+  name: t.string(),
+  organization: t.string(),
+  url: t.optional(t.string()),
+  description: t.optional(t.string())
+}), h = e.list(L), a = e.profile({
   // TODO: make `name` optional and nickname required
-  name: e.string(),
-  nickname: e.optional(e.string()),
-  bio: e.optional(e.string()),
-  avatar: e.optional(e.string()),
-  socialLinks: e.optional(y),
-  projects: e.optional(R),
-  workExp: e.optional(u),
-  writing: e.optional(v),
-  education: e.optional(b)
+  name: t.string(),
+  nickname: t.optional(t.string()),
+  bio: t.optional(t.string()),
+  avatar: t.optional(t.string()),
+  socialLinks: t.optional(m),
+  projects: t.optional(f),
+  workExp: t.optional(u),
+  writing: t.optional(v),
+  education: t.optional(b),
+  certification: t.optional(h)
 }).withHelpers((r) => ({
-  validate(t) {
-    return !t.name || t.name.trim() === "" ? {
+  validate(i) {
+    return !i.name || i.name.trim() === "" ? {
       isValid: !1,
       message: "Name must be present and non-empty."
     } : { isValid: !0 };
   }
-})), g = i.map({
-  creationMessage: e.optional(e.string())
-}), l = i.map({
+})), g = e.map({
+  creationMessage: t.optional(t.string())
+}), l = e.map({
   container: g
-}), h = i.account({
+}), N = e.account({
   // Rule 1.3 (paraphrased): An account schema should define `profile` and `root`. `profile` points to a `co.profile` schema. `root` points to a `co.map` schema for private per-user data.
   profile: a,
   root: l
 }).withMigration(
-  (r, t) => {
+  (r, i) => {
     if (r.profile === void 0)
       try {
         const o = p.create({
@@ -66,7 +74,7 @@ const y = i.map({
         });
         o.addMember("everyone", "reader"), r.profile = a.create(
           {
-            name: (t == null ? void 0 : t.name) || "Public Profile"
+            name: (i == null ? void 0 : i.name) || "Public Profile"
           },
           { owner: o }
         );
@@ -75,7 +83,7 @@ const y = i.map({
       }
     if (r.root === void 0)
       try {
-        const o = t != null && t.name ? `Container initialized for ${t.name}.` : "Container initialized.", d = g.create({
+        const o = i != null && i.name ? `Container initialized for ${i.name}.` : "Container initialized.", d = g.create({
           creationMessage: o
         });
         r.root = l.create({ container: d });
@@ -83,29 +91,29 @@ const y = i.map({
         console.warn("Container could not be created, likely unlogged", o);
       }
   }
-), n = i.record(e.string(), e.string()), s = i.record(e.string(), e.string()), c = i.map({
+), n = e.record(t.string(), t.string()), s = e.record(t.string(), t.string()), c = e.map({
   registry: n,
   reverseRegistry: s
-}), N = i.account({
-  profile: i.profile(),
+}), x = e.account({
+  profile: e.profile(),
   root: c
 }).withMigration(async (r) => {
   try {
-    const t = await r.ensureLoaded({
+    const i = await r.ensureLoaded({
       resolve: {
         root: !0
       }
     });
-    if (console.dir("Loaded via ensureLoaded", t), t.root.registry === void 0) {
+    if (console.dir("Loaded via ensureLoaded", i), i.root.registry === void 0) {
       const o = n.create({});
-      t.root.registry = o, console.log("NicknameRegistry created in worker account root.");
+      i.root.registry = o, console.log("NicknameRegistry created in worker account root.");
     }
-    if (t.root.reverseRegistry === void 0) {
+    if (i.root.reverseRegistry === void 0) {
       const o = s.create({});
-      t.root.reverseRegistry = o, console.log("ReverseNicknameRegistry created in worker account root.");
+      i.root.reverseRegistry = o, console.log("ReverseNicknameRegistry created in worker account root.");
     }
-  } catch (t) {
-    if (console.log("EnsureLoaded Root failed, fallback", r, t), r.root === void 0) {
+  } catch (i) {
+    if (console.log("EnsureLoaded Root failed, fallback", r, i), r.root === void 0) {
       const o = c.create({
         registry: n.create({}),
         reverseRegistry: s.create({})
@@ -127,21 +135,23 @@ const y = i.map({
 });
 export {
   l as AccountRoot,
+  L as Certification,
   g as Container,
   w as Education,
+  h as ListOfCertification,
   b as ListOfEducation,
-  R as ListOfProjects,
+  f as ListOfProjects,
   u as ListOfWorkExp,
   v as ListOfWriting,
   n as NicknameRegistryCoRecord,
-  h as OnboardingAccount,
+  N as OnboardingAccount,
   a as OnboardingProfile,
-  m as Project,
-  N as RegistryWorkerAccount,
+  y as Project,
+  x as RegistryWorkerAccount,
   c as RegistryWorkerAccountRoot,
   s as ReverseNicknameRegistryCoRecord,
-  y as SocialLinks,
-  f as WorkExp,
+  m as SocialLinks,
+  R as WorkExp,
   k as Writing
 };
 //# sourceMappingURL=shared-schemas.es.js.map
