@@ -6,7 +6,7 @@ import { useParams } from 'react-router';
 import { fetchUserDetailsByNickname } from '#/lib/api';
 import { OnboardingAccount, OnboardingProfile } from '#/lib/schema';
 import { ProfileHeader } from './header';
-import { About, Contact, Projects, WorkExp } from './index';
+import { About, Contact, Projects, WorkExperiences, Writings } from './index';
 
 export function ProfileView() {
   const { nickname } = useParams();
@@ -22,6 +22,7 @@ export function ProfileView() {
         socialLinks: true,
         projects: true,
         workExp: true,
+        writing: true,
       },
     },
   });
@@ -79,7 +80,8 @@ export function ProfileView() {
           <About profile={profile} />
           <Contact profile={profile} />
           <Projects profile={profile} />
-          <WorkExp profile={profile} />
+          <WorkExperiences profile={profile} />
+          <Writings profile={profile} />
         </main>
       ) : (
         // TODO: design the `unfund` scenario; add the nickname form to continue. Later, should add the search user component.

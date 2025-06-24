@@ -2,10 +2,10 @@ import { Loaded } from 'jazz-tools';
 import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
-import { OnboardingProfile, WorkExp as WorkExpSchema } from '#/lib/schema';
+import { OnboardingProfile, WorkExp } from '#/lib/schema';
 import { getValidUrl } from '#/lib/utils';
 
-type WorkExpProps = {
+type WorkExperiencesProps = {
   profile: Loaded<typeof OnboardingProfile>;
 };
 
@@ -30,9 +30,9 @@ const formatDate = (date: Date | string | undefined): string => {
   return String(date);
 };
 
-export function WorkExp({ profile }: WorkExpProps) {
+export function WorkExperiences({ profile }: WorkExperiencesProps) {
   const workExperiences = profile.workExp?.filter(
-    (exp: any): exp is Loaded<typeof WorkExpSchema> => exp !== null,
+    (exp: any): exp is Loaded<typeof WorkExp> => exp !== null,
   );
 
   if (!workExperiences || workExperiences.length === 0) {
