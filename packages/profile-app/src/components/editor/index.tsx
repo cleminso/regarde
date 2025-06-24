@@ -9,3 +9,5 @@ export { WorkExpEdit } from './workExp/form';
 export { EditorFooter } from './layout/footer';
 export { WritingEdit } from './writing/form';
 export { WritingView } from './writing/view';
+export { EducationEdit } from './education/form';
+export { EducationView } from './education/view';

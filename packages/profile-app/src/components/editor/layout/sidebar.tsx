@@ -75,6 +75,12 @@ export function EditorSidebar({
         >
           Writing
         </SidebarButton>
+        <SidebarButton
+          isActive={activeSection === editorSections.education}
+          onClick={() => onSectionChange(editorSections.education)}
+        >
+          Education
+        </SidebarButton>
       </div>
     </div>
   );

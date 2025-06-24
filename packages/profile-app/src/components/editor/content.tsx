@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { useEditProfile } from '../../lib/hook/useEditProfile.ts';
-import { Project, WorkExp, Writing } from '../../lib/schema.ts';
+import { Education, Project, WorkExp, Writing } from '../../lib/schema.ts';
 import { createNicknameUrl } from '../../lib/utils.ts';
 import {
   ContactEdit,
   EditorLayout,
   EditorSidebar,
+  EducationEdit,
+  EducationView,
   GeneralEdit,
   ProjectEdit,
   ProjectView,
@@ -43,6 +45,12 @@ export function ProfileEditor() {
   const [writingToEdit, setWritingToEdit] = useState<
     Loaded<typeof Writing> | undefined
   >(undefined);
+  const [educationSectionViewMode, setEducationViewMode] = useState<
+    'view' | 'form'
+  >('view');
+  const [educationToEdit, setEducationToEdit] = useState<
+    Loaded<typeof Education> | undefined
+  >(undefined);
 
   const navigate = useNavigate();
 
@@ -76,6 +84,13 @@ export function ProfileEditor() {
       setWritingViewMode('view');
       setWritingToEdit(undefined);
     }
+    if (
+      activeSection === editorSections.education &&
+      section !== editorSections.education
+    ) {
+      setEducationViewMode('view');
+      setEducationToEdit(undefined);
+    }
     setActiveSection(section);
   };
 
@@ -92,6 +107,11 @@ export function ProfileEditor() {
   const handleEditWriting = (writing: Loaded<typeof Writing>) => {
     setWritingToEdit(writing);
     setWritingViewMode('form');
+  };
+
+  const handleEditEducation = (education: Loaded<typeof Education>) => {
+    setEducationToEdit(education);
+    setEducationViewMode('form');
   };
 
   if (isLoading) {
@@ -202,6 +222,30 @@ export function ProfileEditor() {
                     setWritingToEdit(undefined);
                   }}
                   writingToEdit={writingToEdit}
+                />
+              ))}
+            {activeSection === editorSections.education &&
+              (educationSectionViewMode === 'view' ? (
+                <EducationView
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  education={profile?.education ?? undefined}
+                  onAddEducation={() => {
+                    setEducationToEdit(undefined);
+                    setEducationViewMode('form');
+                  }}
+                  onEditEducation={handleEditEducation}
+                  onClose={handleCloseEditor}
+                />
+              ) : (
+                <EducationEdit
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  onDoneEditing={() => {
+                    setEducationViewMode('view');
+                    setEducationToEdit(undefined);
+                  }}
+                  educationToEdit={educationToEdit}
                 />
               ))}
           </>
