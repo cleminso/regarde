@@ -26,7 +26,7 @@ export function LandingNicknameForm() {
   return (
     <div className="flex flex-col items-center text-center gap-6 py-12">
       <h1 className="text-4xl font-sans">profile.jazz.dev</h1>
-      <p className="text-lg text-muted-foreground max-w-md">
+      <p className="text-lg text-secondary-foreground max-w-md">
         The last public profile you will ever need. Build one, share everywhere.
       </p>
 

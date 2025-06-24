@@ -20,7 +20,7 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
     <div className="flex flex-col border-b border-border pb-4 gap-4">
       <div className="flex flex-row gap-10">
         <div className="flex flex-col w-21.5 flex-shrink-0">
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-secondary-foreground">
             {project.year || 'N/A'}
           </span>
         </div>
@@ -54,7 +54,7 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
             )}
           </div>
           {project.description && (
-            <p className="text-sm text-muted-foreground whitespace-pre-line">
+            <p className="text-sm text-secondary-foreground whitespace-pre-line">
               {project.description}
             </p>
           )}

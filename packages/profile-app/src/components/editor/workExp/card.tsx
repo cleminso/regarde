@@ -42,7 +42,7 @@ export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
     <div className="flex flex-col border-b border-border pb-4 gap-4">
       <div className="flex flex-row gap-10">
         <div className="flex flex-col w-21.5 flex-shrink-0">
-          <span className="text-sm text-muted-foreground">{dateRange}</span>
+          <span className="text-sm text-secondary-foreground">{dateRange}</span>
         </div>
         <div className="flex flex-col flex-grow gap-2">
           <div>
@@ -70,12 +70,12 @@ export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
             )}
           </div>
           {workExp.location && (
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-secondary-foreground">
               {workExp.location}
             </div>
           )}
           {workExp.description && (
-            <p className="text-sm text-muted-foreground whitespace-pre-line">
+            <p className="text-sm text-secondary-foreground whitespace-pre-line">
               {workExp.description}
             </p>
           )}
