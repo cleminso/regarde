@@ -6,7 +6,14 @@ import { useParams } from 'react-router';
 import { fetchUserDetailsByNickname } from '#/lib/api';
 import { OnboardingAccount, OnboardingProfile } from '#/lib/schema';
 import { ProfileHeader } from './header';
-import { About, Contact, Projects, WorkExperiences, Writings } from './index';
+import {
+  About,
+  Contact,
+  Educations,
+  Projects,
+  WorkExperiences,
+  Writings,
+} from './index';
 
 export function ProfileView() {
   const { nickname } = useParams();
@@ -23,6 +30,7 @@ export function ProfileView() {
         projects: true,
         workExp: true,
         writing: true,
+        education: true,
       },
     },
   });
@@ -82,9 +90,9 @@ export function ProfileView() {
           <Projects profile={profile} />
           <WorkExperiences profile={profile} />
           <Writings profile={profile} />
+          <Educations profile={profile} />
         </main>
       ) : (
-        // TODO: design the `unfund` scenario; add the nickname form to continue. Later, should add the search user component.
         <div className="flex w-full justify-center items-center min-h-screen">
           <p>This nickname does not seem to exist... :(</p>
         </div>
