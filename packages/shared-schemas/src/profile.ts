@@ -34,6 +34,18 @@ export type WorkExp = z.infer<typeof WorkExp>;
 
 export const ListOfWorkExp = co.list(WorkExp);
 
+export const Writing = co.map({
+  title: z.string(),
+  year: z.string(),
+  publisher: z.optional(z.string()),
+  url: z.optional(z.string()),
+  description: z.optional(z.string()),
+});
+
+export type Writing = z.infer<typeof Writing>;
+
+export const ListOfWriting = co.list(Writing);
+
 // TODO:
 // export const Attachments = co.map({
 // url: z.string(),
@@ -55,6 +67,7 @@ export const OnboardingProfile = co
     socialLinks: z.optional(SocialLinks),
     projects: z.optional(ListOfProjects),
     workExp: z.optional(ListOfWorkExp),
+    writing: z.optional(ListOfWriting),
   })
   .withHelpers((Self) => ({
     validate(profile: Loaded<typeof Self>): {

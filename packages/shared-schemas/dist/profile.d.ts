@@ -39,6 +39,21 @@ export declare const ListOfWorkExp: import('jazz-tools').CoListSchema<import('ja
     url: z.ZodOptional<z.z.ZodString>;
     description: z.ZodOptional<z.z.ZodString>;
 }>>;
+export declare const Writing: import('jazz-tools').CoMapSchema<{
+    title: z.z.ZodString;
+    year: z.z.ZodString;
+    publisher: z.ZodOptional<z.z.ZodString>;
+    url: z.ZodOptional<z.z.ZodString>;
+    description: z.ZodOptional<z.z.ZodString>;
+}>;
+export type Writing = z.infer<typeof Writing>;
+export declare const ListOfWriting: import('jazz-tools').CoListSchema<import('jazz-tools').CoMapSchema<{
+    title: z.z.ZodString;
+    year: z.z.ZodString;
+    publisher: z.ZodOptional<z.z.ZodString>;
+    url: z.ZodOptional<z.z.ZodString>;
+    description: z.ZodOptional<z.z.ZodString>;
+}>>;
 export declare const OnboardingProfile: import('jazz-tools/dist/internal').WithHelpers<import('jazz-tools/dist/internal').CoProfileSchema<{
     name: z.z.ZodString;
     nickname: z.ZodOptional<z.z.ZodString>;
@@ -62,6 +77,13 @@ export declare const OnboardingProfile: import('jazz-tools/dist/internal').WithH
         to: z.ZodOptional<z.z.ZodString>;
         company: z.z.ZodString;
         location: z.ZodOptional<z.z.ZodString>;
+        url: z.ZodOptional<z.z.ZodString>;
+        description: z.ZodOptional<z.z.ZodString>;
+    }>>>;
+    writing: z.ZodOptional<import('jazz-tools').CoListSchema<import('jazz-tools').CoMapSchema<{
+        title: z.z.ZodString;
+        year: z.z.ZodString;
+        publisher: z.ZodOptional<z.z.ZodString>;
         url: z.ZodOptional<z.z.ZodString>;
         description: z.ZodOptional<z.z.ZodString>;
     }>>>;
@@ -89,6 +111,13 @@ export declare const OnboardingProfile: import('jazz-tools/dist/internal').WithH
             to: z.ZodOptional<z.z.ZodString>;
             company: z.z.ZodString;
             location: z.ZodOptional<z.z.ZodString>;
+            url: z.ZodOptional<z.z.ZodString>;
+            description: z.ZodOptional<z.z.ZodString>;
+        }>>>;
+        writing: z.ZodOptional<import('jazz-tools').CoListSchema<import('jazz-tools').CoMapSchema<{
+            title: z.z.ZodString;
+            year: z.z.ZodString;
+            publisher: z.ZodOptional<z.z.ZodString>;
             url: z.ZodOptional<z.z.ZodString>;
             description: z.ZodOptional<z.z.ZodString>;
         }>>>;
@@ -132,6 +161,13 @@ export declare const OnboardingAccount: import('jazz-tools').AccountSchema<{
             url: z.ZodOptional<z.z.ZodString>;
             description: z.ZodOptional<z.z.ZodString>;
         }>>>;
+        writing: z.ZodOptional<import('jazz-tools').CoListSchema<import('jazz-tools').CoMapSchema<{
+            title: z.z.ZodString;
+            year: z.z.ZodString;
+            publisher: z.ZodOptional<z.z.ZodString>;
+            url: z.ZodOptional<z.z.ZodString>;
+            description: z.ZodOptional<z.z.ZodString>;
+        }>>>;
     }>, {
         validate(profile: Loaded<import('jazz-tools/dist/internal').CoProfileSchema<{
             name: z.z.ZodString;
@@ -156,6 +192,13 @@ export declare const OnboardingAccount: import('jazz-tools').AccountSchema<{
                 to: z.ZodOptional<z.z.ZodString>;
                 company: z.z.ZodString;
                 location: z.ZodOptional<z.z.ZodString>;
+                url: z.ZodOptional<z.z.ZodString>;
+                description: z.ZodOptional<z.z.ZodString>;
+            }>>>;
+            writing: z.ZodOptional<import('jazz-tools').CoListSchema<import('jazz-tools').CoMapSchema<{
+                title: z.z.ZodString;
+                year: z.z.ZodString;
+                publisher: z.ZodOptional<z.z.ZodString>;
                 url: z.ZodOptional<z.z.ZodString>;
                 description: z.ZodOptional<z.z.ZodString>;
             }>>>;
