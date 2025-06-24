@@ -289,6 +289,40 @@ export const UserDetailsResponseSchema = z
       )
       .optional()
       .describe("Array of award and recognitions received"),
+    volunteering: z
+      .array(
+        z.object({
+          title: z
+            .string()
+            .describe("Title or role of the volunteering position"),
+          organization: z
+            .string()
+            .describe("Organization or institution for volunteering"),
+          location: z
+            .string()
+            .optional()
+            .describe("Location where the volunteering took place"),
+          url: z
+            .string()
+            .optional()
+            .describe("URL of the organization or volunteering program"),
+          description: z
+            .string()
+            .optional()
+            .describe("Description of the volunteering role and activities"),
+          from: z
+            .string()
+            .describe("Start date of volunteering (flexible format)"),
+          to: z
+            .string()
+            .optional()
+            .describe(
+              "End date of volunteering (optional for ongoing volunteering)",
+            ),
+        }),
+      )
+      .optional()
+      .describe("Array of volunteering experiences and community service"),
   })
   .describe(
     "Complete user details response including account info, nickname status, and public profile data",

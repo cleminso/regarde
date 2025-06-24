@@ -9,7 +9,7 @@ const m = i.map({
   client: t.optional(t.string()),
   link: t.optional(t.string()),
   description: t.optional(t.string())
-}), f = i.list(y), R = i.map({
+}), f = i.list(y), u = i.map({
   title: t.string(),
   from: t.date(),
   to: t.optional(t.string()),
@@ -17,7 +17,7 @@ const m = i.map({
   location: t.optional(t.string()),
   url: t.optional(t.string()),
   description: t.optional(t.string())
-}), u = i.list(R), k = i.map({
+}), R = i.list(u), k = i.map({
   title: t.string(),
   year: t.string(),
   publisher: t.optional(t.string()),
@@ -38,20 +38,28 @@ const m = i.map({
   organization: t.string(),
   url: t.optional(t.string()),
   description: t.optional(t.string())
-}), h = i.list(L), C = i.map({
+}), O = i.list(L), h = i.map({
   title: t.string(),
   year: t.date(),
   event: t.optional(t.string()),
   location: t.optional(t.string()),
   url: t.optional(t.string()),
   description: t.optional(t.string())
-}), N = i.list(C), O = i.map({
+}), C = i.list(h), N = i.map({
   title: t.string(),
   year: t.date(),
   presenter: t.string(),
   url: t.optional(t.string()),
   description: t.optional(t.string())
-}), x = i.list(O), a = i.profile({
+}), x = i.list(N), A = i.map({
+  from: t.date(),
+  to: t.optional(t.string()),
+  title: t.string(),
+  organization: t.string(),
+  location: t.optional(t.string()),
+  url: t.optional(t.string()),
+  description: t.optional(t.string())
+}), E = i.list(A), a = i.profile({
   // TODO: make `name` optional and nickname required
   name: t.string(),
   nickname: t.optional(t.string()),
@@ -59,12 +67,13 @@ const m = i.map({
   avatar: t.optional(t.string()),
   socialLinks: t.optional(m),
   projects: t.optional(f),
-  workExp: t.optional(u),
+  workExp: t.optional(R),
   writing: t.optional(v),
   education: t.optional(b),
-  certification: t.optional(h),
-  speaking: t.optional(N),
-  award: t.optional(x)
+  certification: t.optional(O),
+  speaking: t.optional(C),
+  award: t.optional(x),
+  volunteering: t.optional(E)
 }).withHelpers((n) => ({
   validate(o) {
     return !o.name || o.name.trim() === "" ? {
@@ -76,7 +85,7 @@ const m = i.map({
   creationMessage: t.optional(t.string())
 }), l = i.map({
   container: c
-}), E = i.account({
+}), W = i.account({
   // Rule 1.3 (paraphrased): An account schema should define `profile` and `root`. `profile` points to a `co.profile` schema. `root` points to a `co.map` schema for private per-user data.
   profile: a,
   root: l
@@ -109,7 +118,7 @@ const m = i.map({
 ), r = i.record(t.string(), t.string()), s = i.record(t.string(), t.string()), g = i.map({
   registry: r,
   reverseRegistry: s
-}), M = i.account({
+}), z = i.account({
   profile: i.profile(),
   root: g
 }).withMigration(async (n) => {
@@ -150,27 +159,29 @@ const m = i.map({
 });
 export {
   l as AccountRoot,
-  O as Award,
+  N as Award,
   L as Certification,
   c as Container,
   w as Education,
   x as ListOfAward,
-  h as ListOfCertification,
+  O as ListOfCertification,
   b as ListOfEducation,
   f as ListOfProjects,
-  N as ListOfSpeaking,
-  u as ListOfWorkExp,
+  C as ListOfSpeaking,
+  E as ListOfVolunteering,
+  R as ListOfWorkExp,
   v as ListOfWriting,
   r as NicknameRegistryCoRecord,
-  E as OnboardingAccount,
+  W as OnboardingAccount,
   a as OnboardingProfile,
   y as Project,
-  M as RegistryWorkerAccount,
+  z as RegistryWorkerAccount,
   g as RegistryWorkerAccountRoot,
   s as ReverseNicknameRegistryCoRecord,
   m as SocialLinks,
-  C as Speaking,
-  R as WorkExp,
+  h as Speaking,
+  A as Volunteering,
+  u as WorkExp,
   k as Writing
 };
 //# sourceMappingURL=shared-schemas.es.js.map

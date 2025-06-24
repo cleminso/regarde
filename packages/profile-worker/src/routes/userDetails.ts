@@ -262,6 +262,7 @@ export const userDetailsHandler = (
               certification: { $each: true },
               speaking: { $each: true },
               award: { $each: true },
+              volunteering: { $each: true },
             },
           },
         });

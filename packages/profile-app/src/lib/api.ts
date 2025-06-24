@@ -77,6 +77,15 @@ interface UserDetails {
       url?: string;
       description?: string;
     }>;
+    volunteering?: Array<{
+      title: string;
+      organization: string;
+      location?: string;
+      url?: string;
+      description?: string;
+      from: string;
+      to?: string;
+    }>;
   };
 }
 
