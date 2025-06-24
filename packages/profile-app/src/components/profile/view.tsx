@@ -14,6 +14,7 @@ import {
   Educations,
   Projects,
   Speakings,
+  Volunteerings,
   WorkExperiences,
   Writings,
 } from './index';
@@ -37,6 +38,7 @@ export function ProfileView() {
         certification: true,
         speaking: true,
         award: true,
+        volunteering: true,
       },
     },
   });
@@ -100,6 +102,7 @@ export function ProfileView() {
           <Certifications profile={profile} />
           <Educations profile={profile} />
           <Speakings profile={profile} />
+          <Volunteerings profile={profile} />
         </main>
       ) : (
         <div className="flex w-full justify-center items-center min-h-screen">

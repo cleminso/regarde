@@ -9,6 +9,7 @@ import {
   Education,
   Project,
   Speaking,
+  Volunteering,
   WorkExp,
   Writing,
 } from '../../lib/schema.ts';
@@ -28,6 +29,8 @@ import {
   ProjectView,
   SpeakingEdit,
   SpeakingView,
+  VolunteeringEdit,
+  VolunteeringView,
   WorkExpEdit,
   WorkExpView,
   WritingEdit,
@@ -82,6 +85,12 @@ export function ProfileEditor() {
   );
   const [awardToEdit, setAwardToEdit] = useState<
     Loaded<typeof Award> | undefined
+  >(undefined);
+  const [volunteeringSectionViewMode, setVolunteeringViewMode] = useState<
+    'view' | 'form'
+  >('view');
+  const [volunteeringToEdit, setVolunteeringToEdit] = useState<
+    Loaded<typeof Volunteering> | undefined
   >(undefined);
 
   const navigate = useNavigate();
@@ -144,6 +153,13 @@ export function ProfileEditor() {
       setAwardViewMode('view');
       setAwardToEdit(undefined);
     }
+    if (
+      activeSection === editorSections.volunteering &&
+      section !== editorSections.volunteering
+    ) {
+      setVolunteeringViewMode('view');
+      setVolunteeringToEdit(undefined);
+    }
     setActiveSection(section);
   };
 
@@ -182,6 +198,13 @@ export function ProfileEditor() {
   const handleEditAward = (award: Loaded<typeof Award>) => {
     setAwardToEdit(award);
     setAwardViewMode('form');
+  };
+
+  const handleEditVolunteering = (
+    volunteering: Loaded<typeof Volunteering>,
+  ) => {
+    setVolunteeringToEdit(volunteering);
+    setVolunteeringViewMode('form');
   };
 
   if (isLoading) {
@@ -388,6 +411,30 @@ export function ProfileEditor() {
                     setAwardToEdit(undefined);
                   }}
                   awardToEdit={awardToEdit}
+                />
+              ))}
+            {activeSection === editorSections.volunteering &&
+              (volunteeringSectionViewMode === 'view' ? (
+                <VolunteeringView
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  volunteering={profile?.volunteering ?? undefined}
+                  onAddVolunteering={() => {
+                    setVolunteeringToEdit(undefined);
+                    setVolunteeringViewMode('form');
+                  }}
+                  onEditVolunteering={handleEditVolunteering}
+                  onClose={handleCloseEditor}
+                />
+              ) : (
+                <VolunteeringEdit
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  onDoneEditing={() => {
+                    setVolunteeringViewMode('view');
+                    setVolunteeringToEdit(undefined);
+                  }}
+                  volunteeringToEdit={volunteeringToEdit}
                 />
               ))}
           </>

@@ -17,3 +17,5 @@ export { SpeakingEdit } from './speaking/form';
 export { SpeakingView } from './speaking/view';
 export { AwardEdit } from './award/form';
 export { AwardView } from './award/view';
+export { VolunteeringEdit } from './volunteering/form';
+export { VolunteeringView } from './volunteering/view';
