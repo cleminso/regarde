@@ -258,6 +258,7 @@ export const userDetailsHandler = (
               socialLinks: { $each: true },
               workExp: { $each: true },
               writing: { $each: true },
+              education: { $each: true },
             },
           },
         });

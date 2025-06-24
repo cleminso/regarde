@@ -176,6 +176,38 @@ export const UserDetailsResponseSchema = z
       .describe(
         "Public profile information including bio, projects, work experience, writings, and social links. Only present if user has set up their profile.",
       ),
+    education: z
+      .array(
+        z.object({
+          from: z
+            .string()
+            .describe("Start date of education (flexible format)"),
+          to: z
+            .string()
+            .optional()
+            .describe("End date of education (optional for ongoing education)"),
+          degree: z
+            .string()
+            .describe("Degree, diploma, or educational qualification earned"),
+          institution: z
+            .string()
+            .describe("Educational institution or organization name"),
+          location: z
+            .string()
+            .optional()
+            .describe("Education location (city, remote, etc.)"),
+          url: z
+            .string()
+            .optional()
+            .describe("Institution website or program URL"),
+          description: z
+            .string()
+            .optional()
+            .describe("Description of the education program or achievements"),
+        }),
+      )
+      .optional()
+      .describe("Array of educational background entries"),
   })
   .describe(
     "Complete user details response including account info, nickname status, and public profile data",

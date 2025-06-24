@@ -46,6 +46,20 @@ export type Writing = z.infer<typeof Writing>;
 
 export const ListOfWriting = co.list(Writing);
 
+export const Education = co.map({
+  from: z.date(),
+  to: z.optional(z.string()),
+  degree: z.string(),
+  institution: z.string(),
+  location: z.optional(z.string()),
+  url: z.optional(z.string()),
+  description: z.optional(z.string()),
+});
+
+export type Education = z.infer<typeof Education>;
+
+export const ListOfEducation = co.list(Education);
+
 // TODO:
 // export const Attachments = co.map({
 // url: z.string(),
@@ -60,6 +74,7 @@ export const ListOfWriting = co.list(Writing);
 
 export const OnboardingProfile = co
   .profile({
+    // TODO: make `name` optional and nickname required
     name: z.string(),
     nickname: z.optional(z.string()),
     bio: z.optional(z.string()),
@@ -68,6 +83,7 @@ export const OnboardingProfile = co
     projects: z.optional(ListOfProjects),
     workExp: z.optional(ListOfWorkExp),
     writing: z.optional(ListOfWriting),
+    education: z.optional(ListOfEducation),
   })
   .withHelpers((Self) => ({
     validate(profile: Loaded<typeof Self>): {

@@ -45,6 +45,15 @@ interface UserDetails {
       url?: string;
       description?: string;
     }>;
+    education?: Array<{
+      from: string;
+      to?: string;
+      degree: string;
+      institution: string;
+      location?: string;
+      url?: string;
+      description?: string;
+    }>;
   };
 }
 

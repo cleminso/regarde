@@ -17,21 +17,31 @@ const y = i.map({
   location: e.optional(e.string()),
   url: e.optional(e.string()),
   description: e.optional(e.string())
-}), k = i.list(f), v = i.map({
+}), u = i.list(f), k = i.map({
   title: e.string(),
   year: e.string(),
   publisher: e.optional(e.string()),
   url: e.optional(e.string()),
   description: e.optional(e.string())
-}), u = i.list(v), a = i.profile({
+}), v = i.list(k), w = i.map({
+  from: e.date(),
+  to: e.optional(e.string()),
+  degree: e.string(),
+  institution: e.string(),
+  location: e.optional(e.string()),
+  url: e.optional(e.string()),
+  description: e.optional(e.string())
+}), b = i.list(w), a = i.profile({
+  // TODO: make `name` optional and nickname required
   name: e.string(),
   nickname: e.optional(e.string()),
   bio: e.optional(e.string()),
   avatar: e.optional(e.string()),
   socialLinks: e.optional(y),
   projects: e.optional(R),
-  workExp: e.optional(k),
-  writing: e.optional(u)
+  workExp: e.optional(u),
+  writing: e.optional(v),
+  education: e.optional(b)
 }).withHelpers((r) => ({
   validate(t) {
     return !t.name || t.name.trim() === "" ? {
@@ -43,7 +53,7 @@ const y = i.map({
   creationMessage: e.optional(e.string())
 }), l = i.map({
   container: g
-}), b = i.account({
+}), h = i.account({
   // Rule 1.3 (paraphrased): An account schema should define `profile` and `root`. `profile` points to a `co.profile` schema. `root` points to a `co.map` schema for private per-user data.
   profile: a,
   root: l
@@ -76,7 +86,7 @@ const y = i.map({
 ), n = i.record(e.string(), e.string()), s = i.record(e.string(), e.string()), c = i.map({
   registry: n,
   reverseRegistry: s
-}), h = i.account({
+}), N = i.account({
   profile: i.profile(),
   root: c
 }).withMigration(async (r) => {
@@ -118,18 +128,20 @@ const y = i.map({
 export {
   l as AccountRoot,
   g as Container,
+  w as Education,
+  b as ListOfEducation,
   R as ListOfProjects,
-  k as ListOfWorkExp,
-  u as ListOfWriting,
+  u as ListOfWorkExp,
+  v as ListOfWriting,
   n as NicknameRegistryCoRecord,
-  b as OnboardingAccount,
+  h as OnboardingAccount,
   a as OnboardingProfile,
   m as Project,
-  h as RegistryWorkerAccount,
+  N as RegistryWorkerAccount,
   c as RegistryWorkerAccountRoot,
   s as ReverseNicknameRegistryCoRecord,
   y as SocialLinks,
   f as WorkExp,
-  v as Writing
+  k as Writing
 };
 //# sourceMappingURL=shared-schemas.es.js.map
