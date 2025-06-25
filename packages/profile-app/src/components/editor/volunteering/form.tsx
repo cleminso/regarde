@@ -16,13 +16,6 @@ type VolunteeringEditProps = {
   volunteeringToEdit?: Loaded<typeof Volunteering>;
 };
 
-const formatDate = (date?: Date): string => {
-  if (!date) return '';
-  const d = date instanceof Date ? date : new Date(date);
-  if (isNaN(d.getTime())) return '';
-  return d.getFullYear().toString();
-};
-
 export function VolunteeringEdit({
   profile,
   triggerSyncIndicator,
@@ -51,7 +44,7 @@ export function VolunteeringEdit({
       setLocation(volunteeringToEdit.location || '');
       setUrl(volunteeringToEdit.url || '');
       setDescription(volunteeringToEdit.description || '');
-      setFromDate(formatDate(volunteeringToEdit.from) || currentYear);
+      setFromDate(volunteeringToEdit.from || currentYear);
       setToDate(volunteeringToEdit.to || '');
     } else {
       setTitle('');
@@ -76,7 +69,7 @@ export function VolunteeringEdit({
       location: location.trim() || undefined,
       url: getValidUrl(url.trim()),
       description: description.trim() || undefined,
-      from: new Date(parseInt(fromDate, 10), 0, 1),
+      from: fromDate.trim(),
       to: toDate.trim() || undefined,
     };
 
