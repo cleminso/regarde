@@ -22,7 +22,7 @@ export const ListOfProjects = co.list(Project);
 
 export const WorkExp = co.map({
   title: z.string(),
-  from: z.date(),
+  from: z.string(),
   to: z.optional(z.string()),
   company: z.string(),
   location: z.optional(z.string()),
@@ -47,7 +47,7 @@ export type Writing = z.infer<typeof Writing>;
 export const ListOfWriting = co.list(Writing);
 
 export const Education = co.map({
-  from: z.date(),
+  from: z.string(),
   to: z.optional(z.string()),
   degree: z.string(),
   institution: z.string(),
@@ -61,7 +61,7 @@ export type Education = z.infer<typeof Education>;
 export const ListOfEducation = co.list(Education);
 
 export const Certification = co.map({
-  issued: z.date(),
+  issued: z.string(),
   expire: z.optional(z.string()),
   name: z.string(),
   organization: z.string(),
@@ -75,7 +75,7 @@ export const ListOfCertification = co.list(Certification);
 
 export const Speaking = co.map({
   title: z.string(),
-  year: z.date(),
+  year: z.string(),
   event: z.optional(z.string()),
   location: z.optional(z.string()),
   url: z.optional(z.string()),
@@ -88,7 +88,7 @@ export const ListOfSpeaking = co.list(Speaking);
 
 export const Award = co.map({
   title: z.string(),
-  year: z.date(),
+  year: z.string(),
   presenter: z.string(),
   url: z.optional(z.string()),
   description: z.optional(z.string()),
@@ -99,7 +99,7 @@ export type Award = z.infer<typeof Award>;
 export const ListOfAward = co.list(Award);
 
 export const Volunteering = co.map({
-  from: z.date(),
+  from: z.string(),
   to: z.optional(z.string()),
   title: z.string(),
   organization: z.string(),

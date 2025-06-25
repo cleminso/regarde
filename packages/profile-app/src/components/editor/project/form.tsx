@@ -106,11 +106,12 @@ export function ProjectEdit({
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
                   placeholderOption={{
-                    value: '',
-                    label: 'Select Year',
-                    disabled: true,
+                    value: 'ongoing',
+                    label: 'Ongoing',
                   }}
-                  buttonDisplayValue={year || currentYear}
+                  buttonDisplayValue={
+                    year === 'ongoing' ? 'Ongoing' : year || currentYear
+                  }
                 />
               </div>
             </div>

@@ -38,11 +38,7 @@ export function AwardEdit({
   useEffect(() => {
     if (awardToEdit) {
       setTitle(awardToEdit.title || '');
-      setYear(
-        awardToEdit.year
-          ? new Date(awardToEdit.year).getFullYear().toString()
-          : currentYear,
-      );
+      setYear(awardToEdit.year || currentYear);
       setPresenter(awardToEdit.presenter || '');
       setUrl(awardToEdit.url || '');
       setDescription(awardToEdit.description || '');
@@ -63,7 +59,7 @@ export function AwardEdit({
 
     const awardData = {
       title: title.trim(),
-      year: new Date(parseInt(year), 0, 1),
+      year: year.trim(),
       presenter: presenter.trim(),
       url: getValidUrl(url.trim()),
       description: description.trim() || undefined,

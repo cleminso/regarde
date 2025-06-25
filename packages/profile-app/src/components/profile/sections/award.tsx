@@ -3,7 +3,7 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import { Award, OnboardingProfile } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils';
+import { formatYearString, getValidUrl } from '#/lib/utils';
 
 type AwardsProps = {
   profile: Loaded<typeof OnboardingProfile>;
@@ -38,7 +38,7 @@ export function Awards({ profile }: AwardsProps) {
               <div className="flex flex-row gap-4">
                 <div className="flex flex-col w-24 flex-shrink-0">
                   <span className="text-sm font-sans text-secondary-foreground">
-                    {award.year ? award.year.getFullYear() : 'N/A'}
+                    {formatYearString(award.year?.getFullYear().toString())}
                   </span>
                 </div>
                 <div className="flex flex-col flex-grow gap-1">
@@ -66,7 +66,7 @@ export function Awards({ profile }: AwardsProps) {
                     )}
                   </div>
                   {award.description && (
-                    <p className="text-sm text-secondary-foreground whitespace-pre-wrap">
+                    <p className="text-sm text-secondary-foreground whitespace-pre-line">
                       {award.description}
                     </p>
                   )}

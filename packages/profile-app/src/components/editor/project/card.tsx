@@ -21,7 +21,9 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
       <div className="flex flex-row gap-10">
         <div className="flex flex-col w-21.5 flex-shrink-0">
           <span className="text-sm text-secondary-foreground">
-            {project.year || 'N/A'}
+            {project.year === 'ongoing'
+              ? 'Ongoing'
+              : project.year || 'Year missing'}
           </span>
         </div>
         <div className="flex flex-col flex-grow gap-2">

@@ -16,13 +16,6 @@ type CertificationEditProps = {
   certificationToEdit?: Loaded<typeof Certification>;
 };
 
-const formatDate = (date?: Date): string => {
-  if (!date) return '';
-  const d = date instanceof Date ? date : new Date(date);
-  if (isNaN(d.getTime())) return '';
-  return d.getFullYear().toString();
-};
-
 export function CertificationEdit({
   profile,
   triggerSyncIndicator,
@@ -49,7 +42,7 @@ export function CertificationEdit({
       setOrganization(certificationToEdit.organization || '');
       setUrl(certificationToEdit.url || '');
       setDescription(certificationToEdit.description || '');
-      setIssuedDate(formatDate(certificationToEdit.issued) || currentYear);
+      setIssuedDate(certificationToEdit.issued || currentYear);
       setExpireDate(certificationToEdit.expire || '');
     } else {
       setName('');
@@ -72,7 +65,7 @@ export function CertificationEdit({
       organization: organization.trim(),
       url: getValidUrl(url.trim()),
       description: description.trim() || undefined,
-      issued: new Date(parseInt(issuedDate, 10), 0, 1),
+      issued: issuedDate.trim(),
       expire: expireDate.trim() || undefined,
     };
 

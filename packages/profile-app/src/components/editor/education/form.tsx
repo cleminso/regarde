@@ -16,13 +16,6 @@ type EducationEditProps = {
   educationToEdit?: Loaded<typeof Education>;
 };
 
-const formatDate = (date?: Date): string => {
-  if (!date) return '';
-  const d = date instanceof Date ? date : new Date(date);
-  if (isNaN(d.getTime())) return '';
-  return d.getFullYear().toString();
-};
-
 export function EducationEdit({
   profile,
   triggerSyncIndicator,
@@ -51,7 +44,7 @@ export function EducationEdit({
       setLocation(educationToEdit.location || '');
       setUrl(educationToEdit.url || '');
       setDescription(educationToEdit.description || '');
-      setFromDate(formatDate(educationToEdit.from) || currentYear);
+      setFromDate(educationToEdit.from || currentYear);
       setToDate(educationToEdit.to || '');
     } else {
       setDegree('');
@@ -76,7 +69,7 @@ export function EducationEdit({
       location: location.trim() || undefined,
       url: getValidUrl(url.trim()),
       description: description.trim() || undefined,
-      from: new Date(parseInt(fromDate, 10), 0, 1),
+      from: fromDate.trim(),
       to: toDate.trim() || undefined,
     };
 

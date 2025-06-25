@@ -3,31 +3,10 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import { Education, OnboardingProfile } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils';
+import { formatDateRange, getValidUrl } from '#/lib/utils';
 
 type EducationsProps = {
   profile: Loaded<typeof OnboardingProfile>;
-};
-
-const formatDate = (date: Date | string | undefined): string => {
-  if (!date) return 'Now';
-
-  if (date instanceof Date) {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-    });
-  }
-
-  if (typeof date === 'string') {
-    const parsedDate = new Date(date);
-    if (!isNaN(parsedDate.getTime())) {
-      return parsedDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-      });
-    }
-  }
-
-  return String(date);
 };
 
 export function Educations({ profile }: EducationsProps) {
@@ -50,7 +29,18 @@ export function Educations({ profile }: EducationsProps) {
           const displayTitle = `${education.degree || 'Degree'} @ ${
             education.institution || 'Institution'
           }`;
-          const dateRange = `${formatDate(education.from)} - ${formatDate(education.to)}`;
+
+          const fromYear =
+            education.from instanceof Date
+              ? education.from.getFullYear().toString()
+              : String(education.from);
+
+          const toYear =
+            education.to instanceof Date
+              ? education.to.getFullYear().toString()
+              : String(education.to);
+
+          const dateRange = formatDateRange(fromYear, toYear);
           const institutionLink = getValidUrl(education.url);
 
           return (

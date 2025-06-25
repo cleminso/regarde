@@ -3,38 +3,10 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import { Certification, OnboardingProfile } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils';
+import { formatDateRange, formatYearString, getValidUrl } from '#/lib/utils';
 
 type CertificationsProps = {
   profile: Loaded<typeof OnboardingProfile>;
-};
-
-const formatDate = (date: Date | string | undefined): string => {
-  if (!date) return 'N/A';
-
-  if (date instanceof Date) {
-    return date.getFullYear().toString();
-  }
-
-  if (typeof date === 'string') {
-    const parsedDate = new Date(date);
-    if (!isNaN(parsedDate.getTime())) {
-      return parsedDate.getFullYear().toString();
-    }
-  }
-
-  return String(date);
-};
-
-const formatExpireDate = (date: string | undefined): string => {
-  if (!date) return 'No expiry';
-
-  const parsedDate = new Date(date);
-  if (!isNaN(parsedDate.getTime())) {
-    return parsedDate.getFullYear().toString();
-  }
-
-  return date;
 };
 
 export function Certifications({ profile }: CertificationsProps) {
@@ -57,13 +29,16 @@ export function Certifications({ profile }: CertificationsProps) {
           const displayTitle = `${certification.name || 'Certification'} @ ${
             certification.organization || 'Organization'
           }`;
-          const issuedYear = formatDate(certification.issued);
-          const expireInfo = certification.expire
-            ? formatExpireDate(certification.expire)
-            : 'No expiry';
+
+          const issuedYear =
+            certification.issued instanceof Date
+              ? certification.issued.getFullYear().toString()
+              : String(certification.issued);
+
           const dateInfo = certification.expire
-            ? `${issuedYear} - ${expireInfo}`
-            : issuedYear;
+            ? formatDateRange(issuedYear, certification.expire)
+            : formatYearString(issuedYear);
+
           const certificationLink = getValidUrl(certification.url);
 
           return (

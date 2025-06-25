@@ -1,8 +1,10 @@
+// packages/profile-app/src/components/editor/workExp/card.tsx
 import { Loaded } from 'jazz-tools';
 import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import { WorkExp } from '#/lib/schema';
+import { formatDateRange } from '#/lib/utils';
 import { EditorCardActions } from '../cardActions';
 
 type WorkExpCardProps = {
@@ -11,32 +13,11 @@ type WorkExpCardProps = {
   onDelete: (workExp: Loaded<typeof WorkExp>) => void;
 };
 
-const formatDate = (date: Date | string | undefined): string => {
-  if (!date) return 'Now';
-
-  if (date instanceof Date) {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-    });
-  }
-
-  if (typeof date === 'string') {
-    const parsedDate = new Date(date);
-    if (!isNaN(parsedDate.getTime())) {
-      return parsedDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-      });
-    }
-  }
-
-  return String(date);
-};
-
 export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
   const displayTitle = `${workExp.title || 'Untitled Role'} @ ${
     workExp.company || 'Unnamed Company'
   }`;
-  const dateRange = `${formatDate(workExp.from)} - ${formatDate(workExp.to)}`;
+  const dateRange = formatDateRange(workExp.from, workExp.to);
 
   return (
     <div className="flex flex-col border-b border-border pb-4 gap-4">

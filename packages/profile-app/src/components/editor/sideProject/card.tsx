@@ -25,7 +25,7 @@ export function SideProjectCard({
       <div className="flex flex-row gap-10">
         <div className="flex flex-col w-21.5 flex-shrink-0">
           <span className="text-sm text-secondary-foreground">
-            {sideProject.year || 'N/A'}
+            {sideProject.year || 'Year missing'}
           </span>
         </div>
         <div className="flex flex-col flex-grow gap-2">

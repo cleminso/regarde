@@ -17,7 +17,7 @@ export function About({ profile }: AboutProps) {
       style={{ width: '540px' }}
     >
       <h3 className="text-md font-sans text-foreground">About</h3>
-      <p className="text-sm text-secondary-foreground whitespace-pre-wrap">
+      <p className="text-sm text-secondary-foreground whitespace-pre-line">
         {profile.bio}
       </p>
     </section>

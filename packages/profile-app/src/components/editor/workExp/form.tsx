@@ -16,13 +16,6 @@ type WorkExpEditProps = {
   workExpToEdit?: Loaded<typeof WorkExp>;
 };
 
-const formatDate = (date?: Date): string => {
-  if (!date) return '';
-  const d = date instanceof Date ? date : new Date(date);
-  if (isNaN(d.getTime())) return '';
-  return d.getFullYear().toString();
-};
-
 export function WorkExpEdit({
   profile,
   triggerSyncIndicator,
@@ -51,7 +44,7 @@ export function WorkExpEdit({
       setLocation(workExpToEdit.location || '');
       setUrl(workExpToEdit.url || '');
       setDescription(workExpToEdit.description || '');
-      setFromDate(formatDate(workExpToEdit.from) || currentYear);
+      setFromDate(workExpToEdit.from || currentYear);
       setToDate(workExpToEdit.to || '');
     } else {
       setTitle('');
@@ -76,7 +69,7 @@ export function WorkExpEdit({
       location: location.trim() || undefined,
       url: getValidUrl(url.trim()),
       description: description.trim() || undefined,
-      from: new Date(parseInt(fromDate, 10), 0, 1),
+      from: fromDate.trim(),
       to: toDate.trim() || undefined,
     };
 
@@ -179,7 +172,7 @@ export function WorkExpEdit({
                   id="work-url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="company.com or https://company.com"
+                  placeholder="https://company.com"
                 />
               </div>
             </div>

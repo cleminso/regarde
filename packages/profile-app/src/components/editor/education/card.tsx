@@ -1,35 +1,16 @@
+// packages/profile-app/src/components/editor/education/card.tsx
 import { Loaded } from 'jazz-tools';
 import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import { Education } from '#/lib/schema';
+import { formatDateRange } from '#/lib/utils';
 import { EditorCardActions } from '../cardActions';
 
 type EducationCardProps = {
   education: Loaded<typeof Education>;
   onEdit: (education: Loaded<typeof Education>) => void;
   onDelete: (education: Loaded<typeof Education>) => void;
-};
-
-const formatDate = (date: Date | string | undefined): string => {
-  if (!date) return 'Now';
-
-  if (date instanceof Date) {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-    });
-  }
-
-  if (typeof date === 'string') {
-    const parsedDate = new Date(date);
-    if (!isNaN(parsedDate.getTime())) {
-      return parsedDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-      });
-    }
-  }
-
-  return String(date);
 };
 
 export function EducationCard({
@@ -40,7 +21,7 @@ export function EducationCard({
   const displayTitle = `${education.degree || 'Untitled Degree'} @ ${
     education.institution || 'Unnamed Institution'
   }`;
-  const dateRange = `${formatDate(education.from)} - ${formatDate(education.to)}`;
+  const dateRange = formatDateRange(education.from, education.to);
 
   return (
     <div className="flex flex-col border-b border-border pb-4 gap-4">

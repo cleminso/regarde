@@ -89,6 +89,7 @@ export const UserDetailsResponseSchema = z
           })
           .optional()
           .describe("Collection of social media and web presence links"),
+
         projects: z
           .array(
             z.object({
@@ -112,6 +113,7 @@ export const UserDetailsResponseSchema = z
           )
           .optional()
           .describe("Array of user's portfolio projects"),
+
         workExp: z
           .array(
             z.object({
@@ -142,6 +144,7 @@ export const UserDetailsResponseSchema = z
           )
           .optional()
           .describe("Array of work experience entries"),
+
         writing: z
           .array(
             z.object({
@@ -171,181 +174,197 @@ export const UserDetailsResponseSchema = z
           .describe(
             "Array of user's published writings, articles, or written works",
           ),
+
+        education: z
+          .array(
+            z.object({
+              from: z
+                .string()
+                .describe("Start date of education (flexible format)"),
+              to: z
+                .string()
+                .optional()
+                .describe(
+                  "End date of education (optional for ongoing education)",
+                ),
+              degree: z
+                .string()
+                .describe(
+                  "Degree, diploma, or educational qualification earned",
+                ),
+              institution: z
+                .string()
+                .describe("Educational institution or organization name"),
+              location: z
+                .string()
+                .optional()
+                .describe("Education location (city, remote, etc.)"),
+              url: z
+                .string()
+                .optional()
+                .describe("Institution website or program URL"),
+              description: z
+                .string()
+                .optional()
+                .describe(
+                  "Description of the education program or achievements",
+                ),
+            }),
+          )
+          .optional()
+          .describe("Array of educational background entries"),
+
+        certification: z
+          .array(
+            z.object({
+              issued: z
+                .string()
+                .describe(
+                  "Date when the certification was issued (flexible format)",
+                ),
+              expire: z
+                .string()
+                .optional()
+                .describe(
+                  "Expiration date of certification (optional for non-expiring certifications)",
+                ),
+              name: z.string().describe("Name or title of the certification"),
+              organization: z
+                .string()
+                .describe(
+                  "Organization or institution that issued the certification",
+                ),
+              url: z
+                .string()
+                .optional()
+                .describe("URL to verify or view the certification"),
+              description: z
+                .string()
+                .optional()
+                .describe("Description of the certification or skills covered"),
+            }),
+          )
+          .optional()
+          .describe("Array of professional certifications and credentials"),
+
+        speaking: z
+          .array(
+            z.object({
+              title: z.string().describe("Title of the speaking engagement"),
+              year: z
+                .string()
+                .describe("Year when the speaking engagement took place"),
+              event: z
+                .string()
+                .optional()
+                .describe("Name of the event, conference, or venue"),
+              location: z
+                .string()
+                .optional()
+                .describe("Location where the speaking engagement took place"),
+              url: z
+                .string()
+                .optional()
+                .describe("URL to view recording, slides, or event details"),
+              description: z
+                .string()
+                .optional()
+                .describe(
+                  "Description of the speaking engagement or topic covered",
+                ),
+            }),
+          )
+          .optional()
+          .describe("Array of speaking engagements and presentations"),
+
+        award: z
+          .array(
+            z.object({
+              title: z.string().describe("Title or name of the award"),
+              year: z.string().describe("Year when the award was received"),
+              presenter: z
+                .string()
+                .describe("Organization or entity that presented the award"),
+              url: z
+                .string()
+                .optional()
+                .describe("URL to view award details or verification"),
+              description: z
+                .string()
+                .optional()
+                .describe("Description of the award or achievement"),
+            }),
+          )
+          .optional()
+          .describe("Array of award and recognitions received"),
+
+        volunteering: z
+          .array(
+            z.object({
+              title: z
+                .string()
+                .describe("Title or role of the volunteering position"),
+              organization: z
+                .string()
+                .describe("Organization or institution for volunteering"),
+              location: z
+                .string()
+                .optional()
+                .describe("Location where the volunteering took place"),
+              url: z
+                .string()
+                .optional()
+                .describe("URL of the organization or volunteering program"),
+              description: z
+                .string()
+                .optional()
+                .describe(
+                  "Description of the volunteering role and activities",
+                ),
+              from: z
+                .string()
+                .describe("Start date of volunteering (flexible format)"),
+              to: z
+                .string()
+                .optional()
+                .describe(
+                  "End date of volunteering (optional for ongoing volunteering)",
+                ),
+            }),
+          )
+          .optional()
+          .describe("Array of volunteering experiences and community service"),
+
+        sideProject: z
+          .array(
+            z.object({
+              title: z.string().describe("Side project name or title"),
+              year: z
+                .string()
+                .describe("Year the side project was completed or started"),
+              client: z
+                .string()
+                .optional()
+                .describe("Client or organization the side project was for"),
+              url: z
+                .string()
+                .optional()
+                .describe(
+                  "URL to view the side project (portfolio, demo, etc.)",
+                ),
+              description: z
+                .string()
+                .optional()
+                .describe("Detailed description of the side project"),
+            }),
+          )
+          .optional()
+          .describe("Array of user's side projects"),
       })
       .optional()
       .describe(
         "Public profile information including bio, projects, work experience, writings, and social links. Only present if user has set up their profile.",
       ),
-    education: z
-      .array(
-        z.object({
-          from: z
-            .string()
-            .describe("Start date of education (flexible format)"),
-          to: z
-            .string()
-            .optional()
-            .describe("End date of education (optional for ongoing education)"),
-          degree: z
-            .string()
-            .describe("Degree, diploma, or educational qualification earned"),
-          institution: z
-            .string()
-            .describe("Educational institution or organization name"),
-          location: z
-            .string()
-            .optional()
-            .describe("Education location (city, remote, etc.)"),
-          url: z
-            .string()
-            .optional()
-            .describe("Institution website or program URL"),
-          description: z
-            .string()
-            .optional()
-            .describe("Description of the education program or achievements"),
-        }),
-      )
-      .optional()
-      .describe("Array of educational background entries"),
-    certification: z
-      .array(
-        z.object({
-          issued: z
-            .string()
-            .describe(
-              "Date when the certification was issued (flexible format)",
-            ),
-          expire: z
-            .string()
-            .optional()
-            .describe(
-              "Expiration date of certification (optional for non-expiring certifications)",
-            ),
-          name: z.string().describe("Name or title of the certification"),
-          organization: z
-            .string()
-            .describe(
-              "Organization or institution that issued the certification",
-            ),
-          url: z
-            .string()
-            .optional()
-            .describe("URL to verify or view the certification"),
-          description: z
-            .string()
-            .optional()
-            .describe("Description of the certification or skills covered"),
-        }),
-      )
-      .optional()
-      .describe("Array of professional certifications and credentials"),
-    speaking: z
-      .array(
-        z.object({
-          title: z.string().describe("Title of the speaking engagement"),
-          year: z
-            .string()
-            .describe("Year when the speaking engagement took place"),
-          event: z
-            .string()
-            .optional()
-            .describe("Name of the event, conference, or venue"),
-          location: z
-            .string()
-            .optional()
-            .describe("Location where the speaking engagement took place"),
-          url: z
-            .string()
-            .optional()
-            .describe("URL to view recording, slides, or event details"),
-          description: z
-            .string()
-            .optional()
-            .describe(
-              "Description of the speaking engagement or topic covered",
-            ),
-        }),
-      )
-      .optional()
-      .describe("Array of speaking engagements and presentations"),
-    award: z
-      .array(
-        z.object({
-          title: z.string().describe("Title or name of the award"),
-          year: z.string().describe("Year when the award was received"),
-          presenter: z
-            .string()
-            .describe("Organization or entity that presented the award"),
-          url: z
-            .string()
-            .optional()
-            .describe("URL to view award details or verification"),
-          description: z
-            .string()
-            .optional()
-            .describe("Description of the award or achievement"),
-        }),
-      )
-      .optional()
-      .describe("Array of award and recognitions received"),
-    volunteering: z
-      .array(
-        z.object({
-          title: z
-            .string()
-            .describe("Title or role of the volunteering position"),
-          organization: z
-            .string()
-            .describe("Organization or institution for volunteering"),
-          location: z
-            .string()
-            .optional()
-            .describe("Location where the volunteering took place"),
-          url: z
-            .string()
-            .optional()
-            .describe("URL of the organization or volunteering program"),
-          description: z
-            .string()
-            .optional()
-            .describe("Description of the volunteering role and activities"),
-          from: z
-            .string()
-            .describe("Start date of volunteering (flexible format)"),
-          to: z
-            .string()
-            .optional()
-            .describe(
-              "End date of volunteering (optional for ongoing volunteering)",
-            ),
-        }),
-      )
-      .optional()
-      .describe("Array of volunteering experiences and community service"),
-    sideProject: z
-      .array(
-        z.object({
-          title: z.string().describe("Side project name or title"),
-          year: z
-            .string()
-            .describe("Year the side project was completed or started"),
-          client: z
-            .string()
-            .optional()
-            .describe("Client or organization the side project was for"),
-          url: z
-            .string()
-            .optional()
-            .describe("URL to view the side project (portfolio, demo, etc.)"),
-          description: z
-            .string()
-            .optional()
-            .describe("Detailed description of the side project"),
-        }),
-      )
-      .optional()
-      .describe("Array of user's side projects"),
   })
   .describe(
     "Complete user details response including account info, nickname status, and public profile data",

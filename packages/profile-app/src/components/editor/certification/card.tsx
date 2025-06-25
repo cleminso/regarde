@@ -3,6 +3,7 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import { Certification } from '#/lib/schema';
+import { formatDateRange } from '#/lib/utils';
 import { EditorCardActions } from '../cardActions';
 
 type CertificationCardProps = {
@@ -11,41 +12,13 @@ type CertificationCardProps = {
   onDelete: (certification: Loaded<typeof Certification>) => void;
 };
 
-const formatDate = (date: Date | string | undefined): string => {
-  if (!date) return '';
-
-  if (date instanceof Date) {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-    });
-  }
-
-  if (typeof date === 'string') {
-    const parsedDate = new Date(date);
-    if (!isNaN(parsedDate.getTime())) {
-      return parsedDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-      });
-    }
-    return date;
-  }
-
-  return String(date);
-};
-
 export function CertificationCard({
   certification,
   onEdit,
   onDelete,
 }: CertificationCardProps) {
   const displayTitle = `${certification.name || 'Untitled Certification'}`;
-  const issuedYear = formatDate(certification.issued);
-  const expireInfo = certification.expire
-    ? formatDate(certification.expire)
-    : 'Never expires';
-  const dateRange = certification.expire
-    ? `${issuedYear} - ${expireInfo}`
-    : issuedYear;
+  const dateRange = formatDateRange(certification.issued, certification.expire);
 
   return (
     <div className="flex flex-col border-b border-border pb-4 gap-4">

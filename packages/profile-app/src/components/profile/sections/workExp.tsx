@@ -3,31 +3,10 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import { OnboardingProfile, WorkExp } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils';
+import { formatDateRange, getValidUrl } from '#/lib/utils';
 
 type WorkExperiencesProps = {
   profile: Loaded<typeof OnboardingProfile>;
-};
-
-const formatDate = (date: Date | string | undefined): string => {
-  if (!date) return 'Now';
-
-  if (date instanceof Date) {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-    });
-  }
-
-  if (typeof date === 'string') {
-    const parsedDate = new Date(date);
-    if (!isNaN(parsedDate.getTime())) {
-      return parsedDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-      });
-    }
-  }
-
-  return String(date);
 };
 
 export function WorkExperiences({ profile }: WorkExperiencesProps) {
@@ -50,7 +29,18 @@ export function WorkExperiences({ profile }: WorkExperiencesProps) {
           const displayTitle = `${workExp.title || 'Untitled Role'} @ ${
             workExp.company || 'Unnamed Company'
           }`;
-          const dateRange = `${formatDate(workExp.from)} - ${formatDate(workExp.to)}`;
+
+          const fromYear =
+            workExp.from instanceof Date
+              ? workExp.from.getFullYear().toString()
+              : String(workExp.from);
+
+          const toYear =
+            workExp.to instanceof Date
+              ? workExp.to.getFullYear().toString()
+              : String(workExp.to);
+
+          const dateRange = formatDateRange(fromYear, toYear);
           const companyLink = getValidUrl(workExp.url);
 
           return (

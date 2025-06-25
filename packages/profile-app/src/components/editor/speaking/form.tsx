@@ -39,7 +39,7 @@ export function SpeakingEdit({
   useEffect(() => {
     if (speakingToEdit) {
       setTitle(speakingToEdit.title || '');
-      setYear(speakingToEdit.year?.getFullYear().toString() || currentYear);
+      setYear(speakingToEdit.year || currentYear);
       setEvent(speakingToEdit.event || '');
       setLocation(speakingToEdit.location || '');
       setUrl(speakingToEdit.url || '');
@@ -62,7 +62,7 @@ export function SpeakingEdit({
 
     const speakingData = {
       title: title.trim(),
-      year: new Date(parseInt(year), 0, 1),
+      year: year.trim(),
       event: event.trim() || undefined,
       location: location.trim() || undefined,
       url: getValidUrl(url.trim()),

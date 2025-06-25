@@ -58,3 +58,27 @@ export const createNicknameUrl = (
   const normalized = normalizeNickname(nickname);
   return `/${normalized}${path}`;
 };
+
+export const formatYearString = (year?: string): string => {
+  if (!year) return 'Year missing';
+
+  const lowerYear = year.toLowerCase().trim();
+
+  switch (lowerYear) {
+    case 'ongoing':
+    case 'current':
+    case 'now':
+      return 'Present';
+    case '':
+      return 'Year missing';
+    default:
+      return year;
+  }
+};
+
+export const formatDateRange = (from?: string, to?: string): string => {
+  const startYear = formatYearString(from);
+  const endYear = to ? formatYearString(to) : 'Present';
+
+  return `${startYear} - ${endYear}`;
+};

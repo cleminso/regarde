@@ -3,6 +3,7 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import { Speaking } from '#/lib/schema';
+import { formatYearString } from '#/lib/utils';
 import { EditorCardActions } from '../cardActions';
 
 type SpeakingCardProps = {
@@ -21,7 +22,7 @@ export function SpeakingCard({
     : speaking.title || 'Untitled Talk';
 
   const displayLocation = speaking.location;
-  const year = speaking.year?.getFullYear().toString() || 'N/A';
+  const year = formatYearString(speaking.year);
 
   return (
     <div className="flex flex-col border-b border-border pb-4 gap-4">

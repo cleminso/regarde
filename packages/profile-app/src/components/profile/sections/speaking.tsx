@@ -3,31 +3,10 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import { OnboardingProfile, Speaking } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils';
+import { formatYearString, getValidUrl } from '#/lib/utils';
 
 type SpeakingsProps = {
   profile: Loaded<typeof OnboardingProfile>;
-};
-
-const formatDate = (date: Date | string | undefined): string => {
-  if (!date) return 'N/A';
-
-  if (date instanceof Date) {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-    });
-  }
-
-  if (typeof date === 'string') {
-    const parsedDate = new Date(date);
-    if (!isNaN(parsedDate.getTime())) {
-      return parsedDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-      });
-    }
-  }
-
-  return String(date);
 };
 
 export function Speakings({ profile }: SpeakingsProps) {
@@ -53,6 +32,11 @@ export function Speakings({ profile }: SpeakingsProps) {
 
           const speakingLink = getValidUrl(speaking.url);
 
+          const yearString =
+            speaking.year instanceof Date
+              ? speaking.year.getFullYear().toString()
+              : String(speaking.year);
+
           return (
             <div
               key={speaking.id}
@@ -61,7 +45,7 @@ export function Speakings({ profile }: SpeakingsProps) {
               <div className="flex flex-row gap-4">
                 <div className="flex flex-col w-24 flex-shrink-0">
                   <span className="text-sm font-sans text-secondary-foreground">
-                    {formatDate(speaking.year)}
+                    {formatYearString(yearString)}
                   </span>
                 </div>
                 <div className="flex flex-col flex-grow gap-1">
@@ -96,7 +80,7 @@ export function Speakings({ profile }: SpeakingsProps) {
                     </div>
                   )}
                   {speaking.description && (
-                    <p className="text-sm text-secondary-foreground whitespace-pre-wrap">
+                    <p className="text-sm text-secondary-foreground whitespace-pre-line">
                       {speaking.description}
                     </p>
                   )}

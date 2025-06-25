@@ -3,7 +3,7 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import { OnboardingProfile, SideProject } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils';
+import { formatYearString, getValidUrl } from '#/lib/utils';
 
 type SideProjectsProps = {
   profile: Loaded<typeof OnboardingProfile>;
@@ -41,7 +41,7 @@ export function SideProjects({ profile }: SideProjectsProps) {
               <div className="flex flex-row gap-4">
                 <div className="flex flex-col w-24 flex-shrink-0">
                   <span className="text-sm font-sans text-secondary-foreground">
-                    {sideProject.year || 'N/A'}
+                    {formatYearString(sideProject.year)}
                   </span>
                 </div>
                 <div className="flex flex-col flex-grow gap-1">
@@ -69,7 +69,7 @@ export function SideProjects({ profile }: SideProjectsProps) {
                     )}
                   </div>
                   {sideProject.description && (
-                    <p className="text-sm text-secondary-foreground whitespace-pre-wrap">
+                    <p className="text-sm text-secondary-foreground whitespace-pre-line">
                       {sideProject.description}
                     </p>
                   )}

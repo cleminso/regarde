@@ -3,31 +3,10 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import { OnboardingProfile, Volunteering } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils';
+import { formatDateRange, getValidUrl } from '#/lib/utils';
 
 type VolunteeringsProps = {
   profile: Loaded<typeof OnboardingProfile>;
-};
-
-const formatDate = (date: Date | string | undefined): string => {
-  if (!date) return 'Now';
-
-  if (date instanceof Date) {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-    });
-  }
-
-  if (typeof date === 'string') {
-    const parsedDate = new Date(date);
-    if (!isNaN(parsedDate.getTime())) {
-      return parsedDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-      });
-    }
-  }
-
-  return String(date);
 };
 
 export function Volunteerings({ profile }: VolunteeringsProps) {
@@ -50,7 +29,18 @@ export function Volunteerings({ profile }: VolunteeringsProps) {
           const displayTitle = `${vol.title || 'Untitled Role'} @ ${
             vol.organization || 'Unnamed Organization'
           }`;
-          const dateRange = `${formatDate(vol.from)} - ${formatDate(vol.to)}`;
+
+          const fromYear =
+            vol.from instanceof Date
+              ? vol.from.getFullYear().toString()
+              : String(vol.from);
+
+          const toYear =
+            vol.to instanceof Date
+              ? vol.to.getFullYear().toString()
+              : String(vol.to);
+
+          const dateRange = formatDateRange(fromYear, toYear);
           const organizationLink = getValidUrl(vol.url);
 
           return (

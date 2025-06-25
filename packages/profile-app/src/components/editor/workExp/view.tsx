@@ -118,7 +118,7 @@ export function WorkExpView({
         description={
           deleteConfirmation.workExp ? (
             <>
-              Please confirme you'd to delete{' '}
+              Please confirm you'd to delete{' '}
               <strong>
                 {getWorkExpDisplayName(deleteConfirmation.workExp)}
               </strong>
