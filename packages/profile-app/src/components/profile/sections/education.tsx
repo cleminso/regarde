@@ -30,15 +30,8 @@ export function Educations({ profile }: EducationsProps) {
             education.institution || 'Institution'
           }`;
 
-          const fromYear =
-            education.from instanceof Date
-              ? education.from.getFullYear().toString()
-              : String(education.from);
-
-          const toYear =
-            education.to instanceof Date
-              ? education.to.getFullYear().toString()
-              : String(education.to);
+          const fromYear = String(education.from || '');
+          const toYear = String(education.to || '');
 
           const dateRange = formatDateRange(fromYear, toYear);
           const institutionLink = getValidUrl(education.url);

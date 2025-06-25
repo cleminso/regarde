@@ -30,10 +30,7 @@ export function Certifications({ profile }: CertificationsProps) {
             certification.organization || 'Organization'
           }`;
 
-          const issuedYear =
-            certification.issued instanceof Date
-              ? certification.issued.getFullYear().toString()
-              : String(certification.issued);
+          const issuedYear = String(certification.issued || '');
 
           const dateInfo = certification.expire
             ? formatDateRange(issuedYear, certification.expire)

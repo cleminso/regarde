@@ -43,9 +43,6 @@ export function useVolunteering({
       return undefined;
     }
 
-    const fromDate = new Date(volunteeringData.from);
-    const toDate = volunteeringData.to;
-
     const newVolunteering = Volunteering.create(
       {
         title: volunteeringData.title,
@@ -53,8 +50,8 @@ export function useVolunteering({
         location: volunteeringData.location,
         url: volunteeringData.url,
         description: volunteeringData.description,
-        from: fromDate,
-        to: toDate,
+        from: volunteeringData.from,
+        to: volunteeringData.to,
       },
       { owner: listOwner },
     );
@@ -65,7 +62,7 @@ export function useVolunteering({
 
   const updateVolunteering = (
     volunteeringToUpdate: Loaded<typeof Volunteering>,
-    dataToUpdate: Volunteering,
+    volunteeringData: Volunteering,
   ) => {
     if (!volunteeringToUpdate) {
       console.error('Volunteering instance not provided for update.');
@@ -75,45 +72,53 @@ export function useVolunteering({
     let changed = false;
 
     if (
-      dataToUpdate.title !== undefined &&
-      volunteeringToUpdate.title !== dataToUpdate.title
+      volunteeringData.from !== undefined &&
+      volunteeringToUpdate.from !== volunteeringData.from
     ) {
-      volunteeringToUpdate.title = dataToUpdate.title;
+      volunteeringToUpdate.from = volunteeringData.from;
       changed = true;
     }
 
     if (
-      dataToUpdate.organization !== undefined &&
-      volunteeringToUpdate.organization !== dataToUpdate.organization
+      volunteeringData.title !== undefined &&
+      volunteeringToUpdate.title !== volunteeringData.title
     ) {
-      volunteeringToUpdate.organization = dataToUpdate.organization;
+      volunteeringToUpdate.title = volunteeringData.title;
       changed = true;
     }
 
-    if (dataToUpdate.hasOwnProperty('to')) {
-      if (volunteeringToUpdate.to !== dataToUpdate.to) {
-        volunteeringToUpdate.to = dataToUpdate.to;
+    if (
+      volunteeringData.organization !== undefined &&
+      volunteeringToUpdate.organization !== volunteeringData.organization
+    ) {
+      volunteeringToUpdate.organization = volunteeringData.organization;
+      changed = true;
+    }
+
+    if (volunteeringData.hasOwnProperty('to')) {
+      if (volunteeringToUpdate.to !== volunteeringData.to) {
+        volunteeringToUpdate.to = volunteeringData.to;
         changed = true;
       }
     }
 
-    if (dataToUpdate.hasOwnProperty('location')) {
-      if (volunteeringToUpdate.location !== dataToUpdate.location) {
-        volunteeringToUpdate.location = dataToUpdate.location;
+    if (volunteeringData.hasOwnProperty('location')) {
+      if (volunteeringToUpdate.location !== volunteeringData.location) {
+        volunteeringToUpdate.location = volunteeringData.location;
         changed = true;
       }
     }
 
-    if (dataToUpdate.hasOwnProperty('url')) {
-      if (volunteeringToUpdate.url !== dataToUpdate.url) {
-        volunteeringToUpdate.url = dataToUpdate.url;
+    if (volunteeringData.hasOwnProperty('url')) {
+      if (volunteeringToUpdate.url !== volunteeringData.url) {
+        volunteeringToUpdate.url = volunteeringData.url;
         changed = true;
       }
     }
 
-    if (dataToUpdate.hasOwnProperty('description')) {
-      if (volunteeringToUpdate.description !== dataToUpdate.description) {
-        volunteeringToUpdate.description = dataToUpdate.description;
+    if (volunteeringData.hasOwnProperty('description')) {
+      if (volunteeringToUpdate.description !== volunteeringData.description) {
+        volunteeringToUpdate.description = volunteeringData.description;
         changed = true;
       }
     }

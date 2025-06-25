@@ -30,15 +30,8 @@ export function Volunteerings({ profile }: VolunteeringsProps) {
             vol.organization || 'Unnamed Organization'
           }`;
 
-          const fromYear =
-            vol.from instanceof Date
-              ? vol.from.getFullYear().toString()
-              : String(vol.from);
-
-          const toYear =
-            vol.to instanceof Date
-              ? vol.to.getFullYear().toString()
-              : String(vol.to);
+          const fromYear = String(vol.from || '');
+          const toYear = String(vol.to || '');
 
           const dateRange = formatDateRange(fromYear, toYear);
           const organizationLink = getValidUrl(vol.url);

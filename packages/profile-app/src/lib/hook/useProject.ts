@@ -60,25 +60,41 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
     }
 
     let changed = false;
-    for (const key in projectData) {
-      if (Object.prototype.hasOwnProperty.call(projectData, key)) {
-        const field = key as keyof Project;
-        const currentValue =
-          projectToUpdate[field as keyof Loaded<typeof Project>];
-        const newValue = projectData[field];
 
-        if (field === 'title' || field === 'year') {
-          if (typeof newValue === 'string' && currentValue !== newValue) {
-            projectToUpdate[field as 'title' | 'year'] = newValue;
-            changed = true;
-          }
-        } else {
-          if (currentValue !== newValue) {
-            projectToUpdate[field as 'client' | 'link' | 'description'] =
-              newValue as string | undefined;
-            changed = true;
-          }
-        }
+    if (
+      projectData.title !== undefined &&
+      projectToUpdate.title !== projectData.title
+    ) {
+      projectToUpdate.title = projectData.title;
+      changed = true;
+    }
+
+    if (
+      projectData.year !== undefined &&
+      projectToUpdate.year !== projectData.year
+    ) {
+      projectToUpdate.year = projectData.year;
+      changed = true;
+    }
+
+    if (projectData.hasOwnProperty('client')) {
+      if (projectToUpdate.client !== projectData.client) {
+        projectToUpdate.client = projectData.client;
+        changed = true;
+      }
+    }
+
+    if (projectData.hasOwnProperty('link')) {
+      if (projectToUpdate.link !== projectData.link) {
+        projectToUpdate.link = projectData.link;
+        changed = true;
+      }
+    }
+
+    if (projectData.hasOwnProperty('description')) {
+      if (projectToUpdate.description !== projectData.description) {
+        projectToUpdate.description = projectData.description;
+        changed = true;
       }
     }
 

@@ -47,17 +47,14 @@ export function useCertification({
       return undefined;
     }
 
-    const issuedDate = new Date(certificationData.issued);
-    const expireDate = certificationData.expire;
-
     const newCertification = Certification.create(
       {
         name: certificationData.name,
         organization: certificationData.organization,
+        issued: certificationData.issued,
+        expire: certificationData.expire,
         url: certificationData.url,
         description: certificationData.description,
-        issued: issuedDate,
-        expire: expireDate,
       },
       { owner: listOwner },
     );
@@ -68,7 +65,7 @@ export function useCertification({
 
   const updateCertification = (
     certificationToUpdate: Loaded<typeof Certification>,
-    dataToUpdate: Certification,
+    certificationData: Certification,
   ) => {
     if (!certificationToUpdate) {
       console.error('Certification instance not provided for update.');
@@ -78,38 +75,46 @@ export function useCertification({
     let changed = false;
 
     if (
-      dataToUpdate.name !== undefined &&
-      certificationToUpdate.name !== dataToUpdate.name
+      certificationData.name !== undefined &&
+      certificationToUpdate.name !== certificationData.name
     ) {
-      certificationToUpdate.name = dataToUpdate.name;
+      certificationToUpdate.name = certificationData.name;
       changed = true;
     }
 
     if (
-      dataToUpdate.organization !== undefined &&
-      certificationToUpdate.organization !== dataToUpdate.organization
+      certificationData.organization !== undefined &&
+      certificationToUpdate.organization !== certificationData.organization
     ) {
-      certificationToUpdate.organization = dataToUpdate.organization;
+      certificationToUpdate.organization = certificationData.organization;
       changed = true;
     }
 
-    if (dataToUpdate.hasOwnProperty('expire')) {
-      if (certificationToUpdate.expire !== dataToUpdate.expire) {
-        certificationToUpdate.expire = dataToUpdate.expire;
+    if (
+      certificationData.issued !== undefined &&
+      certificationToUpdate.issued !== certificationData.issued
+    ) {
+      certificationToUpdate.issued = certificationData.issued;
+      changed = true;
+    }
+
+    if (certificationData.hasOwnProperty('expire')) {
+      if (certificationToUpdate.expire !== certificationData.expire) {
+        certificationToUpdate.expire = certificationData.expire;
         changed = true;
       }
     }
 
-    if (dataToUpdate.hasOwnProperty('url')) {
-      if (certificationToUpdate.url !== dataToUpdate.url) {
-        certificationToUpdate.url = dataToUpdate.url;
+    if (certificationData.hasOwnProperty('url')) {
+      if (certificationToUpdate.url !== certificationData.url) {
+        certificationToUpdate.url = certificationData.url;
         changed = true;
       }
     }
 
-    if (dataToUpdate.hasOwnProperty('description')) {
-      if (certificationToUpdate.description !== dataToUpdate.description) {
-        certificationToUpdate.description = dataToUpdate.description;
+    if (certificationData.hasOwnProperty('description')) {
+      if (certificationToUpdate.description !== certificationData.description) {
+        certificationToUpdate.description = certificationData.description;
         changed = true;
       }
     }

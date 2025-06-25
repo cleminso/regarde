@@ -38,9 +38,6 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
       return undefined;
     }
 
-    const fromDate = new Date(workExpData.from);
-    const toDate = workExpData.to;
-
     const newWorkExp = WorkExp.create(
       {
         title: workExpData.title,
@@ -48,8 +45,8 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
         location: workExpData.location,
         url: workExpData.url,
         description: workExpData.description,
-        from: fromDate,
-        to: toDate,
+        from: workExpData.from,
+        to: workExpData.to,
       },
       { owner: listOwner },
     );
@@ -60,7 +57,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
 
   const updateWorkExp = (
     workExpToUpdate: Loaded<typeof WorkExp>,
-    dataToUpdate: WorkExp,
+    workExpData: WorkExp,
   ) => {
     if (!workExpToUpdate) {
       console.error('Work experience instance not provided for update.');
@@ -70,45 +67,53 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
     let changed = false;
 
     if (
-      dataToUpdate.title !== undefined &&
-      workExpToUpdate.title !== dataToUpdate.title
+      workExpData.from !== undefined &&
+      workExpToUpdate.from !== workExpData.from
     ) {
-      workExpToUpdate.title = dataToUpdate.title;
+      workExpToUpdate.from = workExpData.from;
       changed = true;
     }
 
     if (
-      dataToUpdate.company !== undefined &&
-      workExpToUpdate.company !== dataToUpdate.company
+      workExpData.title !== undefined &&
+      workExpToUpdate.title !== workExpData.title
     ) {
-      workExpToUpdate.company = dataToUpdate.company;
+      workExpToUpdate.title = workExpData.title;
       changed = true;
     }
 
-    if (dataToUpdate.hasOwnProperty('to')) {
-      if (workExpToUpdate.to !== dataToUpdate.to) {
-        workExpToUpdate.to = dataToUpdate.to;
+    if (
+      workExpData.company !== undefined &&
+      workExpToUpdate.company !== workExpData.company
+    ) {
+      workExpToUpdate.company = workExpData.company;
+      changed = true;
+    }
+
+    if (workExpData.hasOwnProperty('to')) {
+      if (workExpToUpdate.to !== workExpData.to) {
+        workExpToUpdate.to = workExpData.to;
         changed = true;
       }
     }
 
-    if (dataToUpdate.hasOwnProperty('location')) {
-      if (workExpToUpdate.location !== dataToUpdate.location) {
-        workExpToUpdate.location = dataToUpdate.location;
+    if (workExpData.hasOwnProperty('location')) {
+      if (workExpToUpdate.location !== workExpData.location) {
+        workExpToUpdate.location = workExpData.location;
         changed = true;
       }
     }
 
-    if (dataToUpdate.hasOwnProperty('url')) {
-      if (workExpToUpdate.url !== dataToUpdate.url) {
-        workExpToUpdate.url = dataToUpdate.url;
+    if (workExpData.hasOwnProperty('url')) {
+      if (workExpToUpdate.url !== workExpData.url) {
+        workExpToUpdate.url = workExpData.url;
         changed = true;
       }
     }
 
-    if (dataToUpdate.hasOwnProperty('description')) {
-      if (workExpToUpdate.description !== dataToUpdate.description) {
-        workExpToUpdate.description = dataToUpdate.description;
+    if (workExpData.hasOwnProperty('description')) {
+      if (workExpToUpdate.description !== workExpData.description) {
+        workExpToUpdate.description = workExpData.description;
         changed = true;
       }
     }

@@ -7,14 +7,6 @@ type UseSideProjectProps = {
   triggerSyncIndicator: () => void;
 };
 
-interface SideProjectFormData {
-  title: string;
-  year: string;
-  client?: string;
-  url?: string;
-  description?: string;
-}
-
 export function useSideProject({
   profile,
   triggerSyncIndicator,
@@ -38,7 +30,7 @@ export function useSideProject({
   };
 
   const addSideProject = (
-    sideProjectData: SideProjectFormData,
+    sideProjectData: SideProject,
   ): Loaded<typeof SideProject> | undefined => {
     const sideProjectList = ensureSideProjectList();
     if (!sideProjectList) return undefined;
@@ -68,7 +60,7 @@ export function useSideProject({
 
   const updateSideProject = (
     sideProjectToUpdate: Loaded<typeof SideProject>,
-    dataToUpdate: SideProjectFormData,
+    sideProjectData: SideProject,
   ) => {
     if (!sideProjectToUpdate) {
       console.error('Side project instance not provided for update.');
@@ -78,38 +70,38 @@ export function useSideProject({
     let changed = false;
 
     if (
-      dataToUpdate.title !== undefined &&
-      sideProjectToUpdate.title !== dataToUpdate.title
+      sideProjectData.title !== undefined &&
+      sideProjectToUpdate.title !== sideProjectData.title
     ) {
-      sideProjectToUpdate.title = dataToUpdate.title;
+      sideProjectToUpdate.title = sideProjectData.title;
       changed = true;
     }
 
     if (
-      dataToUpdate.year !== undefined &&
-      sideProjectToUpdate.year !== dataToUpdate.year
+      sideProjectData.year !== undefined &&
+      sideProjectToUpdate.year !== sideProjectData.year
     ) {
-      sideProjectToUpdate.year = dataToUpdate.year;
+      sideProjectToUpdate.year = sideProjectData.year;
       changed = true;
     }
 
-    if (dataToUpdate.hasOwnProperty('client')) {
-      if (sideProjectToUpdate.client !== dataToUpdate.client) {
-        sideProjectToUpdate.client = dataToUpdate.client;
+    if (sideProjectData.hasOwnProperty('client')) {
+      if (sideProjectToUpdate.client !== sideProjectData.client) {
+        sideProjectToUpdate.client = sideProjectData.client;
         changed = true;
       }
     }
 
-    if (dataToUpdate.hasOwnProperty('url')) {
-      if (sideProjectToUpdate.url !== dataToUpdate.url) {
-        sideProjectToUpdate.url = dataToUpdate.url;
+    if (sideProjectData.hasOwnProperty('url')) {
+      if (sideProjectToUpdate.url !== sideProjectData.url) {
+        sideProjectToUpdate.url = sideProjectData.url;
         changed = true;
       }
     }
 
-    if (dataToUpdate.hasOwnProperty('description')) {
-      if (sideProjectToUpdate.description !== dataToUpdate.description) {
-        sideProjectToUpdate.description = dataToUpdate.description;
+    if (sideProjectData.hasOwnProperty('description')) {
+      if (sideProjectToUpdate.description !== sideProjectData.description) {
+        sideProjectToUpdate.description = sideProjectData.description;
         changed = true;
       }
     }

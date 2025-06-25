@@ -30,15 +30,8 @@ export function WorkExperiences({ profile }: WorkExperiencesProps) {
             workExp.company || 'Unnamed Company'
           }`;
 
-          const fromYear =
-            workExp.from instanceof Date
-              ? workExp.from.getFullYear().toString()
-              : String(workExp.from);
-
-          const toYear =
-            workExp.to instanceof Date
-              ? workExp.to.getFullYear().toString()
-              : String(workExp.to);
+          const fromYear = String(workExp.from || '');
+          const toYear = String(workExp.to || '');
 
           const dateRange = formatDateRange(fromYear, toYear);
           const companyLink = getValidUrl(workExp.url);

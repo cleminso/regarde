@@ -43,13 +43,10 @@ export function useEducation({
       return undefined;
     }
 
-    const fromDate = new Date(educationData.from);
-    const toDate = educationData.to;
-
     const newEducation = Education.create(
       {
-        from: fromDate,
-        to: toDate,
+        from: educationData.from,
+        to: educationData.to,
         degree: educationData.degree,
         institution: educationData.institution,
         location: educationData.location,
@@ -65,7 +62,7 @@ export function useEducation({
 
   const updateEducation = (
     educationToUpdate: Loaded<typeof Education>,
-    dataToUpdate: Education,
+    educationData: Education,
   ) => {
     if (!educationToUpdate) {
       console.error('Education instance not provided for update.');
@@ -75,45 +72,53 @@ export function useEducation({
     let changed = false;
 
     if (
-      dataToUpdate.degree !== undefined &&
-      educationToUpdate.degree !== dataToUpdate.degree
+      educationData.from !== undefined &&
+      educationToUpdate.from !== educationData.from
     ) {
-      educationToUpdate.degree = dataToUpdate.degree;
+      educationToUpdate.from = educationData.from;
       changed = true;
     }
 
     if (
-      dataToUpdate.institution !== undefined &&
-      educationToUpdate.institution !== dataToUpdate.institution
+      educationData.degree !== undefined &&
+      educationToUpdate.degree !== educationData.degree
     ) {
-      educationToUpdate.institution = dataToUpdate.institution;
+      educationToUpdate.degree = educationData.degree;
       changed = true;
     }
 
-    if (dataToUpdate.hasOwnProperty('to')) {
-      if (educationToUpdate.to !== dataToUpdate.to) {
-        educationToUpdate.to = dataToUpdate.to;
+    if (
+      educationData.institution !== undefined &&
+      educationToUpdate.institution !== educationData.institution
+    ) {
+      educationToUpdate.institution = educationData.institution;
+      changed = true;
+    }
+
+    if (educationData.hasOwnProperty('to')) {
+      if (educationToUpdate.to !== educationData.to) {
+        educationToUpdate.to = educationData.to;
         changed = true;
       }
     }
 
-    if (dataToUpdate.hasOwnProperty('location')) {
-      if (educationToUpdate.location !== dataToUpdate.location) {
-        educationToUpdate.location = dataToUpdate.location;
+    if (educationData.hasOwnProperty('location')) {
+      if (educationToUpdate.location !== educationData.location) {
+        educationToUpdate.location = educationData.location;
         changed = true;
       }
     }
 
-    if (dataToUpdate.hasOwnProperty('url')) {
-      if (educationToUpdate.url !== dataToUpdate.url) {
-        educationToUpdate.url = dataToUpdate.url;
+    if (educationData.hasOwnProperty('url')) {
+      if (educationToUpdate.url !== educationData.url) {
+        educationToUpdate.url = educationData.url;
         changed = true;
       }
     }
 
-    if (dataToUpdate.hasOwnProperty('description')) {
-      if (educationToUpdate.description !== dataToUpdate.description) {
-        educationToUpdate.description = dataToUpdate.description;
+    if (educationData.hasOwnProperty('description')) {
+      if (educationToUpdate.description !== educationData.description) {
+        educationToUpdate.description = educationData.description;
         changed = true;
       }
     }

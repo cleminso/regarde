@@ -61,25 +61,41 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
     }
 
     let changed = false;
-    for (const key in writingData) {
-      if (Object.prototype.hasOwnProperty.call(writingData, key)) {
-        const field = key as keyof Writing;
-        const currentValue =
-          writingToUpdate[field as keyof Loaded<typeof Writing>];
-        const newValue = writingData[field];
 
-        if (field === 'title' || field === 'year') {
-          if (typeof newValue === 'string' && currentValue !== newValue) {
-            writingToUpdate[field as 'title' | 'year'] = newValue;
-            changed = true;
-          }
-        } else {
-          if (currentValue !== newValue) {
-            writingToUpdate[field as 'publisher' | 'url' | 'description'] =
-              newValue as string | undefined;
-            changed = true;
-          }
-        }
+    if (
+      writingData.title !== undefined &&
+      writingToUpdate.title !== writingData.title
+    ) {
+      writingToUpdate.title = writingData.title;
+      changed = true;
+    }
+
+    if (
+      writingData.year !== undefined &&
+      writingToUpdate.year !== writingData.year
+    ) {
+      writingToUpdate.year = writingData.year;
+      changed = true;
+    }
+
+    if (writingData.hasOwnProperty('publisher')) {
+      if (writingToUpdate.publisher !== writingData.publisher) {
+        writingToUpdate.publisher = writingData.publisher;
+        changed = true;
+      }
+    }
+
+    if (writingData.hasOwnProperty('url')) {
+      if (writingToUpdate.url !== writingData.url) {
+        writingToUpdate.url = writingData.url;
+        changed = true;
+      }
+    }
+
+    if (writingData.hasOwnProperty('description')) {
+      if (writingToUpdate.description !== writingData.description) {
+        writingToUpdate.description = writingData.description;
+        changed = true;
       }
     }
 

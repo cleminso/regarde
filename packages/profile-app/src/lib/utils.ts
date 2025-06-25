@@ -68,7 +68,7 @@ export const formatYearString = (year?: string): string => {
     case 'ongoing':
     case 'current':
     case 'now':
-      return 'Present';
+      return 'Now';
     case '':
       return 'Year missing';
     default:
@@ -78,7 +78,7 @@ export const formatYearString = (year?: string): string => {
 
 export const formatDateRange = (from?: string, to?: string): string => {
   const startYear = formatYearString(from);
-  const endYear = to ? formatYearString(to) : 'Present';
+  const endYear = to ? formatYearString(to) : 'Now';
 
   return `${startYear} - ${endYear}`;
 };

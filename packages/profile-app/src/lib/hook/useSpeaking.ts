@@ -65,31 +65,48 @@ export function useSpeaking({
     }
 
     let changed = false;
-    for (const key in speakingData) {
-      if (Object.prototype.hasOwnProperty.call(speakingData, key)) {
-        const field = key as keyof Speaking;
-        const currentValue =
-          speakingToUpdate[field as keyof Loaded<typeof Speaking>];
-        const newValue = speakingData[field];
 
-        if (field === 'title') {
-          if (typeof newValue === 'string' && currentValue !== newValue) {
-            speakingToUpdate[field] = newValue;
-            changed = true;
-          }
-        } else if (field === 'year') {
-          if (newValue instanceof Date && currentValue !== newValue) {
-            speakingToUpdate[field] = newValue;
-            changed = true;
-          }
-        } else {
-          if (currentValue !== newValue) {
-            speakingToUpdate[
-              field as 'event' | 'location' | 'url' | 'description'
-            ] = newValue as string | undefined;
-            changed = true;
-          }
-        }
+    if (
+      speakingData.title !== undefined &&
+      speakingToUpdate.title !== speakingData.title
+    ) {
+      speakingToUpdate.title = speakingData.title;
+      changed = true;
+    }
+
+    if (
+      speakingData.year !== undefined &&
+      speakingToUpdate.year !== speakingData.year
+    ) {
+      speakingToUpdate.year = speakingData.year;
+      changed = true;
+    }
+
+    if (speakingData.hasOwnProperty('event')) {
+      if (speakingToUpdate.event !== speakingData.event) {
+        speakingToUpdate.event = speakingData.event;
+        changed = true;
+      }
+    }
+
+    if (speakingData.hasOwnProperty('location')) {
+      if (speakingToUpdate.location !== speakingData.location) {
+        speakingToUpdate.location = speakingData.location;
+        changed = true;
+      }
+    }
+
+    if (speakingData.hasOwnProperty('url')) {
+      if (speakingToUpdate.url !== speakingData.url) {
+        speakingToUpdate.url = speakingData.url;
+        changed = true;
+      }
+    }
+
+    if (speakingData.hasOwnProperty('description')) {
+      if (speakingToUpdate.description !== speakingData.description) {
+        speakingToUpdate.description = speakingData.description;
+        changed = true;
       }
     }
 

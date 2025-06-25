@@ -59,30 +59,39 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
     }
 
     let changed = false;
-    for (const key in awardData) {
-      if (Object.prototype.hasOwnProperty.call(awardData, key)) {
-        const field = key as keyof Award;
-        const currentValue = awardToUpdate[field as keyof Loaded<typeof Award>];
-        const newValue = awardData[field];
 
-        if (field === 'title' || field === 'presenter') {
-          if (typeof newValue === 'string' && currentValue !== newValue) {
-            awardToUpdate[field as 'title' | 'presenter'] = newValue;
-            changed = true;
-          }
-        } else if (field === 'year') {
-          if (newValue !== currentValue) {
-            awardToUpdate.year = newValue as Date;
-            changed = true;
-          }
-        } else {
-          if (currentValue !== newValue) {
-            awardToUpdate[field as 'url' | 'description'] = newValue as
-              | string
-              | undefined;
-            changed = true;
-          }
-        }
+    if (
+      awardData.title !== undefined &&
+      awardToUpdate.title !== awardData.title
+    ) {
+      awardToUpdate.title = awardData.title;
+      changed = true;
+    }
+
+    if (awardData.year !== undefined && awardToUpdate.year !== awardData.year) {
+      awardToUpdate.year = awardData.year;
+      changed = true;
+    }
+
+    if (
+      awardData.presenter !== undefined &&
+      awardToUpdate.presenter !== awardData.presenter
+    ) {
+      awardToUpdate.presenter = awardData.presenter;
+      changed = true;
+    }
+
+    if (awardData.hasOwnProperty('url')) {
+      if (awardToUpdate.url !== awardData.url) {
+        awardToUpdate.url = awardData.url;
+        changed = true;
+      }
+    }
+
+    if (awardData.hasOwnProperty('description')) {
+      if (awardToUpdate.description !== awardData.description) {
+        awardToUpdate.description = awardData.description;
+        changed = true;
       }
     }
 
