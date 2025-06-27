@@ -1,4 +1,4 @@
-import { useAccount, useIsAuthenticated } from 'jazz-react';
+import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 import { Link, Outlet } from 'react-router';
 
 import { AuthButton } from './AuthButton.tsx';

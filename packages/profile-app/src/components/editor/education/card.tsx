@@ -1,4 +1,3 @@
-// packages/profile-app/src/components/editor/education/card.tsx
 import { Loaded } from 'jazz-tools';
 import { ArrowUpRight } from 'lucide-react';
 

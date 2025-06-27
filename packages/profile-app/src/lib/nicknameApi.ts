@@ -43,6 +43,7 @@ export async function checkNicknameAvailability(
   const response = await fetch(`${API_BASE_URL}/checkAvailability`, {
     method: 'POST',
     headers: {
+      JWT: `INSERT_CLERK_JWT_HERE`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ nickname }),
@@ -64,6 +65,7 @@ export async function registerNickname(
   const response = await fetch(`${API_BASE_URL}/register`, {
     method: 'POST',
     headers: {
+      JWT: `INSERT_CLERK_JWT_HERE`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(request),

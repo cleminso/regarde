@@ -1,5 +1,5 @@
 import { OnboardingAccount } from '@onboarding.jazz/shared-schemas';
-import { useAccount, useIsAuthenticated } from 'jazz-react';
+import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet, useParams } from 'react-router';
 

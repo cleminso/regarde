@@ -1,4 +1,4 @@
-import { useAccount } from 'jazz-react';
+import { useAccount } from 'jazz-tools/react';
 
 import { OnboardingAccount } from '../schema';
 import { useSyncState } from './useSyncState';

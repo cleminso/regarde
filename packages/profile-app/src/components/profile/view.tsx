@@ -1,5 +1,5 @@
-import { useAccount } from 'jazz-react';
 import { Loaded } from 'jazz-tools';
+import { useAccount } from 'jazz-tools/react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 

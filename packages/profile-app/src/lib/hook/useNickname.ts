@@ -1,5 +1,9 @@
-import { useAccount, useIsAuthenticated, usePasskeyAuth } from 'jazz-react';
 import { Loaded } from 'jazz-tools';
+import {
+  useAccount,
+  useIsAuthenticated,
+  usePasskeyAuth,
+} from 'jazz-tools/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
