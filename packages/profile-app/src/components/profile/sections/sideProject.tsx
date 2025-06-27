@@ -51,7 +51,7 @@ export function SideProjects({ profile }: SideProjectsProps) {
                         variant="link-title"
                         asChild
                         size="title"
-                        className="inline-flex items-center group"
+                        className="inline-flex items-center group -mx-1"
                       >
                         <a
                           href={sideProjectLink}

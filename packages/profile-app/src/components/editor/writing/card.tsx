@@ -31,7 +31,7 @@ export function WritingCard({ writing, onEdit, onDelete }: WritingCardProps) {
                 variant="link-title"
                 size="title"
                 asChild
-                className="inline-flex items-center group"
+                className="inline-flex items-center group -mx-1"
               >
                 <a href={writing.url} target="_blank" rel="noopener noreferrer">
                   {displayTitle}
@@ -43,12 +43,13 @@ export function WritingCard({ writing, onEdit, onDelete }: WritingCardProps) {
                 variant="link-title"
                 size="title"
                 disabled
-                className="cursor-default"
+                className="cursor-default -mx-1"
               >
                 {displayTitle}
               </Button>
             )}
           </div>
+
           {writing.description && (
             <p className="text-sm text-secondary-foreground whitespace-pre-line">
               {writing.description}

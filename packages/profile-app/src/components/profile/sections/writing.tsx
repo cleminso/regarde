@@ -50,7 +50,7 @@ export function Writings({ profile }: WritingsProps) {
                         variant="link-title"
                         asChild
                         size="title"
-                        className="inline-flex items-center group"
+                        className="inline-flex items-center group -mx-1"
                       >
                         <a
                           href={writingLink}

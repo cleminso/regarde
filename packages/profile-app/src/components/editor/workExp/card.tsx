@@ -32,7 +32,7 @@ export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
                 variant="link-title"
                 size="title"
                 asChild
-                className="inline-flex items-center group"
+                className="inline-flex items-center group -mx-1"
               >
                 <a href={workExp.url} target="_blank" rel="noopener noreferrer">
                   {displayTitle}
@@ -44,7 +44,7 @@ export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
                 variant="link-title"
                 size="title"
                 disabled
-                className="cursor-default"
+                className="cursor-default -mx-1"
               >
                 {displayTitle}
               </Button>

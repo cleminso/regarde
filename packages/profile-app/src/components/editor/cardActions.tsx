@@ -13,7 +13,7 @@ export function EditorCardActions<T>({
   onDelete,
 }: EditorCardActionsProps<T>) {
   return (
-    <div className="flex flex-row">
+    <div className="flex flex-row -mx-1">
       <Button
         variant="ghost"
         size="sm"
@@ -29,7 +29,7 @@ export function EditorCardActions<T>({
         size="sm"
         onClick={() => onDelete(item)}
         className={cn(
-          'hover:text-foreground hover:bg-transparent hover:underline underline-offset-4',
+          'hover:text-destructive hover:bg-transparent hover:underline underline-offset-4',
         )}
       >
         Delete

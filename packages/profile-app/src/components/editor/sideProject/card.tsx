@@ -35,7 +35,7 @@ export function SideProjectCard({
                 variant="link-title"
                 size="title"
                 asChild
-                className="inline-flex items-center group"
+                className="inline-flex items-center group -mx-1"
               >
                 <a
                   href={sideProject.url}
@@ -51,7 +51,7 @@ export function SideProjectCard({
                 variant="link-title"
                 size="title"
                 disabled
-                className="cursor-default"
+                className="cursor-default -mx-1"
               >
                 {displayTitle}
               </Button>

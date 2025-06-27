@@ -38,9 +38,10 @@ export function Awards({ profile }: AwardsProps) {
               <div className="flex flex-row gap-4">
                 <div className="flex flex-col w-24 flex-shrink-0">
                   <span className="text-sm font-sans text-secondary-foreground">
-                    {formatYearString(award.year?.getFullYear().toString())}
+                    {formatYearString(award.year)}
                   </span>
                 </div>
+
                 <div className="flex flex-col flex-grow gap-1">
                   <div>
                     {awardLink ? (

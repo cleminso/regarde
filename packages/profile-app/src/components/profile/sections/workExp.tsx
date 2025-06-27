@@ -54,7 +54,7 @@ export function WorkExperiences({ profile }: WorkExperiencesProps) {
                         variant="link-title"
                         asChild
                         size="title"
-                        className="inline-flex items-center group"
+                        className="inline-flex items-center group -mx-1"
                       >
                         <a
                           href={companyLink}
