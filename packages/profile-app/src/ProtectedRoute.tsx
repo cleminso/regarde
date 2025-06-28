@@ -7,7 +7,7 @@ import {
   fetchUserDetailsByAccountId,
   fetchUserDetailsWithValidation,
   validateNicknameOwnership,
-} from './lib/api';
+} from './lib/api/base';
 import { createNicknameUrl } from './lib/utils';
 
 export function ProtectedRoute() {
