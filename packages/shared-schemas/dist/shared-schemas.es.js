@@ -90,10 +90,12 @@ const m = i.map({
   }
 })), c = i.map({
   creationMessage: t.optional(t.string())
+}), S = i.map({
+  key: t.string()
 }), l = i.map({
-  container: c
-}), W = i.account({
-  // Rule 1.3 (paraphrased): An account schema should define `profile` and `root`. `profile` points to a `co.profile` schema. `root` points to a `co.map` schema for private per-user data.
+  container: c,
+  registrationKey: t.optional(S)
+}), z = i.account({
   profile: a,
   root: l
 }).withMigration(
@@ -117,7 +119,9 @@ const m = i.map({
         const n = o != null && o.name ? `Container initialized for ${o.name}.` : "Container initialized.", p = c.create({
           creationMessage: n
         });
-        e.root = l.create({ container: p });
+        e.root = l.create({
+          container: p
+        });
       } catch (n) {
         console.warn("Container could not be created, likely unlogged", n);
       }
@@ -125,7 +129,7 @@ const m = i.map({
 ), r = i.record(t.string(), t.string()), s = i.record(t.string(), t.string()), g = i.map({
   registry: r,
   reverseRegistry: s
-}), z = i.account({
+}), V = i.account({
   profile: i.profile(),
   root: g
 }).withMigration(async (e) => {
@@ -180,10 +184,11 @@ export {
   R as ListOfWorkExp,
   v as ListOfWriting,
   r as NicknameRegistryCoRecord,
-  W as OnboardingAccount,
+  z as OnboardingAccount,
   a as OnboardingProfile,
   y as Project,
-  z as RegistryWorkerAccount,
+  S as RegistrationKey,
+  V as RegistryWorkerAccount,
   g as RegistryWorkerAccountRoot,
   s as ReverseNicknameRegistryCoRecord,
   E as SideProject,

@@ -21,14 +21,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@onboarding.jazz/shared-schemas": "workspace:*",
-    "dotenv": "^16.5.0",
-    "jazz-nodejs": "^0.14.17",
-    "jazz-tools": "^0.14.17",
-    "hono": "^4.6.3",
     "@hono/node-server": "^1.12.2",
     "@hono/swagger-ui": "^0.4.1",
     "@hono/zod-openapi": "^0.16.4",
+    "@onboarding.jazz/shared-schemas": "workspace:*",
+    "dotenv": "^16.5.0",
+    "hono": "^4.6.3",
+    "jazz-nodejs": "^0.14.17",
+    "jazz-tools": "^0.15.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {

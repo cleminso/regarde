@@ -1,14 +1,11 @@
+import { useClerk } from '@clerk/clerk-react';
 import { Loaded } from 'jazz-tools';
-import {
-  useAccount,
-  useIsAuthenticated,
-  usePasskeyAuth,
-} from 'jazz-tools/react';
+import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { APPLICATION_NAME } from '../../main';
 import { checkNicknameAvailability, registerNickname } from '../nicknameApi';
+import { useRegistrationKey } from '../registrationKey';
 import { OnboardingAccount, OnboardingProfile } from '../schema';
 import { createNicknameUrl } from '../utils';
 
@@ -70,14 +67,20 @@ export async function registerProfileNickname({
   profile,
   nickname,
   oldNickname,
+  registrationKey,
 }: {
   accountId: string;
   profile: Loaded<typeof OnboardingProfile>;
   nickname: string;
   oldNickname: string | undefined;
+  registrationKey: string;
 }) {
   if (!accountId || !profile) {
     throw new Error('Authentication context missing for registration');
+  }
+
+  if (!registrationKey) {
+    throw new Error('Registration key not available');
   }
 
   if (nickname !== oldNickname) {
@@ -87,11 +90,14 @@ export async function registerProfileNickname({
     }
   }
 
-  await registerNickname({
-    nickname,
-    jazzAccountID: accountId,
-    oldNickname,
-  });
+  await registerNickname(
+    {
+      nickname,
+      jazzAccountID: accountId,
+      oldNickname,
+    },
+    registrationKey,
+  );
 
   profile.nickname = nickname;
 }
@@ -99,7 +105,8 @@ export async function registerProfileNickname({
 export function useNicknameRegistration() {
   const navigate = useNavigate();
   const isAuthenticated = useIsAuthenticated();
-  const auth = usePasskeyAuth({ appName: APPLICATION_NAME });
+  const clerk = useClerk();
+  const { currentKey } = useRegistrationKey();
 
   const { me } = useAccount(OnboardingAccount, {
     resolve: { profile: true, root: true },
@@ -113,7 +120,9 @@ export function useNicknameRegistration() {
   const [pendingNickname, setPendingNickname] = useState<string>('');
   const [authAttempted, setAuthAttempted] = useState(false);
 
-  const validation = useNicknameValidation({ profile });
+  const validation = useNicknameValidation({
+    profile,
+  });
 
   useEffect(() => {
     if (
@@ -121,7 +130,8 @@ export function useNicknameRegistration() {
       isAuthenticated &&
       pendingNickname &&
       accountId &&
-      profile
+      profile &&
+      currentKey
     ) {
       const completeRegistration = async () => {
         try {
@@ -130,6 +140,7 @@ export function useNicknameRegistration() {
             profile,
             nickname: pendingNickname,
             oldNickname: profile.nickname,
+            registrationKey: currentKey,
           });
           navigate(createNicknameUrl(pendingNickname, '/edit'));
         } catch (err) {
@@ -148,6 +159,7 @@ export function useNicknameRegistration() {
     pendingNickname,
     accountId,
     profile,
+    currentKey,
     navigate,
   ]);
 
@@ -161,15 +173,21 @@ export function useNicknameRegistration() {
       if (!isAuthenticated) {
         setPendingNickname(nickname);
         setAuthAttempted(true);
-        await auth.signUp('');
-      } else if (accountId && profile) {
+        clerk.openSignIn({});
+      } else if (accountId && profile && currentKey) {
         await registerProfileNickname({
           accountId,
           profile,
           nickname,
           oldNickname: profile.nickname,
+          registrationKey: currentKey,
         });
         navigate(createNicknameUrl(nickname, '/edit'));
+        setIsProcessing(false);
+      } else {
+        setError(
+          'Registration key not available. Please try logging out and back in.',
+        );
         setIsProcessing(false);
       }
     } catch (err) {
@@ -214,11 +232,19 @@ export function useNicknameUpdate({
 }: UseNicknameUpdateParams) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { currentKey } = useRegistrationKey();
 
   const validation = useNicknameValidation({ profile });
 
   const update = async (nickname: string): Promise<void> => {
     if (!nickname || nickname === profile.nickname) return;
+
+    if (!currentKey) {
+      setError(
+        'Registration key not available. Please try logging out and back in.',
+      );
+      return;
+    }
 
     setIsProcessing(true);
     setError(null);
@@ -229,6 +255,7 @@ export function useNicknameUpdate({
         profile,
         nickname,
         oldNickname: profile.nickname,
+        registrationKey: currentKey,
       });
       triggerSyncIndicator();
     } catch (err) {

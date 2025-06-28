@@ -175,16 +175,20 @@ export const Container = co.map({
   creationMessage: z.optional(z.string()),
 });
 
-// The AccountRoot is an app-specific per-user private `CoMap` where you can store top-level objects for that user.
-// Rule 2.1: The `AccountRoot` co.map must have a `container` property referencing a `Container` schema.
-export const AccountRoot = co.map({
-  container: Container,
+export const RegistrationKey = co.map({
+  key: z.string(),
 });
 
+export type RegistrationKey = z.infer<typeof RegistrationKey>;
+
+export const AccountRoot = co.map({
+  container: Container,
+  registrationKey: z.optional(RegistrationKey),
+});
+
+// Rule 1.3 (paraphrased): An account schema should define `profile` and `root`. `profile` points to a `co.profile` schema. `root` points to a `co.map` schema for private per-user data.
 export const OnboardingAccount = co
   .account({
-    // Rule 1.3 (paraphrased): An account schema should define `profile` and `root`. `profile` points to a `co.profile` schema. `root` points to a `co.map` schema for private per-user data.
-
     profile: OnboardingProfile,
     root: AccountRoot,
   })
@@ -218,7 +222,9 @@ export const OnboardingAccount = co
           const defaultContainer = Container.create({
             creationMessage: containerMessage,
           });
-          account.root = AccountRoot.create({ container: defaultContainer });
+          account.root = AccountRoot.create({
+            container: defaultContainer,
+          });
         } catch (e) {
           console.warn("Container could not be created, likely unlogged", e);
         }

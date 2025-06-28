@@ -152,6 +152,7 @@ async function main() {
       return await registerHandler(
         nicknameRegistry,
         reverseNicknameRegistry,
+        worker, // Pass worker instance
       )(c);
     } catch (error) {
       console.error("Error in registerHandler:", error);

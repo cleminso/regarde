@@ -156,7 +156,7 @@ export declare const ListOfSideProject: import('jazz-tools').CoListSchema<import
     url: z.ZodOptional<z.z.ZodString>;
     description: z.ZodOptional<z.z.ZodString>;
 }>>;
-export declare const OnboardingProfile: import('jazz-tools/dist/internal').WithHelpers<import('jazz-tools/dist/internal').CoProfileSchema<{
+export declare const OnboardingProfile: import('jazz-tools/dist/tools/internal').WithHelpers<import('jazz-tools').CoProfileSchema<{
     name: z.z.ZodString;
     nickname: z.ZodOptional<z.z.ZodString>;
     bio: z.ZodOptional<z.z.ZodString>;
@@ -238,7 +238,7 @@ export declare const OnboardingProfile: import('jazz-tools/dist/internal').WithH
         description: z.ZodOptional<z.z.ZodString>;
     }>>>;
 }>, {
-    validate(profile: Loaded<import('jazz-tools/dist/internal').CoProfileSchema<{
+    validate(profile: Loaded<import('jazz-tools').CoProfileSchema<{
         name: z.z.ZodString;
         nickname: z.ZodOptional<z.z.ZodString>;
         bio: z.ZodOptional<z.z.ZodString>;
@@ -327,13 +327,20 @@ export declare const OnboardingProfile: import('jazz-tools/dist/internal').WithH
 export declare const Container: import('jazz-tools').CoMapSchema<{
     creationMessage: z.ZodOptional<z.z.ZodString>;
 }>;
+export declare const RegistrationKey: import('jazz-tools').CoMapSchema<{
+    key: z.z.ZodString;
+}>;
+export type RegistrationKey = z.infer<typeof RegistrationKey>;
 export declare const AccountRoot: import('jazz-tools').CoMapSchema<{
     container: import('jazz-tools').CoMapSchema<{
         creationMessage: z.ZodOptional<z.z.ZodString>;
     }>;
+    registrationKey: z.ZodOptional<import('jazz-tools').CoMapSchema<{
+        key: z.z.ZodString;
+    }>>;
 }>;
 export declare const OnboardingAccount: import('jazz-tools').AccountSchema<{
-    profile: import('jazz-tools/dist/internal').WithHelpers<import('jazz-tools/dist/internal').CoProfileSchema<{
+    profile: import('jazz-tools/dist/tools/internal').WithHelpers<import('jazz-tools').CoProfileSchema<{
         name: z.z.ZodString;
         nickname: z.ZodOptional<z.z.ZodString>;
         bio: z.ZodOptional<z.z.ZodString>;
@@ -415,7 +422,7 @@ export declare const OnboardingAccount: import('jazz-tools').AccountSchema<{
             description: z.ZodOptional<z.z.ZodString>;
         }>>>;
     }>, {
-        validate(profile: Loaded<import('jazz-tools/dist/internal').CoProfileSchema<{
+        validate(profile: Loaded<import('jazz-tools').CoProfileSchema<{
             name: z.z.ZodString;
             nickname: z.ZodOptional<z.z.ZodString>;
             bio: z.ZodOptional<z.z.ZodString>;
@@ -505,5 +512,8 @@ export declare const OnboardingAccount: import('jazz-tools').AccountSchema<{
         container: import('jazz-tools').CoMapSchema<{
             creationMessage: z.ZodOptional<z.z.ZodString>;
         }>;
+        registrationKey: z.ZodOptional<import('jazz-tools').CoMapSchema<{
+            key: z.z.ZodString;
+        }>>;
     }>;
 }>;

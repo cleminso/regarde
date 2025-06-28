@@ -2466,6 +2466,7 @@ function GroupMembers({ group }: { group: Group }) {
   const members = group.members;
 
 return (
+
 <div>
 {members.map((member) => (
 <GroupMemberDetails
@@ -2488,6 +2489,7 @@ pets: { $each: true },
 });
 
 return (
+
 <div>
 <div>{account?.profile.name}</div>
 <ul>{account?.root.pets.map((pet) => <li>{pet.name}</li>)}</ul>
@@ -3079,6 +3081,7 @@ myChats: { $each: true },
 }});
 
 return (
+
 <div>
 <h1>Dashboard</h1>
 {me ? (
@@ -6092,6 +6095,7 @@ return <img src={src} alt="Loading..." className="blur-effect" />;
 
 // Full image display with custom overlay
 return (
+
 <div className="custom-image-wrapper">
 <img
         src={src}
@@ -6324,6 +6328,7 @@ return project === null
 }
 
 return (
+
 <div>
 <h1>{project.name}</h1>
 <TaskList tasks={project.tasks} />
@@ -6333,6 +6338,7 @@ return (
 
 function TaskList({ tasks }: { tasks: co.loaded<typeof Task>[] }) {
 return (
+
 <ul>
 {tasks.map((task) => (
 <li key={task.id}>
@@ -6890,6 +6896,7 @@ tasks: { $each: true };
 function TaskList({ project }: { project: ProjectWithTasks }) {
 // TypeScript knows tasks are loaded, so this is type-safe
 return (
+
 <ul>
 {project.tasks.map((task) => (
 <li key={task.id}>{task.title}</li>
@@ -8306,6 +8313,7 @@ onOpenChange(false);
 };
 
 return (
+
 <div>
 <button onClick={handleLogIn}>Log in</button>
 <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
@@ -8691,6 +8699,7 @@ order: co.loaded<typeof BubbleTeaOrder> | co.loaded<typeof DraftBubbleTeaOrder>;
 onSave?: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
 return (
+
 <form onSubmit={onSave}>
 <label>
 Name
@@ -9048,6 +9057,7 @@ order: co.loaded<typeof BubbleTeaOrder> | co.loaded<typeof DraftBubbleTeaOrder>;
 onSave?: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
 return (
+
 <form onSubmit={onSave}>
 <label>
 Name
@@ -9205,6 +9215,7 @@ resolve: { root: { draft: true } },
 
 if (DraftBubbleTeaOrder.hasChanges(me?.root.draft)) {
 return (
+
 <p>You have a draft</p>
 );
 }
@@ -13540,7 +13551,7 @@ export function usePlayMedia() {
 
   const previousMediaLoad = useRef<Promise<unknown> | undefined>(undefined);
 
-  async function playMedia(file: Blob) {
+∑  async function playMedia(file: Blob) {
     // Wait for the previous load to finish
     // to avoid to incur into concurrency issues
     await previousMediaLoad.current;

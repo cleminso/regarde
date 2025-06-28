@@ -1,5 +1,4 @@
 import { ClerkProvider, useClerk } from '@clerk/clerk-react';
-// import { InstanceOfSchema } from 'jazz-tools';
 import { JazzInspector } from 'jazz-tools/inspector';
 import { JazzReactProviderWithClerk } from 'jazz-tools/react';
 import { StrictMode } from 'react';
