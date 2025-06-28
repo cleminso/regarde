@@ -3,6 +3,7 @@ import React, { useRef, useState } from 'react';
 
 import { OnboardingProfile } from '../schema';
 import { registerProfileNickname, useNicknameValidation } from './useNickname';
+import { useRegistrationKey } from './useRegistrationKey';
 
 type UseGeneralProps = {
   profile: Loaded<typeof OnboardingProfile>;
@@ -16,6 +17,7 @@ export function useGeneral({
   accountId,
 }: UseGeneralProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { currentKey } = useRegistrationKey();
 
   const { status, errorMessage, checkAvailability } = useNicknameValidation({
     profile,
@@ -90,6 +92,12 @@ export function useGeneral({
   };
 
   const updateNickname = async () => {
+    if (!currentKey) {
+      throw new Error(
+        'Registration key not available. Please try logging out and back in.',
+      );
+    }
+
     setIsRegistering(true);
     try {
       await registerProfileNickname({
@@ -97,6 +105,7 @@ export function useGeneral({
         profile,
         nickname: nicknameValue,
         oldNickname: profile.nickname,
+        registrationKey: currentKey,
       });
       triggerSyncIndicator();
     } catch (error) {

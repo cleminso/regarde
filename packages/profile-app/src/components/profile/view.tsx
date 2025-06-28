@@ -3,7 +3,7 @@ import { useAccount } from 'jazz-tools/react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
-import { fetchUserDetailsByNickname } from '#/lib/api';
+import { fetchUserDetailsByNickname } from '#/lib/api/base';
 import { OnboardingAccount, OnboardingProfile } from '#/lib/schema';
 import { ProfileHeader } from './header';
 import {

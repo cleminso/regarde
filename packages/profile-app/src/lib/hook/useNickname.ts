@@ -4,10 +4,10 @@ import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { checkNicknameAvailability, registerNickname } from '../nicknameApi';
-import { useRegistrationKey } from '../registrationKey';
+import { checkNicknameAvailability, registerNickname } from '../api/nickname';
 import { OnboardingAccount, OnboardingProfile } from '../schema';
 import { createNicknameUrl } from '../utils';
+import { useRegistrationKey } from './useRegistrationKey';
 
 type NicknameStatus = 'empty' | 'available' | 'taken' | 'invalid';
 

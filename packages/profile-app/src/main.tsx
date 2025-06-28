@@ -6,7 +6,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router';
 
 import { ThemeProvider } from './components/theme-provider.tsx';
-import { apiKey, CLERK_PUBLISHABLE_KEY } from './lib/apiKey.ts';
+import { apiKey, CLERK_PUBLISHABLE_KEY } from './lib/config/apiKey.ts';
 import { OnboardingAccount } from './lib/schema.ts';
 import { AppLayout } from './pages/appLayout.tsx';
 import { EditorPage } from './pages/edit.tsx';

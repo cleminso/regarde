@@ -1,8 +1,8 @@
 import { co, Group, Loaded } from 'jazz-tools';
 import { useAccount } from 'jazz-tools/react';
 
-import { WORKER_JAZZ_ID } from './apiKey';
-import { OnboardingAccount, RegistrationKey } from './schema';
+import { WORKER_JAZZ_ID } from '../config/apiKey';
+import { OnboardingAccount, RegistrationKey } from '../schema';
 
 export function generateRegistrationKey(): string {
   const chars =

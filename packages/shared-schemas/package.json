@@ -31,9 +31,6 @@
       "require": "./dist/shared-schemas.cjs.js"
     }
   },
-  "file_scan_exclusions": [
-    "dist"
-  ],
   "files": [
     "dist"
   ]

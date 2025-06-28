@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 
 import { Button } from './components/ui/button';
-import { useRegistrationKey } from './lib/registrationKey';
+import { useRegistrationKey } from './lib/hook/useRegistrationKey';
 import { OnboardingAccount } from './lib/schema';
 
 export function AuthButton() {

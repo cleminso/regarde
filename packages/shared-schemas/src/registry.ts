@@ -3,8 +3,13 @@ import { co, z } from "jazz-tools";
 export const NicknameRegistryCoRecord = co.record(z.string(), z.string());
 export type NicknameRegistry = z.infer<typeof NicknameRegistryCoRecord>;
 
-export const ReverseNicknameRegistryCoRecord = co.record(z.string(), z.string());
-export type ReverseNicknameRegistry = z.infer<typeof ReverseNicknameRegistryCoRecord>;
+export const ReverseNicknameRegistryCoRecord = co.record(
+  z.string(),
+  z.string(),
+);
+export type ReverseNicknameRegistry = z.infer<
+  typeof ReverseNicknameRegistryCoRecord
+>;
 
 export const RegistryWorkerAccountRoot = co.map({
   registry: NicknameRegistryCoRecord,
@@ -29,6 +34,17 @@ export const RegistryWorkerAccount = co
 
       console.dir("Loaded via ensureLoaded", loadedAccount);
 
+      // Ensure root exists after loading
+      if (!loadedAccount.root) {
+        const newRoot = RegistryWorkerAccountRoot.create({
+          registry: NicknameRegistryCoRecord.create({}),
+          reverseRegistry: ReverseNicknameRegistryCoRecord.create({}),
+        });
+        loadedAccount.root = newRoot;
+        console.log("Root created after ensureLoaded since it was missing.");
+        return;
+      }
+
       if (loadedAccount.root.registry === undefined) {
         const newRegistry = NicknameRegistryCoRecord.create({});
         loadedAccount.root.registry = newRegistry;
@@ -42,7 +58,8 @@ export const RegistryWorkerAccount = co
     } catch (e) {
       console.log("EnsureLoaded Root failed, fallback", account, e);
 
-      if (account.root === undefined) {
+      // Handle the case where root is null or undefined
+      if (!account.root) {
         const newRoot = RegistryWorkerAccountRoot.create({
           registry: NicknameRegistryCoRecord.create({}),
           reverseRegistry: ReverseNicknameRegistryCoRecord.create({}),
@@ -53,17 +70,23 @@ export const RegistryWorkerAccount = co
           "Root created with NicknameRegistry and ReverseNicknameRegistry in worker account since it was missing.",
         );
       } else {
+        // Now we know account.root is not null/undefined
         if (account.root.registry === undefined) {
           const newRegistry = NicknameRegistryCoRecord.create({});
           account.root.registry = newRegistry;
-          console.log("NicknameRegistry created in existing root during fallback.");
+          console.log(
+            "NicknameRegistry created in existing root during fallback.",
+          );
         }
         if (account.root.reverseRegistry === undefined) {
           const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
           account.root.reverseRegistry = newReverseRegistry;
-          console.log("ReverseNicknameRegistry created in existing root during fallback.");
+          console.log(
+            "ReverseNicknameRegistry created in existing root during fallback.",
+          );
         }
       }
     }
   });
+
 export type RegistryWorkerAccountType = z.infer<typeof RegistryWorkerAccount>;
