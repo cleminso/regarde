@@ -60,8 +60,13 @@ export async function checkNicknameAvailability(
 
 export async function registerNickname(
   request: RegisterRequest,
-  registrationKey: string,
+  getValidKey: () => Promise<string | null>,
 ): Promise<void> {
+  const registrationKey = await getValidKey();
+  if (!registrationKey) {
+    throw new Error('Could not obtain valid registration key');
+  }
+
   const response = await fetch(`${API_BASE_URL}/register`, {
     method: 'POST',
     headers: {

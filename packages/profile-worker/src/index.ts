@@ -15,7 +15,7 @@ import {
 import { registerRoute, registerHandler } from "./routes/register";
 import { userDetailsRoute, userDetailsHandler } from "./routes/userDetails";
 
-const PORT = process.env.PORT || 3000; // This is the INTERNAL port Nginx will proxy to
+const PORT = process.env.PORT || 3000;
 const JAZZ_SYNC_SERVER_URL =
   process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
 
@@ -152,7 +152,6 @@ async function main() {
       return await registerHandler(
         nicknameRegistry,
         reverseNicknameRegistry,
-        worker, // Pass worker instance
       )(c);
     } catch (error) {
       console.error("Error in registerHandler:", error);
@@ -225,7 +224,6 @@ async function main() {
     }
   });
 
-  // Remove explicit 'ServeOptions' type annotation here
   const serverOptions = {
     fetch: app.fetch,
     port: Number(PORT),

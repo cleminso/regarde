@@ -110,7 +110,6 @@ export const registerRoute = createRoute({
 export const registerHandler = (
   nicknameRegistry: any,
   reverseNicknameRegistry: any,
-  worker: any,
 ) => {
   return async (c: any) => {
     try {
@@ -141,7 +140,6 @@ export const registerHandler = (
       const verificationResult = await verifyRegistrationKey(
         jazzAccountID,
         registrationKey,
-        worker,
       );
       if (!verificationResult.isValid) {
         console.log(
@@ -178,7 +176,6 @@ export const registerHandler = (
         return c.body(null, 204);
       }
 
-      // Check if the new nickname is already taken by someone else
       if (
         existingAccountForNickname &&
         existingAccountForNickname !== jazzAccountID

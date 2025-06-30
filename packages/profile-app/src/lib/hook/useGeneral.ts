@@ -17,7 +17,7 @@ export function useGeneral({
   accountId,
 }: UseGeneralProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { currentKey } = useRegistrationKey();
+  const { getValidKey } = useRegistrationKey();
 
   const { status, errorMessage, checkAvailability } = useNicknameValidation({
     profile,
@@ -92,12 +92,6 @@ export function useGeneral({
   };
 
   const updateNickname = async () => {
-    if (!currentKey) {
-      throw new Error(
-        'Registration key not available. Please try logging out and back in.',
-      );
-    }
-
     setIsRegistering(true);
     try {
       await registerProfileNickname({
@@ -105,7 +99,7 @@ export function useGeneral({
         profile,
         nickname: nicknameValue,
         oldNickname: profile.nickname,
-        registrationKey: currentKey,
+        getRegistrationKey: getValidKey,
       });
       triggerSyncIndicator();
     } catch (error) {

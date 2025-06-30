@@ -177,6 +177,7 @@ export const Container = co.map({
 
 export const RegistrationKey = co.map({
   key: z.string(),
+  expiresAt: z.number(),
 });
 
 export type RegistrationKey = z.infer<typeof RegistrationKey>;

@@ -13,25 +13,23 @@ export function AuthButton() {
   const { logOut } = useAccount(OnboardingAccount);
   const navigate = useNavigate();
   const isAuthenticated = useIsAuthenticated();
-  const { generateAndStore, currentKey, isAccountLoaded } =
-    useRegistrationKey();
+  const { getValidKey, isAccountLoaded } = useRegistrationKey();
 
   useEffect(() => {
-    if (isAuthenticated && isAccountLoaded && !currentKey) {
-      console.log('User authenticated, generating registration key...');
-      generateAndStore()
+    if (isAuthenticated && isAccountLoaded) {
+      getValidKey()
         .then((key) => {
           if (key) {
-            console.log('Registration key generated successfully:', key);
+            console.log('Valid registration key confirmed');
           } else {
-            console.error('Failed to generate registration key');
+            console.error('Failed to obtain valid registration key');
           }
         })
         .catch((error) => {
-          console.error('Error generating registration key:', error);
+          console.error('Error ensuring valid key:', error);
         });
     }
-  }, [isAuthenticated, isAccountLoaded, currentKey, generateAndStore]);
+  }, [isAuthenticated, isAccountLoaded, getValidKey]);
 
   function handleLogOut() {
     logOut();

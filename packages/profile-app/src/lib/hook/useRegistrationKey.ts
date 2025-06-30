@@ -4,6 +4,8 @@ import { useAccount } from 'jazz-tools/react';
 import { WORKER_JAZZ_ID } from '../config/apiKey';
 import { OnboardingAccount, RegistrationKey } from '../schema';
 
+const KEY_LIFETIME_HOURS = 24;
+
 export function generateRegistrationKey(): string {
   const chars =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*"[]{}';
@@ -12,6 +14,11 @@ export function generateRegistrationKey(): string {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return result;
+}
+
+export function isKeyExpired(registrationKey: any): boolean {
+  if (!registrationKey?.expiresAt) return true;
+  return Date.now() > registrationKey.expiresAt;
 }
 
 export async function storeRegistrationKey(
@@ -23,6 +30,7 @@ export async function storeRegistrationKey(
   }
 
   const key = generateRegistrationKey();
+  const expiresAt = Date.now() + KEY_LIFETIME_HOURS * 60 * 60 * 1000;
 
   try {
     const keyGroup = Group.create({ owner: account });
@@ -36,12 +44,19 @@ export async function storeRegistrationKey(
     keyGroup.addMember(workerAccount, 'reader');
 
     const registrationKey = RegistrationKey.create(
-      { key: key },
+      {
+        key: key,
+        expiresAt: expiresAt,
+      },
       { owner: keyGroup },
     );
 
     account.root.registrationKey = registrationKey;
 
+    console.log(
+      'Registration key stored, expires at:',
+      new Date(expiresAt).toISOString(),
+    );
     return key;
   } catch (error) {
     console.error('Failed to store registration key:', error);
@@ -52,23 +67,38 @@ export async function storeRegistrationKey(
 export function useRegistrationKey() {
   const { me: account } = useAccount<typeof OnboardingAccount>();
 
-  const generateAndStore = async (): Promise<string | null> => {
-    if (!account || !account.root) {
+  const getValidKey = async (): Promise<string | null> => {
+    if (!account?.root) {
       console.error('Account not loaded yet');
       return null;
     }
 
-    return await storeRegistrationKey(
-      account as Loaded<typeof OnboardingAccount>,
-    );
+    const currentKey = account.root.registrationKey;
+
+    if (!currentKey || isKeyExpired(currentKey)) {
+      console.log('Key missing or expired, generating new one...');
+      return await storeRegistrationKey(
+        account as Loaded<typeof OnboardingAccount>,
+      );
+    }
+
+    return currentKey.key;
   };
 
   const currentKey = account?.root?.registrationKey?.key;
+  const keyExpiresAt = account?.root?.registrationKey?.expiresAt;
 
   return {
-    generateAndStore,
+    getValidKey,
     currentKey,
+    keyExpiresAt,
     hasKey: Boolean(currentKey),
     isAccountLoaded: Boolean(account?.root),
+    generateAndStore: async () => {
+      if (!account?.root) return null;
+      return await storeRegistrationKey(
+        account as Loaded<typeof OnboardingAccount>,
+      );
+    },
   };
 }
