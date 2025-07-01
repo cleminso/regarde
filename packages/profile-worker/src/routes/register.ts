@@ -110,6 +110,7 @@ export const registerRoute = createRoute({
 export const registerHandler = (
   nicknameRegistry: any,
   reverseNicknameRegistry: any,
+  worker: any,
 ) => {
   return async (c: any) => {
     try {
@@ -140,6 +141,7 @@ export const registerHandler = (
       const verificationResult = await verifyRegistrationKey(
         jazzAccountID,
         registrationKey,
+        worker,
       );
       if (!verificationResult.isValid) {
         console.log(

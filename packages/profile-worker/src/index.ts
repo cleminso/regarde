@@ -4,7 +4,7 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
 import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
-import { startWorker } from "jazz-nodejs";
+import { startWorker } from "jazz-tools/worker";
 
 import { RegistryWorkerAccount } from "./schema";
 import { rateLimit } from "./middleware/rateLimit";
@@ -152,6 +152,7 @@ async function main() {
       return await registerHandler(
         nicknameRegistry,
         reverseNicknameRegistry,
+        worker,
       )(c);
     } catch (error) {
       console.error("Error in registerHandler:", error);
