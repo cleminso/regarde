@@ -2,11 +2,13 @@ import "dotenv/config";
 
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
+import { logger } from "hono/logger";
 import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { startWorker } from "jazz-tools/worker";
 
 import { RegistryWorkerAccount } from "./schema";
+
 import { rateLimit } from "./middleware/rateLimit";
 import {
   checkAvailabilityRoute,
@@ -14,6 +16,7 @@ import {
 } from "./routes/checkAvailability";
 import { registerRoute, registerHandler } from "./routes/register";
 import { userDetailsRoute, userDetailsHandler } from "./routes/userDetails";
+import { Hono } from "hono";
 
 const PORT = process.env.PORT || 3000;
 const JAZZ_SYNC_SERVER_URL =
@@ -115,6 +118,7 @@ async function main() {
 
   const app = new OpenAPIHono();
 
+  app.use("*", logger());
   app.use("*", cors());
   app.use("*", rateLimit(100, 60000));
 

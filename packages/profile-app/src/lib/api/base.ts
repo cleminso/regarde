@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://api.jazz.dev';
+const API_BASE_URL = 'https://api.jazz.dev';
 
 interface UserDetails {
   jazzAccountId?: string;
