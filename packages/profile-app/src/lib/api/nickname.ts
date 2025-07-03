@@ -87,7 +87,9 @@ export async function registerNickname(
 export async function getUserDetails(
   jazzAccountId: string,
 ): Promise<UserDetailsResponse> {
-  const response = await fetch(`${API_BASE_URL}/users/${jazzAccountId}`);
+  const response = await fetch(
+    `${API_BASE_URL}/users?jazzAccountId=${encodeURIComponent(jazzAccountId)}`,
+  );
 
   if (!response.ok) {
     const errorData: ApiError = await response.json();

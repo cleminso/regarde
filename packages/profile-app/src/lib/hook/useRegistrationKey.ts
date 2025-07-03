@@ -24,8 +24,8 @@ export function isKeyExpired(registrationKey: any): boolean {
 export async function storeRegistrationKey(
   account: Loaded<typeof OnboardingAccount>,
 ): Promise<string | null> {
-  if (!account?.root) {
-    console.error('Account root not available');
+  if (!account?.profile) {
+    console.error('Account profile not available');
     return null;
   }
 
@@ -51,7 +51,7 @@ export async function storeRegistrationKey(
       { owner: keyGroup },
     );
 
-    account.root.registrationKey = registrationKey;
+    account.profile.registrationKey = registrationKey;
 
     console.log(
       'Registration key stored, expires at:',
@@ -68,12 +68,12 @@ export function useRegistrationKey() {
   const { me: account } = useAccount<typeof OnboardingAccount>();
 
   const getValidKey = async (): Promise<string | null> => {
-    if (!account?.root) {
+    if (!account?.profile) {
       console.error('Account not loaded yet');
       return null;
     }
 
-    const currentKey = account.root.registrationKey;
+    const currentKey = account.profile.registrationKey;
 
     if (!currentKey || isKeyExpired(currentKey)) {
       console.log('Key missing or expired, generating new one...');
@@ -85,17 +85,17 @@ export function useRegistrationKey() {
     return currentKey.key;
   };
 
-  const currentKey = account?.root?.registrationKey?.key;
-  const keyExpiresAt = account?.root?.registrationKey?.expiresAt;
+  const currentKey = account?.profile?.registrationKey?.key;
+  const keyExpiresAt = account?.profile?.registrationKey?.expiresAt;
 
   return {
     getValidKey,
     currentKey,
     keyExpiresAt,
     hasKey: Boolean(currentKey),
-    isAccountLoaded: Boolean(account?.root),
+    isAccountLoaded: Boolean(account?.profile),
     generateAndStore: async () => {
-      if (!account?.root) return null;
+      if (!account?.profile) return null;
       return await storeRegistrationKey(
         account as Loaded<typeof OnboardingAccount>,
       );

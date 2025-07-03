@@ -20,10 +20,15 @@ export async function verifyRegistrationKey(
     let account;
     try {
       account = await OnboardingAccount.load(jazzAccountId, {
+        resolve: {
+          profile: {
+            registrationKey: {},
+          },
+        },
         loadAs: worker,
       });
-    } catch (basicLoadError: any) {
-      console.error(`Failed to load account ${jazzAccountId}:`, basicLoadError);
+    } catch (loadError: any) {
+      console.error(`Failed to load account ${jazzAccountId}:`, loadError);
       return { isValid: false, error: "Account not found or not accessible" };
     }
 
@@ -34,12 +39,11 @@ export async function verifyRegistrationKey(
       return { isValid: false, error: "Account not found or not accessible" };
     }
 
-    console.log(`Account loaded successfully. Checking root...`);
-    console.log(`Account has root:`, !!account.root);
+    console.log(`Account loaded successfully. Checking profile...`);
 
-    if (!account.root) {
+    if (!account.profile) {
       console.log(
-        `Account ${jazzAccountId} has no root field - account not properly initialized`,
+        `Account ${jazzAccountId} has no profile field - account not properly initialized`,
       );
       return {
         isValid: false,
@@ -48,33 +52,11 @@ export async function verifyRegistrationKey(
       };
     }
 
-    console.log(`Account has root, attempting deep resolution...`);
-    try {
-      account = await OnboardingAccount.load(jazzAccountId, {
-        resolve: {
-          root: {
-            registrationKey: true,
-          },
-        },
-        loadAs: worker,
-      });
+    console.log(`Profile found, checking registration key...`);
 
-      if (!account) {
-        return {
-          isValid: false,
-          error: "Failed to load account with resolution",
-        };
-      }
-    } catch (deepLoadError: any) {
-      console.error(`Failed to load account with resolution:`, deepLoadError);
-      return { isValid: false, error: "Failed to resolve account data" };
-    }
-
-    console.log(`Account loaded with resolution, checking registration key...`);
-
-    const storedKeyData = account.root?.registrationKey;
+    const storedKeyData = account.profile.registrationKey;
     if (!storedKeyData) {
-      console.log(`No registration key found in account root`);
+      console.log(`No registration key found in account profile`);
       return {
         isValid: false,
         error:

@@ -124,6 +124,13 @@ export type SideProject = z.infer<typeof SideProject>;
 
 export const ListOfSideProject = co.list(SideProject);
 
+export const RegistrationKey = co.map({
+  key: z.string(),
+  expiresAt: z.number(),
+});
+
+export type RegistrationKey = z.infer<typeof RegistrationKey>;
+
 // TODO:
 // export const Attachments = co.map({
 // url: z.string(),
@@ -153,6 +160,7 @@ export const OnboardingProfile = co
     award: z.optional(ListOfAward),
     volunteering: z.optional(ListOfVolunteering),
     sideProject: z.optional(ListOfSideProject),
+    registrationKey: z.optional(RegistrationKey),
   })
   .withHelpers((Self) => ({
     validate(profile: Loaded<typeof Self>): {
@@ -169,25 +177,14 @@ export const OnboardingProfile = co
     },
   }));
 
-// The Container co.map should contain the main domain entities of the app. Rule 2.3: Never define a `name` field in the `Container` co.map.
-
 export const Container = co.map({
   creationMessage: z.optional(z.string()),
 });
 
-export const RegistrationKey = co.map({
-  key: z.string(),
-  expiresAt: z.number(),
-});
-
-export type RegistrationKey = z.infer<typeof RegistrationKey>;
-
 export const AccountRoot = co.map({
   container: Container,
-  registrationKey: z.optional(RegistrationKey),
 });
 
-// Rule 1.3 (paraphrased): An account schema should define `profile` and `root`. `profile` points to a `co.profile` schema. `root` points to a `co.map` schema for private per-user data.
 export const OnboardingAccount = co
   .account({
     profile: OnboardingProfile,
@@ -200,15 +197,13 @@ export const OnboardingAccount = co
     ) => {
       if (account.profile === undefined) {
         try {
-          const publicGroup = Group.create({
-            owner: account,
-          });
+          const publicGroup = Group.create();
           publicGroup.addMember("everyone", "reader");
           account.profile = OnboardingProfile.create(
             {
               name: creationProps?.name || "Public Profile",
             },
-            { owner: publicGroup },
+            publicGroup,
           );
         } catch (e) {
           console.warn("Group could not be created, likely unlogged", e);
@@ -223,9 +218,12 @@ export const OnboardingAccount = co
           const defaultContainer = Container.create({
             creationMessage: containerMessage,
           });
-          account.root = AccountRoot.create({
-            container: defaultContainer,
-          });
+          account.root = AccountRoot.create(
+            {
+              container: defaultContainer,
+            },
+            { owner: account },
+          );
         } catch (e) {
           console.warn("Container could not be created, likely unlogged", e);
         }
