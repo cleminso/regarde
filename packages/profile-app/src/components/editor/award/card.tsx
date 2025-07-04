@@ -38,7 +38,7 @@ export function AwardCard({ award, onEdit, onDelete }: AwardCardProps) {
               >
                 <a href={award.url} target="_blank" rel="noopener noreferrer">
                   {displayTitle}
-                  <ArrowUpRight className="h-4 w-4 ml-1 opacity-70 group-hover:opacity-100" />
+                  <ArrowUpRight className="h-4 w-4 group-hover:opacity-100" />
                 </a>
               </Button>
             ) : (

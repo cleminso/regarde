@@ -51,7 +51,6 @@ export function App() {
       </header>
 
       <main className="container mt-16 flex flex-col items-center text-center gap-6 py-12">
-        {' '}
         {(!isAuthenticated || (isAuthenticated && !profile?.nickname)) && (
           <LandingNicknameForm />
         )}

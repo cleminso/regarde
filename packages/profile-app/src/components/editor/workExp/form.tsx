@@ -161,7 +161,7 @@ export function WorkExpEdit({
                   id="work-location"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Where was it"
+                  placeholder="Where was it?"
                 />
               </div>
 
@@ -185,7 +185,7 @@ export function WorkExpEdit({
                 id="work-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe your role and achievements..."
+                placeholder="Describe your role and achievements"
                 className="min-h-[180px] resize-none"
               />
             </div>

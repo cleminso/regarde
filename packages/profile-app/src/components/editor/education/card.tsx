@@ -17,7 +17,7 @@ export function EducationCard({
   onEdit,
   onDelete,
 }: EducationCardProps) {
-  const displayTitle = `${education.degree || 'Untitled Degree'} @ ${
+  const displayTitle = `${education.degree || 'Untitled Degree'} @${
     education.institution || 'Unnamed Institution'
   }`;
   const dateRange = formatDateRange(education.from, education.to);
@@ -43,7 +43,7 @@ export function EducationCard({
                   rel="noopener noreferrer"
                 >
                   {displayTitle}
-                  <ArrowUpRight className="h-4 w-4 ml-1 opacity-70 group-hover:opacity-100" />
+                  <ArrowUpRight className="h-4 w-4 group-hover:opacity-100" />
                 </a>
               </Button>
             ) : (

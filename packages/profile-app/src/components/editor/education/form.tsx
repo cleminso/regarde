@@ -185,7 +185,7 @@ export function EducationEdit({
                 id="education-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Add notable achievements, coursework, something that makes your degree memorable..."
+                placeholder="Add notable achievements, something that makes your degree memorable..."
                 className="min-h-[180px] resize-none"
               />
             </div>

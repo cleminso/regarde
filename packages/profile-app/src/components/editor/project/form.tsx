@@ -77,8 +77,8 @@ export function ProjectEdit({
     <div className="flex flex-col h-full">
       <div className="flex-1">
         <SectionHeader
-          title="Projects"
-          description="Showcase your projects and contributions."
+          title="Project"
+          description="Showcase your project and contribution."
         />
 
         <div className="space-y-6">

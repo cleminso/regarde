@@ -53,7 +53,7 @@ export function Contact({ profile }: ContactProps) {
 
   return (
     <section
-      className="mx-auto flex flex-col gap-3 my-8"
+      className="mx-auto flex flex-col gap-4 mb-10"
       style={{ width: '540px' }}
     >
       <h3 className="text-md font-sans text-foreground">Contact</h3>

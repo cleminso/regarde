@@ -14,7 +14,7 @@ type WorkExpCardProps = {
 };
 
 export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
-  const displayTitle = `${workExp.title || 'Untitled Role'} @ ${
+  const displayTitle = `${workExp.title || 'Untitled Role'} @${
     workExp.company || 'Unnamed Company'
   }`;
   const dateRange = formatDateRange(workExp.from, workExp.to);
@@ -36,7 +36,7 @@ export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
               >
                 <a href={workExp.url} target="_blank" rel="noopener noreferrer">
                   {displayTitle}
-                  <ArrowUpRight className="h-4 w-4 ml-1 opacity-70 group-hover:opacity-100" />
+                  <ArrowUpRight className="h-4 w-4 group-hover:opacity-100" />
                 </a>
               </Button>
             ) : (

@@ -20,13 +20,13 @@ export function Educations({ profile }: EducationsProps) {
 
   return (
     <section
-      className="mx-auto flex flex-col gap-3 my-8"
+      className="mx-auto flex flex-col gap-4 mb-10"
       style={{ width: '540px' }}
     >
       <h3 className="text-md font-sans">Education</h3>
       <div className="space-y-6">
         {educations.map((education: any) => {
-          const displayTitle = `${education.degree || 'Degree'} @ ${
+          const displayTitle = `${education.degree || 'Degree'} @${
             education.institution || 'Institution'
           }`;
 
@@ -37,10 +37,7 @@ export function Educations({ profile }: EducationsProps) {
           const institutionLink = getValidUrl(education.url);
 
           return (
-            <div
-              key={education.id}
-              className="flex flex-col border-b border-border pb-4 gap-3"
-            >
+            <div key={education.id} className="flex flex-col gap-4 pb-4 ">
               <div className="flex flex-row gap-4">
                 <div className="flex flex-col w-24 flex-shrink-0">
                   <span className="text-sm font-sans text-secondary-foreground">

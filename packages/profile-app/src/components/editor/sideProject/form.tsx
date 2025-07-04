@@ -77,8 +77,8 @@ export function SideProjectEdit({
     <div className="flex flex-col h-full">
       <div className="flex-1">
         <SectionHeader
-          title="Side Projects"
-          description="Showcase your personal projects and experiments."
+          title="Side Project"
+          description="Showcase your personal project and experiment."
         />
 
         <div className="space-y-6">

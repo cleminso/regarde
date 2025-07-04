@@ -127,7 +127,7 @@ export function AwardEdit({
                   id="award-presenter"
                   value={presenter}
                   onChange={(e) => setPresenter(e.target.value)}
-                  placeholder="Where did it happen"
+                  placeholder="Where did it happen?"
                 />
               </div>
 

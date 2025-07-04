@@ -20,7 +20,7 @@ export function Speakings({ profile }: SpeakingsProps) {
 
   return (
     <section
-      className="mx-auto flex flex-col gap-3 my-8"
+      className="mx-auto flex flex-col gap-4 mb-10"
       style={{ width: '540px' }}
     >
       <h3 className="text-md font-sans">Speaking</h3>
@@ -38,10 +38,7 @@ export function Speakings({ profile }: SpeakingsProps) {
               : String(speaking.year);
 
           return (
-            <div
-              key={speaking.id}
-              className="flex flex-col border-b border-border pb-4 gap-3"
-            >
+            <div key={speaking.id} className="flex flex-col pb-4 gap-3">
               <div className="flex flex-row gap-4">
                 <div className="flex flex-col w-24 flex-shrink-0">
                   <span className="text-sm font-sans text-secondary-foreground">

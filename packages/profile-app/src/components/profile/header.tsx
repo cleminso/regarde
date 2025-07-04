@@ -36,7 +36,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
 
   return (
     <section
-      className="mx-auto flex flex-row items-start gap-4"
+      className="mx-auto flex flex-row items-start gap-4 mb-10"
       style={{ width: '540px' }}
     >
       {profile.avatar ? (

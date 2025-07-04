@@ -37,7 +37,7 @@ export function NicknameInput({
   profile,
   isProcessing = false,
   disabled = false,
-  placeholder = 'your_name',
+  placeholder = 'your_display_name',
   onAction,
   actionText,
   onView,

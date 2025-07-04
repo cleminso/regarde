@@ -20,13 +20,13 @@ export function Certifications({ profile }: CertificationsProps) {
 
   return (
     <section
-      className="mx-auto flex flex-col gap-3 my-8"
+      className="mx-auto flex flex-col gap-4 mb-10"
       style={{ width: '540px' }}
     >
       <h3 className="text-md font-sans">Certification</h3>
       <div className="space-y-6">
         {certifications.map((certification: any) => {
-          const displayTitle = `${certification.name || 'Certification'} @ ${
+          const displayTitle = `${certification.name || 'Certification'} @${
             certification.organization || 'Organization'
           }`;
 
@@ -39,10 +39,7 @@ export function Certifications({ profile }: CertificationsProps) {
           const certificationLink = getValidUrl(certification.url);
 
           return (
-            <div
-              key={certification.id}
-              className="flex flex-col border-b border-border pb-4 gap-3"
-            >
+            <div key={certification.id} className="flex flex-col pb-4 gap-3">
               <div className="flex flex-row gap-4">
                 <div className="flex flex-col w-24 flex-shrink-0">
                   <span className="text-sm font-sans text-secondary-foreground">

@@ -93,7 +93,7 @@ export function ProfileView() {
           <p>Loading profile...</p>
         </div>
       ) : nicknameExists ? (
-        <main className="w-full py-8">
+        <main className="w-full">
           <ProfileHeader profile={profile} />
           <About profile={profile} />
           <Contact profile={profile} />

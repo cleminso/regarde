@@ -125,7 +125,7 @@ export function WritingEdit({
                   id="writing-publisher"
                   value={publisher}
                   onChange={(e) => setPublisher(e.target.value)}
-                  placeholder="On which platform"
+                  placeholder="On which platform?"
                 />
               </div>
 

@@ -140,7 +140,7 @@ export function SpeakingEdit({
                   id="speaking-location"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Where it happened"
+                  placeholder="Where it happened?"
                 />
               </div>
             </div>

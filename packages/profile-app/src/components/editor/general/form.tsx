@@ -103,12 +103,30 @@ export function GeneralEdit({
           </section>
 
           <section>
-            <Label htmlFor="bio">Bio</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="bio">Bio</Label>
+              <span
+                className={`text-sm ${
+                  (profile.bio || '').length >= 160
+                    ? 'text-destructive'
+                    : (profile.bio || '').length >= 120
+                      ? 'text-yellow-600'
+                      : 'text-muted-foreground'
+                }`}
+              >
+                {(profile.bio || '').length}/160 characters
+              </span>
+            </div>
             <Textarea
               id="bio"
               value={profile.bio || ''}
-              onChange={(e) => updateBio(e.target.value)}
-              placeholder="Share what people should know about you."
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value.length <= 160) {
+                  updateBio(value);
+                }
+              }}
+              placeholder="Share what people should know about you"
               className="mt-2 min-h-[150px] resize-none"
             />
           </section>

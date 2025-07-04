@@ -37,7 +37,7 @@ export function VolunteeringCard({
   onEdit,
   onDelete,
 }: VolunteeringCardProps) {
-  const displayTitle = `${volunteering.title || 'Untitled Role'} @ ${
+  const displayTitle = `${volunteering.title || 'Untitled Role'} @${
     volunteering.organization || 'Unnamed Organization'
   }`;
   const dateRange = `${formatDate(volunteering.from)} - ${formatDate(volunteering.to)}`;
@@ -63,7 +63,7 @@ export function VolunteeringCard({
                   rel="noopener noreferrer"
                 >
                   {displayTitle}
-                  <ArrowUpRight className="h-4 w-4 ml-1 opacity-70 group-hover:opacity-100" />
+                  <ArrowUpRight className="h-4 w-4 group-hover:opacity-100" />
                 </a>
               </Button>
             ) : (

@@ -168,7 +168,7 @@ export function CertificationEdit({
                 id="cert-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe what this certification covers..."
+                placeholder="Describe what this certification covers"
                 className="min-h-[180px] resize-none"
               />
             </div>
