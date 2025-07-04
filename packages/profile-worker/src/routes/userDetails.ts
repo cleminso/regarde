@@ -2,9 +2,10 @@ import { createRoute } from "@hono/zod-openapi";
 import {
   UserDetailsRequestSchema,
   UserDetailsResponseSchema,
-} from "../schemas/userDetails";
-import { ErrorResponseSchema } from "../schemas/common";
-import { OnboardingAccount } from "../schemas/profile";
+} from "../schemas/userDetails.js";
+import { ErrorResponseSchema } from "../schemas/common.js";
+
+import { OnboardingAccount } from "@onboarding.jazz/shared-schemas/profile";
 
 export const userDetailsRoute = createRoute({
   method: "get",

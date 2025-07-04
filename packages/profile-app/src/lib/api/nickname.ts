@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://api.jazz.dev';
+import { API_BASE_URL } from '../config/apiKey';
 
 export interface CheckAvailabilityRequest {
   nickname: string;

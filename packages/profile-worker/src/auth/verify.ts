@@ -1,4 +1,4 @@
-import { OnboardingAccount } from "../schema";
+import { OnboardingAccount } from "@onboarding.jazz/shared-schemas/profile";
 
 export interface VerificationResult {
   isValid: boolean;
@@ -22,7 +22,7 @@ export async function verifyRegistrationKey(
       account = await OnboardingAccount.load(jazzAccountId, {
         resolve: {
           profile: {
-            registrationKey: {},
+            registrationKey: true,
           },
         },
         loadAs: worker,

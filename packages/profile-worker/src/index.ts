@@ -7,15 +7,16 @@ import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { startWorker } from "jazz-tools/worker";
 
-import { RegistryWorkerAccount } from "./schema";
+import { RegistryWorkerAccount } from "@onboarding.jazz/shared-schemas/registry";
 
-import { rateLimit } from "./middleware/rateLimit";
+import { rateLimit } from "./middleware/rateLimit.js";
+
 import {
   checkAvailabilityRoute,
   checkAvailabilityHandler,
-} from "./routes/checkAvailability";
-import { registerRoute, registerHandler } from "./routes/register";
-import { userDetailsRoute, userDetailsHandler } from "./routes/userDetails";
+} from "./routes/checkAvailability.js";
+import { registerRoute, registerHandler } from "./routes/register.js";
+import { userDetailsRoute, userDetailsHandler } from "./routes/userDetails.js";
 import { Hono } from "hono";
 
 const PORT = process.env.PORT || 3000;

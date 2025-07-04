@@ -1,6 +1,9 @@
 import { createRoute } from "@hono/zod-openapi";
-import { CheckAvailabilityRequestSchema, CheckAvailabilityResponseSchema } from "../schemas/checkAvailability";
-import { ErrorResponseSchema } from "../schemas/common";
+import {
+  CheckAvailabilityRequestSchema,
+  CheckAvailabilityResponseSchema,
+} from "../schemas/checkAvailability.js";
+import { ErrorResponseSchema } from "../schemas/common.js";
 
 export const checkAvailabilityRoute = createRoute({
   method: "post",
@@ -50,7 +53,8 @@ export const checkAvailabilityRoute = createRoute({
   },
   tags: ["Nickname Registry"],
   summary: "Check nickname availability",
-  description: "Check if a nickname is available for registration without making any changes to the registry",
+  description:
+    "Check if a nickname is available for registration without making any changes to the registry",
 });
 
 export const checkAvailabilityHandler = (nicknameRegistry: any) => {
@@ -63,14 +67,16 @@ export const checkAvailabilityHandler = (nicknameRegistry: any) => {
       const existingAccountForNickname = nicknameRegistry[nickname];
       const isAvailable = !existingAccountForNickname;
 
-      return c.json({
-        nickname,
-        available: isAvailable,
-        ...(existingAccountForNickname && {
-          takenBy: existingAccountForNickname,
-        }),
-      }, 200);
-
+      return c.json(
+        {
+          nickname,
+          available: isAvailable,
+          ...(existingAccountForNickname && {
+            takenBy: existingAccountForNickname,
+          }),
+        },
+        200,
+      );
     } catch (error: any) {
       console.error(`Error processing /checkAvailability request: ${error}`);
       return c.json({ error: error.message || "Internal server error" }, 500);

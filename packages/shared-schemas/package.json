@@ -11,7 +11,9 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "vite build",
+    "build:tsc": "pnpm clean && tsc",
+    "build:vite": "pnpm clean && vite build",
+    "build": "pnpm build:tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist"
   },
@@ -26,10 +28,11 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/shared-schemas.es.js",
-      "import": "./dist/shared-schemas.es.js",
-      "require": "./dist/shared-schemas.cjs.js"
-    }
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./profile": "./dist/profile.js",
+    "./registry": "./dist/registry.js"
   },
   "files": [
     "dist"

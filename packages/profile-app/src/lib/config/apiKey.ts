@@ -1,6 +1,9 @@
-// TODO: verify if this should be a secret
-export const apiKey = 'clem2inso@gmail.com';
+export const apiKey = import.meta.env.VITE_JAZZ_API_KEY || 'no-api-key';
 export const CLERK_PUBLISHABLE_KEY =
-  'pk_test_Y3JlZGlibGUtZm94aG91bmQtNzYuY2xlcmsuYWNjb3VudHMuZGV2JA';
+  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || 'no-key';
 
-export const WORKER_JAZZ_ID = 'co_zRgFdJz2k14V4daiih8T4hNEGdR';
+export const WORKER_JAZZ_ID =
+  import.meta.env.VITE_WORKER_JAZZ_ID || 'no-jazz-worker-id';
+
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'https://api.jazz.dev';
