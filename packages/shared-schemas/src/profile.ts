@@ -1,11 +1,4 @@
-import {
-  AnyAccountSchema,
-  co,
-  CoValueOrZodSchema,
-  Group,
-  Loaded,
-  z,
-} from "jazz-tools";
+import { co, Group, Loaded, z } from "jazz-tools";
 
 export const SocialLinks = co.map({
   github: z.optional(z.string()),

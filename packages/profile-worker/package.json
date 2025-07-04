@@ -11,12 +11,11 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "preinstall": "pnpm build:schema",
     "build:schema": "pnpm --filter @onboarding.jazz/shared-schemas build",
     "build": "pnpm clean && pnpm run build:schema && tsc",
     "start": "pnpm build && node dist/index.js",
     "debug": "pnpm build && node --inspect dist/index.js",
-    "start:bun": "pnpm build:schema && bun src/index.ts &",
+    "start:bun": "pnpm build:schema && bun src/index.ts",
     "dev": "pnpm build:schema && bun --watch src/index.ts"
   },
   "keywords": [
