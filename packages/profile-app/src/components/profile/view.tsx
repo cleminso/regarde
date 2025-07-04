@@ -77,7 +77,7 @@ export function ProfileView() {
           }
         } else {
           if (publicData) {
-            setProfile(publicData);
+            setProfile(publicData as any);
             setNicknameExists(true);
             setIsLoading(false);
           }
@@ -92,7 +92,7 @@ export function ProfileView() {
         <div className="flex w-full justify-center items-center min-h-screen">
           <p>Loading profile...</p>
         </div>
-      ) : nicknameExists ? (
+      ) : nicknameExists && profile ? (
         <main className="w-full">
           <ProfileHeader profile={profile} />
           <About profile={profile} />
