@@ -1,7 +1,7 @@
 import { createRoute } from "@hono/zod-openapi";
-import { RegisterRequestSchema } from "../schemas/register";
-import { ErrorResponseSchema } from "../schemas/common";
-import { verifyRegistrationKey } from "../auth/verify";
+import { RegisterRequestSchema } from "../schemas/register.js";
+import { ErrorResponseSchema } from "../schemas/common.js";
+import { verifyRegistrationKey } from "../auth/verify.js";
 
 export const registerRoute = createRoute({
   method: "post",

@@ -1,4 +1,11 @@
-import { co, Group, Loaded, z } from "jazz-tools";
+import {
+  AnyAccountSchema,
+  co,
+  CoValueOrZodSchema,
+  Group,
+  Loaded,
+  z,
+} from "jazz-tools";
 
 export const SocialLinks = co.map({
   github: z.optional(z.string()),
@@ -143,39 +150,39 @@ export type RegistrationKey = z.infer<typeof RegistrationKey>;
 //
 // Use it like:  mediaFiles: z.optional(co.list(AttachmentItem)),
 
-export const OnboardingProfile = co
-  .profile({
-    // TODO: make `name` optional and nickname required
-    name: z.string(),
-    nickname: z.optional(z.string()),
-    bio: z.optional(z.string()),
-    avatar: z.optional(z.string()),
-    socialLinks: z.optional(SocialLinks),
-    projects: z.optional(ListOfProjects),
-    workExp: z.optional(ListOfWorkExp),
-    writing: z.optional(ListOfWriting),
-    education: z.optional(ListOfEducation),
-    certification: z.optional(ListOfCertification),
-    speaking: z.optional(ListOfSpeaking),
-    award: z.optional(ListOfAward),
-    volunteering: z.optional(ListOfVolunteering),
-    sideProject: z.optional(ListOfSideProject),
-    registrationKey: z.optional(RegistrationKey),
-  })
-  .withHelpers((Self) => ({
-    validate(profile: Loaded<typeof Self>): {
-      isValid: boolean;
-      message?: string;
-    } {
-      if (!profile.name || profile.name.trim() === "") {
-        return {
-          isValid: false,
-          message: "Name must be present and non-empty.",
-        };
-      }
-      return { isValid: true };
-    },
-  }));
+export const OnboardingProfile = co.profile({
+  // TODO: make `name` optional and nickname required
+  name: z.string(),
+  nickname: z.optional(z.string()),
+  bio: z.optional(z.string()),
+  avatar: z.optional(z.string()),
+  socialLinks: z.optional(SocialLinks),
+  projects: z.optional(ListOfProjects),
+  workExp: z.optional(ListOfWorkExp),
+  writing: z.optional(ListOfWriting),
+  education: z.optional(ListOfEducation),
+  certification: z.optional(ListOfCertification),
+  speaking: z.optional(ListOfSpeaking),
+  award: z.optional(ListOfAward),
+  volunteering: z.optional(ListOfVolunteering),
+  sideProject: z.optional(ListOfSideProject),
+  registrationKey: z.optional(RegistrationKey),
+});
+
+OnboardingProfile.withHelpers((Self) => ({
+  validate(profile: Loaded<typeof Self>): {
+    isValid: boolean;
+    message?: string;
+  } {
+    if (!profile.name || profile.name.trim() === "") {
+      return {
+        isValid: false,
+        message: "Name must be present and non-empty.",
+      };
+    }
+    return { isValid: true };
+  },
+}));
 
 export const Container = co.map({
   creationMessage: z.optional(z.string()),
