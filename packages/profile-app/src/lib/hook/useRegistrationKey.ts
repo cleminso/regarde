@@ -1,5 +1,6 @@
 import { co, Group, Loaded } from 'jazz-tools';
 import { useAccount } from 'jazz-tools/react';
+import { useCallback, useMemo } from 'react';
 
 import { WORKER_JAZZ_ID } from '../config/apiKey';
 import { OnboardingAccount, RegistrationKey } from '../schema';
@@ -67,38 +68,55 @@ export async function storeRegistrationKey(
 export function useRegistrationKey() {
   const { me: account } = useAccount<typeof OnboardingAccount>();
 
-  const getValidKey = async (): Promise<string | null> => {
+  // Memoize the current registration key - to prevents re-accessing nested properties on every render
+  const currentRegistrationKey = useMemo(
+    () => account?.profile?.registrationKey,
+    [account?.profile?.registrationKey],
+  );
+
+  // Memoize derived values into one memorized object
+  const keyInfo = useMemo(
+    () => ({
+      currentKey: currentRegistrationKey?.key,
+      keyExpiresAt: currentRegistrationKey?.expiresAt,
+      hasKey: Boolean(currentRegistrationKey?.key),
+      isAccountLoaded: Boolean(account?.profile),
+      isKeyExpired: currentRegistrationKey
+        ? isKeyExpired(currentRegistrationKey)
+        : true,
+    }),
+    [currentRegistrationKey, account?.profile],
+  );
+
+  // Memoize the getValidKey function - to prevents function recreation
+  const getValidKey = useCallback(async (): Promise<string | null> => {
     if (!account?.profile) {
       console.error('Account not loaded yet');
       return null;
     }
 
-    const currentKey = account.profile.registrationKey;
-
-    if (!currentKey || isKeyExpired(currentKey)) {
+    // Use the memoized registration key
+    if (!currentRegistrationKey || keyInfo.isKeyExpired) {
       console.log('Key missing or expired, generating new one...');
       return await storeRegistrationKey(
         account as Loaded<typeof OnboardingAccount>,
       );
     }
 
-    return currentKey.key;
-  };
+    return currentRegistrationKey.key;
+  }, [account, currentRegistrationKey, keyInfo.isKeyExpired]);
 
-  const currentKey = account?.profile?.registrationKey?.key;
-  const keyExpiresAt = account?.profile?.registrationKey?.expiresAt;
+  // Memoize the generateAndStore function
+  const generateAndStore = useCallback(async (): Promise<string | null> => {
+    if (!account?.profile) return null;
+    return await storeRegistrationKey(
+      account as Loaded<typeof OnboardingAccount>,
+    );
+  }, [account]);
 
   return {
     getValidKey,
-    currentKey,
-    keyExpiresAt,
-    hasKey: Boolean(currentKey),
-    isAccountLoaded: Boolean(account?.profile),
-    generateAndStore: async () => {
-      if (!account?.profile) return null;
-      return await storeRegistrationKey(
-        account as Loaded<typeof OnboardingAccount>,
-      );
-    },
+    generateAndStore,
+    ...keyInfo,
   };
 }

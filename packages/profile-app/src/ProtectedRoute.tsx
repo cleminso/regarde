@@ -19,7 +19,7 @@ export function ProtectedRoute() {
   const [actualNickname, setActualNickname] = useState<string>('');
 
   const { me } = useAccount(OnboardingAccount, {
-    resolve: false,
+    resolve: { profile: true },
   });
 
   if (!isAuthenticated) {
@@ -29,16 +29,26 @@ export function ProtectedRoute() {
   useEffect(() => {
     if (!me?.id || !nickname) return;
 
+    if (validationState === 'loading') return;
     setValidationState('loading');
 
     fetchUserDetailsWithValidation(me.id, nickname)
       .then((userDetails) => {
+        console.log('ProtectedRoute: Received user details', userDetails);
+
         if (
           userDetails.error ===
           'Provided nickname is not owned by the provided jazzAccountId'
         ) {
+          console.log(
+            'ProtectedRoute: Nickname ownership error, fetching account details',
+          );
           return fetchUserDetailsByAccountId(me.id)
             .then((accountDetails) => {
+              console.log(
+                'ProtectedRoute: Account details received',
+                accountDetails,
+              );
               if (
                 accountDetails.nickname &&
                 accountDetails.nickname !== nickname
@@ -72,9 +82,11 @@ export function ProtectedRoute() {
       })
       .catch((error) => {
         console.error('ProtectedRoute validation error:', error);
+        console.error('Error type:', error.constructor.name);
+        console.error('Error message:', error.message);
         setValidationState('error');
       });
-  }, [me?.id, nickname]);
+  }, [me?.id, nickname, validationState]);
 
   if (validationState === 'error') {
     return <Navigate to="/" replace />;
