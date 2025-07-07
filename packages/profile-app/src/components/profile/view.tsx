@@ -33,7 +33,6 @@ export function ProfileView() {
       profile: {
         socialLinks: true,
         projects: true,
-        sideProject: true,
         workExp: true,
         writing: true,
         education: true,
@@ -41,6 +40,7 @@ export function ProfileView() {
         speaking: true,
         award: true,
         volunteering: true,
+        sideProject: true,
       },
     },
   });
@@ -89,9 +89,7 @@ export function ProfileView() {
   return (
     <>
       {isLoading ? (
-        <div className="flex w-full justify-center items-center min-h-screen">
-          <p>Loading profile...</p>
-        </div>
+        <div className="flex w-full justify-center items-center min-h-screen"></div>
       ) : nicknameExists && profile ? (
         <main className="w-full">
           <ProfileHeader profile={profile} />

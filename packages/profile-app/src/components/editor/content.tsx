@@ -231,9 +231,7 @@ export function ProfileEditor() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-4 min-h-[600px]">
-        <div className="w-[840px] h-[600px] flex items-center justify-center p-6 border-0 shadow-none bg-card text-card-foreground rounded-xl">
-          <div>Loading profile...</div>
-        </div>
+        <div className="w-[840px] h-[600px] flex items-center justify-center p-6 border-0 shadow-none bg-card text-card-foreground rounded-xl"></div>
       </div>
     );
   }

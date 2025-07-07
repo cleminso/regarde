@@ -59,7 +59,7 @@ export function GeneralEdit({
         <div className="space-y-4">
           <section className="flex items-center gap-3">
             <AvatarUpload
-              avatar={profile.avatar}
+              profile={profile}
               fileInputRef={fileInputRef}
               onAvatarClick={handleAvatarClick}
               onFileChange={handleFileChange}
@@ -74,6 +74,7 @@ export function GeneralEdit({
             <NicknameInput
               value={nickname.nicknameValue}
               onChange={nickname.updateNicknameValue}
+              onBlurRestore={nickname.resetNicknameInput}
               profile={profile}
               isProcessing={isProcessing}
               onAction={update}

@@ -4,37 +4,43 @@ import { Link, Outlet } from 'react-router';
 import { AuthButton } from './AuthButton.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
 import { OnboardingAccount } from './lib/schema.ts';
+import { useLayout } from './pages/layoutContext.tsx';
 
 export function AppLayout() {
   const { me } = useAccount(OnboardingAccount);
   const isAuthenticated = useIsAuthenticated();
+  const { showHeader } = useLayout();
 
   return (
     <>
-      <header className="bg-background text-card-foreground shadow-lg">
-        <nav className="@container-normal flex justify-between items-center py-4 mx-16">
-          <div>
-            <Link to="/" className="text-xl font-sans mr-6">
-              profile.jazz.dev
-            </Link>
-          </div>
-          <div className="flex items-center gap-4">
-            {isAuthenticated ? (
-              <span>
-                {me?.profile?.name
-                  ? `Hello, ${me.profile.name}`
-                  : 'Logged In'}{' '}
-              </span>
-            ) : (
-              <span></span>
-            )}
-            <ThemeToggle />
-            <AuthButton />{' '}
-          </div>
-        </nav>
-      </header>
+      {showHeader && (
+        <header className="bg-background text-card-foreground shadow-lg">
+          <nav className="@container-normal flex justify-between items-center py-4 mx-16">
+            <div>
+              <Link to="/" className="text-xl font-sans mr-6">
+                profile.jazz.dev
+              </Link>
+            </div>
+            <div className="flex items-center gap-4">
+              {isAuthenticated ? (
+                <span>
+                  {me?.profile?.name
+                    ? `Hello, ${me.profile.name}`
+                    : 'Logged In'}{' '}
+                </span>
+              ) : (
+                <span></span>
+              )}
+              <ThemeToggle />
+              <AuthButton />{' '}
+            </div>
+          </nav>
+        </header>
+      )}
 
-      <main className="container-full py-6 bg-background">
+      <main
+        className={`container-full bg-background ${showHeader ? 'py-6' : ''}`}
+      >
         <Outlet />
       </main>
 

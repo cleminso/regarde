@@ -82,3 +82,37 @@ export const formatDateRange = (from?: string, to?: string): string => {
 
   return `${startYear} - ${endYear}`;
 };
+
+const AVATAR_COLORS = [
+  { bg: '#FEE2E2', text: '#BA1F1C' },
+  { bg: '#DBE9FC', text: '#2563EB' },
+  { bg: '#DDD6FE', text: '#7C3AED' },
+  { bg: '#FFEDD5', text: '#EA580C' },
+  { bg: '#BBF7D0', text: '#16A34A' },
+  { bg: '#FAE8FF', text: '#C026D3' },
+  { bg: '#E5E5E5', text: '#525252' },
+];
+
+export function generateDefaultAvatar(nickname: string): string {
+  if (!nickname) return '';
+
+  const initials = nickname.trim().toUpperCase().substring(0, 2);
+
+  let hash = 0;
+  for (let i = 0; i < nickname.length; i++) {
+    hash = nickname.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const colorSet = AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+
+  const size = 96;
+  const fontSize = size * 0.4;
+
+  const svgContent = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="${colorSet.bg}" />
+    <text x="${size / 2}" y="${size / 2}" font-family="system-ui, -apple-system, sans-serif" font-size="${fontSize}" font-weight="600" text-anchor="middle" dominant-baseline="central" fill="${colorSet.text}">
+      ${initials}
+    </text>
+  </svg>`;
+
+  return `data:image/svg+xml;base64,${btoa(svgContent)}`;
+}

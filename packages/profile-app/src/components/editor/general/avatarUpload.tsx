@@ -1,7 +1,11 @@
+import { Loaded } from 'jazz-tools';
 import React from 'react';
 
+import { ProfileAvatar } from '#/components/ui/avatar';
+import { OnboardingProfile } from '#/lib/schema';
+
 export type AvatarUploadProps = {
-  avatar: string | null | undefined;
+  profile: Loaded<typeof OnboardingProfile>;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   onAvatarClick: () => void;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -12,7 +16,7 @@ export type AvatarUploadProps = {
 };
 
 export function AvatarUpload({
-  avatar,
+  profile,
   fileInputRef,
   onAvatarClick,
   onFileChange,
@@ -45,20 +49,14 @@ export function AvatarUpload({
           }
           aria-label="Upload avatar"
         >
-          {avatar ? (
-            <img
-              src={avatar}
-              alt="Avatar Preview"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center p-2 text-xs">
-              <span>Upload</span>
-            </div>
-          )}
+          <ProfileAvatar
+            profile={profile}
+            size={96}
+            className="w-full h-full"
+          />
         </div>
       </div>
-      {avatar && (
+      {profile.avatar && (
         <div className="h-full flex flex-col justify-end">
           <button
             type="button"

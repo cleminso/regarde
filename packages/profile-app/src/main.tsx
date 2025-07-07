@@ -11,6 +11,7 @@ import { OnboardingAccount } from './lib/schema.ts';
 import { AppLayout } from './pages/appLayout.tsx';
 import { EditorPage } from './pages/edit.tsx';
 import { HomePage } from './pages/home.tsx';
+import { LayoutProvider } from './pages/layoutContext.tsx';
 import { ProfilePage } from './pages/profile.tsx';
 import { ProtectedRoute } from './ProtectedRoute.tsx';
 
@@ -51,19 +52,21 @@ createRoot(document.getElementById('root')!).render(
           afterSignOutUrl="/"
         >
           <JazzProvider>
-            <JazzInspector position="bottom left" />
-            <Routes>
-              <Route path="/" element={<HomePage />} />
+            <LayoutProvider>
+              <JazzInspector position="bottom left" />
+              <Routes>
+                <Route path="/" element={<HomePage />} />
 
-              <Route path="/:nickname" element={<AppLayout />}>
-                <Route index element={<ProfilePage />} />
-                <Route element={<ProtectedRoute />}>
-                  <Route path="edit" element={<EditorPage />} />
+                <Route path="/:nickname" element={<AppLayout />}>
+                  <Route index element={<ProfilePage />} />
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="edit" element={<EditorPage />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </LayoutProvider>
           </JazzProvider>
         </ClerkProvider>
       </BrowserRouter>

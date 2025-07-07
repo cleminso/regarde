@@ -14,6 +14,7 @@ interface NicknameInputProps {
   isProcessing?: boolean;
   disabled?: boolean;
   placeholder?: string;
+  onBlurRestore?: () => void;
 
   onAction?: (value: string) => void;
   actionText: string;
@@ -38,6 +39,7 @@ export function NicknameInput({
   isProcessing = false,
   disabled = false,
   placeholder = 'your_display_name',
+  onBlurRestore,
   onAction,
   actionText,
   onView,
@@ -65,6 +67,12 @@ export function NicknameInput({
     setTimeout(() => {
       input.setSelectionRange(input.value.length, input.value.length);
     }, 0);
+  };
+
+  const handleInputBlur = () => {
+    if (!value.trim() && onBlurRestore) {
+      onBlurRestore();
+    }
   };
 
   const renderButton = () => {
@@ -108,7 +116,7 @@ export function NicknameInput({
       }
 
       return (
-        <Button variant="outline" size="sm" disabled>
+        <Button variant="destructive" size="sm" disabled>
           Taken
         </Button>
       );
@@ -164,6 +172,7 @@ export function NicknameInput({
           value={value}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
+          onBlur={handleInputBlur}
           placeholder={placeholder}
           className="border-0 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1"
           disabled={disabled || isProcessing}
