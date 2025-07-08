@@ -18,7 +18,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "jazz-tools": "^0.15.4"
+    "jazz-tools": "^0.15.7"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

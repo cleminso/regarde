@@ -48,12 +48,12 @@ unsubscribe();
 
 ## [](https://jazz.tools/docs/react/using-covalues/subscription-and-loading#subscription-hooks)Subscription hooks
 
-### [](https://jazz.tools/docs/react/using-covalues/subscription-and-loading#undefined)`useCoState`
+### [](https://jazz.tools/docs/react/using-covalues/subscription-and-loading#usecostate)`useCoState`
 
 Jazz provides a `useCoState` hook that provides a convenient way to subscribe to CoValues and handle loading states:
 
 ```
-import { useCoState } from "jazz-react";
+import { useCoState } from "jazz-tools/react";
 
 function GardenPlanner({ projectId }: { projectId: string }) {
   // Subscribe to a project and its tasks
@@ -77,7 +77,7 @@ function GardenPlanner({ projectId }: { projectId: string }) {
   );
 }
 
-function TaskList({ tasks }: { tasks: Loaded<typeof Task>[] }) {
+function TaskList({ tasks }: { tasks: co.loaded<typeof Task>[] }) {
   return (
     <ul>
       {tasks.map((task) => (
@@ -93,14 +93,14 @@ function TaskList({ tasks }: { tasks: Loaded<typeof Task>[] }) {
 
 The `useCoState` hook handles subscribing when the component mounts and unsubscribing when it unmounts, making it easy to keep your UI in sync with the underlying data.
 
-### [](https://jazz.tools/docs/react/using-covalues/subscription-and-loading#undefined)`useAccount`
+### [](https://jazz.tools/docs/react/using-covalues/subscription-and-loading#useaccount)`useAccount`
 
 `useAccount` is used to access the current user's account. You can use this at the top-level of your app to subscribe to the current user's [account profile and root](https://jazz.tools/docs/react/schemas/accounts-and-migrations#covalues-as-a-graph-of-data-rooted-in-accounts).
 
 Like `useCoState`, you can specify a resolve query to also subscribe to CoValues referenced in the account profile or root.
 
 ```
-import { useAccount } from "jazz-react";
+import { useAccount } from "jazz-tools/react";
 
 function ProjectList() {
   const { me } = useAccount(MyAppAccount, {
@@ -133,7 +133,6 @@ function ProjectList() {
     </div>
   );
 }
-
 ```
 
 ## [](https://jazz.tools/docs/react/using-covalues/subscription-and-loading#loading-states-and-permission-checking)Loading States and Permission Checking
@@ -147,7 +146,7 @@ When subscribing to or loading a CoValue, you need to handle three possible stat
 This allows you to handle loading, error, and success states in your application:
 
 ```
-Task.subscribe(taskId, {}, (task: Loaded<typeof Task>) => {
+Task.subscribe(taskId, {}, (task: co.loaded<typeof Task>) => {
   if (task === undefined) {
     console.log("Task is loading...");
   } else if (task === null) {
@@ -355,6 +354,37 @@ console.log(friends?.[1]); // Person
 The `$onError` works as a "catch" clause option to block any error in the resolved children.
 
 ```
+const source = co.list(Person).create(
+  [
+    Person.create(
+      {
+        name: "Jane",
+        dog: Dog.create(
+          { name: "Rex" },
+          privateGroup,
+        ), // We don't have access to Rex
+      },
+      publicGroup,
+    ),
+  ],
+  publicGroup,
+);
+
+const friends = await co.list(Person).load(source.id, {
+  resolve: {
+    $each: { dog: true, $onError: null }
+  },
+  loadAs: me,
+});
+
+// Jane is null because we don't have access to Rex
+// and we have used $onError to catch the error on the list items
+console.log(friends?.[0]); // null
+```
+
+We can actually use `$onError` everywhere in the resolve query, so we can use it to catch the error on dog:
+
+```
 const friends = await co.list(Person).load(source.id, {
   resolve: {
     $each: { dog: { $onError: null } }
@@ -374,15 +404,15 @@ console.log(friends?.[0]); // => Person
 console.log(friends?.[0]?.dog); // => null
 ```
 
-## [](https://jazz.tools/docs/react/using-covalues/subscription-and-loading#type-safety-with-loaded-type)Type Safety with Loaded Type
+## [](https://jazz.tools/docs/react/using-covalues/subscription-and-loading#type-safety-with-coloaded-type)Type Safety with `co.loaded` Type
 
-Jazz provides the `Loaded` type to help you define and enforce the structure of deeply loaded data in your application. This makes it easier to ensure that components receive the data they expect with proper TypeScript validation.
+Jazz provides the `co.loaded` type to help you define and enforce the structure of deeply loaded data in your application. This makes it easier to ensure that components receive the data they expect with proper TypeScript validation.
 
-The `Loaded` type is especially useful when passing data between components, as it guarantees that all necessary nested data has been loaded:
+The `co.loaded` type is especially useful when passing data between components, as it guarantees that all necessary nested data has been loaded:
 
 ```
 // Define a type that includes loaded nested data
-type ProjectWithTasks = Loaded<
+type ProjectWithTasks = co.loaded<
   typeof Project,
   {
     tasks: { $each: true };
@@ -402,7 +432,7 @@ function TaskList({ project }: { project: ProjectWithTasks }) {
 }
 
 // For more complex resolutions
-type FullyLoadedProject = Loaded<
+type FullyLoadedProject = co.loaded<
   typeof Project,
   {
     tasks: {
@@ -427,7 +457,7 @@ function processProject(project: FullyLoadedProject) {
 }
 ```
 
-Using the `Loaded` type helps catch errors at compile time rather than runtime, ensuring that your components and functions receive data with the proper resolution depth. This is especially useful for larger applications where data is passed between many components.
+Using the `co.loaded` type helps catch errors at compile time rather than runtime, ensuring that your components and functions receive data with the proper resolution depth. This is especially useful for larger applications where data is passed between many components.
 
 ## [](https://jazz.tools/docs/react/using-covalues/subscription-and-loading#ensuring-data-is-loaded)Ensuring Data is Loaded
 
@@ -461,4 +491,4 @@ async function completeAllTasks(projectId: string) {
 2.  **Use framework integrations**: They handle subscription lifecycle automatically
 3.  **Clean up subscriptions**: Always store and call the unsubscribe function when you're done
 4.  **Handle all loading states**: Check for undefined (loading), null (not found), and success states
-5.  **Use the Loaded type**: Add compile-time type safety for components that require specific resolution patterns
+5.  **Use the `co.loaded` type**: Add compile-time type safety for components that require specific resolution patterns

@@ -21,7 +21,7 @@ export function useNicknameValidation({ profile }: UseNicknameValidationProps) {
 
   const isValidFormat = (nickname: string): boolean => {
     return (
-      nickname.length >= 1 &&
+      nickname.length >= 3 &&
       nickname.length <= 20 &&
       /^[a-zA-Z0-9_-]+$/.test(nickname)
     );
@@ -110,20 +110,61 @@ export function useNicknameRegistration() {
   const { getValidKey } = useRegistrationKey();
 
   const { me } = useAccount(OnboardingAccount, {
-    resolve: { profile: true, root: true },
+    resolve: {
+      profile: {
+        registrationKey: true,
+      },
+    },
   });
-
-  const profile: Loaded<typeof OnboardingProfile> | undefined = me?.profile;
-  const accountId = me?.id;
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pendingNickname, setPendingNickname] = useState<string>('');
   const [authAttempted, setAuthAttempted] = useState(false);
 
-  const validation = useNicknameValidation({
-    profile,
-  });
+  if (me === undefined) {
+    return {
+      status: 'empty' as const,
+      errorMessage: '',
+      checkAvailability: async () => {},
+      isProcessing: false,
+      error: null,
+      register: async () => {},
+      view: () => {},
+      clearError: () => {},
+    };
+  }
+
+  if (me === null) {
+    return {
+      status: 'empty' as const,
+      errorMessage: 'Account not accessible',
+      checkAvailability: async () => {},
+      isProcessing: false,
+      error: 'Account not accessible',
+      register: async () => {},
+      view: () => {},
+      clearError: () => {},
+    };
+  }
+
+  if (!me.profile) {
+    return {
+      status: 'empty' as const,
+      errorMessage: 'Profile not accessible',
+      checkAvailability: async () => {},
+      isProcessing: false,
+      error: 'Profile not accessible',
+      register: async () => {},
+      view: () => {},
+      clearError: () => {},
+    };
+  }
+
+  const profile = me.profile;
+  const accountId = me.id;
+
+  const validation = useNicknameValidation({ profile });
 
   useEffect(() => {
     if (
@@ -175,7 +216,6 @@ export function useNicknameRegistration() {
         setAuthAttempted(true);
         clerk.openSignIn({});
       } else if (accountId && profile) {
-        // Removed currentKey check
         await registerProfileNickname({
           accountId,
           profile,

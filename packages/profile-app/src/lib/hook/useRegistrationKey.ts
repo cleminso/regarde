@@ -66,7 +66,13 @@ export async function storeRegistrationKey(
 }
 
 export function useRegistrationKey() {
-  const { me: account } = useAccount<typeof OnboardingAccount>();
+  const { me: account } = useAccount(OnboardingAccount, {
+    resolve: {
+      profile: {
+        registrationKey: true,
+      },
+    },
+  });
 
   // Memoize the current registration key - to prevents re-accessing nested properties on every render
   const currentRegistrationKey = useMemo(

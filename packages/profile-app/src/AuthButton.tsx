@@ -10,7 +10,9 @@ import { useRegistrationKey } from './lib/hook/useRegistrationKey';
 import { OnboardingAccount } from './lib/schema';
 
 export function AuthButton() {
-  const { logOut } = useAccount(OnboardingAccount);
+  const { logOut } = useAccount(OnboardingAccount, {
+    resolve: { profile: true },
+  });
   const navigate = useNavigate();
   const isAuthenticated = useIsAuthenticated();
   const { getValidKey, isAccountLoaded } = useRegistrationKey();

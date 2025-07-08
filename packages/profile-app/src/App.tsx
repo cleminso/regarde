@@ -13,18 +13,20 @@ export function App() {
     resolve: { profile: true, root: true },
   });
 
-  const profile = me?.profile;
-
   const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isAuthenticated && profile?.nickname) {
+    if (me === undefined) return;
+
+    if (isAuthenticated && me?.profile?.nickname) {
       console.log(
-        `User "${profile.nickname}" is authenticated, navigating to edit page.`,
+        `User "${me.profile.nickname}" is authenticated, navigating to edit page.`,
       );
-      navigate(createNicknameUrl(profile.nickname, '/edit'), { replace: true });
-    } else if (isAuthenticated && !profile?.nickname) {
+      navigate(createNicknameUrl(me.profile.nickname, '/edit'), {
+        replace: true,
+      });
+    } else if (isAuthenticated && me && !me.profile?.nickname) {
       console.log(
         'User is authenticated but has no nickname, remaining on landing page.',
       );
@@ -32,7 +34,7 @@ export function App() {
         navigate('/', { replace: true });
       }
     }
-  }, [isAuthenticated, profile?.nickname, navigate]);
+  }, [isAuthenticated, me, navigate]);
 
   return (
     <>
@@ -51,10 +53,12 @@ export function App() {
       </header>
 
       <main className="container mt-16 flex flex-col items-center text-center gap-6 py-12">
-        {(!isAuthenticated || (isAuthenticated && !profile?.nickname)) && (
+        {me === undefined && <div>Loading account...</div>}
+        {me === null && <div>Account not accessible</div>}
+        {me && (!isAuthenticated || !me.profile?.nickname) && (
           <LandingNicknameForm />
         )}
-        {isAuthenticated && profile?.nickname && (
+        {isAuthenticated && me?.profile?.nickname && (
           <div>Redirecting to your profile editor...</div>
         )}
       </main>

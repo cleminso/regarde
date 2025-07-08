@@ -31,7 +31,7 @@
     "@onboarding.jazz/shared-schemas": "workspace:*",
     "dotenv": "^16.6.1",
     "hono": "^4.8.3",
-    "jazz-tools": "^0.15.4",
+    "jazz-tools": "^0.15.7",
     "zod": "^3.25.71"
   },
   "devDependencies": {

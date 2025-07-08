@@ -5,15 +5,28 @@ import { useSyncState } from './useSyncState';
 
 export function useEditProfile() {
   const { me } = useAccount(OnboardingAccount, {
-    resolve: { profile: { socialLinks: true } },
+    resolve: {
+      profile: {
+        socialLinks: true,
+        projects: true,
+        workExp: true,
+        writing: true,
+        education: true,
+        certification: true,
+        speaking: true,
+        award: true,
+        volunteering: true,
+        sideProject: true,
+        registrationKey: true,
+      },
+    },
   });
 
   const { syncState, triggerSyncIndicator } = useSyncState();
 
-  const profile = me?.profile;
-  const accountId = me?.id;
-
-  const isLoading = !me || !profile;
+  const isLoading = me === undefined;
+  const profile = me?.profile || null;
+  const accountId = me?.id || null;
 
   return {
     profile,

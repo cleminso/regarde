@@ -7,7 +7,9 @@ import { OnboardingAccount } from './lib/schema.ts';
 import { useLayout } from './pages/layoutContext.tsx';
 
 export function AppLayout() {
-  const { me } = useAccount(OnboardingAccount);
+  const { me } = useAccount(OnboardingAccount, {
+    resolve: { profile: true },
+  });
   const isAuthenticated = useIsAuthenticated();
   const { showHeader } = useLayout();
 
@@ -24,9 +26,11 @@ export function AppLayout() {
             <div className="flex items-center gap-4">
               {isAuthenticated ? (
                 <span>
-                  {me?.profile?.name
-                    ? `Hello, ${me.profile.name}`
-                    : 'Logged In'}{' '}
+                  {me === undefined
+                    ? 'Loading...'
+                    : me?.profile?.name
+                      ? `Hello, ${me.profile.name}`
+                      : 'Logged In'}
                 </span>
               ) : (
                 <span></span>
