@@ -71,11 +71,11 @@ function ProfileAvatar({
       {avatarSrc && (
         <AvatarImage
           src={avatarSrc}
-          alt={`${profile.name || profile.nickname}'s avatar`}
+          alt={`${profile.name || profile.onboarding}'s avatar`}
         />
       )}
       <AvatarFallback>
-        {profile.nickname?.substring(0, 2).toUpperCase() || 'NA'}
+        {profile?.onboarding?.nickname.substring(0, 2).toUpperCase() || 'NA'}
       </AvatarFallback>
     </Avatar>
   );

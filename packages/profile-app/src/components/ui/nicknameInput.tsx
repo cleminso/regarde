@@ -86,7 +86,7 @@ export function NicknameInput({
 
     if (!value) return null;
 
-    const isUnchanged = value === (profile?.nickname || '');
+    const isUnchanged = value === (profile?.onboarding || '');
 
     if (status === 'available') {
       if (isUnchanged) {

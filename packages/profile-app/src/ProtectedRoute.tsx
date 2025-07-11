@@ -9,7 +9,11 @@ export function ProtectedRoute() {
   const { nickname } = useParams();
 
   const { me } = useAccount(OnboardingAccount, {
-    resolve: { profile: true },
+    resolve: {
+      profile: {
+        onboarding: true,
+      },
+    },
   });
 
   if (!isAuthenticated) {
@@ -24,7 +28,7 @@ export function ProtectedRoute() {
     return <Navigate to="/" replace />;
   }
 
-  const profileNickname = me.profile.nickname;
+  const profileNickname = me.profile.onboarding?.nickname;
 
   if (!profileNickname) {
     return <Navigate to="/" replace />;

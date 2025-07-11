@@ -105,8 +105,8 @@ export function ProfileEditor() {
   const navigate = useNavigate();
 
   const handleCloseEditor = () => {
-    if (profile?.nickname) {
-      navigate(createNicknameUrl(profile.nickname));
+    if (profile?.onboarding?.nickname) {
+      navigate(createNicknameUrl(profile.onboarding.nickname));
     } else {
       navigate('/profile');
     }

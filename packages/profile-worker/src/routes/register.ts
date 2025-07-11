@@ -2,6 +2,11 @@ import { createRoute } from "@hono/zod-openapi";
 import { RegisterRequestSchema } from "../schemas/register.js";
 import { ErrorResponseSchema } from "../schemas/common.js";
 import { verifyRegistrationKey } from "../auth/verify.js";
+import { co } from "jazz-tools";
+import {
+  setNicknameFromRegistry,
+  deactivate,
+} from "@onboarding.jazz/shared-schemas/nickname";
 
 export const registerRoute = createRoute({
   method: "post",
@@ -107,6 +112,68 @@ export const registerRoute = createRoute({
   `,
 });
 
+// Helper function to sync CoMap data with registry
+async function syncOnboardingNickname(
+  jazzAccountID: string,
+  nickname: string | null,
+  operation: "register" | "update" | "delete",
+): Promise<void> {
+  try {
+    console.log(
+      `Syncing onboarding nickname for AccountID "${jazzAccountID}", operation: ${operation}`,
+    );
+
+    // Load the user's account
+    const userAccount = await co.account().load(jazzAccountID);
+    if (!userAccount) {
+      console.warn(
+        `Could not load account ${jazzAccountID} for onboarding nickname sync`,
+      );
+      return;
+    }
+
+    // Load the user's profile
+    const loadedAccount = await userAccount.ensureLoaded({
+      resolve: {
+        profile: {},
+      },
+    });
+
+    if (!loadedAccount?.profile) {
+      console.warn(`No profile found for account ${jazzAccountID}`);
+      return;
+    }
+
+    // Access the onboarding nickname directly
+    const profile = loadedAccount.profile as any;
+    const onboardingNickname = profile.onboarding;
+
+    if (!onboardingNickname) {
+      console.warn(`No onboarding nickname found for account ${jazzAccountID}`);
+      return;
+    }
+
+    // Sync the CoMap data based on operation using imported functions
+    if (operation === "delete") {
+      deactivate(onboardingNickname);
+      console.log(
+        `Onboarding nickname deactivated for AccountID "${jazzAccountID}"`,
+      );
+    } else if (nickname) {
+      setNicknameFromRegistry(onboardingNickname, nickname);
+      console.log(
+        `Onboarding nickname synced with registry for AccountID "${jazzAccountID}": "${nickname}"`,
+      );
+    }
+  } catch (error) {
+    console.error(
+      `Failed to sync onboarding nickname for AccountID "${jazzAccountID}":`,
+      error,
+    );
+    // Don't throw - registry operation already succeeded
+  }
+}
+
 export const registerHandler = (
   nicknameRegistry: any,
   reverseNicknameRegistry: any,
@@ -175,6 +242,10 @@ export const registerHandler = (
         console.log(
           `Nickname "${oldNickname}" and reverse entry for AccountID "${jazzAccountID}" deleted.`,
         );
+
+        // Sync onboarding nickname after deletion
+        await syncOnboardingNickname(jazzAccountID, null, "delete");
+
         return c.body(null, 204);
       }
 
@@ -206,6 +277,10 @@ export const registerHandler = (
           console.log(
             `Swap request where oldNickname "${oldNickname}" is same as new nickname "${nickname}" for AccountID "${jazzAccountID}". No-op.`,
           );
+
+          // Still sync to ensure CoMap is up to date
+          await syncOnboardingNickname(jazzAccountID, nickname, "update");
+
           return c.body(null, 204);
         }
 
@@ -230,6 +305,11 @@ export const registerHandler = (
       console.log(
         `Nickname "${nickname}" registered/swapped for AccountID: ${jazzAccountID}.`,
       );
+
+      // Sync onboarding nickname after successful registration/swap
+      const operation = oldNickname ? "update" : "register";
+      await syncOnboardingNickname(jazzAccountID, nickname, operation);
+
       return c.body(null, 204);
     } catch (error: any) {
       console.error(`Error processing /register request: ${error}`);

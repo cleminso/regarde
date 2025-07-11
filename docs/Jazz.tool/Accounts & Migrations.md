@@ -68,12 +68,12 @@ export const MyAppAccount = co.account({
 });
 ```
 
-## [](https://jazz.tools/docs/react/schemas/accounts-and-migrations#undefined)Resolving CoValues starting at `profile` or `root`
+## [](https://jazz.tools/docs/react/schemas/accounts-and-migrations#resolving-covalues-starting-at-profile-or-root)Resolving CoValues starting at `profile` or `root`
 
 To use per-user data in your app, you typically use `useAccount` somewhere in a high-level component, pass it your custom Account schema and specify which references to resolve using a resolve query (see [Subscribing & deep loading](https://jazz.tools/docs/react/using-covalues/subscription-and-loading)).
 
 ```
-import { useAccount } from "jazz-react";
+import { useAccount } from "jazz-tools/react";
 
 function DashboardPageComponent() {
   const { me } = useAccount(MyAppAccount, { resolve: {
@@ -100,7 +100,6 @@ function DashboardPageComponent() {
     </div>
   );
 }
-
 ```
 
 ## [](https://jazz.tools/docs/react/schemas/accounts-and-migrations#populating-and-evolving-root-and-profile-schemas-with-migrations)Populating and evolving `root` and `profile` schemas with migrations
@@ -137,7 +136,7 @@ export const MyAppAccount = co.account({
   if (account.profile === undefined) {
     const profileGroup = Group.create();
     // Unlike the root, we want the profile to be publicly readable.
-    profileGroup.addMember("everyone", "reader");
+    profileGroup.makePublic();
 
     account.profile = MyAppProfile.create({
       name: creationProps?.name ?? "New user",
@@ -147,7 +146,7 @@ export const MyAppAccount = co.account({
 });
 ```
 
-### [](https://jazz.tools/docs/react/schemas/accounts-and-migrations#undefined)Adding/changing fields to `root` and `profile`
+### [](https://jazz.tools/docs/react/schemas/accounts-and-migrations#addingchanging-fields-to-root-and-profile)Adding/changing fields to `root` and `profile`
 
 To add new fields to your `root` or `profile` schemas, amend their corresponding schema classes with new fields, and then implement a migration that will populate the new fields for existing users (by using initial data, or by using existing data from old fields).
 

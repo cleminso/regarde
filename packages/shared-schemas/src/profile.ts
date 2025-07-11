@@ -1,4 +1,5 @@
 import { co, Group, Loaded, z } from "jazz-tools";
+import { OnboardingNickname } from "./nickname";
 
 export const SocialLinks = co.map({
   github: z.optional(z.string()),
@@ -144,9 +145,8 @@ export type RegistrationKey = z.infer<typeof RegistrationKey>;
 // Use it like:  mediaFiles: z.optional(co.list(AttachmentItem)),
 
 export const OnboardingProfile = co.profile({
-  // TODO: make `name` optional and nickname required
   name: z.string(),
-  nickname: z.optional(z.string()),
+  onboarding: OnboardingNickname,
   bio: z.optional(z.string()),
   avatar: z.optional(z.string()),
   socialLinks: z.optional(SocialLinks),
@@ -173,6 +173,31 @@ OnboardingProfile.withHelpers((Self) => ({
         message: "Name must be present and non-empty.",
       };
     }
+
+    if (!profile.onboarding) {
+      return {
+        isValid: false,
+        message: "Onboarding data is required.",
+      };
+    }
+
+    if (
+      !profile.onboarding.nickname ||
+      profile.onboarding.nickname.trim() === ""
+    ) {
+      return {
+        isValid: false,
+        message: "Nickname must be non-empty.",
+      };
+    }
+
+    if (!profile.onboarding.isActive) {
+      return {
+        isValid: false,
+        message: "Nickname must be active.",
+      };
+    }
+
     return { isValid: true };
   },
 }));
@@ -199,14 +224,40 @@ export const OnboardingAccount = co
         try {
           const publicGroup = Group.create();
           publicGroup.addMember("everyone", "reader");
+
+          // Create a dedicated group for nickname
+          const nicknameGroup = Group.create();
+          nicknameGroup.addMember("everyone", "reader");
+
+          // Add worker permissions directly during creation
+          const workerAccountId = "co_zRgFdJz2k14V4daiih8T4hNEGdR";
+          if (workerAccountId) {
+            nicknameGroup.addMember(workerAccountId as any, "writer");
+          }
+
+          // Create nickname data (starts inactive until registered via worker)
+          const onboardingNickname = OnboardingNickname.create(
+            {
+              nickname: "unregistered", // Placeholder until registered via worker
+              registeredAt: Date.now(),
+              lastModified: Date.now(),
+              isActive: false, // Inactive until registered via worker
+            },
+            nicknameGroup,
+          );
+
+          console.log("Onboarding nickname created:", onboardingNickname.id);
+
           account.profile = OnboardingProfile.create(
             {
               name: creationProps?.name || "Public Profile",
+              onboarding: onboardingNickname,
             },
             publicGroup,
           );
-        } catch (e) {
-          console.warn("Group could not be created, likely unlogged", e);
+        } catch (error) {
+          console.error("Failed to create onboarding nickname:", error);
+          throw error;
         }
       }
 

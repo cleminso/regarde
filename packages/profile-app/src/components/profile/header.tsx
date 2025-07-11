@@ -30,8 +30,8 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
   );
 
   const handleEditClick = () => {
-    if (profile.nickname) {
-      navigate(createNicknameUrl(profile.nickname, '/edit'));
+    if (profile.onboarding?.nickname) {
+      navigate(createNicknameUrl(profile.onboarding?.nickname, '/edit'));
     }
   };
 
@@ -45,7 +45,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font">{profile.name}</h2>
           <p className="text-sm text-foreground">
-            @{profile.nickname || 'nickname-not-set'}
+            @{profile.onboarding?.nickname || 'nickname-not-set'}
           </p>
         </div>
         {websiteHref && websiteDisplayName && (

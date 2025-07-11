@@ -19,14 +19,12 @@ export function App() {
   useEffect(() => {
     if (me === undefined) return;
 
-    if (isAuthenticated && me?.profile?.nickname) {
+    if (isAuthenticated && me?.profile?.onboarding?.nickname) {
       console.log(
-        `User "${me.profile.nickname}" is authenticated, navigating to edit page.`,
+        `User "${me.profile.onboarding.nickname}" is authenticated...`,
       );
-      navigate(createNicknameUrl(me.profile.nickname, '/edit'), {
-        replace: true,
-      });
-    } else if (isAuthenticated && me && !me.profile?.nickname) {
+      navigate(createNicknameUrl(me.profile.onboarding.nickname, '/edit'));
+    } else if (isAuthenticated && me && !me.profile?.onboarding?.nickname) {
       console.log(
         'User is authenticated but has no nickname, remaining on landing page.',
       );
@@ -41,8 +39,8 @@ export function App() {
       <header className="bg-background text-card-foreground">
         <nav className="@container-normal flex justify-between items-center py-4 mx-16">
           <div>
-            <Link to="/" className="text-lg font-sans mr-6">
-              profile.jazz.dev
+            <Link to="/" className="mr-6 rounded-sm">
+              <img src="/favicon.svg" alt="Jazz Profile" className="w-9 h-9" />
             </Link>
           </div>
           <div className="flex items-center gap-4">
@@ -55,10 +53,10 @@ export function App() {
       <main className="container mt-16 flex flex-col items-center text-center gap-6 py-12">
         {me === undefined && <div>Loading account...</div>}
         {me === null && <div>Account not accessible</div>}
-        {me && (!isAuthenticated || !me.profile?.nickname) && (
+        {me && (!isAuthenticated || !me.profile?.onboarding?.nickname) && (
           <LandingNicknameForm />
         )}
-        {isAuthenticated && me?.profile?.nickname && (
+        {isAuthenticated && me?.profile?.onboarding?.nickname && (
           <div>Redirecting to your profile editor...</div>
         )}
       </main>

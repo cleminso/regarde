@@ -8,7 +8,9 @@ export function useDefaultAvatar(profile: Loaded<typeof OnboardingProfile>) {
   return useMemo(() => {
     return (
       profile.avatar ||
-      (profile.nickname ? generateDefaultAvatar(profile.nickname) : null)
+      (profile.onboarding
+        ? generateDefaultAvatar(profile.onboarding.nickname)
+        : null)
     );
-  }, [profile.avatar, profile.nickname]);
+  }, [profile.avatar, profile.onboarding]);
 }

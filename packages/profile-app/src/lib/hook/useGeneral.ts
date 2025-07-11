@@ -23,7 +23,9 @@ export function useGeneral({
     profile,
   });
 
-  const [nicknameValue, setNicknameValue] = useState(profile.nickname || '');
+  const [nicknameValue, setNicknameValue] = useState(
+    profile.onboarding?.nickname || '',
+  );
   const [isRegistering, setIsRegistering] = useState(false);
 
   const handleAvatarClick = () => {
@@ -88,7 +90,7 @@ export function useGeneral({
   };
 
   const resetNicknameInput = () => {
-    setNicknameValue(profile.nickname || '');
+    setNicknameValue(profile.onboarding?.nickname || '');
   };
 
   const updateNickname = async () => {
@@ -98,7 +100,7 @@ export function useGeneral({
         accountId,
         profile,
         nickname: nicknameValue,
-        oldNickname: profile.nickname,
+        oldNickname: profile.onboarding?.nickname,
         getRegistrationKey: getValidKey,
       });
       triggerSyncIndicator();

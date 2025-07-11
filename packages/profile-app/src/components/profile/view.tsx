@@ -56,6 +56,7 @@ export function ProfileView() {
         award: true,
         volunteering: true,
         sideProject: true,
+        onboarding: true,
       },
     },
   });
@@ -67,7 +68,7 @@ export function ProfileView() {
       return;
     }
 
-    if (me?.profile?.nickname === nickname) {
+    if (me?.profile.onboarding?.nickname === nickname) {
       setOtherUserProfile(null);
       setIsLoading(false);
       return;
@@ -117,7 +118,7 @@ export function ProfileView() {
     );
   }
 
-  if (me?.profile?.nickname === nickname) {
+  if (me?.profile.onboarding?.nickname === nickname) {
     if (me === undefined) {
       return (
         <div className="flex w-full justify-center items-center min-h-screen">

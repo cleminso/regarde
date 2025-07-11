@@ -1,0 +1,40 @@
+{
+  "name": "@onboarding.jazz/admin",
+  "version": "0.1.0",
+  "description": "CLI tool for Jazz.tools nickname registry administration",
+  "main": "dist/cli.js",
+  "type": "module",
+  "bin": {
+    "jazz-admin": "dist/cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cleminso/onboarding.jazz.git",
+    "directory": "packages/admin"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build:schema": "pnpm --filter @onboarding.jazz/shared-schemas build",
+    "build": "pnpm clean && pnpm run build:schema && tsc",
+    "dev": "pnpm build:schema && bun --watch src/cli.ts",
+    "cli": "pnpm build:schema && bun src/cli.ts"
+  },
+  "keywords": [
+    "jazz",
+    "admin",
+    "cli",
+    "nickname-registry"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@alcyone-labs/arg-parser": "^1.2.0",
+    "@onboarding.jazz/shared-schemas": "workspace:*",
+    "dotenv": "^16.6.1",
+    "jazz-tools": "^0.15.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.6",
+    "typescript": "^5.8.3"
+  }
+}

@@ -41,7 +41,7 @@ export function useNicknameValidation({ profile }: UseNicknameValidationProps) {
         return;
       }
 
-      if (profile?.nickname === nickname) {
+      if (profile?.onboarding?.nickname === nickname) {
         setStatus('available');
         setErrorMessage('');
         return;
@@ -62,6 +62,29 @@ export function useNicknameValidation({ profile }: UseNicknameValidationProps) {
   return { status, errorMessage, checkAvailability };
 }
 
+function validateOnboardingStructure(
+  profile: Loaded<typeof OnboardingProfile>,
+): void {
+  if (!profile.onboarding) {
+    throw new Error(
+      'Profile onboarding structure not found. Please refresh and try again.',
+    );
+  }
+
+  if (!profile.onboarding._owner) {
+    throw new Error(
+      'Onboarding nickname group not properly configured. Please contact support.',
+    );
+  }
+
+  // Check if the onboarding structure is ready for operations
+  if (typeof profile.onboarding.nickname !== 'string') {
+    throw new Error(
+      'Onboarding nickname structure is invalid. Please refresh and try again.',
+    );
+  }
+}
+
 export async function registerProfileNickname({
   accountId,
   profile,
@@ -78,6 +101,9 @@ export async function registerProfileNickname({
   if (!accountId || !profile) {
     throw new Error('Authentication context missing for registration');
   }
+
+  // Validate onboarding structure before proceeding
+  validateOnboardingStructure(profile);
 
   const registrationKey = await getRegistrationKey();
   if (!registrationKey) {
@@ -100,7 +126,10 @@ export async function registerProfileNickname({
     getRegistrationKey,
   );
 
-  profile.nickname = nickname;
+  // Update the onboarding nickname after successful registration
+  if (profile.onboarding) {
+    profile.onboarding.nickname = nickname;
+  }
 }
 
 export function useNicknameRegistration() {
@@ -113,6 +142,7 @@ export function useNicknameRegistration() {
     resolve: {
       profile: {
         registrationKey: true,
+        onboarding: true,
       },
     },
   });
@@ -180,7 +210,7 @@ export function useNicknameRegistration() {
             accountId,
             profile,
             nickname: pendingNickname,
-            oldNickname: profile.nickname,
+            oldNickname: profile.onboarding?.nickname,
             getRegistrationKey: getValidKey,
           });
           navigate(createNicknameUrl(pendingNickname, '/edit'));
@@ -215,12 +245,12 @@ export function useNicknameRegistration() {
         setPendingNickname(nickname);
         setAuthAttempted(true);
         clerk.openSignIn({});
-      } else if (accountId && profile) {
+      } else if (accountId && profile && profile.onboarding) {
         await registerProfileNickname({
           accountId,
           profile,
           nickname,
-          oldNickname: profile.nickname,
+          oldNickname: profile.onboarding.nickname,
           getRegistrationKey: getValidKey,
         });
         navigate(createNicknameUrl(nickname, '/edit'));
@@ -276,7 +306,7 @@ export function useNicknameUpdate({
   const validation = useNicknameValidation({ profile });
 
   const update = async (nickname: string): Promise<void> => {
-    if (!nickname || nickname === profile.nickname) return;
+    if (!nickname || nickname === profile.onboarding?.nickname) return;
 
     setIsProcessing(true);
     setError(null);
@@ -286,7 +316,7 @@ export function useNicknameUpdate({
         accountId,
         profile,
         nickname,
-        oldNickname: profile.nickname,
+        oldNickname: profile.onboarding?.nickname || undefined,
         getRegistrationKey: getValidKey,
       });
       triggerSyncIndicator();

@@ -1,6 +1,6 @@
 Every CoValue has an owner, which can be a `Group` or an `Account`.
 
-You can use a `Group` to grant access to a CoValue to multiple users. These users can have different roles, such as "writer", "reader" or "admin".
+You can use a `Group` to grant access to a CoValue to **multiple users**. These users can have different roles, such as "writer", "reader" or "admin".
 
 ## [](https://jazz.tools/docs/react/groups/intro#creating-a-group)Creating a Group
 
@@ -21,22 +21,55 @@ You typically add members using [public sharing](https://jazz.tools/docs/react/g
 You can add group members by ID by using `Account.load` and `Group.addMember`.
 
 ```
-import { Group, Account } from "jazz-tools";
+import { Group, co } from "jazz-tools";
 
 const group = Group.create();
 
-const bob = await Account.load(bobsID, []);
-group.addMember(bob, "writer");
+const bob = await co.account().load(bobsID);
+
+if (bob) {
+  group.addMember(bob, "writer");
+}
 ```
 
-Note: if the account ID is of type `string`, because it comes from a URL parameter or something similar, you need to cast it to `ID<Account>` first:
+**Note:** if the account ID is of type `string`, because it comes from a URL parameter or something similar, you need to cast it to `ID<Account>` first:
 
 ```
-import { Group, Account, ID } from "jazz-tools";
+import { co, Group } from "jazz-tools";
 
-const bob = await Account.load(bobsID as ID<Account>, []);
-group.addMember(bob, "writer");
+const bob = await co.account().load(bobsID);
+
+if (bob) {
+  group.addMember(bob, "writer");
+}
 ```
+
+## [](https://jazz.tools/docs/react/groups/intro#changing-a-members-role)Changing a member's role
+
+To change a member's role, use the `addMember` method.
+
+```
+group.addMember(bob, "reader");
+```
+
+Bob just went from a writer to a reader.
+
+**Note:** only admins can change a member's role.
+
+## [](https://jazz.tools/docs/react/groups/intro#removing-a-member)Removing a member
+
+To remove a member, use the `removeMember` method.
+
+```
+group.removeMember(bob);
+```
+
+Rules:
+
+- All roles can remove themselves.
+- Only admins can remove other users.
+- An admin cannot remove other admins.
+- As an admin, you cannot remove yourself if you are the only admin in the Group, because there has to be at least one admin present.
 
 ## [](https://jazz.tools/docs/react/groups/intro#getting-the-group-of-an-existing-covalue)Getting the Group of an existing CoValue
 
@@ -50,7 +83,7 @@ const newValue = MyCoMap.create(
 );
 ```
 
-Because `._owner` can be an `Account` or a `Group`, in cases where you specifically need to use `Group` methods (such as for adding members or getting your own role), you can cast it to assert it to be a Group:
+Because `._owner` can be an `co.account` or a `Group`, in cases where you specifically need to use `Group` methods (such as for adding members or getting your own role), you can cast it to assert it to be a Group:
 
 ```
 import { Group } from "jazz-tools";
@@ -58,7 +91,7 @@ import { Group } from "jazz-tools";
 const group = existingCoValue._owner.castAs(Group);
 group.addMember(bob, "writer");
 
-const role = group.getRoleOf(bob);
+const role = group.getRoleOf(bob.id);
 ```
 
 ## [](https://jazz.tools/docs/react/groups/intro#checking-the-permissions)Checking the permissions
@@ -66,8 +99,8 @@ const role = group.getRoleOf(bob);
 You can check the permissions of an account on a CoValue by using the `canRead`, `canWrite` and `canAdmin` methods.
 
 ```
-const value = await MyCoMap.load(valueID, {});
-const me = Account.getMe();
+const value = await MyCoMap.create({ color: "red"})
+const me = await co.account().getMe();
 
 if (me.canAdmin(value)) {
   console.log("I can share value with others");
@@ -83,16 +116,18 @@ if (me.canAdmin(value)) {
 To check the permissions of another account, you need to load it first:
 
 ```
-const value = await MyCoMap.load(valueID, {});
-const bob = await Account.load(accountID, []);
+const value = await MyCoMap.create({ color: "red"})
+const bob = await co.account().load(accountID);
 
-if (bob.canAdmin(value)) {
-  console.log("Bob can share value with others");
-} else if (bob.canWrite(value)) {
-  console.log("Bob can edit value");
-} else if (bob.canRead(value)) {
-  console.log("Bob can view value");
-} else {
-  console.log("Bob cannot access value");
+if (bob) {
+  if (bob.canAdmin(value)) {
+    console.log("Bob can share value with others");
+  } else if (bob.canWrite(value)) {
+    console.log("Bob can edit value");
+  } else if (bob.canRead(value)) {
+    console.log("Bob can view value");
+  } else {
+    console.log("Bob cannot access value");
+  }
 }
 ```

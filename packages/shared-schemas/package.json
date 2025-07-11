@@ -32,7 +32,8 @@
       "default": "./dist/index.js"
     },
     "./profile": "./dist/profile.js",
-    "./registry": "./dist/registry.js"
+    "./registry": "./dist/registry.js",
+    "./nickname": "./dist/nickname.js"
   },
   "files": [
     "dist"
