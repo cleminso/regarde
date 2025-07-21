@@ -1,4 +1,4 @@
-import { co, Group, Loaded, z } from "jazz-tools";
+import { Account, co, Group, Loaded, z } from "jazz-tools";
 import { OnboardingNickname } from "./nickname";
 
 export const SocialLinks = co.map({
@@ -216,11 +216,14 @@ export const OnboardingAccount = co
     root: AccountRoot,
   })
   .withMigration(
-    (
+    async (
       account: Loaded<typeof OnboardingAccount>,
       creationProps?: { name: string },
     ) => {
-      if (account.profile === undefined) {
+      if (
+        account.profile === undefined ||
+        account.profile?.onboarding === undefined
+      ) {
         try {
           const publicGroup = Group.create();
           publicGroup.addMember("everyone", "reader");
@@ -231,9 +234,11 @@ export const OnboardingAccount = co
 
           // Add worker permissions directly during creation
           const workerAccountId = "co_zRgFdJz2k14V4daiih8T4hNEGdR";
-          if (workerAccountId) {
-            nicknameGroup.addMember(workerAccountId as any, "writer");
-          }
+          const workerAccount = await Account.load(workerAccountId);
+
+          if (!workerAccount) return;
+
+          nicknameGroup.addMember(workerAccount, "writer");
 
           // Create nickname data (starts inactive until registered via worker)
           const onboardingNickname = OnboardingNickname.create(

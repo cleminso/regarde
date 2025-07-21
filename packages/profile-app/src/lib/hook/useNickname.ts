@@ -138,6 +138,18 @@ export function useNicknameRegistration() {
   const clerk = useClerk();
   const { getValidKey } = useRegistrationKey();
 
+  if (!isAuthenticated)
+    return {
+      status: 'empty' as const,
+      errorMessage: '',
+      checkAvailability: async () => {},
+      isProcessing: false,
+      error: null,
+      register: async () => {},
+      view: () => {},
+      clearError: () => {},
+    };
+
   const { me } = useAccount(OnboardingAccount, {
     resolve: {
       profile: {
@@ -152,26 +164,13 @@ export function useNicknameRegistration() {
   const [pendingNickname, setPendingNickname] = useState<string>('');
   const [authAttempted, setAuthAttempted] = useState(false);
 
-  if (me === undefined) {
+  if (!me) {
     return {
       status: 'empty' as const,
       errorMessage: '',
       checkAvailability: async () => {},
       isProcessing: false,
       error: null,
-      register: async () => {},
-      view: () => {},
-      clearError: () => {},
-    };
-  }
-
-  if (me === null) {
-    return {
-      status: 'empty' as const,
-      errorMessage: 'Account not accessible',
-      checkAvailability: async () => {},
-      isProcessing: false,
-      error: 'Account not accessible',
       register: async () => {},
       view: () => {},
       clearError: () => {},
