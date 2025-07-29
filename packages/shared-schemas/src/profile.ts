@@ -225,47 +225,58 @@ export const OnboardingAccount = co
         account.profile?.onboarding === undefined
       ) {
         try {
-          const publicGroup = Group.create();
+          // ✅ Create groups with proper owner
+          const publicGroup = Group.create({ owner: account });
           publicGroup.addMember("everyone", "reader");
 
-          // Create a dedicated group for nickname
-          const nicknameGroup = Group.create();
+          const nicknameGroup = Group.create({ owner: account });
           nicknameGroup.addMember("everyone", "reader");
 
-          // Add worker permissions directly during creation
+          // Add worker permissions
           const workerAccountId = "co_zRgFdJz2k14V4daiih8T4hNEGdR";
-          const workerAccount = await Account.load(workerAccountId);
+          try {
+            const workerAccount = await Account.load(workerAccountId);
+            if (workerAccount) {
+              nicknameGroup.addMember(workerAccount, "writer");
+              console.log("Worker permissions added to nickname group");
+            } else {
+              console.warn("Worker account not available during migration");
+            }
+          } catch (error) {
+            console.warn("Failed to add worker permissions:", error);
+            // Continue without worker permissions - can be added later
+          }
 
-          if (!workerAccount) return;
-
-          nicknameGroup.addMember(workerAccount, "writer");
-
-          // Create nickname data (starts inactive until registered via worker)
+          // ✅ Create nickname with empty value (not placeholder)
           const onboardingNickname = OnboardingNickname.create(
             {
-              nickname: "unregistered", // Placeholder until registered via worker
+              nickname: "", // Start empty
               registeredAt: Date.now(),
               lastModified: Date.now(),
-              isActive: false, // Inactive until registered via worker
+              isActive: false,
             },
-            nicknameGroup,
+            { owner: nicknameGroup }, // Explicit owner
           );
 
           console.log("Onboarding nickname created:", onboardingNickname.id);
 
+          // ✅ Create profile with explicit owner
           account.profile = OnboardingProfile.create(
             {
               name: creationProps?.name || "Public Profile",
               onboarding: onboardingNickname,
             },
-            publicGroup,
+            { owner: publicGroup }, // Explicit owner
           );
+
+          console.log("Profile created successfully");
         } catch (error) {
-          console.error("Failed to create onboarding nickname:", error);
+          console.error("Failed to create profile structures:", error);
           throw error;
         }
       }
 
+      // Root creation remains the same...
       if (account.root === undefined) {
         try {
           const containerMessage = creationProps?.name

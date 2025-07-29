@@ -6167,7 +6167,7 @@ console.log(highestRes?.res); // 800x450
 
 # Connecting CoValues with direct linking
 CoValues can form relationships with each other by **linking directly to other CoValues**. This creates a powerful connection where one CoValue can point to the unique identity of another.
-Instead of embedding all of the details of one coValue directly within another, you use its Jazz-Tools schema as the field type. This allows multiple CoValues to point to the same piece of data effortlessly.
+Instead of embedding all the details of one CoValue directly within another, you use its Jazz-Tools schema as the field type. This allows multiple CoValues to point to the same piece of data effortlessly.
 
 <CodeGroup>
 ```ts twoslash
@@ -6213,13 +6213,64 @@ This direct linking approach offers a single source of truth. When you update a 
 
 By connecting CoValues through these direct references, you can build robust and collaborative applications where data is consistent, efficient to manage, and relationships are clearly defined. The ability to link different CoValue types to the same underlying data is fundamental to building complex applications with Jazz.
 
+## Recursive references with DiscriminatedUnion
+
+In advanced schemas, you may want a CoValue that recursively references itself. For example, a `ReferenceItem` that contains a list of other items like `NoteItem` or `AttachmentItem`. This is common in tree-like structures such as threaded comments or nested project outlines.
+
+You can model this with a Zod `z.discriminatedUnion`, but TypeScript’s type inference doesn't handle recursive unions well without a workaround.
+
+Here’s how to structure your schema to avoid circular reference errors.
+
+### Use this pattern for recursive discriminated unions
+
+<CodeGroup>
+```ts twoslash
+
+// Recursive item modeling pattern using discriminated unions
+// First, define the non-recursive types
+export const NoteItem = co.map({
+type: z.literal("note"),
+internal: z.boolean(),
+content: co.plainText(),
+});
+
+export const AttachmentItem = co.map({
+type: z.literal("attachment"),
+internal: z.boolean(),
+content: co.fileStream(),
+});
+
+export const ReferenceItem = co.map({
+type: z.literal("reference"),
+internal: z.boolean(),
+content: z.string(),
+
+// Workaround: declare the field type using CoListSchema and ZodDiscriminatedUnion so TS can safely recurse
+get children(): CoListSchema<z.ZodDiscriminatedUnion<[typeof NoteItem, typeof AttachmentItem, typeof ReferenceItem]>> {
+return ProjectContextItemList;
+},
+});
+
+// Create the recursive union
+export const ProjectContextItem = z.discriminatedUnion("type", [NoteItem, AttachmentItem, ReferenceItem]);
+
+// Final list of recursive types
+export const ProjectContextItemList = co.list(ProjectContextItem);
+
+````
+</CodeGroup>
+
+Even though this seems like a shortcut, TypeScript and Zod can't resolve the circular reference this way. Always define the discriminated union before introducing recursive links.
+
+
+
 #### Subscriptions & Deep Loading
 
 # Subscriptions & Deep Loading
 
 Jazz's Collaborative Values (such as [CoMaps](/docs/using-covalues/comaps) or [CoLists](/docs/using-covalues/colists)) work like reactive state. By subscribing to them, you can react to both local and remote updates. This is the main way to consume data in your application.
 
-Subscriptions also take care of loading CoValues that are not yet loaded locally and can do so _deeply_ &mdash; by resolving nested CoValues. To make use of this, we'll show you how to specify the depth of data you need with resolve queries.
+Subscriptions also take care of loading CoValues that are not yet loaded locally and can do so *deeply* &mdash; by resolving nested CoValues. To make use of this, we'll show you how to specify the depth of data you need with resolve queries.
 
 With each update you can also handle loading states and inaccessible CoValues.
 
@@ -6232,7 +6283,7 @@ If you're using React in your project, check out our [React hooks](/docs/react/u
 </ContentByFramework>
 
 <ContentByFramework framework={["react", "react-native"]}>
-**Note:** Unless you're using vanilla JavaScript, this is only used outside of React components - for example in server-side code or in tests. See the section below for convenient subscription _hooks_ that you typically use in React.
+**Note:** Unless you're using vanilla JavaScript, this is only used outside of React components - for example in server-side code or in tests. See the section below for convenient subscription *hooks* that you typically use in React.
 </ContentByFramework>
 
 <CodeGroup>
@@ -6250,14 +6301,14 @@ const Task = co.map({
 
 // Subscribe to a Task by ID
 const unsubscribe = Task.subscribe(taskId, {}, (updatedTask) => {
-console.log("Task updated:", updatedTask.title);
-console.log("New status:", updatedTask.status);
+  console.log("Task updated:", updatedTask.title);
+  console.log("New status:", updatedTask.status);
 });
 
 // Clean up when you're done
 unsubscribe();
-
 ````
+
 </CodeGroup>
 
 If you already have a CoValue instance, you can subscribe to it by calling its `subscribe` method.
@@ -6266,30 +6317,29 @@ If you already have a CoValue instance, you can subscribe to it by calling its `
 ```ts twoslash
 
 const Task = co.map({
-  title: z.string(),
-  description: z.string(),
-  status: z.literal(["todo", "in-progress", "completed"]),
-  assignedTo: z.optional(z.string()),
+title: z.string(),
+description: z.string(),
+status: z.literal(["todo", "in-progress", "completed"]),
+assignedTo: z.optional(z.string()),
 });
 const otherProps = {} as any;
 // ---cut-before---
 const task = Task.create({
-  title: "Cut the grass",
-  ...otherProps
+title: "Cut the grass",
+...otherProps
 });
 
 const unsubscribe = task.subscribe((updatedTask) => {
-  console.log("Task updated:", updatedTask.title);
+console.log("Task updated:", updatedTask.title);
 });
 
 // Clean up when you're done
 unsubscribe();
-````
 
+````
 </CodeGroup>
 
 <ContentByFramework framework={["react", "react-native"]}>
-
 ## Subscription hooks
 
 ### `useCoState`
@@ -6300,51 +6350,51 @@ Jazz provides a `useCoState` hook that provides a convenient way to subscribe to
 ```tsx twoslash
 
 const Task = co.map({
-title: z.string(),
-status: z.literal(["todo", "in-progress", "completed"]),
+  title: z.string(),
+  status: z.literal(["todo", "in-progress", "completed"]),
 });
 const Project = co.map({
-name: z.string(),
-tasks: co.list(Task),
+  name: z.string(),
+  tasks: co.list(Task),
 });
 // ---cut-before---
 
 function GardenPlanner({ projectId }: { projectId: string }) {
-// Subscribe to a project and its tasks
-const project = useCoState(Project, projectId, {
-resolve: {
-tasks: { $each: true },
-},
-});
+  // Subscribe to a project and its tasks
+  const project = useCoState(Project, projectId, {
+    resolve: {
+      tasks: { $each: true },
+    },
+  });
 
-if (!project) {
-return project === null
-? "Project not found or not accessible"
-: "Loading project ...";
-}
+  if (!project) {
+    return project === null
+      ? "Project not found or not accessible"
+      : "Loading project ...";
+  }
 
-return (
-<div>
-<h1>{project.name}</h1>
-<TaskList tasks={project.tasks} />
-</div>
-);
+  return (
+    <div>
+      <h1>{project.name}</h1>
+      <TaskList tasks={project.tasks} />
+    </div>
+  );
 }
 
 function TaskList({ tasks }: { tasks: co.loaded<typeof Task>[] }) {
-return (
-<ul>
-{tasks.map((task) => (
-<li key={task.id}>
-<span>{task.title}</span>
-<span>{task.status}</span>
-</li>
-))}
-</ul>
-);
+  return (
+    <ul>
+      {tasks.map((task) => (
+        <li key={task.id}>
+          <span>{task.title}</span>
+          <span>{task.status}</span>
+        </li>
+      ))}
+    </ul>
+  );
 }
-
 ````
+
 </CodeGroup>
 
 The `useCoState` hook handles subscribing when the component mounts and unsubscribing when it unmounts, making it easy to keep your UI in sync with the underlying data.
@@ -6363,55 +6413,54 @@ const Task = co.map({
 });
 
 const Project = co.map({
-  name: z.string(),
-  tasks: co.list(Task),
+name: z.string(),
+tasks: co.list(Task),
 });
 
 const AccountRoot = co.map({
-  myProjects: co.list(Project),
+myProjects: co.list(Project),
 });
 
 const MyAppAccount = co.account({
-  root: AccountRoot,
-  profile: co.profile(),
+root: AccountRoot,
+profile: co.profile(),
 });
 
 // ---cut-before---
 
 function ProjectList() {
-  const { me } = useAccount(MyAppAccount, {
-    resolve: {
-      profile: true,
-      root: {
-        myProjects: {
-          $each: {
-            tasks: true,
-          },
-        },
-      },
-    },
-  });
+const { me } = useAccount(MyAppAccount, {
+resolve: {
+profile: true,
+root: {
+myProjects: {
+$each: {
+tasks: true,
+},
+},
+},
+},
+});
 
-  if (!me) {
-    return <div>Loading...</div>;
-  }
+if (!me) {
+return <div>Loading...</div>;
+}
 
-  return (
-    <div>
-      <h1>{me.profile.name}'s projects</h1>
-      <ul>
-        {me.root.myProjects.map((project) => (
-          <li key={project.id}>
-            {project.name} ({project.tasks.length} tasks)
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+return (
+<div>
+<h1>{me.profile.name}'s projects</h1>
+<ul>
+{me.root.myProjects.map((project) => (
+<li key={project.id}>
+{project.name} ({project.tasks.length} tasks)
+</li>
+))}
+</ul>
+</div>
+);
 }
 
 ````
-
 </CodeGroup>
 
 </ContentByFramework>
@@ -6435,16 +6484,16 @@ const Task = co.map({
 const taskId = "co_123";
 // ---cut-before---
 Task.subscribe(taskId, {}, (task: co.loaded<typeof Task>) => {
-if (task === undefined) {
-console.log("Task is loading...");
-} else if (task === null) {
-console.log("Task not found or not accessible");
-} else {
-console.log("Task loaded:", task.title);
-}
+  if (task === undefined) {
+    console.log("Task is loading...");
+  } else if (task === null) {
+    console.log("Task not found or not accessible");
+  } else {
+    console.log("Task loaded:", task.title);
+  }
 });
-
 ````
+
 </CodeGroup>
 
 ## Deep Loading
@@ -6461,19 +6510,19 @@ const projectId = "co_123";
 
 // ---cut-before---
 const TeamMember = co.map({
-  name: z.string(),
+name: z.string(),
 });
 
 const Task = co.map({
-  title: z.string(),
-  assignee: z.optional(TeamMember),
-  get subtasks(): CoListSchema<typeof Task> { return co.list(Task) },
+title: z.string(),
+assignee: z.optional(TeamMember),
+get subtasks(): CoListSchema<typeof Task> { return co.list(Task) },
 });
 
 const Project = co.map({
-  name: z.string(),
-  tasks: co.list(Task),
-  owner: TeamMember,
+name: z.string(),
+tasks: co.list(Task),
+owner: TeamMember,
 });
 
 // Load just the project, not its references
@@ -6487,9 +6536,9 @@ project.tasks;
 
 // Load the project and shallowly load its list of tasks
 const projectWithTasksShallow = await Project.load(projectId, {
-  resolve: {
-    tasks: true
-  }
+resolve: {
+tasks: true
+}
 });
 if (!projectWithTasksShallow) { throw new Error("Project or required references not found or not accessible"); }
 
@@ -6502,11 +6551,11 @@ projectWithTasksShallow.tasks[0];
 
 // Load the project and its tasks
 const projectWithTasks = await Project.load(projectId, {
-  resolve: {
-    tasks: {
-      $each: true
-    }
-  }
+resolve: {
+tasks: {
+$each: true
+}
+}
 });
 if (!projectWithTasks) { throw new Error("Project or required references not found or not accessible"); }
 
@@ -6521,28 +6570,28 @@ projectWithTasks.tasks[0].subtasks;
 
 // Load the project, its tasks, and their subtasks
 const projectDeep = await Project.load(projectId, {
-  resolve: {
-    tasks: {
-      $each: {
-        subtasks: {
-          $each: true
-        },
-        assignee: true
-      }
-    }
-  }
+resolve: {
+tasks: {
+$each: {
+subtasks: {
+$each: true
+},
+assignee: true
+}
+}
+}
 });
 if (!projectDeep) { throw new Error("Project or required references not found or not accessible"); }
 
 // string - primitive fields are always loaded
 projectDeep.tasks[0].subtasks[0].title;
 // undefined | null | TeamMember - since assignee is optional:
-//   TeamMember - set and definitely loaded
-//   null - set but unavailable/inaccessible
-//   undefined - not set, or loading (in case of subscription)
+// TeamMember - set and definitely loaded
+// null - set but unavailable/inaccessible
+// undefined - not set, or loading (in case of subscription)
 projectDeep.tasks[0].assignee;
-````
 
+````
 </CodeGroup>
 
 The resolve query defines which parts of the graph you want to load, making it intuitive to express complex loading patterns.
@@ -6559,6 +6608,45 @@ When a user tries to load a reference they don't have access to:
 ```ts twoslash
 
 const TeamMember = co.map({
+  name: z.string(),
+});
+
+const Task = co.map({
+  title: z.string(),
+  assignee: z.optional(TeamMember),
+  get subtasks(): CoListSchema<typeof Task> { return co.list(Task) },
+});
+
+const Project = co.map({
+  name: z.string(),
+  tasks: co.list(Task),
+  owner: TeamMember,
+});
+
+const taskId = "co_123";
+
+// ---cut-before---
+// If assignee is not accessible to the user:
+const task = await Task.load(taskId, {
+  resolve: { assignee: true }
+});
+
+task // => null
+````
+
+</CodeGroup>
+The load operation will fail and return `null` if any requested reference is inaccessible. This maintains data consistency by ensuring all requested references are available before returning the object.
+
+The behavior is the same for optional and required references.
+
+#### List References
+
+When a list contains references to items the user can't access:
+
+<CodeGroup>
+```ts twoslash
+
+const TeamMember = co.map({
 name: z.string(),
 });
 
@@ -6574,25 +6662,22 @@ tasks: co.list(Task),
 owner: TeamMember,
 });
 
-const taskId = "co_123";
-
+const projectId = "co_123";
 // ---cut-before---
-// If assignee is not accessible to the user:
-const task = await Task.load(taskId, {
-resolve: { assignee: true }
+// If any item in the list is not accessible:
+const project = await Project.load(projectId, {
+resolve: { tasks: { $each: true } }
 });
 
-task // => null
+project // => null
 
 ````
 </CodeGroup>
-The load operation will fail and return `null` if any requested reference is inaccessible. This maintains data consistency by ensuring all requested references are available before returning the object.
+If any item in a list is inaccessible to the user, the entire load operation will fail and return `null`. This is because lists expect all their items to be accessible - a partially loaded list could lead to data inconsistencies.
 
-The behavior is the same for optional and required references.
+#### Reading a non-resolved inaccessible reference
 
-#### List References
-
-When a list contains references to items the user can't access:
+When trying to load an object with an inaccessible reference without directly resolving it:
 
 <CodeGroup>
 ```ts twoslash
@@ -6615,56 +6700,19 @@ const Project = co.map({
 
 const projectId = "co_123";
 // ---cut-before---
-// If any item in the list is not accessible:
 const project = await Project.load(projectId, {
-  resolve: { tasks: { $each: true } }
-});
-
-project // => null
-````
-
-</CodeGroup>
-If any item in a list is inaccessible to the user, the entire load operation will fail and return `null`. This is because lists expect all their items to be accessible - a partially loaded list could lead to data inconsistencies.
-
-#### Reading a non-resolved inaccessible reference
-
-When trying to load an object with an inaccessible reference without directly resolving it:
-
-<CodeGroup>
-```ts twoslash
-
-const TeamMember = co.map({
-name: z.string(),
-});
-
-const Task = co.map({
-title: z.string(),
-assignee: z.optional(TeamMember),
-get subtasks(): CoListSchema<typeof Task> { return co.list(Task) },
-});
-
-const Project = co.map({
-name: z.string(),
-tasks: co.list(Task),
-owner: TeamMember,
-});
-
-const projectId = "co_123";
-// ---cut-before---
-const project = await Project.load(projectId, {
-resolve: true
+  resolve: true
 });
 
 project // => Project
 
 // The user doesn't have access to the owner
 project?.owner // => always null
-
 ````
+
 </CodeGroup>
 
 The load operation will succeed and return the object, but the inaccessible reference will always be `null`.
-
 
 #### Deep loading lists with shared items
 
@@ -6681,7 +6729,7 @@ const me = await createJazzTestAccount();
 const account2 = await createJazzTestAccount();
 
 const Person = co.map({
-  name: z.string(),
+name: z.string(),
 });
 
 const Friends = co.list(Person);
@@ -6691,28 +6739,28 @@ const publicGroup = Group.create({ owner: me });
 
 // ---cut-before---
 const source = co.list(Person).create(
-  [
-    Person.create(
-      {
-        name: "Jane",
-      },
-      privateGroup, // We don't have access to Jane
-    ),
-    Person.create(
-      {
-        name: "Alice",
-      },
-      publicGroup, // We have access to Alice
-    ),
-  ],
-  publicGroup,
+[
+Person.create(
+{
+name: "Jane",
+},
+privateGroup, // We don't have access to Jane
+),
+Person.create(
+{
+name: "Alice",
+},
+publicGroup, // We have access to Alice
+),
+],
+publicGroup,
 );
 
 const friends = await co.list(Person).load(source.id, {
-  resolve: {
-    $each: { $onError: null }
-  },
-  loadAs: me,
+resolve: {
+$each: { $onError: null }
+},
+loadAs: me,
 });
 
 // Thanks to $onError catching the errors, the list is loaded
@@ -6726,66 +6774,11 @@ console.log(friends?.[0]); // null
 // Alice is not null because we have access
 // the type is nullable because we have used $onError
 console.log(friends?.[1]); // Person
-````
 
+````
 </CodeGroup>
 
 The `$onError` works as a "catch" clause option to block any error in the resolved children.
-
-<CodeGroup>
-```ts twoslash
-const me = await createJazzTestAccount();
-const account2 = await createJazzTestAccount();
-
-const Dog = co.map({
-name: z.string(),
-});
-
-const Person = co.map({
-name: z.string(),
-dog: Dog,
-});
-
-const User = co.map({
-name: z.string(),
-friends: co.list(Person),
-});
-
-const privateGroup = Group.create({ owner: account2 });
-const publicGroup = Group.create({ owner: me });
-
-// ---cut-before---
-const source = co.list(Person).create(
-[
-Person.create(
-{
-name: "Jane",
-dog: Dog.create(
-{ name: "Rex" },
-privateGroup,
-), // We don't have access to Rex
-},
-publicGroup,
-),
-],
-publicGroup,
-);
-
-const friends = await co.list(Person).load(source.id, {
-resolve: {
-$each: { dog: true, $onError: null }
-},
-loadAs: me,
-});
-
-// Jane is null because we don't have access to Rex
-// and we have used $onError to catch the error on the list items
-console.log(friends?.[0]); // null
-
-````
-</CodeGroup>
-
-We can actually use `$onError` everywhere in the resolve query, so we can use it to catch the error on dog:
 
 <CodeGroup>
 ```ts twoslash
@@ -6810,6 +6803,7 @@ const User = co.map({
 const privateGroup = Group.create({ owner: account2 });
 const publicGroup = Group.create({ owner: me });
 
+// ---cut-before---
 const source = co.list(Person).create(
   [
     Person.create(
@@ -6826,12 +6820,66 @@ const source = co.list(Person).create(
   publicGroup,
 );
 
-// ---cut-before---
 const friends = await co.list(Person).load(source.id, {
   resolve: {
-    $each: { dog: { $onError: null } }
+    $each: { dog: true, $onError: null }
   },
   loadAs: me,
+});
+
+// Jane is null because we don't have access to Rex
+// and we have used $onError to catch the error on the list items
+console.log(friends?.[0]); // null
+````
+
+</CodeGroup>
+
+We can actually use `$onError` everywhere in the resolve query, so we can use it to catch the error on dog:
+
+<CodeGroup>
+```ts twoslash
+const me = await createJazzTestAccount();
+const account2 = await createJazzTestAccount();
+
+const Dog = co.map({
+name: z.string(),
+});
+
+const Person = co.map({
+name: z.string(),
+dog: Dog,
+});
+
+const User = co.map({
+name: z.string(),
+friends: co.list(Person),
+});
+
+const privateGroup = Group.create({ owner: account2 });
+const publicGroup = Group.create({ owner: me });
+
+const source = co.list(Person).create(
+[
+Person.create(
+{
+name: "Jane",
+dog: Dog.create(
+{ name: "Rex" },
+privateGroup,
+), // We don't have access to Rex
+},
+publicGroup,
+),
+],
+publicGroup,
+);
+
+// ---cut-before---
+const friends = await co.list(Person).load(source.id, {
+resolve: {
+$each: { dog: { $onError: null } }
+},
+loadAs: me,
 });
 
 // Jane now is not-nullable at type level because
@@ -6844,8 +6892,8 @@ console.log(friends?.[0]); // => Person
 // Jane's dog is null because we don't have access to Rex
 // and we have used $onError to catch the error
 console.log(friends?.[0]?.dog); // => null
-````
 
+````
 </CodeGroup>
 
 ## Type Safety with `co.loaded` Type
@@ -6857,6 +6905,79 @@ The `co.loaded` type is especially useful when passing data between components, 
 <ContentByFramework framework="react">
 <CodeGroup>
 ```tsx twoslash
+
+const TeamMember = co.map({
+  name: z.string(),
+});
+
+const Task = co.map({
+  title: z.string(),
+  assignee: z.optional(TeamMember),
+  get subtasks(): CoListSchema<typeof Task> {
+    return co.list(Task);
+  },
+});
+
+const Project = co.map({
+  name: z.string(),
+  tasks: co.list(Task),
+  owner: TeamMember,
+});
+
+// ---cut-before---
+// Define a type that includes loaded nested data
+type ProjectWithTasks = co.loaded<
+  typeof Project,
+  {
+    tasks: { $each: true };
+  }
+>;
+
+// Component that expects a fully loaded project
+function TaskList({ project }: { project: ProjectWithTasks }) {
+  // TypeScript knows tasks are loaded, so this is type-safe
+  return (
+    <ul>
+      {project.tasks.map((task) => (
+        <li key={task.id}>{task.title}</li>
+      ))}
+    </ul>
+  );
+}
+
+// For more complex resolutions
+type FullyLoadedProject = co.loaded<
+  typeof Project,
+  {
+    tasks: {
+      $each: {
+        subtasks: true;
+        assignee: true;
+      };
+    };
+    owner: true;
+  }
+>;
+
+// Function that requires deeply loaded data
+function processProject(project: FullyLoadedProject) {
+  // Safe access to all loaded properties
+  console.log(`Project ${project.name} owned by ${project.owner.name}`);
+
+  project.tasks.forEach((task) => {
+    console.log(`Task: ${task.title}, Assigned to: ${task.assignee?.name}`);
+    console.log(`Subtasks: ${task.subtasks.length}`);
+  });
+}
+
+````
+
+</CodeGroup>
+</ContentByFramework>
+
+<ContentByFramework framework="vanilla">
+<CodeGroup>
+```ts twoslash
 
 const TeamMember = co.map({
 name: z.string(),
@@ -6886,16 +7007,10 @@ tasks: { $each: true };
 
 > ;
 
-// Component that expects a fully loaded project
-function TaskList({ project }: { project: ProjectWithTasks }) {
+// Function that expects loaded data
+async function taskList({ project }: { project: ProjectWithTasks }) {
 // TypeScript knows tasks are loaded, so this is type-safe
-return (
-<ul>
-{project.tasks.map((task) => (
-<li key={task.id}>{task.title}</li>
-))}
-</ul>
-);
+return project.tasks.map((task) => task.title).join(`\n - `);
 }
 
 // For more complex resolutions
@@ -6904,6 +7019,7 @@ typeof Project,
 {
 tasks: {
 $each: {
+title: true;
 subtasks: true;
 assignee: true;
 };
@@ -6928,7 +7044,12 @@ console.log(`Subtasks: ${task.subtasks.length}`);
 </CodeGroup>
 </ContentByFramework>
 
-<ContentByFramework framework="vanilla">
+Using the `co.loaded` type helps catch errors at compile time rather than runtime, ensuring that your components and functions receive data with the proper resolution depth. This is especially useful for larger applications where data is passed between many components.
+
+## Ensuring Data is Loaded
+
+Sometimes you need to make sure data is loaded before proceeding with an operation. The `ensureLoaded` method lets you guarantee that a CoValue and its referenced data are loaded to a specific depth:
+
 <CodeGroup>
 ```ts twoslash
 
@@ -6938,7 +7059,8 @@ const TeamMember = co.map({
 
 const Task = co.map({
   title: z.string(),
-  assignee: z.optional(TeamMember),
+  status: z.literal(["todo", "in-progress", "completed"]),
+  assignee: z.string().optional(),
   get subtasks(): CoListSchema<typeof Task> {
     return co.list(Task);
   },
@@ -6951,103 +7073,28 @@ const Project = co.map({
 });
 
 // ---cut-before---
-// Define a type that includes loaded nested data
-type ProjectWithTasks = co.loaded<
-  typeof Project,
-  {
-    tasks: { $each: true };
-  }
->;
+async function completeAllTasks(projectId: string) {
+  // Ensure the project is loaded
+  const project = await Project.load(projectId, { resolve: true });
+  if (!project) return;
 
-// Function that expects loaded data
-async function taskList({ project }: { project: ProjectWithTasks }) {
-  // TypeScript knows tasks are loaded, so this is type-safe
-  return project.tasks.map((task) => task.title).join(`\n - `);
-}
+  // Ensure tasks are loaded
+  const loadedProject = await project.ensureLoaded({
+    resolve: {
+      tasks: {
+        $each: true,
+      },
+    },
+  });
 
-// For more complex resolutions
-type FullyLoadedProject = co.loaded<
-  typeof Project,
-  {
-    tasks: {
-      $each: {
-        title: true;
-        subtasks: true;
-        assignee: true;
-      };
-    };
-    owner: true;
-  }
->;
-
-// Function that requires deeply loaded data
-function processProject(project: FullyLoadedProject) {
-  // Safe access to all loaded properties
-  console.log(`Project ${project.name} owned by ${project.owner.name}`);
-
-  project.tasks.forEach((task) => {
-    console.log(`Task: ${task.title}, Assigned to: ${task.assignee?.name}`);
-    console.log(`Subtasks: ${task.subtasks.length}`);
+  // Now we can safely access and modify tasks
+  loadedProject.tasks.forEach((task) => {
+    task.status = "completed";
   });
 }
 ````
 
 </CodeGroup>
-</ContentByFramework>
-
-Using the `co.loaded` type helps catch errors at compile time rather than runtime, ensuring that your components and functions receive data with the proper resolution depth. This is especially useful for larger applications where data is passed between many components.
-
-## Ensuring Data is Loaded
-
-Sometimes you need to make sure data is loaded before proceeding with an operation. The `ensureLoaded` method lets you guarantee that a CoValue and its referenced data are loaded to a specific depth:
-
-<CodeGroup>
-```ts twoslash
-
-const TeamMember = co.map({
-name: z.string(),
-});
-
-const Task = co.map({
-title: z.string(),
-status: z.literal(["todo", "in-progress", "completed"]),
-assignee: z.string().optional(),
-get subtasks(): CoListSchema<typeof Task> {
-return co.list(Task);
-},
-});
-
-const Project = co.map({
-name: z.string(),
-tasks: co.list(Task),
-owner: TeamMember,
-});
-
-// ---cut-before---
-async function completeAllTasks(projectId: string) {
-// Ensure the project is loaded
-const project = await Project.load(projectId, { resolve: true });
-if (!project) return;
-
-// Ensure tasks are loaded
-const loadedProject = await project.ensureLoaded({
-resolve: {
-tasks: {
-$each: true,
-},
-},
-});
-
-// Now we can safely access and modify tasks
-loadedProject.tasks.forEach((task) => {
-task.status = "completed";
-});
-}
-
-````
-</CodeGroup>
-
-
 
 ## Best Practices
 
@@ -7056,8 +7103,6 @@ task.status = "completed";
 3. **Clean up subscriptions**: Always store and call the unsubscribe function when you're done
 4. **Handle all loading states**: Check for undefined (loading), null (not found), and success states
 5. **Use the `co.loaded` type**: Add compile-time type safety for components that require specific resolution patterns
-
-
 
 #### History
 
@@ -7069,7 +7114,6 @@ See the [version history example](https://github.com/garden-co/jazz/tree/main/ex
 
 Let's use the following schema to see how we can use the edit history.
 
-
 <CodeGroup>
   ```ts twoslash
 // ---cut---
@@ -7078,8 +7122,7 @@ const Task = co.map({
     status: z.literal(["todo", "in-progress", "completed"]),
 });
 export type Task = co.loaded<typeof Task>;
-````
-
+  ```
 </CodeGroup>
 
 ## The \_edits Property

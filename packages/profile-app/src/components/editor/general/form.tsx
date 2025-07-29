@@ -2,7 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useEffect } from 'react';
 
 import { useGeneral } from '#/lib/hook/useGeneral';
-import { useNicknameUpdate } from '../../../lib/hook/useNickname';
+import { useNicknameUpdate } from '../../../lib/nickname/useNicknameUpdate';
 import { OnboardingProfile } from '../../../lib/schema';
 import { Input, Label, Textarea } from '../../ui';
 import { NicknameInput } from '../../ui/nicknameInput';
@@ -92,7 +92,7 @@ export function GeneralEdit({
           </section>
 
           <section>
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">Display Name</Label>
             <Input
               type="text"
               id="name"

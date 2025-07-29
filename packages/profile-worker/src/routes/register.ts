@@ -2,11 +2,11 @@ import { createRoute } from "@hono/zod-openapi";
 import { RegisterRequestSchema } from "../schemas/register.js";
 import { ErrorResponseSchema } from "../schemas/common.js";
 import { verifyRegistrationKey } from "../auth/verify.js";
-import { co } from "jazz-tools";
 import {
   setNicknameFromRegistry,
   deactivate,
 } from "@onboarding.jazz/shared-schemas/nickname";
+import { OnboardingAccount } from "@onboarding.jazz/shared-schemas/profile";
 
 export const registerRoute = createRoute({
   method: "post",
@@ -112,7 +112,6 @@ export const registerRoute = createRoute({
   `,
 });
 
-// Helper function to sync CoMap data with registry
 async function syncOnboardingNickname(
   jazzAccountID: string,
   nickname: string | null,
@@ -124,7 +123,7 @@ async function syncOnboardingNickname(
     );
 
     // Load the user's account
-    const userAccount = await co.account().load(jazzAccountID);
+    const userAccount = await OnboardingAccount.load(jazzAccountID);
     if (!userAccount) {
       console.warn(
         `Could not load account ${jazzAccountID} for onboarding nickname sync`,
@@ -135,7 +134,9 @@ async function syncOnboardingNickname(
     // Load the user's profile
     const loadedAccount = await userAccount.ensureLoaded({
       resolve: {
-        profile: {},
+        profile: {
+          onboarding: true,
+        },
       },
     });
 
@@ -170,7 +171,6 @@ async function syncOnboardingNickname(
       `Failed to sync onboarding nickname for AccountID "${jazzAccountID}":`,
       error,
     );
-    // Don't throw - registry operation already succeeded
   }
 }
 

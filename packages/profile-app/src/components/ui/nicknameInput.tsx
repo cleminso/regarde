@@ -2,7 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { Loader2 } from 'lucide-react';
 import React, { useEffect } from 'react';
 
-import { useNicknameValidation } from '../../lib/hook/useNickname';
+import { useNicknameValidation } from '../../lib/nickname/useNicknameValidation';
 import { OnboardingProfile } from '../../lib/schema';
 import { normalizeNickname } from '../../lib/utils';
 import { Button, Input } from './../ui';
@@ -46,9 +46,22 @@ export function NicknameInput({
   errorDisplay = { position: 'below' },
   label,
 }: NicknameInputProps) {
-  const { status, errorMessage, checkAvailability } = useNicknameValidation({
-    profile,
-  });
+  const hasProfile = profile !== undefined;
+  const onboardingData = profile?.onboarding;
+
+  const onboardingStatus = !hasProfile
+    ? 'no-profile-needed'
+    : onboardingData === undefined
+      ? 'loading' // Authenticated but data loading
+      : onboardingData === null
+        ? 'inaccessible' // Data exists but not accessible
+        : 'available';
+
+  const currentNickname =
+    onboardingStatus === 'available' ? onboardingData?.nickname || '' : '';
+
+  const { status, errorMessage, checkAvailability } =
+    useNicknameValidation(currentNickname);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -86,7 +99,8 @@ export function NicknameInput({
 
     if (!value) return null;
 
-    const isUnchanged = value === (profile?.onboarding || '');
+    const isUnchanged =
+      onboardingStatus === 'available' && value === currentNickname;
 
     if (status === 'available') {
       if (isUnchanged) {
@@ -140,6 +154,22 @@ export function NicknameInput({
       );
     }
 
+    if (hasProfile && onboardingStatus === 'loading') {
+      return (
+        <small className="text-muted-foreground">
+          Loading nickname data...
+        </small>
+      );
+    }
+
+    if (hasProfile && onboardingStatus === 'inaccessible') {
+      return (
+        <small className="text-destructive">
+          Nickname data not accessible. Please refresh.
+        </small>
+      );
+    }
+
     if (!value && errorDisplay.showRequiredMessage) {
       return <small className="text-destructive">Nickname is required.</small>;
     }
@@ -151,6 +181,12 @@ export function NicknameInput({
     return null;
   };
 
+  const isInputDisabled =
+    disabled ||
+    isProcessing ||
+    (hasProfile && onboardingStatus === 'loading') ||
+    (hasProfile && onboardingStatus === 'inaccessible');
+
   return (
     <div className="space-y-3">
       {label && (
@@ -158,6 +194,9 @@ export function NicknameInput({
           <label className="text-sm font-sans block text-foreground">
             {label.text}
             {label.required && <sup>*</sup>}
+            {hasProfile && onboardingStatus === 'loading' && (
+              <Loader2 size={12} className="inline ml-1 animate-spin" />
+            )}
           </label>
           {errorDisplay.position === 'inline' && renderError()}
         </div>
@@ -173,9 +212,13 @@ export function NicknameInput({
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
-          placeholder={placeholder}
+          placeholder={
+            hasProfile && onboardingStatus === 'loading'
+              ? 'Loading...'
+              : placeholder
+          }
           className="border-0 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1"
-          disabled={disabled || isProcessing}
+          disabled={isInputDisabled}
         />
         <div className="flex items-center px-2 min-w-[100px] justify-end">
           {renderButton()}

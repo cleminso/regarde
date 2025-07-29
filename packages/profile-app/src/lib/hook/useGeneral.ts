@@ -1,9 +1,8 @@
 import { Loaded } from 'jazz-tools';
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 
+import { useNicknameUpdate } from '../nickname/useNicknameUpdate';
 import { OnboardingProfile } from '../schema';
-import { registerProfileNickname, useNicknameValidation } from './useNickname';
-import { useRegistrationKey } from './useRegistrationKey';
 
 type UseGeneralProps = {
   profile: Loaded<typeof OnboardingProfile>;
@@ -16,103 +15,176 @@ export function useGeneral({
   triggerSyncIndicator,
   accountId,
 }: UseGeneralProps) {
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const clearError = useCallback(() => setUpdateError(null), []);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { getValidKey } = useRegistrationKey();
 
-  const { status, errorMessage, checkAvailability } = useNicknameValidation({
-    profile,
-  });
-
-  const [nicknameValue, setNicknameValue] = useState(
-    profile.onboarding?.nickname || '',
-  );
-  const [isRegistering, setIsRegistering] = useState(false);
-
-  const handleAvatarClick = () => {
+  const handleAvatarClick = useCallback(() => {
     fileInputRef.current?.click();
-  };
+  }, []);
 
-  const processFile = (file: File | null | undefined) => {
-    if (file && file.type.startsWith('image/')) {
+  const processFile = useCallback(
+    (file: File | null | undefined) => {
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        setUpdateError('Please select an image file (e.g., PNG, JPG).');
+        return;
+      }
+
+      if (!profile) {
+        setUpdateError('Profile not available. Please refresh and try again.');
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
-        if (profile) profile.avatar = reader.result as string;
-        triggerSyncIndicator();
+        try {
+          profile.avatar = reader.result as string;
+          triggerSyncIndicator();
+          setUpdateError(null);
+        } catch (error) {
+          setUpdateError('Failed to update avatar. Please try again.');
+        }
+      };
+      reader.onerror = () => {
+        setUpdateError('Failed to read image file. Please try again.');
       };
       reader.readAsDataURL(file);
-    } else if (file) {
-      alert('Please select an image file (e.g., PNG, JPG).');
-    }
-  };
+    },
+    [profile, triggerSyncIndicator],
+  );
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    processFile(e.target.files?.[0]);
-    if (e.target) e.target.value = '';
-  };
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      processFile(e.target.files?.[0]);
+      if (e.target) e.target.value = '';
+    },
+    [processFile],
+  );
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      processFile(e.dataTransfer.files?.[0]);
+    },
+    [processFile],
+  );
+
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    processFile(e.dataTransfer.files?.[0]);
-  };
+  }, []);
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-  };
+  }, []);
 
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleRemoveAvatar = () => {
-    if (profile) profile.avatar = undefined;
-    triggerSyncIndicator();
-  };
-
-  const updateName = (name: string) => {
-    if (profile) {
-      profile.name = name;
-      triggerSyncIndicator();
+  const handleRemoveAvatar = useCallback(() => {
+    if (!profile) {
+      setUpdateError('Profile not available. Please refresh and try again.');
+      return;
     }
-  };
 
-  const updateBio = (bio: string) => {
-    if (profile) {
-      profile.bio = bio || undefined;
-      triggerSyncIndicator();
-    }
-  };
-
-  const updateNicknameValue = (value: string) => {
-    setNicknameValue(value);
-  };
-
-  const resetNicknameInput = () => {
-    setNicknameValue(profile.onboarding?.nickname || '');
-  };
-
-  const updateNickname = async () => {
-    setIsRegistering(true);
     try {
-      await registerProfileNickname({
-        accountId,
-        profile,
-        nickname: nicknameValue,
-        oldNickname: profile.onboarding?.nickname,
-        getRegistrationKey: getValidKey,
-      });
+      profile.avatar = undefined;
       triggerSyncIndicator();
+      setUpdateError(null);
     } catch (error) {
-      console.error('Failed to update nickname:', error);
-      throw error;
-    } finally {
-      setIsRegistering(false);
+      setUpdateError('Failed to remove avatar. Please try again.');
     }
-  };
+  }, [profile, triggerSyncIndicator]);
+
+  const updateName = useCallback(
+    async (name: string) => {
+      if (!profile) {
+        setUpdateError('Profile not available. Please refresh and try again.');
+        return;
+      }
+
+      if (!name.trim()) {
+        setUpdateError('Name cannot be empty.');
+        return;
+      }
+
+      setIsUpdating(true);
+      setUpdateError(null);
+
+      try {
+        profile.name = name.trim();
+        triggerSyncIndicator();
+      } catch (error) {
+        setUpdateError('Failed to update name. Please try again.');
+      } finally {
+        setIsUpdating(false);
+      }
+    },
+    [profile, triggerSyncIndicator],
+  );
+
+  const updateBio = useCallback(
+    async (bio: string) => {
+      if (!profile) {
+        setUpdateError('Profile not available. Please refresh and try again.');
+        return;
+      }
+
+      setIsUpdating(true);
+      setUpdateError(null);
+
+      try {
+        profile.bio = bio.trim() || undefined;
+        triggerSyncIndicator();
+      } catch (error) {
+        setUpdateError('Failed to update bio. Please try again.');
+      } finally {
+        setIsUpdating(false);
+      }
+    },
+    [profile, triggerSyncIndicator],
+  );
+
+  const nicknameHook = useNicknameUpdate({
+    profile,
+    accountId,
+    triggerSyncIndicator,
+  });
+
+  const currentNickname =
+    nicknameHook.onboardingStatus === 'available'
+      ? nicknameHook.currentNickname
+      : '';
+
+  const [nicknameValue, setNicknameValue] = useState(currentNickname);
+
+  React.useEffect(() => {
+    if (nicknameHook.onboardingStatus === 'available') {
+      setNicknameValue(nicknameHook.currentNickname);
+    }
+  }, [nicknameHook.currentNickname, nicknameHook.onboardingStatus]);
+
+  const updateNicknameValue = useCallback((value: string) => {
+    setNicknameValue(value);
+  }, []);
+
+  const resetNicknameInput = useCallback(() => {
+    setNicknameValue(currentNickname);
+  }, [currentNickname]);
+
+  const updateNickname = useCallback(async () => {
+    await nicknameHook.update(nicknameValue);
+  }, [nicknameHook.update, nicknameValue]);
 
   return {
+    isUpdating,
+    updateError,
+    clearError,
+
     fileInputRef,
     handleAvatarClick,
     handleFileChange,
@@ -120,17 +192,28 @@ export function useGeneral({
     handleDragOver,
     handleDragLeave,
     handleRemoveAvatar,
+
     updateName,
     updateBio,
+
     nickname: {
       nicknameValue,
       updateNicknameValue,
       resetNicknameInput,
-      checkAvailability,
       updateNickname,
-      status,
-      errorMessage,
-      isRegistering,
+
+      checkAvailability: nicknameHook.checkAvailability,
+      status: nicknameHook.status,
+      errorMessage: nicknameHook.errorMessage,
+      isProcessing: nicknameHook.isProcessing,
+      error: nicknameHook.error,
+      clearError: nicknameHook.clearError,
+
+      onboardingStatus: nicknameHook.onboardingStatus,
+      isOnboardingAvailable: nicknameHook.isOnboardingAvailable,
+      canUpdate: nicknameHook.canUpdate,
     },
+
+    canPerformUpdates: Boolean(profile) && !isUpdating,
   };
 }

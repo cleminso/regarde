@@ -88,5 +88,3 @@ export const RegistryWorkerAccount = co
       }
     }
   });
-
-export type RegistryWorkerAccountType = z.infer<typeof RegistryWorkerAccount>;

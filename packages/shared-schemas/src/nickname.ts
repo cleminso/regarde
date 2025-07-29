@@ -4,7 +4,7 @@ export const OnboardingNickname = co.map({
   nickname: z.string(),
   registeredAt: z.number(),
   lastModified: z.number(),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
 });
 
 export type OnboardingNickname = z.infer<typeof OnboardingNickname>;

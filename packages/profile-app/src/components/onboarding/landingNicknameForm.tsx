@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useNicknameRegistration } from '../../lib/hook/useNickname';
+import { useNicknameRegistration } from '../../lib/nickname/useNicknameRegistration';
 import { NicknameInput } from '../ui/nicknameInput';
 
 export function LandingNicknameForm() {
