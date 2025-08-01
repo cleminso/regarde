@@ -1,15 +1,12 @@
+// packages/profile-app/src/lib/account/useMyAccount.ts
 import { OnboardingAccount } from '@onboarding.jazz/shared-schemas';
 import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 
 export function useMyAccount() {
   const isAuthenticated = useIsAuthenticated();
   const { me } = useAccount(OnboardingAccount, {
-    resolve: {
-      profile: true,
-    },
+    resolve: { profile: true },
   });
-
-  const hasStableProfile = Boolean(me?.profile && me.profile.name);
 
   return {
     isAuthenticated,
@@ -18,20 +15,10 @@ export function useMyAccount() {
     accountId: me?.id,
     profileName: me?.profile?.name,
 
-    currentNickname: hasStableProfile
-      ? me?.profile?.onboarding?.nickname || ''
-      : '',
-    isNicknameActive: hasStableProfile
-      ? me?.profile?.onboarding?.isActive || false
-      : false,
+    // Simple account readiness - just profile existence
+    isAccountReady: Boolean(me?.profile),
 
-    registrationKey: hasStableProfile
-      ? me?.profile?.registrationKey
-      : undefined,
-
-    isAccountReady: Boolean(me?.profile), // Profile exist = account ready
-    hasStableProfile, // Added for components that need onboarding data
-
-    isOnboardingReady: hasStableProfile && Boolean(me?.profile?.onboarding),
+    // Helper for components that need basic profile validation
+    hasStableProfile: Boolean(me?.profile && me.profile.name),
   };
 }

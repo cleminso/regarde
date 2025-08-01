@@ -1,6 +1,8 @@
+// packages/profile-app/src/lib/nickname/useNicknameUpdate.ts
 import { Loaded } from 'jazz-tools';
 import { useCallback, useState } from 'react';
 
+import { useOnboardingData } from '../account/useOnboardingData';
 import { useRegistrationKey } from '../account/useRegistrationKey';
 import { OnboardingProfile } from '../schema';
 import { registerNicknameWithServer } from './services';
@@ -21,11 +23,9 @@ export function useNicknameUpdate({
   const [error, setError] = useState<string | null>(null);
   const { getValidKey } = useRegistrationKey();
 
-  const onboardingData = profile.onboarding;
-  const currentNickname = onboardingData?.nickname || '';
+  const { currentNickname } = useOnboardingData();
 
-  const isOnboardingAvailable =
-    onboardingData !== null && onboardingData !== undefined;
+  const onboardingData = profile.onboarding;
   const onboardingStatus =
     onboardingData === undefined
       ? 'loading'
@@ -44,6 +44,7 @@ export function useNicknameUpdate({
         return;
       }
 
+      // Skip if nickname unchanged
       if (!nickname || nickname === currentNickname) return;
 
       setIsProcessing(true);
@@ -83,9 +84,9 @@ export function useNicknameUpdate({
     update,
     clearError,
 
-    isOnboardingAvailable,
+    isOnboardingAvailable: onboardingStatus === 'available',
     onboardingStatus,
 
-    canUpdate: isOnboardingAvailable && !isProcessing,
+    canUpdate: onboardingStatus === 'available' && !isProcessing,
   };
 }

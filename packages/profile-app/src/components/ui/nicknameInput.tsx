@@ -1,11 +1,12 @@
 import { Loaded } from 'jazz-tools';
 import { Loader2 } from 'lucide-react';
-import React, { useEffect } from 'react';
+import React from 'react';
 
-import { useNicknameValidation } from '../../lib/nickname/useNicknameValidation';
-import { OnboardingProfile } from '../../lib/schema';
+import { OnboardingProfile } from '@onboarding.jazz/shared-schemas/profile';
 import { normalizeNickname } from '../../lib/utils';
 import { Button, Input } from './../ui';
+
+type ValidationStatus = 'empty' | 'invalid' | 'checking' | 'available' | 'taken';
 
 interface NicknameInputProps {
   value: string;
@@ -19,6 +20,11 @@ interface NicknameInputProps {
   onAction?: (value: string) => void;
   actionText: string;
   onView?: (value: string) => void;
+
+  // Simplified validation props
+  validationStatus?: ValidationStatus;
+  validationError?: string;
+  currentNickname?: string;
 
   errorDisplay?: {
     position: 'below' | 'inline';
@@ -43,32 +49,13 @@ export function NicknameInput({
   onAction,
   actionText,
   onView,
+  validationStatus = 'empty',
+  validationError = '',
+  currentNickname = '',
   errorDisplay = { position: 'below' },
   label,
 }: NicknameInputProps) {
   const hasProfile = profile !== undefined;
-  const onboardingData = profile?.onboarding;
-
-  const onboardingStatus = !hasProfile
-    ? 'no-profile-needed'
-    : onboardingData === undefined
-      ? 'loading' // Authenticated but data loading
-      : onboardingData === null
-        ? 'inaccessible' // Data exists but not accessible
-        : 'available';
-
-  const currentNickname =
-    onboardingStatus === 'available' ? onboardingData?.nickname || '' : '';
-
-  const { status, errorMessage, checkAvailability } =
-    useNicknameValidation(currentNickname);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      checkAvailability(value);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [value, checkAvailability]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const normalized = normalizeNickname(e.target.value);
@@ -89,6 +76,8 @@ export function NicknameInput({
   };
 
   const renderButton = () => {
+    console.log('🔍 renderButton - status:', validationStatus, 'value:', value, 'isProcessing:', isProcessing);
+
     if (isProcessing) {
       return (
         <Button disabled size="sm">
@@ -97,12 +86,24 @@ export function NicknameInput({
       );
     }
 
-    if (!value) return null;
+    if (!value) {
+      console.log('🔍 No value, returning null');
+      return null;
+    }
 
-    const isUnchanged =
-      onboardingStatus === 'available' && value === currentNickname;
+    const isUnchanged = hasProfile && value === currentNickname;
 
-    if (status === 'available') {
+    console.log('🔍 isUnchanged:', isUnchanged, 'currentNickname:', currentNickname);
+
+    if (validationStatus === 'checking') {
+      return (
+        <Button disabled size="sm">
+          <Loader2 size={16} className="animate-spin" />
+        </Button>
+      );
+    }
+
+    if (validationStatus === 'available') {
       if (isUnchanged) {
         return (
           <Button variant="ghost" size="sm" disabled>
@@ -112,15 +113,23 @@ export function NicknameInput({
       }
 
       if (onAction) {
+        console.log('🔍 Rendering success button for onAction');
         return (
-          <Button variant="success" size="sm" onClick={() => onAction(value)}>
+          <Button
+            variant="success"
+            size="sm"
+            onClick={() => {
+              console.log('🎯 Button clicked, calling onAction with:', value);
+              onAction(value);
+            }}
+          >
             {actionText}
           </Button>
         );
       }
     }
 
-    if (status === 'taken') {
+    if (validationStatus === 'taken') {
       if (onView) {
         return (
           <Button variant="view" size="sm" onClick={() => onView(value)}>
@@ -136,7 +145,7 @@ export function NicknameInput({
       );
     }
 
-    if (status === 'invalid') {
+    if (validationStatus === 'invalid') {
       return (
         <Button variant="destructive" size="sm" disabled>
           Invalid
@@ -154,38 +163,18 @@ export function NicknameInput({
       );
     }
 
-    if (hasProfile && onboardingStatus === 'loading') {
-      return (
-        <small className="text-muted-foreground">
-          Loading nickname data...
-        </small>
-      );
-    }
-
-    if (hasProfile && onboardingStatus === 'inaccessible') {
-      return (
-        <small className="text-destructive">
-          Nickname data not accessible. Please refresh.
-        </small>
-      );
-    }
-
     if (!value && errorDisplay.showRequiredMessage) {
       return <small className="text-destructive">Nickname is required.</small>;
     }
 
-    if (value && status === 'invalid' && errorMessage) {
-      return <small className="text-destructive">{errorMessage}</small>;
+    if (value && validationStatus === 'invalid' && validationError) {
+      return <small className="text-destructive">{validationError}</small>;
     }
 
     return null;
   };
 
-  const isInputDisabled =
-    disabled ||
-    isProcessing ||
-    (hasProfile && onboardingStatus === 'loading') ||
-    (hasProfile && onboardingStatus === 'inaccessible');
+  const isInputDisabled = disabled || isProcessing;
 
   return (
     <div className="space-y-3">
@@ -194,9 +183,6 @@ export function NicknameInput({
           <label className="text-sm font-sans block text-foreground">
             {label.text}
             {label.required && <sup>*</sup>}
-            {hasProfile && onboardingStatus === 'loading' && (
-              <Loader2 size={12} className="inline ml-1 animate-spin" />
-            )}
           </label>
           {errorDisplay.position === 'inline' && renderError()}
         </div>
@@ -212,11 +198,7 @@ export function NicknameInput({
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
-          placeholder={
-            hasProfile && onboardingStatus === 'loading'
-              ? 'Loading...'
-              : placeholder
-          }
+          placeholder={placeholder}
           className="border-0 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1"
           disabled={isInputDisabled}
         />

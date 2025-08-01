@@ -1,66 +1,71 @@
-import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
-import { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router';
+import { Loader2 } from 'lucide-react';
 
 import { AuthButton } from './AuthButton.tsx';
 import { LandingNicknameForm } from './components/onboarding/landingNicknameForm.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
-import { OnboardingAccount } from './lib/schema.ts';
+import { useOnboardingAccount } from './lib/account/useAccount';
 import { createNicknameUrl } from './lib/utils.ts';
 
 export function App() {
-  const { me } = useAccount(OnboardingAccount, {
-    resolve: { profile: true, root: true },
-  });
-
-  const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
+  const location = useLocation();
+  const account = useOnboardingAccount();
+
+  // Add loading state for transition
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    if (me === undefined) return;
-
-    if (isAuthenticated && me?.profile?.onboarding?.nickname) {
-      console.log(
-        `User "${me.profile.onboarding.nickname}" is authenticated...`,
-      );
-      navigate(createNicknameUrl(me.profile.onboarding.nickname, '/edit'));
-    } else if (isAuthenticated && me && !me.profile?.onboarding?.nickname) {
-      console.log(
-        'User is authenticated but has no nickname, remaining on landing page.',
-      );
-      if (location.pathname !== '/') {
-        navigate('/', { replace: true });
-      }
+    if (!account.isAuthenticated) return;
+    
+    if (account.hasExistingNickname) {
+      console.log(`User "${account.currentNickname}" is authenticated...`);
+      setIsTransitioning(true);
+      navigate(createNicknameUrl(account.currentNickname, '/edit'));
+    } else if (location.pathname !== '/') {
+      console.log('User is authenticated but has no nickname, remaining on landing page.');
+      navigate('/', { replace: true });
     }
-  }, [isAuthenticated, me, navigate]);
+  }, [account.isAuthenticated, account.hasExistingNickname, account.currentNickname, navigate, location.pathname]);
+
+  // Show loading during transition
+  if (account.isAuthenticated && account.hasExistingNickname && isTransitioning) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="animate-spin mx-auto mb-4" size={32} />
+          <p>Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <header className="bg-background text-card-foreground">
-        <nav className="@container-normal flex justify-between items-center py-4 mx-16">
-          <div>
-            <Link to="/" className="mr-6 rounded-sm">
-              <img src="/favicon.svg" alt="Jazz Profile" className="w-9 h-9" />
-            </Link>
-          </div>
+    <div className="min-h-screen bg-background">
+      <header className="border-b">
+        <div className="container flex h-16 items-center justify-between">
+          <Link to="/" className="font-semibold">
+            Jazz Profile
+          </Link>
           <div className="flex items-center gap-4">
-            <AuthButton />
             <ThemeToggle />
+            <AuthButton />
           </div>
-        </nav>
+        </div>
       </header>
 
       <main className="container mt-16 flex flex-col items-center text-center gap-6 py-12">
-        {me === undefined && <div>Loading account...</div>}
-        {me === null && <div>Account not accessible</div>}
-        {me && (!isAuthenticated || !me.profile?.onboarding?.nickname) && (
+        {account.account === undefined && <div>Loading account...</div>}
+        {account.account === null && <div>Account not accessible</div>}
+        {account.account && (!account.isAuthenticated || !account.hasExistingNickname) && (
           <LandingNicknameForm />
         )}
-        {isAuthenticated && me?.profile?.onboarding?.nickname && (
+        {account.isAuthenticated && account.hasExistingNickname && (
           <div>Redirecting to your profile editor...</div>
         )}
       </main>
-    </>
+    </div>
   );
 }
 

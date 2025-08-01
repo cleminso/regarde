@@ -2,7 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useEffect } from 'react';
 
 import { useGeneral } from '#/lib/hook/useGeneral';
-import { useNicknameUpdate } from '../../../lib/nickname/useNicknameUpdate';
+import { useNickname } from '../../../lib/nickname/useNickname';
 import { OnboardingProfile } from '../../../lib/schema';
 import { Input, Label, Textarea } from '../../ui';
 import { NicknameInput } from '../../ui/nicknameInput';
@@ -36,17 +36,13 @@ export function GeneralEdit({
     nickname,
   } = useGeneral({ profile, triggerSyncIndicator, accountId });
 
-  const { isProcessing, error, update, clearError } = useNicknameUpdate({
-    profile,
-    accountId,
-    triggerSyncIndicator,
-  });
+  const nicknameHook = useNickname();
 
   useEffect(() => {
-    if (error) {
-      clearError();
+    if (nicknameHook.error) {
+      nicknameHook.clearError();
     }
-  }, [nickname.nicknameValue, error, clearError]);
+  }, [nickname.nicknameValue, nicknameHook.error, nicknameHook.clearError]);
 
   return (
     <div className="flex flex-col h-full">
@@ -76,8 +72,8 @@ export function GeneralEdit({
               onChange={nickname.updateNicknameValue}
               onBlurRestore={nickname.resetNicknameInput}
               profile={profile}
-              isProcessing={isProcessing}
-              onAction={update}
+              isProcessing={nicknameHook.isProcessing}
+              onAction={nicknameHook.register}
               actionText="Update"
               label={{
                 text: 'Nickname',
@@ -86,7 +82,7 @@ export function GeneralEdit({
               errorDisplay={{
                 position: 'inline',
                 showRequiredMessage: true,
-                externalError: error,
+                externalError: nicknameHook.error,
               }}
             />
           </section>

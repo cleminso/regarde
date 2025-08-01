@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { WORKER_JAZZ_ID } from '../config/apiKey';
 import { OnboardingAccount, RegistrationKey } from '../schema';
 import { useMyAccount } from './useMyAccount';
+import { useRegistrationKeyData } from './useRegistrationKeyData';
 
 const KEY_LIFETIME_SECONDS = 60;
 
@@ -59,11 +60,11 @@ export async function storeRegistrationKey(
 }
 
 export function useRegistrationKey() {
-  const { account, profile, isAccountReady } = useMyAccount();
+  // ✅ Layer 1: Basic account
+  const { account, isAccountReady } = useMyAccount();
 
-  const currentRegistrationKey = isAccountReady
-    ? profile?.registrationKey
-    : undefined;
+  // ✅ Layer 2: Registration key data when ready
+  const { registrationKey, isLoading, isAccessible } = useRegistrationKeyData();
 
   const getValidKey = useCallback(async (): Promise<string | null> => {
     if (!account?.profile || !isAccountReady) {
@@ -71,27 +72,32 @@ export function useRegistrationKey() {
       return null;
     }
 
-    const keyExpired = currentRegistrationKey
-      ? isKeyExpired(currentRegistrationKey)
-      : true;
+    // ✅ Wait for registration key to load if it's still loading
+    if (isLoading) {
+      console.log('Registration key loading...');
+      return null;
+    }
 
-    if (!currentRegistrationKey || keyExpired) {
+    const keyExpired = registrationKey ? isKeyExpired(registrationKey) : true;
+
+    if (!registrationKey || keyExpired) {
       console.log('Key missing or expired, generating new one...');
       return await storeRegistrationKey(
         account as Loaded<typeof OnboardingAccount>,
       );
     }
 
-    return currentRegistrationKey.key;
-  }, [account, isAccountReady, currentRegistrationKey]);
+    return registrationKey.key;
+  }, [account, isAccountReady, registrationKey, isLoading]);
 
   return {
     getValidKey,
-    isAccountLoaded: Boolean(account?.profile),
     isAccountReady,
-    hasRegistrationKey: Boolean(currentRegistrationKey),
-    isKeyExpired: currentRegistrationKey
-      ? isKeyExpired(currentRegistrationKey)
-      : true,
+    hasRegistrationKey: Boolean(registrationKey),
+    isKeyExpired: registrationKey ? isKeyExpired(registrationKey) : true,
+
+    // ✅ Expose loading states
+    isRegistrationKeyLoading: isLoading,
+    isRegistrationKeyAccessible: isAccessible,
   };
 }

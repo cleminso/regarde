@@ -2,7 +2,7 @@
 
 import { SignInButton } from '@clerk/clerk-react';
 import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 
 import { Button } from './components/ui/button';
@@ -15,10 +15,13 @@ export function AuthButton() {
   });
   const navigate = useNavigate();
   const isAuthenticated = useIsAuthenticated();
-  const { getValidKey, isAccountLoaded } = useRegistrationKey();
+  const { getValidKey, isAccountReady } = useRegistrationKey();
+  const keyInitialized = useRef(false);
 
   useEffect(() => {
-    if (isAuthenticated && isAccountLoaded) {
+    if (isAuthenticated && isAccountReady && !keyInitialized.current) {
+      keyInitialized.current = true;
+      
       getValidKey()
         .then((key) => {
           if (key) {
@@ -31,24 +34,25 @@ export function AuthButton() {
           console.error('Error ensuring valid key:', error);
         });
     }
-  }, [isAuthenticated, isAccountLoaded, getValidKey]);
+  }, [isAuthenticated, isAccountReady, getValidKey]);
 
   function handleLogOut() {
+    keyInitialized.current = false;
     logOut();
     navigate('/');
   }
 
-  if (isAuthenticated) {
+  if (!isAuthenticated) {
     return (
-      <Button variant="secondary" size="lg" onClick={handleLogOut}>
-        Log out
-      </Button>
+      <SignInButton mode="modal">
+        <Button variant="outline">Sign In</Button>
+      </SignInButton>
     );
   }
 
   return (
-    <div className="flex gap-2">
-      <SignInButton />
-    </div>
+    <Button variant="outline" onClick={handleLogOut}>
+      Sign Out
+    </Button>
   );
 }

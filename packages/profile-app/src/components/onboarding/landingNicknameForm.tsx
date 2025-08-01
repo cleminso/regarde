@@ -1,27 +1,25 @@
 import { useEffect, useState } from 'react';
-
-import { useNicknameRegistration } from '../../lib/nickname/useNicknameRegistration';
+import { useNickname } from '../../lib/nickname/useNickname';
 import { NicknameInput } from '../ui/nicknameInput';
 
 export function LandingNicknameForm() {
   const [nickname, setNickname] = useState('');
+  const nicknameHook = useNickname();
 
-  const { isProcessing, error, register, view, clearError } =
-    useNicknameRegistration();
-
+  // Clear errors when nickname changes
   useEffect(() => {
-    if (error) {
-      clearError();
+    if (nicknameHook.error) {
+      nicknameHook.clearError();
     }
-  }, [nickname, error, clearError]);
+  }, [nickname, nicknameHook.error, nicknameHook.clearError]);
 
-  const handleRegister = async (value: string) => {
-    await register(value);
-  };
-
-  const handleView = (value: string) => {
-    view(value);
-  };
+  // Check availability when nickname changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      nicknameHook.checkAvailability(nickname);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [nickname, nicknameHook.checkAvailability]);
 
   return (
     <div className="flex flex-col items-center text-center gap-6 py-12">
@@ -34,13 +32,16 @@ export function LandingNicknameForm() {
         <NicknameInput
           value={nickname}
           onChange={setNickname}
-          isProcessing={isProcessing}
-          onAction={handleRegister}
+          isProcessing={nicknameHook.isProcessing}
+          onAction={nicknameHook.register}
           actionText="Register"
-          onView={handleView}
+          onView={nicknameHook.view}
+          validationStatus={nicknameHook.validationStatus}
+          validationError={nicknameHook.validationError}
+          currentNickname={nicknameHook.currentNickname}
           errorDisplay={{
             position: 'below',
-            externalError: error,
+            externalError: nicknameHook.error,
           }}
         />
       </div>

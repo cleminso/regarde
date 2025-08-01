@@ -1,12 +1,9 @@
 import { useCallback, useState } from 'react';
 
 import { checkNicknameAvailability } from '../api/nickname';
-import { isValidNicknameFormat } from '../nickname/utils';
+import { isValidNicknameFormat } from './utils';
 
 type NicknameStatus = 'empty' | 'available' | 'taken' | 'invalid';
-
-// Handles nickname validation (format + availability)
-// Accepts current nickname to avoid unnecessary API calls when unchanged
 
 export function useNicknameValidation(currentNickname?: string) {
   const [status, setStatus] = useState<NicknameStatus>('empty');
@@ -28,12 +25,14 @@ export function useNicknameValidation(currentNickname?: string) {
         return;
       }
 
+      // Check if this is the user's current nickname
       if (currentNickname && nickname === currentNickname) {
         setStatus('available');
         setErrorMessage('');
         return;
       }
 
+      // Check server availability
       try {
         const result = await checkNicknameAvailability(nickname);
         setStatus(result.available ? 'available' : 'taken');
