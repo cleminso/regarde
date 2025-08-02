@@ -1,19 +1,17 @@
 import { Loaded } from 'jazz-tools';
 import React, { useCallback, useRef, useState } from 'react';
 
-import { useNicknameUpdate } from '../nickname/useNicknameUpdate';
+import { useOnboarding } from '../onboarding/useOnboarding';
 import { OnboardingProfile } from '../schema';
 
 type UseGeneralProps = {
   profile: Loaded<typeof OnboardingProfile>;
   triggerSyncIndicator: () => void;
-  accountId: string;
 };
 
 export function useGeneral({
   profile,
   triggerSyncIndicator,
-  accountId,
 }: UseGeneralProps) {
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -149,36 +147,26 @@ export function useGeneral({
     [profile, triggerSyncIndicator],
   );
 
-  const nicknameHook = useNicknameUpdate({
-    profile,
-    accountId,
-    triggerSyncIndicator,
-  });
+  // Use unified onboarding hook for nickname functionality
+  const onboarding = useOnboarding();
 
-  const currentNickname =
-    nicknameHook.onboardingStatus === 'available'
-      ? nicknameHook.currentNickname
-      : '';
-
-  const [nicknameValue, setNicknameValue] = useState(currentNickname);
+  const [nicknameValue, setNicknameValue] = useState(onboarding.currentNickname);
 
   React.useEffect(() => {
-    if (nicknameHook.onboardingStatus === 'available') {
-      setNicknameValue(nicknameHook.currentNickname);
-    }
-  }, [nicknameHook.currentNickname, nicknameHook.onboardingStatus]);
+    setNicknameValue(onboarding.currentNickname);
+  }, [onboarding.currentNickname]);
 
   const updateNicknameValue = useCallback((value: string) => {
     setNicknameValue(value);
   }, []);
 
   const resetNicknameInput = useCallback(() => {
-    setNicknameValue(currentNickname);
-  }, [currentNickname]);
+    setNicknameValue(onboarding.currentNickname);
+  }, [onboarding.currentNickname]);
 
   const updateNickname = useCallback(async () => {
-    await nicknameHook.update(nicknameValue);
-  }, [nicknameHook.update, nicknameValue]);
+    await onboarding.update(nicknameValue);
+  }, [onboarding.update, nicknameValue]);
 
   return {
     isUpdating,
@@ -202,16 +190,16 @@ export function useGeneral({
       resetNicknameInput,
       updateNickname,
 
-      checkAvailability: nicknameHook.checkAvailability,
-      status: nicknameHook.status,
-      errorMessage: nicknameHook.errorMessage,
-      isProcessing: nicknameHook.isProcessing,
-      error: nicknameHook.error,
-      clearError: nicknameHook.clearError,
+      checkAvailability: onboarding.checkAvailability,
+      validationStatus: onboarding.validationStatus,
+      validationError: onboarding.validationError,
+      isProcessing: onboarding.isProcessing,
+      error: onboarding.error,
+      clearError: onboarding.clearError,
 
-      onboardingStatus: nicknameHook.onboardingStatus,
-      isOnboardingAvailable: nicknameHook.isOnboardingAvailable,
-      canUpdate: nicknameHook.canUpdate,
+      currentNickname: onboarding.currentNickname,
+      isNicknameActive: onboarding.isNicknameActive,
+      canUpdate: onboarding.isAccountReady && !onboarding.isProcessing,
     },
 
     canPerformUpdates: Boolean(profile) && !isUpdating,

@@ -2,7 +2,6 @@ import { Loaded } from 'jazz-tools';
 import { useEffect } from 'react';
 
 import { useGeneral } from '#/lib/hook/useGeneral';
-import { useNickname } from '../../../lib/nickname/useNickname';
 import { OnboardingProfile } from '../../../lib/schema';
 import { Input, Label, Textarea } from '../../ui';
 import { NicknameInput } from '../../ui/nicknameInput';
@@ -21,7 +20,6 @@ export function GeneralEdit({
   profile,
   triggerSyncIndicator,
   onCloseEditor,
-  accountId,
 }: GeneralEditProps) {
   const {
     fileInputRef,
@@ -34,15 +32,15 @@ export function GeneralEdit({
     updateName,
     updateBio,
     nickname,
-  } = useGeneral({ profile, triggerSyncIndicator, accountId });
+  } = useGeneral({ profile, triggerSyncIndicator });
 
-  const nicknameHook = useNickname();
-
+  // Check availability when nickname changes
   useEffect(() => {
-    if (nicknameHook.error) {
-      nicknameHook.clearError();
-    }
-  }, [nickname.nicknameValue, nicknameHook.error, nicknameHook.clearError]);
+    const timer = setTimeout(() => {
+      nickname.checkAvailability(nickname.nicknameValue);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [nickname.nicknameValue, nickname.checkAvailability]);
 
   return (
     <div className="flex flex-col h-full">
@@ -72,17 +70,20 @@ export function GeneralEdit({
               onChange={nickname.updateNicknameValue}
               onBlurRestore={nickname.resetNicknameInput}
               profile={profile}
-              isProcessing={nicknameHook.isProcessing}
-              onAction={nicknameHook.register}
+              isProcessing={nickname.isProcessing}
+              onAction={nickname.updateNickname}
               actionText="Update"
               label={{
                 text: 'Nickname',
                 required: true,
               }}
+              validationStatus={nickname.validationStatus}
+              validationError={nickname.validationError}
+              currentNickname={nickname.currentNickname}
               errorDisplay={{
                 position: 'inline',
                 showRequiredMessage: true,
-                externalError: nicknameHook.error,
+                externalError: nickname.error,
               }}
             />
           </section>

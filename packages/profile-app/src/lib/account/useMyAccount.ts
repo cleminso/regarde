@@ -1,4 +1,4 @@
-// packages/profile-app/src/lib/account/useMyAccount.ts
+//  Get account data without registration logic
 import { OnboardingAccount } from '@onboarding.jazz/shared-schemas';
 import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 
@@ -15,10 +15,8 @@ export function useMyAccount() {
     accountId: me?.id,
     profileName: me?.profile?.name,
 
-    // Simple account readiness - just profile existence
     isAccountReady: Boolean(me?.profile),
 
-    // Helper for components that need basic profile validation
     hasStableProfile: Boolean(me?.profile && me.profile.name),
   };
 }

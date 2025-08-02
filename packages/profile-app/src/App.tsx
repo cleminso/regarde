@@ -1,36 +1,46 @@
+import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
-import { Loader2 } from 'lucide-react';
 
 import { AuthButton } from './AuthButton.tsx';
 import { LandingNicknameForm } from './components/onboarding/landingNicknameForm.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
-import { useOnboardingAccount } from './lib/account/useAccount';
+import { useOnboarding } from './lib/onboarding/useOnboarding';
 import { createNicknameUrl } from './lib/utils.ts';
 
 export function App() {
   const navigate = useNavigate();
   const location = useLocation();
-  const account = useOnboardingAccount();
+  const onboarding = useOnboarding();
 
-  // Add loading state for transition
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    if (!account.isAuthenticated) return;
-    
-    if (account.hasExistingNickname) {
-      console.log(`User "${account.currentNickname}" is authenticated...`);
+    if (!onboarding.isAuthenticated) return;
+
+    if (onboarding.hasExistingNickname) {
+      console.log(`User "${onboarding.currentNickname}" is authenticated...`);
       setIsTransitioning(true);
-      navigate(createNicknameUrl(account.currentNickname, '/edit'));
+      navigate(createNicknameUrl(onboarding.currentNickname, '/edit'));
     } else if (location.pathname !== '/') {
-      console.log('User is authenticated but has no nickname, remaining on landing page.');
+      console.log(
+        'User is authenticated but has no nickname, remaining on landing page.',
+      );
       navigate('/', { replace: true });
     }
-  }, [account.isAuthenticated, account.hasExistingNickname, account.currentNickname, navigate, location.pathname]);
+  }, [
+    onboarding.isAuthenticated,
+    onboarding.hasExistingNickname,
+    onboarding.currentNickname,
+    navigate,
+    location.pathname,
+  ]);
 
-  // Show loading during transition
-  if (account.isAuthenticated && account.hasExistingNickname && isTransitioning) {
+  if (
+    onboarding.isAuthenticated &&
+    onboarding.hasExistingNickname &&
+    isTransitioning
+  ) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -56,12 +66,12 @@ export function App() {
       </header>
 
       <main className="container mt-16 flex flex-col items-center text-center gap-6 py-12">
-        {account.account === undefined && <div>Loading account...</div>}
-        {account.account === null && <div>Account not accessible</div>}
-        {account.account && (!account.isAuthenticated || !account.hasExistingNickname) && (
-          <LandingNicknameForm />
-        )}
-        {account.isAuthenticated && account.hasExistingNickname && (
+        {!onboarding.accountId && <div>Loading account...</div>}
+        {onboarding.accountId &&
+          (!onboarding.isAuthenticated || !onboarding.hasExistingNickname) && (
+            <LandingNicknameForm />
+          )}
+        {onboarding.isAuthenticated && onboarding.hasExistingNickname && (
           <div>Redirecting to your profile editor...</div>
         )}
       </main>

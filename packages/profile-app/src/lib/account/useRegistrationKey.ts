@@ -1,3 +1,4 @@
+// Registration key management
 import { co, Group, Loaded } from 'jazz-tools';
 import { useCallback } from 'react';
 
@@ -60,10 +61,8 @@ export async function storeRegistrationKey(
 }
 
 export function useRegistrationKey() {
-  // ✅ Layer 1: Basic account
   const { account, isAccountReady } = useMyAccount();
 
-  // ✅ Layer 2: Registration key data when ready
   const { registrationKey, isLoading, isAccessible } = useRegistrationKeyData();
 
   const getValidKey = useCallback(async (): Promise<string | null> => {
@@ -72,7 +71,7 @@ export function useRegistrationKey() {
       return null;
     }
 
-    // ✅ Wait for registration key to load if it's still loading
+    // Wait for registration key to load if it's still loading
     if (isLoading) {
       console.log('Registration key loading...');
       return null;
@@ -96,7 +95,6 @@ export function useRegistrationKey() {
     hasRegistrationKey: Boolean(registrationKey),
     isKeyExpired: registrationKey ? isKeyExpired(registrationKey) : true,
 
-    // ✅ Expose loading states
     isRegistrationKeyLoading: isLoading,
     isRegistrationKeyAccessible: isAccessible,
   };

@@ -1,25 +1,25 @@
 import { useEffect, useState } from 'react';
-import { useNickname } from '../../lib/nickname/useNickname';
+
+import { useOnboarding } from '../../lib/onboarding/useOnboarding';
 import { NicknameInput } from '../ui/nicknameInput';
 
 export function LandingNicknameForm() {
   const [nickname, setNickname] = useState('');
-  const nicknameHook = useNickname();
+  const onboarding = useOnboarding();
 
-  // Clear errors when nickname changes
-  useEffect(() => {
-    if (nicknameHook.error) {
-      nicknameHook.clearError();
-    }
-  }, [nickname, nicknameHook.error, nicknameHook.clearError]);
-
-  // Check availability when nickname changes
   useEffect(() => {
     const timer = setTimeout(() => {
-      nicknameHook.checkAvailability(nickname);
+      onboarding.checkAvailability(nickname);
     }, 500);
     return () => clearTimeout(timer);
-  }, [nickname, nicknameHook.checkAvailability]);
+  }, [nickname, onboarding.checkAvailability]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onboarding.checkAvailability(nickname);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [nickname, onboarding.checkAvailability]);
 
   return (
     <div className="flex flex-col items-center text-center gap-6 py-12">
@@ -32,16 +32,16 @@ export function LandingNicknameForm() {
         <NicknameInput
           value={nickname}
           onChange={setNickname}
-          isProcessing={nicknameHook.isProcessing}
-          onAction={nicknameHook.register}
+          isProcessing={onboarding.isProcessing}
+          onAction={onboarding.register}
           actionText="Register"
-          onView={nicknameHook.view}
-          validationStatus={nicknameHook.validationStatus}
-          validationError={nicknameHook.validationError}
-          currentNickname={nicknameHook.currentNickname}
+          onView={onboarding.view}
+          validationStatus={onboarding.validationStatus}
+          validationError={onboarding.validationError}
+          currentNickname={onboarding.currentNickname}
           errorDisplay={{
             position: 'below',
-            externalError: nicknameHook.error,
+            externalError: onboarding.error,
           }}
         />
       </div>
