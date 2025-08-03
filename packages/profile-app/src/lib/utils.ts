@@ -4,13 +4,58 @@ import { twMerge } from 'tailwind-merge';
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
 export const getValidUrl = (url?: string): string | undefined => {
   if (!url) return undefined;
   if (url.startsWith('http://') || url.startsWith('https://')) {
     return url;
   }
   return `https://${url}`;
+};
+
+const SOCIAL_PLATFORMS = {
+  github: {
+    label: 'GitHub',
+    buildUrl: (value: string) => {
+      if (value.startsWith('http')) return value;
+      if (value.includes('github.com/')) return `https://${value}`;
+      return `https://github.com/${value.replace(/^@/, '')}`;
+    },
+  },
+  twitter: {
+    label: 'X / Twitter',
+    buildUrl: (value: string) => {
+      if (value.startsWith('http')) return value;
+      if (value.includes('x.com/') || value.includes('twitter.com/')) {
+        return `https://${value.replace('twitter.com', 'x.com')}`;
+      }
+      return `https://x.com/${value.replace(/^@/, '')}`;
+    },
+  },
+  website: {
+    label: 'Website',
+    buildUrl: (value: string) => getValidUrl(value)!,
+  },
+} as const;
+
+export const buildSocialLinks = (socialLinks: any) => {
+  return Object.entries(SOCIAL_PLATFORMS)
+    .map(([key, config]) => {
+      const value = socialLinks?.[key];
+      if (!value) return null;
+
+      const href = config.buildUrl(value);
+      const displayName = getWebsiteDisplayName(value);
+
+      if (!href || !displayName) return null;
+
+      return {
+        key,
+        label: config.label,
+        href,
+        displayName,
+      };
+    })
+    .filter((link): link is NonNullable<typeof link> => link !== null);
 };
 
 export const getWebsiteDisplayName = (url?: string): string | undefined => {
@@ -93,7 +138,10 @@ const AVATAR_COLORS = [
   { bg: '#E5E5E5', text: '#525252' },
 ];
 
-export function generateDefaultAvatar(nickname: string): string {
+export function generateDefaultAvatar(
+  nickname: string,
+  borderRadius: number = 48,
+): string {
   if (!nickname) return '';
 
   const initials = nickname.trim().toUpperCase().substring(0, 2);
@@ -104,11 +152,11 @@ export function generateDefaultAvatar(nickname: string): string {
   }
   const colorSet = AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 
-  const size = 96;
+  const size = 92;
   const fontSize = size * 0.4;
 
   const svgContent = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="${colorSet.bg}" />
+    <rect x="0" y="0" width="${size}" height="${size}" rx="${borderRadius}" ry="${borderRadius}" fill="${colorSet.bg}" />
     <text x="${size / 2}" y="${size / 2}" font-family="system-ui, -apple-system, sans-serif" font-size="${fontSize}" font-weight="600" text-anchor="middle" dominant-baseline="central" fill="${colorSet.text}">
       ${initials}
     </text>

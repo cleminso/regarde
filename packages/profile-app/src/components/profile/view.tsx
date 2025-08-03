@@ -10,7 +10,6 @@ import {
   About,
   Awards,
   Certifications,
-  Contact,
   Educations,
   Projects,
   SideProjects,
@@ -154,7 +153,6 @@ function ProfileContent({ profile }: { profile: LoadedProfile }) {
     <main className="w-full">
       <ProfileHeader profile={profile} />
       <About profile={profile} />
-      <Contact profile={profile} />
       <Projects profile={profile} />
       <WorkExperiences profile={profile} />
       <Writings profile={profile} />

@@ -225,7 +225,7 @@ export const OnboardingAccount = co
         account.profile?.onboarding === undefined
       ) {
         try {
-          // ✅ Create groups with proper owner
+          // Create groups with proper owner
           const publicGroup = Group.create({ owner: account });
           publicGroup.addMember("everyone", "reader");
 
@@ -247,7 +247,7 @@ export const OnboardingAccount = co
             // Continue without worker permissions - can be added later
           }
 
-          // ✅ Create nickname with empty value (not placeholder)
+          // Create nickname with empty value (not placeholder)
           const onboardingNickname = OnboardingNickname.create(
             {
               nickname: "", // Start empty
@@ -260,7 +260,7 @@ export const OnboardingAccount = co
 
           console.log("Onboarding nickname created:", onboardingNickname.id);
 
-          // ✅ Create profile with explicit owner
+          // Create profile with explicit owner
           account.profile = OnboardingProfile.create(
             {
               name: creationProps?.name || "Public Profile",

@@ -1,5 +1,5 @@
 import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
-import { Link, Outlet } from 'react-router';
+import { Outlet } from 'react-router';
 
 import { AuthButton } from './AuthButton.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
@@ -17,16 +17,7 @@ export function AppLayout() {
     <>
       {showHeader && (
         <header className="bg-background text-card-foreground shadow-lg">
-          <nav className="@container-normal flex justify-between items-center py-4 mx-16">
-            <div>
-              <Link to="/" className="mr-6 rounded-sm">
-                <img
-                  src="/favicon.svg"
-                  alt="Jazz Profile"
-                  className="w-9 h-9"
-                />
-              </Link>
-            </div>
+          <nav className="@container-normal flex justify-end items-center py-4 mx-16">
             <div className="flex items-center gap-4">
               {isAuthenticated ? (
                 <span>

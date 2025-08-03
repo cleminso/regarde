@@ -9,10 +9,7 @@ type UseGeneralProps = {
   triggerSyncIndicator: () => void;
 };
 
-export function useGeneral({
-  profile,
-  triggerSyncIndicator,
-}: UseGeneralProps) {
+export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -136,7 +133,7 @@ export function useGeneral({
       setUpdateError(null);
 
       try {
-        profile.bio = bio.trim() || undefined;
+        profile.bio = bio.length === 0 ? undefined : bio;
         triggerSyncIndicator();
       } catch (error) {
         setUpdateError('Failed to update bio. Please try again.');
@@ -147,10 +144,11 @@ export function useGeneral({
     [profile, triggerSyncIndicator],
   );
 
-  // Use unified onboarding hook for nickname functionality
   const onboarding = useOnboarding();
 
-  const [nicknameValue, setNicknameValue] = useState(onboarding.currentNickname);
+  const [nicknameValue, setNicknameValue] = useState(
+    onboarding.currentNickname,
+  );
 
   React.useEffect(() => {
     setNicknameValue(onboarding.currentNickname);

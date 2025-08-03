@@ -34,7 +34,6 @@ export function GeneralEdit({
     nickname,
   } = useGeneral({ profile, triggerSyncIndicator });
 
-  // Check availability when nickname changes
   useEffect(() => {
     const timer = setTimeout(() => {
       nickname.checkAvailability(nickname.nicknameValue);
@@ -89,7 +88,7 @@ export function GeneralEdit({
           </section>
 
           <section>
-            <Label htmlFor="name">Display Name</Label>
+            <Label htmlFor="name">Display Name*</Label>
             <Input
               type="text"
               id="name"
@@ -105,14 +104,14 @@ export function GeneralEdit({
               <Label htmlFor="bio">Bio</Label>
               <span
                 className={`text-sm ${
-                  (profile.bio || '').length >= 160
+                  (profile.bio || '').length >= 240
                     ? 'text-destructive'
-                    : (profile.bio || '').length >= 120
+                    : (profile.bio || '').length >= 200
                       ? 'text-yellow-600'
                       : 'text-muted-foreground'
                 }`}
               >
-                {(profile.bio || '').length}/160 characters
+                {(profile.bio || '').length}/240 characters
               </span>
             </div>
             <Textarea
@@ -120,7 +119,7 @@ export function GeneralEdit({
               value={profile.bio || ''}
               onChange={(e) => {
                 const value = e.target.value;
-                if (value.length <= 160) {
+                if (value.length <= 240) {
                   updateBio(value);
                 }
               }}

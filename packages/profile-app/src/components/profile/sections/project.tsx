@@ -23,7 +23,10 @@ export function Projects({ profile }: ProjectsProps) {
       className="mx-auto flex flex-col gap-4 mb-10"
       style={{ width: '540px' }}
     >
-      <h3 className="text-md font-sans">Projects</h3>
+      <div className="flex items-center gap-4">
+        <h3 className="text-md font-sans whitespace-nowrap">Projects</h3>
+        <hr className="flex-1 border-border" />
+      </div>
       <div className="space-y-6">
         {projects.map((project: any) => {
           const displayTitle = project.client

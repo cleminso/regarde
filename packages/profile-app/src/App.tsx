@@ -21,7 +21,18 @@ export function App() {
     if (onboarding.hasExistingNickname) {
       console.log(`User "${onboarding.currentNickname}" is authenticated...`);
       setIsTransitioning(true);
-      navigate(createNicknameUrl(onboarding.currentNickname, '/edit'));
+
+      // Check if user is coming from registration flow
+      const isFromRegistration = sessionStorage.getItem('isNewRegistration');
+
+      if (isFromRegistration) {
+        // Clear the flag and redirect to edit for new users
+        sessionStorage.removeItem('isNewRegistration');
+        navigate(createNicknameUrl(onboarding.currentNickname, '/edit'));
+      } else {
+        // Existing user login - redirect to profile view
+        navigate(createNicknameUrl(onboarding.currentNickname));
+      }
     } else if (location.pathname !== '/') {
       console.log(
         'User is authenticated but has no nickname, remaining on landing page.',

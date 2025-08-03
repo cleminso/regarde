@@ -43,7 +43,7 @@ function AvatarFallback({
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
       className={cn(
-        'bg-muted flex size-full items-center justify-center rounded-full',
+        'bg-muted flex size-full items-center justify-center rounded-[inherit]',
         className,
       )}
       {...props}
@@ -61,17 +61,24 @@ function ProfileAvatar({
   className?: string;
   size?: number;
 } & React.ComponentProps<typeof AvatarPrimitive.Root>) {
-  const avatarSrc = useDefaultAvatar(profile);
+  const avatarSrc = useDefaultAvatar(profile, size);
+
+  const avatarClasses = cn(
+    size === 92
+      ? 'size-[92px] rounded-xl'
+      : size === 96
+        ? 'size-24 rounded-xl'
+        : 'size-8 rounded-xl',
+    className,
+  );
 
   return (
-    <Avatar
-      className={cn(size === 96 ? 'size-24' : 'size-8', className)}
-      {...props}
-    >
+    <Avatar className={avatarClasses} {...props}>
       {avatarSrc && (
         <AvatarImage
           src={avatarSrc}
           alt={`${profile.name || profile.onboarding}'s avatar`}
+          className="rounded-[inherit]"
         />
       )}
       <AvatarFallback>

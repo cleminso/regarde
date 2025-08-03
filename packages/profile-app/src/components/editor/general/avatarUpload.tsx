@@ -41,17 +41,21 @@ export function AvatarUpload({
           onDrop={onDrop}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
-          className="w-24 h-24 rounded-full bg-background flex justify-center text-sm text-center text-muted-foreground cursor-pointer transition-colors overflow-hidden hover:bg-accent"
+          className="w-[92px] h-[92px] flex justify-center text-sm text-center cursor-pointer transition-colors overflow-hidden"
           role="button"
           tabIndex={0}
-          onKeyDown={(e) =>
-            (e.key === 'Enter' || e.key === ' ') && onAvatarClick()
-          }
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              e.stopPropagation();
+              onAvatarClick();
+            }
+          }}
           aria-label="Upload avatar"
         >
           <ProfileAvatar
             profile={profile}
-            size={96}
+            size={92}
             className="w-full h-full"
           />
         </div>
