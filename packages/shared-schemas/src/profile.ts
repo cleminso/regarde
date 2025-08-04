@@ -132,6 +132,15 @@ export const RegistrationKey = co.map({
 
 export type RegistrationKey = z.infer<typeof RegistrationKey>;
 
+export const NowPage = co.map({
+  title: z.optional(z.string()),
+  location: z.optional(z.string()),
+  description: z.string(),
+  lastUpdated: z.number(),
+});
+
+export type NowPage = z.infer<typeof NowPage>;
+
 // TODO:
 // export const Attachments = co.map({
 // url: z.string(),
@@ -160,6 +169,7 @@ export const OnboardingProfile = co.profile({
   volunteering: z.optional(ListOfVolunteering),
   sideProject: z.optional(ListOfSideProject),
   registrationKey: z.optional(RegistrationKey),
+  nowPage: z.optional(NowPage),
 });
 
 OnboardingProfile.withHelpers((Self) => ({

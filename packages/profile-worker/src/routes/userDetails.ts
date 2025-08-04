@@ -265,6 +265,7 @@ export const userDetailsHandler = (
               award: { $each: true },
               volunteering: { $each: true },
               sideProject: { $each: true },
+              nowPage: true,
             },
           },
         });

@@ -10,6 +10,7 @@ export const editorSections = {
   award: 'award',
   volunteering: 'volunteering',
   sideProject: 'sideProject',
+  nowPage: 'nowPage',
 } as const;
 
 export type SectionType = (typeof editorSections)[keyof typeof editorSections];

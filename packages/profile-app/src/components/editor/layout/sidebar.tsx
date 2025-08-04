@@ -112,6 +112,12 @@ export function EditorSidebar({
         >
           Side Project
         </SidebarButton>
+        <SidebarButton
+          isActive={activeSection === editorSections.nowPage}
+          onClick={() => onSectionChange(editorSections.nowPage)}
+        >
+          Now
+        </SidebarButton>
       </div>
     </div>
   );

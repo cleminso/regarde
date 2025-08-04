@@ -21,3 +21,4 @@ export { VolunteeringEdit } from './volunteering/form';
 export { VolunteeringView } from './volunteering/view';
 export { SideProjectEdit } from './sideProject/form';
 export { SideProjectView } from './sideProject/view';
+export { NowPageView } from './now/pageView';

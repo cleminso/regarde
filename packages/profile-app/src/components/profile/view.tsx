@@ -1,23 +1,14 @@
 import { co } from 'jazz-tools';
 import { useAccount } from 'jazz-tools/react';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 
 import { fetchUserDetailsByNickname } from '#/lib/api/base';
 import { OnboardingAccount, OnboardingProfile } from '#/lib/schema';
 import { ProfileHeader } from './header';
-import {
-  About,
-  Awards,
-  Certifications,
-  Educations,
-  Projects,
-  SideProjects,
-  Speakings,
-  Volunteerings,
-  WorkExperiences,
-  Writings,
-} from './index';
+import { AboutPage } from './pages/about';
+import { NowPage } from './pages/now';
+import { DEFAULT_TABS, ProfileTabs, TabId } from './tabs';
 
 type LoadedProfile = co.loaded<
   typeof OnboardingProfile,
@@ -32,6 +23,7 @@ type LoadedProfile = co.loaded<
     award: true;
     volunteering: true;
     sideProject: true;
+    nowPage: true;
   }
 >;
 
@@ -55,6 +47,7 @@ export function ProfileView() {
         award: true,
         volunteering: true,
         sideProject: true,
+        nowPage: true,
         onboarding: true,
       },
     },
@@ -149,19 +142,56 @@ export function ProfileView() {
 }
 
 function ProfileContent({ profile }: { profile: LoadedProfile }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { nickname } = useParams();
+
+  const pathSegments = location.pathname.split('/');
+  const currentPath = pathSegments[pathSegments.length - 1];
+  const activeTab: TabId = (currentPath === 'now' ? 'now' : 'about') as TabId;
+
+  const availableTabs = DEFAULT_TABS.map((tab) => {
+    if (tab.id === 'now') {
+      return {
+        ...tab,
+        enabled: Boolean(profile.nowPage?.description),
+      };
+    }
+    return tab;
+  });
+
+  const handleTabChange = (tab: TabId) => {
+    if (nickname) {
+      navigate(`/${nickname}/${tab}`);
+    }
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'about':
+        return <AboutPage profile={profile} />;
+      case 'now':
+        return <NowPage profile={profile} />;
+
+      default:
+        return <AboutPage profile={profile} />;
+    }
+  };
+
   return (
     <main className="w-full">
       <ProfileHeader profile={profile} />
-      <About profile={profile} />
-      <Projects profile={profile} />
-      <WorkExperiences profile={profile} />
-      <Writings profile={profile} />
-      <Awards profile={profile} />
-      <Certifications profile={profile} />
-      <Educations profile={profile} />
-      <Speakings profile={profile} />
-      <Volunteerings profile={profile} />
-      <SideProjects profile={profile} />
+
+      <div className="w-full" style={{ maxWidth: '540px', margin: '0 auto' }}>
+        <ProfileTabs
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          availableTabs={availableTabs}
+          className="mb-6"
+        />
+      </div>
+
+      {renderTabContent()}
     </main>
   );
 }

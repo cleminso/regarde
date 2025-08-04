@@ -18,6 +18,7 @@ export function useEditProfile() {
         volunteering: true,
         sideProject: true,
         registrationKey: true,
+        nowPage: true,
       },
     },
   });

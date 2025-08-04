@@ -3,7 +3,7 @@ import { Button } from '../../ui/button.tsx';
 
 type SectionHeaderProps = {
   title: string;
-  description?: string;
+  description?: string | React.ReactNode;
   onActionClick?: () => void;
   actionText?: string;
   className?: string;

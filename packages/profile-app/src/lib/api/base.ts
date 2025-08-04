@@ -95,6 +95,12 @@ interface UserDetails {
       url?: string;
       description?: string;
     }>;
+    nowPage?: {
+      title?: string;
+      location?: string;
+      description: string;
+      lastUpdated: number;
+    };
   };
 }
 

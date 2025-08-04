@@ -360,6 +360,28 @@ export const UserDetailsResponseSchema = z
           )
           .optional()
           .describe("Array of user's side projects"),
+
+        nowPage: z
+          .object({
+            title: z
+              .string()
+              .optional()
+              .describe("Brief headline or title for current focus"),
+            location: z
+              .string()
+              .optional()
+              .describe("Current location (city, remote, etc.)"),
+            description: z
+              .string()
+              .describe("Current activities and focus description"),
+            lastUpdated: z
+              .number()
+              .describe("Timestamp when the now page was last updated"),
+          })
+          .optional()
+          .describe(
+            "Current 'now' page content describing what the user is currently focused on",
+          ),
       })
       .optional()
       .describe(

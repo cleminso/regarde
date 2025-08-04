@@ -23,8 +23,6 @@ export function About({ profile }: AboutProps) {
       className="mx-auto flex flex-col gap-6 mb-10"
       style={{ width: '540px' }}
     >
-      <h3 className="text-md font-sans text-foreground">About</h3>
-
       {profile.bio && (
         <div>
           <p className="text-sm text-secondary-foreground whitespace-pre-line">

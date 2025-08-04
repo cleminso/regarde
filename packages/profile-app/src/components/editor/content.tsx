@@ -26,6 +26,7 @@ import {
   EducationEdit,
   EducationView,
   GeneralEdit,
+  NowPageView,
   ProjectEdit,
   ProjectView,
   SideProjectEdit,
@@ -480,6 +481,13 @@ export function ProfileEditor() {
                   volunteeringToEdit={volunteeringToEdit}
                 />
               ))}
+            {activeSection === editorSections.nowPage && (
+              <NowPageView
+                profile={profile!}
+                triggerSyncIndicator={triggerSyncIndicator}
+                onClose={handleCloseEditor}
+              />
+            )}
           </>
         </div>
       }

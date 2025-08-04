@@ -128,6 +128,15 @@ export const formatDateRange = (from?: string, to?: string): string => {
   return `${startYear} - ${endYear}`;
 };
 
+export const formatTimestamp = (timestamp: number): string => {
+  const date = new Date(timestamp);
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
 const AVATAR_COLORS = [
   { bg: '#FEE2E2', text: '#BA1F1C' },
   { bg: '#DBE9FC', text: '#2563EB' },
