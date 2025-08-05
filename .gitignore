@@ -31,3 +31,4 @@ dist-ssr
 ai*
 
 playwright-report
+packages/admin/registry-backups/

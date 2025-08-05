@@ -1,82 +1,155 @@
 # Jazz Admin CLI
 
-A command-line tool for administering the Jazz.tools nickname registry with dedicated security permissions.
+A command-line tool for managing the Profile nickname registry. This tool connects directly to the Profile worker to perform administrative operations on the nickname registries.
 
-## Architecture
+## Setup
 
-This CLI uses a **dedicated schema approach** for nickname management:
+1. **Install Dependencies**:
 
-- **🔐 Security**: Worker gets write access only to nickname data, not entire user profiles
-- **🏗️ Separation**: Nickname management is isolated from user profile data
-- **🔧 Admin Control**: System-level nickname operations independent of user actions
+   ```bash
+   pnpm install
+   ```
 
-## Installation
+2. **Environment Configuration**:
+   Copy `.env.example` to `.env` and configure:
 
-```bash
-cd packages/admin
-pnpm install
-pnpm build
-```
+   ```bash
+   cp .env.example .env
+   ```
+
+   Required environment variables:
+   - `JAZZ_WORKER_ACCOUNT`: Worker account ID
+   - `JAZZ_WORKER_SECRET`: Worker account secret
+   - `JAZZ_SYNC_SERVER_URL`: Jazz sync server URL
+   - `JAZZ_API_KEY`: API key (optional)
+
+3. **Build and Install**:
+
+   ```bash
+   pnpm build
+   pnpm link --global
+   ```
+
+   After installation, you can use `profile-admin` command.
 
 ## Usage
 
-### Add a nickname
-
-Registry entry: `nickname → account_id`
+### Add Nickname
 
 ```bash
-pnpm cli add --nickname "john_doe" --account-id "co_abc123..."
+profile-admin add --nickname "johndoe" --account-id "co_z123456789"
 ```
 
-Reverse registry entry: `account_id → nickname`
+### Update Nickname - Transfer Nickname to Different Account
 
 ```bash
-pnpm cli add --account-id "co_abc123..." ---nickname "john_doe"
+profile-admin update --nickname "johndoe" --account-id "co_z987654321"
 ```
 
-### Update a nickname
+### Remove Nickname
 
 ```bash
-pnpm cli update --nickname "john_doe" --account-id "co_xyz789..."
+profile-admin remove --nickname "johndoe"
 ```
 
-Transfers nickname from old account to new account, updating both registries and nickname groups.
-
-### Remove a nickname
+### Health Check
 
 ```bash
-pnpm cli remove --nickname "john_doe"
+profile-admin health
 ```
 
-Removes from registries and deactivates the nickname group (soft delete).
+Checks registry integrity and reports:
 
-### Check registry health
+- Total nicknames and accounts
+- Orphaned entries (forward/reverse registry mismatches)
+- Duplicate mappings
+- Overall registry health status
+
+### Backup Registries
 
 ```bash
-pnpm cli health
+profile-admin download-registries
 ```
 
-Detects orphaned entries and inconsistencies between forward and reverse registries.
+Creates timestamped backup in `registry-backups/` folder:
 
-## Security Model
+- Format: `registry-backup-YYYY-MM-DDTHH-MM-SS.json`
+- Contains both forward and reverse registries
+- Automatically creates backup directory if missing
 
-### Permissions Structure
+### List Available Backups
 
-- **User**: `admin` access to their own nickname group
-- **Worker**: `writer` access to nickname groups (for admin operations)
-- **Profile**: User maintains full control, worker cannot modify
+```bash
+profile-admin list-backups
+```
 
-### Data Isolation
+Shows all backup files with:
 
-- Nickname data stored in dedicated `NicknameGroup` schema
-- Profile data remains in user-controlled `OnboardingProfile` schema
-- No cross-contamination of permissions
+- Filename with timestamp
+- File size
+- Creation date
 
-### Health Check Features
+### Restore from Backup
 
-Detects and reports:
+```bash
+profile-admin restore-all --backup-file "registry-backup-2025-08-05T12-22-11.json"
+```
 
-- **Orphaned nicknames**: Registry entries without reverse entries
-- **Orphaned account IDs**: Reverse entries without registry entries
-- **Duplicate assignments**: Accounts with multiple nicknames
-- **Consistency issues**: Mismatched forward/reverse registry data
+Restores registries from backup file (can use just filename if in backup folder).
+
+### Clean Old Backups
+
+```bash
+profile-admin clean-old-backups --days 30
+```
+
+Removes backup files older than specified days (default: 30 days).
+
+### Delete All Entries
+
+```bash
+profile-admin delete-all
+```
+
+- Automatically creates backup before deletion
+- Requires confirmation prompt
+- Clears all registry entries
+- Fails safely if backup creation fails
+
+## Development
+
+Run in development mode:
+
+```bash
+pnpm dev
+```
+
+Run commands directly:
+
+```bash
+pnpm cli -- add --nickname "test" --account-id "co_zTest123"
+pnpm cli -- health
+```
+
+## Architecture
+
+The CLI connects directly to the Jazz worker using the same `RegistryWorkerAccount` schema as the web service. It operates on the existing `registry` and `reverseRegistry` CoRecords without creating new ones.
+
+```
+[CLI Command] → [Jazz Worker Connection] → [Registry CoRecords] → [Jazz Network]
+```
+
+## Error Handling
+
+- Validates Jazz worker connection before executing commands
+- Checks registry loading and availability
+- Provides clear error messages for connection failures and validation errors
+- Exits with appropriate status codes (0 for success, non-zero for errors)
+- Automatic backup creation before destructive operations
+
+## Security
+
+- Backup files are excluded from git commits (contains sensitive account data)
+- Environment variables for secure credential storage
+- Confirmation prompts for destructive operations
+- Safe restore operations with validation

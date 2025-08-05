@@ -1,11 +1,11 @@
 {
   "name": "@onboarding.jazz/admin",
   "version": "0.1.0",
-  "description": "CLI tool for Jazz.tools nickname registry administration",
+  "description": "CLI tool for profile nickname registry admin operations",
   "main": "dist/cli.js",
   "type": "module",
   "bin": {
-    "jazz-admin": "dist/cli.js"
+    "profile-admin": "dist/cli.js"
   },
   "repository": {
     "type": "git",
@@ -25,16 +25,15 @@
     "cli",
     "nickname-registry"
   ],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "@alcyone-labs/arg-parser": "^1.2.0",
+    "@alcyone-labs/arg-parser": "^2.6.0",
     "@onboarding.jazz/shared-schemas": "workspace:*",
     "dotenv": "^16.6.1",
-    "jazz-tools": "^0.15.8"
+    "jazz-tools": "^0.15.7",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/node": "^20.19.6",
-    "typescript": "^5.8.3"
+    "@types/node": "^20.19.9",
+    "typescript": "^5.9.2"
   }
 }
