@@ -11,15 +11,30 @@ export type ReverseNicknameRegistry = z.infer<
   typeof ReverseNicknameRegistryCoRecord
 >;
 
+export const RegistryAuditEntry = co.map({
+  monotonicId: z.string(),
+  timestamp: z.number(),
+  jazzAccountId: z.string(),
+  oldNickname: z.optional(z.string()),
+  newNickname: z.optional(z.string()),
+  changedBy: z.string(),
+  source: z.enum(["admin-cli", "user-app", "worker"]),
+});
+export type RegistryAuditEntry = z.infer<typeof RegistryAuditEntry>;
+
+export const RegistryAuditLog = co.list(RegistryAuditEntry);
+export type RegistryAuditLog = z.infer<typeof RegistryAuditLog>;
+
 export const RegistryWorkerAccountRoot = co.map({
   registry: NicknameRegistryCoRecord,
   reverseRegistry: ReverseNicknameRegistryCoRecord,
+  auditLog: RegistryAuditLog,
 });
 export type RegistryWorkerAccountRoot = z.infer<
   typeof RegistryWorkerAccountRoot
 >;
 
-export const RegistryWorkerAccount = co
+export const RegistryWorkerAccount: ReturnType<typeof co.account> = co
   .account({
     profile: co.profile(),
     root: RegistryWorkerAccountRoot,
@@ -39,6 +54,7 @@ export const RegistryWorkerAccount = co
         const newRoot = RegistryWorkerAccountRoot.create({
           registry: NicknameRegistryCoRecord.create({}),
           reverseRegistry: ReverseNicknameRegistryCoRecord.create({}),
+          auditLog: RegistryAuditLog.create([]),
         });
         loadedAccount.root = newRoot;
         console.log("Root created after ensureLoaded since it was missing.");
@@ -55,6 +71,12 @@ export const RegistryWorkerAccount = co
         loadedAccount.root.reverseRegistry = newReverseRegistry;
         console.log("ReverseNicknameRegistry created in worker account root.");
       }
+      // Initialize audit log if missing
+      if (loadedAccount.root.auditLog === undefined) {
+        const newAuditLog = RegistryAuditLog.create([]);
+        loadedAccount.root.auditLog = newAuditLog;
+        console.log("AuditLog created in worker account root.");
+      }
     } catch (e) {
       console.log("EnsureLoaded Root failed, fallback", account, e);
 
@@ -63,14 +85,14 @@ export const RegistryWorkerAccount = co
         const newRoot = RegistryWorkerAccountRoot.create({
           registry: NicknameRegistryCoRecord.create({}),
           reverseRegistry: ReverseNicknameRegistryCoRecord.create({}),
+          auditLog: RegistryAuditLog.create([]),
         });
         account.root = newRoot;
 
         console.log(
-          "Root created with NicknameRegistry and ReverseNicknameRegistry in worker account since it was missing.",
+          "Root created with NicknameRegistry, ReverseNicknameRegistry, and AuditLog in worker account since it was missing.",
         );
       } else {
-        // Now we know account.root is not null/undefined
         if (account.root.registry === undefined) {
           const newRegistry = NicknameRegistryCoRecord.create({});
           account.root.registry = newRegistry;
@@ -84,6 +106,11 @@ export const RegistryWorkerAccount = co
           console.log(
             "ReverseNicknameRegistry created in existing root during fallback.",
           );
+        }
+        if (account.root.auditLog === undefined) {
+          const newAuditLog = RegistryAuditLog.create([]);
+          account.root.auditLog = newAuditLog;
+          console.log("AuditLog created in existing root during fallback.");
         }
       }
     }

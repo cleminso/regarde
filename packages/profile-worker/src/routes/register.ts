@@ -122,17 +122,7 @@ async function syncOnboardingNickname(
       `Syncing onboarding nickname for AccountID "${jazzAccountID}", operation: ${operation}`,
     );
 
-    // Load the user's account
-    const userAccount = await OnboardingAccount.load(jazzAccountID);
-    if (!userAccount) {
-      console.warn(
-        `Could not load account ${jazzAccountID} for onboarding nickname sync`,
-      );
-      return;
-    }
-
-    // Load the user's profile
-    const loadedAccount = await userAccount.ensureLoaded({
+    const account = await OnboardingAccount.load(jazzAccountID, {
       resolve: {
         profile: {
           onboarding: true,
@@ -140,13 +130,19 @@ async function syncOnboardingNickname(
       },
     });
 
-    if (!loadedAccount?.profile) {
+    if (!account) {
+      console.warn(
+        `Could not load account ${jazzAccountID} for onboarding nickname sync`,
+      );
+      return;
+    }
+
+    if (!account.profile) {
       console.warn(`No profile found for account ${jazzAccountID}`);
       return;
     }
 
-    // Access the onboarding nickname directly
-    const profile = loadedAccount.profile as any;
+    const profile = account.profile as any;
     const onboardingNickname = profile.onboarding;
 
     if (!onboardingNickname) {
@@ -154,7 +150,6 @@ async function syncOnboardingNickname(
       return;
     }
 
-    // Sync the CoMap data based on operation using imported functions
     if (operation === "delete") {
       deactivate(onboardingNickname);
       console.log(
@@ -243,7 +238,6 @@ export const registerHandler = (
           `Nickname "${oldNickname}" and reverse entry for AccountID "${jazzAccountID}" deleted.`,
         );
 
-        // Sync onboarding nickname after deletion
         await syncOnboardingNickname(jazzAccountID, null, "delete");
 
         return c.body(null, 204);
@@ -306,7 +300,6 @@ export const registerHandler = (
         `Nickname "${nickname}" registered/swapped for AccountID: ${jazzAccountID}.`,
       );
 
-      // Sync onboarding nickname after successful registration/swap
       const operation = oldNickname ? "update" : "register";
       await syncOnboardingNickname(jazzAccountID, nickname, operation);
 

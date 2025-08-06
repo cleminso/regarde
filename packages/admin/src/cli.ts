@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import "dotenv/config";
-import { z } from "zod";
 import { ArgParser } from "@alcyone-labs/arg-parser";
-import { AdminService } from "./services/AdminService.js";
+import { AdminService } from "./services/adminService.js";
+import { RegistryAuditEntry } from "@onboarding.jazz/shared-schemas/registry";
 
 const cli = ArgParser.withMcp({
   appName: "Profile Admin CLI",
@@ -12,7 +12,7 @@ const cli = ArgParser.withMcp({
 
 cli.addTool({
   name: "add",
-  description: "Add a new nickname mapping to the registry",
+  description: "Add a new nickname to account mapping",
   flags: [
     {
       name: "nickname",
@@ -52,10 +52,9 @@ cli.addTool({
   },
 });
 
-// Update nickname command
 cli.addTool({
   name: "update",
-  description: "Update an existing nickname mapping",
+  description: "Transfer a nickname to a different accountId",
   flags: [
     {
       name: "nickname",
@@ -69,7 +68,7 @@ cli.addTool({
       type: "string",
       mandatory: true,
       options: ["--account-id"],
-      description: "The new Jazz account ID",
+      description: "The new Jazz account ID to associate with the nickname",
     },
   ],
   handler: async (ctx) => {
@@ -81,8 +80,11 @@ cli.addTool({
         ctx.args.accountId,
       );
       console.log(
-        `✅ Successfully updated nickname "${ctx.args.nickname}" to account ${ctx.args.accountId}`,
+        `✅ Successfully updated nickname "${ctx.args.nickname}" to accountId ${ctx.args.accountId}`,
       );
+      if (result.oldAccountId) {
+        console.log(`📝 Previous accountId was: ${result.oldAccountId}`);
+      }
       return result;
     } catch (error: unknown) {
       const errorMessage =
@@ -95,7 +97,6 @@ cli.addTool({
   },
 });
 
-// Remove nickname command
 cli.addTool({
   name: "remove",
   description: "Remove a nickname from the registry",
@@ -114,6 +115,9 @@ cli.addTool({
       await admin.initialize();
       const result = await admin.removeNickname(ctx.args.nickname);
       console.log(`✅ Successfully removed nickname "${ctx.args.nickname}"`);
+      if (result.removedAccountId) {
+        console.log(`📝 Removed from account: ${result.removedAccountId}`);
+      }
       return result;
     } catch (error: unknown) {
       const errorMessage =
@@ -126,7 +130,6 @@ cli.addTool({
   },
 });
 
-// Health check command
 cli.addTool({
   name: "health",
   description: "Check registry integrity and report inconsistencies",
@@ -150,7 +153,6 @@ cli.addTool({
   },
 });
 
-// Download registries command
 cli.addTool({
   name: "download-registries",
   description: "Export both registries as JSON files for backup",
@@ -173,7 +175,6 @@ cli.addTool({
   },
 });
 
-// Restore command
 cli.addTool({
   name: "restore-all",
   description: "Restore registries from JSON backup file",
@@ -206,7 +207,6 @@ cli.addTool({
   },
 });
 
-// Delete all command
 cli.addTool({
   name: "delete-all",
   description: "Clear all entries from both registries (creates backup first)",
@@ -231,7 +231,6 @@ cli.addTool({
   },
 });
 
-// List backups command
 cli.addTool({
   name: "list-backups",
   description: "List all available backup files",
@@ -260,7 +259,6 @@ cli.addTool({
   },
 });
 
-// Clean old backups command
 cli.addTool({
   name: "clean-old-backups",
   description: "Remove backup files older than specified days",
@@ -289,5 +287,97 @@ cli.addTool({
   },
 });
 
-// Parse and execute
+cli.addTool({
+  name: "history",
+  description: "Show registry change history",
+  flags: [
+    {
+      name: "limit",
+      type: "number",
+      mandatory: false,
+      options: ["--limit"],
+      description: "Number of recent changes to show (default: 20)",
+    },
+    {
+      name: "accountId",
+      type: "string",
+      mandatory: false,
+      options: ["--account-id"],
+      description: "Filter by specific account ID",
+    },
+    {
+      name: "nickname",
+      type: "string",
+      mandatory: false,
+      options: ["--nickname"],
+      description: "Filter by specific nickname",
+    },
+    {
+      name: "source",
+      type: "string",
+      mandatory: false,
+      options: ["--source"],
+      description: "Filter by source type (admin-cli, user-app, worker)",
+    },
+  ],
+  handler: async (ctx) => {
+    const admin = new AdminService();
+    try {
+      await admin.initialize();
+
+      let entries: RegistryAuditEntry[] = [];
+
+      if (ctx.args.accountId) {
+        entries = await admin.getHistoryForAccount(ctx.args.accountId);
+      } else if (ctx.args.nickname) {
+        entries = await admin.getHistoryForNickname(ctx.args.nickname);
+      } else if (ctx.args.source) {
+        if (!["admin-cli", "user-app", "worker"].includes(ctx.args.source)) {
+          throw new Error("Source must be one of: admin-cli, user-app, worker");
+        }
+        entries = await admin.getHistoryBySource(ctx.args.source as any);
+      } else {
+        const limit = ctx.args.limit || 20;
+        entries = await admin.getChangeHistory(limit);
+      }
+
+      console.log("📜 Registry Change History:");
+      if (entries.length === 0) {
+        console.log("  No changes found.");
+      } else {
+        entries.forEach((entry) => {
+          const oldNick = entry.oldNickname || "∅";
+          const newNick = entry.newNickname || "∅";
+          const timeAgo = formatTimeAgo(entry.timestamp);
+          console.log(
+            `${entry.monotonicId}: ${oldNick} → ${newNick} (${entry.jazzAccountId}) [${entry.source}] ${timeAgo}`,
+          );
+        });
+      }
+
+      return { entries: entries.length };
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      console.error(`❌ Failed to get history: ${errorMessage}`);
+      process.exit(1);
+    } finally {
+      await admin.cleanup();
+    }
+  },
+});
+
+function formatTimeAgo(timestamp: number): string {
+  const now = Date.now();
+  const diff = now - timestamp;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (days > 0) return `${days} day${days > 1 ? "s" : ""} ago`;
+  if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+  if (minutes > 0) return `${minutes} min${minutes > 1 ? "s" : ""} ago`;
+  return "just now";
+}
+
 await cli.parse();

@@ -65,45 +65,69 @@ Checks registry integrity and reports:
 - Duplicate mappings
 - Overall registry health status
 
+### Audit Trail
+
+The system now includes comprehensive audit logging for all registry changes.
+
+#### View Recent Changes
+
+```bash
+profile-admin history
+```
+
+Shows the 20 most recent changes with ULID-based chronological ordering.
+
+#### Limit Number of Results
+
+```bash
+profile-admin history --limit 50
+```
+
+#### Filter by Account ID
+
+```bash
+profile-admin history --account-id "co_z123456789"
+```
+
+#### Filter by Nickname
+
+```bash
+profile-admin history --nickname "johndoe"
+```
+
+#### Filter by Source
+
+```bash
+profile-admin history --source "admin-cli"
+```
+
+Available sources:
+
+- `admin-cli` - Changes made via this CLI tool
+- `user-app` - Changes made by users in the profile application
+- `worker` - System/worker-initiated changes
+
+#### Example Output
+
+```
+Registry Change History:
+01ARZ3NDEKTSV4RRFFQ69G5FAU: ∅ → johndoe (co_zUser123) [user-app] 5 mins ago
+01ARZ3NDEKTSV4RRFFQ69G5FAT: jazz → ∅ (co_z8at4cd6bPMeo7J9M5ndWp1MduQ) [admin-cli] 10 mins ago
+```
+
 ### Backup Registries
 
 ```bash
 profile-admin download-registries
 ```
 
-Creates timestamped backup in `registry-backups/` folder:
-
-- Format: `registry-backup-YYYY-MM-DDTHH-MM-SS.json`
-- Contains both forward and reverse registries
-- Automatically creates backup directory if missing
-
-### List Available Backups
-
-```bash
-profile-admin list-backups
-```
-
-Shows all backup files with:
-
-- Filename with timestamp
-- File size
-- Creation date
+Creates timestamped backup in `registry-backups/` folder.
 
 ### Restore from Backup
 
 ```bash
-profile-admin restore-all --backup-file "registry-backup-2025-08-05T12-22-11.json"
+profile-admin restore-all --backup-file "registry-backups/registry-backup-2024-01-15T10-30-00.json"
 ```
-
-Restores registries from backup file (can use just filename if in backup folder).
-
-### Clean Old Backups
-
-```bash
-profile-admin clean-old-backups --days 30
-```
-
-Removes backup files older than specified days (default: 30 days).
 
 ### Delete All Entries
 
@@ -115,6 +139,15 @@ profile-admin delete-all
 - Requires confirmation prompt
 - Clears all registry entries
 - Fails safely if backup creation fails
+
+## Migration Notes
+
+For existing deployments, the audit trail system is automatically initialized when the worker account is first loaded after the update. The migration:
+
+- Safely adds the `auditLog` field to existing worker accounts
+- Maintains backward compatibility with existing registry data
+- Uses ULID-based IDs for natural chronological ordering
+- Gracefully handles cases where audit logging might fail
 
 ## Development
 
@@ -129,27 +162,30 @@ Run commands directly:
 ```bash
 pnpm cli -- add --nickname "test" --account-id "co_zTest123"
 pnpm cli -- health
+pnpm cli -- history --limit 10
 ```
 
 ## Architecture
 
-The CLI connects directly to the Jazz worker using the same `RegistryWorkerAccount` schema as the web service. It operates on the existing `registry` and `reverseRegistry` CoRecords without creating new ones.
+The CLI connects directly to the Jazz worker using the same `RegistryWorkerAccount` schema as the web service. It operates on the existing `registry` and `reverseRegistry` CoRecords plus the new `auditLog` CoList.
 
 ```
-[CLI Command] → [Jazz Worker Connection] → [Registry CoRecords] → [Jazz Network]
+[CLI Command] → [Jazz Worker Connection] → [Registry CoRecords + Audit CoList] → [Jazz Network]
 ```
+
+### Audit Trail Architecture
+
+- **ULID-based IDs**: Globally unique, chronologically sortable identifiers
+- **Atomic Logging**: Audit entries are created atomically with registry changes
+- **Source Attribution**: All changes are tagged with their source (admin-cli, user-app, worker)
+- **Graceful Degradation**: Registry operations continue even if audit logging fails
 
 ## Error Handling
 
-- Validates Jazz worker connection before executing commands
-- Checks registry loading and availability
-- Provides clear error messages for connection failures and validation errors
-- Exits with appropriate status codes (0 for success, non-zero for errors)
-- Automatic backup creation before destructive operations
+The system includes comprehensive error handling:
 
-## Security
-
-- Backup files are excluded from git commits (contains sensitive account data)
-- Environment variables for secure credential storage
-- Confirmation prompts for destructive operations
-- Safe restore operations with validation
+- Network connectivity issues
+- Invalid Jazz account credentials
+- Registry data corruption
+- Audit logging failures (non-blocking)
+- Backup/restore operations

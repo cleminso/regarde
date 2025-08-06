@@ -60,8 +60,16 @@ export function AvatarUpload({
           />
         </div>
       </div>
-      {profile.avatar && (
-        <div className="h-full flex flex-col justify-end">
+      <div className="h-full flex flex-col justify-end gap-1">
+        <button
+          type="button"
+          onClick={onAvatarClick}
+          className="text-sm text-muted-foreground hover:text-primary cursor-pointer"
+          aria-label="Upload new avatar"
+        >
+          Upload
+        </button>
+        {profile.avatar && (
           <button
             type="button"
             onClick={onRemoveAvatar}
@@ -70,8 +78,8 @@ export function AvatarUpload({
           >
             Remove
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 }

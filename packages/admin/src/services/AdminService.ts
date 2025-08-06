@@ -1,5 +1,9 @@
 import { startWorker } from "jazz-tools/worker";
-import { RegistryWorkerAccount } from "@onboarding.jazz/shared-schemas/registry";
+import {
+  RegistryWorkerAccount,
+  RegistryAuditEntry,
+} from "@onboarding.jazz/shared-schemas/registry";
+import { ulid } from "ulidx";
 import {
   writeFileSync,
   readFileSync,
@@ -36,9 +40,10 @@ export class AdminService {
   private worker: any;
   private nicknameRegistry: Record<string, string> = {};
   private reverseNicknameRegistry: Record<string, string> = {};
+  private auditLog: any;
 
   async initialize(): Promise<void> {
-    console.log("🔌Connecting to Jazz worker...");
+    console.log("🔌 Connecting to Jazz worker...");
 
     const accountId = process.env.JAZZ_WORKER_ACCOUNT;
     const accountSecret = process.env.JAZZ_WORKER_SECRET;
@@ -69,11 +74,18 @@ export class AdminService {
 
     try {
       const loadedWorker = await this.worker.ensureLoaded({
-        resolve: { root: { registry: true, reverseRegistry: true } },
+        resolve: {
+          root: {
+            registry: true,
+            reverseRegistry: true,
+            auditLog: { "*": true },
+          },
+        },
       });
 
       this.nicknameRegistry = loadedWorker?.root?.registry || {};
       this.reverseNicknameRegistry = loadedWorker?.root?.reverseRegistry || {};
+      this.auditLog = loadedWorker?.root?.auditLog;
 
       if (!this.nicknameRegistry || !this.reverseNicknameRegistry) {
         throw new Error(
@@ -81,11 +93,61 @@ export class AdminService {
         );
       }
 
-      console.log(`✅ Registries loaded successfully`);
+      if (!this.auditLog) {
+        throw new Error("AuditLog CoList not found in worker's account root");
+      }
+
+      console.log(`✅ Registries and audit log loaded successfully`);
+      console.log(`📊 Audit log type:`, typeof this.auditLog);
+      console.log(`📊 Audit log constructor:`, this.auditLog.constructor.name);
+      console.log(`📊 Initial audit log length: ${this.auditLog.length}`);
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       throw new Error(`Failed to load registries: ${errorMessage}`);
+    }
+  }
+
+  private async logChange(
+    jazzAccountId: string,
+    oldNickname?: string,
+    newNickname?: string,
+    source: "admin-cli" | "user-app" | "worker" = "admin-cli",
+  ): Promise<void> {
+    try {
+      console.log(`📝 Creating audit entry for account: ${jazzAccountId}`);
+
+      const entry = RegistryAuditEntry.create({
+        monotonicId: ulid(),
+        timestamp: Date.now(),
+        jazzAccountId,
+        oldNickname: oldNickname || undefined,
+        newNickname: newNickname || undefined,
+        changedBy: this.worker.id,
+        source,
+      });
+
+      console.log(`📝 Created entry:`, entry);
+      console.log(`📝 Entry keys:`, Object.keys(entry));
+      console.log(`📝 Entry monotonicId:`, entry.monotonicId);
+
+      this.auditLog.push(entry);
+
+      console.log(`📝 Audit log length after push: ${this.auditLog.length}`);
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      console.log(`📝 Verifying entry was added...`);
+      const lastEntry = this.auditLog[this.auditLog.length - 1];
+      console.log(`📝 Last entry:`, lastEntry);
+
+      console.log(`📝 Audit entry created: ${entry.monotonicId}`);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      console.warn(`⚠️ Failed to create audit entry: ${errorMessage}`);
+      console.warn(`⚠️ Error details:`, error);
+      // Don't throw - audit logging failure shouldn't break registry operations
     }
   }
 
@@ -96,23 +158,22 @@ export class AdminService {
     this.validateNickname(nickname);
     this.validateAccountId(accountId);
 
-    // Check if nickname already exists
     if (this.nicknameRegistry[nickname]) {
       throw new Error(
         `Nickname "${nickname}" already exists for account ${this.nicknameRegistry[nickname]}`,
       );
     }
 
-    // Check if account already has a nickname
     if (this.reverseNicknameRegistry[accountId]) {
       throw new Error(
         `Account ${accountId} already has nickname "${this.reverseNicknameRegistry[accountId]}"`,
       );
     }
 
-    // Add to both registries
     this.nicknameRegistry[nickname] = accountId;
     this.reverseNicknameRegistry[accountId] = nickname;
+
+    await this.logChange(accountId, undefined, nickname);
 
     return { success: true };
   }
@@ -124,16 +185,13 @@ export class AdminService {
     this.validateNickname(nickname);
     this.validateAccountId(accountId);
 
-    // Check if nickname exists
     const oldAccountId = this.nicknameRegistry[nickname];
     if (!oldAccountId) {
       throw new Error(`Nickname "${nickname}" does not exist`);
     }
 
-    // Clean up old reverse mapping
     delete this.reverseNicknameRegistry[oldAccountId];
 
-    // Check if new account already has a nickname
     const existingNickname = this.reverseNicknameRegistry[accountId];
     if (existingNickname && existingNickname !== nickname) {
       throw new Error(
@@ -143,6 +201,9 @@ export class AdminService {
 
     this.nicknameRegistry[nickname] = accountId;
     this.reverseNicknameRegistry[accountId] = nickname;
+
+    await this.logChange(oldAccountId, nickname, undefined);
+    await this.logChange(accountId, undefined, nickname);
 
     return { success: true, oldAccountId };
   }
@@ -160,7 +221,186 @@ export class AdminService {
     delete this.nicknameRegistry[nickname];
     delete this.reverseNicknameRegistry[accountId];
 
+    await this.logChange(accountId, nickname, undefined);
+
     return { success: true, removedAccountId: accountId };
+  }
+
+  async getChangeHistory(limit: number = 20): Promise<RegistryAuditEntry[]> {
+    try {
+      console.log(`📊 Audit log length: ${this.auditLog.length}`);
+
+      const entries: RegistryAuditEntry[] = [];
+
+      console.log(`📊 Trying _cachedEntries access`);
+      const auditLogAny = this.auditLog as any;
+      const rawData = auditLogAny._raw;
+
+      if (
+        rawData &&
+        rawData._cachedEntries &&
+        Array.isArray(rawData._cachedEntries)
+      ) {
+        console.log(`📊 Found ${rawData._cachedEntries.length} cached entries`);
+
+        for (let i = 0; i < rawData._cachedEntries.length; i++) {
+          const cachedEntry = rawData._cachedEntries[i];
+          console.log(`📊 Cached entry ${i}:`, cachedEntry);
+
+          if (cachedEntry && cachedEntry.value) {
+            try {
+              const entryId = cachedEntry.value;
+              console.log(`📊 Loading entry with ID: ${entryId}`);
+
+              // Use the worker to load the entry
+              const loadedEntry = await RegistryAuditEntry.load(
+                entryId,
+                this.worker,
+              );
+              console.log(`📊 Loaded entry:`, loadedEntry);
+
+              if (
+                loadedEntry &&
+                typeof loadedEntry === "object" &&
+                "monotonicId" in loadedEntry
+              ) {
+                entries.push(loadedEntry as unknown as RegistryAuditEntry);
+              }
+            } catch (loadError) {
+              console.warn(`⚠️ Failed to load entry ${i}:`, loadError);
+            }
+          }
+        }
+      }
+
+      if (entries.length === 0) {
+        console.log(`📊 Trying Array.from() with explicit loading`);
+        try {
+          const arrayEntries = Array.from(this.auditLog);
+          console.log(`📊 Array.from() result:`, arrayEntries);
+
+          for (let i = 0; i < arrayEntries.length; i++) {
+            const entry = arrayEntries[i];
+            console.log(`📊 Array entry ${i}:`, entry);
+
+            if (
+              entry === null &&
+              rawData &&
+              rawData._cachedEntries &&
+              rawData._cachedEntries[i]
+            ) {
+              try {
+                const entryId = rawData._cachedEntries[i].value;
+                const loadedEntry = await RegistryAuditEntry.load(
+                  entryId,
+                  this.worker,
+                );
+                if (
+                  loadedEntry &&
+                  typeof loadedEntry === "object" &&
+                  "monotonicId" in loadedEntry
+                ) {
+                  entries.push(loadedEntry as unknown as RegistryAuditEntry);
+                }
+              } catch (loadError) {
+                console.warn(
+                  `⚠️ Failed to load entry ${i} via fallback:`,
+                  loadError,
+                );
+              }
+            }
+          }
+        } catch (arrayError) {
+          console.warn(`⚠️ Array.from() failed:`, arrayError);
+        }
+      }
+
+      console.log(`📊 Valid entries: ${entries.length}`);
+
+      const sortedEntries = entries.sort((a, b) =>
+        b.monotonicId.localeCompare(a.monotonicId),
+      );
+      return sortedEntries.slice(0, limit);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to get change history: ${errorMessage}`);
+    }
+  }
+
+  async getHistoryForAccount(accountId: string): Promise<RegistryAuditEntry[]> {
+    try {
+      const entries: RegistryAuditEntry[] = [];
+
+      for (const entry of this.auditLog) {
+        if (
+          entry &&
+          typeof entry === "object" &&
+          "jazzAccountId" in entry &&
+          entry.jazzAccountId === accountId
+        ) {
+          entries.push(entry as RegistryAuditEntry);
+        }
+      }
+
+      return entries.sort((a, b) => b.monotonicId.localeCompare(a.monotonicId));
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to get history for account: ${errorMessage}`);
+    }
+  }
+
+  async getHistoryForNickname(nickname: string): Promise<RegistryAuditEntry[]> {
+    try {
+      const entries: RegistryAuditEntry[] = [];
+
+      for (const entry of this.auditLog) {
+        if (
+          entry &&
+          typeof entry === "object" &&
+          "oldNickname" in entry &&
+          "newNickname" in entry
+        ) {
+          const auditEntry = entry as RegistryAuditEntry;
+          if (
+            auditEntry.oldNickname === nickname ||
+            auditEntry.newNickname === nickname
+          ) {
+            entries.push(auditEntry);
+          }
+        }
+      }
+
+      return entries.sort((a, b) => b.monotonicId.localeCompare(a.monotonicId));
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to get history for nickname: ${errorMessage}`);
+    }
+  }
+
+  async getHistoryBySource(
+    source: "admin-cli" | "user-app" | "worker",
+  ): Promise<RegistryAuditEntry[]> {
+    try {
+      const entries: RegistryAuditEntry[] = [];
+
+      for (const entry of this.auditLog) {
+        if (entry && typeof entry === "object" && "source" in entry) {
+          const auditEntry = entry as RegistryAuditEntry;
+          if (auditEntry.source === source) {
+            entries.push(auditEntry);
+          }
+        }
+      }
+
+      return entries.sort((a, b) => b.monotonicId.localeCompare(a.monotonicId));
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to get history by source: ${errorMessage}`);
+    }
   }
 
   async healthCheck(): Promise<HealthReport> {
@@ -172,26 +412,22 @@ export class AdminService {
     const nicknameToAccounts: Record<string, string[]> = {};
     const accountToNicknames: Record<string, string[]> = {};
 
-    // Check for orphaned nicknames (nickname exists but reverse mapping doesn't)
     for (const [nickname, accountId] of registryEntries) {
       if (this.reverseNicknameRegistry[accountId] !== nickname) {
         orphanedNicknames.push(nickname);
       }
 
-      // Track multiple accounts per nickname
       if (!nicknameToAccounts[nickname]) {
         nicknameToAccounts[nickname] = [];
       }
       nicknameToAccounts[nickname].push(accountId);
     }
 
-    // Check for orphaned accounts (account exists but forward mapping doesn't)
     for (const [accountId, nickname] of reverseRegistryEntries) {
       if (this.nicknameRegistry[nickname] !== accountId) {
         orphanedAccounts.push(accountId);
       }
 
-      // Track multiple nicknames per account
       if (!accountToNicknames[accountId]) {
         accountToNicknames[accountId] = [];
       }
@@ -268,7 +504,6 @@ export class AdminService {
       throw new Error("Invalid backup file format");
     }
 
-    // Clear existing registries
     for (const key of Object.keys(this.nicknameRegistry)) {
       delete this.nicknameRegistry[key];
     }
@@ -300,11 +535,9 @@ export class AdminService {
     backupFile: string;
     deleted: { nicknames: number; accounts: number };
   }> {
-    // Create backup first
     const backupFile = await this.downloadRegistries();
     console.log(`📦 Backup created: ${backupFile}`);
 
-    // Confirm deletion
     const confirmed = await this.confirmDeletion();
     if (!confirmed) {
       throw new Error("Deletion cancelled by user");
@@ -315,7 +548,6 @@ export class AdminService {
       accounts: Object.keys(this.reverseNicknameRegistry).length,
     };
 
-    // Clear all entries
     for (const key of Object.keys(this.nicknameRegistry)) {
       delete this.nicknameRegistry[key];
     }
