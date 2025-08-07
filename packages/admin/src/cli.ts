@@ -367,6 +367,149 @@ cli.addTool({
   },
 });
 
+cli.addTool({
+  name: "check-nickname-health",
+  description: "Check health of a specific nickname or account ID",
+  flags: [
+    {
+      name: "nickname",
+      type: "string",
+      mandatory: false,
+      options: ["--nickname"],
+      description: "The nickname to check",
+    },
+    {
+      name: "accountId",
+      type: "string",
+      mandatory: false,
+      options: ["--account-id"],
+      description: "The Jazz account ID to check",
+    },
+  ],
+  handler: async (ctx) => {
+    const { nickname, accountId } = ctx.args;
+    
+    if (!nickname && !accountId) {
+      console.error("❌ Must provide either --nickname or --account-id");
+      process.exit(1);
+    }
+
+    try {
+      const adminService = new AdminService();
+      await adminService.initialize();
+      
+      const healthReport = await adminService.checkNicknameHealth(nickname, accountId);
+      
+      console.log("\n🔍 Nickname Health Report:");
+      console.log("=" .repeat(50));
+      
+      if (healthReport.nickname) {
+        console.log(`📝 Nickname: ${healthReport.nickname}`);
+      }
+      if (healthReport.accountId) {
+        console.log(`👤 Account ID: ${healthReport.accountId}`);
+      }
+      
+      console.log(`✅ Registry Status: ${healthReport.registryStatus}`);
+      console.log(`🔄 Reverse Registry Status: ${healthReport.reverseRegistryStatus}`);
+      console.log(`🎯 OnboardingNickname Status: ${healthReport.onboardingStatus}`);
+      
+      if (healthReport.issues.length > 0) {
+        console.log("\n⚠️  Issues Found:");
+        healthReport.issues.forEach((issue, index) => {
+          console.log(`  ${index + 1}. ${issue}`);
+        });
+      } else {
+        console.log("\n✅ No issues found!");
+      }
+      
+      if (healthReport.recommendations.length > 0) {
+        console.log("\n💡 Recommendations:");
+        healthReport.recommendations.forEach((rec, index) => {
+          console.log(`  ${index + 1}. ${rec}`);
+        });
+      }
+      
+      await adminService.cleanup();
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`❌ Error checking nickname health: ${errorMessage}`);
+      process.exit(1);
+    }
+  },
+});
+
+cli.addTool({
+  name: "fix-nickname",
+  description: "Fix nickname synchronization issues",
+  flags: [
+    {
+      name: "nickname",
+      type: "string",
+      mandatory: false,
+      options: ["--nickname"],
+      description: "The nickname to fix",
+    },
+    {
+      name: "accountId",
+      type: "string",
+      mandatory: false,
+      options: ["--account-id"],
+      description: "The Jazz account ID to fix",
+    },
+    {
+      name: "force",
+      type: "boolean",
+      mandatory: false,
+      options: ["--force"],
+      description: "Force fix even if no issues detected",
+    },
+  ],
+  handler: async (ctx) => {
+    const { nickname, accountId, force } = ctx.args;
+    
+    if (!nickname && !accountId) {
+      console.error("❌ Must provide either --nickname or --account-id");
+      process.exit(1);
+    }
+
+    try {
+      const adminService = new AdminService();
+      await adminService.initialize();
+      
+      console.log("🔍 Checking nickname health before fix...");
+      const healthReport = await adminService.checkNicknameHealth(nickname, accountId);
+      
+      if (healthReport.issues.length === 0 && !force) {
+        console.log("✅ No issues found. Use --force to fix anyway.");
+        await adminService.cleanup();
+        return;
+      }
+      
+      console.log("\n🔧 Applying fixes...");
+      const fixResult = await adminService.fixNickname(
+        healthReport.nickname || nickname, 
+        healthReport.accountId || accountId
+      );
+      
+      console.log(`✅ Fix completed: ${fixResult.message}`);
+      
+      if (fixResult.changes.length > 0) {
+        console.log("\n📝 Changes made:");
+        fixResult.changes.forEach((change, index) => {
+          console.log(`  ${index + 1}. ${change}`);
+        });
+      }
+      
+      await adminService.cleanup();
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`❌ Error fixing nickname: ${errorMessage}`);
+      process.exit(1);
+    }
+  },
+});
+
 function formatTimeAgo(timestamp: number): string {
   const now = Date.now();
   const diff = now - timestamp;

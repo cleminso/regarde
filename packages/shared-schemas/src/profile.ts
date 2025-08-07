@@ -1,5 +1,5 @@
 import { Account, co, Group, Loaded, z } from "jazz-tools";
-import { OnboardingNickname } from "./nickname";
+import { OnboardingNickname } from "./nickname.js";
 
 export const SocialLinks = co.map({
   github: z.optional(z.string()),

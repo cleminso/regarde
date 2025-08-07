@@ -15,6 +15,7 @@ import {
 } from "fs";
 import { createInterface } from "readline";
 import { join } from "path";
+import { OnboardingAccount } from "@onboarding.jazz/shared-schemas/profile";
 
 const BACKUP_DIR = "registry-backups";
 
@@ -34,6 +35,21 @@ interface BackupData {
   timestamp: string;
   registry: Record<string, string>;
   reverseRegistry: Record<string, string>;
+}
+
+interface NicknameHealthReport {
+  nickname?: string;
+  accountId?: string;
+  registryStatus: 'ok' | 'missing' | 'mismatch';
+  reverseRegistryStatus: 'ok' | 'missing' | 'mismatch';
+  onboardingStatus: 'ok' | 'missing' | 'inactive' | 'mismatch' | 'not_found';
+  issues: string[];
+  recommendations: string[];
+}
+
+interface FixResult {
+  message: string;
+  changes: string[];
 }
 
 export class AdminService {
@@ -657,5 +673,181 @@ export class AdminService {
     }
 
     return { deletedCount };
+  }
+
+  async checkNicknameHealth(nickname?: string, accountId?: string): Promise<NicknameHealthReport> {
+    let targetNickname = nickname;
+    let targetAccountId = accountId;
+    
+    // Resolve nickname/accountId if only one is provided
+    if (nickname && !accountId) {
+      targetAccountId = this.nicknameRegistry[nickname];
+    } else if (accountId && !nickname) {
+      targetNickname = this.reverseNicknameRegistry[accountId];
+    }
+    
+    const report: NicknameHealthReport = {
+      nickname: targetNickname,
+      accountId: targetAccountId,
+      registryStatus: 'ok',
+      reverseRegistryStatus: 'ok',
+      onboardingStatus: 'ok',
+      issues: [],
+      recommendations: []
+    };
+    
+    if (targetNickname) {
+      const registryAccountId = this.nicknameRegistry[targetNickname];
+      if (!registryAccountId) {
+        report.registryStatus = 'missing';
+        report.issues.push(`Nickname "${targetNickname}" not found in registry`);
+      } else if (registryAccountId !== targetAccountId) {
+        report.registryStatus = 'mismatch';
+        report.issues.push(`Registry shows nickname "${targetNickname}" belongs to ${registryAccountId}, but expected ${targetAccountId}`);
+      }
+    }
+    
+    if (targetAccountId) {
+      const reverseNickname = this.reverseNicknameRegistry[targetAccountId];
+      if (!reverseNickname) {
+        report.reverseRegistryStatus = 'missing';
+        report.issues.push(`Account ID "${targetAccountId}" not found in reverse registry`);
+      } else if (reverseNickname !== targetNickname) {
+        report.reverseRegistryStatus = 'mismatch';
+        report.issues.push(`Reverse registry shows account "${targetAccountId}" has nickname "${reverseNickname}", but expected "${targetNickname}"`);
+      }
+    }
+    
+    if (targetAccountId) {
+      try {
+        const account = await OnboardingAccount.load(targetAccountId, {
+          resolve: {
+            profile: {
+              onboarding: true,
+            },
+          },
+        });
+        
+        if (!account) {
+          report.onboardingStatus = 'not_found';
+          report.issues.push(`Account "${targetAccountId}" not found or not accessible`);
+        } else if (!account.profile) {
+          report.onboardingStatus = 'missing';
+          report.issues.push(`Account "${targetAccountId}" has no profile`);
+        } else {
+          const profile = account.profile as any;
+          const onboardingNickname = profile.onboarding;
+          
+          if (!onboardingNickname) {
+            report.onboardingStatus = 'missing';
+            report.issues.push(`Account "${targetAccountId}" has no onboarding nickname data`);
+            report.recommendations.push(`Create onboarding nickname data for account`);
+          } else {
+            const isActive = onboardingNickname.isActive;
+            const storedNickname = onboardingNickname.nickname;
+            
+            if (!isActive) {
+              report.onboardingStatus = 'inactive';
+              report.issues.push(`OnboardingNickname is inactive (isActive: false)`);
+              report.recommendations.push(`Activate onboarding nickname and sync with registry`);
+            }
+            
+            if (storedNickname !== targetNickname) {
+              report.onboardingStatus = 'mismatch';
+              report.issues.push(`OnboardingNickname shows "${storedNickname}", but registry shows "${targetNickname}"`);
+              report.recommendations.push(`Sync onboarding nickname with registry data`);
+            }
+          }
+        }
+      } catch (error) {
+        report.onboardingStatus = 'not_found';
+        report.issues.push(`Failed to load account "${targetAccountId}": ${error}`);
+      }
+    }
+    
+    return report;
+  }
+
+  async fixNickname(nickname?: string, accountId?: string): Promise<FixResult> {
+    const changes: string[] = [];
+    
+    let targetNickname = nickname;
+    let targetAccountId = accountId;
+    
+    if (nickname && !accountId) {
+      targetAccountId = this.nicknameRegistry[nickname];
+      if (targetAccountId) {
+        changes.push(`Resolved account ID: ${targetAccountId}`);
+      }
+    } else if (accountId && !nickname) {
+      targetNickname = this.reverseNicknameRegistry[accountId];
+      if (targetNickname) {
+        changes.push(`Resolved nickname: ${targetNickname}`);
+      }
+    }
+    
+    if (!targetNickname || !targetAccountId) {
+      throw new Error("Could not resolve both nickname and account ID");
+    }
+    
+    const registryAccountId = this.nicknameRegistry[targetNickname];
+    if (registryAccountId !== targetAccountId) {
+      this.nicknameRegistry[targetNickname] = targetAccountId;
+      changes.push(`Updated registry: ${targetNickname} → ${targetAccountId}`);
+    }
+    
+    const reverseNickname = this.reverseNicknameRegistry[targetAccountId];
+    if (reverseNickname !== targetNickname) {
+      this.reverseNicknameRegistry[targetAccountId] = targetNickname;
+      changes.push(`Updated reverse registry: ${targetAccountId} → ${targetNickname}`);
+    }
+    
+    try {
+      const account = await OnboardingAccount.load(targetAccountId, {
+        resolve: {
+          profile: {
+            onboarding: true,
+          },
+        },
+      });
+      
+      if (account && account.profile) {
+        const profile = account.profile as any;
+        const onboardingNickname = profile.onboarding;
+        
+        if (onboardingNickname) {
+          let nicknameChanged = false;
+          
+          if (onboardingNickname.nickname !== targetNickname) {
+            onboardingNickname.nickname = targetNickname;
+            nicknameChanged = true;
+            changes.push(`Updated onboarding nickname: ${targetNickname}`);
+          }
+          
+          if (!onboardingNickname.isActive) {
+            onboardingNickname.isActive = true;
+            nicknameChanged = true;
+            changes.push(`Activated onboarding nickname`);
+          }
+          
+          if (nicknameChanged) {
+            onboardingNickname.lastModified = Date.now();
+            changes.push(`Updated lastModified timestamp`);
+          }
+        } else {
+          changes.push(`Warning: No onboarding nickname data found to fix`);
+        }
+      }
+    } catch (error) {
+      changes.push(`Warning: Could not fix onboarding nickname: ${error}`);
+    }
+    
+    await this.logChange(targetAccountId, undefined, targetNickname, "admin-cli");
+    changes.push(`Logged fix operation to audit trail`);
+    
+    return {
+      message: `Successfully fixed nickname "${targetNickname}" for account "${targetAccountId}"`,
+      changes
+    };
   }
 }
