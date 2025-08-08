@@ -6,7 +6,7 @@ import { SyncStateBadge } from '../syncState.tsx';
 type EditorSidebarProps = {
   activeSection: SectionType;
   onSectionChange: (section: SectionType) => void;
-  syncState: 'saved' | 'syncing';
+  syncState: 'saved' | 'syncing' | 'error';
 };
 
 type SidebarButtonProps = {

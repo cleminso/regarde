@@ -1,27 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
 export function useSyncState() {
-  const [syncState, setSyncState] = useState<'saved' | 'syncing'>('saved');
-  const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
-
+  const [syncState, setSyncState] = useState<'saved' | 'syncing' | 'error'>('saved');
+  
   const triggerSyncIndicator = () => {
-    if (timeoutIdRef.current) {
-      clearTimeout(timeoutIdRef.current);
-    }
     setSyncState('syncing');
-    timeoutIdRef.current = setTimeout(() => {
+    
+    const timeout = setTimeout(() => {
       setSyncState('saved');
-      timeoutIdRef.current = null;
-    }, 1000);
-  };
-
-  useEffect(() => {
+    }, 1500);
+    
     return () => {
-      if (timeoutIdRef.current) {
-        clearTimeout(timeoutIdRef.current);
-      }
+      clearTimeout(timeout);
     };
-  }, []);
+  };
 
   return { syncState, triggerSyncIndicator };
 }
