@@ -1,12 +1,17 @@
+import { OnboardingProfile } from '@onboarding.jazz/shared-schemas/profile';
 import { Loaded } from 'jazz-tools';
 import { Loader2 } from 'lucide-react';
 import React from 'react';
 
-import { OnboardingProfile } from '@onboarding.jazz/shared-schemas/profile';
 import { normalizeNickname } from '../../lib/utils';
 import { Button, Input } from './../ui';
 
-type ValidationStatus = 'empty' | 'invalid' | 'checking' | 'available' | 'taken';
+type ValidationStatus =
+  | 'empty'
+  | 'invalid'
+  | 'checking'
+  | 'available'
+  | 'taken';
 
 interface NicknameInputProps {
   value: string;
@@ -76,7 +81,14 @@ export function NicknameInput({
   };
 
   const renderButton = () => {
-    console.log('🔍 renderButton - status:', validationStatus, 'value:', value, 'isProcessing:', isProcessing);
+    console.log(
+      '🔍 renderButton - status:',
+      validationStatus,
+      'value:',
+      value,
+      'isProcessing:',
+      isProcessing,
+    );
 
     if (isProcessing) {
       return (
@@ -93,7 +105,12 @@ export function NicknameInput({
 
     const isUnchanged = hasProfile && value === currentNickname;
 
-    console.log('🔍 isUnchanged:', isUnchanged, 'currentNickname:', currentNickname);
+    console.log(
+      '🔍 isUnchanged:',
+      isUnchanged,
+      'currentNickname:',
+      currentNickname,
+    );
 
     if (validationStatus === 'checking') {
       return (

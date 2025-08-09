@@ -4,6 +4,7 @@ import {
   RegistryAuditEntry,
 } from "@onboarding.jazz/shared-schemas/registry";
 import { ulid } from "ulidx";
+import { Logger } from "../utils/logger.js";
 import {
   writeFileSync,
   readFileSync,
@@ -40,9 +41,9 @@ interface BackupData {
 interface NicknameHealthReport {
   nickname?: string;
   accountId?: string;
-  registryStatus: 'ok' | 'missing' | 'mismatch';
-  reverseRegistryStatus: 'ok' | 'missing' | 'mismatch';
-  onboardingStatus: 'ok' | 'missing' | 'inactive' | 'mismatch' | 'not_found';
+  registryStatus: "ok" | "missing" | "mismatch";
+  reverseRegistryStatus: "ok" | "missing" | "mismatch";
+  onboardingStatus: "ok" | "missing" | "inactive" | "mismatch" | "not_found";
   issues: string[];
   recommendations: string[];
 }
@@ -59,7 +60,7 @@ export class AdminService {
   private auditLog: any;
 
   async initialize(): Promise<void> {
-    console.log("🔌 Connecting to Jazz worker...");
+    Logger.status("Connecting to Jazz worker...");
 
     const accountId = process.env.JAZZ_WORKER_ACCOUNT;
     const accountSecret = process.env.JAZZ_WORKER_SECRET;
@@ -86,7 +87,7 @@ export class AdminService {
       throw new Error(`Failed to start Jazz worker: ${errorMessage}`);
     }
 
-    console.log(`✅ Connected with Account ID: ${this.worker.id}`);
+    Logger.success(`Connected with Account ID: ${this.worker.id}`);
 
     try {
       const loadedWorker = await this.worker.ensureLoaded({
@@ -113,10 +114,10 @@ export class AdminService {
         throw new Error("AuditLog CoList not found in worker's account root");
       }
 
-      console.log(`✅ Registries and audit log loaded successfully`);
-      console.log(`📊 Audit log type:`, typeof this.auditLog);
-      console.log(`📊 Audit log constructor:`, this.auditLog.constructor.name);
-      console.log(`📊 Initial audit log length: ${this.auditLog.length}`);
+      Logger.success(`Registries and audit log loaded successfully`);
+      Logger.debug(`Audit log type: ${typeof this.auditLog}`);
+      Logger.debug(`Audit log constructor: ${this.auditLog.constructor.name}`);
+      Logger.debug(`Initial audit log length: ${this.auditLog.length}`);
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
@@ -244,11 +245,11 @@ export class AdminService {
 
   async getChangeHistory(limit: number = 20): Promise<RegistryAuditEntry[]> {
     try {
-      console.log(`📊 Audit log length: ${this.auditLog.length}`);
+      Logger.debug(`Audit log length: ${this.auditLog.length}`);
 
       const entries: RegistryAuditEntry[] = [];
 
-      console.log(`📊 Trying _cachedEntries access`);
+      Logger.debug(`Trying _cachedEntries access`);
       const auditLogAny = this.auditLog as any;
       const rawData = auditLogAny._raw;
 
@@ -257,23 +258,23 @@ export class AdminService {
         rawData._cachedEntries &&
         Array.isArray(rawData._cachedEntries)
       ) {
-        console.log(`📊 Found ${rawData._cachedEntries.length} cached entries`);
+        Logger.debug(`Found ${rawData._cachedEntries.length} cached entries`);
 
         for (let i = 0; i < rawData._cachedEntries.length; i++) {
           const cachedEntry = rawData._cachedEntries[i];
-          console.log(`📊 Cached entry ${i}:`, cachedEntry);
+          Logger.debug(`Cached entry ${i}: ${JSON.stringify(cachedEntry)}`);
 
           if (cachedEntry && cachedEntry.value) {
             try {
               const entryId = cachedEntry.value;
-              console.log(`📊 Loading entry with ID: ${entryId}`);
+              Logger.debug(`Loading entry with ID: ${entryId}`);
 
               // Use the worker to load the entry
               const loadedEntry = await RegistryAuditEntry.load(
                 entryId,
                 this.worker,
               );
-              console.log(`📊 Loaded entry:`, loadedEntry);
+              Logger.debug(`Loaded entry: ${JSON.stringify(loadedEntry)}`);
 
               if (
                 loadedEntry &&
@@ -283,21 +284,21 @@ export class AdminService {
                 entries.push(loadedEntry as unknown as RegistryAuditEntry);
               }
             } catch (loadError) {
-              console.warn(`⚠️ Failed to load entry ${i}:`, loadError);
+              Logger.warning(`Failed to load entry ${i}: ${loadError}`);
             }
           }
         }
       }
 
       if (entries.length === 0) {
-        console.log(`📊 Trying Array.from() with explicit loading`);
+        Logger.debug(`Trying Array.from() with explicit loading`);
         try {
           const arrayEntries = Array.from(this.auditLog);
-          console.log(`📊 Array.from() result:`, arrayEntries);
+          Logger.debug(`Array.from() result: ${JSON.stringify(arrayEntries)}`);
 
           for (let i = 0; i < arrayEntries.length; i++) {
             const entry = arrayEntries[i];
-            console.log(`📊 Array entry ${i}:`, entry);
+            Logger.debug(`Array entry ${i}: ${JSON.stringify(entry)}`);
 
             if (
               entry === null &&
@@ -319,19 +320,18 @@ export class AdminService {
                   entries.push(loadedEntry as unknown as RegistryAuditEntry);
                 }
               } catch (loadError) {
-                console.warn(
-                  `⚠️ Failed to load entry ${i} via fallback:`,
-                  loadError,
+                Logger.warning(
+                  `Failed to load entry ${i} via fallback: ${loadError}`,
                 );
               }
             }
           }
         } catch (arrayError) {
-          console.warn(`⚠️ Array.from() failed:`, arrayError);
+          Logger.warning(`Array.from() failed: ${arrayError}`);
         }
       }
 
-      console.log(`📊 Valid entries: ${entries.length}`);
+      Logger.debug(`Valid entries: ${entries.length}`);
 
       const sortedEntries = entries.sort((a, b) =>
         b.monotonicId.localeCompare(a.monotonicId),
@@ -616,7 +616,7 @@ export class AdminService {
   }
 
   async cleanup(): Promise<void> {
-    console.log("🧹 Cleanup completed");
+    Logger.status("Cleanup completed");
   }
 
   async listBackups(): Promise<{
@@ -675,49 +675,60 @@ export class AdminService {
     return { deletedCount };
   }
 
-  async checkNicknameHealth(nickname?: string, accountId?: string): Promise<NicknameHealthReport> {
+  async checkNicknameHealth(
+    nickname?: string,
+    accountId?: string,
+  ): Promise<NicknameHealthReport> {
     let targetNickname = nickname;
     let targetAccountId = accountId;
-    
+
     // Resolve nickname/accountId if only one is provided
     if (nickname && !accountId) {
       targetAccountId = this.nicknameRegistry[nickname];
     } else if (accountId && !nickname) {
       targetNickname = this.reverseNicknameRegistry[accountId];
     }
-    
+
     const report: NicknameHealthReport = {
       nickname: targetNickname,
       accountId: targetAccountId,
-      registryStatus: 'ok',
-      reverseRegistryStatus: 'ok',
-      onboardingStatus: 'ok',
+      registryStatus: "ok",
+      reverseRegistryStatus: "ok",
+      onboardingStatus: "ok",
       issues: [],
-      recommendations: []
+      recommendations: [],
     };
-    
+
     if (targetNickname) {
       const registryAccountId = this.nicknameRegistry[targetNickname];
       if (!registryAccountId) {
-        report.registryStatus = 'missing';
-        report.issues.push(`Nickname "${targetNickname}" not found in registry`);
+        report.registryStatus = "missing";
+        report.issues.push(
+          `Nickname "${targetNickname}" not found in registry`,
+        );
       } else if (registryAccountId !== targetAccountId) {
-        report.registryStatus = 'mismatch';
-        report.issues.push(`Registry shows nickname "${targetNickname}" belongs to ${registryAccountId}, but expected ${targetAccountId}`);
+        report.registryStatus = "mismatch";
+        report.issues.push(
+          `Registry shows nickname "${targetNickname}" belongs to ${registryAccountId}, but expected ${targetAccountId}`,
+        );
       }
     }
-    
+
     if (targetAccountId) {
       const reverseNickname = this.reverseNicknameRegistry[targetAccountId];
       if (!reverseNickname) {
-        report.reverseRegistryStatus = 'missing';
-        report.issues.push(`Account ID "${targetAccountId}" not found in reverse registry`);
+        report.reverseRegistryStatus = "missing";
+        report.issues.push(
+          `Account ID "${targetAccountId}" not found in reverse registry`,
+        );
       } else if (reverseNickname !== targetNickname) {
-        report.reverseRegistryStatus = 'mismatch';
-        report.issues.push(`Reverse registry shows account "${targetAccountId}" has nickname "${reverseNickname}", but expected "${targetNickname}"`);
+        report.reverseRegistryStatus = "mismatch";
+        report.issues.push(
+          `Reverse registry shows account "${targetAccountId}" has nickname "${reverseNickname}", but expected "${targetNickname}"`,
+        );
       }
     }
-    
+
     if (targetAccountId) {
       try {
         const account = await OnboardingAccount.load(targetAccountId, {
@@ -727,53 +738,69 @@ export class AdminService {
             },
           },
         });
-        
+
         if (!account) {
-          report.onboardingStatus = 'not_found';
-          report.issues.push(`Account "${targetAccountId}" not found or not accessible`);
+          report.onboardingStatus = "not_found";
+          report.issues.push(
+            `Account "${targetAccountId}" not found or not accessible`,
+          );
         } else if (!account.profile) {
-          report.onboardingStatus = 'missing';
+          report.onboardingStatus = "missing";
           report.issues.push(`Account "${targetAccountId}" has no profile`);
         } else {
           const profile = account.profile as any;
           const onboardingNickname = profile.onboarding;
-          
+
           if (!onboardingNickname) {
-            report.onboardingStatus = 'missing';
-            report.issues.push(`Account "${targetAccountId}" has no onboarding nickname data`);
-            report.recommendations.push(`Create onboarding nickname data for account`);
+            report.onboardingStatus = "missing";
+            report.issues.push(
+              `Account "${targetAccountId}" has no onboarding nickname data`,
+            );
+            report.recommendations.push(
+              `Create onboarding nickname data for account`,
+            );
           } else {
             const isActive = onboardingNickname.isActive;
             const storedNickname = onboardingNickname.nickname;
-            
+
             if (!isActive) {
-              report.onboardingStatus = 'inactive';
-              report.issues.push(`OnboardingNickname is inactive (isActive: false)`);
-              report.recommendations.push(`Activate onboarding nickname and sync with registry`);
+              report.onboardingStatus = "inactive";
+              report.issues.push(
+                `OnboardingNickname is inactive (isActive: false)`,
+              );
+              report.recommendations.push(
+                `Activate onboarding nickname and sync with registry`,
+              );
             }
-            
+
             if (storedNickname !== targetNickname) {
-              report.onboardingStatus = 'mismatch';
-              report.issues.push(`OnboardingNickname shows "${storedNickname}", but registry shows "${targetNickname}"`);
-              report.recommendations.push(`Sync onboarding nickname with registry data`);
+              report.onboardingStatus = "mismatch";
+              report.issues.push(
+                `OnboardingNickname shows "${storedNickname}", but registry shows "${targetNickname}"`,
+              );
+              report.recommendations.push(
+                `Sync onboarding nickname with registry data`,
+              );
             }
           }
         }
       } catch (error) {
-        report.onboardingStatus = 'not_found';
-        report.issues.push(`Failed to load account "${targetAccountId}": ${error}`);
+        report.onboardingStatus = "not_found";
+        report.issues.push(
+          `Failed to load account "${targetAccountId}": ${error}`,
+        );
       }
     }
-    
+
     return report;
   }
 
   async fixNickname(nickname?: string, accountId?: string): Promise<FixResult> {
     const changes: string[] = [];
-    
+
     let targetNickname = nickname;
     let targetAccountId = accountId;
-    
+
     if (nickname && !accountId) {
       targetAccountId = this.nicknameRegistry[nickname];
       if (targetAccountId) {
@@ -785,23 +812,25 @@ export class AdminService {
         changes.push(`Resolved nickname: ${targetNickname}`);
       }
     }
-    
+
     if (!targetNickname || !targetAccountId) {
       throw new Error("Could not resolve both nickname and account ID");
     }
-    
+
     const registryAccountId = this.nicknameRegistry[targetNickname];
     if (registryAccountId !== targetAccountId) {
       this.nicknameRegistry[targetNickname] = targetAccountId;
       changes.push(`Updated registry: ${targetNickname} → ${targetAccountId}`);
     }
-    
+
     const reverseNickname = this.reverseNicknameRegistry[targetAccountId];
     if (reverseNickname !== targetNickname) {
       this.reverseNicknameRegistry[targetAccountId] = targetNickname;
-      changes.push(`Updated reverse registry: ${targetAccountId} → ${targetNickname}`);
+      changes.push(
+        `Updated reverse registry: ${targetAccountId} → ${targetNickname}`,
+      );
     }
-    
+
     try {
       const account = await OnboardingAccount.load(targetAccountId, {
         resolve: {
@@ -810,26 +839,26 @@ export class AdminService {
           },
         },
       });
-      
+
       if (account && account.profile) {
         const profile = account.profile as any;
         const onboardingNickname = profile.onboarding;
-        
+
         if (onboardingNickname) {
           let nicknameChanged = false;
-          
+
           if (onboardingNickname.nickname !== targetNickname) {
             onboardingNickname.nickname = targetNickname;
             nicknameChanged = true;
             changes.push(`Updated onboarding nickname: ${targetNickname}`);
           }
-          
+
           if (!onboardingNickname.isActive) {
             onboardingNickname.isActive = true;
             nicknameChanged = true;
             changes.push(`Activated onboarding nickname`);
           }
-          
+
           if (nicknameChanged) {
             onboardingNickname.lastModified = Date.now();
             changes.push(`Updated lastModified timestamp`);
@@ -841,13 +870,18 @@ export class AdminService {
     } catch (error) {
       changes.push(`Warning: Could not fix onboarding nickname: ${error}`);
     }
-    
-    await this.logChange(targetAccountId, undefined, targetNickname, "admin-cli");
+
+    await this.logChange(
+      targetAccountId,
+      undefined,
+      targetNickname,
+      "admin-cli",
+    );
     changes.push(`Logged fix operation to audit trail`);
-    
+
     return {
       message: `Successfully fixed nickname "${targetNickname}" for account "${targetAccountId}"`,
-      changes
+      changes,
     };
   }
 }

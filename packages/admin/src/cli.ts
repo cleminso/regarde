@@ -3,6 +3,7 @@ import "dotenv/config";
 import { ArgParser } from "@alcyone-labs/arg-parser";
 import { AdminService } from "./services/adminService.js";
 import { RegistryAuditEntry } from "@onboarding.jazz/shared-schemas/registry";
+import { Logger } from "./utils/logger.js";
 
 const cli = ArgParser.withMcp({
   appName: "Profile Admin CLI",
@@ -37,14 +38,14 @@ cli.addTool({
         ctx.args.nickname,
         ctx.args.accountId,
       );
-      console.log(
-        `✅ Successfully added nickname "${ctx.args.nickname}" for account ${ctx.args.accountId}`,
+      Logger.success(
+        `Successfully added nickname "${ctx.args.nickname}" for account ${ctx.args.accountId}`,
       );
       return result;
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      console.error(`❌ Failed to add nickname: ${errorMessage}`);
+      Logger.failed(`Failed to add nickname: ${errorMessage}`);
       process.exit(1);
     } finally {
       await admin.cleanup();
@@ -79,17 +80,17 @@ cli.addTool({
         ctx.args.nickname,
         ctx.args.accountId,
       );
-      console.log(
-        `✅ Successfully updated nickname "${ctx.args.nickname}" to accountId ${ctx.args.accountId}`,
+      Logger.success(
+        `Successfully updated nickname "${ctx.args.nickname}" to accountId ${ctx.args.accountId}`,
       );
       if (result.oldAccountId) {
-        console.log(`📝 Previous accountId was: ${result.oldAccountId}`);
+        Logger.info(`Previous accountId was: ${result.oldAccountId}`);
       }
       return result;
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      console.error(`❌ Failed to update nickname: ${errorMessage}`);
+      Logger.failed(`Failed to update nickname: ${errorMessage}`);
       process.exit(1);
     } finally {
       await admin.cleanup();
@@ -114,15 +115,15 @@ cli.addTool({
     try {
       await admin.initialize();
       const result = await admin.removeNickname(ctx.args.nickname);
-      console.log(`✅ Successfully removed nickname "${ctx.args.nickname}"`);
+      Logger.success(`Successfully removed nickname "${ctx.args.nickname}"`);
       if (result.removedAccountId) {
-        console.log(`📝 Removed from account: ${result.removedAccountId}`);
+        Logger.info(`Removed from account: ${result.removedAccountId}`);
       }
       return result;
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      console.error(`❌ Failed to remove nickname: ${errorMessage}`);
+      Logger.failed(`Failed to remove nickname: ${errorMessage}`);
       process.exit(1);
     } finally {
       await admin.cleanup();
@@ -139,13 +140,13 @@ cli.addTool({
     try {
       await admin.initialize();
       const report = await admin.healthCheck();
-      console.log("🏥 Registry Health Report:");
+      Logger.check("Registry Health Report:");
       console.log(report);
       return report;
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      console.error(`❌ Health check failed: ${errorMessage}`);
+      Logger.failed(`Health check failed: ${errorMessage}`);
       process.exit(1);
     } finally {
       await admin.cleanup();
@@ -162,12 +163,12 @@ cli.addTool({
     try {
       await admin.initialize();
       const filePath = await admin.downloadRegistries();
-      console.log(`✅ Registries backed up to: ${filePath}`);
+      Logger.success(`Registries backed up to: ${filePath}`);
       return { backupFile: filePath };
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      console.error(`❌ Failed to download registries: ${errorMessage}`);
+      Logger.failed(`Failed to download registries: ${errorMessage}`);
       process.exit(1);
     } finally {
       await admin.cleanup();
@@ -192,14 +193,14 @@ cli.addTool({
     try {
       await admin.initialize();
       const result = await admin.restoreFromBackup(ctx.args.backupFile);
-      console.log(
-        `✅ Successfully restored registries from ${ctx.args.backupFile}`,
+      Logger.success(
+        `Successfully restored registries from ${ctx.args.backupFile}`,
       );
       return result;
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      console.error(`❌ Failed to restore registries: ${errorMessage}`);
+      Logger.failed(`Failed to restore registries: ${errorMessage}`);
       process.exit(1);
     } finally {
       await admin.cleanup();
@@ -216,14 +217,14 @@ cli.addTool({
     try {
       await admin.initialize();
       const result = await admin.deleteAll();
-      console.log(
-        `✅ All registries cleared. Backup saved to: ${result.backupFile}`,
+      Logger.success(
+        `All registries cleared. Backup saved to: ${result.backupFile}`,
       );
       return result;
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      console.error(`❌ Failed to delete all entries: ${errorMessage}`);
+      Logger.failed(`Failed to delete all entries: ${errorMessage}`);
       process.exit(1);
     } finally {
       await admin.cleanup();
@@ -239,9 +240,9 @@ cli.addTool({
     const admin = new AdminService();
     try {
       const result = await admin.listBackups();
-      console.log("📂 Available Backups:");
+      Logger.info("Available Backups:");
       if (result.backups.length === 0) {
-        console.log("  No backups found.");
+        Logger.info("  No backups found.");
       } else {
         result.backups.forEach((backup) => {
           console.log(
@@ -253,7 +254,7 @@ cli.addTool({
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      console.error(`❌ Failed to list backups: ${errorMessage}`);
+      Logger.failed(`Failed to list backups: ${errorMessage}`);
       process.exit(1);
     }
   },
@@ -276,12 +277,12 @@ cli.addTool({
     try {
       const days = ctx.args.days || 30;
       const result = await admin.cleanOldBackups(days);
-      console.log(`🧹 Cleaned ${result.deletedCount} old backup files`);
+      Logger.status(`Cleaned ${result.deletedCount} old backup files`);
       return result;
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      console.error(`❌ Failed to clean backups: ${errorMessage}`);
+      Logger.failed(`Failed to clean backups: ${errorMessage}`);
       process.exit(1);
     }
   },
@@ -341,9 +342,9 @@ cli.addTool({
         entries = await admin.getChangeHistory(limit);
       }
 
-      console.log("📜 Registry Change History:");
+      Logger.info("Registry Change History:");
       if (entries.length === 0) {
-        console.log("  No changes found.");
+        Logger.info("  No changes found.");
       } else {
         entries.forEach((entry) => {
           const oldNick = entry.oldNickname || "∅";
@@ -359,7 +360,7 @@ cli.addTool({
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      console.error(`❌ Failed to get history: ${errorMessage}`);
+      Logger.failed(`Failed to get history: ${errorMessage}`);
       process.exit(1);
     } finally {
       await admin.cleanup();
@@ -388,52 +389,60 @@ cli.addTool({
   ],
   handler: async (ctx) => {
     const { nickname, accountId } = ctx.args;
-    
+
     if (!nickname && !accountId) {
-      console.error("❌ Must provide either --nickname or --account-id");
+      Logger.error("Must provide either --nickname or --account-id");
       process.exit(1);
     }
 
     try {
       const adminService = new AdminService();
       await adminService.initialize();
-      
-      const healthReport = await adminService.checkNicknameHealth(nickname, accountId);
-      
-      console.log("\n🔍 Nickname Health Report:");
-      console.log("=" .repeat(50));
-      
+
+      const healthReport = await adminService.checkNicknameHealth(
+        nickname,
+        accountId,
+      );
+
+      Logger.check("\nNickname Health Report:");
+      console.log("=".repeat(50));
+
       if (healthReport.nickname) {
-        console.log(`📝 Nickname: ${healthReport.nickname}`);
+        Logger.info(`Nickname: ${healthReport.nickname}`);
       }
       if (healthReport.accountId) {
-        console.log(`👤 Account ID: ${healthReport.accountId}`);
+        Logger.info(`Account ID: ${healthReport.accountId}`);
       }
-      
-      console.log(`✅ Registry Status: ${healthReport.registryStatus}`);
-      console.log(`🔄 Reverse Registry Status: ${healthReport.reverseRegistryStatus}`);
-      console.log(`🎯 OnboardingNickname Status: ${healthReport.onboardingStatus}`);
-      
+
+      Logger.status(`Registry Status: ${healthReport.registryStatus}`);
+      Logger.status(
+        `Reverse Registry Status: ${healthReport.reverseRegistryStatus}`,
+      );
+      Logger.status(
+        `OnboardingNickname Status: ${healthReport.onboardingStatus}`,
+      );
+
       if (healthReport.issues.length > 0) {
-        console.log("\n⚠️  Issues Found:");
+        Logger.warning("\nIssues Found:");
         healthReport.issues.forEach((issue, index) => {
           console.log(`  ${index + 1}. ${issue}`);
         });
       } else {
-        console.log("\n✅ No issues found!");
+        Logger.success("\nNo issues found!");
       }
-      
+
       if (healthReport.recommendations.length > 0) {
-        console.log("\n💡 Recommendations:");
+        Logger.info("\nRecommendations:");
         healthReport.recommendations.forEach((rec, index) => {
           console.log(`  ${index + 1}. ${rec}`);
         });
       }
-      
+
       await adminService.cleanup();
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error(`❌ Error checking nickname health: ${errorMessage}`);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      Logger.error(`Error checking nickname health: ${errorMessage}`);
       process.exit(1);
     }
   },
@@ -467,44 +476,48 @@ cli.addTool({
   ],
   handler: async (ctx) => {
     const { nickname, accountId, force } = ctx.args;
-    
+
     if (!nickname && !accountId) {
-      console.error("❌ Must provide either --nickname or --account-id");
+      Logger.error("Must provide either --nickname or --account-id");
       process.exit(1);
     }
 
     try {
       const adminService = new AdminService();
       await adminService.initialize();
-      
-      console.log("🔍 Checking nickname health before fix...");
-      const healthReport = await adminService.checkNicknameHealth(nickname, accountId);
-      
+
+      Logger.check("Checking nickname health before fix...");
+      const healthReport = await adminService.checkNicknameHealth(
+        nickname,
+        accountId,
+      );
+
       if (healthReport.issues.length === 0 && !force) {
-        console.log("✅ No issues found. Use --force to fix anyway.");
+        Logger.success("No issues found. Use --force to fix anyway.");
         await adminService.cleanup();
         return;
       }
-      
-      console.log("\n🔧 Applying fixes...");
+
+      Logger.status("\nApplying fixes...");
       const fixResult = await adminService.fixNickname(
-        healthReport.nickname || nickname, 
-        healthReport.accountId || accountId
+        healthReport.nickname || nickname,
+        healthReport.accountId || accountId,
       );
-      
-      console.log(`✅ Fix completed: ${fixResult.message}`);
-      
+
+      Logger.success(`Fix completed: ${fixResult.message}`);
+
       if (fixResult.changes.length > 0) {
-        console.log("\n📝 Changes made:");
+        Logger.info("\nChanges made:");
         fixResult.changes.forEach((change, index) => {
           console.log(`  ${index + 1}. ${change}`);
         });
       }
-      
+
       await adminService.cleanup();
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error(`❌ Error fixing nickname: ${errorMessage}`);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      Logger.error(`Error fixing nickname: ${errorMessage}`);
       process.exit(1);
     }
   },

@@ -1,15 +1,16 @@
 'use client';
 
-import { SignInButton } from '@clerk/clerk-react';
 import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
+import { CustomAuthModal } from './components/onboarding/customAuthModal';
 import { Button } from './components/ui/button';
 import { useRegistrationKey } from './lib/account/useRegistrationKey';
 import { OnboardingAccount } from './lib/schema';
 
 export function AuthButton() {
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const { logOut } = useAccount(OnboardingAccount, {
     resolve: { profile: true },
   });
@@ -21,7 +22,7 @@ export function AuthButton() {
   useEffect(() => {
     if (isAuthenticated && isAccountReady && !keyInitialized.current) {
       keyInitialized.current = true;
-      
+
       getValidKey()
         .then((key) => {
           if (key) {
@@ -44,9 +45,15 @@ export function AuthButton() {
 
   if (!isAuthenticated) {
     return (
-      <SignInButton mode="modal">
-        <Button variant="outline">Sign In</Button>
-      </SignInButton>
+      <>
+        <Button variant="outline" onClick={() => setShowAuthModal(true)}>
+          Sign In
+        </Button>
+        <CustomAuthModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+        />
+      </>
     );
   }
 
