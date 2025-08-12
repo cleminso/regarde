@@ -29,6 +29,13 @@ cli.addTool({
       options: ["--account-id"],
       description: "The Jazz account ID to associate with the nickname",
     },
+    {
+      name: "allowReserved",
+      type: "boolean",
+      mandatory: false,
+      options: ["--allow-reserved"],
+      description: "Allow registration of reserved nicknames (admin override)",
+    },
   ],
   handler: async (ctx) => {
     const admin = new AdminService();
@@ -37,10 +44,14 @@ cli.addTool({
       const result = await admin.addNickname(
         ctx.args.nickname,
         ctx.args.accountId,
+        ctx.args.allowReserved || false,
       );
       Logger.success(
         `Successfully added nickname "${ctx.args.nickname}" for account ${ctx.args.accountId}`,
       );
+      if (ctx.args.allowReserved) {
+        Logger.info("Reserved nickname was overridden by admin.");
+      }
       return result;
     } catch (error: unknown) {
       const errorMessage =
@@ -519,6 +530,226 @@ cli.addTool({
         error instanceof Error ? error.message : String(error);
       Logger.error(`Error fixing nickname: ${errorMessage}`);
       process.exit(1);
+    }
+  },
+});
+
+cli.addTool({
+  name: "reserve",
+  description: "Reserve a nickname to prevent registration",
+  flags: [
+    {
+      name: "nickname",
+      type: "string",
+      mandatory: true,
+      options: ["--nickname"],
+      description: "The nickname to reserve",
+    },
+    {
+      name: "category",
+      type: "string",
+      mandatory: false,
+      options: ["--category"],
+      description:
+        "Reservation category (admin, brand, system, offensive, custom)",
+    },
+    {
+      name: "reason",
+      type: "string",
+      mandatory: false,
+      options: ["--reason"],
+      description: "Reason for the reservation",
+    },
+  ],
+  handler: async (ctx) => {
+    const admin = new AdminService();
+    try {
+      await admin.initialize();
+
+      const category =
+        (ctx.args.category as
+          | "admin"
+          | "brand"
+          | "system"
+          | "offensive"
+          | "custom") || "custom";
+      const validCategories = [
+        "admin",
+        "brand",
+        "system",
+        "offensive",
+        "custom",
+      ];
+
+      if (ctx.args.category && !validCategories.includes(ctx.args.category)) {
+        throw new Error(
+          `Invalid category. Must be one of: ${validCategories.join(", ")}`,
+        );
+      }
+
+      const result = await admin.reserveNickname(
+        ctx.args.nickname,
+        ctx.args.reason,
+        category,
+      );
+
+      Logger.success(
+        `Successfully reserved nickname "${ctx.args.nickname}" (category: ${category})`,
+      );
+      if (ctx.args.reason) {
+        Logger.info(`Reason: ${ctx.args.reason}`);
+      }
+      return result;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      Logger.failed(`Failed to reserve nickname: ${errorMessage}`);
+      process.exit(1);
+    } finally {
+      await admin.cleanup();
+    }
+  },
+});
+
+cli.addTool({
+  name: "unreserve",
+  description: "Remove a nickname reservation",
+  flags: [
+    {
+      name: "nickname",
+      type: "string",
+      mandatory: true,
+      options: ["--nickname"],
+      description: "The nickname to unreserve",
+    },
+  ],
+  handler: async (ctx) => {
+    const admin = new AdminService();
+    try {
+      await admin.initialize();
+      const result = await admin.unreserveNickname(ctx.args.nickname);
+      Logger.success(`Successfully unreserved nickname "${ctx.args.nickname}"`);
+      return result;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      Logger.failed(`Failed to unreserve nickname: ${errorMessage}`);
+      process.exit(1);
+    } finally {
+      await admin.cleanup();
+    }
+  },
+});
+
+cli.addTool({
+  name: "list-reserved",
+  description: "List all reserved nicknames",
+  flags: [
+    {
+      name: "category",
+      type: "string",
+      mandatory: false,
+      options: ["--category"],
+      description:
+        "Filter by category (admin, brand, system, offensive, custom)",
+    },
+  ],
+  handler: async (ctx) => {
+    const admin = new AdminService();
+    try {
+      await admin.initialize();
+
+      const category = ctx.args.category as
+        | "admin"
+        | "brand"
+        | "system"
+        | "offensive"
+        | "custom"
+        | undefined;
+      const validCategories = [
+        "admin",
+        "brand",
+        "system",
+        "offensive",
+        "custom",
+      ];
+
+      if (ctx.args.category && !validCategories.includes(ctx.args.category)) {
+        throw new Error(
+          `Invalid category. Must be one of: ${validCategories.join(", ")}`,
+        );
+      }
+
+      const result = await admin.listReservedNicknames(category);
+
+      Logger.info("Reserved Nicknames:");
+      if (result.reservations.length === 0) {
+        Logger.info("  No reserved nicknames found.");
+      } else {
+        result.reservations.forEach((reservation) => {
+          const timeAgo = formatTimeAgo(reservation.reservedAt);
+          console.log(
+            `  • ${reservation.nickname} (${reservation.category}) - reserved ${timeAgo}`,
+          );
+          if (reservation.reason) {
+            console.log(`    Reason: ${reservation.reason}`);
+          }
+          console.log(`    Reserved by: ${reservation.reservedBy}`);
+        });
+      }
+
+      return result;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      Logger.failed(`Failed to list reserved nicknames: ${errorMessage}`);
+      process.exit(1);
+    } finally {
+      await admin.cleanup();
+    }
+  },
+});
+
+cli.addTool({
+  name: "check-reserved",
+  description: "Check if a nickname is reserved",
+  flags: [
+    {
+      name: "nickname",
+      type: "string",
+      mandatory: true,
+      options: ["--nickname"],
+      description: "The nickname to check",
+    },
+  ],
+  handler: async (ctx) => {
+    const admin = new AdminService();
+    try {
+      await admin.initialize();
+      const result = await admin.checkReservationStatus(ctx.args.nickname);
+
+      if (result.isReserved && result.reservation) {
+        Logger.warning(`Nickname "${ctx.args.nickname}" is RESERVED`);
+        console.log(`  Category: ${result.reservation.category}`);
+        console.log(`  Reserved by: ${result.reservation.reservedBy}`);
+        console.log(
+          `  Reserved at: ${new Date(result.reservation.reservedAt).toISOString()}`,
+        );
+        if (result.reservation.reason) {
+          console.log(`  Reason: ${result.reservation.reason}`);
+        }
+      } else {
+        Logger.success(`Nickname "${ctx.args.nickname}" is NOT reserved`);
+      }
+
+      return result;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      Logger.failed(`Failed to check reservation status: ${errorMessage}`);
+      process.exit(1);
+    } finally {
+      await admin.cleanup();
     }
   },
 });

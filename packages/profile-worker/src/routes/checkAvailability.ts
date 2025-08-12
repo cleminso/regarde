@@ -57,7 +57,7 @@ export const checkAvailabilityRoute = createRoute({
     "Check if a nickname is available for registration without making any changes to the registry",
 });
 
-export const checkAvailabilityHandler = (nicknameRegistry: any) => {
+export const checkAvailabilityHandler = (nicknameRegistry: any, reservedNicknames: any) => {
   return async (c: any) => {
     try {
       const { nickname } = c.req.valid("json");
@@ -65,18 +65,29 @@ export const checkAvailabilityHandler = (nicknameRegistry: any) => {
       console.log(`Checking availability for nickname: "${nickname}"`);
 
       const existingAccountForNickname = nicknameRegistry[nickname];
-      const isAvailable = !existingAccountForNickname;
+      const reservation = reservedNicknames[nickname];
 
-      return c.json(
-        {
-          nickname,
-          available: isAvailable,
-          ...(existingAccountForNickname && {
-            takenBy: existingAccountForNickname,
-          }),
-        },
-        200,
-      );
+      // Nickname is unavailable if it's either taken or reserved
+      const isAvailable = !existingAccountForNickname && !reservation;
+
+      const response: any = {
+        nickname,
+        available: isAvailable,
+      };
+
+      // Add taken information if nickname is registered
+      if (existingAccountForNickname) {
+        response.takenBy = existingAccountForNickname;
+      }
+
+      // Add reservation information if nickname is reserved
+      if (reservation) {
+        response.reserved = true;
+        response.reservationCategory = reservation.category;
+        response.reservationReason = reservation.reason;
+      }
+
+      return c.json(response, 200);
     } catch (error: any) {
       console.error(`Error processing /checkAvailability request: ${error}`);
       return c.json({ error: error.message || "Internal server error" }, 500);

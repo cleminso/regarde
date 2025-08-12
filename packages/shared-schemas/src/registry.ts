@@ -11,6 +11,18 @@ export type ReverseNicknameRegistry = z.infer<
   typeof ReverseNicknameRegistryCoRecord
 >;
 
+// Reservation-related schemas
+export const ReservationEntry = co.map({
+  reservedBy: z.string(), // Account ID who reserved it
+  reservedAt: z.number(), // Timestamp
+  reason: z.optional(z.string()), // Optional reason for reservation
+  category: z.enum(["admin", "brand", "system", "offensive", "custom"]),
+});
+export type ReservationEntry = z.infer<typeof ReservationEntry>;
+
+export const ReservedNicknamesRegistry = co.record(z.string(), ReservationEntry);
+export type ReservedNicknamesRegistry = z.infer<typeof ReservedNicknamesRegistry>;
+
 export const RegistryAuditEntry = co.map({
   monotonicId: z.string(),
   timestamp: z.number(),
@@ -19,6 +31,9 @@ export const RegistryAuditEntry = co.map({
   newNickname: z.optional(z.string()),
   changedBy: z.string(),
   source: z.enum(["admin-cli", "user-app", "worker"]),
+  action: z.enum(["add", "update", "remove", "reserve", "unreserve"]),
+  reservationReason: z.optional(z.string()),
+  reservationCategory: z.optional(z.enum(["admin", "brand", "system", "offensive", "custom"])),
 });
 export type RegistryAuditEntry = z.infer<typeof RegistryAuditEntry>;
 
@@ -29,6 +44,7 @@ export const RegistryWorkerAccountRoot = co.map({
   registry: NicknameRegistryCoRecord,
   reverseRegistry: ReverseNicknameRegistryCoRecord,
   auditLog: RegistryAuditLog,
+  reservedNicknames: ReservedNicknamesRegistry,
 });
 export type RegistryWorkerAccountRoot = z.infer<
   typeof RegistryWorkerAccountRoot
@@ -55,6 +71,7 @@ export const RegistryWorkerAccount: ReturnType<typeof co.account> = co
           registry: NicknameRegistryCoRecord.create({}),
           reverseRegistry: ReverseNicknameRegistryCoRecord.create({}),
           auditLog: RegistryAuditLog.create([]),
+          reservedNicknames: ReservedNicknamesRegistry.create({}),
         });
         loadedAccount.root = newRoot;
         console.log("Root created after ensureLoaded since it was missing.");
@@ -77,6 +94,12 @@ export const RegistryWorkerAccount: ReturnType<typeof co.account> = co
         loadedAccount.root.auditLog = newAuditLog;
         console.log("AuditLog created in worker account root.");
       }
+      // Initialize reserved nicknames if missing
+      if (loadedAccount.root.reservedNicknames === undefined) {
+        const newReservedNicknames = ReservedNicknamesRegistry.create({});
+        loadedAccount.root.reservedNicknames = newReservedNicknames;
+        console.log("ReservedNicknames created in worker account root.");
+      }
     } catch (e) {
       console.log("EnsureLoaded Root failed, fallback", account, e);
 
@@ -86,11 +109,12 @@ export const RegistryWorkerAccount: ReturnType<typeof co.account> = co
           registry: NicknameRegistryCoRecord.create({}),
           reverseRegistry: ReverseNicknameRegistryCoRecord.create({}),
           auditLog: RegistryAuditLog.create([]),
+          reservedNicknames: ReservedNicknamesRegistry.create({}),
         });
         account.root = newRoot;
 
         console.log(
-          "Root created with NicknameRegistry, ReverseNicknameRegistry, and AuditLog in worker account since it was missing.",
+          "Root created with NicknameRegistry, ReverseNicknameRegistry, AuditLog, and ReservedNicknames in worker account since it was missing.",
         );
       } else {
         if (account.root.registry === undefined) {
@@ -111,6 +135,11 @@ export const RegistryWorkerAccount: ReturnType<typeof co.account> = co
           const newAuditLog = RegistryAuditLog.create([]);
           account.root.auditLog = newAuditLog;
           console.log("AuditLog created in existing root during fallback.");
+        }
+        if (account.root.reservedNicknames === undefined) {
+          const newReservedNicknames = ReservedNicknamesRegistry.create({});
+          account.root.reservedNicknames = newReservedNicknames;
+          console.log("ReservedNicknames created in existing root during fallback.");
         }
       }
     }

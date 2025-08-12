@@ -11,6 +11,9 @@ export const CheckAvailabilityResponseSchema = z.object({
   nickname: z.string(),
   available: z.boolean(),
   takenBy: z.string().optional(),
+  reserved: z.boolean().optional(),
+  reservationCategory: z.string().optional(),
+  reservationReason: z.string().optional(),
 });
 
 export type CheckAvailabilityRequest = z.infer<

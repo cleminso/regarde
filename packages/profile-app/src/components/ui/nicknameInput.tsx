@@ -11,7 +11,8 @@ type ValidationStatus =
   | 'invalid'
   | 'checking'
   | 'available'
-  | 'taken';
+  | 'taken'
+  | 'reserved';
 
 interface NicknameInputProps {
   value: string;
@@ -162,6 +163,14 @@ export function NicknameInput({
       );
     }
 
+    if (validationStatus === 'reserved') {
+      return (
+        <Button variant="destructive" size="sm" disabled>
+          Reserved
+        </Button>
+      );
+    }
+
     if (validationStatus === 'invalid') {
       return (
         <Button variant="destructive" size="sm" disabled>
@@ -182,6 +191,23 @@ export function NicknameInput({
 
     if (!value && errorDisplay.showRequiredMessage) {
       return <small className="text-destructive">Nickname is required.</small>;
+    }
+
+    if (value && validationStatus === 'reserved') {
+      return (
+        <small className="text-foreground">
+          Reserved -{' '}
+          <a
+            href="https://x.com/cleminso"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2"
+          >
+            Contact support
+          </a>{' '}
+          if you believe you should have access to this nickname.
+        </small>
+      );
     }
 
     if (value && validationStatus === 'invalid' && validationError) {

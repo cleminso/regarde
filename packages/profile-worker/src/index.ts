@@ -94,7 +94,7 @@ async function main() {
   let loadedWorker;
   try {
     loadedWorker = await worker.ensureLoaded({
-      resolve: { root: { registry: true, reverseRegistry: true } },
+      resolve: { root: { registry: true, reverseRegistry: true, reservedNicknames: true } },
     });
   } catch (loadError) {
     console.error("Failed to load worker data:", loadError);
@@ -104,6 +104,7 @@ async function main() {
 
   const nicknameRegistry = loadedWorker?.root?.registry;
   const reverseNicknameRegistry = loadedWorker?.root?.reverseRegistry;
+  const reservedNicknames = loadedWorker?.root?.reservedNicknames;
 
   if (!nicknameRegistry || !reverseNicknameRegistry) {
     console.error(
@@ -112,10 +113,18 @@ async function main() {
     process.exit(1);
   }
 
+  if (!reservedNicknames) {
+    console.error(
+      "Critical: ReservedNicknames CoRecord not found in worker's account root. Migration might have failed.",
+    );
+    process.exit(1);
+  }
+
   console.log(`NicknameRegistry CoRecord loaded. ID: ${nicknameRegistry.id}`);
   console.log(
     `ReverseNicknameRegistry CoRecord loaded. ID: ${reverseNicknameRegistry.id}`,
   );
+  console.log(`ReservedNicknames CoRecord loaded. ID: ${reservedNicknames.id}`);
 
   const app = new OpenAPIHono();
 
@@ -145,7 +154,7 @@ async function main() {
 
   const safeCheckAvailabilityHandler = async (c: any) => {
     try {
-      return await checkAvailabilityHandler(nicknameRegistry)(c);
+      return await checkAvailabilityHandler(nicknameRegistry, reservedNicknames)(c);
     } catch (error) {
       console.error("Error in checkAvailabilityHandler:", error);
       return c.json({ error: "Internal server error" }, 500);
@@ -158,6 +167,7 @@ async function main() {
         nicknameRegistry,
         reverseNicknameRegistry,
         worker,
+        reservedNicknames,
       )(c);
     } catch (error) {
       console.error("Error in registerHandler:", error);

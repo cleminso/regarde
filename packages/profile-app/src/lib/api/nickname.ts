@@ -8,6 +8,9 @@ export interface CheckAvailabilityResponse {
   nickname: string;
   available: boolean;
   takenBy?: string;
+  reserved?: boolean;
+  reservationCategory?: string;
+  reservationReason?: string;
 }
 
 export interface RegisterRequest {

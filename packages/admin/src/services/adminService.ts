@@ -2,6 +2,7 @@ import { startWorker } from "jazz-tools/worker";
 import {
   RegistryWorkerAccount,
   RegistryAuditEntry,
+  ReservationEntry,
 } from "@onboarding.jazz/shared-schemas/registry";
 import { ulid } from "ulidx";
 import { Logger } from "../utils/logger.js";
@@ -58,6 +59,7 @@ export class AdminService {
   private nicknameRegistry: Record<string, string> = {};
   private reverseNicknameRegistry: Record<string, string> = {};
   private auditLog: any;
+  private reservedNicknames: any = {};
 
   async initialize(): Promise<void> {
     Logger.status("Connecting to Jazz worker...");
@@ -96,6 +98,7 @@ export class AdminService {
             registry: true,
             reverseRegistry: true,
             auditLog: { "*": true },
+            reservedNicknames: { $each: true },
           },
         },
       });
@@ -103,6 +106,7 @@ export class AdminService {
       this.nicknameRegistry = loadedWorker?.root?.registry || {};
       this.reverseNicknameRegistry = loadedWorker?.root?.reverseRegistry || {};
       this.auditLog = loadedWorker?.root?.auditLog;
+      this.reservedNicknames = loadedWorker?.root?.reservedNicknames || {};
 
       if (!this.nicknameRegistry || !this.reverseNicknameRegistry) {
         throw new Error(
@@ -112,6 +116,12 @@ export class AdminService {
 
       if (!this.auditLog) {
         throw new Error("AuditLog CoList not found in worker's account root");
+      }
+
+      if (!this.reservedNicknames) {
+        throw new Error(
+          "ReservedNicknames CoRecord not found in worker's account root",
+        );
       }
 
       Logger.success(`Registries and audit log loaded successfully`);
@@ -130,9 +140,25 @@ export class AdminService {
     oldNickname?: string,
     newNickname?: string,
     source: "admin-cli" | "user-app" | "worker" = "admin-cli",
+    action?: "add" | "update" | "remove" | "reserve" | "unreserve",
+    reservationReason?: string,
+    reservationCategory?: "admin" | "brand" | "system" | "offensive" | "custom",
   ): Promise<void> {
     try {
-      console.log(`📝 Creating audit entry for account: ${jazzAccountId}`);
+      Logger.debug(`Creating audit entry for account: ${jazzAccountId}`);
+
+      let entryAction = action;
+      if (!entryAction) {
+        if (oldNickname && newNickname) {
+          entryAction = "update";
+        } else if (newNickname) {
+          entryAction = "add";
+        } else if (oldNickname) {
+          entryAction = "remove";
+        } else {
+          entryAction = "add";
+        }
+      }
 
       const entry = RegistryAuditEntry.create({
         monotonicId: ulid(),
@@ -142,35 +168,32 @@ export class AdminService {
         newNickname: newNickname || undefined,
         changedBy: this.worker.id,
         source,
+        action: entryAction,
+        reservationReason: reservationReason || undefined,
+        reservationCategory: reservationCategory || undefined,
       });
 
-      console.log(`📝 Created entry:`, entry);
-      console.log(`📝 Entry keys:`, Object.keys(entry));
-      console.log(`📝 Entry monotonicId:`, entry.monotonicId);
+      Logger.debug(`Created audit entry: ${entry.monotonicId}`);
 
       this.auditLog.push(entry);
 
-      console.log(`📝 Audit log length after push: ${this.auditLog.length}`);
+      Logger.debug(`Audit log length after push: ${this.auditLog.length}`);
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      console.log(`📝 Verifying entry was added...`);
-      const lastEntry = this.auditLog[this.auditLog.length - 1];
-      console.log(`📝 Last entry:`, lastEntry);
-
-      console.log(`📝 Audit entry created: ${entry.monotonicId}`);
+      Logger.debug(`Audit entry created successfully: ${entry.monotonicId}`);
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      console.warn(`⚠️ Failed to create audit entry: ${errorMessage}`);
-      console.warn(`⚠️ Error details:`, error);
-      // Don't throw - audit logging failure shouldn't break registry operations
+      Logger.error(`Failed to create audit entry: ${errorMessage}`);
+      Logger.debug(`Audit entry error details: ${JSON.stringify(error)}`);
     }
   }
 
   async addNickname(
     nickname: string,
     accountId: string,
+    allowReserved: boolean = false,
   ): Promise<{ success: boolean }> {
     this.validateNickname(nickname);
     this.validateAccountId(accountId);
@@ -181,9 +204,36 @@ export class AdminService {
       );
     }
 
+    if (this.reservedNicknames[nickname] && !allowReserved) {
+      const reservation = this.reservedNicknames[nickname] as any;
+      const category = reservation?.category || "unknown";
+      const reservedBy = reservation?.reservedBy || "unknown";
+      throw new Error(
+        `Nickname "${nickname}" is reserved (category: ${category}, reserved by: ${reservedBy}). Use --allow-reserved flag to override.`,
+      );
+    }
+
     if (this.reverseNicknameRegistry[accountId]) {
       throw new Error(
         `Account ${accountId} already has nickname "${this.reverseNicknameRegistry[accountId]}"`,
+      );
+    }
+
+    if (this.reservedNicknames[nickname] && allowReserved) {
+      const reservation = this.reservedNicknames[nickname] as any;
+      const entryReason = reservation?.reason;
+      const entryCategory = reservation?.category;
+
+      delete this.reservedNicknames[nickname];
+
+      await this.logChange(
+        this.worker.id,
+        undefined,
+        undefined,
+        "admin-cli",
+        "unreserve",
+        entryReason,
+        entryCategory,
       );
     }
 
@@ -243,6 +293,167 @@ export class AdminService {
     return { success: true, removedAccountId: accountId };
   }
 
+  async reserveNickname(
+    nickname: string,
+    reason?: string,
+    category: "admin" | "brand" | "system" | "offensive" | "custom" = "custom",
+  ): Promise<{ success: boolean }> {
+    this.validateNickname(nickname);
+
+    if (this.nicknameRegistry[nickname]) {
+      throw new Error(
+        `Cannot reserve nickname "${nickname}" - already taken by account ${this.nicknameRegistry[nickname]}`,
+      );
+    }
+
+    if (this.reservedNicknames[nickname]) {
+      const existing = this.reservedNicknames[nickname];
+      throw new Error(
+        `Nickname "${nickname}" is already reserved (category: ${existing.category}, reserved by: ${existing.reservedBy})`,
+      );
+    }
+
+    const reservationEntry = ReservationEntry.create({
+      reservedBy: this.worker.id,
+      reservedAt: Date.now(),
+      reason: reason || undefined,
+      category,
+    });
+
+    this.reservedNicknames[nickname] = reservationEntry;
+
+    await this.logChange(
+      this.worker.id,
+      undefined,
+      undefined,
+      "admin-cli",
+      "reserve",
+      reason,
+      category,
+    );
+
+    return { success: true };
+  }
+
+  async unreserveNickname(nickname: string): Promise<{ success: boolean }> {
+    this.validateNickname(nickname);
+
+    if (!this.reservedNicknames[nickname]) {
+      throw new Error(`Nickname "${nickname}" is not reserved`);
+    }
+
+    const reservation = this.reservedNicknames[nickname];
+    const reservationEntry = reservation as any;
+
+    const entryReason = reservationEntry?.reason;
+    const entryCategory = reservationEntry?.category;
+
+    delete this.reservedNicknames[nickname];
+
+    await this.logChange(
+      this.worker.id,
+      undefined,
+      undefined,
+      "admin-cli",
+      "unreserve",
+      entryReason,
+      entryCategory,
+    );
+
+    return { success: true };
+  }
+
+  async listReservedNicknames(
+    category?: "admin" | "brand" | "system" | "offensive" | "custom",
+  ): Promise<{
+    reservations: Array<{
+      nickname: string;
+      reservedBy: string;
+      reservedAt: number;
+      reason?: string;
+      category: string;
+    }>;
+  }> {
+    const reservations: Array<{
+      nickname: string;
+      reservedBy: string;
+      reservedAt: number;
+      reason?: string;
+      category: string;
+    }> = [];
+
+    for (const [nickname, reservation] of Object.entries(
+      this.reservedNicknames,
+    )) {
+      if (!reservation) continue;
+
+      const reservationEntry = reservation as any;
+
+      const entryCategory = reservationEntry?.category;
+      const entryReservedBy = reservationEntry?.reservedBy;
+      const entryReservedAt = reservationEntry?.reservedAt;
+      const entryReason = reservationEntry?.reason;
+
+      if (!entryCategory || !entryReservedBy || !entryReservedAt) {
+        Logger.warning(`Skipping invalid reservation entry for nickname: ${nickname}`);
+        continue;
+      }
+
+      if (!category || entryCategory === category) {
+        reservations.push({
+          nickname,
+          reservedBy: entryReservedBy,
+          reservedAt: entryReservedAt,
+          reason: entryReason,
+          category: entryCategory,
+        });
+      }
+    }
+
+    reservations.sort((a, b) => b.reservedAt - a.reservedAt);
+
+    return { reservations };
+  }
+
+  async checkReservationStatus(nickname: string): Promise<{
+    isReserved: boolean;
+    reservation?: {
+      reservedBy: string;
+      reservedAt: number;
+      reason?: string;
+      category: string;
+    };
+  }> {
+    this.validateNickname(nickname);
+
+    const reservation = this.reservedNicknames[nickname];
+    if (!reservation) {
+      return { isReserved: false };
+    }
+
+    const reservationEntry = reservation as any;
+
+    const entryReservedBy = reservationEntry?.reservedBy;
+    const entryReservedAt = reservationEntry?.reservedAt;
+    const entryReason = reservationEntry?.reason;
+    const entryCategory = reservationEntry?.category;
+
+    if (!entryReservedBy || !entryReservedAt || !entryCategory) {
+      Logger.warning(`Invalid reservation entry for nickname: ${nickname}`);
+      return { isReserved: false };
+    }
+
+    return {
+      isReserved: true,
+      reservation: {
+        reservedBy: entryReservedBy,
+        reservedAt: entryReservedAt,
+        reason: entryReason,
+        category: entryCategory,
+      },
+    };
+  }
+
   async getChangeHistory(limit: number = 20): Promise<RegistryAuditEntry[]> {
     try {
       Logger.debug(`Audit log length: ${this.auditLog.length}`);
@@ -269,7 +480,6 @@ export class AdminService {
               const entryId = cachedEntry.value;
               Logger.debug(`Loading entry with ID: ${entryId}`);
 
-              // Use the worker to load the entry
               const loadedEntry = await RegistryAuditEntry.load(
                 entryId,
                 this.worker,
@@ -552,7 +762,7 @@ export class AdminService {
     deleted: { nicknames: number; accounts: number };
   }> {
     const backupFile = await this.downloadRegistries();
-    console.log(`📦 Backup created: ${backupFile}`);
+    Logger.info(`Backup created: ${backupFile}`);
 
     const confirmed = await this.confirmDeletion();
     if (!confirmed) {
@@ -682,7 +892,6 @@ export class AdminService {
     let targetNickname = nickname;
     let targetAccountId = accountId;
 
-    // Resolve nickname/accountId if only one is provided
     if (nickname && !accountId) {
       targetAccountId = this.nicknameRegistry[nickname];
     } else if (accountId && !nickname) {

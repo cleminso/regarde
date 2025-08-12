@@ -12,7 +12,7 @@ import { createNicknameUrl } from '../utils';
 
 const PENDING_NICKNAME_KEY = 'pending-nickname';
 
-type ValidationStatus = 'empty' | 'invalid' | 'checking' | 'available' | 'taken';
+type ValidationStatus = 'empty' | 'invalid' | 'checking' | 'available' | 'taken' | 'reserved';
 
 // Add a global flag to prevent multiple registrations
 let globalRegistrationInProgress = false;
@@ -71,8 +71,19 @@ export function useOnboarding() {
     setValidationStatus('checking');
     try {
       const result = await checkNicknameAvailability(nickname);
-      setValidationStatus(result.available ? 'available' : 'taken');
-      setValidationError('');
+
+      if (result.available) {
+        setValidationStatus('available');
+        setValidationError('');
+      } else if (result.reserved) {
+        setValidationStatus('reserved');
+        const categoryText = result.reservationCategory ? ` (${result.reservationCategory})` : '';
+        const reasonText = result.reservationReason ? `: ${result.reservationReason}` : '';
+        setValidationError(`This nickname is reserved${categoryText}${reasonText}`);
+      } else {
+        setValidationStatus('taken');
+        setValidationError('');
+      }
     } catch (error) {
       setValidationStatus('invalid');
       setValidationError('Failed to check availability. Please try again.');

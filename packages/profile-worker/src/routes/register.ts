@@ -173,6 +173,7 @@ export const registerHandler = (
   nicknameRegistry: any,
   reverseNicknameRegistry: any,
   worker: any,
+  reservedNicknames: any,
 ) => {
   return async (c: any) => {
     try {
@@ -251,6 +252,19 @@ export const registerHandler = (
           `Nickname "${nickname}" is already taken by AccountID: ${existingAccountForNickname}.`,
         );
         return c.json({ error: "Nickname already taken" }, 409);
+      }
+
+      // Check if nickname is reserved
+      const reservation = reservedNicknames[nickname];
+      if (reservation) {
+        console.log(
+          `Nickname "${nickname}" is reserved (category: ${reservation.category}, reserved by: ${reservation.reservedBy}).`,
+        );
+        return c.json({
+          error: "Nickname is reserved",
+          reservationCategory: reservation.category,
+          reservationReason: reservation.reason
+        }, 403);
       }
 
       if (oldNickname) {
