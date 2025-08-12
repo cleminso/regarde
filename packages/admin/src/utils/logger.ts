@@ -41,4 +41,55 @@ export class Logger {
   static debug(message: string) {
     console.log(`${this.colors.gray}${this.colors.bright}[DEBUG]${this.colors.reset} ${message}`);
   }
+
+  // Status indication methods for health checks and other status displays
+  static statusOk(label: string, value?: string): string {
+    const displayValue = value ? `: ${value}` : '';
+    return `${this.colors.green}${this.colors.bright}[OK]${this.colors.reset} ${label}${displayValue}`;
+  }
+
+  static statusError(label: string, value?: string): string {
+    const displayValue = value ? `: ${value}` : '';
+    return `${this.colors.red}${this.colors.bright}[ERROR]${this.colors.reset} ${label}${displayValue}`;
+  }
+
+  static statusWarning(label: string, value?: string): string {
+    const displayValue = value ? `: ${value}` : '';
+    return `${this.colors.yellow}${this.colors.bright}[WARN]${this.colors.reset} ${label}${displayValue}`;
+  }
+
+  static statusMissing(label: string, value?: string): string {
+    const displayValue = value ? `: ${value}` : '';
+    return `${this.colors.red}${this.colors.bright}[MISSING]${this.colors.reset} ${label}${displayValue}`;
+  }
+
+  static statusInactive(label: string, value?: string): string {
+    const displayValue = value ? `: ${value}` : '';
+    return `${this.colors.gray}${this.colors.bright}[INACTIVE]${this.colors.reset} ${label}${displayValue}`;
+  }
+
+  static statusUnknown(label: string, value?: string): string {
+    const displayValue = value ? `: ${value}` : '';
+    return `${this.colors.cyan}${this.colors.bright}[UNKNOWN]${this.colors.reset} ${label}${displayValue}`;
+  }
+
+  // Generic status method that maps status strings to appropriate formatting
+  static formatStatus(status: string, label: string, value?: string): string {
+    switch (status.toLowerCase()) {
+      case 'ok':
+        return this.statusOk(label, value);
+      case 'missing':
+        return this.statusMissing(label, value);
+      case 'mismatch':
+        return this.statusWarning(label, value);
+      case 'inactive':
+        return this.statusInactive(label, value);
+      case 'not_found':
+        return this.statusUnknown(label, value);
+      case 'error':
+        return this.statusError(label, value);
+      default:
+        return this.statusUnknown(label, value);
+    }
+  }
 }
