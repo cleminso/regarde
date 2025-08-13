@@ -1,8 +1,9 @@
-import { Command, withAdminService } from "../types.js";
+import { withAdminService } from "../types.js";
+import { type ToolConfig } from "@alcyone-labs/arg-parser";
 import { Logger } from "../../utils/logger.js";
 import { RegistryAuditEntry } from "@onboarding.jazz/shared-schemas/registry";
 
-export const auditCommands: Command[] = [
+export const auditCommands: ToolConfig[] = [
   {
     name: "history",
     description: "Show registry change history",

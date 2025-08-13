@@ -1,7 +1,8 @@
-import { Command, withAdminService } from "../types.js";
+import { withAdminService } from "../types.js";
+import { type ToolConfig } from "@alcyone-labs/arg-parser";
 import { Logger } from "../../utils/logger.js";
 
-export const nicknameCommands: Command[] = [
+export const nicknameCommands: ToolConfig[] = [
   {
     name: "add",
     description: "Add a new nickname to account mapping",
@@ -25,7 +26,8 @@ export const nicknameCommands: Command[] = [
         type: "boolean",
         mandatory: false,
         options: ["--allow-reserved"],
-        description: "Allow registration of reserved nicknames (admin override)",
+        description:
+          "Allow registration of reserved nicknames (admin override)",
       },
     ],
     handler: async (ctx) => {

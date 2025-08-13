@@ -1,6 +1,5 @@
 import { ArgParser } from "@alcyone-labs/arg-parser";
 import { Logger } from "../utils/logger.js";
-import { ArgParserTool } from "./types.js";
 
 import { nicknameCommands } from "./commands/nickname.js";
 import { reservationCommands } from "./commands/reservation.js";

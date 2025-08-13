@@ -63,6 +63,7 @@ export async function storeRegistrationKey(
 export function useRegistrationKey() {
   const { account, isAccountReady } = useMyAccount();
 
+  // TODO: Replace with code from useRegistrationKeyData
   const { registrationKey, isLoading, isAccessible } = useRegistrationKeyData();
 
   const getValidKey = useCallback(async (): Promise<string | null> => {

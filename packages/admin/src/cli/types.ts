@@ -1,35 +1,3 @@
-export interface CommandContext {
-  args: Record<string, any>;
-}
-
-export interface CommandFlag {
-  name: string;
-  type: "string" | "boolean" | "number";
-  mandatory: boolean;
-  options: string[];
-  description: string;
-}
-
-export interface Command {
-  name: string;
-  description: string;
-  flags: CommandFlag[];
-  handler: (ctx: CommandContext) => Promise<any>;
-}
-
-export interface ArgParserTool {
-  name: string;
-  description: string;
-  flags: Array<{
-    name: string;
-    type: "string" | "boolean" | "number";
-    mandatory: boolean;
-    options: string[];
-    description: string;
-  }>;
-  handler: (ctx: { args: Record<string, any> }) => Promise<any>;
-}
-
 export class CLIError extends Error {
   constructor(
     message: string,
@@ -40,6 +8,7 @@ export class CLIError extends Error {
   }
 }
 
+// TODO: Move out to a properly named file, this is not a "types" but a tool factory
 export async function withAdminService<T>(
   operation: (admin: any) => Promise<T>,
 ): Promise<T> {

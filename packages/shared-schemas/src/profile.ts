@@ -243,6 +243,7 @@ export const OnboardingAccount = co
           nicknameGroup.addMember("everyone", "reader");
 
           // Add worker permissions
+          // TODO: Update worker to variable value
           const workerAccountId = "co_zRgFdJz2k14V4daiih8T4hNEGdR";
           try {
             const workerAccount = await Account.load(workerAccountId);

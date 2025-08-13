@@ -1,7 +1,8 @@
-import { Command, withAdminService } from "../types.js";
+import { withAdminService } from "../types.js";
+import { type ToolConfig } from "@alcyone-labs/arg-parser";
 import { Logger } from "../../utils/logger.js";
 
-export const reservationCommands: Command[] = [
+export const reservationCommands: ToolConfig[] = [
   {
     name: "reserve",
     description: "Reserve a nickname to prevent registration",

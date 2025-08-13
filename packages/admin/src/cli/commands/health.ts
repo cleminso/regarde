@@ -1,7 +1,8 @@
-import { Command, withAdminService } from "../types.js";
+import { withAdminService } from "../types.js";
+import { type ToolConfig } from "@alcyone-labs/arg-parser";
 import { Logger } from "../../utils/logger.js";
 
-export const healthCommands: Command[] = [
+export const healthCommands: ToolConfig[] = [
   {
     name: "health",
     description: "Check registry integrity and health",
@@ -122,9 +123,15 @@ export const healthCommands: Command[] = [
         console.log("");
 
         console.log("Status Checks:");
-        console.log(`  ${Logger.formatStatus(healthReport.registryStatus, "Registry", healthReport.registryStatus)}`);
-        console.log(`  ${Logger.formatStatus(healthReport.reverseRegistryStatus, "Reverse Registry", healthReport.reverseRegistryStatus)}`);
-        console.log(`  ${Logger.formatStatus(healthReport.onboardingStatus, "Onboarding", healthReport.onboardingStatus)}`);
+        console.log(
+          `  ${Logger.formatStatus(healthReport.registryStatus, "Registry", healthReport.registryStatus)}`,
+        );
+        console.log(
+          `  ${Logger.formatStatus(healthReport.reverseRegistryStatus, "Reverse Registry", healthReport.reverseRegistryStatus)}`,
+        );
+        console.log(
+          `  ${Logger.formatStatus(healthReport.onboardingStatus, "Onboarding", healthReport.onboardingStatus)}`,
+        );
         console.log("");
 
         if (healthReport.issues.length > 0) {
