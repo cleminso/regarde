@@ -1,8 +1,8 @@
 import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
+import { Education, type CleanLoadedJazzAppProfile } from '#/lib/schema';
 import { useEducation } from '../../../lib/hook/useEducation';
-import { Education, OnboardingProfile } from '../../../lib/schema';
 import { getValidUrl } from '../../../lib/utils';
 import { Input, Label, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
@@ -10,7 +10,7 @@ import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
 
 type EducationEditProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
   onDoneEditing: () => void;
   educationToEdit?: Loaded<typeof Education>;

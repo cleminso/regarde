@@ -1,9 +1,13 @@
 import { Loaded } from 'jazz-tools';
 
-import { Education, ListOfEducation, OnboardingProfile } from '../schema';
+import {
+  CleanLoadedJazzAppProfile,
+  Education,
+  ListOfEducation,
+} from '../schema';
 
 type UseEducationProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
 };
 

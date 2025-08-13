@@ -3,11 +3,11 @@ import { Loaded } from 'jazz-tools';
 import {
   Certification,
   ListOfCertification,
-  OnboardingProfile,
+  type CleanLoadedJazzAppProfile,
 } from '../schema';
 
 type UseCertificationProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
 };
 

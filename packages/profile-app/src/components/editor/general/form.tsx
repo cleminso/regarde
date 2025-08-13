@@ -2,7 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useEffect } from 'react';
 
 import { useGeneral } from '#/lib/hook/useGeneral';
-import { OnboardingProfile } from '../../../lib/schema';
+import { JazzAppProfile } from '../../../lib/schema';
 import { Input, Label, Textarea } from '../../ui';
 import { NicknameInput } from '../../ui/nicknameInput';
 import { EditorFooter } from '../layout/footer';
@@ -10,7 +10,7 @@ import { SectionHeader } from '../layout/header';
 import { AvatarUpload } from './avatarUpload';
 
 type GeneralEditProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: Loaded<typeof JazzAppProfile>;
   triggerSyncIndicator: () => void;
   onCloseEditor: () => void;
   accountId: string;

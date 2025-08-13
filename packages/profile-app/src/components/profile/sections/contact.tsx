@@ -1,11 +1,9 @@
-import { Loaded } from 'jazz-tools';
-
 import { Button } from '#/components/ui/button';
-import { OnboardingProfile } from '#/lib/schema';
+import { type CleanLoadedJazzAppProfile } from '#/lib/schema';
 import { buildSocialLinks } from '#/lib/utils';
 
 type ContactProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
 };
 
 export function Contact({ profile }: ContactProps) {

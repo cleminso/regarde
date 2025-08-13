@@ -2,11 +2,11 @@ import { Loaded } from 'jazz-tools';
 import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
-import { Education, OnboardingProfile } from '#/lib/schema';
+import type { CleanLoadedJazzAppProfile, Education } from '#/lib/schema';
 import { formatDateRange, getValidUrl } from '#/lib/utils';
 
 type EducationsProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
 };
 
 export function Educations({ profile }: EducationsProps) {

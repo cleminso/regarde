@@ -1,9 +1,9 @@
 import { Loaded } from 'jazz-tools';
 
-import { Award, ListOfAward, OnboardingProfile } from '../schema';
+import { Award, ListOfAward, type CleanLoadedJazzAppProfile } from '../schema';
 
 type UseAwardProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
 };
 

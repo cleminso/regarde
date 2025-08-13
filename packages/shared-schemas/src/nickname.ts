@@ -1,16 +1,16 @@
 import { co, Loaded, z } from "jazz-tools";
 
-export const OnboardingNickname = co.map({
+export const UserHandle = co.map({
   nickname: z.string(),
   registeredAt: z.number(),
   lastModified: z.number(),
   isActive: z.boolean(),
 });
 
-export type OnboardingNickname = z.infer<typeof OnboardingNickname>;
+export type UserHandle = z.infer<typeof UserHandle>;
 
 export function setNicknameFromRegistry(
-  nicknameData: Loaded<typeof OnboardingNickname>,
+  nicknameData: Loaded<typeof UserHandle>,
   registeredNickname: string,
 ): void {
   nicknameData.nickname = registeredNickname;
@@ -18,9 +18,7 @@ export function setNicknameFromRegistry(
   nicknameData.lastModified = Date.now();
 }
 
-export function deactivate(
-  nicknameData: Loaded<typeof OnboardingNickname>,
-): void {
+export function deactivate(nicknameData: Loaded<typeof UserHandle>): void {
   nicknameData.isActive = false;
   nicknameData.lastModified = Date.now();
 }

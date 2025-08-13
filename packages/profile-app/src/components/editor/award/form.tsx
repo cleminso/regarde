@@ -2,7 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
 import { useAward } from '../../../lib/hook/useAward';
-import { Award, OnboardingProfile } from '../../../lib/schema';
+import { Award, type CleanLoadedJazzAppProfile } from '../../../lib/schema';
 import { getValidUrl } from '../../../lib/utils';
 import { Input, Label, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
@@ -10,7 +10,7 @@ import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
 
 type AwardEditProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
   onDoneEditing: () => void;
   awardToEdit?: Loaded<typeof Award>;

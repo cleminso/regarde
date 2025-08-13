@@ -1,9 +1,13 @@
 import { Loaded } from 'jazz-tools';
 
-import { ListOfProjects, OnboardingProfile, Project } from '../schema';
+import {
+  ListOfProjects,
+  Project,
+  type CleanLoadedJazzAppProfile,
+} from '../schema';
 
 type UseProjectProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
 };
 export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {

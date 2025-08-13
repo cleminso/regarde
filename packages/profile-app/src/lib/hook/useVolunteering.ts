@@ -1,9 +1,13 @@
 import { Loaded } from 'jazz-tools';
 
-import { ListOfVolunteering, OnboardingProfile, Volunteering } from '../schema';
+import {
+  ListOfVolunteering,
+  Volunteering,
+  type CleanLoadedJazzAppProfile,
+} from '../schema';
 
 type UseVolunteeringProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
 };
 

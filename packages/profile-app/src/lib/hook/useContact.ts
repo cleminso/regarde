@@ -1,9 +1,7 @@
-import { Loaded } from 'jazz-tools';
-
-import { OnboardingProfile, SocialLinks } from '../schema';
+import { SocialLinks, type CleanLoadedJazzAppProfile } from '../schema';
 
 type UseContactProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
 };
 

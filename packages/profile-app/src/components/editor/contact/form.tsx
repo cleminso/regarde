@@ -1,14 +1,12 @@
-import { Loaded } from 'jazz-tools';
-
 import { useContact } from '#/lib/hook/useContact';
-import { OnboardingProfile } from '../../../lib/schema';
+import { type CleanLoadedJazzAppProfile } from '../../../lib/schema';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';
 import { contactFields } from './config';
 import { ContactInput } from './input';
 
 type ContactEditProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
   onCloseEditor: () => void;
 };

@@ -1,31 +1,16 @@
 import { co } from 'jazz-tools';
-import { useAccount } from 'jazz-tools/react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 
+import { useMyAccount } from '#/lib/account/useMyAccount';
 import { fetchUserDetailsByNickname } from '#/lib/api/base';
-import { OnboardingAccount, OnboardingProfile } from '#/lib/schema';
+import { JazzAppProfile } from '#/lib/schema';
 import { ProfileHeader } from './header';
 import { AboutPage } from './pages/about';
 import { NowPage } from './pages/now';
 import { DEFAULT_TABS, ProfileTabs, TabId } from './tabs';
 
-type LoadedProfile = co.loaded<
-  typeof OnboardingProfile,
-  {
-    socialLinks: true;
-    projects: true;
-    workExp: true;
-    writing: true;
-    education: true;
-    certification: true;
-    speaking: true;
-    award: true;
-    volunteering: true;
-    sideProject: true;
-    nowPage: true;
-  }
->;
+type LoadedProfile = Omit<co.loaded<typeof JazzAppProfile>, 'registrationKey'>;
 
 export function ProfileView() {
   const { nickname } = useParams();
@@ -34,24 +19,7 @@ export function ProfileView() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { me } = useAccount(OnboardingAccount, {
-    resolve: {
-      profile: {
-        socialLinks: true,
-        projects: true,
-        workExp: true,
-        writing: true,
-        education: true,
-        certification: true,
-        speaking: true,
-        award: true,
-        volunteering: true,
-        sideProject: true,
-        nowPage: true,
-        onboarding: true,
-      },
-    },
-  });
+  const { account: me, jazzAppProfile } = useMyAccount();
 
   useEffect(() => {
     if (!nickname) {
@@ -60,7 +28,7 @@ export function ProfileView() {
       return;
     }
 
-    if (me?.profile.onboarding?.nickname === nickname) {
+    if (jazzAppProfile?.userHandle?.nickname === nickname) {
       setOtherUserProfile(null);
       setIsLoading(false);
       return;
@@ -110,7 +78,7 @@ export function ProfileView() {
     );
   }
 
-  if (me?.profile.onboarding?.nickname === nickname) {
+  if (jazzAppProfile?.userHandle?.nickname === nickname) {
     if (me === undefined) {
       return (
         <div className="flex w-full justify-center items-center min-h-screen">
@@ -119,7 +87,7 @@ export function ProfileView() {
       );
     }
 
-    if (me === null || !me.profile) {
+    if (me === null || !jazzAppProfile) {
       return (
         <div className="flex w-full justify-center items-center min-h-screen">
           <p>Profile not accessible</p>
@@ -127,7 +95,7 @@ export function ProfileView() {
       );
     }
 
-    return <ProfileContent profile={me.profile} />;
+    return <ProfileContent profile={jazzAppProfile} />;
   }
 
   if (otherUserProfile) {

@@ -1,4 +1,4 @@
-import { OnboardingProfile } from '@onboarding.jazz/shared-schemas/profile';
+import { JazzAppProfile } from '@onboarding.jazz/shared-schemas/profile';
 import { Loaded } from 'jazz-tools';
 import { Loader2 } from 'lucide-react';
 import React from 'react';
@@ -17,7 +17,7 @@ type ValidationStatus =
 interface NicknameInputProps {
   value: string;
   onChange: (value: string) => void;
-  profile?: Loaded<typeof OnboardingProfile>;
+  profile?: Loaded<typeof JazzAppProfile>;
   isProcessing?: boolean;
   disabled?: boolean;
   placeholder?: string;

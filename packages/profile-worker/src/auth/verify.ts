@@ -1,4 +1,7 @@
-import { OnboardingAccount } from "@onboarding.jazz/shared-schemas/profile";
+import {
+  JazzProfileRoot,
+  OnboardingAccount,
+} from "@onboarding.jazz/shared-schemas/profile";
 
 export interface VerificationResult {
   isValid: boolean;
@@ -17,15 +20,24 @@ export async function verifyRegistrationKey(
 
     console.log(`Attempting to load account: ${jazzAccountId}`);
 
-    let account;
+    let account = null;
+
     try {
       account = await OnboardingAccount.load(jazzAccountId, {
         resolve: {
           profile: {
-            registrationKey: true,
+            "profile.jazz.dev": true,
           },
         },
         loadAs: worker,
+      });
+
+      await account?.ensureLoaded({
+        resolve: {
+          profile: {
+            "profile.jazz.dev": true,
+          },
+        },
       });
     } catch (loadError: any) {
       console.error(`Failed to load account ${jazzAccountId}:`, loadError);
@@ -54,7 +66,28 @@ export async function verifyRegistrationKey(
 
     console.log(`Profile found, checking registration key...`);
 
-    const storedKeyData = account.profile.registrationKey;
+    const registrationKeyData = await JazzProfileRoot.load(
+      account.profile["profile.jazz.dev"],
+      {
+        resolve: {
+          "profile.jazz.dev": {
+            registrationKey: true,
+          },
+        },
+      },
+    );
+
+    registrationKeyData?.ensureLoaded({
+      resolve: {
+        "profile.jazz.dev": {
+          registrationKey: true,
+        },
+      },
+    });
+
+    const storedKeyData =
+      registrationKeyData?.["profile.jazz.dev"].registrationKey;
+
     if (!storedKeyData) {
       console.log(`No registration key found in account profile`);
       return {

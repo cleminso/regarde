@@ -1,11 +1,10 @@
-import { Loaded } from 'jazz-tools';
 import React, { useCallback, useRef, useState } from 'react';
 
 import { useOnboarding } from '../onboarding/useOnboarding';
-import { OnboardingProfile } from '../schema';
+import { type CleanLoadedJazzAppProfile } from '../schema';
 
 type UseGeneralProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
 };
 

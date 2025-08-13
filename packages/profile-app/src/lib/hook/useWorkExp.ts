@@ -1,9 +1,13 @@
 import { Loaded } from 'jazz-tools';
 
-import { ListOfWorkExp, OnboardingProfile, WorkExp } from '../schema';
+import {
+  ListOfWorkExp,
+  WorkExp,
+  type CleanLoadedJazzAppProfile,
+} from '../schema';
 
 type UseWorkExpProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
 };
 

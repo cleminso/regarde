@@ -1,8 +1,7 @@
 // Registration key management
-import { co, Group, Loaded } from 'jazz-tools';
+import { Loaded } from 'jazz-tools';
 import { useCallback } from 'react';
 
-import { WORKER_JAZZ_ID } from '../config/apiKey';
 import { OnboardingAccount, RegistrationKey } from '../schema';
 import { useMyAccount } from './useMyAccount';
 import { useRegistrationKeyData } from './useRegistrationKeyData';
@@ -27,7 +26,7 @@ export function isKeyExpired(registrationKey: any): boolean {
 export async function storeRegistrationKey(
   account: Loaded<typeof OnboardingAccount>,
 ): Promise<string | null> {
-  if (!account?.profile) {
+  if (!account?.root || !account.root['profile.jazz.dev']) {
     console.error('Account profile not available');
     return null;
   }
@@ -36,22 +35,9 @@ export async function storeRegistrationKey(
   const expiresAt = Date.now() + KEY_LIFETIME_SECONDS * 1000;
 
   try {
-    const keyGroup = Group.create({ owner: account });
+    const registrationKey = RegistrationKey.create({ key, expiresAt });
+    account.root['profile.jazz.dev'].registrationKey = registrationKey;
 
-    const workerAccount = await co.account().load(WORKER_JAZZ_ID);
-    if (!workerAccount) {
-      console.error('Failed to load worker account');
-      return null;
-    }
-
-    keyGroup.addMember(workerAccount, 'reader');
-
-    const registrationKey = RegistrationKey.create(
-      { key, expiresAt },
-      { owner: keyGroup },
-    );
-
-    account.profile.registrationKey = registrationKey;
     console.log('Registration key stored successfully');
     return key;
   } catch (error) {

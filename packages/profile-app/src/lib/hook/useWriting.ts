@@ -1,9 +1,13 @@
 import { Loaded } from 'jazz-tools';
 
-import { ListOfWriting, OnboardingProfile, Writing } from '../schema';
+import {
+  ListOfWriting,
+  Writing,
+  type CleanLoadedJazzAppProfile,
+} from '../schema';
 
 type UseWritingProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
 };
 

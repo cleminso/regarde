@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import {
   Certification,
+  JazzAppProfile,
   ListOfCertification,
-  OnboardingProfile,
 } from '#/lib/schema';
 import { useCertification } from '../../../lib/hook/useCertification';
 import { EditorFooter } from '../index';
@@ -13,7 +13,7 @@ import { SectionHeader } from '../layout/header';
 import { CertificationCard } from './card';
 
 type CertificationViewProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: Loaded<typeof JazzAppProfile>;
   triggerSyncIndicator: () => void;
   certifications: Loaded<typeof ListOfCertification> | undefined;
   onAddCertification: () => void;

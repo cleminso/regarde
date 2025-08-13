@@ -1,4 +1,3 @@
-import { Loaded } from 'jazz-tools';
 import { useIsAuthenticated } from 'jazz-tools/react';
 import { MoreHorizontalIcon } from 'lucide-react';
 import { useNavigate } from 'react-router';
@@ -11,11 +10,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu';
-import { OnboardingProfile } from '#/lib/schema';
+import { type CleanLoadedJazzAppProfile } from '#/lib/schema';
 import { createNicknameUrl } from '#/lib/utils';
 
 type ProfileHeaderProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
 };
 
 export function ProfileHeader({ profile }: ProfileHeaderProps) {
@@ -23,8 +22,8 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
   const isAuthenticated = useIsAuthenticated();
 
   const handleEditClick = () => {
-    if (profile.onboarding?.nickname) {
-      navigate(createNicknameUrl(profile.onboarding?.nickname, '/edit'));
+    if (profile.userHandle?.nickname) {
+      navigate(createNicknameUrl(profile.userHandle.nickname, '/edit'));
     }
   };
 
@@ -38,7 +37,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font">{profile.name}</h2>
           <p className="text-sm text-foreground">
-            @{profile.onboarding?.nickname || 'nickname-not-set'}
+            @{profile.userHandle?.nickname || 'nickname-not-set'}
           </p>
         </div>
       </div>

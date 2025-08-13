@@ -2,14 +2,14 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
-import { Award, ListOfAward, OnboardingProfile } from '#/lib/schema';
+import { Award, JazzAppProfile, ListOfAward } from '#/lib/schema';
 import { useAward } from '../../../lib/hook/useAward.ts';
 import { EditorFooter } from '../index';
 import { SectionHeader } from './../layout/header';
 import { AwardCard } from './card';
 
 type AwardViewProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: Loaded<typeof JazzAppProfile>;
   triggerSyncIndicator: () => void;
   awards: Loaded<typeof ListOfAward> | undefined;
   onAddAward: () => void;

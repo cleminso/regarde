@@ -2,7 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
 import { useWriting } from '../../../lib/hook/useWriting';
-import { OnboardingProfile, Writing } from '../../../lib/schema';
+import type { CleanLoadedJazzAppProfile, Writing } from '../../../lib/schema';
 import { getValidUrl } from '../../../lib/utils';
 import { Input, Label, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
@@ -10,7 +10,7 @@ import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
 
 type WritingEditProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
   onDoneEditing: () => void;
   writingToEdit?: Loaded<typeof Writing>;

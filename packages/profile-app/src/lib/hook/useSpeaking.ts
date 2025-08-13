@@ -1,9 +1,13 @@
 import { Loaded } from 'jazz-tools';
 
-import { ListOfSpeaking, OnboardingProfile, Speaking } from '../schema';
+import {
+  ListOfSpeaking,
+  Speaking,
+  type CleanLoadedJazzAppProfile,
+} from '../schema';
 
 type UseSpeakingProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
 };
 

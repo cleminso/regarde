@@ -1,6 +1,6 @@
 import { co } from 'jazz-tools';
 
-import { OnboardingProfile } from '#/lib/schema';
+import { type CleanLoadedJazzAppProfile } from '#/lib/schema';
 import {
   About,
   Awards,
@@ -14,24 +14,8 @@ import {
   Writings,
 } from '../index';
 
-type LoadedProfile = co.loaded<
-  typeof OnboardingProfile,
-  {
-    socialLinks: true;
-    projects: true;
-    workExp: true;
-    writing: true;
-    education: true;
-    certification: true;
-    speaking: true;
-    award: true;
-    volunteering: true;
-    sideProject: true;
-  }
->;
-
 type AboutPageProps = {
-  profile: LoadedProfile;
+  profile: CleanLoadedJazzAppProfile;
 };
 
 export function AboutPage({ profile }: AboutPageProps) {

@@ -1,9 +1,13 @@
 import { Loaded } from 'jazz-tools';
 
-import { ListOfSideProject, OnboardingProfile, SideProject } from '../schema';
+import {
+  ListOfSideProject,
+  SideProject,
+  type CleanLoadedJazzAppProfile,
+} from '../schema';
 
 type UseSideProjectProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
 };
 

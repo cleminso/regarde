@@ -5,7 +5,12 @@ import {
 } from "../schemas/userDetails.js";
 import { ErrorResponseSchema } from "../schemas/common.js";
 
-import { OnboardingAccount } from "@onboarding.jazz/shared-schemas/profile";
+import {
+  JazzAppProfile,
+  JazzProfileRoot,
+  OnboardingAccount,
+} from "@onboarding.jazz/shared-schemas/profile";
+import { Loaded } from "jazz-tools";
 
 export const userDetailsRoute = createRoute({
   method: "get",
@@ -251,12 +256,33 @@ export const userDetailsHandler = (
 
       let account: any = null; // Consider using 'InstanceType<typeof OnboardingAccount>' or a more specific type
       let accountLoadError: string | null = null;
+      let profileData: Loaded<typeof JazzProfileRoot> | null = null;
+
       try {
-        const loadPromise = OnboardingAccount.load(processedJazzAccountId, {
+        const jazzUserAccount = await OnboardingAccount.load(
+          processedJazzAccountId,
+          {
+            resolve: {
+              profile: {
+                "profile.jazz.dev": true,
+              },
+            },
+          },
+        );
+        jazzUserAccount?.ensureLoaded({
           resolve: {
-            profile: {
+            profile: true,
+          },
+        });
+
+        if (!jazzUserAccount) throw new Error("Profile not found");
+
+        const profileData = await JazzAppProfile.load(
+          jazzUserAccount.profile["profile.jazz.dev"],
+          {
+            resolve: {
               projects: { $each: true },
-              socialLinks: { $each: true },
+              socialLinks: true,
               workExp: { $each: true },
               writing: { $each: true },
               education: { $each: true },
@@ -268,11 +294,22 @@ export const userDetailsHandler = (
               nowPage: true,
             },
           },
+        );
+        profileData?.ensureLoaded({
+          resolve: {
+            projects: { $each: true },
+            socialLinks: true,
+            workExp: { $each: true },
+            writing: { $each: true },
+            education: { $each: true },
+            certification: { $each: true },
+            speaking: { $each: true },
+            award: { $each: true },
+            volunteering: { $each: true },
+            sideProject: { $each: true },
+            nowPage: true,
+          },
         });
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Account loading timeout")), 10000),
-        ); // 10s timeout
-        account = await Promise.race([loadPromise, timeoutPromise]);
       } catch (accountError: any) {
         accountLoadError =
           accountError?.message || "Unknown account loading error";
@@ -290,7 +327,7 @@ export const userDetailsHandler = (
           nicknameStatus,
         };
 
-        if (account && account.profile) {
+        if (account && account.profile && profileData) {
           const publicData: Record<string, any> = {};
           try {
             // Safely extract profile data
@@ -307,7 +344,9 @@ export const userDetailsHandler = (
               ...baseResponse,
               requestedNickname: requestedNicknameFromQuery || undefined,
               publicData:
-                Object.keys(publicData).length > 0 ? publicData : undefined,
+                Object.keys(profileData["profile.jazz.dev"]).length > 0
+                  ? publicData
+                  : undefined,
               exists: true,
             },
             200,

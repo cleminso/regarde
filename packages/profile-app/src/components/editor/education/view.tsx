@@ -2,14 +2,14 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
-import { Education, ListOfEducation, OnboardingProfile } from '#/lib/schema';
+import { Education, JazzAppProfile, ListOfEducation } from '#/lib/schema';
 import { useEducation } from '../../../lib/hook/useEducation.ts';
 import { EditorFooter } from '../index';
 import { SectionHeader } from './../layout/header';
 import { EducationCard } from './card';
 
 type EducationViewProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: Loaded<typeof JazzAppProfile>;
   triggerSyncIndicator: () => void;
   education: Loaded<typeof ListOfEducation> | undefined;
   onAddEducation: () => void;

@@ -1,14 +1,7 @@
-import { co } from 'jazz-tools';
-
-import { OnboardingProfile } from '#/lib/schema';
+import { type CleanLoadedJazzAppProfile } from '#/lib/schema';
 import { formatTimestamp } from '#/lib/utils';
 
-type LoadedProfile = co.loaded<
-  typeof OnboardingProfile,
-  {
-    nowPage: true;
-  }
->;
+type LoadedProfile = CleanLoadedJazzAppProfile;
 
 type NowPageProps = {
   profile: LoadedProfile;

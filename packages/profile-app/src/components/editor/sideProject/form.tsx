@@ -2,7 +2,10 @@ import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
 import { useSideProject } from '../../../lib/hook/useSideProject';
-import { OnboardingProfile, SideProject } from '../../../lib/schema';
+import {
+  SideProject,
+  type CleanLoadedJazzAppProfile,
+} from '../../../lib/schema';
 import { getValidUrl } from '../../../lib/utils';
 import { Input, Label, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
@@ -10,7 +13,7 @@ import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
 
 type SideProjectEditProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
   onDoneEditing: () => void;
   sideProjectToEdit?: Loaded<typeof SideProject>;

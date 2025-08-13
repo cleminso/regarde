@@ -1,5 +1,5 @@
 import { Account, co, Group, Loaded, z } from "jazz-tools";
-import { OnboardingNickname } from "./nickname.js";
+import { UserHandle } from "./nickname.js";
 
 export const SocialLinks = co.map({
   github: z.optional(z.string()),
@@ -153,9 +153,9 @@ export type NowPage = z.infer<typeof NowPage>;
 //
 // Use it like:  mediaFiles: z.optional(co.list(AttachmentItem)),
 
-export const OnboardingProfile = co.profile({
+export const JazzAppProfile = co.map({
   name: z.string(),
-  onboarding: OnboardingNickname,
+  userHandle: UserHandle,
   bio: z.optional(z.string()),
   avatar: z.optional(z.string()),
   socialLinks: z.optional(SocialLinks),
@@ -172,7 +172,12 @@ export const OnboardingProfile = co.profile({
   nowPage: z.optional(NowPage),
 });
 
-OnboardingProfile.withHelpers((Self) => ({
+export type CleanLoadedJazzAppProfile = Omit<
+  Loaded<typeof JazzAppProfile>,
+  "registrationKey"
+>;
+
+JazzAppProfile.withHelpers((Self) => ({
   validate(profile: Loaded<typeof Self>): {
     isValid: boolean;
     message?: string;
@@ -184,7 +189,7 @@ OnboardingProfile.withHelpers((Self) => ({
       };
     }
 
-    if (!profile.onboarding) {
+    if (!profile.userHandle) {
       return {
         isValid: false,
         message: "Onboarding data is required.",
@@ -192,8 +197,8 @@ OnboardingProfile.withHelpers((Self) => ({
     }
 
     if (
-      !profile.onboarding.nickname ||
-      profile.onboarding.nickname.trim() === ""
+      !profile.userHandle.nickname ||
+      profile.userHandle.nickname.trim() === ""
     ) {
       return {
         isValid: false,
@@ -201,7 +206,7 @@ OnboardingProfile.withHelpers((Self) => ({
       };
     }
 
-    if (!profile.onboarding.isActive) {
+    if (!profile.userHandle.isActive) {
       return {
         isValid: false,
         message: "Nickname must be active.",
@@ -212,99 +217,88 @@ OnboardingProfile.withHelpers((Self) => ({
   },
 }));
 
-export const Container = co.map({
-  creationMessage: z.optional(z.string()),
+export const JazzProfileProfile = co.profile({
+  "profile.jazz.dev": z.string(),
 });
-
-export const AccountRoot = co.map({
-  container: Container,
+export const JazzProfileRoot = co.map({
+  "profile.jazz.dev": JazzAppProfile,
 });
 
 export const OnboardingAccount = co
   .account({
-    profile: OnboardingProfile,
-    root: AccountRoot,
+    profile: JazzProfileProfile,
+    root: JazzProfileRoot,
   })
-  .withMigration(
-    async (
-      account: Loaded<typeof OnboardingAccount>,
-      creationProps?: { name: string },
-    ) => {
-      if (
-        account.profile === undefined ||
-        account.profile?.onboarding === undefined
-      ) {
+  .withMigration(async (account, creationProps?: { name: string }) => {
+    if (
+      account.root === undefined ||
+      account.root?.["profile.jazz.dev"] === undefined
+    ) {
+      try {
+        // Create groups with proper owner
+        const publicGroup = Group.create({ owner: account });
+        publicGroup.addMember("everyone", "reader");
+
+        const jazzProfileOwnerGroup = Group.create({
+          owner: account,
+        });
+
+        // Add worker permissions
+        // TODO: Update worker to variable value
+
+        // export const jazzProfileAdminGroup = Group.create();
+        // AdminGroup.addMember("co_cleminso", "admin");
+        // AdminGroup.addMember("co_worker_1", "admin");
+
+        const jazzProfileAdminGroupID = " "; // groupID create with a script
+        const jazzProfileAdminGroup = await Group.load(jazzProfileAdminGroupID);
+        await jazzProfileAdminGroup?.ensureLoaded();
+
         try {
-          // Create groups with proper owner
-          const publicGroup = Group.create({ owner: account });
-          publicGroup.addMember("everyone", "reader");
-
-          const nicknameGroup = Group.create({ owner: account });
-          nicknameGroup.addMember("everyone", "reader");
-
-          // Add worker permissions
-          // TODO: Update worker to variable value
-          const workerAccountId = "co_zRgFdJz2k14V4daiih8T4hNEGdR";
-          try {
-            const workerAccount = await Account.load(workerAccountId);
-            if (workerAccount) {
-              nicknameGroup.addMember(workerAccount, "writer");
-              console.log("Worker permissions added to nickname group");
-            } else {
-              console.warn("Worker account not available during migration");
-            }
-          } catch (error) {
-            console.warn("Failed to add worker permissions:", error);
-            // Continue without worker permissions - can be added later
+          if (jazzProfileAdminGroup) {
+            jazzProfileOwnerGroup.addMember(jazzProfileAdminGroup, "writer");
+            console.log("Worker permissions added to jazzProfileOwner group");
+          } else {
+            console.warn("Worker account not available during migration");
           }
-
-          // Create nickname with empty value (not placeholder)
-          const onboardingNickname = OnboardingNickname.create(
-            {
-              nickname: "", // Start empty
-              registeredAt: Date.now(),
-              lastModified: Date.now(),
-              isActive: false,
-            },
-            { owner: nicknameGroup }, // Explicit owner
-          );
-
-          console.log("Onboarding nickname created:", onboardingNickname.id);
-
-          // Create profile with explicit owner
-          account.profile = OnboardingProfile.create(
-            {
-              name: creationProps?.name || "Public Profile",
-              onboarding: onboardingNickname,
-            },
-            { owner: publicGroup }, // Explicit owner
-          );
-
-          console.log("Profile created successfully");
         } catch (error) {
-          console.error("Failed to create profile structures:", error);
-          throw error;
+          console.warn("Failed to add worker permissions:", error);
+          // Continue without worker permissions - can be added later
         }
-      }
 
-      // Root creation remains the same...
-      if (account.root === undefined) {
-        try {
-          const containerMessage = creationProps?.name
-            ? `Container initialized for ${creationProps.name}.`
-            : "Container initialized.";
-          const defaultContainer = Container.create({
-            creationMessage: containerMessage,
-          });
-          account.root = AccountRoot.create(
-            {
-              container: defaultContainer,
-            },
-            { owner: account },
-          );
-        } catch (e) {
-          console.warn("Container could not be created, likely unlogged", e);
-        }
+        const userHandle = UserHandle.create({
+          nickname: "", // Start empty
+          registeredAt: Date.now(),
+          lastModified: Date.now(),
+          isActive: false,
+        });
+
+        const jazzProfileData = JazzAppProfile.create(
+          {
+            name: creationProps?.name || "Public Profile",
+            userHandle,
+          },
+          {
+            owner: jazzProfileOwnerGroup,
+          },
+        );
+
+        console.log(
+          "profile.jazz.dev namespace data created:",
+          jazzProfileData.id,
+        );
+
+        account.profile = JazzProfileProfile.create({
+          "profile.jazz.dev": jazzProfileData.id,
+          name: "",
+        });
+
+        account.id;
+
+        console.log("Profile created successfully");
+      } catch (error) {
+        console.error("Failed to create profile structures:", error);
+        throw error;
       }
-    },
-  );
+    }
+  });

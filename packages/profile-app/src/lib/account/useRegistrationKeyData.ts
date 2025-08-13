@@ -5,12 +5,9 @@ import { RegistrationKey } from '../schema';
 import { useMyAccount } from './useMyAccount';
 
 export function useRegistrationKeyData() {
-  const { profile, isAccountReady } = useMyAccount();
+  const { jazzAppProfile: appRoot } = useMyAccount();
 
-  const registrationKeyId =
-    isAccountReady && profile?.registrationKey?.id
-      ? profile.registrationKey.id
-      : undefined;
+  const registrationKeyId = appRoot?.registrationKey?.id;
 
   const registrationKey = useCoState(RegistrationKey, registrationKeyId);
 

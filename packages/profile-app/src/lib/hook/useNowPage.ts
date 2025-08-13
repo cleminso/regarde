@@ -1,12 +1,11 @@
 import {
   NowPage,
-  OnboardingProfile,
+  type CleanLoadedJazzAppProfile,
 } from '@onboarding.jazz/shared-schemas/profile';
-import { Loaded } from 'jazz-tools';
 import { useCallback } from 'react';
 
 type UseNowPageProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
 };
 

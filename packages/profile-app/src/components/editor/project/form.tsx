@@ -2,7 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
 import { useProject } from '../../../lib/hook/useProject';
-import { OnboardingProfile, Project } from '../../../lib/schema';
+import { Project, type CleanLoadedJazzAppProfile } from '../../../lib/schema';
 import { getValidUrl } from '../../../lib/utils';
 import { Input, Label, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
@@ -10,7 +10,7 @@ import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
 
 type ProjectEditProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: CleanLoadedJazzAppProfile;
   triggerSyncIndicator: () => void;
   onDoneEditing: () => void;
   projectToEdit?: Loaded<typeof Project>;
