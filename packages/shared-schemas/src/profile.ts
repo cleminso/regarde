@@ -249,15 +249,31 @@ export const OnboardingAccount = co
         // export const jazzProfileAdminGroup = Group.create();
         // AdminGroup.addMember("co_cleminso", "admin");
         // AdminGroup.addMember("co_worker_1", "admin");
+        //
 
-        const jazzProfileAdminGroupID = " "; // groupID create with a script
+        const jazzProfileAdminGroupID = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
         const jazzProfileAdminGroup = await Group.load(jazzProfileAdminGroupID);
+        const jazzProfileAdminAccountGroup = await Group.load(
+          jazzProfileAdminGroupID,
+        );
         await jazzProfileAdminGroup?.ensureLoaded();
+        await jazzProfileAdminAccountGroup?.ensureLoaded();
 
         try {
           if (jazzProfileAdminGroup) {
             jazzProfileOwnerGroup.addMember(jazzProfileAdminGroup, "writer");
+
             console.log("Worker permissions added to jazzProfileOwner group");
+            if (jazzProfileAdminAccountGroup) {
+              jazzProfileOwnerGroup.addMember(
+                jazzProfileAdminAccountGroup,
+                "writer",
+              );
+
+              console.log(
+                "Admin Account permissions added to jazzProfileOwner group",
+              );
+            }
           } else {
             console.warn("Worker account not available during migration");
           }

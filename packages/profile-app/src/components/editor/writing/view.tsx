@@ -2,14 +2,14 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
-import { ListOfWriting, OnboardingProfile, Writing } from '#/lib/schema';
+import { JazzAppProfile, ListOfWriting, Writing } from '#/lib/schema';
 import { useWriting } from '../../../lib/hook/useWriting.ts';
 import { EditorFooter } from '../index';
 import { SectionHeader } from './../layout/header';
 import { WritingCard } from './card';
 
 type WritingViewProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: Loaded<typeof JazzAppProfile>;
   triggerSyncIndicator: () => void;
   writing: Loaded<typeof ListOfWriting> | undefined;
   onAddWriting: () => void;

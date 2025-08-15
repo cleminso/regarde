@@ -2,14 +2,14 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
-import { ListOfWorkExp, OnboardingProfile, WorkExp } from '#/lib/schema';
+import { JazzAppProfile, ListOfWorkExp, WorkExp } from '#/lib/schema';
 import { useWorkExp } from '../../../lib/hook/useWorkExp';
 import { EditorFooter } from '../index';
 import { SectionHeader } from '../layout/header';
 import { WorkExpCard } from './card';
 
 type WorkExpViewProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: Loaded<typeof JazzAppProfile>;
   triggerSyncIndicator: () => void;
   workExperiences: Loaded<typeof ListOfWorkExp> | undefined;
   onAddWorkExp: () => void;

@@ -11,7 +11,7 @@ export function ProtectedRoute() {
   const { me } = useAccount(OnboardingAccount, {
     resolve: {
       profile: {
-        onboarding: true,
+        'profile.jazz.dev': true,
       },
     },
   });
@@ -28,7 +28,7 @@ export function ProtectedRoute() {
     return <Navigate to="/" replace />;
   }
 
-  const profileNickname = me.profile.onboarding?.nickname;
+  const profileNickname = me.profile.userHandle?.nickname;
 
   if (!profileNickname) {
     return <Navigate to="/" replace />;

@@ -6,7 +6,10 @@ import {
   setNicknameFromRegistry,
   deactivate,
 } from "@onboarding.jazz/shared-schemas/nickname";
-import { OnboardingAccount } from "@onboarding.jazz/shared-schemas/profile";
+import {
+  JazzAppProfile,
+  OnboardingAccount,
+} from "@onboarding.jazz/shared-schemas/profile";
 
 export const registerRoute = createRoute({
   method: "post",
@@ -112,27 +115,27 @@ export const registerRoute = createRoute({
   `,
 });
 
-async function syncOnboardingNickname(
+async function syncUserHandle(
   jazzAccountID: string,
   nickname: string | null,
   operation: "register" | "update" | "delete",
 ): Promise<void> {
   try {
     console.log(
-      `Syncing onboarding nickname for AccountID "${jazzAccountID}", operation: ${operation}`,
+      `Syncing userHandle nickname for AccountID "${jazzAccountID}", operation: ${operation}`,
     );
 
     const account = await OnboardingAccount.load(jazzAccountID, {
       resolve: {
         profile: {
-          onboarding: true,
+          "profile.jazz.dev": true,
         },
       },
     });
 
     if (!account) {
       console.warn(
-        `Could not load account ${jazzAccountID} for onboarding nickname sync`,
+        `Could not load account ${jazzAccountID} for userHandle nickname sync`,
       );
       return;
     }
@@ -141,29 +144,35 @@ async function syncOnboardingNickname(
       console.warn(`No profile found for account ${jazzAccountID}`);
       return;
     }
+    // where is the data? how to charge JazzAppProfile?
+    const data = await JazzAppProfile.load(account.profile["profile.jazz.dev"]);
+    await data?.ensureLoaded({
+      resolve: {
+        userHandle: true,
+      },
+    });
 
-    const profile = account.profile as any;
-    const onboardingNickname = profile.onboarding;
+    const userHandle = data?.userHandle;
 
-    if (!onboardingNickname) {
-      console.warn(`No onboarding nickname found for account ${jazzAccountID}`);
+    if (!userHandle) {
+      console.warn(`No userHandle nickname found for account ${jazzAccountID}`);
       return;
     }
 
     if (operation === "delete") {
-      deactivate(onboardingNickname);
+      deactivate(userHandle);
       console.log(
-        `Onboarding nickname deactivated for AccountID "${jazzAccountID}"`,
+        `UserHandle nickname deactivated for AccountID "${jazzAccountID}"`,
       );
     } else if (nickname) {
-      setNicknameFromRegistry(onboardingNickname, nickname);
+      setNicknameFromRegistry(userHandle, nickname);
       console.log(
-        `Onboarding nickname synced with registry for AccountID "${jazzAccountID}": "${nickname}"`,
+        `UserHandle nickname synced with registry for AccountID "${jazzAccountID}": "${nickname}"`,
       );
     }
   } catch (error) {
     console.error(
-      `Failed to sync onboarding nickname for AccountID "${jazzAccountID}":`,
+      `Failed to sync userHandle nickname for AccountID "${jazzAccountID}":`,
       error,
     );
   }
@@ -239,7 +248,7 @@ export const registerHandler = (
           `Nickname "${oldNickname}" and reverse entry for AccountID "${jazzAccountID}" deleted.`,
         );
 
-        await syncOnboardingNickname(jazzAccountID, null, "delete");
+        await syncUserHandle(jazzAccountID, null, "delete");
 
         return c.body(null, 204);
       }
@@ -260,11 +269,14 @@ export const registerHandler = (
         console.log(
           `Nickname "${nickname}" is reserved (category: ${reservation.category}, reserved by: ${reservation.reservedBy}).`,
         );
-        return c.json({
-          error: "Nickname is reserved",
-          reservationCategory: reservation.category,
-          reservationReason: reservation.reason
-        }, 403);
+        return c.json(
+          {
+            error: "Nickname is reserved",
+            reservationCategory: reservation.category,
+            reservationReason: reservation.reason,
+          },
+          403,
+        );
       }
 
       if (oldNickname) {
@@ -287,7 +299,7 @@ export const registerHandler = (
           );
 
           // Still sync to ensure CoMap is up to date
-          await syncOnboardingNickname(jazzAccountID, nickname, "update");
+          await syncUserHandle(jazzAccountID, nickname, "update");
 
           return c.body(null, 204);
         }
@@ -315,7 +327,7 @@ export const registerHandler = (
       );
 
       const operation = oldNickname ? "update" : "register";
-      await syncOnboardingNickname(jazzAccountID, nickname, operation);
+      await syncUserHandle(jazzAccountID, nickname, operation);
 
       return c.body(null, 204);
     } catch (error: any) {

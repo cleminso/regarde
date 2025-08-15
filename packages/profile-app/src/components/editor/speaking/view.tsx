@@ -2,14 +2,14 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
-import { ListOfSpeaking, OnboardingProfile, Speaking } from '#/lib/schema';
+import { JazzAppProfile, ListOfSpeaking, Speaking } from '#/lib/schema';
 import { useSpeaking } from '../../../lib/hook/useSpeaking.ts';
 import { EditorFooter } from '../index';
 import { SectionHeader } from './../layout/header';
 import { SpeakingCard } from './card';
 
 type SpeakingViewProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: Loaded<typeof JazzAppProfile>;
   triggerSyncIndicator: () => void;
   speaking: Loaded<typeof ListOfSpeaking> | undefined;
   onAddSpeaking: () => void;

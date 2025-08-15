@@ -2,18 +2,14 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
-import {
-  ListOfSideProject,
-  OnboardingProfile,
-  SideProject,
-} from '#/lib/schema';
+import { JazzAppProfile, ListOfSideProject, SideProject } from '#/lib/schema';
 import { useSideProject } from '../../../lib/hook/useSideProject.ts';
 import { EditorFooter } from '../index';
 import { SectionHeader } from './../layout/header';
 import { SideProjectCard } from './card';
 
 type SideProjectViewProps = {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: Loaded<typeof JazzAppProfile>;
   triggerSyncIndicator: () => void;
   sideProjects: Loaded<typeof ListOfSideProject> | undefined;
   onAddSideProject: () => void;

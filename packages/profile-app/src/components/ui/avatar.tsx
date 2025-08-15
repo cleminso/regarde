@@ -4,7 +4,7 @@ import * as React from 'react';
 import { cn } from 'src/lib/utils';
 
 import { useDefaultAvatar } from '#/lib/hook/useDefaultAvatar';
-import { OnboardingProfile } from '#/lib/schema';
+import { JazzAppProfile } from '#/lib/schema';
 
 function Avatar({
   className,
@@ -57,7 +57,7 @@ function ProfileAvatar({
   size = 96,
   ...props
 }: {
-  profile: Loaded<typeof OnboardingProfile>;
+  profile: Loaded<typeof JazzAppProfile>;
   className?: string;
   size?: number;
 } & React.ComponentProps<typeof AvatarPrimitive.Root>) {
@@ -77,12 +77,12 @@ function ProfileAvatar({
       {avatarSrc && (
         <AvatarImage
           src={avatarSrc}
-          alt={`${profile.name || profile.onboarding}'s avatar`}
+          alt={`${profile.name || profile.userHandle}'s avatar`}
           className="rounded-[inherit]"
         />
       )}
       <AvatarFallback>
-        {profile?.onboarding?.nickname.substring(0, 2).toUpperCase() || 'NA'}
+        {profile?.userHandle?.nickname.substring(0, 2).toUpperCase() || 'NA'}
       </AvatarFallback>
     </Avatar>
   );

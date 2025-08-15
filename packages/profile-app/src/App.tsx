@@ -77,11 +77,11 @@ export function App() {
       </header>
 
       <main className="container mt-16 flex flex-col items-center text-center gap-6 py-12">
-        {!onboarding.accountId && <div>Loading account...</div>}
-        {onboarding.accountId &&
-          (!onboarding.isAuthenticated || !onboarding.hasExistingNickname) && (
-            <LandingNicknameForm />
-          )}
+        {!onboarding.isAuthenticated && <LandingNicknameForm />}
+        {onboarding.isAuthenticated && !onboarding.accountId && <div>Loading account...</div>}
+        {onboarding.isAuthenticated && onboarding.accountId && !onboarding.hasExistingNickname && (
+          <LandingNicknameForm />
+        )}
         {onboarding.isAuthenticated && onboarding.hasExistingNickname && (
           <div>Redirecting to your profile editor...</div>
         )}

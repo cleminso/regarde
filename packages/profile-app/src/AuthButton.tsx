@@ -12,7 +12,13 @@ import { OnboardingAccount } from './lib/schema';
 export function AuthButton() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { logOut } = useAccount(OnboardingAccount, {
-    resolve: { profile: true },
+    resolve: { 
+      profile: {
+        'profile.jazz.dev': {
+          userHandle: true,
+        }
+      }
+    },
   });
   const navigate = useNavigate();
   const isAuthenticated = useIsAuthenticated();
