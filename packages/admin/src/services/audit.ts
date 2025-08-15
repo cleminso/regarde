@@ -3,7 +3,7 @@ import { ulid } from "ulidx";
 import {
   RegistryWorkerAccount,
   RegistryAuditEntry,
-} from "@onboarding.jazz/shared-schemas/registry";
+} from "@onboarding.jazz/shared-schemas";
 import { AuditServiceInterface } from "../types/services.js";
 import { Logger } from "../utils/logger.js";
 

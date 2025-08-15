@@ -1,7 +1,7 @@
 import {
   NowPage,
   type CleanLoadedJazzAppProfile,
-} from '@onboarding.jazz/shared-schemas/profile';
+} from '@onboarding.jazz/shared-schemas';
 import { useCallback } from 'react';
 
 type UseNowPageProps = {

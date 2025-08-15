@@ -20,12 +20,6 @@ export function useEducation({
     | undefined => {
     if (!profile.education) {
       const profileOwner = profile._owner;
-      if (!profileOwner) {
-        console.error(
-          'Cannot initialize education list: profile._owner is undefined.',
-        );
-        return undefined;
-      }
       profile.education = ListOfEducation.create([], {
         owner: profileOwner,
       });
@@ -40,12 +34,6 @@ export function useEducation({
     if (!educationList) return undefined;
 
     const listOwner = educationList._owner;
-    if (!listOwner) {
-      console.error(
-        'Cannot create a new education instance: educationList._owner is undefined.',
-      );
-      return undefined;
-    }
 
     const newEducation = Education.create(
       {

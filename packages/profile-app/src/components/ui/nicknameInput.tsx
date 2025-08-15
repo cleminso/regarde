@@ -1,4 +1,4 @@
-import { JazzAppProfile } from '@onboarding.jazz/shared-schemas/profile';
+import { JazzAppProfile } from '@onboarding.jazz/shared-schemas';
 import { Loaded } from 'jazz-tools';
 import { Loader2 } from 'lucide-react';
 import React from 'react';
@@ -82,15 +82,6 @@ export function NicknameInput({
   };
 
   const renderButton = () => {
-    console.log(
-      '🔍 renderButton - status:',
-      validationStatus,
-      'value:',
-      value,
-      'isProcessing:',
-      isProcessing,
-    );
-
     if (isProcessing) {
       return (
         <Button disabled size="sm">
@@ -99,19 +90,7 @@ export function NicknameInput({
       );
     }
 
-    if (!value) {
-      console.log('🔍 No value, returning null');
-      return null;
-    }
-
     const isUnchanged = hasProfile && value === currentNickname;
-
-    console.log(
-      '🔍 isUnchanged:',
-      isUnchanged,
-      'currentNickname:',
-      currentNickname,
-    );
 
     if (validationStatus === 'checking') {
       return (
@@ -131,13 +110,11 @@ export function NicknameInput({
       }
 
       if (onAction) {
-        console.log('🔍 Rendering success button for onAction');
         return (
           <Button
             variant="success"
             size="sm"
             onClick={() => {
-              console.log('🎯 Button clicked, calling onAction with:', value);
               onAction(value);
             }}
           >

@@ -7,7 +7,7 @@ export const UserHandle = co.map({
   isActive: z.boolean(),
 });
 
-export type UserHandle = z.infer<typeof UserHandle>;
+export type UserHandle = co.loaded<typeof UserHandle>;
 
 export function setNicknameFromRegistry(
   nicknameData: Loaded<typeof UserHandle>,

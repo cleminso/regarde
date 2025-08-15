@@ -2,9 +2,9 @@
 import { OnboardingAccount } from '@onboarding.jazz/shared-schemas';
 import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 
-export function useMyAccount() {
+export function useMyJazz() {
   const isAuthenticated = useIsAuthenticated();
-  const { me } = useAccount(OnboardingAccount, {
+  const { me, logOut } = useAccount(OnboardingAccount, {
     resolve: {
       root: {
         'profile.jazz.dev': {
@@ -28,6 +28,7 @@ export function useMyAccount() {
     isAuthenticated,
     account: me,
     profile: me?.profile,
+    logOut,
     jazzAppProfile: me?.root['profile.jazz.dev'],
     accountId: me?.id,
     profileName: me?.profile?.name,

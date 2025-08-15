@@ -15,13 +15,6 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
   const ensureWritingList = (): Loaded<typeof ListOfWriting> | undefined => {
     if (!profile.writing) {
       const profileOwner = profile._owner;
-      if (!profileOwner) {
-        console.error(
-          'Cannot initialize writing list: profile._owner is undefined.',
-        );
-        return undefined;
-      }
-
       profile.writing = ListOfWriting.create([], { owner: profileOwner });
     }
     return profile.writing;
@@ -34,12 +27,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
     if (!writingList) return undefined;
 
     const listOwner = writingList._owner;
-    if (!listOwner) {
-      console.error(
-        'Cannot create a new writing instance: writingList._owner is undefined.',
-      );
-      return undefined;
-    }
+
     const newWriting = Writing.create(
       {
         title: writingData.title,

@@ -1,8 +1,8 @@
-import { useMyAccount } from '../account/useMyAccount';
+import { useMyJazz } from '../account/useMyJazz';
 import { useSyncState } from './useSyncState';
 
 export function useEditProfile() {
-  const { account: me, jazzAppProfile } = useMyAccount();
+  const { account: me, jazzAppProfile } = useMyJazz();
 
   const { syncState, triggerSyncIndicator } = useSyncState();
 

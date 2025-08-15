@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { checkNicknameAvailability } from '../api/nickname';
-import { useOnboarding } from '../onboarding/useOnboarding';
+import { useClerkOnboarding } from '../onboarding/useClerkOnboarding';
 import { isValidNicknameFormat } from './utils';
 
 type ValidationStatus =
@@ -13,7 +13,7 @@ type ValidationStatus =
   | 'reserved';
 
 export function useNickname() {
-  const { currentNickname } = useOnboarding();
+  const { currentNickname } = useClerkOnboarding();
 
   const [validationStatus, setValidationStatus] =
     useState<ValidationStatus>('empty');
@@ -50,9 +50,15 @@ export function useNickname() {
           setValidationError('');
         } else if (result.reserved) {
           setValidationStatus('reserved');
-          const categoryText = result.reservationCategory ? ` (${result.reservationCategory})` : '';
-          const reasonText = result.reservationReason ? `: ${result.reservationReason}` : '';
-          setValidationError(`This nickname is reserved${categoryText}${reasonText}`);
+          const categoryText = result.reservationCategory
+            ? ` (${result.reservationCategory})`
+            : '';
+          const reasonText = result.reservationReason
+            ? `: ${result.reservationReason}`
+            : '';
+          setValidationError(
+            `This nickname is reserved${categoryText}${reasonText}`,
+          );
         } else {
           setValidationStatus('taken');
           setValidationError('');

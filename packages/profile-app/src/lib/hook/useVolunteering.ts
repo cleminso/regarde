@@ -20,12 +20,6 @@ export function useVolunteering({
     | undefined => {
     if (!profile.volunteering) {
       const profileOwner = profile._owner;
-      if (!profileOwner) {
-        console.error(
-          'Cannot initialize volunteering list: profile._owner is undefined.',
-        );
-        return undefined;
-      }
       profile.volunteering = ListOfVolunteering.create([], {
         owner: profileOwner,
       });
@@ -40,12 +34,6 @@ export function useVolunteering({
     if (!volunteeringList) return undefined;
 
     const listOwner = volunteeringList._owner;
-    if (!listOwner) {
-      console.error(
-        'Cannot create a new volunteering instance: volunteeringList._owner is undefined.',
-      );
-      return undefined;
-    }
 
     const newVolunteering = Volunteering.create(
       {

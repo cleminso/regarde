@@ -15,12 +15,6 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
   const ensureWorkExpList = (): Loaded<typeof ListOfWorkExp> | undefined => {
     if (!profile.workExp) {
       const profileOwner = profile._owner;
-      if (!profileOwner) {
-        console.error(
-          'Cannot initialize work experiences list: profile._owner is undefined.',
-        );
-        return undefined;
-      }
       profile.workExp = ListOfWorkExp.create([], {
         owner: profileOwner,
       });
@@ -35,12 +29,6 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
     if (!workExpList) return undefined;
 
     const listOwner = workExpList._owner;
-    if (!listOwner) {
-      console.error(
-        'Cannot create a new work experience instance: workExpList._owner is undefined.',
-      );
-      return undefined;
-    }
 
     const newWorkExp = WorkExp.create(
       {

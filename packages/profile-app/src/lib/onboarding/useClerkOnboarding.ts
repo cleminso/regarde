@@ -2,7 +2,7 @@ import { useClerk } from '@clerk/clerk-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { useMyAccount } from '../account/useMyAccount';
+import { useMyJazz } from '../account/useMyJazz';
 import { useRegistrationKey } from '../account/useRegistrationKey';
 import { checkNicknameAvailability } from '../api/nickname';
 import { registerNicknameWithServer } from '../nickname/services';
@@ -22,11 +22,11 @@ type ValidationStatus =
 // Add a global flag to prevent multiple registrations
 let globalRegistrationInProgress = false;
 
-export function useOnboarding() {
+export function useClerkOnboarding() {
   const navigate = useNavigate();
   const clerk = useClerk();
 
-  const { jazzAppProfile, account: me, isAuthenticated } = useMyAccount();
+  const { jazzAppProfile, account: me, isAuthenticated } = useMyJazz();
 
   const { getValidKey, isAccountReady } = useRegistrationKey();
 

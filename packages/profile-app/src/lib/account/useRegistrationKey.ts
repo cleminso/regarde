@@ -3,7 +3,7 @@ import { Loaded } from 'jazz-tools';
 import { useCallback } from 'react';
 
 import { OnboardingAccount, RegistrationKey } from '../schema';
-import { useMyAccount } from './useMyAccount';
+import { useMyJazz } from './useMyJazz';
 import { useRegistrationKeyData } from './useRegistrationKeyData';
 
 const KEY_LIFETIME_SECONDS = 60;
@@ -35,7 +35,10 @@ export async function storeRegistrationKey(
   const expiresAt = Date.now() + KEY_LIFETIME_SECONDS * 1000;
 
   try {
-    const registrationKey = RegistrationKey.create({ key, expiresAt });
+    const registrationKey = RegistrationKey.create(
+      { key, expiresAt },
+      account.root['profile.jazz.dev']._owner,
+    );
     account.root['profile.jazz.dev'].registrationKey = registrationKey;
 
     console.log('Registration key stored successfully');
@@ -47,7 +50,7 @@ export async function storeRegistrationKey(
 }
 
 export function useRegistrationKey() {
-  const { account, isAccountReady } = useMyAccount();
+  const { account, isAccountReady } = useMyJazz();
 
   // TODO: Replace with code from useRegistrationKeyData
   const { registrationKey, isLoading, isAccessible } = useRegistrationKeyData();

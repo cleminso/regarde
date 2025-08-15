@@ -1,6 +1,8 @@
 import { Loaded } from "jazz-tools";
-import { RegistryWorkerAccount } from "@onboarding.jazz/shared-schemas/registry";
-import { OnboardingAccount } from "@onboarding.jazz/shared-schemas/profile";
+import {
+  RegistryWorkerAccount,
+  OnboardingAccount,
+} from "@onboarding.jazz/shared-schemas";
 import {
   HealthServiceInterface,
   HealthReport,

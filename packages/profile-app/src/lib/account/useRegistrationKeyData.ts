@@ -2,10 +2,10 @@
 import { useCoState } from 'jazz-tools/react';
 
 import { RegistrationKey } from '../schema';
-import { useMyAccount } from './useMyAccount';
+import { useMyJazz } from './useMyJazz';
 
 export function useRegistrationKeyData() {
-  const { jazzAppProfile: appRoot } = useMyAccount();
+  const { jazzAppProfile: appRoot } = useMyJazz();
 
   const registrationKeyId = appRoot?.registrationKey?.id;
 

@@ -1,28 +1,19 @@
 'use client';
 
-import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { CustomAuthModal } from './components/onboarding/customAuthModal';
 import { Button } from './components/ui/button';
+import { useMyJazz } from './lib/account/useMyJazz';
 import { useRegistrationKey } from './lib/account/useRegistrationKey';
-import { OnboardingAccount } from './lib/schema';
 
 export function AuthButton() {
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const { logOut } = useAccount(OnboardingAccount, {
-    resolve: { 
-      profile: {
-        'profile.jazz.dev': {
-          userHandle: true,
-        }
-      }
-    },
-  });
-  const navigate = useNavigate();
-  const isAuthenticated = useIsAuthenticated();
+  const { logOut, isAuthenticated } = useMyJazz();
   const { getValidKey, isAccountReady } = useRegistrationKey();
+
+  const navigate = useNavigate();
   const keyInitialized = useRef(false);
 
   useEffect(() => {

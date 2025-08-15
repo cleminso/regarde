@@ -144,8 +144,16 @@ async function syncUserHandle(
       console.warn(`No profile found for account ${jazzAccountID}`);
       return;
     }
-    // where is the data? how to charge JazzAppProfile?
-    const data = await JazzAppProfile.load(account.profile["profile.jazz.dev"]);
+
+    const data = await JazzAppProfile.load(
+      account.profile["profile.jazz.dev"],
+      {
+        resolve: {
+          userHandle: true,
+        },
+      },
+    );
+
     await data?.ensureLoaded({
       resolve: {
         userHandle: true,
@@ -153,6 +161,7 @@ async function syncUserHandle(
     });
 
     const userHandle = data?.userHandle;
+    console.log("Resolved: ", userHandle);
 
     if (!userHandle) {
       console.warn(`No userHandle nickname found for account ${jazzAccountID}`);

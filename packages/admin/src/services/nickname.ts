@@ -1,5 +1,5 @@
 import { Loaded } from "jazz-tools";
-import { RegistryWorkerAccount } from "@onboarding.jazz/shared-schemas/registry";
+import { RegistryWorkerAccount } from "@onboarding.jazz/shared-schemas";
 import { NicknameServiceInterface } from "../types/services.js";
 import { AuditService } from "./audit.js";
 import { ReservationService } from "./reservation.js";

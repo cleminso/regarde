@@ -2,7 +2,7 @@ import { co } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 
-import { useMyAccount } from '#/lib/account/useMyAccount';
+import { useMyJazz } from '#/lib/account/useMyJazz';
 import { fetchUserDetailsByNickname } from '#/lib/api/base';
 import { JazzAppProfile } from '#/lib/schema';
 import { ProfileHeader } from './header';
@@ -19,7 +19,7 @@ export function ProfileView() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { account: me, jazzAppProfile } = useMyAccount();
+  const { account: me, jazzAppProfile } = useMyJazz();
 
   useEffect(() => {
     if (!nickname) {

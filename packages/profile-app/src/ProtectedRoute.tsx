@@ -1,34 +1,25 @@
-import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 import { Navigate, Outlet, useParams } from 'react-router';
 
-import { OnboardingAccount } from './lib/schema';
+import { useMyJazz } from './lib/account/useMyJazz';
 import { createNicknameUrl } from './lib/utils';
 
 export function ProtectedRoute() {
-  const isAuthenticated = useIsAuthenticated();
   const { nickname } = useParams();
-
-  const { me } = useAccount(OnboardingAccount, {
-    resolve: {
-      profile: {
-        'profile.jazz.dev': true,
-      },
-    },
-  });
+  const { account, jazzAppProfile, isAuthenticated } = useMyJazz();
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
 
-  if (me === undefined) {
+  if (account === undefined) {
     return <div>Loading account...</div>;
   }
 
-  if (me === null || !me.profile) {
+  if (account === null || !account.profile) {
     return <Navigate to="/" replace />;
   }
 
-  const profileNickname = me.profile.userHandle?.nickname;
+  const profileNickname = jazzAppProfile?.userHandle?.nickname;
 
   if (!profileNickname) {
     return <Navigate to="/" replace />;

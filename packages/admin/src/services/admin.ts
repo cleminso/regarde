@@ -1,6 +1,6 @@
 import { startWorker } from "jazz-tools/worker";
 import { Loaded } from "jazz-tools";
-import { RegistryWorkerAccount } from "@onboarding.jazz/shared-schemas/registry";
+import { RegistryWorkerAccount } from "@onboarding.jazz/shared-schemas";
 import { Logger } from "../utils/logger.js";
 
 import { AuditService } from "./audit.js";

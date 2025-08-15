@@ -10,15 +10,7 @@ type UseAwardProps = {
 export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
   const ensureAwardsList = (): Loaded<typeof ListOfAward> | undefined => {
     if (!profile.award) {
-      const profileOwner = profile._owner;
-      if (!profileOwner) {
-        console.error(
-          'Cannot initialize award list: profile._owner is undefined.',
-        );
-        return undefined;
-      }
-
-      profile.award = ListOfAward.create([], { owner: profileOwner });
+      profile.award = ListOfAward.create([], { owner: profile._owner });
     }
     return profile.award;
   };

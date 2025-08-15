@@ -14,13 +14,6 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
   const ensureProjectsList = (): Loaded<typeof ListOfProjects> | undefined => {
     if (!profile.projects) {
       const profileOwner = profile._owner;
-      if (!profileOwner) {
-        console.error(
-          'Cannot initialize projects list: profile._owner is undefined.',
-        );
-        return undefined;
-      }
-
       profile.projects = ListOfProjects.create([], { owner: profileOwner });
     }
     return profile.projects;

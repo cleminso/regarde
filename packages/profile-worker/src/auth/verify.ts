@@ -1,7 +1,9 @@
 import {
+  JazzAppProfile,
   JazzProfileRoot,
   OnboardingAccount,
 } from "@onboarding.jazz/shared-schemas/profile";
+import { Group } from "jazz-tools";
 
 export interface VerificationResult {
   isValid: boolean;
@@ -64,29 +66,27 @@ export async function verifyRegistrationKey(
       };
     }
 
-    console.log(`Profile found, checking registration key...`);
+    console.log(
+      `Profile found, checking registration key...`,
+      account.profile["profile.jazz.dev"],
+    );
 
-    const registrationKeyData = await JazzProfileRoot.load(
+    const registrationKeyData = await JazzAppProfile.load(
       account.profile["profile.jazz.dev"],
       {
         resolve: {
-          "profile.jazz.dev": {
-            registrationKey: true,
-          },
+          registrationKey: true,
         },
       },
     );
 
     registrationKeyData?.ensureLoaded({
       resolve: {
-        "profile.jazz.dev": {
-          registrationKey: true,
-        },
+        registrationKey: true,
       },
     });
 
-    const storedKeyData =
-      registrationKeyData?.["profile.jazz.dev"].registrationKey;
+    const storedKeyData = registrationKeyData?.registrationKey;
 
     if (!storedKeyData) {
       console.log(`No registration key found in account profile`);

@@ -1,5 +1,5 @@
 import { Loaded } from "jazz-tools";
-import { RegistryWorkerAccount } from "@onboarding.jazz/shared-schemas/registry";
+import { RegistryWorkerAccount } from "@onboarding.jazz/shared-schemas";
 import { BackupServiceInterface, BackupInfo } from "../types/services.js";
 import { AuditService } from "./audit.js";
 import { Logger } from "../utils/logger.js";

@@ -256,7 +256,7 @@ export const userDetailsHandler = (
 
       let account: any = null; // Consider using 'InstanceType<typeof OnboardingAccount>' or a more specific type
       let accountLoadError: string | null = null;
-      let profileData: Loaded<typeof JazzProfileRoot> | null = null;
+      let profileData: Loaded<typeof JazzAppProfile> | null = null;
 
       try {
         const jazzUserAccount = await OnboardingAccount.load(
@@ -277,24 +277,27 @@ export const userDetailsHandler = (
 
         if (!jazzUserAccount) throw new Error("Profile not found");
 
-        const profileData = await JazzAppProfile.load(
-          jazzUserAccount.profile["profile.jazz.dev"],
-          {
-            resolve: {
-              projects: { $each: true },
-              socialLinks: true,
-              workExp: { $each: true },
-              writing: { $each: true },
-              education: { $each: true },
-              certification: { $each: true },
-              speaking: { $each: true },
-              award: { $each: true },
-              volunteering: { $each: true },
-              sideProject: { $each: true },
-              nowPage: true,
-            },
+        const jazzAppProfileId = jazzUserAccount.profile["profile.jazz.dev"];
+
+        console.log("JazzAppProfileID:", jazzAppProfileId);
+
+        if (!jazzAppProfileId) throw new Error("JazzAppProfileID not found");
+
+        profileData = await JazzAppProfile.load(jazzAppProfileId, {
+          resolve: {
+            projects: { $each: true },
+            socialLinks: true,
+            workExp: { $each: true },
+            writing: { $each: true },
+            education: { $each: true },
+            certification: { $each: true },
+            speaking: { $each: true },
+            award: { $each: true },
+            volunteering: { $each: true },
+            sideProject: { $each: true },
+            nowPage: true,
           },
-        );
+        });
         profileData?.ensureLoaded({
           resolve: {
             projects: { $each: true },
@@ -327,26 +330,27 @@ export const userDetailsHandler = (
           nicknameStatus,
         };
 
-        if (account && account.profile && profileData) {
+        if (profileData) {
           const publicData: Record<string, any> = {};
           try {
             // Safely extract profile data
-            if (account.profile) {
-              Object.assign(publicData, account.profile);
+            if (profileData) {
+              delete profileData["registrationKey"];
+
+              Object.assign(publicData, profileData);
             }
           } catch (profileError: any) {
             console.warn(
               `Error extracting profile data for ${processedJazzAccountId}: ${profileError.message || profileError}`,
             );
           }
+
           return c.json(
             {
               ...baseResponse,
               requestedNickname: requestedNicknameFromQuery || undefined,
               publicData:
-                Object.keys(profileData["profile.jazz.dev"]).length > 0
-                  ? publicData
-                  : undefined,
+                Object.keys(profileData).length > 0 ? publicData : undefined,
               exists: true,
             },
             200,

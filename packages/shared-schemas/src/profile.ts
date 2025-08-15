@@ -1,5 +1,5 @@
-import { Account, co, Group, Loaded, z } from "jazz-tools";
-import { UserHandle } from "./nickname.js";
+import { co, Group, ID, Loaded, z } from "jazz-tools";
+import { UserHandle } from "./nickname";
 
 export const SocialLinks = co.map({
   github: z.optional(z.string()),
@@ -17,7 +17,7 @@ export const Project = co.map({
   description: z.optional(z.string()),
 });
 
-export type Project = z.infer<typeof Project>;
+export type Project = co.loaded<typeof Project>;
 
 export const ListOfProjects = co.list(Project);
 
@@ -31,7 +31,7 @@ export const WorkExp = co.map({
   description: z.optional(z.string()),
 });
 
-export type WorkExp = z.infer<typeof WorkExp>;
+export type WorkExp = co.loaded<typeof WorkExp>;
 
 export const ListOfWorkExp = co.list(WorkExp);
 
@@ -43,7 +43,7 @@ export const Writing = co.map({
   description: z.optional(z.string()),
 });
 
-export type Writing = z.infer<typeof Writing>;
+export type Writing = co.loaded<typeof Writing>;
 
 export const ListOfWriting = co.list(Writing);
 
@@ -57,7 +57,7 @@ export const Education = co.map({
   description: z.optional(z.string()),
 });
 
-export type Education = z.infer<typeof Education>;
+export type Education = co.loaded<typeof Education>;
 
 export const ListOfEducation = co.list(Education);
 
@@ -70,7 +70,7 @@ export const Certification = co.map({
   description: z.optional(z.string()),
 });
 
-export type Certification = z.infer<typeof Certification>;
+export type Certification = co.loaded<typeof Certification>;
 
 export const ListOfCertification = co.list(Certification);
 
@@ -83,7 +83,7 @@ export const Speaking = co.map({
   description: z.optional(z.string()),
 });
 
-export type Speaking = z.infer<typeof Speaking>;
+export type Speaking = co.loaded<typeof Speaking>;
 
 export const ListOfSpeaking = co.list(Speaking);
 
@@ -95,7 +95,7 @@ export const Award = co.map({
   description: z.optional(z.string()),
 });
 
-export type Award = z.infer<typeof Award>;
+export type Award = co.loaded<typeof Award>;
 
 export const ListOfAward = co.list(Award);
 
@@ -109,7 +109,7 @@ export const Volunteering = co.map({
   description: z.optional(z.string()),
 });
 
-export type Volunteering = z.infer<typeof Volunteering>;
+export type Volunteering = co.loaded<typeof Volunteering>;
 
 export const ListOfVolunteering = co.list(Volunteering);
 
@@ -121,7 +121,7 @@ export const SideProject = co.map({
   description: z.optional(z.string()),
 });
 
-export type SideProject = z.infer<typeof SideProject>;
+export type SideProject = co.loaded<typeof SideProject>;
 
 export const ListOfSideProject = co.list(SideProject);
 
@@ -158,18 +158,18 @@ export const JazzAppProfile = co.map({
   userHandle: UserHandle,
   bio: z.optional(z.string()),
   avatar: z.optional(z.string()),
-  socialLinks: z.optional(SocialLinks),
-  projects: z.optional(ListOfProjects),
-  workExp: z.optional(ListOfWorkExp),
-  writing: z.optional(ListOfWriting),
-  education: z.optional(ListOfEducation),
-  certification: z.optional(ListOfCertification),
-  speaking: z.optional(ListOfSpeaking),
-  award: z.optional(ListOfAward),
-  volunteering: z.optional(ListOfVolunteering),
-  sideProject: z.optional(ListOfSideProject),
-  registrationKey: z.optional(RegistrationKey),
-  nowPage: z.optional(NowPage),
+  socialLinks: co.optional(SocialLinks),
+  projects: co.optional(ListOfProjects),
+  workExp: co.optional(ListOfWorkExp),
+  writing: co.optional(ListOfWriting),
+  education: co.optional(ListOfEducation),
+  certification: co.optional(ListOfCertification),
+  speaking: co.optional(ListOfSpeaking),
+  award: co.optional(ListOfAward),
+  volunteering: co.optional(ListOfVolunteering),
+  sideProject: co.optional(ListOfSideProject),
+  registrationKey: co.optional(RegistrationKey),
+  nowPage: co.optional(NowPage),
 });
 
 export type CleanLoadedJazzAppProfile = Omit<
@@ -177,45 +177,42 @@ export type CleanLoadedJazzAppProfile = Omit<
   "registrationKey"
 >;
 
-JazzAppProfile.withHelpers((Self) => ({
-  validate(profile: Loaded<typeof Self>): {
-    isValid: boolean;
-    message?: string;
-  } {
-    if (!profile.name || profile.name.trim() === "") {
-      return {
-        isValid: false,
-        message: "Name must be present and non-empty.",
-      };
-    }
+export function validateJazzAppProfile(
+  profile: Loaded<typeof JazzAppProfile>,
+): { isValid: boolean; message?: string } {
+  if (!profile.name || profile.name.trim() === "") {
+    return {
+      isValid: false,
+      message: "Name must be present and non-empty.",
+    };
+  }
 
-    if (!profile.userHandle) {
-      return {
-        isValid: false,
-        message: "Onboarding data is required.",
-      };
-    }
+  if (!profile.userHandle) {
+    return {
+      isValid: false,
+      message: "Onboarding data is required.",
+    };
+  }
 
-    if (
-      !profile.userHandle.nickname ||
-      profile.userHandle.nickname.trim() === ""
-    ) {
-      return {
-        isValid: false,
-        message: "Nickname must be non-empty.",
-      };
-    }
+  if (
+    !profile.userHandle.nickname ||
+    profile.userHandle.nickname.trim() === ""
+  ) {
+    return {
+      isValid: false,
+      message: "Nickname must be non-empty.",
+    };
+  }
 
-    if (!profile.userHandle.isActive) {
-      return {
-        isValid: false,
-        message: "Nickname must be active.",
-      };
-    }
+  if (!profile.userHandle.isActive) {
+    return {
+      isValid: false,
+      message: "Nickname must be active.",
+    };
+  }
 
-    return { isValid: true };
-  },
-}));
+  return { isValid: true };
+}
 
 export const JazzProfileProfile = co.profile({
   "profile.jazz.dev": z.string(),
@@ -230,86 +227,58 @@ export const OnboardingAccount = co
     root: JazzProfileRoot,
   })
   .withMigration(async (account, creationProps?: { name: string }) => {
-    if (
-      account.root === undefined ||
-      account.root?.["profile.jazz.dev"] === undefined
-    ) {
+    console.log(account.root, account.root?.["profile.jazz.dev"]);
+
+    if (account.root?.["profile.jazz.dev"] === undefined) {
       try {
-        // Create groups with proper owner
-        const publicGroup = Group.create({ owner: account });
-        publicGroup.addMember("everyone", "reader");
-
-        const jazzProfileOwnerGroup = Group.create({
-          owner: account,
-        });
-
-        // Add worker permissions
-        // TODO: Update worker to variable value
-
-        // export const jazzProfileAdminGroup = Group.create();
-        // AdminGroup.addMember("co_cleminso", "admin");
-        // AdminGroup.addMember("co_worker_1", "admin");
-        //
-
-        const jazzProfileAdminGroupID = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
-        const jazzProfileAdminGroup = await Group.load(jazzProfileAdminGroupID);
-        const jazzProfileAdminAccountGroup = await Group.load(
-          jazzProfileAdminGroupID,
+        // This is the worker read group, must be hardcoded
+        const jazzProfileWorkerGroupID = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
+        const jazzProfileWorkerGroup = await Group.load(
+          jazzProfileWorkerGroupID,
         );
-        await jazzProfileAdminGroup?.ensureLoaded();
-        await jazzProfileAdminAccountGroup?.ensureLoaded();
-
-        try {
-          if (jazzProfileAdminGroup) {
-            jazzProfileOwnerGroup.addMember(jazzProfileAdminGroup, "writer");
-
-            console.log("Worker permissions added to jazzProfileOwner group");
-            if (jazzProfileAdminAccountGroup) {
-              jazzProfileOwnerGroup.addMember(
-                jazzProfileAdminAccountGroup,
-                "writer",
-              );
-
-              console.log(
-                "Admin Account permissions added to jazzProfileOwner group",
-              );
-            }
-          } else {
-            console.warn("Worker account not available during migration");
-          }
-        } catch (error) {
-          console.warn("Failed to add worker permissions:", error);
-          // Continue without worker permissions - can be added later
-        }
+        await jazzProfileWorkerGroup?.ensureLoaded();
 
         const userHandle = UserHandle.create({
-          nickname: "", // Start empty
+          nickname: "",
           registeredAt: Date.now(),
           lastModified: Date.now(),
           isActive: false,
         });
 
-        const jazzProfileData = JazzAppProfile.create(
-          {
-            name: creationProps?.name || "Public Profile",
-            userHandle,
-          },
-          {
-            owner: jazzProfileOwnerGroup,
-          },
-        );
+        if (jazzProfileWorkerGroup)
+          userHandle._owner
+            .castAs(Group)
+            .addMember(jazzProfileWorkerGroup, "writer");
+
+        const jazzProfileData = JazzAppProfile.create({
+          name: creationProps?.name || "Public Profile",
+          userHandle,
+        });
+
+        if (jazzProfileWorkerGroup)
+          jazzProfileData._owner
+            .castAs(Group)
+            .addMember(jazzProfileWorkerGroup, "writer");
 
         console.log(
-          "profile.jazz.dev namespace data created:",
+          "profile.jazz.dev namespace profile data created:",
           jazzProfileData.id,
         );
 
-        account.profile = JazzProfileProfile.create({
-          "profile.jazz.dev": jazzProfileData.id,
-          name: "",
-        });
+        if (account.profile === undefined || account.profile === null)
+          account.profile = JazzProfileProfile.create({
+            name: "",
+            "profile.jazz.dev": jazzProfileData.id,
+          });
+        else account.profile["profile.jazz.dev"] = jazzProfileData.id;
 
-        account.id;
+        account.profile._owner.castAs(Group).addMember("everyone", "reader");
+
+        if (account.root === undefined || account.root === null)
+          account.root = JazzProfileRoot.create({
+            "profile.jazz.dev": jazzProfileData,
+          });
+        else account.root["profile.jazz.dev"] = jazzProfileData;
 
         console.log("Profile created successfully");
       } catch (error) {

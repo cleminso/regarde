@@ -5,13 +5,13 @@ import { Link, useLocation, useNavigate } from 'react-router';
 import { AuthButton } from './AuthButton.tsx';
 import { LandingNicknameForm } from './components/onboarding/landingNicknameForm.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
-import { useOnboarding } from './lib/onboarding/useOnboarding';
+import { useClerkOnboarding } from './lib/onboarding/useClerkOnboarding.ts';
 import { createNicknameUrl } from './lib/utils.ts';
 
 export function App() {
   const navigate = useNavigate();
   const location = useLocation();
-  const onboarding = useOnboarding();
+  const onboarding = useClerkOnboarding();
 
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -78,10 +78,12 @@ export function App() {
 
       <main className="container mt-16 flex flex-col items-center text-center gap-6 py-12">
         {!onboarding.isAuthenticated && <LandingNicknameForm />}
-        {onboarding.isAuthenticated && !onboarding.accountId && <div>Loading account...</div>}
-        {onboarding.isAuthenticated && onboarding.accountId && !onboarding.hasExistingNickname && (
-          <LandingNicknameForm />
+        {onboarding.isAuthenticated && !onboarding.accountId && (
+          <div>Loading account...</div>
         )}
+        {onboarding.isAuthenticated &&
+          onboarding.accountId &&
+          !onboarding.hasExistingNickname && <LandingNicknameForm />}
         {onboarding.isAuthenticated && onboarding.hasExistingNickname && (
           <div>Redirecting to your profile editor...</div>
         )}

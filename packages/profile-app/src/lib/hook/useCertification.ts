@@ -19,15 +19,8 @@ export function useCertification({
     | Loaded<typeof ListOfCertification>
     | undefined => {
     if (!profile.certification) {
-      const profileOwner = profile._owner;
-      if (!profileOwner) {
-        console.error(
-          'Cannot initialize certification list: profile._owner is undefined.',
-        );
-        return undefined;
-      }
       profile.certification = ListOfCertification.create([], {
-        owner: profileOwner,
+        owner: profile._owner,
       });
     }
     return profile.certification;

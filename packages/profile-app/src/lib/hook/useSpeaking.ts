@@ -18,13 +18,6 @@ export function useSpeaking({
   const ensureSpeakingList = (): Loaded<typeof ListOfSpeaking> | undefined => {
     if (!profile.speaking) {
       const profileOwner = profile._owner;
-      if (!profileOwner) {
-        console.error(
-          'Cannot initialize speaking list: profile._owner is undefined.',
-        );
-        return undefined;
-      }
-
       profile.speaking = ListOfSpeaking.create([], { owner: profileOwner });
     }
     return profile.speaking;
@@ -37,12 +30,7 @@ export function useSpeaking({
     if (!speakingList) return undefined;
 
     const listOwner = speakingList._owner;
-    if (!listOwner) {
-      console.error(
-        'Cannot create a new speaking instance: speakingList._owner is undefined.',
-      );
-      return undefined;
-    }
+
     const newSpeaking = Speaking.create(
       {
         title: speakingData.title,

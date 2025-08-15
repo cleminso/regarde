@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 
-import { useOnboarding } from '../../lib/onboarding/useOnboarding';
+import { useClerkOnboarding } from '../../lib/onboarding/useClerkOnboarding';
 import { NicknameInput } from '../ui/nicknameInput';
 
 export function LandingNicknameForm() {
   const [nickname, setNickname] = useState('');
-  const onboarding = useOnboarding();
+  const onboarding = useClerkOnboarding();
 
   useEffect(() => {
     const timer = setTimeout(() => {

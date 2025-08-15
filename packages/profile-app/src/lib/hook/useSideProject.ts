@@ -20,12 +20,6 @@ export function useSideProject({
     | undefined => {
     if (!profile.sideProject) {
       const profileOwner = profile._owner;
-      if (!profileOwner) {
-        console.error(
-          'Cannot initialize side projects list: profile._owner is undefined.',
-        );
-        return undefined;
-      }
       profile.sideProject = ListOfSideProject.create([], {
         owner: profileOwner,
       });
@@ -40,12 +34,6 @@ export function useSideProject({
     if (!sideProjectList) return undefined;
 
     const listOwner = sideProjectList._owner;
-    if (!listOwner) {
-      console.error(
-        'Cannot create a new side project instance: sideProjectList._owner is undefined.',
-      );
-      return undefined;
-    }
 
     const newSideProject = SideProject.create(
       {

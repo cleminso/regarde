@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 
-import { useOnboarding } from '../onboarding/useOnboarding';
+import { useClerkOnboarding } from '../onboarding/useClerkOnboarding';
 import { type CleanLoadedJazzAppProfile } from '../schema';
 
 type UseGeneralProps = {
@@ -143,27 +143,27 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
     [profile, triggerSyncIndicator],
   );
 
-  const onboarding = useOnboarding();
+  const clerkOnboarding = useClerkOnboarding();
 
   const [nicknameValue, setNicknameValue] = useState(
-    onboarding.currentNickname,
+    clerkOnboarding.currentNickname,
   );
 
   React.useEffect(() => {
-    setNicknameValue(onboarding.currentNickname);
-  }, [onboarding.currentNickname]);
+    setNicknameValue(clerkOnboarding.currentNickname);
+  }, [clerkOnboarding.currentNickname]);
 
   const updateNicknameValue = useCallback((value: string) => {
     setNicknameValue(value);
   }, []);
 
   const resetNicknameInput = useCallback(() => {
-    setNicknameValue(onboarding.currentNickname);
-  }, [onboarding.currentNickname]);
+    setNicknameValue(clerkOnboarding.currentNickname);
+  }, [clerkOnboarding.currentNickname]);
 
   const updateNickname = useCallback(async () => {
-    await onboarding.update(nicknameValue);
-  }, [onboarding.update, nicknameValue]);
+    await clerkOnboarding.update(nicknameValue);
+  }, [clerkOnboarding.update, nicknameValue]);
 
   return {
     isUpdating,
@@ -187,16 +187,17 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
       resetNicknameInput,
       updateNickname,
 
-      checkAvailability: onboarding.checkAvailability,
-      validationStatus: onboarding.validationStatus,
-      validationError: onboarding.validationError,
-      isProcessing: onboarding.isProcessing,
-      error: onboarding.error,
-      clearError: onboarding.clearError,
+      checkAvailability: clerkOnboarding.checkAvailability,
+      validationStatus: clerkOnboarding.validationStatus,
+      validationError: clerkOnboarding.validationError,
+      isProcessing: clerkOnboarding.isProcessing,
+      error: clerkOnboarding.error,
+      clearError: clerkOnboarding.clearError,
 
-      currentNickname: onboarding.currentNickname,
-      isNicknameActive: onboarding.isNicknameActive,
-      canUpdate: onboarding.isAccountReady && !onboarding.isProcessing,
+      currentNickname: clerkOnboarding.currentNickname,
+      isNicknameActive: clerkOnboarding.isNicknameActive,
+      canUpdate:
+        clerkOnboarding.isAccountReady && !clerkOnboarding.isProcessing,
     },
 
     canPerformUpdates: Boolean(profile) && !isUpdating,

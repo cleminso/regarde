@@ -7,7 +7,7 @@ export const ReverseNicknameRegistryCoRecord = co.record(
   z.string(),
   z.string(),
 );
-export type ReverseNicknameRegistry = z.infer<
+export type ReverseNicknameRegistry = co.loaded<
   typeof ReverseNicknameRegistryCoRecord
 >;
 
@@ -23,7 +23,7 @@ export const ReservedNicknamesRegistry = co.record(
   z.string(),
   ReservationEntry,
 );
-export type ReservedNicknamesRegistry = z.infer<
+export type ReservedNicknamesRegistry = co.loaded<
   typeof ReservedNicknamesRegistry
 >;
 
@@ -41,10 +41,10 @@ export const RegistryAuditEntry = co.map({
     z.enum(["admin", "brand", "system", "offensive", "custom"]),
   ),
 });
-export type RegistryAuditEntry = z.infer<typeof RegistryAuditEntry>;
+export type RegistryAuditEntry = co.loaded<typeof RegistryAuditEntry>;
 
 export const RegistryAuditLog = co.list(RegistryAuditEntry);
-export type RegistryAuditLog = z.infer<typeof RegistryAuditLog>;
+export type RegistryAuditLog = co.loaded<typeof RegistryAuditLog>;
 
 export const RegistryWorkerAccountRoot = co.map({
   registry: NicknameRegistryCoRecord,
@@ -56,9 +56,11 @@ export type RegistryWorkerAccountRoot = z.infer<
   typeof RegistryWorkerAccountRoot
 >;
 
-export const RegistryWorkerAccount: ReturnType<typeof co.account> = co
+const EmptyProfile = co.profile();
+
+export const RegistryWorkerAccount = co
   .account({
-    profile: co.profile(),
+    profile: EmptyProfile,
     root: RegistryWorkerAccountRoot,
   })
   .withMigration(async (account) => {
@@ -83,26 +85,39 @@ export const RegistryWorkerAccount: ReturnType<typeof co.account> = co
         return;
       }
 
+      console.debug("Root done");
+
       if (loadedAccount.root.registry === undefined) {
         const newRegistry = NicknameRegistryCoRecord.create({});
         loadedAccount.root.registry = newRegistry;
         console.log("NicknameRegistry created in worker account root.");
       }
+
+      console.debug("Root registry done");
+
       if (loadedAccount.root.reverseRegistry === undefined) {
         const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
         loadedAccount.root.reverseRegistry = newReverseRegistry;
         console.log("ReverseNicknameRegistry created in worker account root.");
       }
+
+      console.debug("Root reverse registry done");
+
       if (loadedAccount.root.auditLog === undefined) {
         const newAuditLog = RegistryAuditLog.create([]);
         loadedAccount.root.auditLog = newAuditLog;
         console.log("AuditLog created in worker account root.");
       }
+
+      console.debug("Root auditLog done");
+
       if (loadedAccount.root.reservedNicknames === undefined) {
         const newReservedNicknames = ReservedNicknamesRegistry.create({});
         loadedAccount.root.reservedNicknames = newReservedNicknames;
         console.log("ReservedNicknames created in worker account root.");
       }
+
+      console.debug("Root reservedNicknames done");
     } catch (e) {
       console.log("EnsureLoaded Root failed, fallback", account, e);
 
@@ -148,3 +163,5 @@ export const RegistryWorkerAccount: ReturnType<typeof co.account> = co
       }
     }
   });
+
+export type RegistryWorkerAccount = co.loaded<typeof RegistryWorkerAccount>;

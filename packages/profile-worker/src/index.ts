@@ -76,12 +76,15 @@ async function main() {
 
   let worker;
   try {
+    console.debug("Starting worker");
     const workerResult = await startWorker({
       AccountSchema: RegistryWorkerAccount,
       syncServer:
         JAZZ_SYNC_SERVER_URL +
         (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
     });
+    console.debug("Worker started");
+
     worker = workerResult.worker;
   } catch (workerError) {
     console.error("Failed to start Jazz worker:", workerError);
@@ -94,7 +97,13 @@ async function main() {
   let loadedWorker;
   try {
     loadedWorker = await worker.ensureLoaded({
-      resolve: { root: { registry: true, reverseRegistry: true, reservedNicknames: true } },
+      resolve: {
+        root: {
+          registry: true,
+          reverseRegistry: true,
+          reservedNicknames: true,
+        },
+      },
     });
   } catch (loadError) {
     console.error("Failed to load worker data:", loadError);
@@ -154,7 +163,10 @@ async function main() {
 
   const safeCheckAvailabilityHandler = async (c: any) => {
     try {
-      return await checkAvailabilityHandler(nicknameRegistry, reservedNicknames)(c);
+      return await checkAvailabilityHandler(
+        nicknameRegistry,
+        reservedNicknames,
+      )(c);
     } catch (error) {
       console.error("Error in checkAvailabilityHandler:", error);
       return c.json({ error: "Internal server error" }, 500);
