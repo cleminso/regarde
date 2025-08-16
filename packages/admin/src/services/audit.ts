@@ -3,6 +3,7 @@ import { ulid } from "ulidx";
 import {
   RegistryWorkerAccount,
   RegistryAuditEntry,
+  RegistryAuditLog,
 } from "@onboarding.jazz/shared-schemas";
 import { AuditServiceInterface } from "../types/services.js";
 import { Logger } from "../utils/logger.js";
@@ -10,7 +11,7 @@ import { Logger } from "../utils/logger.js";
 export class AuditService implements AuditServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
-    private auditLog: Loaded<typeof RegistryWorkerAccount>["root"]["auditLog"],
+    private auditLog: Loaded<typeof RegistryAuditLog>,
   ) {}
 
   async logChange(

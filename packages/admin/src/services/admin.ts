@@ -75,25 +75,29 @@ export class AdminService {
         },
       });
 
-      if (!this.loadedWorker.root.registry) {
+      if (!this.loadedWorker.root) {
+        throw new Error("Worker account root is not available");
+      }
+
+      const { root } = this.loadedWorker;
+
+      if (!root.registry) {
         throw new Error("Nickname registry is not available");
       }
-      if (!this.loadedWorker.root.reverseRegistry) {
+      if (!root.reverseRegistry) {
         throw new Error("Reverse nickname registry is not available");
       }
-      if (!this.loadedWorker.root.auditLog) {
+      if (!root.auditLog) {
         throw new Error("Audit log is not available");
       }
-      if (!this.loadedWorker.root.reservedNicknames) {
+      if (!root.reservedNicknames) {
         throw new Error("Reserved nicknames registry is not available");
       }
 
       this.initializeServices();
 
       Logger.success("Registries and audit log loaded successfully");
-      Logger.debug(
-        `Initial audit log length: ${this.loadedWorker.root.auditLog.length}`,
-      );
+      Logger.debug(`Initial audit log length: ${root.auditLog.length}`);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
@@ -103,40 +107,51 @@ export class AdminService {
   }
 
   private initializeServices(): void {
-    this.auditService = new AuditService(
-      this.loadedWorker,
-      this.loadedWorker.root.auditLog,
-    );
+    const { root } = this.loadedWorker;
+    if (!root) {
+      throw new Error("Cannot initialize services: root is not available");
+    }
+
+    if (
+      !root.auditLog ||
+      !root.registry ||
+      !root.reverseRegistry ||
+      !root.reservedNicknames
+    ) {
+      throw new Error("Required root properties are not loaded");
+    }
+
+    this.auditService = new AuditService(this.loadedWorker, root.auditLog);
 
     this.reservationService = new ReservationService(
       this.loadedWorker,
-      this.loadedWorker.root.registry,
-      this.loadedWorker.root.reservedNicknames,
+      root.registry,
+      root.reservedNicknames,
       this.auditService,
     );
 
     this.nicknameService = new NicknameService(
       this.loadedWorker,
-      this.loadedWorker.root.registry,
-      this.loadedWorker.root.reverseRegistry,
-      this.loadedWorker.root.reservedNicknames,
+      root.registry,
+      root.reverseRegistry,
+      root.reservedNicknames,
       this.auditService,
       this.reservationService,
     );
 
     this.backupService = new BackupService(
       this.loadedWorker,
-      this.loadedWorker.root.registry,
-      this.loadedWorker.root.reverseRegistry,
+      root.registry,
+      root.reverseRegistry,
       this.auditService,
     );
 
     this.healthService = new HealthService(
       this.loadedWorker,
-      this.loadedWorker.root.registry,
-      this.loadedWorker.root.reverseRegistry,
-      this.loadedWorker.root.reservedNicknames,
-      this.loadedWorker.root.auditLog,
+      root.registry,
+      root.reverseRegistry,
+      root.reservedNicknames,
+      root.auditLog,
       this.auditService,
     );
   }

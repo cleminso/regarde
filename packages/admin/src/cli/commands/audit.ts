@@ -70,8 +70,8 @@ export const auditCommands: ToolConfig[] = [
           }
 
           console.log(`   Source: ${entry.source}`);
-          if (entry.reason) {
-            console.log(`   Reason: ${entry.reason}`);
+          if (entry.reservationReason) {
+            console.log(`   Reason: ${entry.reservationReason}`);
           }
           console.log("");
         });
@@ -124,8 +124,8 @@ export const auditCommands: ToolConfig[] = [
           }
 
           console.log(`   Source: ${entry.source}`);
-          if (entry.reason) {
-            console.log(`   Reason: ${entry.reason}`);
+          if (entry.reservationReason) {
+            console.log(`   Reason: ${entry.reservationReason}`);
           }
           console.log("");
         });
@@ -179,8 +179,8 @@ export const auditCommands: ToolConfig[] = [
           }
 
           console.log(`   Source: ${entry.source}`);
-          if (entry.reason) {
-            console.log(`   Reason: ${entry.reason}`);
+          if (entry.reservationReason) {
+            console.log(`   Reason: ${entry.reservationReason}`);
           }
           console.log("");
         });

@@ -1,5 +1,9 @@
 import { Loaded } from "jazz-tools";
-import { RegistryWorkerAccount } from "@onboarding.jazz/shared-schemas";
+import {
+  RegistryWorkerAccount,
+  NicknameRegistryCoRecord,
+  ReverseNicknameRegistryCoRecord,
+} from "@onboarding.jazz/shared-schemas";
 import { BackupServiceInterface, BackupInfo } from "../types/services.js";
 import { AuditService } from "./audit.js";
 import { Logger } from "../utils/logger.js";
@@ -26,12 +30,8 @@ interface BackupData {
 export class BackupService implements BackupServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
-    private nicknameRegistry: Loaded<
-      typeof RegistryWorkerAccount
-    >["root"]["registry"],
-    private reverseNicknameRegistry: Loaded<
-      typeof RegistryWorkerAccount
-    >["root"]["reverseRegistry"],
+    private nicknameRegistry: Loaded<typeof NicknameRegistryCoRecord>,
+    private reverseNicknameRegistry: Loaded<typeof ReverseNicknameRegistryCoRecord>,
     private auditService: AuditService,
   ) {}
 

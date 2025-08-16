@@ -2,6 +2,8 @@ import { Loaded } from "jazz-tools";
 import {
   RegistryWorkerAccount,
   ReservationEntry,
+  NicknameRegistryCoRecord,
+  ReservedNicknamesRegistry,
 } from "@onboarding.jazz/shared-schemas/registry";
 import {
   ReservationServiceInterface,
@@ -18,12 +20,8 @@ import { Logger } from "../utils/logger.js";
 export class ReservationService implements ReservationServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
-    private nicknameRegistry: Loaded<
-      typeof RegistryWorkerAccount
-    >["root"]["registry"],
-    private reservedNicknames: Loaded<
-      typeof RegistryWorkerAccount
-    >["root"]["reservedNicknames"],
+    private nicknameRegistry: Loaded<typeof NicknameRegistryCoRecord>,
+    private reservedNicknames: Loaded<typeof ReservedNicknamesRegistry>,
     private auditService: AuditService,
   ) {}
 

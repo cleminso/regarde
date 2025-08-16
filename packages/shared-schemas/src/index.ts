@@ -1,3 +1,3 @@
-export * from "./profile";
-export * from "./registry";
-export * from "./nickname";
+export * from "./profile.js";
+export * from "./registry.js";
+export * from "./nickname.js";

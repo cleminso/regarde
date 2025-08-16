@@ -1,5 +1,5 @@
 import { co, Group, ID, Loaded, z } from "jazz-tools";
-import { UserHandle } from "./nickname";
+import { UserHandle } from "./nickname.js";
 
 export const SocialLinks = co.map({
   github: z.optional(z.string()),

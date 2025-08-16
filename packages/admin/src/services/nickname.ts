@@ -1,5 +1,10 @@
 import { Loaded } from "jazz-tools";
-import { RegistryWorkerAccount } from "@onboarding.jazz/shared-schemas";
+import {
+  RegistryWorkerAccount,
+  NicknameRegistryCoRecord,
+  ReverseNicknameRegistryCoRecord,
+  ReservedNicknamesRegistry,
+} from "@onboarding.jazz/shared-schemas";
 import { NicknameServiceInterface } from "../types/services.js";
 import { AuditService } from "./audit.js";
 import { ReservationService } from "./reservation.js";
@@ -8,15 +13,9 @@ import { validateNickname, validateAccountId } from "../utils/validation.js";
 export class NicknameService implements NicknameServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
-    private nicknameRegistry: Loaded<
-      typeof RegistryWorkerAccount
-    >["root"]["registry"],
-    private reverseNicknameRegistry: Loaded<
-      typeof RegistryWorkerAccount
-    >["root"]["reverseRegistry"],
-    private reservedNicknames: Loaded<
-      typeof RegistryWorkerAccount
-    >["root"]["reservedNicknames"],
+    private nicknameRegistry: Loaded<typeof NicknameRegistryCoRecord>,
+    private reverseNicknameRegistry: Loaded<typeof ReverseNicknameRegistryCoRecord>,
+    private reservedNicknames: Loaded<typeof ReservedNicknamesRegistry>,
     private auditService: AuditService,
     private reservationService: ReservationService,
   ) {}
