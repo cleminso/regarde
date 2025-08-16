@@ -8,6 +8,9 @@ import {
 import {
   ReservationServiceInterface,
   ReservationDetails,
+  ReservationResult,
+  ReservationListResult,
+  ReservationStatusResult,
 } from "../types/services.js";
 import { AuditService } from "./audit.js";
 import {
@@ -17,6 +20,28 @@ import {
 } from "../utils/validation.js";
 import { Logger } from "../utils/logger.js";
 
+// Enhanced error handling
+export class ReservationError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public context?: Record<string, any>
+  ) {
+    super(message);
+    this.name = 'ReservationError';
+  }
+}
+
+export const RESERVATION_ERROR_CODES = {
+  ALREADY_TAKEN: 'ALREADY_TAKEN',
+  ALREADY_RESERVED: 'ALREADY_RESERVED',
+  NOT_RESERVED: 'NOT_RESERVED',
+  INVALID_ENTRY: 'INVALID_ENTRY',
+  VALIDATION_FAILED: 'VALIDATION_FAILED',
+} as const;
+
+type ReservationCategory = "admin" | "brand" | "system" | "offensive" | "custom";
+
 export class ReservationService implements ReservationServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
@@ -25,157 +50,287 @@ export class ReservationService implements ReservationServiceInterface {
     private auditService: AuditService,
   ) {}
 
-  async reserveNickname(
-    nickname: string,
-    category: "admin" | "brand" | "system" | "offensive" | "custom" = "custom",
-    reason?: string,
-  ): Promise<{ success: boolean }> {
-    validateNickname(nickname);
-    validateReservationCategory(category);
-    validateReservationReason(reason);
-
-    if (this.nicknameRegistry[nickname]) {
-      throw new Error(
-        `Cannot reserve nickname "${nickname}" - already taken by account ${this.nicknameRegistry[nickname]}`,
-      );
-    }
-
-    if (this.reservedNicknames[nickname]) {
-      const existing = this.reservedNicknames[nickname] as any;
-      throw new Error(
-        `Nickname "${nickname}" is already reserved (category: ${existing?.category}, reserved by: ${existing?.reservedBy})`,
-      );
-    }
-
-    const reservationEntry = ReservationEntry.create({
-      reservedBy: this.worker.id,
-      reservedAt: Date.now(),
-      reason: reason || undefined,
-      category,
-    });
-
-    this.reservedNicknames[nickname] = reservationEntry;
-
-    await this.auditService.logChange(
-      this.worker.id,
-      undefined,
-      undefined,
-      "admin-cli",
-      "reserve",
-      reason,
-      category,
-    );
-
-    return { success: true };
+  // Type guard for reservation entries
+  private isValidReservationEntry(entry: any): boolean {
+    return entry &&
+      typeof entry.reservedBy === 'string' &&
+      typeof entry.reservedAt === 'number' &&
+      typeof entry.category === 'string' &&
+      ['admin', 'brand', 'system', 'offensive', 'custom'].includes(entry.category);
   }
 
-  async unreserveNickname(nickname: string): Promise<{ success: boolean }> {
-    validateNickname(nickname);
-
-    if (!this.reservedNicknames[nickname]) {
-      throw new Error(`Nickname "${nickname}" is not reserved`);
+  // Extract reservation details with proper type safety
+  private extractReservationDetails(reservation: any, nickname: string): ReservationDetails | null {
+    if (!this.isValidReservationEntry(reservation)) {
+      Logger.warning(`Invalid reservation entry for nickname: ${nickname}`);
+      return null;
     }
 
-    const reservation = this.reservedNicknames[nickname];
-    const reservationEntry = reservation as any;
+    // Access properties safely after validation
+    return {
+      nickname,
+      reservedBy: reservation.reservedBy,
+      reservedAt: reservation.reservedAt,
+      reason: reservation.reason,
+      category: reservation.category,
+    };
+  }
 
-    const entryReason = reservationEntry?.reason;
-    const entryCategory = reservationEntry?.category;
+  // Check current state of a nickname
+  private getNicknameState(nickname: string): 'available' | 'taken' | 'reserved' {
+    if (this.nicknameRegistry[nickname]) {
+      return 'taken';
+    }
+    if (this.reservedNicknames[nickname]) {
+      return 'reserved';
+    }
+    return 'available';
+  }
 
-    delete this.reservedNicknames[nickname];
+  // Generate operation ID for tracking
+  private generateOperationId(operation: string): string {
+    return `${operation}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+  }
 
-    await this.auditService.logChange(
-      this.worker.id,
-      undefined,
-      undefined,
-      "admin-cli",
-      "unreserve",
-      entryReason,
-      entryCategory,
-    );
+  async reserveNickname(
+    nickname: string,
+    category: ReservationCategory = "custom",
+    reason?: string,
+  ): Promise<ReservationResult> {
+    const operationId = this.generateOperationId('reserve');
+    const previousState = this.getNicknameState(nickname);
 
-    return { success: true };
+    try {
+      // Validation
+      validateNickname(nickname);
+      validateReservationCategory(category);
+      validateReservationReason(reason);
+
+      // Check if nickname is already taken
+      if (this.nicknameRegistry[nickname]) {
+        throw new ReservationError(
+          `Cannot reserve nickname "${nickname}" - already taken by account ${this.nicknameRegistry[nickname]}`,
+          RESERVATION_ERROR_CODES.ALREADY_TAKEN,
+          { nickname, accountId: this.nicknameRegistry[nickname], operationId }
+        );
+      }
+
+      // Check if nickname is already reserved
+      if (this.reservedNicknames[nickname]) {
+        const existing = this.reservedNicknames[nickname];
+        const existingDetails = this.extractReservationDetails(existing, nickname);
+
+        if (existingDetails) {
+          throw new ReservationError(
+            `Nickname "${nickname}" is already reserved (category: ${existingDetails.category}, reserved by: ${existingDetails.reservedBy})`,
+            RESERVATION_ERROR_CODES.ALREADY_RESERVED,
+            { nickname, existing: existingDetails, operationId }
+          );
+        } else {
+          // Invalid entry, we can proceed but log a warning
+          Logger.warning(`Found invalid reservation entry for ${nickname}, proceeding with new reservation`);
+        }
+      }
+
+      // Create reservation
+      const reservationEntry = ReservationEntry.create({
+        reservedBy: this.worker.id,
+        reservedAt: Date.now(),
+        reason: reason || undefined,
+        category,
+      });
+
+      this.reservedNicknames[nickname] = reservationEntry;
+
+      // Create reservation details for return
+      const reservation: ReservationDetails = {
+        nickname,
+        reservedBy: this.worker.id,
+        reservedAt: Date.now(),
+        reason,
+        category,
+      };
+
+      // Audit log
+      await this.auditService.logChange(
+        this.worker.id,
+        undefined,
+        undefined,
+        "admin-cli",
+        "reserve",
+        reason,
+        category,
+      );
+
+      Logger.info(`Successfully reserved nickname "${nickname}"`);
+
+      return {
+        success: true,
+        nickname,
+        previousState,
+        reservation,
+        metadata: { operationId }
+      };
+
+    } catch (error) {
+      Logger.error(`Failed to reserve nickname "${nickname}": ${error instanceof Error ? error.message : String(error)}`);
+
+      if (error instanceof ReservationError) {
+        throw error;
+      }
+
+      throw new ReservationError(
+        `Failed to reserve nickname "${nickname}": ${error instanceof Error ? error.message : String(error)}`,
+        RESERVATION_ERROR_CODES.VALIDATION_FAILED,
+        { nickname, category, operationId, originalError: error }
+      );
+    }
+  }
+
+  async unreserveNickname(nickname: string): Promise<ReservationResult> {
+    const operationId = this.generateOperationId('unreserve');
+    const previousState = this.getNicknameState(nickname);
+
+    try {
+      validateNickname(nickname);
+
+      if (!this.reservedNicknames[nickname]) {
+        throw new ReservationError(
+          `Nickname "${nickname}" is not reserved`,
+          RESERVATION_ERROR_CODES.NOT_RESERVED,
+          { nickname, operationId }
+        );
+      }
+
+      const reservation = this.reservedNicknames[nickname];
+      const reservationDetails = this.extractReservationDetails(reservation, nickname);
+
+      if (!reservationDetails) {
+        throw new ReservationError(
+          `Invalid reservation entry for nickname "${nickname}"`,
+          RESERVATION_ERROR_CODES.INVALID_ENTRY,
+          { nickname, operationId }
+        );
+      }
+
+      // Remove the reservation
+      delete this.reservedNicknames[nickname];
+
+      // Audit log
+      await this.auditService.logChange(
+        this.worker.id,
+        undefined,
+        undefined,
+        "admin-cli",
+        "unreserve",
+        reservationDetails.reason,
+        reservationDetails.category as "admin" | "brand" | "system" | "offensive" | "custom",
+      );
+
+      Logger.info(`Successfully unreserved nickname "${nickname}"`);
+
+      return {
+        success: true,
+        nickname,
+        previousState,
+        reservation: reservationDetails,
+        metadata: { operationId }
+      };
+
+    } catch (error) {
+      Logger.error(`Failed to unreserve nickname "${nickname}": ${error instanceof Error ? error.message : String(error)}`);
+
+      if (error instanceof ReservationError) {
+        throw error;
+      }
+
+      throw new ReservationError(
+        `Failed to unreserve nickname "${nickname}": ${error instanceof Error ? error.message : String(error)}`,
+        RESERVATION_ERROR_CODES.VALIDATION_FAILED,
+        { nickname, operationId, originalError: error }
+      );
+    }
   }
 
   async listReservedNicknames(
-    category?: "admin" | "brand" | "system" | "offensive" | "custom",
-  ): Promise<{
-    reservations: ReservationDetails[];
-  }> {
+    category?: ReservationCategory,
+  ): Promise<ReservationListResult> {
     const reservations: ReservationDetails[] = [];
+    let totalCount = 0;
 
-    for (const [nickname, reservation] of Object.entries(
-      this.reservedNicknames,
-    )) {
+    for (const [nickname, reservation] of Object.entries(this.reservedNicknames)) {
       if (!reservation) continue;
 
-      const reservationEntry = reservation as any;
+      totalCount++;
+      const reservationDetails = this.extractReservationDetails(reservation, nickname);
 
-      const entryCategory = reservationEntry?.category;
-      const entryReservedBy = reservationEntry?.reservedBy;
-      const entryReservedAt = reservationEntry?.reservedAt;
-      const entryReason = reservationEntry?.reason;
-
-      if (!entryCategory || !entryReservedBy || !entryReservedAt) {
-        Logger.warning(
-          `Skipping invalid reservation entry for nickname: ${nickname}`,
-        );
+      if (!reservationDetails) {
+        // Skip invalid entries but count them in total
         continue;
       }
 
-      if (!category || entryCategory === category) {
-        reservations.push({
-          nickname,
-          reservedBy: entryReservedBy,
-          reservedAt: entryReservedAt,
-          reason: entryReason,
-          category: entryCategory,
-        });
+      // Apply category filter if specified
+      if (!category || reservationDetails.category === category) {
+        reservations.push(reservationDetails);
       }
     }
 
+    // Sort by most recent first
     reservations.sort((a, b) => b.reservedAt - a.reservedAt);
 
-    return { reservations };
+    return {
+      reservations,
+      totalCount,
+      filteredCount: reservations.length
+    };
   }
 
-  async checkReservationStatus(nickname: string): Promise<{
-    isReserved: boolean;
-    reservation?: ReservationDetails;
-  }> {
-    validateNickname(nickname);
-
-    const reservation = this.reservedNicknames[nickname];
-    if (!reservation) {
-      return { isReserved: false };
+  async checkReservationStatus(nickname: string): Promise<ReservationStatusResult> {
+    try {
+      validateNickname(nickname);
+    } catch (error) {
+      throw new ReservationError(
+        `Invalid nickname format: ${error instanceof Error ? error.message : String(error)}`,
+        RESERVATION_ERROR_CODES.VALIDATION_FAILED,
+        { nickname }
+      );
     }
 
-    const reservationEntry = reservation as any;
+    const state = this.getNicknameState(nickname);
+    const reservation = this.reservedNicknames[nickname];
 
-    const entryReservedBy = reservationEntry?.reservedBy;
-    const entryReservedAt = reservationEntry?.reservedAt;
-    const entryReason = reservationEntry?.reason;
-    const entryCategory = reservationEntry?.category;
+    if (!reservation) {
+      return {
+        isReserved: false,
+        state
+      };
+    }
 
-    if (!entryReservedBy || !entryReservedAt || !entryCategory) {
-      Logger.warning(`Invalid reservation entry for nickname: ${nickname}`);
-      return { isReserved: false };
+    const reservationDetails = this.extractReservationDetails(reservation, nickname);
+
+    if (!reservationDetails) {
+      return {
+        isReserved: false,
+        state,
+        warnings: [`Invalid reservation entry found for nickname: ${nickname}`]
+      };
     }
 
     return {
       isReserved: true,
-      reservation: {
-        nickname,
-        reservedBy: entryReservedBy,
-        reservedAt: entryReservedAt,
-        reason: entryReason,
-        category: entryCategory,
-      },
+      reservation: reservationDetails,
+      state
     };
   }
 
   async isReserved(nickname: string): Promise<boolean> {
-    const status = await this.checkReservationStatus(nickname);
-    return status.isReserved;
+    try {
+      const status = await this.checkReservationStatus(nickname);
+      return status.isReserved;
+    } catch (error) {
+      // If validation fails, treat as not reserved
+      Logger.warning(`Failed to check reservation status for "${nickname}": ${error instanceof Error ? error.message : String(error)}`);
+      return false;
+    }
   }
 }

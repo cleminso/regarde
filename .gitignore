@@ -32,3 +32,4 @@ ai*
 
 playwright-report
 packages/admin/registry-backups/
+packages/admin/reserveRegistry-backups/

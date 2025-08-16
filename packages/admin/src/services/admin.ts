@@ -7,6 +7,7 @@ import { AuditService } from "./audit.js";
 import { NicknameService } from "./nickname.js";
 import { ReservationService } from "./reservation.js";
 import { BackupService } from "./backup.js";
+import { ReservationBackupService } from "./reservationBackup.js";
 import { HealthService } from "./health.js";
 
 import {
@@ -14,9 +15,11 @@ import {
   ReservationServiceInterface,
   AuditServiceInterface,
   BackupServiceInterface,
+  ReservationBackupServiceInterface,
   HealthServiceInterface,
   ReservationDetails,
   BackupInfo,
+  ReservationBackupInfo,
   HealthReport,
   NicknameHealthReport,
   FixResult,
@@ -31,6 +34,7 @@ export class AdminService {
   private nicknameService!: NicknameService;
   private reservationService!: ReservationService;
   private backupService!: BackupService;
+  private reservationBackupService!: ReservationBackupService;
   private healthService!: HealthService;
 
   async initialize(): Promise<void> {
@@ -143,6 +147,12 @@ export class AdminService {
       this.loadedWorker,
       root.registry,
       root.reverseRegistry,
+      this.auditService,
+    );
+
+    this.reservationBackupService = new ReservationBackupService(
+      this.loadedWorker,
+      root.reservedNicknames,
       this.auditService,
     );
 
@@ -285,6 +295,30 @@ export class AdminService {
     return this.backupService.cleanOldBackups(daysToKeep);
   }
 
+  // Reservation backup methods
+  async backupReservations(): Promise<string> {
+    return this.reservationBackupService.backupReservations();
+  }
+
+  async restoreReservations(backupFile: string): Promise<{
+    success: boolean;
+    restored: { reservations: number };
+  }> {
+    return this.reservationBackupService.restoreReservations(backupFile);
+  }
+
+  async listReservationBackups(): Promise<{ backups: ReservationBackupInfo[] }> {
+    return this.reservationBackupService.listReservationBackups();
+  }
+
+  async cleanOldReservationBackups(daysToKeep?: number): Promise<{
+    success: boolean;
+    deletedFiles: string[];
+    deletedCount: number;
+  }> {
+    return this.reservationBackupService.cleanOldReservationBackups(daysToKeep);
+  }
+
   get nickname(): NicknameServiceInterface {
     return this.nicknameService;
   }
@@ -303,5 +337,9 @@ export class AdminService {
 
   get health(): HealthServiceInterface {
     return this.healthService;
+  }
+
+  get reservationBackup(): ReservationBackupServiceInterface {
+    return this.reservationBackupService;
   }
 }

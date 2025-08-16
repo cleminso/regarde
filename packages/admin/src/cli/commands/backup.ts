@@ -98,6 +98,11 @@ export const backupCommands: ToolConfig[] = [
           console.log(`${index + 1}. ${backup.filename}`);
           console.log(`   Size: ${backup.size}`);
           console.log(`   Date: ${date}`);
+          console.log(`   Nicknames: ${backup.totalNicknames}`);
+          console.log(`   Accounts: ${backup.totalAccounts}`);
+          if (backup.backupVersion) {
+            console.log(`   Version: ${backup.backupVersion}`);
+          }
           console.log("");
         });
 

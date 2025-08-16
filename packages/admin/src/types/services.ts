@@ -39,6 +39,16 @@ export interface BackupInfo {
   filename: string;
   size: string;
   date: string;
+  totalNicknames: number;
+  totalAccounts: number;
+  backupVersion?: string;
+}
+
+export interface ReservationBackupInfo {
+  filename: string;
+  size: string;
+  date: string;
+  totalReservations: number;
 }
 
 export interface ReservationDetails {
@@ -57,11 +67,37 @@ export interface NicknameServiceInterface {
   validateAccountId(accountId: string): void;
 }
 
+// Enhanced return types for better user experience
+export interface ReservationResult {
+  success: boolean;
+  nickname: string;
+  previousState?: 'available' | 'taken' | 'reserved';
+  reservation?: ReservationDetails;
+  warnings?: string[];
+  metadata?: {
+    operationId?: string;
+    conflictResolution?: string;
+  };
+}
+
+export interface ReservationListResult {
+  reservations: ReservationDetails[];
+  totalCount: number;
+  filteredCount: number;
+}
+
+export interface ReservationStatusResult {
+  isReserved: boolean;
+  reservation?: ReservationDetails;
+  state: 'available' | 'taken' | 'reserved';
+  warnings?: string[];
+}
+
 export interface ReservationServiceInterface {
-  reserveNickname(nickname: string, category?: "admin" | "brand" | "system" | "offensive" | "custom", reason?: string): Promise<{ success: boolean }>;
-  unreserveNickname(nickname: string): Promise<{ success: boolean }>;
-  listReservedNicknames(category?: "admin" | "brand" | "system" | "offensive" | "custom"): Promise<{ reservations: ReservationDetails[] }>;
-  checkReservationStatus(nickname: string): Promise<{ isReserved: boolean; reservation?: ReservationDetails }>;
+  reserveNickname(nickname: string, category?: "admin" | "brand" | "system" | "offensive" | "custom", reason?: string): Promise<ReservationResult>;
+  unreserveNickname(nickname: string): Promise<ReservationResult>;
+  listReservedNicknames(category?: "admin" | "brand" | "system" | "offensive" | "custom"): Promise<ReservationListResult>;
+  checkReservationStatus(nickname: string): Promise<ReservationStatusResult>;
   isReserved(nickname: string): Promise<boolean>;
 }
 
@@ -71,6 +107,13 @@ export interface BackupServiceInterface {
   deleteAll(): Promise<{ success: boolean; backupFile: string; deleted: { nicknames: number; accounts: number } }>;
   listBackups(): Promise<{ backups: BackupInfo[] }>;
   cleanOldBackups(daysToKeep?: number): Promise<{ success: boolean; deletedFiles: string[]; deletedCount: number }>;
+}
+
+export interface ReservationBackupServiceInterface {
+  backupReservations(): Promise<string>;
+  restoreReservations(backupFile: string): Promise<{ success: boolean; restored: { reservations: number } }>;
+  listReservationBackups(): Promise<{ backups: ReservationBackupInfo[] }>;
+  cleanOldReservationBackups(daysToKeep?: number): Promise<{ success: boolean; deletedFiles: string[]; deletedCount: number }>;
 }
 
 export interface HealthServiceInterface {

@@ -25,6 +25,11 @@ interface BackupData {
   timestamp: string;
   registry: Record<string, string>;
   reverseRegistry: Record<string, string>;
+  metadata?: {
+    totalNicknames: number;
+    totalAccounts: number;
+    backupVersion: string;
+  };
 }
 
 export class BackupService implements BackupServiceInterface {
@@ -47,14 +52,25 @@ export class BackupService implements BackupServiceInterface {
     const filename = `registry-backup-${timestamp}.json`;
     const filepath = join(BACKUP_DIR, filename);
 
+    const registryData = { ...this.nicknameRegistry };
+    const reverseRegistryData = { ...this.reverseNicknameRegistry };
+    const totalNicknames = Object.keys(registryData).length;
+    const totalAccounts = Object.keys(reverseRegistryData).length;
+
     const backupData: BackupData = {
       timestamp: new Date().toISOString(),
-      registry: { ...this.nicknameRegistry },
-      reverseRegistry: { ...this.reverseNicknameRegistry },
+      registry: registryData,
+      reverseRegistry: reverseRegistryData,
+      metadata: {
+        totalNicknames,
+        totalAccounts,
+        backupVersion: "2.0",
+      },
     };
 
     writeFileSync(filepath, JSON.stringify(backupData, null, 2));
     Logger.info(`Backup created: ${filepath}`);
+    Logger.info(`Backed up ${totalNicknames} nicknames and ${totalAccounts} account mappings`);
     return filepath;
   }
 
@@ -172,20 +188,60 @@ export class BackupService implements BackupServiceInterface {
       return { backups: [] };
     }
 
-    const files = readdirSync(BACKUP_DIR)
-      .filter((file) => file.endsWith(".json"))
-      .map((file) => {
-        const filepath = join(BACKUP_DIR, file);
-        const stats = statSync(filepath);
-        return {
-          filename: file,
-          size: `${(stats.size / 1024).toFixed(2)} KB`,
-          date: stats.mtime.toISOString(),
-        };
-      })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const files = readdirSync(BACKUP_DIR).filter((file) =>
+      file.endsWith(".json") && file.startsWith("registry-backup-"),
+    );
 
-    return { backups: files };
+    const backups: BackupInfo[] = [];
+
+    for (const file of files) {
+      const filepath = join(BACKUP_DIR, file);
+      const stats = statSync(filepath);
+
+      try {
+        const fileContent = readFileSync(filepath, "utf-8");
+        const backupData: BackupData = JSON.parse(fileContent);
+
+        // Handle both old and new backup formats for backward compatibility
+        let totalNicknames = 0;
+        let totalAccounts = 0;
+        let backupVersion = "1.0"; // Default for old backups
+
+        if (backupData.metadata) {
+          // New format with metadata
+          totalNicknames = backupData.metadata.totalNicknames;
+          totalAccounts = backupData.metadata.totalAccounts;
+          backupVersion = backupData.metadata.backupVersion;
+        } else {
+          // Old format - count from data
+          totalNicknames = Object.keys(backupData.registry || {}).length;
+          totalAccounts = Object.keys(backupData.reverseRegistry || {}).length;
+        }
+
+        backups.push({
+          filename: file,
+          size: this.formatFileSize(stats.size),
+          date: stats.mtime.toISOString(),
+          totalNicknames,
+          totalAccounts,
+          backupVersion,
+        });
+      } catch (error) {
+        Logger.warning(`Failed to read backup file ${file}: ${error}`);
+        // Fallback for corrupted files
+        backups.push({
+          filename: file,
+          size: this.formatFileSize(stats.size),
+          date: stats.mtime.toISOString(),
+          totalNicknames: 0,
+          totalAccounts: 0,
+          backupVersion: "unknown",
+        });
+      }
+    }
+
+    backups.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return { backups };
   }
 
   async cleanOldBackups(daysToKeep: number = 30): Promise<{
@@ -217,5 +273,13 @@ export class BackupService implements BackupServiceInterface {
 
     Logger.info(`Cleaned ${deletedFiles.length} old backup files`);
     return { success: true, deletedFiles, deletedCount: deletedFiles.length };
+  }
+
+  private formatFileSize(bytes: number): string {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   }
 }
