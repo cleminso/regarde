@@ -11,7 +11,7 @@ import { SelectorDate } from '../selectorDate';
 
 type CertificationEditProps = {
   profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   onDoneEditing: () => void;
   certificationToEdit?: Loaded<typeof Certification>;
 };

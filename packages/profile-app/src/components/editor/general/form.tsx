@@ -11,7 +11,7 @@ import { AvatarUpload } from './avatarUpload';
 
 type GeneralEditProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   onCloseEditor: () => void;
   accountId: string;
 };

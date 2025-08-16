@@ -14,7 +14,7 @@ import { SelectorDate } from '../selectorDate';
 
 type VolunteeringEditProps = {
   profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   onDoneEditing: () => void;
   volunteeringToEdit?: Loaded<typeof Volunteering>;
 };

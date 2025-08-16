@@ -3,13 +3,12 @@ import { Loaded } from 'jazz-tools';
 import {
   ListOfWorkExp,
   WorkExp,
-  type CleanLoadedJazzAppProfile,
+
 } from '../schema';
 
-type UseWorkExpProps = {
-  profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
-};
+import { BaseHookProps } from './types';
+
+type UseWorkExpProps = BaseHookProps;
 
 export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
   const ensureWorkExpList = (): Loaded<typeof ListOfWorkExp> | undefined => {
@@ -43,7 +42,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
       { owner: listOwner },
     );
     workExpList.push(newWorkExp);
-    triggerSyncIndicator();
+    triggerSyncIndicator(profile);
     return newWorkExp;
   };
 
@@ -111,7 +110,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
     }
 
     if (changed) {
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile);
     }
   };
 

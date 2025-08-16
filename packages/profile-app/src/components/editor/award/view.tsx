@@ -10,7 +10,7 @@ import { AwardCard } from './card';
 
 type AwardViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   awards: Loaded<typeof ListOfAward> | undefined;
   onAddAward: () => void;
   onEditAward: (award: Loaded<typeof Award>) => void;

@@ -3,13 +3,12 @@ import { Loaded } from 'jazz-tools';
 import {
   ListOfSpeaking,
   Speaking,
-  type CleanLoadedJazzAppProfile,
+
 } from '../schema';
 
-type UseSpeakingProps = {
-  profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
-};
+import { BaseHookProps } from './types';
+
+type UseSpeakingProps = BaseHookProps;
 
 export function useSpeaking({
   profile,
@@ -43,7 +42,7 @@ export function useSpeaking({
       { owner: listOwner },
     );
     speakingList.push(newSpeaking);
-    triggerSyncIndicator();
+    triggerSyncIndicator(profile);
     return newSpeaking;
   };
 
@@ -103,7 +102,7 @@ export function useSpeaking({
     }
 
     if (changed) {
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile);
     }
   };
 

@@ -3,13 +3,12 @@ import { Loaded } from 'jazz-tools';
 import {
   ListOfSideProject,
   SideProject,
-  type CleanLoadedJazzAppProfile,
+
 } from '../schema';
 
-type UseSideProjectProps = {
-  profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
-};
+import { BaseHookProps } from './types';
+
+type UseSideProjectProps = BaseHookProps;
 
 export function useSideProject({
   profile,
@@ -46,7 +45,7 @@ export function useSideProject({
       { owner: listOwner },
     );
     sideProjectList.push(newSideProject);
-    triggerSyncIndicator();
+    triggerSyncIndicator(profile);
     return newSideProject;
   };
 
@@ -99,7 +98,7 @@ export function useSideProject({
     }
 
     if (changed) {
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile);
     }
   };
 
@@ -115,7 +114,7 @@ export function useSideProject({
 
     if (sideProjectIndex !== -1) {
       sideProjectList.splice(sideProjectIndex, 1);
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile); 
     } else {
       console.error(
         `Side project with id ${sideProjectId} not found for deletion.`,

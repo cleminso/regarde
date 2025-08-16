@@ -10,7 +10,7 @@ import { SpeakingCard } from './card';
 
 type SpeakingViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   speaking: Loaded<typeof ListOfSpeaking> | undefined;
   onAddSpeaking: () => void;
   onEditSpeaking: (speaking: Loaded<typeof Speaking>) => void;

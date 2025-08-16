@@ -1,16 +1,12 @@
-import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 import { Outlet } from 'react-router';
 
 import { AuthButton } from './AuthButton.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
-import { OnboardingAccount } from './lib/schema.ts';
+import { useMyJazz } from './lib/account/useMyJazz.ts';
 import { useLayout } from './pages/layoutContext.tsx';
 
 export function AppLayout() {
-  const { me } = useAccount(OnboardingAccount, {
-    resolve: { profile: true },
-  });
-  const isAuthenticated = useIsAuthenticated();
+  const { account, isAuthenticated } = useMyJazz();
   const { showHeader } = useLayout();
 
   return (
@@ -21,10 +17,10 @@ export function AppLayout() {
             <div className="flex items-center gap-4">
               {isAuthenticated ? (
                 <span>
-                  {me === undefined
+                  {account === undefined
                     ? 'Loading...'
-                    : me?.profile?.name
-                      ? `Hello, ${me.profile.name}`
+                    : account?.profile?.name
+                      ? `Hello, ${account.profile.name}`
                       : 'Logged In'}
                 </span>
               ) : (

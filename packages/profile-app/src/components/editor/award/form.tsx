@@ -11,7 +11,7 @@ import { SelectorDate } from '../selectorDate';
 
 type AwardEditProps = {
   profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   onDoneEditing: () => void;
   awardToEdit?: Loaded<typeof Award>;
 };

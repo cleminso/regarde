@@ -1,15 +1,13 @@
 import { Loaded } from 'jazz-tools';
 
 import {
-  CleanLoadedJazzAppProfile,
   Education,
   ListOfEducation,
 } from '../schema';
 
-type UseEducationProps = {
-  profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
-};
+import { BaseHookProps } from './types';
+
+type UseEducationProps = BaseHookProps;
 
 export function useEducation({
   profile,
@@ -48,7 +46,7 @@ export function useEducation({
       { owner: listOwner },
     );
     educationList.push(newEducation);
-    triggerSyncIndicator();
+    triggerSyncIndicator(profile);
     return newEducation;
   };
 
@@ -116,7 +114,7 @@ export function useEducation({
     }
 
     if (changed) {
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile);
     }
   };
 
@@ -132,7 +130,7 @@ export function useEducation({
 
     if (educationIndex !== -1) {
       educationList.splice(educationIndex, 1);
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile);
     } else {
       console.error(`Education with id ${educationId} not found for deletion.`);
     }

@@ -10,7 +10,7 @@ import { VolunteeringCard } from './card';
 
 type VolunteeringViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   volunteering: Loaded<typeof ListOfVolunteering> | undefined;
   onAddVolunteering: () => void;
   onEditVolunteering: (volunteering: Loaded<typeof Volunteering>) => void;

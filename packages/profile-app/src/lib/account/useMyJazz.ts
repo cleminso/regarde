@@ -1,10 +1,9 @@
-//  Get account data without registration logic
 import { OnboardingAccount } from '@onboarding.jazz/shared-schemas';
 import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 
 export function useMyJazz() {
   const isAuthenticated = useIsAuthenticated();
-  const { me, logOut } = useAccount(OnboardingAccount, {
+  const { me: account, logOut } = useAccount(OnboardingAccount, {
     resolve: {
       root: {
         'profile.jazz.dev': {
@@ -26,15 +25,15 @@ export function useMyJazz() {
 
   return {
     isAuthenticated,
-    account: me,
-    profile: me?.profile,
+    account,
+    profile: account?.profile,
     logOut,
-    jazzAppProfile: me?.root['profile.jazz.dev'],
-    accountId: me?.id,
-    profileName: me?.profile?.name,
+    jazzAppProfile: account?.root['profile.jazz.dev'],
+    accountId: account?.id,
+    profileName: account?.profile?.name,
 
-    isAccountReady: Boolean(me?.profile),
+    isAccountReady: Boolean(account?.profile),
 
-    hasStableProfile: Boolean(me?.profile && me.profile.name),
+    hasStableProfile: Boolean(account?.profile && account.profile.name),
   };
 }

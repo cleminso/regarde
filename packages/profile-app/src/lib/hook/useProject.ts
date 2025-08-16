@@ -3,13 +3,11 @@ import { Loaded } from 'jazz-tools';
 import {
   ListOfProjects,
   Project,
-  type CleanLoadedJazzAppProfile,
 } from '../schema';
 
-type UseProjectProps = {
-  profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
-};
+import { BaseHookProps } from './types';
+
+type UseProjectProps = BaseHookProps;
 export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
   const ensureProjectsList = (): Loaded<typeof ListOfProjects> | undefined => {
     if (!profile.projects) {
@@ -20,7 +18,13 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
   };
 
   const addProject = (
-    projectData: Project,
+    projectData: {
+      title: string;
+      year: string;
+      client?: string;
+      link?: string;
+      description?: string;
+    }
   ): Loaded<typeof Project> | undefined => {
     const projectsList = ensureProjectsList();
     if (!projectsList) return undefined;
@@ -43,13 +47,19 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
       { owner: listOwner },
     );
     projectsList.push(newProject);
-    triggerSyncIndicator();
+    triggerSyncIndicator(profile);
     return newProject;
   };
 
   const updateProject = (
     projectToUpdate: Loaded<typeof Project>,
-    projectData: Project,
+    projectData: {
+      title: string;
+      year: string;
+      client?: string;
+      link?: string;
+      description?: string;
+    }
   ) => {
     if (!projectToUpdate) {
       console.error('Project instance not provided for update.');
@@ -96,7 +106,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
     }
 
     if (changed) {
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile);
     }
   };
 
@@ -112,7 +122,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
 
     if (projectIndex !== -1) {
       projectsList.splice(projectIndex, 1);
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile);
     } else {
       console.error(`Project with id ${projectId} not found for deletion.`);
     }

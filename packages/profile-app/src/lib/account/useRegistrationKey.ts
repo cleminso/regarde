@@ -6,7 +6,7 @@ import { OnboardingAccount, RegistrationKey } from '../schema';
 import { useMyJazz } from './useMyJazz';
 import { useRegistrationKeyData } from './useRegistrationKeyData';
 
-const KEY_LIFETIME_SECONDS = 60;
+const KEY_LIFETIME_SECONDS = 24 * 60 * 60;
 
 export function generateRegistrationKey(): string {
   const chars =

@@ -19,7 +19,7 @@ export function ProfileView() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { account: me, jazzAppProfile } = useMyJazz();
+  const { account, jazzAppProfile } = useMyJazz();
 
   useEffect(() => {
     if (!nickname) {
@@ -60,7 +60,7 @@ export function ProfileView() {
     };
 
     fetchOtherUserProfile();
-  }, [nickname, me]);
+  }, [nickname, account]);
 
   if (isLoading) {
     return (
@@ -79,7 +79,7 @@ export function ProfileView() {
   }
 
   if (jazzAppProfile?.userHandle?.nickname === nickname) {
-    if (me === undefined) {
+    if (account === undefined) {
       return (
         <div className="flex w-full justify-center items-center min-h-screen">
           <p>Loading...</p>
@@ -87,7 +87,7 @@ export function ProfileView() {
       );
     }
 
-    if (me === null || !jazzAppProfile) {
+    if (account === null || !jazzAppProfile) {
       return (
         <div className="flex w-full justify-center items-center min-h-screen">
           <p>Profile not accessible</p>

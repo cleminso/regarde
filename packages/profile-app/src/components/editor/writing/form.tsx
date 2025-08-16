@@ -11,7 +11,7 @@ import { SelectorDate } from '../selectorDate';
 
 type WritingEditProps = {
   profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   onDoneEditing: () => void;
   writingToEdit?: Loaded<typeof Writing>;
 };

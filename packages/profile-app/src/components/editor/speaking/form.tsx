@@ -11,7 +11,7 @@ import { SelectorDate } from '../selectorDate';
 
 type SpeakingEditProps = {
   profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   onDoneEditing: () => void;
   speakingToEdit?: Loaded<typeof Speaking>;
 };

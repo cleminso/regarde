@@ -1,9 +1,7 @@
-import { SocialLinks, type CleanLoadedJazzAppProfile } from '../schema';
+import { SocialLinks } from '../schema';
+import { BaseHookProps } from './types';
 
-type UseContactProps = {
-  profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
-};
+type UseContactProps = BaseHookProps;
 
 export function useContact({ profile, triggerSyncIndicator }: UseContactProps) {
   const updateSocialLink = (
@@ -15,9 +13,7 @@ export function useContact({ profile, triggerSyncIndicator }: UseContactProps) {
     const owner = profile._owner;
     if (value && !profile.socialLinks) {
       if (!owner) {
-        console.error(
-          'Cannot create SocialLinks: profile._owner is undefined.',
-        );
+        console.error('Cannot create SocialLinks: profile._owner is undefined.');
         return;
       }
       profile.socialLinks = SocialLinks.create({}, { owner });
@@ -33,7 +29,7 @@ export function useContact({ profile, triggerSyncIndicator }: UseContactProps) {
       ) {
         profile.socialLinks = undefined;
       }
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile); 
     }
   };
 

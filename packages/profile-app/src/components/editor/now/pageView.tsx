@@ -8,7 +8,7 @@ import { SectionHeader } from '../layout/header';
 
 type NowPageViewProps = {
   profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   onClose?: () => void;
 };
 

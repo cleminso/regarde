@@ -10,7 +10,7 @@ import { EducationCard } from './card';
 
 type EducationViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   education: Loaded<typeof ListOfEducation> | undefined;
   onAddEducation: () => void;
   onEditEducation: (education: Loaded<typeof Education>) => void;

@@ -1,13 +1,11 @@
 import {
   NowPage,
-  type CleanLoadedJazzAppProfile,
+
 } from '@onboarding.jazz/shared-schemas';
 import { useCallback } from 'react';
+import { BaseHookProps } from './types';
 
-type UseNowPageProps = {
-  profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
-};
+type UseNowPageProps = BaseHookProps;
 
 export function useNowPage({ profile, triggerSyncIndicator }: UseNowPageProps) {
   const nowPage = profile.nowPage;
@@ -35,7 +33,7 @@ export function useNowPage({ profile, triggerSyncIndicator }: UseNowPageProps) {
         profile.nowPage.lastUpdated = Date.now();
       }
 
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile);
     },
     [profile, triggerSyncIndicator],
   );

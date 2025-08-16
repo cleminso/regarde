@@ -14,7 +14,7 @@ import { CertificationCard } from './card';
 
 type CertificationViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   certifications: Loaded<typeof ListOfCertification> | undefined;
   onAddCertification: () => void;
   onEditCertification: (certification: Loaded<typeof Certification>) => void;

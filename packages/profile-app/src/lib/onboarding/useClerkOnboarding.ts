@@ -26,7 +26,7 @@ export function useClerkOnboarding() {
   const navigate = useNavigate();
   const clerk = useClerk();
 
-  const { jazzAppProfile, account: me, isAuthenticated } = useMyJazz();
+  const { jazzAppProfile, account, isAuthenticated } = useMyJazz();
 
   const { getValidKey, isAccountReady } = useRegistrationKey();
 
@@ -101,7 +101,7 @@ export function useClerkOnboarding() {
 
   // Handle post-auth registration - with global lock
   useEffect(() => {
-    if (!isAuthenticated || !me?.id || !isAccountReady) return;
+    if (!isAuthenticated || !account?.id || !isAccountReady) return;
     if (
       registrationInProgress.current ||
       hasProcessedPendingNickname.current ||
@@ -124,7 +124,7 @@ export function useClerkOnboarding() {
       try {
         await registerNicknameWithServer({
           nickname: pendingNickname,
-          accountId: me.id,
+          accountId: account.id,
           getRegistrationKey: getValidKey,
         });
 
@@ -149,7 +149,7 @@ export function useClerkOnboarding() {
     completeRegistration();
   }, [
     isAuthenticated,
-    me?.id,
+    account?.id,
     isAccountReady,
     currentNickname,
     navigate,
@@ -183,7 +183,7 @@ export function useClerkOnboarding() {
           return;
         }
 
-        if (!me?.id || !isAccountReady) {
+        if (!account?.id || !isAccountReady) {
           setError('Account not ready. Please try again.');
           registrationInProgress.current = false;
           setIsProcessing(false);
@@ -192,7 +192,7 @@ export function useClerkOnboarding() {
 
         await registerNicknameWithServer({
           nickname,
-          accountId: me.id,
+          accountId: account.id,
           oldNickname: currentNickname,
           getRegistrationKey: getValidKey,
         });
@@ -211,7 +211,7 @@ export function useClerkOnboarding() {
     },
     [
       isAuthenticated,
-      me?.id,
+      account?.id,
       isAccountReady,
       currentNickname,
       clerk,
@@ -244,7 +244,7 @@ export function useClerkOnboarding() {
       try {
         await registerNicknameWithServer({
           nickname,
-          accountId: me!.id,
+          accountId: account!.id,
           oldNickname: currentNickname,
           getRegistrationKey: getValidKey,
         });
@@ -255,7 +255,7 @@ export function useClerkOnboarding() {
       }
     },
     [
-      me?.id,
+      account?.id,
       jazzAppProfile?.userHandle?.id,
       currentNickname,
       isProcessing,
@@ -290,11 +290,11 @@ export function useClerkOnboarding() {
 
     // Status
     isAuthenticated,
-    isAccountReady: Boolean(me?.profile && isAccountReady),
+    isAccountReady: Boolean(account?.profile && isAccountReady),
     hasExistingNickname: Boolean(currentNickname && isNicknameActive),
 
     // Account info
-    accountId: me?.id,
-    profile: me?.profile,
+    accountId: account?.id,
+    profile: account?.profile,
   };
 }

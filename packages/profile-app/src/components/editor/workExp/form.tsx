@@ -11,7 +11,7 @@ import { SelectorDate } from '../selectorDate';
 
 type WorkExpEditProps = {
   profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   onDoneEditing: () => void;
   workExpToEdit?: Loaded<typeof WorkExp>;
 };

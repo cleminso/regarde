@@ -3,13 +3,12 @@ import { Loaded } from 'jazz-tools';
 import {
   ListOfWriting,
   Writing,
-  type CleanLoadedJazzAppProfile,
+
 } from '../schema';
 
-type UseWritingProps = {
-  profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
-};
+import { BaseHookProps } from './types';
+
+type UseWritingProps = BaseHookProps;
 
 export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
   const ensureWritingList = (): Loaded<typeof ListOfWriting> | undefined => {
@@ -39,7 +38,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
       { owner: listOwner },
     );
     writingList.push(newWriting);
-    triggerSyncIndicator();
+    triggerSyncIndicator(profile);
     return newWriting;
   };
 
@@ -92,7 +91,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
     }
 
     if (changed) {
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile);
     }
   };
 

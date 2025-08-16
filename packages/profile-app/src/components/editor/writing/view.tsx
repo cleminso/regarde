@@ -10,7 +10,7 @@ import { WritingCard } from './card';
 
 type WritingViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   writing: Loaded<typeof ListOfWriting> | undefined;
   onAddWriting: () => void;
   onEditWriting: (writing: Loaded<typeof Writing>) => void;

@@ -7,7 +7,7 @@ import { ContactInput } from './input';
 
 type ContactEditProps = {
   profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   onCloseEditor: () => void;
 };
 

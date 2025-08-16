@@ -3,13 +3,12 @@ import { Loaded } from 'jazz-tools';
 import {
   ListOfVolunteering,
   Volunteering,
-  type CleanLoadedJazzAppProfile,
+
 } from '../schema';
 
-type UseVolunteeringProps = {
-  profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
-};
+import { BaseHookProps } from './types';
+
+type UseVolunteeringProps = BaseHookProps;
 
 export function useVolunteering({
   profile,
@@ -48,7 +47,7 @@ export function useVolunteering({
       { owner: listOwner },
     );
     volunteeringList.push(newVolunteering);
-    triggerSyncIndicator();
+    triggerSyncIndicator(profile);
     return newVolunteering;
   };
 
@@ -116,7 +115,7 @@ export function useVolunteering({
     }
 
     if (changed) {
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile);
     }
   };
 
@@ -132,7 +131,7 @@ export function useVolunteering({
 
     if (volunteeringIndex !== -1) {
       volunteeringList.splice(volunteeringIndex, 1);
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile);
     } else {
       console.error(
         `Volunteering with id ${volunteeringId} not found for deletion.`,

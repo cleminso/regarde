@@ -11,7 +11,7 @@ import { SelectorDate } from '../selectorDate';
 
 type EducationEditProps = {
   profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   onDoneEditing: () => void;
   educationToEdit?: Loaded<typeof Education>;
 };

@@ -3,13 +3,12 @@ import { Loaded } from 'jazz-tools';
 import {
   Certification,
   ListOfCertification,
-  type CleanLoadedJazzAppProfile,
+
 } from '../schema';
 
-type UseCertificationProps = {
-  profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
-};
+import { BaseHookProps } from './types';
+
+type UseCertificationProps = BaseHookProps;
 
 export function useCertification({
   profile,
@@ -52,7 +51,7 @@ export function useCertification({
       { owner: listOwner },
     );
     certificationList.push(newCertification);
-    triggerSyncIndicator();
+    triggerSyncIndicator(profile);
     return newCertification;
   };
 
@@ -113,7 +112,7 @@ export function useCertification({
     }
 
     if (changed) {
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile);
     }
   };
 

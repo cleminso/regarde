@@ -10,7 +10,7 @@ import { ProjectCard } from './card';
 
 type ProjectViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   projects: Loaded<typeof ListOfProjects> | undefined;
   onAddProject: () => void;
   onEditProject: (project: Loaded<typeof Project>) => void;

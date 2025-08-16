@@ -1,11 +1,9 @@
 import { Loaded } from 'jazz-tools';
 
-import { Award, ListOfAward, type CleanLoadedJazzAppProfile } from '../schema';
+import { Award, ListOfAward } from '../schema';
+import { BaseHookProps } from './types';
 
-type UseAwardProps = {
-  profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
-};
+type UseAwardProps = BaseHookProps;
 
 export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
   const ensureAwardsList = (): Loaded<typeof ListOfAward> | undefined => {
@@ -15,7 +13,15 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
     return profile.award;
   };
 
-  const addAward = (awardData: Award): Loaded<typeof Award> | undefined => {
+  const addAward = (
+    awardData: {
+      title: string;
+      year: string;
+      presenter: string;
+      url?: string;
+      description?: string;
+    }
+  ): Loaded<typeof Award> | undefined => {
     const awardsList = ensureAwardsList();
     if (!awardsList) return undefined;
 
@@ -37,13 +43,19 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
       { owner: listOwner },
     );
     awardsList.push(newAward);
-    triggerSyncIndicator();
+    triggerSyncIndicator(profile);
     return newAward;
   };
 
   const updateAward = (
     awardToUpdate: Loaded<typeof Award>,
-    awardData: Award,
+    awardData: {
+      title: string;
+      year: string;
+      presenter: string;
+      url?: string;
+      description?: string;
+    }
   ) => {
     if (!awardToUpdate) {
       console.error('Award instance not provided for update.');
@@ -88,7 +100,7 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
     }
 
     if (changed) {
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile);
     }
   };
 
@@ -102,7 +114,7 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
 
     if (awardIndex !== -1) {
       awardsList.splice(awardIndex, 1);
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile);
     } else {
       console.error(`Award with id ${awardId} not found for deletion.`);
     }

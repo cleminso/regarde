@@ -10,7 +10,7 @@ import { SideProjectCard } from './card';
 
 type SideProjectViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   sideProjects: Loaded<typeof ListOfSideProject> | undefined;
   onAddSideProject: () => void;
   onEditSideProject: (sideProject: Loaded<typeof SideProject>) => void;

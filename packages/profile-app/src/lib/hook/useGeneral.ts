@@ -1,12 +1,10 @@
 import React, { useCallback, useRef, useState } from 'react';
 
 import { useClerkOnboarding } from '../onboarding/useClerkOnboarding';
-import { type CleanLoadedJazzAppProfile } from '../schema';
 
-type UseGeneralProps = {
-  profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: () => void;
-};
+import { BaseHookProps } from './types';
+
+type UseGeneralProps = BaseHookProps;
 
 export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
   const [updateError, setUpdateError] = useState<string | null>(null);
@@ -38,7 +36,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
       reader.onloadend = () => {
         try {
           profile.avatar = reader.result as string;
-          triggerSyncIndicator();
+          triggerSyncIndicator(profile);
           setUpdateError(null);
         } catch (error) {
           setUpdateError('Failed to update avatar. Please try again.');
@@ -87,7 +85,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
 
     try {
       profile.avatar = undefined;
-      triggerSyncIndicator();
+      triggerSyncIndicator(profile);
       setUpdateError(null);
     } catch (error) {
       setUpdateError('Failed to remove avatar. Please try again.');
@@ -111,7 +109,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
 
       try {
         profile.name = name.trim();
-        triggerSyncIndicator();
+        triggerSyncIndicator(profile);
       } catch (error) {
         setUpdateError('Failed to update name. Please try again.');
       } finally {
@@ -133,7 +131,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
 
       try {
         profile.bio = bio.length === 0 ? undefined : bio;
-        triggerSyncIndicator();
+        triggerSyncIndicator(profile);
       } catch (error) {
         setUpdateError('Failed to update bio. Please try again.');
       } finally {

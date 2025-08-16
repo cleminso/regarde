@@ -10,7 +10,7 @@ import { WorkExpCard } from './card';
 
 type WorkExpViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: () => void;
+  triggerSyncIndicator: (profileObject?: any) => void;
   workExperiences: Loaded<typeof ListOfWorkExp> | undefined;
   onAddWorkExp: () => void;
   onEditWorkExp: (workExp: Loaded<typeof WorkExp>) => void;
