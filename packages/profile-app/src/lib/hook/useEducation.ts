@@ -26,7 +26,15 @@ export function useEducation({
   };
 
   const addEducation = (
-    educationData: Education,
+    educationData: {
+      from: string;
+      to?: string;
+      degree: string;
+      institution: string;
+      location?: string;
+      url?: string;
+      description?: string;
+    }
   ): Loaded<typeof Education> | undefined => {
     const educationList = ensureEducationList();
     if (!educationList) return undefined;
@@ -52,7 +60,15 @@ export function useEducation({
 
   const updateEducation = (
     educationToUpdate: Loaded<typeof Education>,
-    educationData: Education,
+    educationData: {
+      from: string;
+      to?: string;
+      degree: string;
+      institution: string;
+      location?: string;
+      url?: string;
+      description?: string;
+    }
   ) => {
     if (!educationToUpdate) {
       console.error('Education instance not provided for update.');

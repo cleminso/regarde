@@ -26,7 +26,14 @@ export function useCertification({
   };
 
   const addCertification = (
-    certificationData: Certification,
+    certificationData: {
+      name: string;
+      organization: string;
+      issued: string;
+      expire?: string;
+      url?: string;
+      description?: string;
+    }
   ): Loaded<typeof Certification> | undefined => {
     const certificationList = ensureCertificationList();
     if (!certificationList) return undefined;
@@ -57,7 +64,14 @@ export function useCertification({
 
   const updateCertification = (
     certificationToUpdate: Loaded<typeof Certification>,
-    certificationData: Certification,
+    certificationData: {
+      name: string;
+      organization: string;
+      issued: string;
+      expire?: string;
+      url?: string;
+      description?: string;
+    }
   ) => {
     if (!certificationToUpdate) {
       console.error('Certification instance not provided for update.');

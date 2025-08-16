@@ -27,7 +27,15 @@ export function useVolunteering({
   };
 
   const addVolunteering = (
-    volunteeringData: Volunteering,
+    volunteeringData: {
+      title: string;
+      organization: string;
+      location?: string;
+      url?: string;
+      description?: string;
+      from: string;
+      to?: string;
+    }
   ): Loaded<typeof Volunteering> | undefined => {
     const volunteeringList = ensureVolunteeringList();
     if (!volunteeringList) return undefined;
@@ -53,7 +61,15 @@ export function useVolunteering({
 
   const updateVolunteering = (
     volunteeringToUpdate: Loaded<typeof Volunteering>,
-    volunteeringData: Volunteering,
+    volunteeringData: {
+      title: string;
+      organization: string;
+      location?: string;
+      url?: string;
+      description?: string;
+      from: string;
+      to?: string;
+    }
   ) => {
     if (!volunteeringToUpdate) {
       console.error('Volunteering instance not provided for update.');

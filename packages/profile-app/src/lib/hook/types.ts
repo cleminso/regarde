@@ -1,10 +1,10 @@
 import { type CleanLoadedJazzAppProfile } from '../schema';
 
 export type SyncableObject = {
-  waitForSync?: (options: { timeout: number }) => Promise<void>;
+  waitForSync?: (options: { timeout: number }) => Promise<any>;
 };
 
-export type TriggerSyncIndicator = (profileObject?: SyncableObject) => void;
+export type TriggerSyncIndicator = (profileObject?: any) => void;
 
 export type BaseHookProps = {
   profile: CleanLoadedJazzAppProfile;

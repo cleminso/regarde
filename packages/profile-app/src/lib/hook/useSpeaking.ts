@@ -23,7 +23,14 @@ export function useSpeaking({
   };
 
   const addSpeaking = (
-    speakingData: Speaking,
+    speakingData: {
+      title: string;
+      year: string;
+      event?: string;
+      location?: string;
+      url?: string;
+      description?: string;
+    }
   ): Loaded<typeof Speaking> | undefined => {
     const speakingList = ensureSpeakingList();
     if (!speakingList) return undefined;
@@ -48,7 +55,14 @@ export function useSpeaking({
 
   const updateSpeaking = (
     speakingToUpdate: Loaded<typeof Speaking>,
-    speakingData: Speaking,
+    speakingData: {
+      title: string;
+      year: string;
+      event?: string;
+      location?: string;
+      url?: string;
+      description?: string;
+    }
   ) => {
     if (!speakingToUpdate) {
       console.error('Speaking instance not provided for update.');

@@ -20,7 +20,13 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
   };
 
   const addWriting = (
-    writingData: Writing,
+    writingData: {
+      title: string;
+      year: string;
+      publisher?: string;
+      url?: string;
+      description?: string;
+    }
   ): Loaded<typeof Writing> | undefined => {
     const writingList = ensureWritingList();
     if (!writingList) return undefined;
@@ -44,7 +50,13 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
 
   const updateWriting = (
     writingToUpdate: Loaded<typeof Writing>,
-    writingData: Writing,
+    writingData: {
+      title: string;
+      year: string;
+      publisher?: string;
+      url?: string;
+      description?: string;
+    }
   ) => {
     if (!writingToUpdate) {
       console.error('Writing instance not provided for update.');

@@ -27,7 +27,13 @@ export function useSideProject({
   };
 
   const addSideProject = (
-    sideProjectData: SideProject,
+    sideProjectData: {
+      title: string;
+      year: string;
+      client?: string;
+      url?: string;
+      description?: string;
+    }
   ): Loaded<typeof SideProject> | undefined => {
     const sideProjectList = ensureSideProjectList();
     if (!sideProjectList) return undefined;
@@ -51,7 +57,13 @@ export function useSideProject({
 
   const updateSideProject = (
     sideProjectToUpdate: Loaded<typeof SideProject>,
-    sideProjectData: SideProject,
+    sideProjectData: {
+      title: string;
+      year: string;
+      client?: string;
+      url?: string;
+      description?: string;
+    }
   ) => {
     if (!sideProjectToUpdate) {
       console.error('Side project instance not provided for update.');

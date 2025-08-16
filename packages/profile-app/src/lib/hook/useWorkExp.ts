@@ -22,7 +22,15 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
   };
 
   const addWorkExp = (
-    workExpData: WorkExp,
+    workExpData: {
+      title: string;
+      company: string;
+      location?: string;
+      url?: string;
+      description?: string;
+      from: string;
+      to?: string;
+    }
   ): Loaded<typeof WorkExp> | undefined => {
     const workExpList = ensureWorkExpList();
     if (!workExpList) return undefined;
@@ -48,7 +56,15 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
 
   const updateWorkExp = (
     workExpToUpdate: Loaded<typeof WorkExp>,
-    workExpData: WorkExp,
+    workExpData: {
+      title: string;
+      company: string;
+      location?: string;
+      url?: string;
+      description?: string;
+      from: string;
+      to?: string;
+    }
   ) => {
     if (!workExpToUpdate) {
       console.error('Work experience instance not provided for update.');
