@@ -2,7 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { useEditProfile } from '../../lib/hook/useEditProfile.ts';
+import { useEditProfile } from '#/lib/hook/useEditProfile.ts';
 import {
   Award,
   Certification,
@@ -13,8 +13,8 @@ import {
   Volunteering,
   WorkExp,
   Writing,
-} from '../../lib/schema.ts';
-import { createNicknameUrl } from '../../lib/utils.ts';
+} from '#/lib/schema.ts';
+import { createNicknameUrl } from '#/lib/utils.ts';
 import {
   AwardEdit,
   AwardView,

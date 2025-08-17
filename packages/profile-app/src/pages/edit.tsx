@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
-import { ProfileEditor } from '../components/editor/content';
-import { useLayout } from '../pages/layoutContext';
+import { ProfileEditor } from '#/components/editor/content';
+import { useLayout } from '#/pages/layoutContext';
 
 export function EditorPage() {
   const { setShowHeader } = useLayout();

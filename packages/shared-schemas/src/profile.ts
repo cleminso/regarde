@@ -1,4 +1,4 @@
-import { co, Group, ID, Loaded, z } from "jazz-tools";
+import { co, Group, Loaded, z } from "jazz-tools";
 import { UserHandle } from "./nickname.js";
 
 export const SocialLinks = co.map({
@@ -215,10 +215,10 @@ export function validateJazzAppProfile(
 }
 
 export const JazzProfileProfile = co.profile({
-  "profile.jazz.dev": z.string(),
+  "profile.jazz.dev": z.string(), // String ID, requires additional load
 });
 export const JazzProfileRoot = co.map({
-  "profile.jazz.dev": JazzAppProfile,
+  "profile.jazz.dev": JazzAppProfile, // Direct object reference, already loaded
 });
 
 export const OnboardingAccount = co
@@ -245,6 +245,7 @@ export const OnboardingAccount = co
           isActive: false,
         });
 
+        // Grant Worker ”writer” permission on userHandle
         if (jazzProfileWorkerGroup)
           userHandle._owner
             .castAs(Group)
@@ -255,6 +256,7 @@ export const OnboardingAccount = co
           userHandle,
         });
 
+        // Grant Worker "write" permission on ProfileData
         if (jazzProfileWorkerGroup)
           jazzProfileData._owner
             .castAs(Group)
@@ -265,6 +267,7 @@ export const OnboardingAccount = co
           jazzProfileData.id,
         );
 
+        // Create account profile with ID pointer
         if (account.profile === undefined || account.profile === null)
           account.profile = JazzProfileProfile.create({
             name: "",
@@ -272,8 +275,10 @@ export const OnboardingAccount = co
           });
         else account.profile["profile.jazz.dev"] = jazzProfileData.id;
 
+        // Grant ”everyone” ”reader” permission on account.profile
         account.profile._owner.castAs(Group).addMember("everyone", "reader");
 
+        // Create account.root with actual data object
         if (account.root === undefined || account.root === null)
           account.root = JazzProfileRoot.create({
             "profile.jazz.dev": jazzProfileData,

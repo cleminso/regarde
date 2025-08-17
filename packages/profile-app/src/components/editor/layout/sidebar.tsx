@@ -1,4 +1,4 @@
-import { cn } from '../../../lib/utils.ts';
+import { cn } from '#/lib/utils.ts';
 import { Button } from '../../ui/button.tsx';
 import { editorSections, SectionType } from '../shared.ts';
 import { SyncStateBadge } from '../syncState.tsx';

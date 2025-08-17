@@ -133,6 +133,7 @@ function ProjectList() {
     </div>
   );
 }
+
 ```
 
 ## [](https://jazz.tools/docs/react/using-covalues/subscription-and-loading#loading-states-and-permission-checking)Loading States and Permission Checking
@@ -172,8 +173,8 @@ const TeamMember = co.map({
 
 const Task = co.map({
   title: z.string(),
-  assignee: z.optional(TeamMember),
-  get subtasks(): CoListSchema<typeof Task> { return co.list(Task) },
+  assignee: co.optional(TeamMember),
+  get subtasks(): co.List<typeof Task> { return co.list(Task) },
 });
 
 const Project = co.map({

@@ -2,7 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useEffect } from 'react';
 
 import { useGeneral } from '#/lib/hook/useGeneral';
-import { JazzAppProfile } from '../../../lib/schema';
+import { JazzAppProfile } from '#/lib/schema';
 import { Input, Label, Textarea } from '../../ui';
 import { NicknameInput } from '../../ui/nicknameInput';
 import { EditorFooter } from '../layout/footer';

@@ -1,4 +1,3 @@
-// Registration key management
 import { Loaded } from 'jazz-tools';
 import { useCallback } from 'react';
 

@@ -1,9 +1,9 @@
 import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
+import { useCertification } from '#/lib/hook/useCertification';
 import { Certification, type CleanLoadedJazzAppProfile } from '#/lib/schema';
-import { useCertification } from '../../../lib/hook/useCertification';
-import { getValidUrl } from '../../../lib/utils';
+import { getValidUrl } from '#/lib/utils';
 import { Input, Label, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';

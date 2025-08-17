@@ -2,8 +2,8 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { useEducation } from '#/lib/hook/useEducation.ts';
 import { Education, JazzAppProfile, ListOfEducation } from '#/lib/schema';
-import { useEducation } from '../../../lib/hook/useEducation.ts';
 import { EditorFooter } from '../index';
 import { SectionHeader } from './../layout/header';
 import { EducationCard } from './card';

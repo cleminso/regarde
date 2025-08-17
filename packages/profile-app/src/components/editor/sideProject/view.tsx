@@ -2,8 +2,8 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { useSideProject } from '#/lib/hook/useSideProject.ts';
 import { JazzAppProfile, ListOfSideProject, SideProject } from '#/lib/schema';
-import { useSideProject } from '../../../lib/hook/useSideProject.ts';
 import { EditorFooter } from '../index';
 import { SectionHeader } from './../layout/header';
 import { SideProjectCard } from './card';

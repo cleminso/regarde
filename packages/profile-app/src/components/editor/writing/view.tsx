@@ -2,8 +2,8 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { useWriting } from '#/lib/hook/useWriting.ts';
 import { JazzAppProfile, ListOfWriting, Writing } from '#/lib/schema';
-import { useWriting } from '../../../lib/hook/useWriting.ts';
 import { EditorFooter } from '../index';
 import { SectionHeader } from './../layout/header';
 import { WritingCard } from './card';

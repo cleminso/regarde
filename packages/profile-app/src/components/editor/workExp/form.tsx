@@ -1,9 +1,9 @@
 import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
-import { useWorkExp } from '../../../lib/hook/useWorkExp';
-import type { CleanLoadedJazzAppProfile, WorkExp } from '../../../lib/schema';
-import { getValidUrl } from '../../../lib/utils';
+import { useWorkExp } from '#/lib/hook/useWorkExp';
+import type { CleanLoadedJazzAppProfile, WorkExp } from '#/lib/schema';
+import { getValidUrl } from '#/lib/utils';
 import { Input, Label, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';

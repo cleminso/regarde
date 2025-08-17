@@ -1,12 +1,12 @@
 import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
-import { useVolunteering } from '../../../lib/hook/useVolunteering';
+import { useVolunteering } from '#/lib/hook/useVolunteering';
+import { getValidUrl } from '#/lib/utils';
 import {
   Volunteering,
   type CleanLoadedJazzAppProfile,
 } from '../../../lib/schema';
-import { getValidUrl } from '../../../lib/utils';
 import { Input, Label, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';

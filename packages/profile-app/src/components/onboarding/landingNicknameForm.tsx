@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useClerkOnboarding } from '../../lib/onboarding/useClerkOnboarding';
+import { useClerkOnboarding } from '#/lib/onboarding/useClerkOnboarding';
 import { NicknameInput } from '../ui/nicknameInput';
 
 export function LandingNicknameForm() {

@@ -1,6 +1,5 @@
-
-import { CleanLoadedJazzAppProfile } from '../../lib/schema';
-import { TriggerSyncIndicator } from '../../lib/hook/types';
+import { TriggerSyncIndicator } from '#/lib/hook/types';
+import { CleanLoadedJazzAppProfile } from '#/lib/schema';
 
 export type BaseEditProps = {
   profile: CleanLoadedJazzAppProfile;

@@ -2,8 +2,8 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { useWorkExp } from '#/lib/hook/useWorkExp';
 import { JazzAppProfile, ListOfWorkExp, WorkExp } from '#/lib/schema';
-import { useWorkExp } from '../../../lib/hook/useWorkExp';
 import { EditorFooter } from '../index';
 import { SectionHeader } from '../layout/header';
 import { WorkExpCard } from './card';

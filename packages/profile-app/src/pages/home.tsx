@@ -1,1 +1,1 @@
-export { default as HomePage } from "../App.tsx";
+export { default as HomePage } from '#/App.tsx';

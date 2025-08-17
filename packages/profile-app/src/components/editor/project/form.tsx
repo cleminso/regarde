@@ -1,9 +1,9 @@
 import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
-import { useProject } from '../../../lib/hook/useProject';
-import { Project, type CleanLoadedJazzAppProfile } from '../../../lib/schema';
-import { getValidUrl } from '../../../lib/utils';
+import { useProject } from '#/lib/hook/useProject';
+import { Project, type CleanLoadedJazzAppProfile } from '#/lib/schema';
+import { getValidUrl } from '#/lib/utils';
 import { Input, Label, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';

@@ -2,8 +2,8 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { useVolunteering } from '#/lib/hook/useVolunteering';
 import { JazzAppProfile, ListOfVolunteering, Volunteering } from '#/lib/schema';
-import { useVolunteering } from '../../../lib/hook/useVolunteering';
 import { EditorFooter } from '../index';
 import { SectionHeader } from '../layout/header';
 import { VolunteeringCard } from './card';

@@ -2,12 +2,12 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { useCertification } from '#/lib/hook/useCertification';
 import {
   Certification,
   JazzAppProfile,
   ListOfCertification,
 } from '#/lib/schema';
-import { useCertification } from '../../../lib/hook/useCertification';
 import { EditorFooter } from '../index';
 import { SectionHeader } from '../layout/header';
 import { CertificationCard } from './card';

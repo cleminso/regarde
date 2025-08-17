@@ -1,5 +1,5 @@
 import { useContact } from '#/lib/hook/useContact';
-import { type CleanLoadedJazzAppProfile } from '../../../lib/schema';
+import { type CleanLoadedJazzAppProfile } from '#/lib/schema';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';
 import { contactFields } from './config';

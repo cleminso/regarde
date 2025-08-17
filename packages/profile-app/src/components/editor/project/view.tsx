@@ -2,8 +2,8 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { useProject } from '#/lib/hook/useProject.ts';
 import { JazzAppProfile, ListOfProjects, Project } from '#/lib/schema';
-import { useProject } from '../../../lib/hook/useProject.ts';
 import { EditorFooter } from '../index';
 import { SectionHeader } from './../layout/header';
 import { ProjectCard } from './card';

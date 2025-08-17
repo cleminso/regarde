@@ -31,9 +31,7 @@ Their pre-defined schemas roughly look like this:
 // ...somewhere in jazz-tools itself...
 const Account = co.account({
   root: co.map({}),
-  profile: co.profile({
-    name: z.string(),
-  }),
+  profile: co.profile(),
 });
 ```
 
@@ -59,7 +57,7 @@ export const MyAppRoot = co.map({
 
 export const MyAppProfile = co.profile({
   name: z.string(), // compatible with default Profile schema
-  avatar: z.optional(co.image()),
+  avatar: co.optional(co.image()),
 });
 
 export const MyAppAccount = co.account({
@@ -157,7 +155,7 @@ Now let's say we want to add a `myBookmarks` field to the `root` schema:
 ```
 const MyAppRoot = co.map({
   myChats: co.list(Chat),
-  myBookmarks: z.optional(co.list(Bookmark)),
+  myBookmarks: co.optional(co.list(Bookmark)),
 });
 
 

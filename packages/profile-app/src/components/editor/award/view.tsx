@@ -2,8 +2,8 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { useAward } from '#/lib/hook/useAward.ts';
 import { Award, JazzAppProfile, ListOfAward } from '#/lib/schema';
-import { useAward } from '../../../lib/hook/useAward.ts';
 import { EditorFooter } from '../index';
 import { SectionHeader } from './../layout/header';
 import { AwardCard } from './card';
