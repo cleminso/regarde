@@ -17,6 +17,7 @@ export function useMyJazz() {
           award: { $each: true },
           volunteering: { $each: true },
           sideProject: { $each: true },
+          registrationKey: true,
           nowPage: true,
         },
       },
@@ -31,9 +32,7 @@ export function useMyJazz() {
     jazzAppProfile: account?.root['profile.jazz.dev'],
     accountId: account?.id,
     profileName: account?.profile?.name,
-
     isAccountReady: Boolean(account?.profile),
-
     hasStableProfile: Boolean(account?.profile && account.profile.name),
   };
 }

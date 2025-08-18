@@ -229,7 +229,7 @@ export const OnboardingAccount = co
   .withMigration(async (account, creationProps?: { name: string }) => {
     console.log(account.root, account.root?.["profile.jazz.dev"]);
 
-    if (account.root?.["profile.jazz.dev"] === undefined) {
+    if (account.root === undefined) {
       try {
         // This is the worker read group, must be hardcoded
         const jazzProfileWorkerGroupID = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
@@ -273,7 +273,6 @@ export const OnboardingAccount = co
             name: "",
             "profile.jazz.dev": jazzProfileData.id,
           });
-        else account.profile["profile.jazz.dev"] = jazzProfileData.id;
 
         // Grant ”everyone” ”reader” permission on account.profile
         account.profile._owner.castAs(Group).addMember("everyone", "reader");
@@ -283,7 +282,7 @@ export const OnboardingAccount = co
           account.root = JazzProfileRoot.create({
             "profile.jazz.dev": jazzProfileData,
           });
-        else account.root["profile.jazz.dev"] = jazzProfileData;
+        
 
         console.log("Profile created successfully");
       } catch (error) {

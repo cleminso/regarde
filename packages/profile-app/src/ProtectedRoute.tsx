@@ -15,7 +15,7 @@ export function ProtectedRoute() {
     return <div>Loading account...</div>;
   }
 
-  if (account === null || !account.profile) {
+  if (account === null || !account.root?.['profile.jazz.dev']) {
     return <Navigate to="/" replace />;
   }
 

@@ -177,6 +177,9 @@ async function syncUserHandle(
       setNicknameFromRegistry(userHandle, nickname);
       console.log(
         `UserHandle nickname synced with registry for AccountID "${jazzAccountID}": "${nickname}"`,
+        account.profile["profile.jazz.dev"],
+        data.id,
+        userHandle.id,
       );
     }
   } catch (error) {
