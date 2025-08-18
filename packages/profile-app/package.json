@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.32.4",
-    "@onboarding.jazz/sdk": "workspace:*",
     "@onboarding.jazz/shared-schemas": "workspace:*",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-avatar": "^1.1.10",
