@@ -1,7 +1,6 @@
 import {
-  JazzAppProfile,
-  JazzProfileRoot,
   OnboardingAccount,
+  RegistrationKey,
 } from "@onboarding.jazz/shared-schemas/profile";
 import { Group } from "jazz-tools";
 
@@ -12,84 +11,46 @@ export interface VerificationResult {
 
 export async function verifyRegistrationKey(
   jazzAccountId: string,
-  providedKey: string,
+  providedRegistrationKey: string,
+  registrationKeyCoValueId: string,
   worker: any,
 ): Promise<VerificationResult> {
   try {
-    if (!jazzAccountId || !providedKey) {
+    if (!jazzAccountId || !providedRegistrationKey) {
       return { isValid: false, error: "Missing jazzAccountId or key" };
     }
 
-    console.log(`Attempting to load account: ${jazzAccountId}`);
+    console.log(
+      `Attempting to load account: ${jazzAccountId} with registrationKeyCoValueId ${registrationKeyCoValueId}`,
+    );
 
-    let account = null;
+    let registrationKey = null;
 
     try {
-      account = await OnboardingAccount.load(jazzAccountId, {
-        resolve: {
-          profile: {
-            "profile.jazz.dev": true,
-          },
-        },
-        loadAs: worker,
+      registrationKey = await RegistrationKey.load(registrationKeyCoValueId, {
+        resolve: true,
       });
 
-      await account?.ensureLoaded({
-        resolve: {
-          profile: {
-            "profile.jazz.dev": true,
-          },
-        },
+      await registrationKey?.ensureLoaded({
+        resolve: true,
       });
+
+      if (
+        registrationKey?._owner.castAs(Group).getRoleOf(jazzAccountId) !==
+        "admin"
+      )
+        // TODO: Important! Must check who created the coValue instead of whether it's an admin or not
+        throw new Error("User does not own the CoValue");
     } catch (loadError: any) {
       console.error(`Failed to load account ${jazzAccountId}:`, loadError);
-      return { isValid: false, error: "Account not found or not accessible" };
-    }
-
-    if (!account) {
-      console.log(
-        `Account ${jazzAccountId} returned null - not found or not accessible`,
-      );
-      return { isValid: false, error: "Account not found or not accessible" };
-    }
-
-    console.log(`Account loaded successfully. Checking profile...`);
-
-    if (!account.profile) {
-      console.log(
-        `Account ${jazzAccountId} has no profile field - account not properly initialized`,
-      );
       return {
         isValid: false,
-        error:
-          "Account not properly initialized - user must sign in to profile app first",
+        error: "RegistrationKey does not exist or is not accessible",
       };
     }
 
-    console.log(
-      `Profile found, checking registration key...`,
-      account.profile["profile.jazz.dev"],
-    );
-
-    const registrationKeyData = await JazzAppProfile.load(
-      account.profile["profile.jazz.dev"],
-      {
-        resolve: {
-          registrationKey: true,
-        },
-      },
-    );
-
-    registrationKeyData?.ensureLoaded({
-      resolve: {
-        registrationKey: true,
-      },
-    });
-
-    const storedKeyData = registrationKeyData?.registrationKey;
-
-    if (!storedKeyData) {
-      console.log(`No registration key found in account profile`);
+    if (!registrationKey) {
+      console.log(`No registration key found`);
       return {
         isValid: false,
         error:
@@ -97,13 +58,15 @@ export async function verifyRegistrationKey(
       };
     }
 
-    console.log(`Registration key found, verifying...`);
+    console.log(
+      `Registration key found, verifying: ${registrationKey.key} - ${registrationKey.expiresAt}`,
+    );
 
-    if (storedKeyData.key !== providedKey) {
+    if (registrationKey.key !== providedRegistrationKey) {
       return { isValid: false, error: "Invalid registration key" };
     }
 
-    if (storedKeyData.expiresAt && Date.now() > storedKeyData.expiresAt) {
+    if (registrationKey.expiresAt && Date.now() > registrationKey.expiresAt) {
       return { isValid: false, error: "Registration key has expired" };
     }
 

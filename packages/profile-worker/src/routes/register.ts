@@ -201,6 +201,8 @@ export const registerHandler = (
       const { nickname, jazzAccountID, oldNickname } = c.req.valid("json");
 
       const registrationKey = c.req.header("X-Registration-Key");
+      const registrationKeyId = c.req.header("X-Registration-Key-Id");
+
       if (!registrationKey) {
         console.log(
           `Missing registration key header for AccountID "${jazzAccountID}"`,
@@ -225,6 +227,7 @@ export const registerHandler = (
       const verificationResult = await verifyRegistrationKey(
         jazzAccountID,
         registrationKey,
+        registrationKeyId,
         worker,
       );
       if (!verificationResult.isValid) {

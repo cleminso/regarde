@@ -168,8 +168,8 @@ export const JazzAppProfile = co.map({
   award: co.optional(ListOfAward),
   volunteering: co.optional(ListOfVolunteering),
   sideProject: co.optional(ListOfSideProject),
-  registrationKey: co.optional(RegistrationKey),
   nowPage: co.optional(NowPage),
+  version: z.number(),
 });
 
 export type CleanLoadedJazzAppProfile = Omit<
@@ -219,6 +219,7 @@ export const JazzProfileProfile = co.profile({
 });
 export const JazzProfileRoot = co.map({
   "profile.jazz.dev": JazzAppProfile, // Direct object reference, already loaded
+  "auth.jazz.dev": RegistrationKey,
 });
 
 export const OnboardingAccount = co
@@ -227,67 +228,72 @@ export const OnboardingAccount = co
     root: JazzProfileRoot,
   })
   .withMigration(async (account, creationProps?: { name: string }) => {
-    console.log(account.root, account.root?.["profile.jazz.dev"]);
+    if (account.profile == null || account.root === null) {
+      console.warn("Something's null, Mark");
+      return;
+    }
+
+    const userHandle = UserHandle.create({
+      nickname: "",
+      registeredAt: Date.now(),
+      lastModified: Date.now(),
+      isActive: false,
+    });
+
+    const jazzProfileData = JazzAppProfile.create({
+      name: creationProps?.name || "Public Profile",
+      userHandle,
+      version: 1,
+    });
+
+    const registrationKey = RegistrationKey.create({
+      key: "not-valid-" + Math.random(),
+      expiresAt: 0, // key should never be valid, expires as soon as it's generated
+    });
 
     if (account.root === undefined) {
-      try {
-        // This is the worker read group, must be hardcoded
-        const jazzProfileWorkerGroupID = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
-        const jazzProfileWorkerGroup = await Group.load(
-          jazzProfileWorkerGroupID,
-        );
-        await jazzProfileWorkerGroup?.ensureLoaded();
+      // This is the worker read group, must be hardcoded
+      const jazzProfileWorkerGroupID = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
+      const jazzProfileWorkerGroup = await Group.load(jazzProfileWorkerGroupID);
+      await jazzProfileWorkerGroup?.ensureLoaded();
 
-        const userHandle = UserHandle.create({
-          nickname: "",
-          registeredAt: Date.now(),
-          lastModified: Date.now(),
-          isActive: false,
-        });
+      account.root = JazzProfileRoot.create({
+        "profile.jazz.dev": jazzProfileData,
+        "auth.jazz.dev": registrationKey,
+      });
 
-        // Grant Worker ”writer” permission on userHandle
-        if (jazzProfileWorkerGroup)
-          userHandle._owner
-            .castAs(Group)
-            .addMember(jazzProfileWorkerGroup, "writer");
+      account.waitForSync();
 
-        const jazzProfileData = JazzAppProfile.create({
-          name: creationProps?.name || "Public Profile",
-          userHandle,
-        });
+      console.log(
+        "profile.jazz.dev namespace profile data created:",
+        jazzProfileData.id,
+      );
 
-        // Grant Worker "write" permission on ProfileData
-        if (jazzProfileWorkerGroup)
-          jazzProfileData._owner
-            .castAs(Group)
-            .addMember(jazzProfileWorkerGroup, "writer");
+      // Grant Worker "write" permission on ProfileData
+      if (jazzProfileWorkerGroup) {
+        jazzProfileData._owner
+          .castAs(Group)
+          .addMember(jazzProfileWorkerGroup, "writer");
 
-        console.log(
-          "profile.jazz.dev namespace profile data created:",
-          jazzProfileData.id,
-        );
+        userHandle._owner
+          .castAs(Group)
+          .addMember(jazzProfileWorkerGroup, "writer");
 
-        // Create account profile with ID pointer
-        if (account.profile === undefined || account.profile === null)
-          account.profile = JazzProfileProfile.create({
-            name: "",
-            "profile.jazz.dev": jazzProfileData.id,
-          });
-
-        // Grant ”everyone” ”reader” permission on account.profile
-        account.profile._owner.castAs(Group).addMember("everyone", "reader");
-
-        // Create account.root with actual data object
-        if (account.root === undefined || account.root === null)
-          account.root = JazzProfileRoot.create({
-            "profile.jazz.dev": jazzProfileData,
-          });
-        
-
-        console.log("Profile created successfully");
-      } catch (error) {
-        console.error("Failed to create profile structures:", error);
-        throw error;
+        account.root["auth.jazz.dev"]?._owner
+          .castAs(Group)
+          .addMember(jazzProfileWorkerGroup, "writer");
+      } else {
+        console.warn("Group is missing");
       }
+
+      if (account.profile === undefined && account.profile !== null) {
+        account.profile = JazzProfileProfile.create({
+          name: "clc",
+          "profile.jazz.dev": jazzProfileData.id,
+        });
+      } else if (account.profile?.["profile.jazz.dev"] === undefined)
+        account.profile["profile.jazz.dev"] = jazzProfileData.id;
+
+      console.log("Profile created successfully", jazzProfileData.id);
     }
   });

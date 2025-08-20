@@ -1,3 +1,4 @@
+import { GetValidKeyFunction } from '../account/useRegistrationKey';
 import { registerNickname } from '../api/nickname';
 import { isPlaceholderNickname } from './utils';
 
@@ -13,7 +14,7 @@ export async function registerNicknameWithServer({
   nickname: string;
   accountId: string;
   oldNickname?: string;
-  getRegistrationKey: () => Promise<string | null>;
+  getRegistrationKey: GetValidKeyFunction;
 }): Promise<void> {
   // Only send oldNickname if it's a real nickname (not placeholder)
   // This determines server behavior: new registration vs swap/update

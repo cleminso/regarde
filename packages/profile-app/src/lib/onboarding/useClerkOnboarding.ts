@@ -101,7 +101,10 @@ export function useClerkOnboarding() {
 
   // Handle post-auth registration - with global lock
   useEffect(() => {
-    if (!isAuthenticated || !account?.id || !isAccountReady) return;
+    if (!isAuthenticated || !account?.id) return;
+
+    if (!isAccountReady) return;
+
     if (
       registrationInProgress.current ||
       hasProcessedPendingNickname.current ||

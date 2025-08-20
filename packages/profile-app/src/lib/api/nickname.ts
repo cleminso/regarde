@@ -1,3 +1,4 @@
+import { GetValidKeyFunction } from '../account/useRegistrationKey';
 import { API_BASE_URL } from '../config/apiKey';
 
 export interface CheckAvailabilityRequest {
@@ -63,18 +64,23 @@ export async function checkNicknameAvailability(
 
 export async function registerNickname(
   request: RegisterRequest,
-  getValidKey: () => Promise<string | null>,
+  getValidRegistrationKey: GetValidKeyFunction,
 ): Promise<void> {
-  const registrationKey = await getValidKey();
-  if (!registrationKey) {
+  const registrationData = await getValidRegistrationKey();
+  if (!registrationData) {
     throw new Error('Could not obtain valid registration key');
   }
+
+  const { key, registrationKeyId } = registrationData;
+
+  console.log('Sending registrationKeyId', registrationKeyId);
 
   const response = await fetch(`${API_BASE_URL}/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Registration-Key': registrationKey,
+      'X-Registration-Key': key,
+      'X-Registration-Key-Id': registrationKeyId,
     },
     body: JSON.stringify(request),
   });

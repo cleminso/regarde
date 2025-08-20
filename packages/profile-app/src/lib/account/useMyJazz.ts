@@ -3,6 +3,7 @@ import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 
 export function useMyJazz() {
   const isAuthenticated = useIsAuthenticated();
+
   const { me: account, logOut } = useAccount(OnboardingAccount, {
     resolve: {
       root: {
@@ -17,9 +18,9 @@ export function useMyJazz() {
           award: { $each: true },
           volunteering: { $each: true },
           sideProject: { $each: true },
-          registrationKey: true,
           nowPage: true,
         },
+        'auth.jazz.dev': true,
       },
     },
   });
