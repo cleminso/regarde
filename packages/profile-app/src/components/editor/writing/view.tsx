@@ -2,6 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useWriting } from '#/lib/hook/useWriting.ts';
 import { JazzAppProfile, ListOfWriting, Writing } from '#/lib/schema';
 import { EditorFooter } from '../index';
@@ -10,7 +11,7 @@ import { WritingCard } from './card';
 
 type WritingViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: (profileObject?: any) => void;
+  triggerSyncIndicator: TriggerSyncIndicator;
   writing: Loaded<typeof ListOfWriting> | undefined;
   onAddWriting: () => void;
   onEditWriting: (writing: Loaded<typeof Writing>) => void;

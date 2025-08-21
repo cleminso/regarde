@@ -21,7 +21,7 @@ export function SectionHeader({
   return (
     <div
       className={cn(
-        'mb-6 border-b border-border pb-4',
+        'mb-6 border-b border-border pb-2',
         hasAction && 'flex justify-between items-start',
         className,
       )}

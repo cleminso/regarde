@@ -1,11 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
-import {
-  ListOfSideProject,
-  SideProject,
-
-} from '../schema';
-
+import { ListOfSideProject, SideProject } from '../schema';
 import { BaseHookProps } from './types';
 
 type UseSideProjectProps = BaseHookProps;
@@ -26,15 +21,13 @@ export function useSideProject({
     return profile.sideProject;
   };
 
-  const addSideProject = (
-    sideProjectData: {
-      title: string;
-      year: string;
-      client?: string;
-      url?: string;
-      description?: string;
-    }
-  ): Loaded<typeof SideProject> | undefined => {
+  const addSideProject = async (sideProjectData: {
+    title: string;
+    year: string;
+    client?: string;
+    url?: string;
+    description?: string;
+  }): Promise<Loaded<typeof SideProject> | undefined> => {
     const sideProjectList = ensureSideProjectList();
     if (!sideProjectList) return undefined;
 
@@ -51,11 +44,11 @@ export function useSideProject({
       { owner: listOwner },
     );
     sideProjectList.push(newSideProject);
-    triggerSyncIndicator(profile);
+    await triggerSyncIndicator(profile);
     return newSideProject;
   };
 
-  const updateSideProject = (
+  const updateSideProject = async (
     sideProjectToUpdate: Loaded<typeof SideProject>,
     sideProjectData: {
       title: string;
@@ -63,7 +56,7 @@ export function useSideProject({
       client?: string;
       url?: string;
       description?: string;
-    }
+    },
   ) => {
     if (!sideProjectToUpdate) {
       console.error('Side project instance not provided for update.');
@@ -110,11 +103,11 @@ export function useSideProject({
     }
 
     if (changed) {
-      triggerSyncIndicator(profile);
+      await triggerSyncIndicator(profile);
     }
   };
 
-  const deleteSideProject = (sideProjectId: string) => {
+  const deleteSideProject = async (sideProjectId: string) => {
     const sideProjectList = profile.sideProject;
     if (!sideProjectList) {
       console.warn('No side projects list to delete from.');
@@ -126,7 +119,7 @@ export function useSideProject({
 
     if (sideProjectIndex !== -1) {
       sideProjectList.splice(sideProjectIndex, 1);
-      triggerSyncIndicator(profile); 
+      await triggerSyncIndicator(profile);
     } else {
       console.error(
         `Side project with id ${sideProjectId} not found for deletion.`,

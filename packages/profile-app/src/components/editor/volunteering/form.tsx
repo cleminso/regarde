@@ -1,20 +1,18 @@
 import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
+import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useVolunteering } from '#/lib/hook/useVolunteering';
 import { getValidUrl } from '#/lib/utils';
-import {
-  Volunteering,
-  type CleanLoadedJazzAppProfile,
-} from '../../../lib/schema';
+import { JazzAppProfile, Volunteering } from '../../../lib/schema';
 import { Input, Label, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
 
 type VolunteeringEditProps = {
-  profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: (profileObject?: any) => void;
+  profile: Loaded<typeof JazzAppProfile>;
+  triggerSyncIndicator: TriggerSyncIndicator;
   onDoneEditing: () => void;
   volunteeringToEdit?: Loaded<typeof Volunteering>;
 };

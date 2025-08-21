@@ -50,7 +50,7 @@ export function NicknameInput({
   profile,
   isProcessing = false,
   disabled = false,
-  placeholder = 'your_display_name',
+  placeholder = 'your_nickname',
   onBlurRestore,
   onAction,
   actionText,

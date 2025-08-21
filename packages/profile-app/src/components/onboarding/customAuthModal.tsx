@@ -1,5 +1,5 @@
 import { useSignIn, useSignUp } from '@clerk/clerk-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '../ui/button';
 import {
@@ -15,21 +15,34 @@ import { Label } from '../ui/label';
 interface CustomAuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  mode?: 'signin' | 'signup';
+  mode?: 'login' | 'register';
+  onModeChange?: (mode: 'login' | 'register') => void;
+  nicknameContext?: {
+    nickname: string;
+    onRegistered: (nickname: string) => void;
+  };
 }
 
 export function CustomAuthModal({
   isOpen,
   onClose,
-  mode: initialMode = 'signin',
+  mode: initialMode = 'login',
+  onModeChange,
+  nicknameContext,
 }: CustomAuthModalProps) {
-  const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [pendingVerification, setPendingVerification] = useState(false);
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      resetForm();
+    }
+  }, [isOpen]);
 
   const { isLoaded: signInLoaded, signIn, setActive } = useSignIn();
   const {
@@ -47,7 +60,7 @@ export function CustomAuthModal({
     setIsLoading(false);
   };
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!signInLoaded || !signIn) return;
 
@@ -67,17 +80,17 @@ export function CustomAuthModal({
       } else if (result.status === 'needs_second_factor') {
         setPendingVerification(true);
       } else {
-        setError('Unable to complete sign-in. Please try again.');
+        setError('Unable to complete login. Please try again.');
       }
     } catch (err: any) {
-      console.error('Sign-in error:', err);
-      setError(err.errors?.[0]?.message || 'An error occurred during sign in');
+      console.error('Login error:', err);
+      setError(err.errors?.[0]?.message || 'An error occurred during login');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!signUpLoaded || !signUp) return;
 
@@ -97,12 +110,17 @@ export function CustomAuthModal({
         setPendingVerification(true);
       } else if (result.status === 'complete') {
         await setActiveSignUp({ session: result.createdSessionId });
+        if (nicknameContext) {
+          nicknameContext.onRegistered(nicknameContext.nickname);
+        }
         onClose();
         resetForm();
       }
     } catch (err: any) {
-      console.error('Sign-up error:', err);
-      setError(err.errors?.[0]?.message || 'An error occurred during sign up');
+      console.error('Register error:', err);
+      setError(
+        err.errors?.[0]?.message || 'An error occurred during registration',
+      );
     } finally {
       setIsLoading(false);
     }
@@ -122,6 +140,9 @@ export function CustomAuthModal({
 
       if (result.status === 'complete') {
         await setActiveSignUp({ session: result.createdSessionId });
+        if (nicknameContext) {
+          nicknameContext.onRegistered(nicknameContext.nickname);
+        }
         onClose();
         resetForm();
       }
@@ -134,14 +155,15 @@ export function CustomAuthModal({
   };
 
   const switchMode = () => {
-    setMode(mode === 'signin' ? 'signup' : 'signin');
+    const newMode = initialMode === 'login' ? 'register' : 'login';
+    onModeChange?.(newMode);
     resetForm();
   };
 
   if (!signInLoaded || !signUpLoaded) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[460px] bg-card border-border">
+        <DialogContent className="sm:max-w-[480px] bg-card border-border">
           <div className="flex items-center justify-center p-6">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
@@ -157,21 +179,31 @@ export function CustomAuthModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[460px] h-[400px] bg-card border-border">
+      <DialogContent className="sm:max-w-[480px] h-[400px] bg-card border-border">
         <DialogHeader className="text-center">
           <DialogTitle className="text-xl font-mono text-foreground">
             {pendingVerification
               ? 'Verify your email'
-              : mode === 'signin'
-                ? 'Sign In'
+              : initialMode === 'login'
+                ? 'Login'
                 : 'Create your account'}
           </DialogTitle>
           <DialogDescription className="text-secondary-foreground font-mono">
-            {pendingVerification
-              ? `We sent a verification code to ${email}`
-              : mode === 'signin'
-                ? 'Welcome back! Please sign in to continue.'
-                : 'Welcome! Please fill the details to get started.'}
+            {pendingVerification ? (
+              `We sent a verification code to ${email}`
+            ) : initialMode === 'login' ? (
+              'Welcome back! Please log in to continue.'
+            ) : nicknameContext ? (
+              <>
+                Create your account to register `
+                <span className="text-foreground font-semibold">
+                  {nicknameContext.nickname}
+                </span>
+                `
+              </>
+            ) : (
+              'Welcome! Please fill the details to get started.'
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -212,13 +244,15 @@ export function CustomAuthModal({
                 onClick={() => setPendingVerification(false)}
                 className="w-full font-mono text-foreground"
               >
-                Back to sign up
+                Back to register
               </Button>
             </form>
           ) : (
             <>
               <form
-                onSubmit={mode === 'signin' ? handleSignIn : handleSignUp}
+                onSubmit={
+                  initialMode === 'login' ? handleLogin : handleRegister
+                }
                 className="space-y-4"
               >
                 <div className="space-y-2">
@@ -231,7 +265,9 @@ export function CustomAuthModal({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    autoComplete={mode === 'signin' ? 'email' : 'new-email'}
+                    autoComplete={
+                      initialMode === 'login' ? 'email' : 'new-email'
+                    }
                     required
                   />
                 </div>
@@ -250,7 +286,9 @@ export function CustomAuthModal({
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     autoComplete={
-                      mode === 'signin' ? 'current-password' : 'new-password'
+                      initialMode === 'login'
+                        ? 'current-password'
+                        : 'new-password'
                     }
                     required
                   />
@@ -263,25 +301,27 @@ export function CustomAuthModal({
                 >
                   {isLoading
                     ? 'Loading...'
-                    : mode === 'signin'
-                      ? 'Sign in'
+                    : initialMode === 'login'
+                      ? 'Login'
                       : 'Create account'}
                 </Button>
               </form>
 
-              <div className="text-center text-sm">
-                <span className="text-secondary-foreground font-mono">
-                  {mode === 'signin'
-                    ? "Don't have an account? "
-                    : 'Already have an account? '}
-                </span>
-                <button
-                  onClick={switchMode}
-                  className="text-foreground hover:underline hover:underline-offset-2 font-mono "
-                >
-                  {mode === 'signin' ? 'Sign up' : 'Sign in'}
-                </button>
-              </div>
+              {!nicknameContext && (
+                <div className="text-center text-sm">
+                  <span className="text-secondary-foreground font-mono">
+                    {initialMode === 'login'
+                      ? "Don't have an account? "
+                      : 'Already have an account? '}
+                  </span>
+                  <button
+                    onClick={switchMode}
+                    className="text-foreground hover:underline hover:underline-offset-2 font-mono "
+                  >
+                    {initialMode === 'login' ? 'register' : 'Log In'}
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>

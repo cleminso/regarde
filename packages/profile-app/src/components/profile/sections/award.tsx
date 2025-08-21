@@ -2,11 +2,11 @@ import { Loaded } from 'jazz-tools';
 import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
-import type { Award, CleanLoadedJazzAppProfile } from '#/lib/schema';
+import type { Award, JazzAppProfile } from '#/lib/schema';
 import { formatYearString, getValidUrl } from '#/lib/utils';
 
 type AwardsProps = {
-  profile: CleanLoadedJazzAppProfile;
+  profile: Loaded<typeof JazzAppProfile>;
 };
 
 export function Awards({ profile }: AwardsProps) {

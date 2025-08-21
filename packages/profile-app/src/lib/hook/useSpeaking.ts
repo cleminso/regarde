@@ -1,11 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
-import {
-  ListOfSpeaking,
-  Speaking,
-
-} from '../schema';
-
+import { ListOfSpeaking, Speaking } from '../schema';
 import { BaseHookProps } from './types';
 
 type UseSpeakingProps = BaseHookProps;
@@ -22,16 +17,14 @@ export function useSpeaking({
     return profile.speaking;
   };
 
-  const addSpeaking = (
-    speakingData: {
-      title: string;
-      year: string;
-      event?: string;
-      location?: string;
-      url?: string;
-      description?: string;
-    }
-  ): Loaded<typeof Speaking> | undefined => {
+  const addSpeaking = async (speakingData: {
+    title: string;
+    year: string;
+    event?: string;
+    location?: string;
+    url?: string;
+    description?: string;
+  }): Promise<Loaded<typeof Speaking> | undefined> => {
     const speakingList = ensureSpeakingList();
     if (!speakingList) return undefined;
 
@@ -49,11 +42,11 @@ export function useSpeaking({
       { owner: listOwner },
     );
     speakingList.push(newSpeaking);
-    triggerSyncIndicator(profile);
+    await triggerSyncIndicator(profile);
     return newSpeaking;
   };
 
-  const updateSpeaking = (
+  const updateSpeaking = async (
     speakingToUpdate: Loaded<typeof Speaking>,
     speakingData: {
       title: string;
@@ -62,7 +55,7 @@ export function useSpeaking({
       location?: string;
       url?: string;
       description?: string;
-    }
+    },
   ) => {
     if (!speakingToUpdate) {
       console.error('Speaking instance not provided for update.');
@@ -116,11 +109,11 @@ export function useSpeaking({
     }
 
     if (changed) {
-      triggerSyncIndicator(profile);
+      await triggerSyncIndicator(profile);
     }
   };
 
-  const deleteSpeaking = (speakingId: string) => {
+  const deleteSpeaking = async (speakingId: string) => {
     const speakingList = profile.speaking;
     if (!speakingList) {
       console.warn('No speaking list to delete from.');
@@ -132,7 +125,7 @@ export function useSpeaking({
 
     if (speakingIndex !== -1) {
       speakingList.splice(speakingIndex, 1);
-      triggerSyncIndicator();
+      await triggerSyncIndicator(profile);
     } else {
       console.error(`Speaking with id ${speakingId} not found for deletion.`);
     }

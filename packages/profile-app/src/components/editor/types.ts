@@ -1,14 +1,15 @@
 import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { CleanLoadedJazzAppProfile } from '#/lib/schema';
+import { Loaded } from 'jazz-tools';
+import { JazzAppProfile } from '#/lib/schema';
 
 export type BaseEditProps = {
-  profile: CleanLoadedJazzAppProfile;
+  profile: Loaded<typeof JazzAppProfile>;
   triggerSyncIndicator: TriggerSyncIndicator;
   onDoneEditing: () => void;
 };
 
 export type ContactEditProps = {
-  profile: CleanLoadedJazzAppProfile;
+  profile: Loaded<typeof JazzAppProfile>;
   triggerSyncIndicator: TriggerSyncIndicator;
   onCloseEditor: () => void;
 };

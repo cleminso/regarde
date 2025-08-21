@@ -1,11 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
-import {
-  Certification,
-  ListOfCertification,
-
-} from '../schema';
-
+import { Certification, ListOfCertification } from '../schema';
 import { BaseHookProps } from './types';
 
 type UseCertificationProps = BaseHookProps;
@@ -25,16 +20,14 @@ export function useCertification({
     return profile.certification;
   };
 
-  const addCertification = (
-    certificationData: {
-      name: string;
-      organization: string;
-      issued: string;
-      expire?: string;
-      url?: string;
-      description?: string;
-    }
-  ): Loaded<typeof Certification> | undefined => {
+  const addCertification = async (certificationData: {
+    name: string;
+    organization: string;
+    issued: string;
+    expire?: string;
+    url?: string;
+    description?: string;
+  }): Promise<Loaded<typeof Certification> | undefined> => {
     const certificationList = ensureCertificationList();
     if (!certificationList) return undefined;
 
@@ -58,11 +51,11 @@ export function useCertification({
       { owner: listOwner },
     );
     certificationList.push(newCertification);
-    triggerSyncIndicator(profile);
+    await triggerSyncIndicator(profile);
     return newCertification;
   };
 
-  const updateCertification = (
+  const updateCertification = async (
     certificationToUpdate: Loaded<typeof Certification>,
     certificationData: {
       name: string;
@@ -71,7 +64,7 @@ export function useCertification({
       expire?: string;
       url?: string;
       description?: string;
-    }
+    },
   ) => {
     if (!certificationToUpdate) {
       console.error('Certification instance not provided for update.');
@@ -126,11 +119,11 @@ export function useCertification({
     }
 
     if (changed) {
-      triggerSyncIndicator(profile);
+      await triggerSyncIndicator(profile);
     }
   };
 
-  const deleteCertification = (certificationId: string) => {
+  const deleteCertification = async (certificationId: string) => {
     const certificationList = profile.certification;
     if (!certificationList) {
       console.warn('No certification list to delete from.');
@@ -142,7 +135,7 @@ export function useCertification({
 
     if (certificationIndex !== -1) {
       certificationList.splice(certificationIndex, 1);
-      triggerSyncIndicator();
+      await triggerSyncIndicator(profile);
     } else {
       console.error(
         `Certification with id ${certificationId} not found for deletion.`,

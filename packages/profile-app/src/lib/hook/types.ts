@@ -1,12 +1,13 @@
-import { type CleanLoadedJazzAppProfile } from '../schema';
+import { type Loaded } from 'jazz-tools';
+import { type JazzAppProfile } from '@onboarding.jazz/shared-schemas';
 
 export type SyncableObject = {
   waitForSync?: (options: { timeout: number }) => Promise<any>;
 };
 
-export type TriggerSyncIndicator = (profileObject?: any) => void;
+export type TriggerSyncIndicator = (jazzAppProfile?: Loaded<typeof JazzAppProfile>) => Promise<void>;
 
 export type BaseHookProps = {
-  profile: CleanLoadedJazzAppProfile;
+  profile: Loaded<typeof JazzAppProfile>;
   triggerSyncIndicator: TriggerSyncIndicator;
 };

@@ -2,6 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { TriggerSyncIndicator } from '#/lib/hook/types.ts';
 import { JazzAppProfile, ListOfSpeaking, Speaking } from '#/lib/schema';
 import { useSpeaking } from '../../../lib/hook/useSpeaking.ts';
 import { EditorFooter } from '../index';
@@ -10,7 +11,7 @@ import { SpeakingCard } from './card';
 
 type SpeakingViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: (profileObject?: any) => void;
+  triggerSyncIndicator: TriggerSyncIndicator;
   speaking: Loaded<typeof ListOfSpeaking> | undefined;
   onAddSpeaking: () => void;
   onEditSpeaking: (speaking: Loaded<typeof Speaking>) => void;

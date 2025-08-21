@@ -2,6 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useCertification } from '#/lib/hook/useCertification';
 import {
   Certification,
@@ -14,7 +15,7 @@ import { CertificationCard } from './card';
 
 type CertificationViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: (profileObject?: any) => void;
+  triggerSyncIndicator: TriggerSyncIndicator;
   certifications: Loaded<typeof ListOfCertification> | undefined;
   onAddCertification: () => void;
   onEditCertification: (certification: Loaded<typeof Certification>) => void;

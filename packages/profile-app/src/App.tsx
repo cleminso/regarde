@@ -63,17 +63,17 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="font-semibold">
-            Jazz Profile
-          </Link>
+    <div>
+      <header className="bg-background text-card-foreground shadow-lg">
+        <nav className="@container-normal flex justify-end items-center py-4 mx-16">
           <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <AuthButton />
+            <Link to="/" className="font-semibold"></Link>
+            <div className="flex items-center gap-4">
+              <ThemeToggle />
+              <AuthButton />
+            </div>
           </div>
-        </div>
+        </nav>
       </header>
 
       <main className="container mt-16 flex flex-col items-center text-center gap-6 py-12">

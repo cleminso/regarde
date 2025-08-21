@@ -2,6 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useEducation } from '#/lib/hook/useEducation.ts';
 import { Education, JazzAppProfile, ListOfEducation } from '#/lib/schema';
 import { EditorFooter } from '../index';
@@ -10,7 +11,7 @@ import { EducationCard } from './card';
 
 type EducationViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: (profileObject?: any) => void;
+  triggerSyncIndicator: TriggerSyncIndicator;
   education: Loaded<typeof ListOfEducation> | undefined;
   onAddEducation: () => void;
   onEditEducation: (education: Loaded<typeof Education>) => void;

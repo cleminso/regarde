@@ -2,6 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useWorkExp } from '#/lib/hook/useWorkExp';
 import { JazzAppProfile, ListOfWorkExp, WorkExp } from '#/lib/schema';
 import { EditorFooter } from '../index';
@@ -10,7 +11,7 @@ import { WorkExpCard } from './card';
 
 type WorkExpViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: (profileObject?: any) => void;
+  triggerSyncIndicator: TriggerSyncIndicator;
   workExperiences: Loaded<typeof ListOfWorkExp> | undefined;
   onAddWorkExp: () => void;
   onEditWorkExp: (workExp: Loaded<typeof WorkExp>) => void;

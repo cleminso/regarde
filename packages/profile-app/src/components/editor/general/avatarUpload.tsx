@@ -1,10 +1,11 @@
+import { Loaded } from 'jazz-tools';
 import React from 'react';
 
 import { ProfileAvatar } from '#/components/ui/avatar';
-import { type CleanLoadedJazzAppProfile } from '#/lib/schema';
+import { JazzAppProfile } from '#/lib/schema';
 
 export type AvatarUploadProps = {
-  profile: CleanLoadedJazzAppProfile;
+  profile: Loaded<typeof JazzAppProfile>;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   onAvatarClick: () => void;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;

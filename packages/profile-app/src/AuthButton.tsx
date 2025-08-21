@@ -10,6 +10,7 @@ import { useRegistrationKey } from './lib/account/useRegistrationKey';
 
 export function AuthButton() {
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const { logOut, isAuthenticated } = useMyJazz();
   const { getValidKey, isAccountReady } = useRegistrationKey();
 
@@ -40,15 +41,36 @@ export function AuthButton() {
     navigate('/');
   }
 
+  function handleModeChange(newMode: 'login' | 'register') {
+    setAuthMode(newMode);
+  }
+
   if (!isAuthenticated) {
     return (
       <>
-        <Button variant="outline" onClick={() => setShowAuthModal(true)}>
-          Sign In
+        <Button
+          variant="outline"
+          onClick={() => {
+            setAuthMode('login');
+            setShowAuthModal(true);
+          }}
+        >
+          Login
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            setAuthMode('register');
+            setShowAuthModal(true);
+          }}
+        >
+          Register
         </Button>
         <CustomAuthModal
           isOpen={showAuthModal}
           onClose={() => setShowAuthModal(false)}
+          mode={authMode}
+          onModeChange={handleModeChange}
         />
       </>
     );
@@ -56,7 +78,7 @@ export function AuthButton() {
 
   return (
     <Button variant="outline" onClick={handleLogOut}>
-      Sign Out
+      Logout
     </Button>
   );
 }

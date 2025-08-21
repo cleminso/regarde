@@ -172,11 +172,6 @@ export const JazzAppProfile = co.map({
   version: z.number(),
 });
 
-export type CleanLoadedJazzAppProfile = Omit<
-  Loaded<typeof JazzAppProfile>,
-  "registrationKey"
->;
-
 export function validateJazzAppProfile(
   profile: Loaded<typeof JazzAppProfile>,
 ): { isValid: boolean; message?: string } {

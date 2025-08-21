@@ -19,7 +19,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
   }, []);
 
   const processFile = useCallback(
-    (file: File | null | undefined) => {
+    async (file: File | null | undefined) => {
       if (!file) return;
 
       if (!file.type.startsWith('image/')) {
@@ -33,10 +33,10 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
       }
 
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         try {
           profile.avatar = reader.result as string;
-          triggerSyncIndicator(profile);
+          await triggerSyncIndicator(profile);
           setUpdateError(null);
         } catch (error) {
           setUpdateError('Failed to update avatar. Please try again.');
@@ -77,7 +77,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
     e.stopPropagation();
   }, []);
 
-  const handleRemoveAvatar = useCallback(() => {
+  const handleRemoveAvatar = useCallback(async () => {
     if (!profile) {
       setUpdateError('Profile not available. Please refresh and try again.');
       return;
@@ -85,7 +85,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
 
     try {
       profile.avatar = undefined;
-      triggerSyncIndicator(profile);
+      await triggerSyncIndicator(profile);
       setUpdateError(null);
     } catch (error) {
       setUpdateError('Failed to remove avatar. Please try again.');
@@ -109,7 +109,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
 
       try {
         profile.name = name.trim();
-        triggerSyncIndicator(profile);
+        await triggerSyncIndicator(profile);
       } catch (error) {
         setUpdateError('Failed to update name. Please try again.');
       } finally {
@@ -131,7 +131,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
 
       try {
         profile.bio = bio.length === 0 ? undefined : bio;
-        triggerSyncIndicator(profile);
+        await triggerSyncIndicator(profile);
       } catch (error) {
         setUpdateError('Failed to update bio. Please try again.');
       } finally {

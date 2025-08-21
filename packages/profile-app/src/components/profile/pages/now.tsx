@@ -1,10 +1,10 @@
-import { type CleanLoadedJazzAppProfile } from '#/lib/schema';
+import { Loaded } from 'jazz-tools';
+
+import { type JazzAppProfile } from '#/lib/schema';
 import { formatTimestamp } from '#/lib/utils';
 
-type LoadedProfile = CleanLoadedJazzAppProfile;
-
 type NowPageProps = {
-  profile: LoadedProfile;
+  profile: Loaded<typeof JazzAppProfile>;
 };
 
 export function NowPage({ profile }: NowPageProps) {

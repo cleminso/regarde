@@ -1,9 +1,11 @@
+import { Loaded } from 'jazz-tools';
+
 import { Button } from '#/components/ui/button';
-import { type CleanLoadedJazzAppProfile } from '#/lib/schema';
+import { JazzAppProfile } from '#/lib/schema';
 import { buildSocialLinks } from '#/lib/utils';
 
 type ContactProps = {
-  profile: CleanLoadedJazzAppProfile;
+  profile: Loaded<typeof JazzAppProfile>;
 };
 
 export function Contact({ profile }: ContactProps) {

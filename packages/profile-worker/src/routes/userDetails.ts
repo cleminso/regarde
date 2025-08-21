@@ -335,8 +335,6 @@ export const userDetailsHandler = (
           try {
             // Safely extract profile data
             if (profileData) {
-              delete profileData["registrationKey"];
-
               Object.assign(publicData, profileData);
             }
           } catch (profileError: any) {

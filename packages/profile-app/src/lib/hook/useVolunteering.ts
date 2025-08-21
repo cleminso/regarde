@@ -1,11 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
-import {
-  ListOfVolunteering,
-  Volunteering,
-
-} from '../schema';
-
+import { ListOfVolunteering, Volunteering } from '../schema';
 import { BaseHookProps } from './types';
 
 type UseVolunteeringProps = BaseHookProps;
@@ -26,17 +21,15 @@ export function useVolunteering({
     return profile.volunteering;
   };
 
-  const addVolunteering = (
-    volunteeringData: {
-      title: string;
-      organization: string;
-      location?: string;
-      url?: string;
-      description?: string;
-      from: string;
-      to?: string;
-    }
-  ): Loaded<typeof Volunteering> | undefined => {
+  const addVolunteering = async (volunteeringData: {
+    title: string;
+    organization: string;
+    location?: string;
+    url?: string;
+    description?: string;
+    from: string;
+    to?: string;
+  }): Promise<Loaded<typeof Volunteering> | undefined> => {
     const volunteeringList = ensureVolunteeringList();
     if (!volunteeringList) return undefined;
 
@@ -55,11 +48,11 @@ export function useVolunteering({
       { owner: listOwner },
     );
     volunteeringList.push(newVolunteering);
-    triggerSyncIndicator(profile);
+    await triggerSyncIndicator(profile);
     return newVolunteering;
   };
 
-  const updateVolunteering = (
+  const updateVolunteering = async (
     volunteeringToUpdate: Loaded<typeof Volunteering>,
     volunteeringData: {
       title: string;
@@ -69,7 +62,7 @@ export function useVolunteering({
       description?: string;
       from: string;
       to?: string;
-    }
+    },
   ) => {
     if (!volunteeringToUpdate) {
       console.error('Volunteering instance not provided for update.');
@@ -131,11 +124,11 @@ export function useVolunteering({
     }
 
     if (changed) {
-      triggerSyncIndicator(profile);
+      await triggerSyncIndicator(profile);
     }
   };
 
-  const deleteVolunteering = (volunteeringId: string) => {
+  const deleteVolunteering = async (volunteeringId: string) => {
     const volunteeringList = profile.volunteering;
     if (!volunteeringList) {
       console.warn('No volunteering list to delete from.');
@@ -147,7 +140,7 @@ export function useVolunteering({
 
     if (volunteeringIndex !== -1) {
       volunteeringList.splice(volunteeringIndex, 1);
-      triggerSyncIndicator(profile);
+      await triggerSyncIndicator(profile);
     } else {
       console.error(
         `Volunteering with id ${volunteeringId} not found for deletion.`,

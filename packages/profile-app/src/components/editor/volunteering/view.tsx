@@ -2,6 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useVolunteering } from '#/lib/hook/useVolunteering';
 import { JazzAppProfile, ListOfVolunteering, Volunteering } from '#/lib/schema';
 import { EditorFooter } from '../index';
@@ -10,7 +11,7 @@ import { VolunteeringCard } from './card';
 
 type VolunteeringViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: (profileObject?: any) => void;
+  triggerSyncIndicator: TriggerSyncIndicator;
   volunteering: Loaded<typeof ListOfVolunteering> | undefined;
   onAddVolunteering: () => void;
   onEditVolunteering: (volunteering: Loaded<typeof Volunteering>) => void;

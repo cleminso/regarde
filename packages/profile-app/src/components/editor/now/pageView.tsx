@@ -1,14 +1,16 @@
+import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Input, Label, Textarea } from '#/components/ui';
+import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useNowPage } from '#/lib/hook/useNowPage';
-import { type CleanLoadedJazzAppProfile } from '#/lib/schema';
+import { JazzAppProfile } from '#/lib/schema';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';
 
 type NowPageViewProps = {
-  profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: (profileObject?: any) => void;
+  profile: Loaded<typeof JazzAppProfile>;
+  triggerSyncIndicator: TriggerSyncIndicator;
   onClose?: () => void;
 };
 

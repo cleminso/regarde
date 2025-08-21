@@ -2,6 +2,7 @@ import { co } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 
+import { Button } from '#/components/ui/button';
 import { useMyJazz } from '#/lib/account/useMyJazz';
 import { fetchUserDetailsByNickname } from '#/lib/api/base';
 import { JazzAppProfile } from '#/lib/schema';
@@ -18,6 +19,7 @@ export function ProfileView() {
     useState<LoadedProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const { account, jazzAppProfile } = useMyJazz();
 
@@ -42,7 +44,7 @@ export function ProfileView() {
         const userDetails = await fetchUserDetailsByNickname(nickname);
 
         if (!userDetails.exists) {
-          setError('Profile not found');
+          setError('Profile not found.');
           setOtherUserProfile(null);
         } else if (userDetails.publicData) {
           setOtherUserProfile(userDetails.publicData as LoadedProfile);
@@ -71,9 +73,39 @@ export function ProfileView() {
   }
 
   if (error) {
+    const isAuthenticated = !!jazzAppProfile?.userHandle?.nickname;
+    const showReturnButton = isAuthenticated;
+
     return (
-      <div className="flex w-full justify-center items-center min-h-screen">
-        <p>{error}</p>
+      <div className="flex w-full justify-center items-center bg-background">
+        <div className="text-center space-y-6 mx-auto p-8">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-semibold text-foreground">Oops!</h1>
+            <p className="text-muted-foreground">{error}</p>
+          </div>
+          {showReturnButton && (
+            <div className="space-y-2">
+              <Button
+                onClick={() =>
+                  navigate(`/${jazzAppProfile.userHandle!.nickname}`)
+                }
+                variant="default"
+                className="font-mono"
+              >
+                Return to my profile
+              </Button>
+            </div>
+          )}
+          {!showReturnButton && (
+            <Button
+              onClick={() => navigate('/')}
+              variant="outline"
+              className="font-mono"
+            >
+              Go to homepage
+            </Button>
+          )}
+        </div>
       </div>
     );
   }

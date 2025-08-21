@@ -1,11 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
-import {
-  ListOfWriting,
-  Writing,
-
-} from '../schema';
-
+import { ListOfWriting, Writing } from '../schema';
 import { BaseHookProps } from './types';
 
 type UseWritingProps = BaseHookProps;
@@ -19,15 +14,13 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
     return profile.writing;
   };
 
-  const addWriting = (
-    writingData: {
-      title: string;
-      year: string;
-      publisher?: string;
-      url?: string;
-      description?: string;
-    }
-  ): Loaded<typeof Writing> | undefined => {
+  const addWriting = async (writingData: {
+    title: string;
+    year: string;
+    publisher?: string;
+    url?: string;
+    description?: string;
+  }): Promise<Loaded<typeof Writing> | undefined> => {
     const writingList = ensureWritingList();
     if (!writingList) return undefined;
 
@@ -44,11 +37,11 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
       { owner: listOwner },
     );
     writingList.push(newWriting);
-    triggerSyncIndicator(profile);
+    await triggerSyncIndicator(profile);
     return newWriting;
   };
 
-  const updateWriting = (
+  const updateWriting = async (
     writingToUpdate: Loaded<typeof Writing>,
     writingData: {
       title: string;
@@ -56,7 +49,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
       publisher?: string;
       url?: string;
       description?: string;
-    }
+    },
   ) => {
     if (!writingToUpdate) {
       console.error('Writing instance not provided for update.');
@@ -103,11 +96,11 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
     }
 
     if (changed) {
-      triggerSyncIndicator(profile);
+      await triggerSyncIndicator(profile);
     }
   };
 
-  const deleteWriting = (writingId: string) => {
+  const deleteWriting = async (writingId: string) => {
     const writingList = profile.writing;
     if (!writingList) {
       console.warn('No writing list to delete from.');
@@ -119,7 +112,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
 
     if (writingIndex !== -1) {
       writingList.splice(writingIndex, 1);
-      triggerSyncIndicator();
+      await triggerSyncIndicator(profile);
     } else {
       console.error(`Writing with id ${writingId} not found for deletion.`);
     }

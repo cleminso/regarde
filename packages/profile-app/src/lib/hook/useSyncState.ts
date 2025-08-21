@@ -1,22 +1,27 @@
 import { useCallback, useState } from 'react';
-import { SyncableObject, TriggerSyncIndicator } from './types';
+import { TriggerSyncIndicator } from './types';
 
 export function useSyncState() {
   const [syncState, setSyncState] = useState<'saved' | 'syncing' | 'error'>('saved');
 
-  const triggerSyncIndicator: TriggerSyncIndicator = useCallback(async (profileObject?: SyncableObject) => {
+  const triggerSyncIndicator: TriggerSyncIndicator = useCallback(async (jazzAppProfile?: any) => {
+    if (!jazzAppProfile) {
+      // No profile to sync, just show brief syncing state
+      setSyncState('syncing');
+      setTimeout(() => setSyncState('saved'), 300);
+      return;
+    }
+
     setSyncState('syncing');
 
     try {
-      if (profileObject && typeof profileObject.waitForSync === 'function') {
-        await profileObject.waitForSync({ timeout: 5000 });
-      } else {
-        await new Promise((resolve) => setTimeout(resolve, 800));
-      }
+      // Use Jazz's waitForSync with appropriate timeout
+      await jazzAppProfile.waitForSync({ timeout: 5000 });
       setSyncState('saved');
     } catch (error) {
-      console.error('Sync failed:', error);
+      console.error('Profile sync failed:', error);
       setSyncState('error');
+      // Auto-recover from error state after 3 seconds
       setTimeout(() => setSyncState('saved'), 3000);
     }
   }, []);

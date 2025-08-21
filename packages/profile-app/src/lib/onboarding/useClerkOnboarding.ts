@@ -22,7 +22,11 @@ type ValidationStatus =
 // Add a global flag to prevent multiple registrations
 let globalRegistrationInProgress = false;
 
-export function useClerkOnboarding() {
+type UseClerkOnboardingOptions = {
+  customAuthCallback?: (nickname: string) => void;
+};
+
+export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
   const navigate = useNavigate();
   const clerk = useClerk();
 
@@ -180,7 +184,14 @@ export function useClerkOnboarding() {
       try {
         if (!isAuthenticated) {
           localStorage.setItem(PENDING_NICKNAME_KEY, nickname);
-          clerk.openSignIn({});
+
+          // Use custom auth callback if provided, otherwise use Clerk modal
+          if (options.customAuthCallback) {
+            options.customAuthCallback(nickname);
+          } else {
+            clerk.openSignIn({});
+          }
+
           registrationInProgress.current = false;
           setIsProcessing(false);
           return;

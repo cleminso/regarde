@@ -4,7 +4,7 @@ import { BaseHookProps } from './types';
 type UseContactProps = BaseHookProps;
 
 export function useContact({ profile, triggerSyncIndicator }: UseContactProps) {
-  const updateSocialLink = (
+  const updateSocialLink = async (
     field: 'github' | 'twitter' | 'website',
     value: string,
   ) => {
@@ -29,7 +29,7 @@ export function useContact({ profile, triggerSyncIndicator }: UseContactProps) {
       ) {
         profile.socialLinks = undefined;
       }
-      triggerSyncIndicator(profile); 
+      await triggerSyncIndicator(profile); 
     }
   };
 

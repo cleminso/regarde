@@ -1,10 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
-import {
-  ListOfProjects,
-  Project,
-} from '../schema';
-
+import { ListOfProjects, Project } from '../schema';
 import { BaseHookProps } from './types';
 
 type UseProjectProps = BaseHookProps;
@@ -17,15 +13,13 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
     return profile.projects;
   };
 
-  const addProject = (
-    projectData: {
-      title: string;
-      year: string;
-      client?: string;
-      link?: string;
-      description?: string;
-    }
-  ): Loaded<typeof Project> | undefined => {
+  const addProject = async (projectData: {
+    title: string;
+    year: string;
+    client?: string;
+    link?: string;
+    description?: string;
+  }): Promise<Loaded<typeof Project> | undefined> => {
     const projectsList = ensureProjectsList();
     if (!projectsList) return undefined;
 
@@ -47,11 +41,11 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
       { owner: listOwner },
     );
     projectsList.push(newProject);
-    triggerSyncIndicator(profile);
+    await triggerSyncIndicator(profile);
     return newProject;
   };
 
-  const updateProject = (
+  const updateProject = async (
     projectToUpdate: Loaded<typeof Project>,
     projectData: {
       title: string;
@@ -59,7 +53,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
       client?: string;
       link?: string;
       description?: string;
-    }
+    },
   ) => {
     if (!projectToUpdate) {
       console.error('Project instance not provided for update.');
@@ -106,11 +100,11 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
     }
 
     if (changed) {
-      triggerSyncIndicator(profile);
+      await triggerSyncIndicator(profile);
     }
   };
 
-  const deleteProject = (projectId: string) => {
+  const deleteProject = async (projectId: string) => {
     const projectsList = profile.projects;
     if (!projectsList) {
       console.warn('No projects list to delete from.');
@@ -122,7 +116,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
 
     if (projectIndex !== -1) {
       projectsList.splice(projectIndex, 1);
-      triggerSyncIndicator(profile);
+      await triggerSyncIndicator(profile);
     } else {
       console.error(`Project with id ${projectId} not found for deletion.`);
     }

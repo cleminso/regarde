@@ -2,11 +2,11 @@ import { Loaded } from 'jazz-tools';
 import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
-import type { Certification, CleanLoadedJazzAppProfile } from '#/lib/schema';
+import type { Certification, JazzAppProfile } from '#/lib/schema';
 import { formatDateRange, formatYearString, getValidUrl } from '#/lib/utils';
 
 type CertificationsProps = {
-  profile: CleanLoadedJazzAppProfile;
+  profile: Loaded<typeof JazzAppProfile>;
 };
 
 export function Certifications({ profile }: CertificationsProps) {

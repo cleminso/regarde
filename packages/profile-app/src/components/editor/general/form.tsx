@@ -1,6 +1,7 @@
 import { Loaded } from 'jazz-tools';
 import { useEffect } from 'react';
 
+import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useGeneral } from '#/lib/hook/useGeneral';
 import { JazzAppProfile } from '#/lib/schema';
 import { Input, Label, Textarea } from '../../ui';
@@ -11,7 +12,7 @@ import { AvatarUpload } from './avatarUpload';
 
 type GeneralEditProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: (profileObject?: any) => void;
+  triggerSyncIndicator: TriggerSyncIndicator;
   onCloseEditor: () => void;
   accountId: string;
 };

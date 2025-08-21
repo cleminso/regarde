@@ -1,9 +1,10 @@
 import * as AvatarPrimitive from '@radix-ui/react-avatar';
+import { Loaded } from 'jazz-tools';
 import * as React from 'react';
 import { cn } from 'src/lib/utils';
 
 import { useDefaultAvatar } from '#/lib/hook/useDefaultAvatar';
-import { type CleanLoadedJazzAppProfile } from '#/lib/schema';
+import { type JazzAppProfile } from '#/lib/schema';
 
 function Avatar({
   className,
@@ -56,7 +57,7 @@ function ProfileAvatar({
   size = 96,
   ...props
 }: {
-  profile: CleanLoadedJazzAppProfile;
+  profile: Loaded<typeof JazzAppProfile>;
   className?: string;
   size?: number;
 } & React.ComponentProps<typeof AvatarPrimitive.Root>) {

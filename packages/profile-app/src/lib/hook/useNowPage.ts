@@ -1,8 +1,6 @@
-import {
-  NowPage,
-
-} from '@onboarding.jazz/shared-schemas';
+import { NowPage } from '@onboarding.jazz/shared-schemas';
 import { useCallback } from 'react';
+
 import { BaseHookProps } from './types';
 
 type UseNowPageProps = BaseHookProps;
@@ -12,7 +10,11 @@ export function useNowPage({ profile, triggerSyncIndicator }: UseNowPageProps) {
   const hasNowPage = Boolean(nowPage);
 
   const updateNowPage = useCallback(
-    (data: { title?: string; location?: string; description: string }) => {
+    async (data: {
+      title?: string;
+      location?: string;
+      description: string;
+    }) => {
       const profileOwner = profile._owner;
       if (!profileOwner) return;
 
@@ -33,7 +35,7 @@ export function useNowPage({ profile, triggerSyncIndicator }: UseNowPageProps) {
         profile.nowPage.lastUpdated = Date.now();
       }
 
-      triggerSyncIndicator(profile);
+      await triggerSyncIndicator(profile);
     },
     [profile, triggerSyncIndicator],
   );

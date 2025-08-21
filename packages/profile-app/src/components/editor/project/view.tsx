@@ -2,6 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useProject } from '#/lib/hook/useProject.ts';
 import { JazzAppProfile, ListOfProjects, Project } from '#/lib/schema';
 import { EditorFooter } from '../index';
@@ -10,7 +11,7 @@ import { ProjectCard } from './card';
 
 type ProjectViewProps = {
   profile: Loaded<typeof JazzAppProfile>;
-  triggerSyncIndicator: (profileObject?: any) => void;
+  triggerSyncIndicator: TriggerSyncIndicator;
   projects: Loaded<typeof ListOfProjects> | undefined;
   onAddProject: () => void;
   onEditProject: (project: Loaded<typeof Project>) => void;

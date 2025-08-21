@@ -2,11 +2,11 @@ import { Loaded } from 'jazz-tools';
 import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
-import type { CleanLoadedJazzAppProfile, Writing } from '#/lib/schema';
+import type { JazzAppProfile, Writing } from '#/lib/schema';
 import { formatYearString, getValidUrl } from '#/lib/utils';
 
 type WritingsProps = {
-  profile: CleanLoadedJazzAppProfile;
+  profile: Loaded<typeof JazzAppProfile>;
 };
 
 export function Writings({ profile }: WritingsProps) {

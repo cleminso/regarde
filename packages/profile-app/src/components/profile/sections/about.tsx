@@ -1,8 +1,10 @@
-import { type CleanLoadedJazzAppProfile } from '#/lib/schema';
+import { Loaded } from 'jazz-tools';
+
+import { JazzAppProfile } from '#/lib/schema';
 import { Contact } from './contact';
 
 type AboutProps = {
-  profile: CleanLoadedJazzAppProfile;
+  profile: Loaded<typeof JazzAppProfile>;
 };
 
 export function About({ profile }: AboutProps) {

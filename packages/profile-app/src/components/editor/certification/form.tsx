@@ -1,8 +1,9 @@
 import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
+import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useCertification } from '#/lib/hook/useCertification';
-import { Certification, type CleanLoadedJazzAppProfile } from '#/lib/schema';
+import { Certification, JazzAppProfile } from '#/lib/schema';
 import { getValidUrl } from '#/lib/utils';
 import { Input, Label, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
@@ -10,8 +11,8 @@ import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
 
 type CertificationEditProps = {
-  profile: CleanLoadedJazzAppProfile;
-  triggerSyncIndicator: (profileObject?: any) => void;
+  profile: Loaded<typeof JazzAppProfile>;
+  triggerSyncIndicator: TriggerSyncIndicator;
   onDoneEditing: () => void;
   certificationToEdit?: Loaded<typeof Certification>;
 };

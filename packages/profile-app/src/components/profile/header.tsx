@@ -1,3 +1,4 @@
+import { Loaded } from 'jazz-tools';
 import { useIsAuthenticated } from 'jazz-tools/react';
 import { MoreHorizontalIcon } from 'lucide-react';
 import { useNavigate } from 'react-router';
@@ -10,11 +11,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu';
-import { type CleanLoadedJazzAppProfile } from '#/lib/schema';
+import { JazzAppProfile } from '#/lib/schema';
 import { createNicknameUrl } from '#/lib/utils';
 
 type ProfileHeaderProps = {
-  profile: CleanLoadedJazzAppProfile;
+  profile: Loaded<typeof JazzAppProfile>;
 };
 
 export function ProfileHeader({ profile }: ProfileHeaderProps) {
@@ -33,7 +34,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
       style={{ width: '540px' }}
     >
       <ProfileAvatar profile={profile} size={92} className="flex-shrink-0" />
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-row w-full gap-3">
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font">{profile.name}</h2>
           <p className="text-sm text-foreground">
@@ -41,7 +42,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
           </p>
         </div>
       </div>
-      <div className="flex flex-col w-full h-full">
+      <div className="flex flex-col h-full">
         <div className="flex justify-end my-2">
           {isAuthenticated && (
             <DropdownMenu>

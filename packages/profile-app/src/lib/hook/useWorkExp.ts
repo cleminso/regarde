@@ -1,11 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
-import {
-  ListOfWorkExp,
-  WorkExp,
-
-} from '../schema';
-
+import { ListOfWorkExp, WorkExp } from '../schema';
 import { BaseHookProps } from './types';
 
 type UseWorkExpProps = BaseHookProps;
@@ -21,17 +16,15 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
     return profile.workExp;
   };
 
-  const addWorkExp = (
-    workExpData: {
-      title: string;
-      company: string;
-      location?: string;
-      url?: string;
-      description?: string;
-      from: string;
-      to?: string;
-    }
-  ): Loaded<typeof WorkExp> | undefined => {
+  const addWorkExp = async (workExpData: {
+    title: string;
+    company: string;
+    location?: string;
+    url?: string;
+    description?: string;
+    from: string;
+    to?: string;
+  }): Promise<Loaded<typeof WorkExp> | undefined> => {
     const workExpList = ensureWorkExpList();
     if (!workExpList) return undefined;
 
@@ -50,11 +43,11 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
       { owner: listOwner },
     );
     workExpList.push(newWorkExp);
-    triggerSyncIndicator(profile);
+    await triggerSyncIndicator(profile);
     return newWorkExp;
   };
 
-  const updateWorkExp = (
+  const updateWorkExp = async (
     workExpToUpdate: Loaded<typeof WorkExp>,
     workExpData: {
       title: string;
@@ -64,7 +57,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
       description?: string;
       from: string;
       to?: string;
-    }
+    },
   ) => {
     if (!workExpToUpdate) {
       console.error('Work experience instance not provided for update.');
@@ -126,11 +119,11 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
     }
 
     if (changed) {
-      triggerSyncIndicator(profile);
+      await triggerSyncIndicator(profile);
     }
   };
 
-  const deleteWorkExp = (workExpId: string) => {
+  const deleteWorkExp = async (workExpId: string) => {
     const workExpList = profile.workExp;
     if (!workExpList) {
       console.warn('No work experiences list to delete from.');
@@ -142,7 +135,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
 
     if (workExpIndex !== -1) {
       workExpList.splice(workExpIndex, 1);
-      triggerSyncIndicator();
+      await triggerSyncIndicator(profile);
     } else {
       console.error(
         `Work experience with id ${workExpId} not found for deletion.`,

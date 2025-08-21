@@ -13,15 +13,13 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
     return profile.award;
   };
 
-  const addAward = (
-    awardData: {
-      title: string;
-      year: string;
-      presenter: string;
-      url?: string;
-      description?: string;
-    }
-  ): Loaded<typeof Award> | undefined => {
+  const addAward = async (awardData: {
+    title: string;
+    year: string;
+    presenter: string;
+    url?: string;
+    description?: string;
+  }): Promise<Loaded<typeof Award> | undefined> => {
     const awardsList = ensureAwardsList();
     if (!awardsList) return undefined;
 
@@ -43,11 +41,11 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
       { owner: listOwner },
     );
     awardsList.push(newAward);
-    triggerSyncIndicator(profile);
+    await triggerSyncIndicator(profile);
     return newAward;
   };
 
-  const updateAward = (
+  const updateAward = async (
     awardToUpdate: Loaded<typeof Award>,
     awardData: {
       title: string;
@@ -55,7 +53,7 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
       presenter: string;
       url?: string;
       description?: string;
-    }
+    },
   ) => {
     if (!awardToUpdate) {
       console.error('Award instance not provided for update.');
@@ -100,11 +98,11 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
     }
 
     if (changed) {
-      triggerSyncIndicator(profile);
+      await triggerSyncIndicator(profile);
     }
   };
 
-  const deleteAward = (awardId: string) => {
+  const deleteAward = async (awardId: string) => {
     const awardsList = profile.award;
     if (!awardsList) {
       console.warn('No award list to delete from.');
@@ -114,7 +112,7 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
 
     if (awardIndex !== -1) {
       awardsList.splice(awardIndex, 1);
-      triggerSyncIndicator(profile);
+      await triggerSyncIndicator(profile);
     } else {
       console.error(`Award with id ${awardId} not found for deletion.`);
     }

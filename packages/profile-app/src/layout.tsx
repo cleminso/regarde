@@ -16,13 +16,7 @@ export function AppLayout() {
           <nav className="@container-normal flex justify-end items-center py-4 mx-16">
             <div className="flex items-center gap-4">
               {isAuthenticated ? (
-                <span>
-                  {account === undefined
-                    ? 'Loading...'
-                    : account?.profile?.name
-                      ? `Hello, ${account.profile.name}`
-                      : 'Logged In'}
-                </span>
+                <span>{account === undefined}</span>
               ) : (
                 <span></span>
               )}

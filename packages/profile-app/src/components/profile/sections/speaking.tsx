@@ -2,11 +2,11 @@ import { Loaded } from 'jazz-tools';
 import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
-import type { CleanLoadedJazzAppProfile, Speaking } from '#/lib/schema';
+import type { JazzAppProfile, Speaking } from '#/lib/schema';
 import { formatYearString, getValidUrl } from '#/lib/utils';
 
 type SpeakingsProps = {
-  profile: CleanLoadedJazzAppProfile;
+  profile: Loaded<typeof JazzAppProfile>;
 };
 
 export function Speakings({ profile }: SpeakingsProps) {
