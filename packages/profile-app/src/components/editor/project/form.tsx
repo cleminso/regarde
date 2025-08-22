@@ -5,7 +5,7 @@ import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useProject } from '#/lib/hook/useProject';
 import { JazzAppProfile, Project } from '#/lib/schema';
 import { getValidUrl } from '#/lib/utils';
-import { Input, Label, Textarea } from '../../ui/index';
+import { Input, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
@@ -86,9 +86,9 @@ export function ProjectEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="project-title">
+                <label className="text-sm font-sans block text-foreground">
                   Title<sup>*</sup>
-                </Label>
+                </label>
                 <Input
                   type="text"
                   id="project-title"
@@ -99,9 +99,9 @@ export function ProjectEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="project-year">
+                <label className="text-sm font-sans block text-foreground">
                   Year<sup>*</sup>
-                </Label>
+                </label>
                 <SelectorDate
                   id="project-year"
                   value={year}
@@ -121,7 +121,9 @@ export function ProjectEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="project-client">Company or client</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  Company or client
+                </label>
                 <Input
                   type="text"
                   id="project-client"
@@ -132,7 +134,9 @@ export function ProjectEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="project-link">Link to project</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  Link to project
+                </label>
                 <Input
                   type="text"
                   id="project-link"
@@ -146,7 +150,9 @@ export function ProjectEdit({
 
           <section>
             <div className="flex flex-col gap-2 w-full">
-              <Label htmlFor="project-description">Description</Label>
+              <label className="text-sm font-sans block text-foreground">
+                Description
+              </label>
               <Textarea
                 id="project-description"
                 value={description}

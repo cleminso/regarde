@@ -1,3 +1,4 @@
+
 import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
@@ -5,7 +6,7 @@ import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useWorkExp } from '#/lib/hook/useWorkExp';
 import type { JazzAppProfile, WorkExp } from '#/lib/schema';
 import { getValidUrl } from '#/lib/utils';
-import { Input, Label, Textarea } from '../../ui/index';
+import { Input, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
@@ -94,9 +95,9 @@ export function WorkExpEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="work-from-date">
+                <label className="text-sm font-sans block text-foreground">
                   From<sup>*</sup>
-                </Label>
+                </label>
                 <SelectorDate
                   id="work-from-date"
                   value={fromDate}
@@ -111,7 +112,9 @@ export function WorkExpEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="work-to-date">To</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  To
+                </label>
                 <SelectorDate
                   id="work-to-date"
                   value={toDate}
@@ -126,9 +129,9 @@ export function WorkExpEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="work-title">
+                <label className="text-sm font-sans block text-foreground">
                   Title<sup>*</sup>
-                </Label>
+                </label>
                 <Input
                   type="text"
                   id="work-title"
@@ -139,9 +142,9 @@ export function WorkExpEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="work-company">
-                  At Company<sup>*</sup>
-                </Label>
+                <label className="text-sm font-sans block text-foreground">
+                  Company<sup>*</sup>
+                </label>
                 <Input
                   type="text"
                   id="work-company"
@@ -156,7 +159,9 @@ export function WorkExpEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="work-location">Location</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  Location
+                </label>
                 <Input
                   type="text"
                   id="work-location"
@@ -167,7 +172,9 @@ export function WorkExpEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="work-url">URL</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  URL
+                </label>
                 <Input
                   type="text"
                   id="work-url"
@@ -181,7 +188,9 @@ export function WorkExpEdit({
 
           <section>
             <div className="flex flex-col gap-2 w-full">
-              <Label htmlFor="work-description">Description</Label>
+              <label className="text-sm font-sans block text-foreground">
+                Description
+              </label>
               <Textarea
                 id="work-description"
                 value={description}

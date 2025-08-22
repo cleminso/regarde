@@ -64,7 +64,7 @@ export function ProjectView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <SectionHeader
           title="Projects"
           description="Showcase your projects and contributions."
@@ -101,7 +101,7 @@ export function ProjectView({
         )}
       </div>
 
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

@@ -5,7 +5,7 @@ import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useSideProject } from '#/lib/hook/useSideProject';
 import { JazzAppProfile, SideProject } from '#/lib/schema';
 import { getValidUrl } from '#/lib/utils';
-import { Input, Label, Textarea } from '../../ui/index';
+import { Input, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
@@ -86,9 +86,9 @@ export function SideProjectEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="side-project-title">
+                <label className="text-sm font-sans block text-foreground">
                   Title<sup>*</sup>
-                </Label>
+                </label>
                 <Input
                   type="text"
                   id="side-project-title"
@@ -99,9 +99,9 @@ export function SideProjectEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="side-project-year">
+                <label className="text-sm font-sans block text-foreground">
                   Year<sup>*</sup>
-                </Label>
+                </label>
                 <SelectorDate
                   id="side-project-year"
                   value={year}
@@ -120,7 +120,9 @@ export function SideProjectEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="side-project-client">Company or client</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  Company or client
+                </label>
                 <Input
                   type="text"
                   id="side-project-client"
@@ -131,7 +133,9 @@ export function SideProjectEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="side-project-url">Link to project</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  Link to project
+                </label>
                 <Input
                   type="text"
                   id="side-project-url"
@@ -145,7 +149,9 @@ export function SideProjectEdit({
 
           <section>
             <div className="flex flex-col gap-2 w-full">
-              <Label htmlFor="side-project-description">Description</Label>
+              <label className="text-sm font-sans block text-foreground">
+                Description
+              </label>
               <Textarea
                 id="side-project-description"
                 value={description}

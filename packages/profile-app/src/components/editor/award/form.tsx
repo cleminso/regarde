@@ -1,10 +1,11 @@
+
 import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
 import { useAward } from '#/lib/hook/useAward';
 import { Award, JazzAppProfile } from '#/lib/schema';
 import { getValidUrl } from '#/lib/utils';
-import { Input, Label, Textarea } from '../../ui/index';
+import { Input, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
@@ -86,9 +87,9 @@ export function AwardEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="award-title">
+                <label className="text-sm font-sans block text-foreground">
                   Award Title<sup>*</sup>
-                </Label>
+                </label>
                 <Input
                   type="text"
                   id="award-title"
@@ -99,9 +100,9 @@ export function AwardEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="award-year">
+                <label className="text-sm font-sans block text-foreground">
                   Year<sup>*</sup>
-                </Label>
+                </label>
                 <SelectorDate
                   id="award-year"
                   value={year}
@@ -120,9 +121,9 @@ export function AwardEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="award-presenter">
+                <label className="text-sm font-sans block text-foreground">
                   Presenter<sup>*</sup>
-                </Label>
+                </label>
                 <Input
                   type="text"
                   id="award-presenter"
@@ -133,7 +134,9 @@ export function AwardEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="award-url">Link to award</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  Link to award
+                </label>
                 <Input
                   type="text"
                   id="award-url"
@@ -147,7 +150,9 @@ export function AwardEdit({
 
           <section>
             <div className="flex flex-col gap-2 w-full">
-              <Label htmlFor="award-description">Description</Label>
+              <label className="text-sm font-sans block text-foreground">
+                Description
+              </label>
               <Textarea
                 id="award-description"
                 value={description}

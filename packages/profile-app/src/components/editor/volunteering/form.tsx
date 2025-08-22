@@ -1,3 +1,4 @@
+
 import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
@@ -94,9 +95,9 @@ export function VolunteeringEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="volunteering-from-date">
+                <label className="text-sm font-sans block text-foreground">
                   From<sup>*</sup>
-                </Label>
+                </label>
                 <SelectorDate
                   id="volunteering-from-date"
                   value={fromDate}
@@ -126,9 +127,9 @@ export function VolunteeringEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="volunteering-title">
+                <label className="text-sm font-sans block text-foreground">
                   Title<sup>*</sup>
-                </Label>
+                </label>
                 <Input
                   type="text"
                   id="volunteering-title"
@@ -139,9 +140,9 @@ export function VolunteeringEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="volunteering-organization">
+                <label className="text-sm font-sans block text-foreground">
                   At Organization<sup>*</sup>
-                </Label>
+                </label>
                 <Input
                   type="text"
                   id="volunteering-organization"

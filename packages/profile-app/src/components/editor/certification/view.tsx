@@ -77,7 +77,7 @@ export function CertificationView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <SectionHeader
           title="Certifications"
           description="Showcase your professional certifications and credentials."
@@ -116,7 +116,7 @@ export function CertificationView({
         )}
       </div>
 
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

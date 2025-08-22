@@ -64,7 +64,7 @@ export function WritingView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <SectionHeader
           title="Writing"
           description="Share your published articles, papers, and other."
@@ -101,7 +101,7 @@ export function WritingView({
         )}
       </div>
 
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

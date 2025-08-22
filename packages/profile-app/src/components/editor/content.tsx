@@ -247,7 +247,7 @@ export function ProfileEditor() {
         />
       }
       mainContent={
-        <div className="w-[75%] flex flex-col p-6 overflow-y-auto overflow-x-hidden">
+        <div className="w-[75%] bg-card flex flex-col p-6 overflow-y-auto overflow-x-hidden">
           <>
             {activeSection === editorSections.general && (
               <GeneralEdit

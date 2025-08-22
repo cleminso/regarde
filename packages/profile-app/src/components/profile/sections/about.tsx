@@ -25,7 +25,7 @@ export function About({ profile }: AboutProps) {
     >
       {profile.bio && (
         <div>
-          <p className="text-sm text-secondary-foreground whitespace-pre-line">
+          <p className="text-sm text-muted-foreground whitespace-pre-line">
             {profile.bio}
           </p>
         </div>

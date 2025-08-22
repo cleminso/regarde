@@ -5,7 +5,7 @@ import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useEducation } from '#/lib/hook/useEducation';
 import { Education, JazzAppProfile } from '#/lib/schema';
 import { getValidUrl } from '#/lib/utils';
-import { Input, Label, Textarea } from '../../ui/index';
+import { Input, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
@@ -94,9 +94,9 @@ export function EducationEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="education-from-date">
+                <label className="text-sm font-sans block text-foreground">
                   From<sup>*</sup>
-                </Label>
+                </label>
                 <SelectorDate
                   id="education-from-date"
                   value={fromDate}
@@ -111,7 +111,9 @@ export function EducationEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="education-to-date">To</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  To
+                </label>
                 <SelectorDate
                   id="education-to-date"
                   value={toDate}
@@ -126,9 +128,9 @@ export function EducationEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="education-degree">
+                <label className="text-sm font-sans block text-foreground">
                   Degree<sup>*</sup>
-                </Label>
+                </label>
                 <Input
                   type="text"
                   id="education-degree"
@@ -139,9 +141,9 @@ export function EducationEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="education-institution">
+                <label className="text-sm font-sans block text-foreground">
                   Institution<sup>*</sup>
-                </Label>
+                </label>
                 <Input
                   type="text"
                   id="education-institution"
@@ -156,7 +158,9 @@ export function EducationEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="education-location">Location</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  Location
+                </label>
                 <Input
                   type="text"
                   id="education-location"
@@ -167,7 +171,9 @@ export function EducationEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="education-url">URL</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  URL
+                </label>
                 <Input
                   type="text"
                   id="education-url"
@@ -181,7 +187,9 @@ export function EducationEdit({
 
           <section>
             <div className="flex flex-col gap-2 w-full">
-              <Label htmlFor="education-description">Description</Label>
+              <label className="text-sm font-sans block text-foreground">
+                Description
+              </label>
               <Textarea
                 id="education-description"
                 value={description}

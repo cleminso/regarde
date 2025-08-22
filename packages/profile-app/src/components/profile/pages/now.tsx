@@ -21,13 +21,13 @@ export function NowPage({ profile }: NowPageProps) {
             <p className="text-sm text-foreground">
               This person hasn't shared what they're doing now.
             </p>
-            <p className="text-xs text-secondary-foreground mt-2">
+            <p className="text-xs text-muted-foreground mt-2">
               Learn more about{' '}
               <a
                 href="https://nownownow.com/about"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-secondary-foreground underline hover:text-foreground hover:underline"
+                className="text-muted-foreground underline hover:text-foreground hover:underline"
               >
                 now page
               </a>
@@ -57,7 +57,7 @@ export function NowPage({ profile }: NowPageProps) {
         </div>
 
         <div className="prose prose-sm max-w-none">
-          <p className="text-sm text-secondary-foreground whitespace-pre-line leading-relaxed">
+          <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
             {nowPage.description}
           </p>
         </div>
@@ -69,7 +69,7 @@ export function NowPage({ profile }: NowPageProps) {
               href="https://nownownow.com/about"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-secondary-foreground underline underline-offset-3 hover:text-foreground hover:underline"
+              className="text-muted-foreground underline underline-offset-3 hover:text-foreground hover:underline"
             >
               now page
             </a>

@@ -35,7 +35,7 @@ export function ProfileTabs({
               'hover:text-foreground',
               activeTab === tab.id
                 ? 'text-foreground'
-                : 'text-secondary-foreground',
+                : 'text-muted-foreground',
             )}
             aria-current={activeTab === tab.id ? 'page' : undefined}
           >

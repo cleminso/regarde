@@ -29,9 +29,7 @@ export function SectionHeader({
       <div className="flex-grow">
         <h3 className="text-lg font-medium text-foreground">{title}</h3>
         {description && (
-          <p className="text-sm text-secondary-foreground mt-1">
-            {description}
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">{description}</p>
         )}
       </div>
       {hasAction && (

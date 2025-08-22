@@ -5,7 +5,7 @@ import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useCertification } from '#/lib/hook/useCertification';
 import { Certification, JazzAppProfile } from '#/lib/schema';
 import { getValidUrl } from '#/lib/utils';
-import { Input, Label, Textarea } from '../../ui/index';
+import { Input, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
@@ -90,9 +90,10 @@ export function CertificationEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="cert-issued-date">
-                  Issued<sup>*</sup>
-                </Label>
+                <label className="text-sm font-sans block text-foreground">
+                  Issued
+                  <sup>*</sup>
+                </label>
                 <SelectorDate
                   id="cert-issued-date"
                   value={issuedDate}
@@ -107,7 +108,9 @@ export function CertificationEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="cert-expire-date">Expires</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  Expires
+                </label>
                 <SelectorDate
                   id="cert-expire-date"
                   value={expireDate}
@@ -122,9 +125,10 @@ export function CertificationEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="cert-name">
-                  Name<sup>*</sup>
-                </Label>
+                <label className="text-sm font-sans block text-foreground">
+                  Name
+                  <sup>*</sup>
+                </label>
                 <Input
                   type="text"
                   id="cert-name"
@@ -135,9 +139,10 @@ export function CertificationEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="cert-organization">
-                  Organization<sup>*</sup>
-                </Label>
+                <label className="text-sm font-sans block text-foreground">
+                  Organization
+                  <sup>*</sup>
+                </label>
                 <Input
                   type="text"
                   id="cert-organization"
@@ -151,7 +156,9 @@ export function CertificationEdit({
 
           <section>
             <div className="flex flex-col gap-2 w-full">
-              <Label htmlFor="cert-url">URL</Label>
+              <label className="text-sm font-sans block text-foreground">
+                URL
+              </label>
               <Input
                 type="text"
                 id="cert-url"
@@ -164,7 +171,9 @@ export function CertificationEdit({
 
           <section>
             <div className="flex flex-col gap-2 w-full">
-              <Label htmlFor="cert-description">Description</Label>
+              <label className="text-sm font-sans block text-foreground">
+                Description
+              </label>
               <Textarea
                 id="cert-description"
                 value={description}

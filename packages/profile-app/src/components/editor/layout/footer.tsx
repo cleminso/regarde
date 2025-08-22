@@ -30,20 +30,12 @@ export function EditorFooter({
       )}
     >
       {secondaryAction && (
-        <Button
-          variant="ghost"
-          className="!bg-transparent !text-foreground cursor-pointer"
-          onClick={secondaryAction.onClick}
-        >
+        <Button variant="ghost" onClick={secondaryAction.onClick}>
           {secondaryAction.text}
         </Button>
       )}
       {primaryAction && (
-        <Button
-          variant="outline"
-          className="bg-background"
-          onClick={primaryAction.onClick}
-        >
+        <Button variant="default" onClick={primaryAction.onClick}>
           {primaryAction.text}
         </Button>
       )}

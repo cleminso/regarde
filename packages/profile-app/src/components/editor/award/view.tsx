@@ -2,9 +2,9 @@ import { Loaded } from 'jazz-tools';
 import { useState } from 'react';
 
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
+import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useAward } from '#/lib/hook/useAward.ts';
 import { Award, JazzAppProfile, ListOfAward } from '#/lib/schema';
-import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { EditorFooter } from '../index';
 import { SectionHeader } from './../layout/header';
 import { AwardCard } from './card';
@@ -64,7 +64,7 @@ export function AwardView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <SectionHeader
           title="Awards"
           description="Highlight your achievements and recognitions."
@@ -98,7 +98,7 @@ export function AwardView({
         )}
       </div>
 
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

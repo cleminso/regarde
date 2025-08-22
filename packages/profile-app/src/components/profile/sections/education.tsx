@@ -23,7 +23,11 @@ export function Educations({ profile }: EducationsProps) {
       className="mx-auto flex flex-col gap-4 mb-10"
       style={{ width: '540px' }}
     >
-      <h3 className="text-md font-sans">Education</h3>
+      <div className="flex items-center gap-4">
+        <h3 className="bg-secondary w-full px-2 text-md font-sans whitespace-nowrap">
+          Education
+        </h3>
+      </div>
       <div className="space-y-6">
         {educations.map((education: any) => {
           const displayTitle = `${education.degree || 'Degree'} @${
@@ -37,46 +41,45 @@ export function Educations({ profile }: EducationsProps) {
           const institutionLink = getValidUrl(education.url);
 
           return (
-            <div key={education.id} className="flex flex-col gap-4 pb-4 ">
-              <div className="flex flex-row gap-4">
-                <div className="flex flex-col w-24 flex-shrink-0">
-                  <span className="text-sm font-sans text-secondary-foreground">
+            <div key={education.id} className="flex flex-col pb-4 gap-3">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-sans text-muted-foreground">
                     {dateRange}
                   </span>
                 </div>
-                <div className="flex flex-col flex-grow gap-0.5">
-                  <div>
+                <div className="flex flex-col gap-1">
+                  <div className="min-w-0 flex-1">
                     {institutionLink ? (
                       <Button
                         variant="link-title"
                         asChild
                         size="title"
-                        className="inline-flex items-center group -mx-1"
+                        className="inline-flex items-center group -mx-1 justify-start overflow-hidden"
                       >
                         <a
                           href={institutionLink}
                           target="_blank"
                           rel="noopener noreferrer"
+                          className="min-w-0 flex items-center gap-1 max-w-full"
                         >
-                          {displayTitle}
-                          <ArrowUpRight className="h-4 w-4 ml-1" />
+                          <span className="truncate">{displayTitle}</span>
+                          <ArrowUpRight className="h-4 w-4 flex-shrink-0" />
                         </a>
                       </Button>
                     ) : (
-                      <Button variant="link-title" disabled size="title">
-                        {displayTitle}
+                      <Button
+                        variant="link-title"
+                        disabled
+                        size="title"
+                        className="justify-start overflow-hidden -mx-1 max-w-full"
+                      >
+                        <span className="truncate">{displayTitle}</span>
                       </Button>
                     )}
                   </div>
-                  {education.location && (
-                    <div className="mb-2">
-                      <span className="text-sm text-secondary-foreground">
-                        {education.location}
-                      </span>
-                    </div>
-                  )}
                   {education.description && (
-                    <p className="text-sm text-secondary-foreground whitespace-pre-line">
+                    <p className="text-sm text-muted-foreground whitespace-pre-line break-words pr-1">
                       {education.description}
                     </p>
                   )}

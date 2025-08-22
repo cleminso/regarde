@@ -167,9 +167,7 @@ export function CustomAuthModal({
           <div className="flex items-center justify-center p-6">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-2 text-secondary-foreground font-mono">
-                Loading...
-              </p>
+              <p className="mt-2 text-muted-foreground font-mono">Loading...</p>
             </div>
           </div>
         </DialogContent>
@@ -188,7 +186,7 @@ export function CustomAuthModal({
                 ? 'Login'
                 : 'Create your account'}
           </DialogTitle>
-          <DialogDescription className="text-secondary-foreground font-mono">
+          <DialogDescription className="text-muted-foreground font-mono">
             {pendingVerification ? (
               `We sent a verification code to ${email}`
             ) : initialMode === 'login' ? (
@@ -296,7 +294,8 @@ export function CustomAuthModal({
 
                 <Button
                   type="submit"
-                  className="w-full bg-primary text-foreground hover:bg-primary/90 font-mono h-11"
+                  variant="default"
+                  className="w-full text-foreground font-mono h-11"
                   disabled={!email || !password || isLoading}
                 >
                   {isLoading
@@ -309,7 +308,7 @@ export function CustomAuthModal({
 
               {!nicknameContext && (
                 <div className="text-center text-sm">
-                  <span className="text-secondary-foreground font-mono">
+                  <span className="text-muted-foreground font-mono">
                     {initialMode === 'login'
                       ? "Don't have an account? "
                       : 'Already have an account? '}

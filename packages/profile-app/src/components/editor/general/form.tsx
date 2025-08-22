@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useGeneral } from '#/lib/hook/useGeneral';
 import { JazzAppProfile } from '#/lib/schema';
-import { Input, Label, Textarea } from '../../ui';
+import { Input, Textarea } from '../../ui';
 import { NicknameInput } from '../../ui/nicknameInput';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';
@@ -63,7 +63,6 @@ export function GeneralEdit({
               onRemoveAvatar={handleRemoveAvatar}
             />
           </section>
-
           <section>
             <NicknameInput
               value={nickname.nicknameValue}
@@ -87,9 +86,11 @@ export function GeneralEdit({
               }}
             />
           </section>
-
           <section>
-            <Label htmlFor="name">Display Name*</Label>
+            <label className="text-sm font-sans block text-foreground">
+              Display Name
+              <sup>*</sup>
+            </label>
             <Input
               type="text"
               id="name"
@@ -102,15 +103,11 @@ export function GeneralEdit({
 
           <section>
             <div className="flex items-center justify-between">
-              <Label htmlFor="bio">Bio</Label>
+              <label className="text-sm font-sans block text-foreground">
+                Bio
+              </label>
               <span
-                className={`text-sm ${
-                  (profile.bio || '').length >= 240
-                    ? 'text-destructive'
-                    : (profile.bio || '').length >= 200
-                      ? 'text-yellow-600'
-                      : 'text-muted-foreground'
-                }`}
+                className={`text-sm ${(profile.bio || '').length >= 240 ? 'text-destructive' : (profile.bio || '').length >= 200 ? 'text-yellow-600' : 'text-muted-foreground'}`}
               >
                 {(profile.bio || '').length}/240 characters
               </span>

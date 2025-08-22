@@ -19,11 +19,15 @@ export function Writings({ profile }: WritingsProps) {
   }
 
   return (
-    <section
+    <section 
       className="mx-auto flex flex-col gap-4 mb-10"
       style={{ width: '540px' }}
     >
-      <h3 className="text-md font-sans">Writing</h3>
+      <div className="flex items-center gap-4">
+        <h3 className="bg-secondary w-full px-2 text-md font-sans whitespace-nowrap">
+          Writing
+        </h3>
+      </div>
       <div className="space-y-6">
         {writings.map((writing: any) => {
           const displayTitle = writing.publisher
@@ -34,38 +38,44 @@ export function Writings({ profile }: WritingsProps) {
 
           return (
             <div key={writing.id} className="flex flex-col pb-4 gap-3">
-              <div className="flex flex-row gap-4">
-                <div className="flex flex-col w-24 flex-shrink-0">
-                  <span className="text-sm font-sans text-secondary-foreground">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-sans text-muted-foreground">
                     {formatYearString(writing.year)}
                   </span>
                 </div>
-                <div className="flex flex-col flex-grow gap-1">
-                  <div>
+                <div className="flex flex-col gap-1">
+                  <div className="min-w-0 flex-1">
                     {writingLink ? (
                       <Button
                         variant="link-title"
                         asChild
                         size="title"
-                        className="inline-flex items-center group -mx-1"
+                        className="inline-flex items-center group -mx-1 justify-start overflow-hidden"
                       >
                         <a
                           href={writingLink}
                           target="_blank"
                           rel="noopener noreferrer"
+                          className="min-w-0 flex items-center gap-1 max-w-full"
                         >
-                          {displayTitle}
-                          <ArrowUpRight className="h-4 w-4 ml-1" />
+                          <span className="truncate">{displayTitle}</span>
+                          <ArrowUpRight className="h-4 w-4 flex-shrink-0" />
                         </a>
                       </Button>
                     ) : (
-                      <Button variant="link-title" disabled size="title">
-                        {displayTitle}
+                      <Button
+                        variant="link-title"
+                        disabled
+                        size="title"
+                        className="justify-start overflow-hidden -mx-1 max-w-full"
+                      >
+                        <span className="truncate">{displayTitle}</span>
                       </Button>
                     )}
                   </div>
                   {writing.description && (
-                    <p className="text-sm text-secondary-foreground whitespace-pre-line">
+                    <p className="text-sm text-muted-foreground whitespace-pre-line break-words pr-1">
                       {writing.description}
                     </p>
                   )}

@@ -64,7 +64,7 @@ export function SpeakingView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <SectionHeader
           title="Speaking"
           description="Share your speaking engagements and presentations."
@@ -101,7 +101,7 @@ export function SpeakingView({
         )}
       </div>
 
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

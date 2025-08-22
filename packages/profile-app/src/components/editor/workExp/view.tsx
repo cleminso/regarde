@@ -66,7 +66,7 @@ export function WorkExpView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <SectionHeader
           title="Work Experience"
           description="Detail your roles and responsibilities."
@@ -103,7 +103,7 @@ export function WorkExpView({
         )}
       </div>
 
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

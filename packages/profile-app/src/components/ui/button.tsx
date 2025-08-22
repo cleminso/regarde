@@ -10,20 +10,20 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground cursor-pointer',
+          'gap-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 py-2 group bg-primary text-primary-foreground ring-primary before:from-primary-foreground/20 after:from-primary-foreground/10 relative isolate inline-flex w-full items-center justify-center overflow-hidden rounded-md px-3 text-left text-sm font-medium ring-1 transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:opacity-80 before:transition-opacity before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:to-transparent after:mix-blend-overlay',
         secondary:
           'bg-secondary text-secondary-foreground hover:bg-secondary/90 hover:text-secondary-foreground cursor-pointer',
         destructive:
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer',
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-destructive-foreground cursor-pointer',
         success:
           'bg-green-300 text-green-700 hover:bg-green-300/90 hover:text-green-700 cursor-pointer',
         view: 'bg-accent text-accent-foreground hover:bg-accent/90 hover:text-accent-foreground cursor-pointer',
         outline:
-          'border border-input bg-transparent text-foreground hover:bg-background hover:text-foreground cursor-pointer',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-secondary-foreground underline underline-offset-4 rounded-md h-auto px-1 py-0 hover:bg-accent hover:text-accent-foreground hover:no-underline',
+          'border border-input bg-transparent text-foreground hover:bg-secondary hover:text-foreground cursor-pointer',
+        ghost: 'hover:bg-accent hover:text-accent-foreground cursor-pointer',
+        link: 'text-muted-foreground rounded-md h-auto px-1 py-0 hover:bg-accent hover:text-accent-foreground hover:no-underline cursor-pointer',
         'link-title':
-          'text-base font-medium justify-start text-foreground rounded-md no-underline hover:bg-accent hover:text-accent-foreground hover:no-underline disabled:text-foreground disabled:opacity-100 disabled:cursor-default',
+          'text-base font-medium justify-start text-foreground rounded-md no-underline hover:bg-accent hover:text-accent-foreground hover:no-underline disabled:text-foreground disabled:opacity-100 disabled:cursor-default cursor-pointer',
       },
       size: {
         default: 'h-9 px-4 py-2 text-sm',

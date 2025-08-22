@@ -18,30 +18,31 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
 
   return (
     <div className="flex flex-col border-b border-border pb-4 gap-4">
-      <div className="flex flex-row gap-10">
-        <div className="flex flex-col w-21.5 flex-shrink-0">
-          <span className="text-sm text-secondary-foreground">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">
             {project.year === 'ongoing'
               ? 'Ongoing'
               : project.year || 'Year missing'}
           </span>
         </div>
-        <div className="flex flex-col flex-grow gap-2">
+        <div className="flex flex-col gap-2">
           <div>
             {project.link ? (
               <Button
                 variant="link-title"
                 size="title"
                 asChild
-                className="inline-flex items-center group -mx-1"
+                className="inline-flex items-center group -mx-1 justify-start overflow-hidden"
               >
                 <a
                   href={project.link}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="min-w-0 flex items-center gap-1 max-w-full"
                 >
-                  {displayTitle}
-                  <ArrowUpRight className="h-4 w-4 group-hover:opacity-100" />
+                  <span className="truncate">{displayTitle}</span>
+                  <ArrowUpRight className="h-4 w-4 flex-shrink-0 group-hover:opacity-100" />
                 </a>
               </Button>
             ) : (
@@ -49,14 +50,14 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
                 variant="link-title"
                 size="title"
                 disabled
-                className="cursor-default -mx-1"
+                className="cursor-default justify-start overflow-hidden -mx-1"
               >
-                {displayTitle}
+                <span className="truncate">{displayTitle}</span>
               </Button>
             )}
           </div>
           {project.description && (
-            <p className="text-sm text-secondary-foreground whitespace-pre-line">
+            <p className="text-sm text-muted-foreground whitespace-pre-line">
               {project.description}
             </p>
           )}

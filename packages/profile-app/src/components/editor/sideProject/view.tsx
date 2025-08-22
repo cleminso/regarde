@@ -69,7 +69,7 @@ export function SideProjectView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <SectionHeader
           title="Side Projects"
           description="Showcase your personal projects and experiments."
@@ -106,7 +106,7 @@ export function SideProjectView({
         )}
       </div>
 
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

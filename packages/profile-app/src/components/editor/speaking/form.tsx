@@ -5,7 +5,7 @@ import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useSpeaking } from '#/lib/hook/useSpeaking';
 import { JazzAppProfile, Speaking } from '#/lib/schema';
 import { getValidUrl } from '#/lib/utils';
-import { Input, Label, Textarea } from '../../ui/index';
+import { Input, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
@@ -91,9 +91,9 @@ export function SpeakingEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="speaking-title">
+                <label className="text-sm font-sans block text-foreground">
                   Title<sup>*</sup>
-                </Label>
+                </label>
                 <Input
                   type="text"
                   id="speaking-title"
@@ -104,9 +104,9 @@ export function SpeakingEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="speaking-year">
+                <label className="text-sm font-sans block text-foreground">
                   Year<sup>*</sup>
-                </Label>
+                </label>
                 <SelectorDate
                   id="speaking-year"
                   value={year}
@@ -125,7 +125,9 @@ export function SpeakingEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="speaking-event">Event</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  Event
+                </label>
                 <Input
                   type="text"
                   id="speaking-event"
@@ -136,7 +138,9 @@ export function SpeakingEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="speaking-location">Location</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  Location
+                </label>
                 <Input
                   type="text"
                   id="speaking-location"
@@ -150,7 +154,9 @@ export function SpeakingEdit({
 
           <section>
             <div className="flex flex-col gap-2 w-full">
-              <Label htmlFor="speaking-url">URL</Label>
+              <label className="text-sm font-sans block text-foreground">
+                URL
+              </label>
               <Input
                 type="text"
                 id="speaking-url"
@@ -163,7 +169,9 @@ export function SpeakingEdit({
 
           <section>
             <div className="flex flex-col gap-2 w-full">
-              <Label htmlFor="speaking-description">Description</Label>
+              <label className="text-sm font-sans block text-foreground">
+                Description
+              </label>
               <Textarea
                 id="speaking-description"
                 value={description}

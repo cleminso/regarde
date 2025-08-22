@@ -64,7 +64,7 @@ export function EducationView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <SectionHeader
           title="Education"
           description="Showcase your academic background and achievements."
@@ -98,7 +98,7 @@ export function EducationView({
         )}
       </div>
 
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0y">
         <EditorFooter
           primaryAction={{
             text: 'Done',

@@ -24,26 +24,27 @@ export function EducationCard({
 
   return (
     <div className="flex flex-col border-b border-border pb-4 gap-4">
-      <div className="flex flex-row gap-10">
-        <div className="flex flex-col w-21.5 flex-shrink-0">
-          <span className="text-sm text-secondary-foreground">{dateRange}</span>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">{dateRange}</span>
         </div>
-        <div className="flex flex-col flex-grow gap-2">
+        <div className="flex flex-col gap-1">
           <div>
             {education.url ? (
               <Button
                 variant="link-title"
                 size="title"
                 asChild
-                className="inline-flex items-center group -mx-1"
+                className="inline-flex items-center group -mx-1 justify-start overflow-hidden"
               >
                 <a
                   href={education.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="min-w-0 flex items-center gap-1 max-w-full"
                 >
-                  {displayTitle}
-                  <ArrowUpRight className="h-4 w-4 group-hover:opacity-100" />
+                  <span className="truncate">{displayTitle}</span>
+                  <ArrowUpRight className="h-4 w-4 flex-shrink-0 group-hover:opacity-100" />
                 </a>
               </Button>
             ) : (
@@ -51,19 +52,19 @@ export function EducationCard({
                 variant="link-title"
                 size="title"
                 disabled
-                className="cursor-default -mx-1"
+                className="cursor-default justify-start overflow-hidden -mx-1"
               >
-                {displayTitle}
+                <span className="truncate">{displayTitle}</span>
               </Button>
             )}
           </div>
           {education.location && (
-            <div className="text-sm text-secondary-foreground">
+            <div className="text-sm text-muted-foreground">
               {education.location}
             </div>
           )}
           {education.description && (
-            <p className="text-sm text-secondary-foreground whitespace-pre-line">
+            <p className="text-sm text-muted-foreground whitespace-pre-line">
               {education.description}
             </p>
           )}

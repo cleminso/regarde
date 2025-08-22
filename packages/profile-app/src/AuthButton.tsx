@@ -58,7 +58,7 @@ export function AuthButton() {
           Login
         </Button>
         <Button
-          variant="secondary"
+          variant="default"
           onClick={() => {
             setAuthMode('register');
             setShowAuthModal(true);

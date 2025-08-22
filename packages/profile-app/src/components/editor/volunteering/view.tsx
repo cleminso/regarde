@@ -74,7 +74,7 @@ export function VolunteeringView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <SectionHeader
           title="Volunteering"
           description="Share your volunteer work and community involvement."
@@ -113,7 +113,7 @@ export function VolunteeringView({
         )}
       </div>
 
-      <div className="flex-shrink-0 bg-secondary">
+      <div className="flex-shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

@@ -189,9 +189,8 @@ function ProfileContent({ profile }: { profile: LoadedProfile }) {
           availableTabs={availableTabs}
           className="mb-6"
         />
+        {renderTabContent()}
       </div>
-
-      {renderTabContent()}
     </main>
   );
 }

@@ -5,7 +5,7 @@ import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useWriting } from '#/lib/hook/useWriting';
 import type { JazzAppProfile, Writing } from '#/lib/schema';
 import { getValidUrl } from '#/lib/utils';
-import { Input, Label, Textarea } from '../../ui/index';
+import { Input, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
@@ -86,9 +86,9 @@ export function WritingEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="writing-title">
+                <label className="text-sm font-sans block text-foreground">
                   Title<sup>*</sup>
-                </Label>
+                </label>
                 <Input
                   type="text"
                   id="writing-title"
@@ -99,9 +99,9 @@ export function WritingEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="writing-year">
+                <label className="text-sm font-sans block text-foreground">
                   Year<sup>*</sup>
-                </Label>
+                </label>
                 <SelectorDate
                   id="writing-year"
                   value={year}
@@ -120,7 +120,9 @@ export function WritingEdit({
           <section>
             <div className="flex flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="writing-publisher">Publisher</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  Publisher
+                </label>
                 <Input
                   type="text"
                   id="writing-publisher"
@@ -131,7 +133,9 @@ export function WritingEdit({
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="writing-url">URL</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  URL
+                </label>
                 <Input
                   type="text"
                   id="writing-url"
@@ -145,7 +149,9 @@ export function WritingEdit({
 
           <section>
             <div className="flex flex-col gap-2 w-full">
-              <Label htmlFor="writing-description">Description</Label>
+              <label className="text-sm font-sans block text-foreground">
+                Description
+              </label>
               <Textarea
                 id="writing-description"
                 value={description}

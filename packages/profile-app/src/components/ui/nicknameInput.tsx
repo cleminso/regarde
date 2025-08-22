@@ -199,17 +199,21 @@ export function NicknameInput({
   return (
     <div className="space-y-3">
       {label && (
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-sans block text-foreground">
-            {label.text}
-            {label.required && <sup>*</sup>}
-          </label>
-          {errorDisplay.position === 'inline' && renderError()}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-sans block text-foreground">
+              {label.text}
+              {label.required && <sup>*</sup>}
+            </label>
+          </div>
+          {errorDisplay.position === 'inline' && (
+            <div className="text-sm">{renderError()}</div>
+          )}
         </div>
       )}
 
-      <div className="flex items-center bg-background border border-border rounded-md overflow-hidden w-full">
-        <div className="flex items-center px-3 py-3 bg-muted border-r border-border">
+      <div className="flex items-center bg-transparent border border-input rounded-md overflow-hidden w-full">
+        <div className="flex items-center px-3 py-3 bg-secondary border-r border-border">
           <span className="text-sm text-foreground">profile.jazz.dev/</span>
         </div>
         <Input

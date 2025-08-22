@@ -24,8 +24,8 @@ function SidebarButton({ isActive, onClick, children }: SidebarButtonProps) {
       className={cn(
         'w-full justify-start px-6 text-sm font-medium',
         isActive
-          ? 'bg-background text-foreground border-border hover:bg-background hover:text-foreground cursor-pointer'
-          : 'text-foreground hover:bg-background hover:text-foreground cursor-pointer',
+          ? 'bg-secondary text-foreground border-border hover:bg-secondary hover:text-foreground cursor-pointer'
+          : 'text-foreground hover:bg-secondary hover:text-foreground cursor-pointer',
       )}
     >
       {children}
@@ -39,7 +39,7 @@ export function EditorSidebar({
   syncState,
 }: EditorSidebarProps) {
   return (
-    <div className="w-[25%] flex flex-col bg-sidebar pt-6 border-r border-border">
+    <div className="w-[25%] flex flex-col bg-sidebar pt-6 border-r border-sidebar-border">
       <div className="flex items-center justify-between px-6 pb-3">
         <h2 className="text-lg font-sans">Profile</h2>
         <SyncStateBadge syncState={syncState} />
