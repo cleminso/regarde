@@ -1,10 +1,9 @@
-
 import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useVolunteering } from '#/lib/hook/useVolunteering';
-import { getValidUrl } from '#/lib/utils';
+import { getValidUrl } from '#/lib/utils/utils';
 import { JazzAppProfile, Volunteering } from '../../../lib/schema';
 import { Input, Label, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';

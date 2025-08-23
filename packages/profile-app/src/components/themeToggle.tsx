@@ -11,7 +11,12 @@ export function ThemeToggle() {
   };
 
   return (
-    <Button variant="outline" size="icon" onClick={cycleTheme}>
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={cycleTheme}
+      className="touch-hitbox"
+    >
       {theme === 'dark' ? (
         <Moon className="h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
       ) : (

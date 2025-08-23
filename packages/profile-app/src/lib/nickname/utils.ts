@@ -8,10 +8,22 @@ export function isPlaceholderNickname(nickname: string | undefined): boolean {
 // Validates nickname format according to business rules
 // Separate from availability checking for better separation of concerns
 
+import { UserHandle } from "@onboarding.jazz/shared-schemas/nickname";
+
 export function isValidNicknameFormat(nickname: string): boolean {
-  return (
-    nickname.length >= 3 &&
-    nickname.length <= 20 &&
-    /^[a-zA-Z0-9_-]+$/.test(nickname)
-  );
+  try {
+    UserHandle.shape.nickname.parse(nickname);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function getNicknameValidationError(nickname: string): string | null {
+  try {
+    UserHandle.shape.nickname.parse(nickname);
+    return null;
+  } catch (error: any) {
+    return error.message || "Invalid nickname format";
+  }
 }

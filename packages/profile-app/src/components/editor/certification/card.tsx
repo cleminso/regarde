@@ -3,7 +3,7 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import { Certification } from '#/lib/schema';
-import { formatDateRange } from '#/lib/utils';
+import { formatDateRange } from '#/lib/utils/utils';
 import { EditorCardActions } from '../cardActions';
 
 type CertificationCardProps = {

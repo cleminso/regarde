@@ -3,7 +3,7 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import type { JazzAppProfile, Project } from '#/lib/schema';
-import { formatYearString, getValidUrl } from '#/lib/utils';
+import { formatYearString, getValidUrl } from '#/lib/utils/utils';
 
 type ProjectsProps = {
   profile: Loaded<typeof JazzAppProfile>;
@@ -19,12 +19,16 @@ export function Projects({ profile }: ProjectsProps) {
   }
 
   return (
-    <section className="mx-auto flex flex-col gap-4 mb-10" style={{ width: '540px' }}>
+    <section
+      className="mx-auto flex flex-col gap-4 mb-10"
+      style={{ width: '580px' }}
+    >
       <div className="flex items-center gap-4">
-        <h3 className="bg-secondary w-full px-2 text-md font-sans whitespace-nowrap">
-          Projects
+        <h3 className="bg-secondary w-full px-2 py-1 text-md font-sans whitespace-nowrap flex items-center justify-start min-h-[2rem]">
+          PROJECTS
         </h3>
       </div>
+
       <div className="space-y-6">
         {projects.map((project: any) => {
           const displayTitle = project.client

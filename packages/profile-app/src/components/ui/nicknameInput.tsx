@@ -1,9 +1,9 @@
 import { JazzAppProfile } from '@onboarding.jazz/shared-schemas';
 import { Loaded } from 'jazz-tools';
 import { Loader2 } from 'lucide-react';
-import React from 'react';
+import React, { useCallback } from 'react';
 
-import { normalizeNickname } from '../../lib/utils';
+import { normalizeNickname } from '../../lib/utils/utils';
 import { Button, Input } from './../ui';
 
 type ValidationStatus =
@@ -63,6 +63,40 @@ export function NicknameInput({
 }: NicknameInputProps) {
   const hasProfile = profile !== undefined;
 
+  // Keyboard shortcuts handler
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      const isCmdOrCtrl = e.metaKey || e.ctrlKey;
+      const isAlt = e.altKey;
+
+      if (isCmdOrCtrl && e.key === 'Enter' && !e.shiftKey && !isAlt) {
+        e.preventDefault();
+        if (validationStatus === 'available' && onAction && !isProcessing) {
+          const isUnchanged = hasProfile && value === currentNickname;
+          if (!isUnchanged) {
+            onAction(value);
+          }
+        }
+      }
+
+      if (isAlt && e.key === 'Enter' && !e.shiftKey && !isCmdOrCtrl) {
+        e.preventDefault();
+        if (validationStatus === 'taken' && onView) {
+          onView(value);
+        }
+      }
+    },
+    [
+      validationStatus,
+      onAction,
+      onView,
+      value,
+      isProcessing,
+      hasProfile,
+      currentNickname,
+    ],
+  );
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const normalized = normalizeNickname(e.target.value);
     onChange(normalized);
@@ -84,7 +118,7 @@ export function NicknameInput({
   const renderButton = () => {
     if (isProcessing) {
       return (
-        <Button disabled size="sm">
+        <Button disabled size="sm" aria-label="Processing">
           <Loader2 size={16} className="animate-spin" />
         </Button>
       );
@@ -94,7 +128,7 @@ export function NicknameInput({
 
     if (validationStatus === 'checking') {
       return (
-        <Button disabled size="sm">
+        <Button disabled size="sm" aria-label="Checking availability">
           <Loader2 size={16} className="animate-spin" />
         </Button>
       );
@@ -103,7 +137,12 @@ export function NicknameInput({
     if (validationStatus === 'available') {
       if (isUnchanged) {
         return (
-          <Button variant="ghost" size="sm" disabled>
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled
+            aria-label="Current nickname"
+          >
             Current
           </Button>
         );
@@ -114,9 +153,9 @@ export function NicknameInput({
           <Button
             variant="success"
             size="sm"
-            onClick={() => {
-              onAction(value);
-            }}
+            onClick={() => onAction(value)}
+            aria-label={`${actionText} nickname (Cmd+Enter)`}
+            title="Cmd+Enter"
           >
             {actionText}
           </Button>
@@ -127,14 +166,25 @@ export function NicknameInput({
     if (validationStatus === 'taken') {
       if (onView) {
         return (
-          <Button variant="view" size="sm" onClick={() => onView(value)}>
+          <Button
+            variant="view"
+            size="sm"
+            onClick={() => onView(value)}
+            aria-label={`View profile (Alt+Enter)`}
+            title="Alt+Enter"
+          >
             View
           </Button>
         );
       }
 
       return (
-        <Button variant="destructive" size="sm" disabled>
+        <Button
+          variant="destructive"
+          size="sm"
+          disabled
+          aria-label="Nickname is taken"
+        >
           Taken
         </Button>
       );
@@ -142,7 +192,12 @@ export function NicknameInput({
 
     if (validationStatus === 'reserved') {
       return (
-        <Button variant="destructive" size="sm" disabled>
+        <Button
+          variant="destructive"
+          size="sm"
+          disabled
+          aria-label="Nickname is reserved"
+        >
           Reserved
         </Button>
       );
@@ -150,7 +205,12 @@ export function NicknameInput({
 
     if (validationStatus === 'invalid') {
       return (
-        <Button variant="destructive" size="sm" disabled>
+        <Button
+          variant="destructive"
+          size="sm"
+          disabled
+          aria-label="Invalid nickname format"
+        >
           Invalid
         </Button>
       );
@@ -222,9 +282,13 @@ export function NicknameInput({
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
+          onKeyDown={handleKeyDown}
           placeholder={placeholder}
           className="border-0 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1"
           disabled={isInputDisabled}
+          aria-describedby={
+            errorDisplay.position === 'below' ? 'nickname-error' : undefined
+          }
         />
         <div className="flex items-center px-2 min-w-[100px] justify-end">
           {renderButton()}
@@ -232,7 +296,9 @@ export function NicknameInput({
       </div>
 
       {errorDisplay.position === 'below' && (
-        <div className="h-6 text-sm">{renderError()}</div>
+        <div className="h-6 text-sm" id="nickname-error">
+          {renderError()}
+        </div>
       )}
     </div>
   );

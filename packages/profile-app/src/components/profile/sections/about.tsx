@@ -21,7 +21,7 @@ export function About({ profile }: AboutProps) {
   return (
     <section
       className="mx-auto flex flex-col gap-6 mb-10"
-      style={{ width: '540px' }}
+      style={{ width: '580px' }}
     >
       {profile.bio && (
         <div>

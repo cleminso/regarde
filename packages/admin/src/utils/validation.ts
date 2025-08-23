@@ -1,3 +1,5 @@
+import { UserHandle } from "@onboarding.jazz/shared-schemas/nickname";
+
 /**
  * Validation utilities for nicknames and account IDs
  */
@@ -10,19 +12,13 @@ export class ValidationError extends Error {
 }
 
 /**
- * Validates a nickname according to Jazz.tools rules
+ * Validates a nickname using the shared schema
  */
 export function validateNickname(nickname: string): void {
-  if (!nickname || typeof nickname !== "string") {
-    throw new ValidationError("Nickname must be a non-empty string");
-  }
-  if (nickname.length < 3 || nickname.length > 20) {
-    throw new ValidationError("Nickname must be between 3 and 20 characters");
-  }
-  if (!/^[a-zA-Z0-9_-]+$/.test(nickname)) {
-    throw new ValidationError(
-      "Nickname can only contain letters, numbers, underscores, and hyphens",
-    );
+  try {
+    UserHandle.shape.nickname.parse(nickname);
+  } catch (error: any) {
+    throw new ValidationError(error.message || "Invalid nickname format");
   }
 }
 

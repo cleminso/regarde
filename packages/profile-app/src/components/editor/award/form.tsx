@@ -1,15 +1,14 @@
-
 import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
+import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useAward } from '#/lib/hook/useAward';
 import { Award, JazzAppProfile } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils';
+import { getValidUrl } from '#/lib/utils/utils';
 import { Input, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';
 import { SelectorDate } from '../selectorDate';
-import { TriggerSyncIndicator } from '#/lib/hook/types';
 
 type AwardEditProps = {
   profile: Loaded<typeof JazzAppProfile>;

@@ -22,7 +22,7 @@ const SOCIAL_PLATFORMS = {
     },
   },
   twitter: {
-    label: 'X-Twitter',
+    label: 'Twitter (X)',
     buildUrl: (value: string) => {
       if (value.startsWith('http')) return value;
       if (value.includes('x.com/') || value.includes('twitter.com/')) {

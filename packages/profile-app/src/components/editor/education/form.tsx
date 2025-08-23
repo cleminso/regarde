@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useEducation } from '#/lib/hook/useEducation';
 import { Education, JazzAppProfile } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils';
+import { getValidUrl } from '#/lib/utils/utils';
 import { Input, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';

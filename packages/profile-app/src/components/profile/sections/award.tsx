@@ -3,7 +3,7 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import type { Award, JazzAppProfile } from '#/lib/schema';
-import { formatYearString, getValidUrl } from '#/lib/utils';
+import { formatYearString, getValidUrl } from '#/lib/utils/utils';
 
 type AwardsProps = {
   profile: Loaded<typeof JazzAppProfile>;
@@ -21,11 +21,11 @@ export function Awards({ profile }: AwardsProps) {
   return (
     <section
       className="mx-auto flex flex-col gap-4 mb-10"
-      style={{ width: '540px' }}
+      style={{ width: '580px' }}
     >
       <div className="flex items-center gap-4">
-        <h3 className="bg-secondary w-full px-2 text-md font-sans whitespace-nowrap">
-          Awards
+        <h3 className="bg-secondary w-full px-2 py-1 text-md font-sans whitespace-nowrap flex items-center justify-start min-h-[2rem]">
+          AWARDS
         </h3>
       </div>
       <div className="space-y-6">

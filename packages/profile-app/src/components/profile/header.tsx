@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu';
 import { JazzAppProfile } from '#/lib/schema';
-import { createNicknameUrl } from '#/lib/utils';
+import { createNicknameUrl } from '#/lib/utils/utils';
 
 type ProfileHeaderProps = {
   profile: Loaded<typeof JazzAppProfile>;
@@ -31,7 +31,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
   return (
     <section
       className="mx-auto flex flex-row items-start gap-4 mb-10"
-      style={{ width: '540px' }}
+      style={{ width: '580px' }}
     >
       <ProfileAvatar profile={profile} size={92} className="flex-shrink-0" />
       <div className="flex flex-row w-full gap-3">

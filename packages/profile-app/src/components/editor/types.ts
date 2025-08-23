@@ -1,5 +1,6 @@
-import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { Loaded } from 'jazz-tools';
+
+import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { JazzAppProfile } from '#/lib/schema';
 
 export type BaseEditProps = {

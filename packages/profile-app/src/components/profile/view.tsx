@@ -182,7 +182,7 @@ function ProfileContent({ profile }: { profile: LoadedProfile }) {
     <main className="w-full">
       <ProfileHeader profile={profile} />
 
-      <div className="w-full" style={{ maxWidth: '540px', margin: '0 auto' }}>
+      <div className="w-full" style={{ maxWidth: '580px', margin: '0 auto' }}>
         <ProfileTabs
           activeTab={activeTab}
           onTabChange={handleTabChange}

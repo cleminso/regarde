@@ -14,7 +14,7 @@ import {
   WorkExp,
   Writing,
 } from '#/lib/schema.ts';
-import { createNicknameUrl } from '#/lib/utils.ts';
+import { createNicknameUrl } from '#/lib/utils/utils.ts';
 import {
   AwardEdit,
   AwardView,

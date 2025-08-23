@@ -50,6 +50,7 @@ export function AuthButton() {
       <>
         <Button
           variant="outline"
+          size="md"
           onClick={() => {
             setAuthMode('login');
             setShowAuthModal(true);

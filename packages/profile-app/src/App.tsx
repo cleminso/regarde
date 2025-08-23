@@ -6,7 +6,7 @@ import { AuthButton } from './AuthButton.tsx';
 import { LandingNicknameForm } from './components/onboarding/landingNicknameForm.tsx';
 import { ThemeToggle } from './components/themeToggle.tsx';
 import { useClerkOnboarding } from './lib/onboarding/useClerkOnboarding.ts';
-import { createNicknameUrl } from './lib/utils.ts';
+import { createNicknameUrl } from './lib/utils/utils.ts';
 
 export function App() {
   const navigate = useNavigate();

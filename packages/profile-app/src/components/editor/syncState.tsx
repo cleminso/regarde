@@ -5,15 +5,19 @@ type SyncStateBadgeProps = {
 };
 
 export function SyncStateBadge({ syncState }: SyncStateBadgeProps) {
-  const variant = syncState === 'saved' ? 'saved' : 
-                  syncState === 'error' ? 'destructive' : 'syncing';
-  
-  const text = syncState === 'saved' ? 'Saved' : 
-               syncState === 'error' ? 'Sync Error' : 'Syncing';
-  
-  return (
-    <Badge variant={variant}>
-      {text}
-    </Badge>
-  );
+  const variant =
+    syncState === 'saved'
+      ? 'saved'
+      : syncState === 'error'
+        ? 'destructive'
+        : 'syncing';
+
+  const text =
+    syncState === 'saved'
+      ? 'Saved'
+      : syncState === 'error'
+        ? 'Sync Error'
+        : 'Syncing';
+
+  return <Badge variant={variant}>{text}</Badge>;
 }

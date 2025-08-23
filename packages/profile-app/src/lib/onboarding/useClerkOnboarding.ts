@@ -7,7 +7,7 @@ import { useRegistrationKey } from '../account/useRegistrationKey';
 import { checkNicknameAvailability } from '../api/nickname';
 import { registerNicknameWithServer } from '../nickname/services';
 import { isValidNicknameFormat } from '../nickname/utils';
-import { createNicknameUrl } from '../utils';
+import { createNicknameUrl } from '../utils/utils';
 
 const PENDING_NICKNAME_KEY = 'pending-nickname';
 

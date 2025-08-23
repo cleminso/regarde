@@ -1,11 +1,10 @@
-
 import { Loaded } from 'jazz-tools';
 import { useEffect, useState } from 'react';
 
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useWorkExp } from '#/lib/hook/useWorkExp';
 import type { JazzAppProfile, WorkExp } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils';
+import { getValidUrl } from '#/lib/utils/utils';
 import { Input, Textarea } from '../../ui/index';
 import { EditorFooter } from '../layout/footer';
 import { SectionHeader } from '../layout/header';

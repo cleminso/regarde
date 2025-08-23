@@ -2,7 +2,7 @@ import { Loaded } from 'jazz-tools';
 
 import { Button } from '#/components/ui/button';
 import { JazzAppProfile } from '#/lib/schema';
-import { buildSocialLinks } from '#/lib/utils';
+import { buildSocialLinks } from '#/lib/utils/utils';
 
 type ContactProps = {
   profile: Loaded<typeof JazzAppProfile>;

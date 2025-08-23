@@ -1,10 +1,10 @@
 import * as AvatarPrimitive from '@radix-ui/react-avatar';
 import { Loaded } from 'jazz-tools';
 import * as React from 'react';
-import { cn } from 'src/lib/utils';
 
 import { useDefaultAvatar } from '#/lib/hook/useDefaultAvatar';
 import { type JazzAppProfile } from '#/lib/schema';
+import { cn } from '#/lib/utils/utils';
 
 function Avatar({
   className,

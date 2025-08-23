@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useParams } from 'react-router';
 
 import { useMyJazz } from './lib/account/useMyJazz';
-import { createNicknameUrl } from './lib/utils';
+import { createNicknameUrl } from './lib/utils/utils';
 
 export function ProtectedRoute() {
   const { nickname } = useParams();

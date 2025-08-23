@@ -3,7 +3,11 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import type { Certification, JazzAppProfile } from '#/lib/schema';
-import { formatDateRange, formatYearString, getValidUrl } from '#/lib/utils';
+import {
+  formatDateRange,
+  formatYearString,
+  getValidUrl,
+} from '#/lib/utils/utils';
 
 type CertificationsProps = {
   profile: Loaded<typeof JazzAppProfile>;
@@ -21,11 +25,11 @@ export function Certifications({ profile }: CertificationsProps) {
   return (
     <section
       className="mx-auto flex flex-col gap-4 mb-10"
-      style={{ width: '540px' }}
+      style={{ width: '580px' }}
     >
       <div className="flex items-center gap-4">
-        <h3 className="bg-secondary w-full px-2 text-md font-sans whitespace-nowrap">
-          Certifications
+        <h3 className="bg-secondary w-full px-2 py-1 text-md font-sans whitespace-nowrap flex items-center justify-start min-h-[2rem]">
+          CERTIFICATIONS
         </h3>
       </div>
       <div className="space-y-6">

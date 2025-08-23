@@ -2,7 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { useMemo } from 'react';
 
 import { type JazzAppProfile } from '../schema';
-import { generateDefaultAvatar } from '../utils';
+import { generateDefaultAvatar } from '../utils/utils';
 
 export function useDefaultAvatar(
   profile: Loaded<typeof JazzAppProfile>,

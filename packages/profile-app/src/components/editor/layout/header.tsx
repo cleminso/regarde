@@ -1,4 +1,4 @@
-import { cn } from '#/lib/utils.ts';
+import { cn } from '#/lib/utils/utils.ts';
 import { Button } from '../../ui/button.tsx';
 
 type SectionHeaderProps = {

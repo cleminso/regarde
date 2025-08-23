@@ -1,4 +1,4 @@
-import { cn } from '#/lib/utils';
+import { cn } from '#/lib/utils/utils';
 
 export type TabId = 'about' | 'now';
 
@@ -50,12 +50,12 @@ export function ProfileTabs({
 export const DEFAULT_TABS: Tab[] = [
   {
     id: 'about',
-    label: 'About',
+    label: 'ABOUT',
     enabled: true,
   },
   {
     id: 'now',
-    label: 'Now',
+    label: 'NOW',
     enabled: true,
   },
 ];

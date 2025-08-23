@@ -3,7 +3,7 @@ import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
 import { Award } from '#/lib/schema';
-import { formatYearString } from '#/lib/utils';
+import { formatYearString } from '#/lib/utils/utils';
 import { EditorCardActions } from '../cardActions';
 
 type AwardCardProps = {
