@@ -7,8 +7,8 @@ import { useMyJazz } from '#/lib/account/useMyJazz';
 import { fetchUserDetailsByNickname } from '#/lib/api/base';
 import { JazzAppProfile } from '#/lib/schema';
 import { ProfileHeader } from './header';
-import { AboutPage } from './pages/about';
-import { NowPage } from './pages/now';
+import { AboutPage } from './paths/about';
+import { NowPage } from './paths/now';
 import { DEFAULT_TABS, ProfileTabs, TabId } from './tabs';
 
 type LoadedProfile = Omit<co.loaded<typeof JazzAppProfile>, 'registrationKey'>;

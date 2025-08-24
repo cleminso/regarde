@@ -1,7 +1,7 @@
 import { cn } from '#/lib/utils/utils.ts';
 import { Button } from '../../ui/button.tsx';
-import { editorSections, SectionType } from '../shared.ts';
-import { SyncStateBadge } from '../syncState.tsx';
+import { editorSections, SectionType } from '../shared/index.ts';
+import { SyncStateBadge } from '../shared/syncState.tsx';
 
 type EditorSidebarProps = {
   activeSection: SectionType;

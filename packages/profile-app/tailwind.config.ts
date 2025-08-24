@@ -4,6 +4,19 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'class',
   theme: {
+    extend: {
+      colors: {
+        // Landing page specific colors
+        landing: {
+          background: 'var(--color-landing-background)',
+          foreground: 'var(--color-landing-foreground)',
+          border: 'var(--color-landing-border)',
+          'header-bg': 'var(--color-landing-header-bg)',
+          'header-text': 'var(--color-landing-header-text)',
+          'button-text': 'var(--color-landing-button-text)',
+        },
+      },
+    },
     fontFamily: {
       sans: 'var(--font-sans)',
       mono: 'var(--font-mono)',

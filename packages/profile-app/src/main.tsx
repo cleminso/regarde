@@ -5,21 +5,17 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 
-import { ThemeProvider } from './components/theme-provider.tsx';
-import { apiKey, CLERK_PUBLISHABLE_KEY } from './lib/config/apiKey.ts';
-import { OnboardingAccount } from './lib/schema.ts';
-import { AppLayout } from './pages/appLayout.tsx';
-import { EditorPage } from './pages/edit.tsx';
-import { HomePage } from './pages/home.tsx';
-import { LayoutProvider } from './pages/layoutContext.tsx';
-import { ProfilePage } from './pages/profile.tsx';
-import { ProtectedRoute } from './ProtectedRoute.tsx';
+import { ProtectedRoute } from '#/components/auth/ProtectedRoute.tsx';
+import { AppLayout } from '#/components/layouts/appLayout.tsx';
+import { ThemeProvider } from '#/components/layouts/themeProvider.tsx';
+import { apiKey, CLERK_PUBLISHABLE_KEY } from '#/lib/config/apiKey.ts';
+import { OnboardingAccount } from '#/lib/schema.ts';
+import { EditorPage } from '#/routes/edit.tsx';
+import { LandingPage } from '#/routes/landing.tsx';
+import { NotFoundPage } from '#/routes/notFound.tsx';
+import { ProfilePage } from '#/routes/profile.tsx';
 
 import './index.css';
-
-import { NotFoundPage } from './pages/notFoundPage.tsx';
-
-export const APPLICATION_NAME = 'Jazz Profile';
 
 function JazzProvider({ children }: { children: React.ReactNode }) {
   const clerk = useClerk();
@@ -37,12 +33,6 @@ function JazzProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// declare module 'jazz-react' {
-//   export interface Register {
-//     Account: InstanceOfSchema<typeof OnboardingAccount>;
-//   }
-// }
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -52,23 +42,22 @@ createRoot(document.getElementById('root')!).render(
           afterSignOutUrl="/"
         >
           <JazzProvider>
-            <LayoutProvider>
-              <JazzInspector position="bottom left" />
-              <Routes>
-                <Route path="/" element={<HomePage />} />
+            <JazzInspector position="bottom left" />
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
 
-                <Route path="/:nickname" element={<AppLayout />}>
-                  <Route index element={<Navigate to="about" replace />} />
-                  <Route path="about" element={<ProfilePage />} />
-                  <Route path="now" element={<ProfilePage />} />
-                  <Route element={<ProtectedRoute />}>
-                    <Route path="edit" element={<EditorPage />} />
-                  </Route>
-                </Route>
+              <Route path="/:nickname" element={<AppLayout />}>
+                <Route index element={<Navigate to="about" replace />} />
+                <Route path="about" element={<ProfilePage />} />
+                <Route path="now" element={<ProfilePage />} />
+              </Route>
 
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-            </LayoutProvider>
+              <Route element={<ProtectedRoute />}>
+                <Route path="/:nickname/edit" element={<EditorPage />} />
+              </Route>
+
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
           </JazzProvider>
         </ClerkProvider>
       </BrowserRouter>

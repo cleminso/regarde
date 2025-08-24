@@ -7,6 +7,6 @@ export * from './destructiveConfirmationDialog';
 export * from './dropdown-menu';
 export * from './input';
 export * from './label';
-export * from './nicknameInput';
+export * from '../onboarding/nicknameInput';
 export * from './textarea';
 export * from './tooltip';

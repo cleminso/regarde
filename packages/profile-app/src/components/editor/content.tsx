@@ -40,7 +40,7 @@ import {
   WritingEdit,
   WritingView,
 } from './index.tsx';
-import { editorSections, SectionType } from './shared.ts';
+import { editorSections, SectionType } from './shared/index.ts';
 
 export function ProfileEditor() {
   const { profile, accountId, isLoading, syncState, triggerSyncIndicator } =

@@ -21,9 +21,9 @@ const buttonVariants = cva(
         outline:
           'border border-input bg-transparent text-foreground hover:bg-secondary hover:text-foreground cursor-pointer',
         ghost: 'hover:bg-accent hover:text-accent-foreground cursor-pointer',
-        link: 'text-muted-foreground rounded-md h-auto px-1 py-0 hover:bg-accent hover:text-accent-foreground hover:no-underline cursor-pointer',
+        link: 'text-muted-foreground rounded-md h-auto px-1 py-0 hover:bg-accent-link hover:text-accent-link-foreground hover:no-underline cursor-pointer',
         'link-title':
-          'text-base font-medium justify-start text-foreground rounded-md no-underline hover:bg-accent hover:text-accent-foreground hover:no-underline disabled:text-foreground disabled:opacity-100 disabled:cursor-default cursor-pointer',
+          'text-base font-medium justify-start text-foreground rounded-md no-underline hover:bg-accent-link hover:text-accent-link-foreground hover:no-underline disabled:text-foreground disabled:opacity-100 disabled:cursor-default cursor-pointer',
       },
       size: {
         default: 'h-9 px-4 py-2 text-sm',

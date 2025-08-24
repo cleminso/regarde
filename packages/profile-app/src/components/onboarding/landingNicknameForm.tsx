@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { useClerkOnboarding } from '#/lib/onboarding/useClerkOnboarding';
-import { NicknameInput } from '../ui/nicknameInput';
+import { NicknameInput } from '../onboarding/nicknameInput';
 import { CustomAuthModal } from './customAuthModal';
 
 export function LandingNicknameForm() {
@@ -26,7 +26,6 @@ export function LandingNicknameForm() {
   const handleAuthRegistered = async (_nickname: string) => {
     setShowAuthModal(false);
     setPendingNickname('');
-    // The useClerkOnboarding hook will handle the rest via its useEffect
   };
 
   const handleAuthClose = () => {
@@ -34,15 +33,15 @@ export function LandingNicknameForm() {
     setPendingNickname('');
   };
 
-  return (
-    <div className="flex flex-col items-center text-center gap-6 py-12">
-      <h1 className="text-4xl font-sans">profile.jazz.dev</h1>
-      <p className="text-lg text-muted-foreground max-w-md">
-        The last public profile you will ever need. Build one, use it
-        everywhere.
-      </p>
+  // Show loading state for authenticated users
+  if (onboarding.isAuthenticated && !onboarding.accountId) {
+    return <div className="text-muted-foreground">Loading account...</div>;
+  }
 
-      <div className="flex flex-col items-center gap-3 mt-4 w-full max-w-lg">
+  // Show form for unauthenticated users or authenticated users without nickname
+  if (!onboarding.isAuthenticated || !onboarding.hasExistingNickname) {
+    return (
+      <div className="w-full max-w-lg mx-auto">
         <NicknameInput
           value={nickname}
           onChange={setNickname}
@@ -58,17 +57,24 @@ export function LandingNicknameForm() {
             externalError: onboarding.error,
           }}
         />
-      </div>
 
-      <CustomAuthModal
-        isOpen={showAuthModal}
-        onClose={handleAuthClose}
-        mode="register"
-        nicknameContext={{
-          nickname: pendingNickname,
-          onRegistered: handleAuthRegistered,
-        }}
-      />
+        <CustomAuthModal
+          isOpen={showAuthModal}
+          onClose={handleAuthClose}
+          mode="register"
+          nicknameContext={{
+            nickname: pendingNickname,
+            onRegistered: handleAuthRegistered,
+          }}
+        />
+      </div>
+    );
+  }
+
+  // Show redirect message for authenticated users with nickname
+  return (
+    <div className="text-muted-foreground">
+      Redirecting to your profile editor...
     </div>
   );
 }
