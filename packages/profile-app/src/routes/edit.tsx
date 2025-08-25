@@ -1,5 +1,5 @@
 import { ProfileEditor } from '../components/editor/content';
-import { BaseLayout } from '../components/layouts/baseLayout';
+import { BaseLayout } from '../components/layouts/baseLayout.tsx';
 
 export function EditorPage() {
   return (
