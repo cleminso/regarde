@@ -4,7 +4,10 @@ import {
   ReservedNicknamesRegistry,
   ReservationEntry,
 } from "@onboarding.jazz/shared-schemas/registry";
-import { ReservationBackupServiceInterface, ReservationBackupInfo } from "../types/services.js";
+import {
+  ReservationBackupServiceInterface,
+  ReservationBackupInfo,
+} from "../types/services.js";
 import { AuditService } from "./audit.js";
 import { Logger } from "../utils/logger.js";
 import {
@@ -23,19 +26,24 @@ const RESERVATION_BACKUP_DIR = "reserveRegistry-backups";
 
 interface ReservationBackupData {
   timestamp: string;
-  reservedNicknames: Record<string, {
-    reservedBy: string;
-    reservedAt: number;
-    reason?: string;
-    category: string;
-  }>;
+  reservedNicknames: Record<
+    string,
+    {
+      reservedBy: string;
+      reservedAt: number;
+      reason?: string;
+      category: string;
+    }
+  >;
   metadata: {
     totalReservations: number;
     backupVersion: string;
   };
 }
 
-export class ReservationBackupService implements ReservationBackupServiceInterface {
+export class ReservationBackupService
+  implements ReservationBackupServiceInterface
+{
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
     private reservedNicknames: Loaded<typeof ReservedNicknamesRegistry>,
@@ -54,11 +62,12 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
     const filename = `reservation-backup-${timestamp}.json`;
     const filepath = join(RESERVATION_BACKUP_DIR, filename);
 
-    // Convert reserved nicknames to plain object format
     const reservedNicknamesData: Record<string, any> = {};
     let totalReservations = 0;
 
-    for (const [nickname, reservation] of Object.entries(this.reservedNicknames)) {
+    for (const [nickname, reservation] of Object.entries(
+      this.reservedNicknames,
+    )) {
       if (reservation) {
         const reservationEntry = reservation as any;
         reservedNicknamesData[nickname] = {
@@ -83,11 +92,13 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
     writeFileSync(filepath, JSON.stringify(backupData, null, 2));
     Logger.info(`Reservation backup created: ${filepath}`);
     Logger.info(`Backed up ${totalReservations} reserved nicknames`);
-    
+
     return filepath;
   }
 
-  async restoreReservations(backupFile: string): Promise<{ success: boolean; restored: { reservations: number } }> {
+  async restoreReservations(
+    backupFile: string,
+  ): Promise<{ success: boolean; restored: { reservations: number } }> {
     if (!existsSync(backupFile)) {
       throw new Error(`Backup file not found: ${backupFile}`);
     }
@@ -106,33 +117,42 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
 
     Logger.warning("This will REPLACE all current reservation data!");
     Logger.info(`Restoring from: ${backupFile}`);
-    Logger.info(`Backup contains ${backupData.metadata.totalReservations} reservations`);
+    Logger.info(
+      `Backup contains ${backupData.metadata.totalReservations} reservations`,
+    );
 
     const confirmed = await this.confirmRestore();
     if (!confirmed) {
       throw new Error("Restore cancelled by user");
     }
 
-    // Clear existing reservations
     for (const key of Object.keys(this.reservedNicknames)) {
       delete this.reservedNicknames[key];
     }
 
-    // Restore reservations from backup
     let restoredCount = 0;
-    for (const [nickname, reservationData] of Object.entries(backupData.reservedNicknames)) {
+    for (const [nickname, reservationData] of Object.entries(
+      backupData.reservedNicknames,
+    )) {
       try {
         const reservationEntry = ReservationEntry.create({
           reservedBy: reservationData.reservedBy,
           reservedAt: reservationData.reservedAt,
           reason: reservationData.reason,
-          category: reservationData.category as "admin" | "brand" | "system" | "offensive" | "custom",
+          category: reservationData.category as
+            | "admin"
+            | "brand"
+            | "system"
+            | "offensive"
+            | "custom",
         });
 
         this.reservedNicknames[nickname] = reservationEntry;
         restoredCount++;
       } catch (error) {
-        Logger.warning(`Failed to restore reservation for ${nickname}: ${error}`);
+        Logger.warning(
+          `Failed to restore reservation for ${nickname}: ${error}`,
+        );
       }
     }
 
@@ -140,13 +160,16 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
     return { success: true, restored: { reservations: restoredCount } };
   }
 
-  async listReservationBackups(): Promise<{ backups: ReservationBackupInfo[] }> {
+  async listReservationBackups(): Promise<{
+    backups: ReservationBackupInfo[];
+  }> {
     if (!existsSync(RESERVATION_BACKUP_DIR)) {
       return { backups: [] };
     }
 
-    const files = readdirSync(RESERVATION_BACKUP_DIR).filter((file) =>
-      file.endsWith(".json") && file.startsWith("reservation-backup-"),
+    const files = readdirSync(RESERVATION_BACKUP_DIR).filter(
+      (file) =>
+        file.endsWith(".json") && file.startsWith("reservation-backup-"),
     );
 
     const backups: ReservationBackupInfo[] = [];
@@ -158,7 +181,7 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
       try {
         const fileContent = readFileSync(filepath, "utf-8");
         const backupData: ReservationBackupData = JSON.parse(fileContent);
-        
+
         backups.push({
           filename: file,
           size: this.formatFileSize(stats.size),
@@ -176,7 +199,9 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
       }
     }
 
-    backups.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    backups.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    );
     return { backups };
   }
 
@@ -192,8 +217,9 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
 
-    const files = readdirSync(RESERVATION_BACKUP_DIR).filter((file) =>
-      file.endsWith(".json") && file.startsWith("reservation-backup-"),
+    const files = readdirSync(RESERVATION_BACKUP_DIR).filter(
+      (file) =>
+        file.endsWith(".json") && file.startsWith("reservation-backup-"),
     );
     const deletedFiles: string[] = [];
 

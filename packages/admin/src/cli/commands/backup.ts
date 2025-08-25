@@ -113,14 +113,14 @@ export const backupCommands: ToolConfig[] = [
 
   {
     name: "clean-old-backups",
-    description: "Remove old backup files",
+    description: "Clean up old backup files",
     flags: [
       {
         name: "daysToKeep",
         type: "number",
         mandatory: false,
         options: ["--days-to-keep"],
-        description: "Number of days of backups to keep (default: 30)",
+        description: "Number of days to keep backup files (default: 30)",
       },
     ],
     handler: async (ctx) => {

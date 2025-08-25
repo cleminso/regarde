@@ -7,6 +7,8 @@ import { auditCommands } from "./commands/audit.js";
 import { healthCommands } from "./commands/health.js";
 import { backupCommands } from "./commands/backup.js";
 import { reservationBackupCommands } from "./commands/reservationBackup.js";
+import { performanceCommands } from "./commands/performance.js";
+import { integrityCommands } from "./commands/integrity.js";
 
 export function createCLI() {
   const cli = ArgParser.withMcp({
@@ -22,6 +24,8 @@ export function createCLI() {
     ...healthCommands,
     ...backupCommands,
     ...reservationBackupCommands,
+    ...performanceCommands,
+    ...integrityCommands,
   ];
 
   allCommands.forEach((command) => {
@@ -57,4 +61,6 @@ export {
   healthCommands,
   backupCommands,
   reservationBackupCommands,
+  performanceCommands,
+  integrityCommands,
 };

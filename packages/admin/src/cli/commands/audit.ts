@@ -1,7 +1,7 @@
 import { withAdminService } from "../types.js";
 import { type ToolConfig } from "@alcyone-labs/arg-parser";
 import { Logger } from "../../utils/logger.js";
-import { RegistryAuditEntry } from "@onboarding.jazz/shared-schemas";
+import { type RegistryAuditEntry } from "@onboarding.jazz/shared-schemas";
 
 export const auditCommands: ToolConfig[] = [
   {
@@ -186,6 +186,19 @@ export const auditCommands: ToolConfig[] = [
         });
 
         return { entries };
+      });
+    },
+  },
+
+  {
+    name: "clear-audit",
+    description: "Clear corrupted audit log entries",
+    flags: [],
+    handler: async () => {
+      return withAdminService(async (admin) => {
+        await admin.clearAuditLog();
+        Logger.success("Audit log cleared successfully");
+        return { success: true };
       });
     },
   },

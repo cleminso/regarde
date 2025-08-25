@@ -24,7 +24,9 @@ export class AuditService implements AuditServiceInterface {
     reservationCategory?: "admin" | "brand" | "system" | "offensive" | "custom",
   ): Promise<void> {
     try {
-      Logger.debug(`Creating audit entry for account: ${jazzAccountId}`);
+      Logger.debug(
+        `Creating audit entry: ${jazzAccountId}, ${oldNickname} -> ${newNickname}, action: ${action || "auto"}`,
+      );
 
       let entryAction = action;
       if (!entryAction) {
@@ -39,44 +41,43 @@ export class AuditService implements AuditServiceInterface {
         }
       }
 
-      const entry = RegistryAuditEntry.create({
-        monotonicId: ulid(),
-        timestamp: Date.now(),
-        jazzAccountId,
-        oldNickname: oldNickname || undefined,
-        newNickname: newNickname || undefined,
-        changedBy: this.worker.id,
-        source,
-        action: entryAction,
-        reservationReason: reservationReason || undefined,
-        reservationCategory: reservationCategory || undefined,
-      });
-
-      Logger.debug(`Created audit entry: ${entry.monotonicId}`);
+      const entry = RegistryAuditEntry.create(
+        {
+          monotonicId: ulid(),
+          timestamp: Date.now(),
+          jazzAccountId,
+          oldNickname: oldNickname || undefined,
+          newNickname: newNickname || undefined,
+          changedBy: this.worker.id,
+          source,
+          action: entryAction,
+          reservationReason: reservationReason || undefined,
+          reservationCategory: reservationCategory || undefined,
+        },
+        { owner: this.worker },
+      );
 
       this.auditLog.push(entry);
-
-      Logger.debug(`Audit log length after push: ${this.auditLog.length}`);
-
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      Logger.debug(`Audit entry created successfully: ${entry.monotonicId}`);
-    } catch (error: unknown) {
+      Logger.debug(
+        `Audit entry created successfully, total entries: ${this.auditLog.length}`,
+      );
+    } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      Logger.error(`Failed to create audit entry: ${errorMessage}`);
-      Logger.debug(`Audit entry error details: ${JSON.stringify(error)}`);
+      Logger.error(`Failed to log audit entry: ${errorMessage}`);
     }
   }
 
   async getChangeHistory(limit: number = 20): Promise<RegistryAuditEntry[]> {
     try {
-      Logger.debug(`Audit log length: ${this.auditLog.length}`);
+      Logger.debug(
+        `Retrieving audit history, limit: ${limit}, total entries: ${this.auditLog.length}`,
+      );
 
       const entries: RegistryAuditEntry[] = [];
 
       for (const entry of this.auditLog) {
-        if (entry && typeof entry === "object" && "monotonicId" in entry) {
+        if (entry && typeof entry === "object") {
           entries.push(entry as RegistryAuditEntry);
         }
       }
@@ -85,9 +86,7 @@ export class AuditService implements AuditServiceInterface {
         .sort((a, b) => b.timestamp - a.timestamp)
         .slice(0, limit);
 
-      Logger.debug(
-        `Retrieved ${sortedEntries.length} audit entries (limit: ${limit})`,
-      );
+      Logger.debug(`Retrieved ${sortedEntries.length} audit entries`);
       return sortedEntries;
     } catch (error) {
       const errorMessage =
@@ -99,6 +98,8 @@ export class AuditService implements AuditServiceInterface {
 
   async getHistoryForAccount(accountId: string): Promise<RegistryAuditEntry[]> {
     try {
+      Logger.debug(`Searching audit history for account: ${accountId}`);
+
       const entries: RegistryAuditEntry[] = [];
 
       for (const entry of this.auditLog) {
@@ -190,5 +191,15 @@ export class AuditService implements AuditServiceInterface {
       Logger.error(`Failed to retrieve source history: ${errorMessage}`);
       return [];
     }
+  }
+
+  async clearCorruptedEntries(): Promise<void> {
+    Logger.debug("Clearing corrupted audit log entries...");
+
+    while (this.auditLog.length > 0) {
+      this.auditLog.pop();
+    }
+
+    Logger.debug("Audit log cleared");
   }
 }

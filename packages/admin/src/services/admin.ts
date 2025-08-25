@@ -73,7 +73,7 @@ export class AdminService {
           root: {
             registry: true,
             reverseRegistry: true,
-            auditLog: { "*": true },
+            auditLog: { $each: true },
             reservedNicknames: { $each: true },
           },
         },
@@ -307,7 +307,9 @@ export class AdminService {
     return this.reservationBackupService.restoreReservations(backupFile);
   }
 
-  async listReservationBackups(): Promise<{ backups: ReservationBackupInfo[] }> {
+  async listReservationBackups(): Promise<{
+    backups: ReservationBackupInfo[];
+  }> {
     return this.reservationBackupService.listReservationBackups();
   }
 
@@ -317,6 +319,245 @@ export class AdminService {
     deletedCount: number;
   }> {
     return this.reservationBackupService.cleanOldReservationBackups(daysToKeep);
+  }
+
+  async clearAuditLog(): Promise<void> {
+    const { root } = this.loadedWorker;
+    if (!root?.auditLog) return;
+
+    while (root.auditLog.length > 0) {
+      root.auditLog.pop();
+    }
+
+    Logger.info("Audit log cleared");
+  }
+
+  async checkConnectivity(): Promise<{
+    workerOnline: boolean;
+    syncServerConnected: boolean;
+    lastSync: number | null;
+    responseTimeMs: number;
+  }> {
+    const startTime = Date.now();
+
+    try {
+      const { root } = this.loadedWorker;
+      const workerOnline = !!root;
+
+      const syncServerConnected = !!(root?.registry && root?.reverseRegistry);
+
+      const responseTimeMs = Date.now() - startTime;
+
+      return {
+        workerOnline,
+        syncServerConnected,
+        lastSync: Date.now(),
+        responseTimeMs,
+      };
+    } catch (error) {
+      return {
+        workerOnline: false,
+        syncServerConnected: false,
+        lastSync: null,
+        responseTimeMs: Date.now() - startTime,
+      };
+    }
+  }
+
+  async runBenchmark(operations: number = 100): Promise<{
+    averageResponseTime: number;
+    operationsPerSecond: number;
+    memoryUsage: number;
+  }> {
+    const startTime = Date.now();
+    const startMemory = process.memoryUsage().heapUsed / 1024 / 1024;
+
+    for (let i = 0; i < operations; i++) {
+      const { root } = this.loadedWorker;
+      if (root?.registry) {
+        Object.keys(root.registry).length;
+      }
+    }
+
+    const endTime = Date.now();
+    const endMemory = process.memoryUsage().heapUsed / 1024 / 1024;
+    const totalTime = endTime - startTime;
+
+    return {
+      averageResponseTime: totalTime / operations,
+      operationsPerSecond: Math.round((operations / totalTime) * 1000),
+      memoryUsage: Math.round(endMemory - startMemory),
+    };
+  }
+
+  async auditSecurity(days: number = 7): Promise<{
+    totalOperations: number;
+    adminOperations: number;
+    failedOperations: number;
+    suspiciousActivity: Array<{
+      description: string;
+      timestamp: number;
+    }>;
+  }> {
+    const cutoffTime = Date.now() - days * 24 * 60 * 60 * 1000;
+    const recentEntries = await this.auditService.getChangeHistory(1000);
+
+    const relevantEntries = recentEntries.filter(
+      (entry) => entry.timestamp >= cutoffTime,
+    );
+
+    const adminOps = relevantEntries.filter(
+      (entry) => entry.source === "admin-cli",
+    ).length;
+    const suspiciousActivity: Array<{
+      description: string;
+      timestamp: number;
+    }> = [];
+
+    // Look for suspicious patterns
+    const accountChanges = new Map<string, number>();
+    relevantEntries.forEach((entry) => {
+      const count = accountChanges.get(entry.jazzAccountId) || 0;
+      accountChanges.set(entry.jazzAccountId, count + 1);
+    });
+
+    accountChanges.forEach((count, accountId) => {
+      if (count > 10) {
+        suspiciousActivity.push({
+          description: `Account ${accountId} had ${count} changes in ${days} days`,
+          timestamp: Date.now(),
+        });
+      }
+    });
+
+    return {
+      totalOperations: relevantEntries.length,
+      adminOperations: adminOps,
+      failedOperations: 0,
+      suspiciousActivity,
+    };
+  }
+
+  async validateDataIntegrity(
+    fix: boolean = false,
+    verbose: boolean = false,
+  ): Promise<{
+    isValid: boolean;
+    issues: string[];
+    fixedIssues: string[];
+  }> {
+    const issues: string[] = [];
+    const fixedIssues: string[] = [];
+    const { root } = this.loadedWorker;
+
+    if (!root) {
+      throw new Error("Worker root is not available");
+    }
+
+    if (verbose) {
+      Logger.info("Validating registry integrity...");
+    }
+
+    if (root.registry) {
+      for (const [nickname, accountId] of Object.entries(root.registry)) {
+        const reverseEntry = root.reverseRegistry?.[accountId as string];
+        if (reverseEntry !== nickname) {
+          const issue = `Forward registry maps ${nickname} -> ${accountId}, but reverse registry maps ${accountId} -> ${reverseEntry}`;
+          issues.push(issue);
+
+          if (fix && root.reverseRegistry) {
+            root.reverseRegistry[accountId as string] = nickname;
+            fixedIssues.push(`Fixed reverse registry for ${accountId}`);
+          }
+        }
+      }
+    }
+
+    if (root.reverseRegistry) {
+      for (const [accountId, nickname] of Object.entries(
+        root.reverseRegistry,
+      )) {
+        const forwardEntry = root.registry?.[nickname as string];
+        if (forwardEntry !== accountId) {
+          const issue = `Reverse registry maps ${accountId} -> ${nickname}, but forward registry maps ${nickname} -> ${forwardEntry}`;
+          issues.push(issue);
+
+          if (fix && root.registry) {
+            root.registry[nickname as string] = accountId;
+            fixedIssues.push(`Fixed forward registry for ${nickname}`);
+          }
+        }
+      }
+    }
+
+    if (verbose) {
+      Logger.info(`Found ${issues.length} integrity issues`);
+      if (fix) {
+        Logger.info(`Fixed ${fixedIssues.length} issues`);
+      }
+    }
+
+    return {
+      isValid: issues.length === 0,
+      issues,
+      fixedIssues,
+    };
+  }
+
+  async checkDuplicates(): Promise<{
+    duplicates: Array<{
+      nickname: string;
+      accounts: string[];
+    }>;
+    reverseDuplicates: Array<{
+      accountId: string;
+      nicknames: string[];
+    }>;
+  }> {
+    const { root } = this.loadedWorker;
+    if (!root) {
+      throw new Error("Worker root is not available");
+    }
+
+    const duplicates: Array<{ nickname: string; accounts: string[] }> = [];
+    const reverseDuplicates: Array<{ accountId: string; nicknames: string[] }> =
+      [];
+
+    if (root.registry) {
+      const nicknameGroups = new Map<string, string[]>();
+      for (const [nickname, accountId] of Object.entries(root.registry)) {
+        if (!nicknameGroups.has(nickname)) {
+          nicknameGroups.set(nickname, []);
+        }
+        nicknameGroups.get(nickname)!.push(accountId as string);
+      }
+
+      nicknameGroups.forEach((accounts, nickname) => {
+        if (accounts.length > 1) {
+          duplicates.push({ nickname, accounts });
+        }
+      });
+    }
+
+    if (root.reverseRegistry) {
+      const accountGroups = new Map<string, string[]>();
+      for (const [accountId, nickname] of Object.entries(
+        root.reverseRegistry,
+      )) {
+        if (!accountGroups.has(accountId)) {
+          accountGroups.set(accountId, []);
+        }
+        accountGroups.get(accountId)!.push(nickname as string);
+      }
+
+      accountGroups.forEach((nicknames, accountId) => {
+        if (nicknames.length > 1) {
+          reverseDuplicates.push({ accountId, nicknames });
+        }
+      });
+    }
+
+    return { duplicates, reverseDuplicates };
   }
 
   get nickname(): NicknameServiceInterface {

@@ -14,7 +14,9 @@ export class NicknameService implements NicknameServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
     private nicknameRegistry: Loaded<typeof NicknameRegistryCoRecord>,
-    private reverseNicknameRegistry: Loaded<typeof ReverseNicknameRegistryCoRecord>,
+    private reverseNicknameRegistry: Loaded<
+      typeof ReverseNicknameRegistryCoRecord
+    >,
     private reservedNicknames: Loaded<typeof ReservedNicknamesRegistry>,
     private auditService: AuditService,
     private reservationService: ReservationService,
@@ -94,7 +96,6 @@ export class NicknameService implements NicknameServiceInterface {
       );
     }
 
-    // Update registries
     this.nicknameRegistry[nickname] = accountId;
     delete this.reverseNicknameRegistry[oldAccountId];
     this.reverseNicknameRegistry[accountId] = nickname;

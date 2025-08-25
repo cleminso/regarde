@@ -36,7 +36,9 @@ export class BackupService implements BackupServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
     private nicknameRegistry: Loaded<typeof NicknameRegistryCoRecord>,
-    private reverseNicknameRegistry: Loaded<typeof ReverseNicknameRegistryCoRecord>,
+    private reverseNicknameRegistry: Loaded<
+      typeof ReverseNicknameRegistryCoRecord
+    >,
     private auditService: AuditService,
   ) {}
 
@@ -70,7 +72,9 @@ export class BackupService implements BackupServiceInterface {
 
     writeFileSync(filepath, JSON.stringify(backupData, null, 2));
     Logger.info(`Backup created: ${filepath}`);
-    Logger.info(`Backed up ${totalNicknames} nicknames and ${totalAccounts} account mappings`);
+    Logger.info(
+      `Backed up ${totalNicknames} nicknames and ${totalAccounts} account mappings`,
+    );
     return filepath;
   }
 
@@ -78,8 +82,11 @@ export class BackupService implements BackupServiceInterface {
     success: boolean;
     restored: { nicknames: number; accounts: number };
   }> {
-    let backupData: BackupData;
+    if (!existsSync(backupFile)) {
+      throw new Error(`Backup file not found: ${backupFile}`);
+    }
 
+    let backupData: BackupData;
     try {
       const fileContent = readFileSync(backupFile, "utf-8");
       backupData = JSON.parse(fileContent);
@@ -91,6 +98,15 @@ export class BackupService implements BackupServiceInterface {
 
     if (!backupData.registry || !backupData.reverseRegistry) {
       throw new Error("Invalid backup file format");
+    }
+
+    const registryEntries = Object.entries(backupData.registry);
+    for (const [nickname, accountId] of registryEntries) {
+      if (backupData.reverseRegistry[accountId] !== nickname) {
+        throw new Error(
+          `Data inconsistency: ${nickname} -> ${accountId} not properly reversed`,
+        );
+      }
     }
 
     for (const key of Object.keys(this.nicknameRegistry)) {
@@ -188,8 +204,8 @@ export class BackupService implements BackupServiceInterface {
       return { backups: [] };
     }
 
-    const files = readdirSync(BACKUP_DIR).filter((file) =>
-      file.endsWith(".json") && file.startsWith("registry-backup-"),
+    const files = readdirSync(BACKUP_DIR).filter(
+      (file) => file.endsWith(".json") && file.startsWith("registry-backup-"),
     );
 
     const backups: BackupInfo[] = [];
@@ -202,18 +218,15 @@ export class BackupService implements BackupServiceInterface {
         const fileContent = readFileSync(filepath, "utf-8");
         const backupData: BackupData = JSON.parse(fileContent);
 
-        // Handle both old and new backup formats for backward compatibility
         let totalNicknames = 0;
         let totalAccounts = 0;
-        let backupVersion = "1.0"; // Default for old backups
+        let backupVersion = "1.0";
 
         if (backupData.metadata) {
-          // New format with metadata
           totalNicknames = backupData.metadata.totalNicknames;
           totalAccounts = backupData.metadata.totalAccounts;
           backupVersion = backupData.metadata.backupVersion;
         } else {
-          // Old format - count from data
           totalNicknames = Object.keys(backupData.registry || {}).length;
           totalAccounts = Object.keys(backupData.reverseRegistry || {}).length;
         }
@@ -227,20 +240,23 @@ export class BackupService implements BackupServiceInterface {
           backupVersion,
         });
       } catch (error) {
-        Logger.warning(`Failed to read backup file ${file}: ${error}`);
-        // Fallback for corrupted files
+        Logger.warning(
+          `Failed to read backup file ${file}: ${error instanceof Error ? error.message : String(error)}`,
+        );
         backups.push({
           filename: file,
           size: this.formatFileSize(stats.size),
           date: stats.mtime.toISOString(),
           totalNicknames: 0,
           totalAccounts: 0,
-          backupVersion: "unknown",
+          backupVersion: "corrupted",
         });
       }
     }
 
-    backups.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    backups.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    );
     return { backups };
   }
 

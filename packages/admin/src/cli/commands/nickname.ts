@@ -38,7 +38,7 @@ export const nicknameCommands: ToolConfig[] = [
           ctx.args.allowReserved || false,
         );
         Logger.success(
-          `Successfully added nickname "${ctx.args.nickname}" for account ${ctx.args.accountId}`,
+          `Successfully added nickname "${ctx.args.nickname}" to account ${ctx.args.accountId}`,
         );
         return result;
       });

@@ -6,6 +6,7 @@ import {
   ReverseNicknameRegistryCoRecord,
   ReservedNicknamesRegistry,
   RegistryAuditLog,
+  JazzAppProfile,
 } from "@onboarding.jazz/shared-schemas";
 import {
   HealthServiceInterface,
@@ -137,6 +138,14 @@ export class HealthService implements HealthServiceInterface {
       recommendations: [],
     };
 
+    // Add validation for missing nickname/accountId
+    if (!targetNickname && !targetAccountId) {
+      report.registryStatus = "missing";
+      report.reverseRegistryStatus = "missing";
+      report.issues.push("Neither nickname nor account ID could be resolved");
+      return report;
+    }
+
     if (targetNickname) {
       const registryAccountId = this.nicknameRegistry[targetNickname];
       if (!registryAccountId) {
@@ -172,7 +181,9 @@ export class HealthService implements HealthServiceInterface {
         const account = await OnboardingAccount.load(targetAccountId, {
           resolve: {
             profile: {
-              onboarding: true,
+              "profile.jazz.dev": {
+                userHandle: true,
+              },
             },
           },
         });
@@ -186,39 +197,54 @@ export class HealthService implements HealthServiceInterface {
           report.onboardingStatus = "missing";
           report.issues.push(`Account "${targetAccountId}" has no profile`);
         } else {
-          const profile = account.profile as any;
-          const onboardingNickname = profile.onboarding;
+          const profileData = await JazzAppProfile.load(
+            account.profile["profile.jazz.dev"],
+            {
+              resolve: {
+                userHandle: true,
+              },
+            },
+          );
 
-          if (!onboardingNickname) {
+          if (!profileData) {
             report.onboardingStatus = "missing";
             report.issues.push(
-              `Account "${targetAccountId}" has no onboarding nickname data`,
-            );
-            report.recommendations.push(
-              `Create onboarding nickname data for account`,
+              `Account "${targetAccountId}" has no profile data`,
             );
           } else {
-            const isActive = onboardingNickname.isActive;
-            const storedNickname = onboardingNickname.nickname;
+            const userHandle = profileData.userHandle;
 
-            if (!isActive) {
-              report.onboardingStatus = "inactive";
+            if (!userHandle) {
+              report.onboardingStatus = "missing";
               report.issues.push(
-                `OnboardingNickname is inactive (isActive: false)`,
+                `Account "${targetAccountId}" has no userHandle data`,
               );
               report.recommendations.push(
-                `Activate onboarding nickname and sync with registry`,
+                `Create userHandle data for account`,
               );
-            }
+            } else {
+              const isActive = userHandle.isActive;
+              const storedNickname = userHandle.nickname;
 
-            if (storedNickname !== targetNickname) {
-              report.onboardingStatus = "mismatch";
-              report.issues.push(
-                `OnboardingNickname shows "${storedNickname}", but registry shows "${targetNickname}"`,
-              );
-              report.recommendations.push(
-                `Sync onboarding nickname with registry data`,
-              );
+              if (!isActive) {
+                report.onboardingStatus = "inactive";
+                report.issues.push(
+                  `UserHandle is inactive (isActive: false)`,
+                );
+                report.recommendations.push(
+                  `Activate userHandle and sync with registry`,
+                );
+              }
+
+              if (storedNickname !== targetNickname) {
+                report.onboardingStatus = "mismatch";
+                report.issues.push(
+                  `UserHandle shows "${storedNickname}", but registry shows "${targetNickname}"`,
+                );
+                report.recommendations.push(
+                  `Sync userHandle with registry data`,
+                );
+              }
             }
           }
         }
