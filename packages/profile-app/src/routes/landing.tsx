@@ -1,11 +1,12 @@
-import { Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
-import { LandingNicknameForm } from '#/components/onboarding/landingNicknameForm';
+import { Button } from '#/components/ui';
 import { useClerkOnboarding } from '#/lib/onboarding/useClerkOnboarding';
 import { createNicknameUrl } from '#/lib/utils/utils';
-import { BaseLayout } from '#/components/layouts/baseLayout';
+import { BaseLayout } from '../components/layouts/baseLayout';
+import { LandingNicknameForm } from '../components/onboarding/landingNicknameForm';
 
 export function LandingPage() {
   const navigate = useNavigate();
@@ -55,11 +56,21 @@ export function LandingPage() {
   return (
     <BaseLayout isLandingPage={true}>
       <div className="flex flex-col items-center text-center gap-3 py-12">
-        <h1 className="text-2xl font-medium text-foreground">
-          The only online profile you will ever need. Build one, use it everywhere.
+        <h1 className="text-2xl font-medium text-foreground mb-8">
+          The only online profile you will ever need. Build one, use it
+          everywhere.
         </h1>
         <LandingNicknameForm />
-        {/* ... other conditional content */}
+        <Button variant="link" asChild className="mt-4">
+          <a
+            href="https://profile.jazz.dev/cleminso"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            See example
+            <ArrowRight className="ml-1" size={16} />
+          </a>
+        </Button>
       </div>
     </BaseLayout>
   );

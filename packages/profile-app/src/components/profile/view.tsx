@@ -11,7 +11,7 @@ import { AboutPage } from './paths/about';
 import { NowPage } from './paths/now';
 import { DEFAULT_TABS, ProfileTabs, TabId } from './tabs';
 
-type LoadedProfile = Omit<co.loaded<typeof JazzAppProfile>, 'registrationKey'>;
+type LoadedProfile = co.loaded<typeof JazzAppProfile>;
 
 export function ProfileView() {
   const { nickname } = useParams();
