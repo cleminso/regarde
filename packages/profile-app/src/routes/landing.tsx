@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { Button } from '#/components/ui';
 import { useClerkOnboarding } from '#/lib/onboarding/useClerkOnboarding';
 import { createNicknameUrl } from '#/lib/utils/utils';
-import { BaseLayout } from '../components/layouts/baseLayout';
+import { BaseLayout } from '#/components/layouts/baseLayout';
 import { LandingNicknameForm } from '../components/onboarding/landingNicknameForm';
 
 export function LandingPage() {
