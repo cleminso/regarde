@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 
-import { AuthButton } from '../auth/AuthButton.tsx';
-import { ThemeToggle } from '../layouts/themeToggle.tsx';
+import { AuthButton } from '../auth/AuthButton';
+import { ThemeToggle } from '../layouts/themeToggle';
 import { Badge } from '../ui';
 
 export function LandingHeader() {

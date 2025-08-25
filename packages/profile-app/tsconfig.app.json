@@ -1,7 +1,5 @@
 {
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/profile-app.tsconfig.app.tsbuildinfo",
-
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -20,7 +18,6 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    "composite": true,
 
     "strict": true,
     "noUnusedLocals": true,
