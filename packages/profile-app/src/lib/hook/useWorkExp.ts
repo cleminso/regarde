@@ -1,5 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
+import { logger } from '#/lib/utils/logger';
 import { ListOfWorkExp, WorkExp } from '../schema';
 import { BaseHookProps } from './types';
 
@@ -60,7 +61,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
     },
   ) => {
     if (!workExpToUpdate) {
-      console.error('Work experience instance not provided for update.');
+      logger.error('Work experience instance not provided for update.');
       return;
     }
 
@@ -126,7 +127,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
   const deleteWorkExp = async (workExpId: string) => {
     const workExpList = profile.workExp;
     if (!workExpList) {
-      console.warn('No work experiences list to delete from.');
+      logger.warn('No work experiences list to delete from.');
       return;
     }
     const workExpIndex = workExpList.findIndex(
@@ -137,7 +138,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
       workExpList.splice(workExpIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
-      console.error(
+      logger.error(
         `Work experience with id ${workExpId} not found for deletion.`,
       );
     }

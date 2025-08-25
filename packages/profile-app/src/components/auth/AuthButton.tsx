@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { useRegistrationKey } from '#/lib/account/useRegistrationKey';
+import { logger } from '#/lib/utils/logger';
 import { useMyJazz } from '../../lib/account/useMyJazz';
 import { CustomAuthModal } from '../onboarding/customAuthModal';
 import { Button } from '../ui/button';
@@ -24,13 +25,12 @@ export function AuthButton() {
       getValidKey()
         .then((key) => {
           if (key) {
-            console.log('Valid registration key confirmed');
           } else {
-            console.error('Failed to obtain valid registration key');
+            logger.error('Failed to obtain valid registration key');
           }
         })
         .catch((error) => {
-          console.error('Error ensuring valid key:', error);
+          logger.error('Error ensuring valid key:', error);
         });
     }
   }, [isAuthenticated, isAccountReady, getValidKey]);

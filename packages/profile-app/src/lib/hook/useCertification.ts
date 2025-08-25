@@ -1,5 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
+import { logger } from '#/lib/utils/logger';
 import { Certification, ListOfCertification } from '../schema';
 import { BaseHookProps } from './types';
 
@@ -33,7 +34,7 @@ export function useCertification({
 
     const listOwner = certificationList._owner;
     if (!listOwner) {
-      console.error(
+      logger.error(
         'Cannot create a new certification instance: certificationList._owner is undefined.',
       );
       return undefined;
@@ -67,7 +68,7 @@ export function useCertification({
     },
   ) => {
     if (!certificationToUpdate) {
-      console.error('Certification instance not provided for update.');
+      logger.error('Certification instance not provided for update.');
       return;
     }
 
@@ -126,7 +127,7 @@ export function useCertification({
   const deleteCertification = async (certificationId: string) => {
     const certificationList = profile.certification;
     if (!certificationList) {
-      console.warn('No certification list to delete from.');
+      logger.warn('No certification list to delete from.');
       return;
     }
     const certificationIndex = certificationList.findIndex(
@@ -137,7 +138,7 @@ export function useCertification({
       certificationList.splice(certificationIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
-      console.error(
+      logger.error(
         `Certification with id ${certificationId} not found for deletion.`,
       );
     }

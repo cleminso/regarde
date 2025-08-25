@@ -1,5 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
+import { logger } from '#/lib/utils/logger';
 import { ListOfVolunteering, Volunteering } from '../schema';
 import { BaseHookProps } from './types';
 
@@ -65,7 +66,7 @@ export function useVolunteering({
     },
   ) => {
     if (!volunteeringToUpdate) {
-      console.error('Volunteering instance not provided for update.');
+      logger.error('Volunteering instance not provided for update.');
       return;
     }
 
@@ -131,7 +132,7 @@ export function useVolunteering({
   const deleteVolunteering = async (volunteeringId: string) => {
     const volunteeringList = profile.volunteering;
     if (!volunteeringList) {
-      console.warn('No volunteering list to delete from.');
+      logger.warn('No volunteering list to delete from.');
       return;
     }
     const volunteeringIndex = volunteeringList.findIndex(
@@ -142,7 +143,7 @@ export function useVolunteering({
       volunteeringList.splice(volunteeringIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
-      console.error(
+      logger.error(
         `Volunteering with id ${volunteeringId} not found for deletion.`,
       );
     }

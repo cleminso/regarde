@@ -61,7 +61,7 @@ export function LandingPage() {
           everywhere.
         </h1>
         <LandingNicknameForm />
-        <Button variant="link" asChild className="mt-4">
+        <Button variant="ghost" asChild className="mt-4">
           <a
             href="https://profile.jazz.dev/cleminso"
             target="_blank"

@@ -1,5 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
+import { logger } from '#/lib/utils/logger';
 import { ListOfSideProject, SideProject } from '../schema';
 import { BaseHookProps } from './types';
 
@@ -59,7 +60,7 @@ export function useSideProject({
     },
   ) => {
     if (!sideProjectToUpdate) {
-      console.error('Side project instance not provided for update.');
+      logger.error('Side project instance not provided for update.');
       return;
     }
 
@@ -110,7 +111,7 @@ export function useSideProject({
   const deleteSideProject = async (sideProjectId: string) => {
     const sideProjectList = profile.sideProject;
     if (!sideProjectList) {
-      console.warn('No side projects list to delete from.');
+      logger.warn('No side projects list to delete from.');
       return;
     }
     const sideProjectIndex = sideProjectList.findIndex(
@@ -121,7 +122,7 @@ export function useSideProject({
       sideProjectList.splice(sideProjectIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
-      console.error(
+      logger.error(
         `Side project with id ${sideProjectId} not found for deletion.`,
       );
     }

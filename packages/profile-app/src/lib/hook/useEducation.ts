@@ -1,10 +1,7 @@
 import { Loaded } from 'jazz-tools';
 
-import {
-  Education,
-  ListOfEducation,
-} from '../schema';
-
+import { logger } from '#/lib/utils/logger';
+import { Education, ListOfEducation } from '../schema';
 import { BaseHookProps } from './types';
 
 type UseEducationProps = BaseHookProps;
@@ -25,17 +22,15 @@ export function useEducation({
     return profile.education;
   };
 
-  const addEducation = (
-    educationData: {
-      from: string;
-      to?: string;
-      degree: string;
-      institution: string;
-      location?: string;
-      url?: string;
-      description?: string;
-    }
-  ): Loaded<typeof Education> | undefined => {
+  const addEducation = (educationData: {
+    from: string;
+    to?: string;
+    degree: string;
+    institution: string;
+    location?: string;
+    url?: string;
+    description?: string;
+  }): Loaded<typeof Education> | undefined => {
     const educationList = ensureEducationList();
     if (!educationList) return undefined;
 
@@ -68,10 +63,10 @@ export function useEducation({
       location?: string;
       url?: string;
       description?: string;
-    }
+    },
   ) => {
     if (!educationToUpdate) {
-      console.error('Education instance not provided for update.');
+      logger.error('Education instance not provided for update.');
       return;
     }
 
@@ -137,7 +132,7 @@ export function useEducation({
   const deleteEducation = (educationId: string) => {
     const educationList = profile.education;
     if (!educationList) {
-      console.warn('No education list to delete from.');
+      logger.warn('No education list to delete from.');
       return;
     }
     const educationIndex = educationList.findIndex(
@@ -148,7 +143,7 @@ export function useEducation({
       educationList.splice(educationIndex, 1);
       triggerSyncIndicator(profile);
     } else {
-      console.error(`Education with id ${educationId} not found for deletion.`);
+      logger.error(`Education with id ${educationId} not found for deletion.`);
     }
   };
 

@@ -1,5 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
+import { logger } from '#/lib/utils/logger';
 import { ListOfWriting, Writing } from '../schema';
 import { BaseHookProps } from './types';
 
@@ -52,7 +53,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
     },
   ) => {
     if (!writingToUpdate) {
-      console.error('Writing instance not provided for update.');
+      logger.error('Writing instance not provided for update.');
       return;
     }
 
@@ -103,7 +104,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
   const deleteWriting = async (writingId: string) => {
     const writingList = profile.writing;
     if (!writingList) {
-      console.warn('No writing list to delete from.');
+      logger.warn('No writing list to delete from.');
       return;
     }
     const writingIndex = writingList.findIndex(
@@ -114,7 +115,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
       writingList.splice(writingIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
-      console.error(`Writing with id ${writingId} not found for deletion.`);
+      logger.error(`Writing with id ${writingId} not found for deletion.`);
     }
   };
 

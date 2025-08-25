@@ -105,6 +105,11 @@ async function main() {
         },
       },
     });
+
+    if (loadedWorker?.root?.reservedNicknames) {
+      await loadedWorker.root.reservedNicknames.ensureLoaded({ resolve: {} });
+      console.log("Reserved nicknames registry fully loaded");
+    }
   } catch (loadError) {
     console.error("Failed to load worker data:", loadError);
     console.error("This is a critical error. Exiting...");

@@ -1,5 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
+import { logger } from '#/lib/utils/logger';
 import { ListOfSpeaking, Speaking } from '../schema';
 import { BaseHookProps } from './types';
 
@@ -58,7 +59,7 @@ export function useSpeaking({
     },
   ) => {
     if (!speakingToUpdate) {
-      console.error('Speaking instance not provided for update.');
+      logger.error('Speaking instance not provided for update.');
       return;
     }
 
@@ -116,7 +117,7 @@ export function useSpeaking({
   const deleteSpeaking = async (speakingId: string) => {
     const speakingList = profile.speaking;
     if (!speakingList) {
-      console.warn('No speaking list to delete from.');
+      logger.warn('No speaking list to delete from.');
       return;
     }
     const speakingIndex = speakingList.findIndex(
@@ -127,7 +128,7 @@ export function useSpeaking({
       speakingList.splice(speakingIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
-      console.error(`Speaking with id ${speakingId} not found for deletion.`);
+      logger.error(`Speaking with id ${speakingId} not found for deletion.`);
     }
   };
 

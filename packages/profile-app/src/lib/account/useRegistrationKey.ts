@@ -53,8 +53,6 @@ export async function storeRegistrationKey(
 
     await account.waitForSync();
 
-    console.log('Registration key stored successfully');
-
     return key;
   } catch (error) {
     console.error('Failed to store registration key:', error);
@@ -72,20 +70,17 @@ export function useRegistrationKey() {
 
   const getValidKey = useCallback(async (): GetValidKeyFunctionOutput => {
     if (!account?.root || !isAccountReady) {
-      console.log('Account not ready yet');
       return null;
     }
 
     // Wait for account to load if it's still loading
     if (isLoading) {
-      console.log('Account loading...');
       return null;
     }
 
     const keyExpired = registrationKey ? isKeyExpired(registrationKey) : true;
 
     if (!registrationKey || keyExpired) {
-      console.log('Key missing or expired, generating new one...');
       const key = await storeRegistrationKey(
         account as Loaded<typeof OnboardingAccount>,
       );

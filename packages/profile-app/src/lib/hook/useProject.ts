@@ -1,5 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
+import { logger } from '#/lib/utils/logger';
 import { ListOfProjects, Project } from '../schema';
 import { BaseHookProps } from './types';
 
@@ -25,7 +26,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
 
     const listOwner = projectsList._owner;
     if (!listOwner) {
-      console.error(
+      logger.error(
         'Cannot create a new project instance: projectsList._owner is undefined.',
       );
       return undefined;
@@ -56,7 +57,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
     },
   ) => {
     if (!projectToUpdate) {
-      console.error('Project instance not provided for update.');
+      logger.error('Project instance not provided for update.');
       return;
     }
 
@@ -107,7 +108,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
   const deleteProject = async (projectId: string) => {
     const projectsList = profile.projects;
     if (!projectsList) {
-      console.warn('No projects list to delete from.');
+      logger.warn('No projects list to delete from.');
       return;
     }
     const projectIndex = projectsList.findIndex(
@@ -118,7 +119,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
       projectsList.splice(projectIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
-      console.error(`Project with id ${projectId} not found for deletion.`);
+      logger.error(`Project with id ${projectId} not found for deletion.`);
     }
   };
 

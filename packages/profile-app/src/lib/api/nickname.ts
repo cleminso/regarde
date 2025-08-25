@@ -54,6 +54,11 @@ export async function checkNicknameAvailability(
 
   if (!response.ok) {
     const errorData: ApiError = await response.json();
+
+    if (response.status === 503) {
+      throw new Error('Service is initializing, please try again in a moment');
+    }
+
     throw new Error(
       errorData.error || `HTTP ${response.status}: ${response.statusText}`,
     );
@@ -72,8 +77,6 @@ export async function registerNickname(
   }
 
   const { key, registrationKeyId } = registrationData;
-
-  console.log('Sending registrationKeyId', registrationKeyId);
 
   const response = await fetch(`${API_BASE_URL}/register`, {
     method: 'POST',

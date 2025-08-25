@@ -1,5 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
+import { logger } from '#/lib/utils/logger';
 import { Award, ListOfAward } from '../schema';
 import { BaseHookProps } from './types';
 
@@ -25,7 +26,7 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
 
     const listOwner = awardsList._owner;
     if (!listOwner) {
-      console.error(
+      logger.error(
         'Cannot create a new award instance: awardsList._owner is undefined.',
       );
       return undefined;
@@ -56,7 +57,7 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
     },
   ) => {
     if (!awardToUpdate) {
-      console.error('Award instance not provided for update.');
+      logger.error('Award instance not provided for update.');
       return;
     }
 
@@ -105,7 +106,7 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
   const deleteAward = async (awardId: string) => {
     const awardsList = profile.award;
     if (!awardsList) {
-      console.warn('No award list to delete from.');
+      logger.warn('No award list to delete from.');
       return;
     }
     const awardIndex = awardsList.findIndex((a: any) => a && a.id === awardId);
@@ -114,7 +115,7 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
       awardsList.splice(awardIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
-      console.error(`Award with id ${awardId} not found for deletion.`);
+      logger.error(`Award with id ${awardId} not found for deletion.`);
     }
   };
 

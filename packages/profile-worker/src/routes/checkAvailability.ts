@@ -64,8 +64,16 @@ export const checkAvailabilityHandler = (nicknameRegistry: any, reservedNickname
 
       console.log(`Checking availability for nickname: "${nickname}"`);
 
+      // Ensure reservedNicknames is properly loaded
+      if (!reservedNicknames) {
+        console.error("Reserved nicknames registry not available");
+        return c.json({ error: "Service temporarily unavailable" }, 503);
+      }
+
       const existingAccountForNickname = nicknameRegistry[nickname];
       const reservation = reservedNicknames[nickname];
+
+      console.log(`Reservation check for "${nickname}":`, reservation ? "RESERVED" : "NOT RESERVED");
 
       // Nickname is unavailable if it's either taken or reserved
       const isAvailable = !existingAccountForNickname && !reservation;

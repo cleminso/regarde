@@ -6,6 +6,7 @@ import { Button } from '#/components/ui/button';
 import { useMyJazz } from '#/lib/account/useMyJazz';
 import { fetchUserDetailsByNickname } from '#/lib/api/base';
 import { JazzAppProfile } from '#/lib/schema';
+import { logger } from '#/lib/utils/logger';
 import { ProfileHeader } from './header';
 import { AboutPage } from './paths/about';
 import { NowPage } from './paths/now';
@@ -53,7 +54,7 @@ export function ProfileView() {
           setOtherUserProfile(null);
         }
       } catch (err) {
-        console.error('Error fetching other user profile:', err);
+        logger.error('Error fetching other user profile:', err);
         setError('Failed to load profile');
         setOtherUserProfile(null);
       } finally {
@@ -67,6 +68,7 @@ export function ProfileView() {
   if (isLoading) {
     return (
       <div className="flex w-full justify-center items-center min-h-screen">
+        <title>Loading...</title>
         <p>Loading profile...</p>
       </div>
     );
@@ -78,6 +80,7 @@ export function ProfileView() {
 
     return (
       <div className="flex w-full justify-center items-center bg-background">
+        <title>Profile Not Found</title>
         <div className="text-center space-y-6 mx-auto p-8">
           <div className="space-y-2">
             <h1 className="text-2xl font-semibold text-foreground">Oops!</h1>
@@ -178,8 +181,13 @@ function ProfileContent({ profile }: { profile: LoadedProfile }) {
     }
   };
 
+  // Dynamic title based on profile nickname
+  const profileNickname = profile.userHandle?.nickname;
+  const pageTitle = profileNickname ? `${profileNickname}` : 'profile.jazz.dev';
+
   return (
     <main className="w-full">
+      <title>{pageTitle}</title>
       <ProfileHeader profile={profile} />
 
       <div className="w-full" style={{ maxWidth: '580px', margin: '0 auto' }}>

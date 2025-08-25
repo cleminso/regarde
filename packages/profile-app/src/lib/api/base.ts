@@ -1,3 +1,5 @@
+import { logger } from '#/lib/utils/logger';
+
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'https://api.jazz.dev';
 
@@ -174,7 +176,7 @@ export async function fetchUserDetails(options: {
       // The frontend validation logic will handle determining what to do with it
       return data;
     } catch (parseError) {
-      console.warn('Failed to parse 400/404 response:', parseError);
+      logger.warn('Failed to parse 400/404 response:', parseError);
       // Even if parsing fails, return a minimal object for frontend handling
       return {
         exists: false,
@@ -194,7 +196,7 @@ export async function fetchUserDetails(options: {
   const errorData = await response
     .json()
     .catch(() => ({ message: 'Failed to fetch user details' }));
-  console.error('API Error fetchUserDetails:', errorData);
+  logger.error('API Error fetchUserDetails:', errorData);
 
   throw new Error(
     errorData.message ||
@@ -348,7 +350,7 @@ export async function checkNicknameAvailability(
     const errorData = await response
       .json()
       .catch(() => ({ message: 'Failed to check nickname availability' }));
-    console.error('API Error checkNicknameAvailability:', errorData);
+    logger.error('API Error checkNicknameAvailability:', errorData);
     throw new Error(
       errorData.message ||
         `Failed to check nickname availability. Status: ${response.status}`,
@@ -388,7 +390,7 @@ export async function updateUserNickname(
     const errorData = await response
       .json()
       .catch(() => ({ message: 'Failed to update nickname' }));
-    console.error('API Error updateUserNickname:', errorData);
+    logger.error('API Error updateUserNickname:', errorData);
     // Provide more specific error messages based on status codes if possible
     let errorMessage =
       errorData.message ||

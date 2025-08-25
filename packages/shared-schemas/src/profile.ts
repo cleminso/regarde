@@ -236,7 +236,7 @@ export const OnboardingAccount = co
     });
 
     const jazzProfileData = JazzAppProfile.create({
-      name: creationProps?.name || "Public Profile",
+      name: creationProps?.name || "Type your name",
       userHandle,
       version: 1,
     });
