@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router';
 
-import { BaseLayout } from '#/components/layouts/baseLayout';
+import { BaseLayout } from './baseLayout.tsx';
 
 export function AppLayout() {
   return (

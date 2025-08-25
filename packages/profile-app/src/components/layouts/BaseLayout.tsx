@@ -1,4 +1,4 @@
-import { LandingHeader } from '../onboarding/landingHeader';
+import { LandingHeader } from '../onboarding/landingHeader.tsx';
 
 interface BaseLayoutProps {
   children: React.ReactNode;
