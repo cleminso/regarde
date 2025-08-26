@@ -1,0 +1,25 @@
+{
+  "buildCommand": "cd ../.. && corepack prepare pnpm@latest --activate && pnpm install && pnpm --filter=\"@onboarding.jazz/shared-schemas\" build && pnpm --filter @onboarding.jazz/profile-app build",
+  "outputDirectory": "dist",
+  "installCommand": "cd ../.. && corepack prepare pnpm@latest --activate && pnpm install",
+  "redirects": [
+    {
+      "source": "/:nickname",
+      "destination": "https://api.jazz.dev/:nickname",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|crawler|spider|facebookexternalhit|twitterbot).*"
+        }
+      ],
+      "statusCode": 200
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

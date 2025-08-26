@@ -1,0 +1,22 @@
+{
+  "redirects": [
+    {
+      "source": "/:nickname",
+      "destination": "https://api.jazz.dev/:nickname",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|crawler|spider|facebookexternalhit|twitterbot).*"
+        }
+      ],
+      "statusCode": 200
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
