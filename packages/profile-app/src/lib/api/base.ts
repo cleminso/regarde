@@ -18,7 +18,7 @@ interface UserDetails {
   publicData?: {
     name: string;
     bio?: string;
-    avatar?: string;
+    avatarImage?: string;
     nickname?: string;
     socialLinks?: {
       github?: string;

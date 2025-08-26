@@ -1,27 +1,29 @@
-`ImageDefinition` is a specialized CoValue designed specifically for managing images in Jazz applications. It extends beyond basic file storage by supporting multiple resolutions of the same image and progressive loading patterns.
+`ImageDefinition` is a specialized CoValue designed specifically for managing images in Jazz applications. It extends beyond basic file storage by supporting a blurry placeholder, built-in resizing, and progressive loading patterns.
 
-Beyond [`ImageDefinition`](https://jazz.tools/docs/react/using-covalues/imagedef#understanding-imagedefinition), Jazz offers higher-level functions and components that make it easier to use images:
+Beyond ImageDefinition, Jazz offers higher-level functions and components that make it easier to use images:
 
 - [`createImage()`](https://jazz.tools/docs/react/using-covalues/imagedef#creating-images) - function to create an `ImageDefinition` from a file
-- [`ProgressiveImg`](https://jazz.tools/docs/react/using-covalues/imagedef#displaying-images-with-progressiveimg) - React component to display an image with progressive loading
-- [`useProgressiveImg`](https://jazz.tools/docs/react/using-covalues/imagedef#using-useprogressiveimg-hook) - React hook to load an image in your own component
+- [`Image`](https://jazz.tools/docs/react/using-covalues/imagedef#displaying-images) - React component to display a stored image
 
-The [Image Upload example](https://github.com/gardencmp/jazz/tree/main/examples/image-upload) demonstrates use of `ProgressiveImg` and `ImageDefinition`.
+The [Image Upload example](https://github.com/gardencmp/jazz/tree/main/examples/image-upload) demonstrates use of images in Jazz.
 
 ## [](https://jazz.tools/docs/react/using-covalues/imagedef#creating-images)Creating Images
 
 The easiest way to create and use images in your Jazz application is with the `createImage()` function:
 
 ```
-import { createImage } from "jazz-browser-media-images";
+import { createImage } from "jazz-tools/media";
 
 // Create an image from a file input
-async function handleFileUpload(event) {
-  const file = event.target.files[0];
+async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
+  const file = event.target.files?.[0];
   if (file) {
-    // Creates ImageDefinition with multiple resolutions automatically
+    // Creates ImageDefinition with a blurry placeholder, limited to 1024px on the longest side, and multiple resolutions automatically
     const image = await createImage(file, {
-      owner: me.profile._owner,
+      owner: me._owner,
+      maxSize: 1024,
+      placeholder: "blur",
+      progressive: true,
     });
 
     // Store the image in your application data
@@ -30,7 +32,7 @@ async function handleFileUpload(event) {
 }
 ```
 
-> Note: `createImage()` requires a browser environment as it uses browser APIs to process images.
+**Note:** `createImage()` currently supports browser and react-native environments.
 
 The `createImage()` function:
 
@@ -41,155 +43,253 @@ The `createImage()` function:
 
 ### [](https://jazz.tools/docs/react/using-covalues/imagedef#configuration-options)Configuration Options
 
-You can configure `createImage()` with additional options:
-
 ```
-// Configuration options
-const options = {
-  owner: me,                // Owner for access control
-  maxSize: 1024             // Maximum resolution to generate
-};
-
-// Setting maxSize controls which resolutions are generated:
-// 256: Only creates the smallest resolution (256px on longest side)
-// 1024: Creates 256px and 1024px resolutions
-// 2048: Creates 256px, 1024px, and 2048px resolutions
-// undefined: Creates all resolutions including the original size
-
-const image = await createImage(file, options);
+import type { ImageDefinition, Group, Account } from "jazz-tools";
+// ---cut---
+declare function createImage(
+  image: Blob | File | string,
+  options: {
+    owner?: Group | Account;
+    placeholder?: "blur" | false;
+    maxSize?: number;
+    progressive?: boolean;
+  }): Promise<ImageDefinition>
 ```
 
-### [](https://jazz.tools/docs/react/using-covalues/imagedef#ownership)Ownership
+#### [](https://jazz.tools/docs/react/using-covalues/imagedef#image)`image`
 
-Like other CoValues, you can specify ownership when creating image definitions.
+The image to create an `ImageDefinition` from. On browser environments, this can be a `Blob` or a `File`. On React Native, this must be a `string` with the file path.
+
+#### [](https://jazz.tools/docs/react/using-covalues/imagedef#owner)`owner`
+
+The owner of the `ImageDefinition`. This is used to control access to the image. See [Groups as permission scopes](https://jazz.tools/docs/react/groups/intro) for more information on how to use groups to control access to images.
+
+#### [](https://jazz.tools/docs/react/using-covalues/imagedef#placeholder)`placeholder`
+
+Sometimes the wanted image is not loaded yet. The placeholder is a base64 encoded image that is displayed while the image is loading. Currently, only `"blur"` is a supported.
+
+#### [](https://jazz.tools/docs/react/using-covalues/imagedef#maxsize)`maxSize`
+
+The image generation process includes a maximum size setting that controls the longest side of the image. A built-in resizing feature is applied based on this setting.
+
+#### [](https://jazz.tools/docs/react/using-covalues/imagedef#progressive)`progressive`
+
+The progressive loading pattern is a technique that allows images to load incrementally, starting with a small version and gradually replacing it with a larger version as it becomes available. This is useful for improving the user experience by showing a placeholder while the image is loading.
+
+Passing `progressive: true` to `createImage()` will create internal smaller versions of the image for future uses.
+
+### [](https://jazz.tools/docs/react/using-covalues/imagedef#create-multiple-resized-copies)Create multiple resized copies
+
+To create multiple resized copies of an original image for better layout control, you can utilize the `createImage` function multiple times with different parameters for each desired size. Here’s an example of how you might implement this:
 
 ```
-const teamGroup = Group.create();
-teamGroup.addMember(colleagueAccount, "writer");
+import { co } from "jazz-tools";
+import { createImage } from "jazz-tools/media";
 
-// Create an image with shared ownership
-const teamImage = await createImage(file, { owner: teamGroup });
+// Jazz Schema
+const ProductImage = co.map({
+  image: co.image(),
+  thumbnail: co.image(),
+});
+
+const mainImage = await createImage(myBlob);
+const thumbnail = await createImage(myBlob, {
+  maxSize: 100,
+});
+
+// or, in case of migration, you can use the original stored image.
+const newThumb = await createImage(mainImage!.original!.toBlob()!, {
+  maxSize: 100,
+});
+
+const imageSet = ProductImage.create({
+  image: mainImage,
+  thumbnail,
+});
 ```
 
-See [Groups as permission scopes](https://jazz.tools/docs/react/groups/intro) for more information on how to use groups to control access to images.
+## [](https://jazz.tools/docs/react/using-covalues/imagedef#displaying-images)Displaying Images
 
-## [](https://jazz.tools/docs/react/using-covalues/imagedef#undefined)Displaying Images with `ProgressiveImg`
+To use the stored ImageDefinition, there are two ways: the `Image` react component, and the helpers functions.
 
-For a complete progressive loading experience, use the `ProgressiveImg` component:
+### [](https://jazz.tools/docs/react/using-covalues/imagedef#image-component)`<Image>` component
+
+The Image component is the best way to let Jazz handle the image loading.
 
 ```
-import { ProgressiveImg } from "jazz-react";
+import * as React from "react";
+import { co } from "jazz-tools";
+const ImageDef = co.image();
+// ---cut---
+import { Image } from "jazz-tools/react";
 
-function GalleryView({ image }) {
+function GalleryView({ image }: { image: co.loaded<typeof ImageDef> }) {
   return (
     <div className="image-container">
-      <ProgressiveImg
-        image={image}  // The image definition to load
-        targetWidth={800} // Looks for the best available resolution for a 800px image
-      >
-        {({ src }) => (
-          <img
-            src={src}
-            alt="Gallery image"
-            className="gallery-image"
-          />
-        )}
-      </ProgressiveImg>
+      <Image imageId={image.id} alt="Profile" width={600} />
     </div>
   );
 }
 ```
 
-The `ProgressiveImg` component handles:
+The `Image` component handles:
 
-- Showing a placeholder while loading
-- Automatically selecting the appropriate resolution
-- Progressive enhancement as higher resolutions become available
+- Showing a placeholder while loading, if generated
+- Automatically selecting the appropriate resolution, if generated with progressive loading
+- Progressive enhancement as higher resolutions become available, if generated with progressive loading
+- Determining the correct width/height attributes to avoid layout shifting
 - Cleaning up resources when unmounted
 
-## [](https://jazz.tools/docs/react/using-covalues/imagedef#using-useprogressiveimg-hook)Using `useProgressiveImg` Hook
-
-For more control over image loading, you can implement your own progressive image component:
+The component's props are:
 
 ```
-import { useProgressiveImg } from "jazz-react";
+export type ImageProps = Omit<
+  JSX.IntrinsicElements["img"],
+  "src" | "srcSet" | "width" | "height"
+> & {
+  imageId: string;
+  width?: number | "original";
+  height?: number | "original";
+};
+```
 
-function CustomImageComponent({ image }) {
-  const {
-    src,         // Data URI containing the image data as a base64 string,
-                 // or a placeholder image URI
-    res,         // The current resolution
-    originalSize // The original size of the image
-  } = useProgressiveImg({
-    image: image,  // The image definition to load
-    targetWidth: 800  // Limit to resolutions up to 800px wide
+#### [](https://jazz.tools/docs/react/using-covalues/imagedef#width-and-height-props)Width and Height props
+
+The `width` and `height` props are used to control the best resolution to use but also the width and height attributes of the image tag.
+
+Let's say we have an image with a width of 1920px and a height of 1080px.
+
+```
+<Image imageId="123" />
+// <img src={...} /> with the highest resolution available
+
+<Image imageId="123" width="original" height="original" />
+// <img width="1920" height="1080" />
+
+<Image imageId="123" width="600" />
+// <img width="600" /> leaving the browser to compute the height (might cause layout shift)
+
+<Image imageId="123" width="600" height="original" />
+// <img width="600" height="338" /> keeping the aspect ratio
+
+<Image imageId="123" width="original" height="600" />
+// <img width="1067" height="600" /> keeping the aspect ratio
+
+<Image imageId="123" width="600" height="600" />
+// <img width="600" height="600" />
+```
+
+If the image was generated with progressive loading, the `width` and `height` props will determine the best resolution to use.
+
+#### [](https://jazz.tools/docs/react/using-covalues/imagedef#lazy-loading)Lazy loading
+
+The `Image` component supports lazy loading based on [browser's strategy](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#loading). It will generate the blob url for the image when the browser's viewport reaches the image.
+
+```
+<Image imageId="123" width="original" height="original" loading="lazy" />
+```
+
+### [](https://jazz.tools/docs/react/using-covalues/imagedef#imperative-usage)Imperative usage
+
+Like other CoValues, `ImageDefinition` can be used to load the object.
+
+```
+import { ImageDefinition } from "jazz-tools";
+
+const image = await ImageDefinition.load("123", {
+  resolve: {
+    original: true,
+  },
+});
+
+if(image) {
+  console.log({
+    originalSize: image.originalSize,
+    placeholderDataUrl: image.placeholderDataURL,
+    original: image.original, // this FileStream may be not loaded yet
   });
-
-  // When image is not available yet
-  if (!src) {
-    return <div className="image-loading-fallback">Loading image...</div>;
-  }
-
-  // When image is loading, show a placeholder
-  if (res === "placeholder") {
-    return <img src={src} alt="Loading..." className="blur-effect" />;
-  }
-
-  // Full image display with custom overlay
-  return (
-    <div className="custom-image-wrapper">
-      <img
-        src={src}
-        alt="Custom image"
-        className="custom-image"
-      />
-      <div className="image-overlay">
-        <span className="image-caption">Resolution: {res}</span>
-      </div>
-    </div>
-  );
 }
 ```
 
-## [](https://jazz.tools/docs/react/using-covalues/imagedef#understanding-imagedefinition)Understanding ImageDefinition
+`image.original` is a `FileStream` and its content can be read as described in the [FileStream](https://jazz.tools/docs/react/using-covalues/filestreams#reading-from-filestreams) documentation.
 
-Behind the scenes, `ImageDefinition` is a specialized CoValue that stores:
-
-- The original image dimensions (`originalSize`)
-- An optional placeholder (`placeholderDataURL`) for immediate display
-- Multiple resolution variants of the same image as [`FileStream`s](https://jazz.tools/docs/react/using-covalues/filestreams)
-
-Each resolution is stored with a key in the format `"widthxheight"` (e.g., `"1920x1080"`, `"800x450"`).
+Since FileStream objects are also CoValues, they must be loaded before use. To simplify loading, if you want to load the binary data saved as Original, you can use the `loadImage` function.
 
 ```
-// Structure of an ImageDefinition
-const image = ImageDefinition.create({
-  originalSize: [1920, 1080],
-  placeholderDataURL: "data:image/jpeg;base64,/9j/4AAQSkZJRg...",
-});
+import { loadImage } from "jazz-tools/media";
 
-// Accessing the highest available resolution
-const highestRes = image.highestResAvailable();
-if (highestRes) {
-  console.log(`Found resolution: ${highestRes.res}`);
-  console.log(`Stream: ${highestRes.stream}`);
+const image = await loadImage(imageDefinitionOrId);
+if(image) {
+  console.log({
+    width: image.width,
+    height: image.height,
+    image: image.image,
+  });
 }
 ```
 
-For more details on using `ImageDefinition` directly, see the [VanillaJS docs](https://jazz.tools/docs/vanilla/using-covalues/imagedef).
-
-### [](https://jazz.tools/docs/react/using-covalues/imagedef#fallback-behavior)Fallback Behavior
-
-`highestResAvailable` returns the largest resolution that fits your constraints. If a resolution has incomplete data, it falls back to the next available lower resolution.
+If the image was generated with progressive loading, and you want to access the best-fit resolution, use `loadImageBySize`. It will load the image of the best resolution that fits the wanted width and height.
 
 ```
-const image = ImageDefinition.create({
-  originalSize: [1920, 1080],
+import { loadImageBySize } from "jazz-tools/media";
+
+const image = await loadImageBySize(imageDefinitionOrId, 600, 600); // 600x600
+
+if(image) {
+
+  console.log({
+    width: image.width,
+    height: image.height,
+    image: image.image,
+  });
+}
+```
+
+If want to dynamically listen to the _loaded_ resolution that best fits the wanted width and height, you can use the `subscribe` and the `highestResAvailable` function.
+
+```
+import { ImageDefinition } from "jazz-tools";
+// ---cut---
+// function highestResAvailable(image: ImageDefinition, wantedWidth: number, wantedHeight: number): FileStream | null
+import { highestResAvailable } from "jazz-tools/media";
+
+const image = await ImageDefinition.load("123");
+
+image?.subscribe({}, (image) => {
+  const bestImage = highestResAvailable(image, 600, 600);
+
+  if(bestImage) {
+    // bestImage is again a FileStream
+    const blob = bestImage.image.toBlob();
+    if(blob) {
+      const url = URL.createObjectURL(blob);
+      // ...
+    }
+  }
 });
+```
 
-image["1920x1080"] = FileStream.create(); // Empty image upload
-image["800x450"] = await FileStream.createFromBlob(mediumSizeBlob);
+## [](https://jazz.tools/docs/react/using-covalues/imagedef#image-manipulation-custom-implementation)Image manipulation custom implementation
 
-const highestRes = image.highestResAvailable();
-console.log(highestRes.res); // 800x450
+To manipulate the images (like placeholders, resizing, etc.), `createImage()` uses different implementations depending on the environment. Currently, the image manipulation is supported on browser and react-native environments.
+
+On the browser, the image manipulation is done using the `canvas` API. If you want to use a custom implementation, you can use the `createImageFactory` function in order create your own `createImage` function and use your preferred image manipulation library.
+
+```
+import { createImageFactory } from "jazz-tools/media";
+
+const createImage = createImageFactory({
+    createFileStreamFromSource: async (source, owner) => {
+        // ...
+    },
+    getImageSize: async (image) => {
+        // ...
+    },
+    getPlaceholderBase64: async (image) => {
+        // ...
+    },
+    resize: async (image, width, height) => {
+        // ...
+    },
+});
 ```

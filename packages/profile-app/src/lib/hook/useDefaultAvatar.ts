@@ -9,15 +9,27 @@ export function useDefaultAvatar(
   size: number = 92,
 ) {
   return useMemo(() => {
-    if (profile.avatar) {
-      return profile.avatar;
+    if (typeof profile.avatarImage === 'string') {
+      return profile.avatarImage;
     }
 
+    if (profile.avatarImage?.original) {
+      try {
+        const blob = profile.avatarImage.original.toBlob();
+        if (blob) {
+          return URL.createObjectURL(blob);
+        }
+      } catch (error) {
+        console.warn('Error creating URL from avatar image:', error);
+      }
+    }
+
+    // Fall back to generated avatar
     if (profile.userHandle) {
       const borderRadius = size === 92 ? 16 : 48;
       return generateDefaultAvatar(profile.userHandle.nickname, borderRadius);
     }
 
     return null;
-  }, [profile.avatar, profile.userHandle, size]);
+  }, [profile.avatarImage, profile.userHandle, size]);
 }

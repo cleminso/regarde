@@ -21,6 +21,7 @@ export function useMyJazz() {
             volunteering: { $each: true },
             sideProject: { $each: true },
             nowPage: true,
+            avatarImage: { original: true },
           },
           'auth.jazz.dev': true,
         },

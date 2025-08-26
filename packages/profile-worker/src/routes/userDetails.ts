@@ -7,7 +7,6 @@ import { ErrorResponseSchema } from "../schemas/common.js";
 
 import {
   JazzAppProfile,
-  JazzProfileRoot,
   OnboardingAccount,
 } from "@onboarding.jazz/shared-schemas/profile";
 import { Loaded } from "jazz-tools";
@@ -254,7 +253,6 @@ export const userDetailsHandler = (
         canRegisterNickname: !hasNickname,
       };
 
-      let account: any = null; // Consider using 'InstanceType<typeof OnboardingAccount>' or a more specific type
       let accountLoadError: string | null = null;
       let profileData: Loaded<typeof JazzAppProfile> | null = null;
 
@@ -296,6 +294,7 @@ export const userDetailsHandler = (
             volunteering: { $each: true },
             sideProject: { $each: true },
             nowPage: true,
+            avatarImage: { original: true },
           },
         });
         profileData?.ensureLoaded({
@@ -311,6 +310,7 @@ export const userDetailsHandler = (
             volunteering: { $each: true },
             sideProject: { $each: true },
             nowPage: true,
+            avatarImage: { original: true },
           },
         });
       } catch (accountError: any) {
@@ -336,6 +336,27 @@ export const userDetailsHandler = (
             // Safely extract profile data
             if (profileData) {
               Object.assign(publicData, profileData);
+
+              // Extract avatar image URL for public access
+              if (profileData.avatarImage?.original) {
+                try {
+                  const blob = profileData.avatarImage.original.toBlob();
+                  if (blob) {
+                    const arrayBuffer = await blob.arrayBuffer();
+                    const base64 = Buffer.from(arrayBuffer).toString("base64");
+                    const mimeType = blob.type || "image/jpeg";
+                    publicData.avatarImage = `data:${mimeType};base64,${base64}`;
+                  } else {
+                    delete publicData.avatarImage;
+                  }
+                } catch (imageError) {
+                  console.warn(`Error processing avatar image: ${imageError}`);
+                  delete publicData.avatarImage;
+                }
+              } else {
+                // Remove the ImageDefinition object if no original is available
+                delete publicData.avatarImage;
+              }
             }
           } catch (profileError: any) {
             console.warn(

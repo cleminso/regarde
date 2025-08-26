@@ -1,7 +1,7 @@
+import { createImage } from 'jazz-tools/media';
 import React, { useCallback, useRef, useState } from 'react';
 
 import { useClerkOnboarding } from '../onboarding/useClerkOnboarding';
-
 import { BaseHookProps } from './types';
 
 type UseGeneralProps = BaseHookProps;
@@ -32,20 +32,26 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
         return;
       }
 
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        try {
-          profile.avatar = reader.result as string;
-          await triggerSyncIndicator(profile);
-          setUpdateError(null);
-        } catch (error) {
-          setUpdateError('Failed to update avatar. Please try again.');
-        }
-      };
-      reader.onerror = () => {
-        setUpdateError('Failed to read image file. Please try again.');
-      };
-      reader.readAsDataURL(file);
+      setIsUpdating(true);
+      setUpdateError(null);
+
+      try {
+        const imageDefinition = await createImage(file, {
+          owner: profile._owner,
+          maxSize: 1024,
+          placeholder: 'blur',
+          progressive: true,
+        });
+
+        profile.avatarImage = imageDefinition;
+        await triggerSyncIndicator(profile);
+        setUpdateError(null);
+      } catch (error) {
+        console.error('Error uploading avatar:', error);
+        setUpdateError('Failed to update avatar. Please try again.');
+      } finally {
+        setIsUpdating(false);
+      }
     },
     [profile, triggerSyncIndicator],
   );
@@ -83,12 +89,17 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
       return;
     }
 
+    setIsUpdating(true);
+    setUpdateError(null);
+
     try {
-      profile.avatar = undefined;
+      profile.avatarImage = undefined;
       await triggerSyncIndicator(profile);
       setUpdateError(null);
     } catch (error) {
       setUpdateError('Failed to remove avatar. Please try again.');
+    } finally {
+      setIsUpdating(false);
     }
   }, [profile, triggerSyncIndicator]);
 

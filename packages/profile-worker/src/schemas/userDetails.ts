@@ -71,10 +71,10 @@ export const UserDetailsResponseSchema = z
       .object({
         name: z.string().describe("The user's display name"),
         bio: z.string().optional().describe("User's biography or description"),
-        avatar: z
+        avatarImage: z
           .string()
           .optional()
-          .describe("URL or identifier for the user's profile picture"),
+          .describe("Data URL for the user's profile picture"),
         socialLinks: z
           .object({
             github: z

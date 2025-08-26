@@ -26,15 +26,15 @@
     "nickname-registry"
   ],
   "dependencies": {
-    "@alcyone-labs/arg-parser": "^2.6.0",
+    "@alcyone-labs/arg-parser": "^2.7.2",
     "@onboarding.jazz/shared-schemas": "workspace:*",
-    "dotenv": "^16.4.7",
-    "jazz-tools": "^0.17.1",
+    "dotenv": "^16.6.1",
+    "jazz-tools": "^0.17.12",
     "ulidx": "^2.4.1",
-    "zod": "^3.24.1"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/node": "^20.19.9",
+    "@types/node": "^20.19.11",
     "typescript": "^5.9.2"
   }
 }

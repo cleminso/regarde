@@ -69,7 +69,7 @@ export function AvatarUpload({
         >
           Upload
         </button>
-        {profile.avatar && (
+        {profile.avatarImage && (
           <button
             type="button"
             onClick={onRemoveAvatar}

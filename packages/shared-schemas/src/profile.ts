@@ -157,7 +157,7 @@ export const JazzAppProfile = co.map({
   name: z.string(),
   userHandle: UserHandle,
   bio: z.optional(z.string()),
-  avatar: z.optional(z.string()),
+  avatarImage: co.optional(co.image()),
   socialLinks: co.optional(SocialLinks),
   projects: co.optional(ListOfProjects),
   workExp: co.optional(ListOfWorkExp),

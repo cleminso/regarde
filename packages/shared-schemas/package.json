@@ -18,11 +18,11 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "jazz-tools": "^0.17.1",
+    "jazz-tools": "^0.17.12",
     "ulidx": "^2.4.1"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
+    "typescript": "^5.9.2",
     "vite": "^6.3.5",
     "vite-plugin-dts": "^4.5.4"
   },
