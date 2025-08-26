@@ -17,7 +17,7 @@ const buttonVariants = cva(
           'bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-destructive-foreground cursor-pointer',
         success:
           'bg-green-300 text-green-700 hover:bg-green-300/90 hover:text-green-700 cursor-pointer',
-        view: 'bg-accent text-accent-foreground hover:bg-accent/90 hover:text-accent-foreground cursor-pointer',
+        view: 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground cursor-pointer',
         outline:
           'border border-input bg-transparent text-foreground hover:bg-secondary hover:text-foreground cursor-pointer',
         ghost: 'hover:bg-accent hover:text-accent-foreground cursor-pointer',

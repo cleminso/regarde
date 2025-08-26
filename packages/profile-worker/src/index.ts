@@ -17,6 +17,8 @@ import {
 } from "./routes/checkAvailability.js";
 import { registerRoute, registerHandler } from "./routes/register.js";
 import { userDetailsRoute, userDetailsHandler } from "./routes/userDetails.js";
+import { profilePageRoute, profilePageHandler } from "./routes/profilePage.js";
+import { avatarRoute, avatarHandler } from "./routes/avatar.js";
 import { Hono } from "hono";
 
 const PORT = process.env.PORT || 3000;
@@ -192,6 +194,15 @@ async function main() {
     }
   };
 
+  const safeAvatarHandler = async (c: any) => {
+    try {
+      return await avatarHandler(nicknameRegistry)(c);
+    } catch (error) {
+      console.error("Error in avatarHandler:", error);
+      return c.notFound();
+    }
+  };
+
   const safeUserDetailsHandler = async (c: any) => {
     try {
       return await userDetailsHandler(
@@ -211,27 +222,36 @@ async function main() {
     }
   };
 
+  const safeProfilePageHandler = async (c: any) => {
+    try {
+      return await profilePageHandler(
+        reverseNicknameRegistry,
+        nicknameRegistry,
+      )(c);
+    } catch (error) {
+      console.error("Error in profilePageHandler:", error);
+      return c.json({ error: "Internal server error" }, 500);
+    }
+  };
+
   app.openapi(checkAvailabilityRoute, safeCheckAvailabilityHandler);
   app.openapi(registerRoute, safeRegisterHandler);
   app.openapi(userDetailsRoute, safeUserDetailsHandler);
+  app.openapi(avatarRoute, safeAvatarHandler);
 
+  // Register non-OpenAPI specific routes BEFORE catch-all
   app.get("/health", (c) => {
-    try {
-      const requestProtocol =
-        c.req.header("x-forwarded-proto") || c.req.url.startsWith("https://")
-          ? "https"
-          : "http";
-      return c.json({
-        status: "healthy",
-        timestamp: new Date().toISOString(),
-        workerId: worker?.id || "unknown",
-        requestProtocol: requestProtocol,
-      });
-    } catch (error) {
-      console.error("Health check error:", error);
-      return c.json({ status: "unhealthy" }, 500);
-    }
+    return c.json({
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      workerId: worker.id,
+    });
   });
+
+  app.get("/ui", swaggerUI({ url: `${PUBLIC_BASE_URL}/doc` }));
+
+  // Register catch-all profile route LAST
+  app.openapi(profilePageRoute, safeProfilePageHandler);
 
   app.notFound((c) => {
     try {
