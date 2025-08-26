@@ -1,1 +1,9 @@
+# Redirect bots to API worker for social media previews
+/:nickname https://api.jazz.dev/:nickname 200 User-Agent:*bot*
+/:nickname https://api.jazz.dev/:nickname 200 User-Agent:*crawler*
+/:nickname https://api.jazz.dev/:nickname 200 User-Agent:*spider*
+/:nickname https://api.jazz.dev/:nickname 200 User-Agent:Twitterbot*
+/:nickname https://api.jazz.dev/:nickname 200 User-Agent:facebookexternalhit*
+
+# SPA fallback for all other requests
 /* /index.html 200
