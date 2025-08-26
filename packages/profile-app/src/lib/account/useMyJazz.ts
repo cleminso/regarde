@@ -3,37 +3,40 @@ import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 
 export function useMyJazz() {
   const isAuthenticated = useIsAuthenticated();
-
-  const { me: account, logOut } = useAccount(OnboardingAccount, {
-    resolve: {
-      root: {
-        'profile.jazz.dev': {
-          socialLinks: true,
-          projects: { $each: true },
-          workExp: { $each: true },
-          writing: { $each: true },
-          education: { $each: true },
-          certification: { $each: true },
-          speaking: { $each: true },
-          award: { $each: true },
-          volunteering: { $each: true },
-          sideProject: { $each: true },
-          nowPage: true,
+  
+  const { me: account, logOut } = useAccount(
+    OnboardingAccount, 
+    isAuthenticated ? {
+      resolve: {
+        root: {
+          'profile.jazz.dev': {
+            socialLinks: true,
+            projects: { $each: true },
+            workExp: { $each: true },
+            writing: { $each: true },
+            education: { $each: true },
+            certification: { $each: true },
+            speaking: { $each: true },
+            award: { $each: true },
+            volunteering: { $each: true },
+            sideProject: { $each: true },
+            nowPage: true,
+          },
+          'auth.jazz.dev': true,
         },
-        'auth.jazz.dev': true,
       },
-    },
-  });
+    } : {}
+  );
 
   return {
     isAuthenticated,
     account,
     profile: account?.profile,
     logOut,
-    jazzAppProfile: account?.root['profile.jazz.dev'],
+    jazzAppProfile: account?.root?.['profile.jazz.dev'],
     accountId: account?.id,
     profileName: account?.profile?.name,
     isAccountReady: Boolean(account?.profile),
-    hasStableProfile: Boolean(account?.profile && account.profile.name),
+    hasStableProfile: Boolean(account?.profile?.name),
   };
 }

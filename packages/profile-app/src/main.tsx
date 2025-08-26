@@ -1,7 +1,7 @@
 import { ClerkProvider, useClerk } from '@clerk/clerk-react';
 import { JazzInspector } from 'jazz-tools/inspector';
 import { JazzReactProviderWithClerk } from 'jazz-tools/react';
-import { StrictMode } from 'react';
+import { StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 
@@ -10,10 +10,7 @@ import { AppLayout } from '#/components/layouts/appLayout.tsx';
 import { ThemeProvider } from '#/components/layouts/themeProvider.tsx';
 import { apiKey, CLERK_PUBLISHABLE_KEY } from '#/lib/config/apiKey.ts';
 import { OnboardingAccount } from '#/lib/schema.ts';
-import { EditorPage } from '#/routes/edit.tsx';
-import { LandingPage } from '#/routes/landing.tsx';
-import { NotFoundPage } from '#/routes/notFound.tsx';
-import { ProfilePage } from '#/routes/profile.tsx';
+import { routes } from '#/routes';
 
 import './index.css';
 
@@ -25,8 +22,12 @@ function JazzProvider({ children }: { children: React.ReactNode }) {
       clerk={clerk}
       sync={{
         peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+        when: "signedUp",
       }}
       AccountSchema={OnboardingAccount}
+      onLogOut={() => {
+        window.location.href = '/';
+      }}
     >
       {children}
     </JazzReactProviderWithClerk>
@@ -43,21 +44,30 @@ createRoot(document.getElementById('root')!).render(
         >
           <JazzProvider>
             <JazzInspector position="bottom left" />
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
+            <Suspense fallback={
+              <div className="flex items-center justify-center min-h-screen bg-background">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  <p className="text-sm text-muted-foreground font-mono">Loading...</p>
+                </div>
+              </div>
+            }>
+              <Routes>
+                <Route path="/" element={<routes.LandingPage />} />
 
-              <Route path="/:nickname" element={<AppLayout />}>
-                <Route index element={<Navigate to="about" replace />} />
-                <Route path="about" element={<ProfilePage />} />
-                <Route path="now" element={<ProfilePage />} />
-              </Route>
+                <Route path="/:nickname" element={<AppLayout />}>
+                  <Route index element={<Navigate to="about" replace />} />
+                  <Route path="about" element={<routes.ProfilePage />} />
+                  <Route path="now" element={<routes.ProfilePage />} />
+                </Route>
 
-              <Route element={<ProtectedRoute />}>
-                <Route path="/:nickname/edit" element={<EditorPage />} />
-              </Route>
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/:nickname/edit" element={<routes.EditorPage />} />
+                </Route>
 
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
+                <Route path="*" element={<routes.NotFoundPage />} />
+              </Routes>
+            </Suspense>
           </JazzProvider>
         </ClerkProvider>
       </BrowserRouter>
