@@ -43,6 +43,16 @@
   ],
   "redirects": [
     {
+      "source": "/:nickname",
+      "destination": "https://api.jazz.dev/:nickname",
+      "statusCode": 200,
+      "conditions": {
+        "headers": {
+          "user-agent": "*bot*,*crawler*,*spider*"
+        }
+      }
+    },
+    {
       "source": "/*",
       "destination": "/index.html",
       "statusCode": 200
