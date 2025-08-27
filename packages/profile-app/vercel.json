@@ -10,7 +10,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(bot|crawler|spider|facebookexternalhit|twitterbot).*"
+          "value": ".*(bot|crawler|spider|facebookexternalhit|twitterbot|whatsapp|telegram|signal|discord|slack|preview|linkpreview).*"
         }
       ],
       "statusCode": 302

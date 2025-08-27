@@ -18,7 +18,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "jazz-tools": "^0.17.12",
+    "jazz-tools": "^0.17.13",
     "ulidx": "^2.4.1"
   },
   "devDependencies": {

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
 
 import { useRegistrationKey } from '#/lib/account/useRegistrationKey';
 import { logger } from '#/lib/utils/logger';
@@ -15,7 +14,6 @@ export function AuthButton() {
   const { logOut, isAuthenticated } = useMyJazz();
   const { getValidKey, isAccountReady } = useRegistrationKey();
 
-  const navigate = useNavigate();
   const keyInitialized = useRef(false);
 
   useEffect(() => {
@@ -38,7 +36,6 @@ export function AuthButton() {
   function handleLogOut() {
     keyInitialized.current = false;
     logOut();
-    navigate('/');
   }
 
   function handleModeChange(newMode: 'login' | 'register') {
