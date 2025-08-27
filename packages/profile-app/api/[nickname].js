@@ -8,15 +8,12 @@ export default async function handler(req, res) {
   );
 
   if (!isBot) {
-    // Let non-bots get the React app
     return res.status(404).end();
   }
 
   try {
     const response = await fetch(`https://api.jazz.dev/${nickname}`, {
-      headers: {
-        'User-Agent': userAgent,
-      },
+      headers: { 'User-Agent': userAgent },
     });
 
     if (!response.ok) {
@@ -29,10 +26,18 @@ export default async function handler(req, res) {
 
     const html = await response.text();
 
-    // Replace API URLs with profile URLs for clean social sharing
     const cleanHtml = html
       .replace(/https:\/\/api\.jazz\.dev/g, 'https://profile.jazz.dev')
-      .replace(/api\.jazz\.dev/g, 'profile.jazz.dev');
+      .replace(/http:\/\/api\.jazz\.dev/g, 'https://profile.jazz.dev')
+      .replace(/api\.jazz\.dev/g, 'profile.jazz.dev')
+      .replace(
+        /content="https:\/\/profile\.jazz\.dev/g,
+        'content="https://profile.jazz.dev',
+      )
+      .replace(
+        /property="og:url" content="[^"]*"/g,
+        `property="og:url" content="https://profile.jazz.dev/${nickname}"`,
+      );
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=3600');
