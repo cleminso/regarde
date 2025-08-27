@@ -2,15 +2,10 @@
   "buildCommand": "cd ../.. && corepack prepare pnpm@latest --activate && pnpm install && pnpm --filter=\"@onboarding.jazz/shared-schemas\" build && pnpm --filter @onboarding.jazz/profile-app build",
   "outputDirectory": "dist",
   "installCommand": "cd ../.. && corepack prepare pnpm@latest --activate && pnpm install",
-  "functions": {
-    "api/profile/[nickname].js": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "rewrites": [
     {
       "source": "/:nickname",
-      "destination": "/api/profile/:nickname",
+      "destination": "/api/:nickname",
       "has": [
         {
           "type": "header",
@@ -24,4 +19,4 @@
       "destination": "/index.html"
     }
   ]
-} 
+}
