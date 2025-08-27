@@ -3,9 +3,7 @@ export default async function handler(req, res) {
 
   // Only handle bot requests - let others fall through to React app
   const userAgent = req.headers['user-agent'] || '';
-  const isBot = /bot|crawler|spider|facebookexternalhit|twitterbot/i.test(
-    userAgent,
-  );
+  const isBot = /bot|crawler|spider|facebookexternalhit|twitterbot/i.test(userAgent);
 
   if (!isBot) {
     return res.status(404).end();
@@ -13,7 +11,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(`https://api.jazz.dev/${nickname}`, {
-      headers: { 'User-Agent': userAgent },
+      headers: { 'User-Agent': userAgent }
     });
 
     if (!response.ok) {
@@ -30,18 +28,12 @@ export default async function handler(req, res) {
       .replace(/https:\/\/api\.jazz\.dev/g, 'https://profile.jazz.dev')
       .replace(/http:\/\/api\.jazz\.dev/g, 'https://profile.jazz.dev')
       .replace(/api\.jazz\.dev/g, 'profile.jazz.dev')
-      .replace(
-        /content="https:\/\/profile\.jazz\.dev/g,
-        'content="https://profile.jazz.dev',
-      )
-      .replace(
-        /property="og:url" content="[^"]*"/g,
-        `property="og:url" content="https://profile.jazz.dev/${nickname}"`,
-      );
+      .replace(/property="og:url" content="[^"]*"/g, `property="og:url" content="https://profile.jazz.dev/${nickname}"`);
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=3600');
     res.status(200).send(cleanHtml);
+
   } catch (error) {
     console.error('Profile fetch error:', error);
     res.status(500).send('Internal server error');
