@@ -37,3 +37,4 @@ packages/admin/registry-backups/
 packages/admin/reserveRegistry-backups/
 
 playwright-report
+.vercel
