@@ -44,26 +44,30 @@ export function AuthButton() {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2">
         <Button
           variant="ghost"
           size="sm"
+          className="touch-hitbox text-xs sm:text-sm px-2 sm:px-3"
           onClick={() => {
             setAuthMode('login');
             setShowAuthModal(true);
           }}
         >
-          LOGIN
+          <span className="hidden sm:inline">LOGIN</span>
+          <span className="sm:hidden">LOGIN</span>
         </Button>
         <Button
           variant="ghost"
           size="sm"
+          className="touch-hitbox text-xs sm:text-sm px-2 sm:px-3"
           onClick={() => {
             setAuthMode('register');
             setShowAuthModal(true);
           }}
         >
-          REGISTER
+          <span className="hidden sm:inline">REGISTER</span>
+          <span className="sm:hidden">REGISTER</span>
         </Button>
         <CustomAuthModal
           isOpen={showAuthModal}

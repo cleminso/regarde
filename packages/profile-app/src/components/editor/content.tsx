@@ -247,248 +247,250 @@ export function ProfileEditor() {
         />
       }
       mainContent={
-        <div className="w-[75%] bg-card flex flex-col p-6 overflow-y-auto overflow-x-hidden">
-          <>
-            {activeSection === editorSections.general && (
-              <GeneralEdit
-                profile={profile!}
-                triggerSyncIndicator={triggerSyncIndicator}
-                onCloseEditor={handleCloseEditor}
-                accountId={accountId!}
-              />
-            )}
+        <div className="flex-1 lg:w-[75%] bg-card flex flex-col lg:px-16 py-4 lg:py-6 overflow-y-auto overflow-x-hidden">
+          <div className="mobile-form-bottom">
+            <>
+              {activeSection === editorSections.general && (
+                <GeneralEdit
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
+                  onCloseEditor={handleCloseEditor}
+                  accountId={accountId!}
+                />
+              )}
 
-            {activeSection === editorSections.contact && (
-              <ContactEdit
-                profile={profile!}
-                triggerSyncIndicator={triggerSyncIndicator}
-                onCloseEditor={handleCloseEditor}
-              />
-            )}
-            {activeSection === editorSections.project &&
-              (projectSectionViewMode === 'view' ? (
-                <ProjectView
+              {activeSection === editorSections.contact && (
+                <ContactEdit
                   profile={profile!}
                   triggerSyncIndicator={triggerSyncIndicator}
-                  projects={profile?.projects ?? undefined}
-                  onAddProject={() => {
-                    setProjectToEdit(undefined);
-                    setProjectView('form');
-                  }}
-                  onEditProject={handleEditProject}
+                  onCloseEditor={handleCloseEditor}
+                />
+              )}
+              {activeSection === editorSections.project &&
+                (projectSectionViewMode === 'view' ? (
+                  <ProjectView
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    projects={profile?.projects ?? undefined}
+                    onAddProject={() => {
+                      setProjectToEdit(undefined);
+                      setProjectView('form');
+                    }}
+                    onEditProject={handleEditProject}
+                    onClose={handleCloseEditor}
+                  />
+                ) : (
+                  <ProjectEdit
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    onDoneEditing={() => {
+                      setProjectView('view');
+                      setProjectToEdit(undefined);
+                    }}
+                    projectToEdit={projectToEdit}
+                  />
+                ))}
+              {activeSection === editorSections.sideProject &&
+                (sideProjectSectionViewMode === 'view' ? (
+                  <SideProjectView
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    sideProjects={profile?.sideProject ?? undefined}
+                    onAddSideProject={() => {
+                      setSideProjectToEdit(undefined);
+                      setSideProjectViewMode('form');
+                    }}
+                    onEditSideProject={handleEditSideProject}
+                    onClose={handleCloseEditor}
+                  />
+                ) : (
+                  <SideProjectEdit
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    onDoneEditing={() => {
+                      setSideProjectViewMode('view');
+                      setSideProjectToEdit(undefined);
+                    }}
+                    sideProjectToEdit={sideProjectToEdit}
+                  />
+                ))}
+              {activeSection === editorSections.workExp &&
+                (workExpSectionViewMode === 'view' ? (
+                  <WorkExpView
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    workExperiences={profile?.workExp ?? undefined}
+                    onAddWorkExp={() => {
+                      setWorkExpToEdit(undefined);
+                      setWorkExpViewMode('form');
+                    }}
+                    onEditWorkExp={handleEditWorkExp}
+                    onClose={handleCloseEditor}
+                  />
+                ) : (
+                  <WorkExpEdit
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    onDoneEditing={() => {
+                      setWorkExpViewMode('view');
+                      setWorkExpToEdit(undefined);
+                    }}
+                    workExpToEdit={workExpToEdit}
+                  />
+                ))}
+              {activeSection === editorSections.writing &&
+                (writingSectionViewMode === 'view' ? (
+                  <WritingView
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    writing={profile?.writing ?? undefined}
+                    onAddWriting={() => {
+                      setWritingToEdit(undefined);
+                      setWritingViewMode('form');
+                    }}
+                    onEditWriting={handleEditWriting}
+                    onClose={handleCloseEditor}
+                  />
+                ) : (
+                  <WritingEdit
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    onDoneEditing={() => {
+                      setWritingViewMode('view');
+                      setWritingToEdit(undefined);
+                    }}
+                    writingToEdit={writingToEdit}
+                  />
+                ))}
+              {activeSection === editorSections.education &&
+                (educationSectionViewMode === 'view' ? (
+                  <EducationView
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    education={profile?.education ?? undefined}
+                    onAddEducation={() => {
+                      setEducationToEdit(undefined);
+                      setEducationViewMode('form');
+                    }}
+                    onEditEducation={handleEditEducation}
+                    onClose={handleCloseEditor}
+                  />
+                ) : (
+                  <EducationEdit
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    onDoneEditing={() => {
+                      setEducationViewMode('view');
+                      setEducationToEdit(undefined);
+                    }}
+                    educationToEdit={educationToEdit}
+                  />
+                ))}
+              {activeSection === editorSections.certification &&
+                (certificationSectionViewMode === 'view' ? (
+                  <CertificationView
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    certifications={profile?.certification ?? undefined}
+                    onAddCertification={() => {
+                      setCertificationToEdit(undefined);
+                      setCertificationViewMode('form');
+                    }}
+                    onEditCertification={handleEditCertification}
+                    onClose={handleCloseEditor}
+                  />
+                ) : (
+                  <CertificationEdit
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    onDoneEditing={() => {
+                      setCertificationViewMode('view');
+                      setCertificationToEdit(undefined);
+                    }}
+                    certificationToEdit={certificationToEdit}
+                  />
+                ))}
+              {activeSection === editorSections.speaking &&
+                (speakingSectionViewMode === 'view' ? (
+                  <SpeakingView
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    speaking={profile?.speaking ?? undefined}
+                    onAddSpeaking={() => {
+                      setSpeakingToEdit(undefined);
+                      setSpeakingViewMode('form');
+                    }}
+                    onEditSpeaking={handleEditSpeaking}
+                    onClose={handleCloseEditor}
+                  />
+                ) : (
+                  <SpeakingEdit
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    onDoneEditing={() => {
+                      setSpeakingViewMode('view');
+                      setSpeakingToEdit(undefined);
+                    }}
+                    speakingToEdit={speakingToEdit}
+                  />
+                ))}
+              {activeSection === editorSections.award &&
+                (awardSectionViewMode === 'view' ? (
+                  <AwardView
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    awards={profile?.award ?? undefined}
+                    onAddAward={() => {
+                      setAwardToEdit(undefined);
+                      setAwardViewMode('form');
+                    }}
+                    onEditAward={handleEditAward}
+                    onClose={handleCloseEditor}
+                  />
+                ) : (
+                  <AwardEdit
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    onDoneEditing={() => {
+                      setAwardViewMode('view');
+                      setAwardToEdit(undefined);
+                    }}
+                    awardToEdit={awardToEdit}
+                  />
+                ))}
+              {activeSection === editorSections.volunteering &&
+                (volunteeringSectionViewMode === 'view' ? (
+                  <VolunteeringView
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    volunteering={profile?.volunteering ?? undefined}
+                    onAddVolunteering={() => {
+                      setVolunteeringToEdit(undefined);
+                      setVolunteeringViewMode('form');
+                    }}
+                    onEditVolunteering={handleEditVolunteering}
+                    onClose={handleCloseEditor}
+                  />
+                ) : (
+                  <VolunteeringEdit
+                    profile={profile!}
+                    triggerSyncIndicator={triggerSyncIndicator}
+                    onDoneEditing={() => {
+                      setVolunteeringViewMode('view');
+                      setVolunteeringToEdit(undefined);
+                    }}
+                    volunteeringToEdit={volunteeringToEdit}
+                  />
+                ))}
+              {activeSection === editorSections.nowPage && (
+                <NowPageView
+                  profile={profile!}
+                  triggerSyncIndicator={triggerSyncIndicator}
                   onClose={handleCloseEditor}
                 />
-              ) : (
-                <ProjectEdit
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  onDoneEditing={() => {
-                    setProjectView('view');
-                    setProjectToEdit(undefined);
-                  }}
-                  projectToEdit={projectToEdit}
-                />
-              ))}
-            {activeSection === editorSections.sideProject &&
-              (sideProjectSectionViewMode === 'view' ? (
-                <SideProjectView
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  sideProjects={profile?.sideProject ?? undefined}
-                  onAddSideProject={() => {
-                    setSideProjectToEdit(undefined);
-                    setSideProjectViewMode('form');
-                  }}
-                  onEditSideProject={handleEditSideProject}
-                  onClose={handleCloseEditor}
-                />
-              ) : (
-                <SideProjectEdit
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  onDoneEditing={() => {
-                    setSideProjectViewMode('view');
-                    setSideProjectToEdit(undefined);
-                  }}
-                  sideProjectToEdit={sideProjectToEdit}
-                />
-              ))}
-            {activeSection === editorSections.workExp &&
-              (workExpSectionViewMode === 'view' ? (
-                <WorkExpView
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  workExperiences={profile?.workExp ?? undefined}
-                  onAddWorkExp={() => {
-                    setWorkExpToEdit(undefined);
-                    setWorkExpViewMode('form');
-                  }}
-                  onEditWorkExp={handleEditWorkExp}
-                  onClose={handleCloseEditor}
-                />
-              ) : (
-                <WorkExpEdit
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  onDoneEditing={() => {
-                    setWorkExpViewMode('view');
-                    setWorkExpToEdit(undefined);
-                  }}
-                  workExpToEdit={workExpToEdit}
-                />
-              ))}
-            {activeSection === editorSections.writing &&
-              (writingSectionViewMode === 'view' ? (
-                <WritingView
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  writing={profile?.writing ?? undefined}
-                  onAddWriting={() => {
-                    setWritingToEdit(undefined);
-                    setWritingViewMode('form');
-                  }}
-                  onEditWriting={handleEditWriting}
-                  onClose={handleCloseEditor}
-                />
-              ) : (
-                <WritingEdit
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  onDoneEditing={() => {
-                    setWritingViewMode('view');
-                    setWritingToEdit(undefined);
-                  }}
-                  writingToEdit={writingToEdit}
-                />
-              ))}
-            {activeSection === editorSections.education &&
-              (educationSectionViewMode === 'view' ? (
-                <EducationView
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  education={profile?.education ?? undefined}
-                  onAddEducation={() => {
-                    setEducationToEdit(undefined);
-                    setEducationViewMode('form');
-                  }}
-                  onEditEducation={handleEditEducation}
-                  onClose={handleCloseEditor}
-                />
-              ) : (
-                <EducationEdit
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  onDoneEditing={() => {
-                    setEducationViewMode('view');
-                    setEducationToEdit(undefined);
-                  }}
-                  educationToEdit={educationToEdit}
-                />
-              ))}
-            {activeSection === editorSections.certification &&
-              (certificationSectionViewMode === 'view' ? (
-                <CertificationView
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  certifications={profile?.certification ?? undefined}
-                  onAddCertification={() => {
-                    setCertificationToEdit(undefined);
-                    setCertificationViewMode('form');
-                  }}
-                  onEditCertification={handleEditCertification}
-                  onClose={handleCloseEditor}
-                />
-              ) : (
-                <CertificationEdit
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  onDoneEditing={() => {
-                    setCertificationViewMode('view');
-                    setCertificationToEdit(undefined);
-                  }}
-                  certificationToEdit={certificationToEdit}
-                />
-              ))}
-            {activeSection === editorSections.speaking &&
-              (speakingSectionViewMode === 'view' ? (
-                <SpeakingView
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  speaking={profile?.speaking ?? undefined}
-                  onAddSpeaking={() => {
-                    setSpeakingToEdit(undefined);
-                    setSpeakingViewMode('form');
-                  }}
-                  onEditSpeaking={handleEditSpeaking}
-                  onClose={handleCloseEditor}
-                />
-              ) : (
-                <SpeakingEdit
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  onDoneEditing={() => {
-                    setSpeakingViewMode('view');
-                    setSpeakingToEdit(undefined);
-                  }}
-                  speakingToEdit={speakingToEdit}
-                />
-              ))}
-            {activeSection === editorSections.award &&
-              (awardSectionViewMode === 'view' ? (
-                <AwardView
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  awards={profile?.award ?? undefined}
-                  onAddAward={() => {
-                    setAwardToEdit(undefined);
-                    setAwardViewMode('form');
-                  }}
-                  onEditAward={handleEditAward}
-                  onClose={handleCloseEditor}
-                />
-              ) : (
-                <AwardEdit
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  onDoneEditing={() => {
-                    setAwardViewMode('view');
-                    setAwardToEdit(undefined);
-                  }}
-                  awardToEdit={awardToEdit}
-                />
-              ))}
-            {activeSection === editorSections.volunteering &&
-              (volunteeringSectionViewMode === 'view' ? (
-                <VolunteeringView
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  volunteering={profile?.volunteering ?? undefined}
-                  onAddVolunteering={() => {
-                    setVolunteeringToEdit(undefined);
-                    setVolunteeringViewMode('form');
-                  }}
-                  onEditVolunteering={handleEditVolunteering}
-                  onClose={handleCloseEditor}
-                />
-              ) : (
-                <VolunteeringEdit
-                  profile={profile!}
-                  triggerSyncIndicator={triggerSyncIndicator}
-                  onDoneEditing={() => {
-                    setVolunteeringViewMode('view');
-                    setVolunteeringToEdit(undefined);
-                  }}
-                  volunteeringToEdit={volunteeringToEdit}
-                />
-              ))}
-            {activeSection === editorSections.nowPage && (
-              <NowPageView
-                profile={profile!}
-                triggerSyncIndicator={triggerSyncIndicator}
-                onClose={handleCloseEditor}
-              />
-            )}
-          </>
+              )}
+            </>
+          </div>
         </div>
       }
     />

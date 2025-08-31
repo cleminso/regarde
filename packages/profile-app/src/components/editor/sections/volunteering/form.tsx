@@ -92,7 +92,7 @@ export function VolunteeringEdit({
 
         <div className="space-y-6">
           <section>
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
                   From<sup>*</sup>
@@ -124,7 +124,7 @@ export function VolunteeringEdit({
           </section>
 
           <section>
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
                   Title<sup>*</sup>
@@ -154,7 +154,7 @@ export function VolunteeringEdit({
           </section>
 
           <section>
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
                 <Label htmlFor="volunteering-location">Location</Label>
                 <Input

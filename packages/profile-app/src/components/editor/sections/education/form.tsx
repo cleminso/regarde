@@ -92,7 +92,7 @@ export function EducationEdit({
 
         <div className="space-y-6">
           <section>
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
                   From<sup>*</sup>
@@ -126,7 +126,7 @@ export function EducationEdit({
           </section>
 
           <section>
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
                   Degree<sup>*</sup>
@@ -140,7 +140,7 @@ export function EducationEdit({
                 />
               </div>
 
-              <div className="flex flex-col gap-2 w-full">
+              <div className="flex flex-col md:flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
                   Institution<sup>*</sup>
                 </label>
@@ -156,7 +156,7 @@ export function EducationEdit({
           </section>
 
           <section>
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
                   Location

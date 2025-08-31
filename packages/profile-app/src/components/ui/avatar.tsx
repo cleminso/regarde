@@ -64,27 +64,36 @@ function ProfileAvatar({
   const avatarSrc = useDefaultAvatar(profile, size);
 
   const avatarClasses = cn(
+    // ALWAYS apply rounded-xl for ProfileAvatar, regardless of size
+    'relative flex shrink-0 overflow-hidden rounded-xl',
+    // Size-specific classes
     size === 92
-      ? 'size-[92px] rounded-xl'
+      ? 'size-[92px]'
       : size === 96
-        ? 'size-24 rounded-xl'
-        : 'size-8 rounded-xl',
+        ? 'size-24'
+        : size === 72
+          ? 'size-[72px]'
+          : size === 64
+            ? 'size-16'
+            : size === 48
+              ? 'size-12'
+              : 'size-8',
     className,
   );
 
   return (
-    <Avatar className={avatarClasses} {...props}>
+    <AvatarPrimitive.Root className={avatarClasses} {...props}>
       {avatarSrc && (
         <AvatarImage
           src={avatarSrc}
           alt={`${profile.name || profile.userHandle}'s avatar`}
-          className="rounded-[inherit]"
+          className="aspect-square size-full rounded-xl"
         />
       )}
-      <AvatarFallback>
+      <AvatarFallback className="bg-muted flex size-full items-center justify-center rounded-xl">
         {profile?.userHandle?.nickname.substring(0, 2).toUpperCase() || 'NA'}
       </AvatarFallback>
-    </Avatar>
+    </AvatarPrimitive.Root>
   );
 }
 

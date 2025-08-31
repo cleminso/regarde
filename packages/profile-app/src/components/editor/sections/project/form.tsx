@@ -75,94 +75,92 @@ export function ProjectEdit({
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1">
-        <SectionHeader
-          title="Project"
-          description="Showcase your project and contribution."
-        />
+    <div className="w-full">
+      <SectionHeader
+        title="Project"
+        description="Showcase your project and contribution."
+      />
 
-        <div className="space-y-6">
-          <section>
-            <div className="flex flex-row gap-4">
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
-                  Title<sup>*</sup>
-                </label>
-                <Input
-                  type="text"
-                  id="project-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="My Great Project"
-                />
-              </div>
-
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
-                  Year<sup>*</sup>
-                </label>
-                <SelectorDate
-                  id="project-year"
-                  value={year}
-                  onChange={(e) => setYear(e.target.value)}
-                  placeholderOption={{
-                    value: 'ongoing',
-                    label: 'Ongoing',
-                  }}
-                  buttonDisplayValue={
-                    year === 'ongoing' ? 'Ongoing' : year || currentYear
-                  }
-                />
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <div className="flex flex-row gap-4">
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
-                  Company or client
-                </label>
-                <Input
-                  type="text"
-                  id="project-client"
-                  value={client}
-                  onChange={(e) => setClient(e.target.value)}
-                  placeholder="Acme Inc."
-                />
-              </div>
-
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
-                  Link to project
-                </label>
-                <Input
-                  type="text"
-                  id="project-link"
-                  value={link}
-                  onChange={(e) => setLink(e.target.value)}
-                  placeholder="https://example.com"
-                />
-              </div>
-            </div>
-          </section>
-
-          <section>
+      <div className="space-y-6">
+        <section>
+          <div className="flex flex-col md:flex-row gap-4">
             <div className="flex flex-col gap-2 w-full">
               <label className="text-sm font-sans block text-foreground">
-                Description
+                Title<sup>*</sup>
               </label>
-              <Textarea
-                id="project-description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Add some details"
-                className="min-h-[200px] resize-none"
+              <Input
+                type="text"
+                id="project-title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="My Great Project"
               />
             </div>
-          </section>
-        </div>
+
+            <div className="flex flex-col gap-2 w-full">
+              <label className="text-sm font-sans block text-foreground">
+                Year<sup>*</sup>
+              </label>
+              <SelectorDate
+                id="project-year"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                placeholderOption={{
+                  value: 'ongoing',
+                  label: 'Ongoing',
+                }}
+                buttonDisplayValue={
+                  year === 'ongoing' ? 'Ongoing' : year || currentYear
+                }
+              />
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex flex-col gap-2 w-full">
+              <label className="text-sm font-sans block text-foreground">
+                Company or client
+              </label>
+              <Input
+                type="text"
+                id="project-client"
+                value={client}
+                onChange={(e) => setClient(e.target.value)}
+                placeholder="Acme Inc."
+              />
+            </div>
+
+            <div className="flex flex-col gap-2 w-full">
+              <label className="text-sm font-sans block text-foreground">
+                Link to project
+              </label>
+              <Input
+                type="text"
+                id="project-link"
+                value={link}
+                onChange={(e) => setLink(e.target.value)}
+                placeholder="https://example.com"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div className="flex flex-col gap-2 w-full">
+            <label className="text-sm font-sans block text-foreground">
+              Description
+            </label>
+            <Textarea
+              id="project-description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Add some details"
+              className="min-h-[200px] resize-none"
+            />
+          </div>
+        </section>
       </div>
 
       <EditorFooter

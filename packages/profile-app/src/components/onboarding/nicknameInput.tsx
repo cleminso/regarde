@@ -272,26 +272,37 @@ export function NicknameInput({
         </div>
       )}
 
-      <div className="flex items-center bg-transparent border border-input rounded-md overflow-hidden w-full">
-        <div className="flex items-center px-3 py-3 bg-secondary border-r border-border">
-          <span className="text-sm text-foreground">profile.jazz.dev/</span>
+      <div className="space-y-2 sm:space-y-0">
+        <div className="text-sm text-muted-foreground font-mono sm:hidden">
+          profile.jazz.dev/
         </div>
-        <Input
-          type="text"
-          value={value}
-          onChange={handleInputChange}
-          onFocus={handleInputFocus}
-          onBlur={handleInputBlur}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          className="border-0 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1"
-          disabled={isInputDisabled}
-          aria-describedby={
-            errorDisplay.position === 'below' ? 'nickname-error' : undefined
-          }
-        />
-        <div className="flex items-center px-2 min-w-[100px] justify-end">
-          {renderButton()}
+
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-transparent border border-input rounded-md overflow-hidden w-full">
+          {/* Domain prefix - show inline on desktop */}
+          <div className="hidden sm:flex items-center px-3 py-3 bg-secondary border-r border-border">
+            <span className="text-sm text-foreground">profile.jazz.dev/</span>
+          </div>
+
+          <div className="flex items-center flex-1">
+            <Input
+              type="text"
+              value={value}
+              onChange={handleInputChange}
+              onFocus={handleInputFocus}
+              onBlur={handleInputBlur}
+              onKeyDown={handleKeyDown}
+              placeholder={placeholder}
+              className="border-0 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1 px-3 py-3"
+              disabled={isInputDisabled}
+              aria-describedby={
+                errorDisplay.position === 'below' ? 'nickname-error' : undefined
+              }
+            />
+
+            <div className="flex items-center px-3 py-1 justify-end min-w-[80px] sm:min-w-[100px]">
+              {renderButton()}
+            </div>
+          </div>
         </div>
       </div>
 

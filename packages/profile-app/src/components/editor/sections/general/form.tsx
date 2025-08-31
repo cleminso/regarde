@@ -50,8 +50,8 @@ export function GeneralEdit({
           description="Share some details about yourself."
         />
 
-        <div className="space-y-4">
-          <section className="flex items-center gap-3">
+        <div className="space-y-4 lg:space-y-6">
+          <section className="flex flex-row items-center gap-4">
             <AvatarUpload
               profile={profile}
               fileInputRef={fileInputRef}
@@ -97,7 +97,7 @@ export function GeneralEdit({
               value={profile.name || ''}
               onChange={(e) => updateName(e.target.value)}
               placeholder="Your name"
-              className="mt-2"
+              className="mt-2 mobile-button"
             />
           </section>
 

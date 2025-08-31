@@ -21,20 +21,29 @@ export function SectionHeader({
   return (
     <div
       className={cn(
-        'mb-6 border-b border-border pb-2',
-        hasAction && 'flex justify-between items-start',
+        'mb-6 border-b border-border pb-4',
+        'flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4',
         className,
       )}
     >
       <div className="flex-grow">
-        <h3 className="text-lg font-medium text-foreground">{title}</h3>
+        <h3 className="hidden lg:block text-lg font-medium text-foreground">
+          {title}
+        </h3>
+
         {description && (
-          <p className="text-sm text-muted-foreground mt-1">{description}</p>
+          <p className="text-sm text-muted-foreground lg:mt-1">{description}</p>
         )}
       </div>
+
       {hasAction && (
-        <div className="ml-4 flex-shrink-0">
-          <Button variant="view" size="sm" onClick={onActionClick}>
+        <div className="lg:ml-4 lg:flex-shrink-0">
+          <Button
+            variant="view"
+            size="sm"
+            onClick={onActionClick}
+            className="w-full lg:w-auto"
+          >
             {actionText}
           </Button>
         </div>

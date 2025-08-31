@@ -5,16 +5,115 @@
 
 @utility container {
   margin-inline: auto;
-  padding-inline: 0.75rem;
-  @media (width >= --theme(--breakpoint-sm)) {
-    max-width: none;
+  padding-inline: 1rem;
+  width: 100%;
+
+  @media (width >= 640px) {
+    padding-inline: 1.5rem;
+    max-width: 640px;
   }
-  @media (width >= 600px) {
-    max-width: 600px;
+  @media (width >= 768px) {
+    max-width: 768px;
   }
-  @media (width >= 600px) {
-    max-width: 600px;
+  @media (width >= 1024px) {
+    max-width: 1024px;
+    padding-inline: 2rem;
   }
+  @media (width >= 1280px) {
+    max-width: 1280px;
+  }
+}
+
+@utility container-full {
+  margin-inline: auto;
+  padding-inline: 1rem;
+  width: 100%;
+  max-width: 100%;
+
+  @media (width >= 640px) {
+    padding-inline: 2rem;
+  }
+  @media (width >= 1024px) {
+    padding-inline: 4rem;
+  }
+}
+
+@utility mobile-header {
+  @media (width < 640px) {
+    padding-inline: 0.75rem;
+    padding-block: 0.75rem;
+  }
+}
+
+@utility mobile-form-field {
+  min-height: 44px;
+  font-size: 16px; /* Prevents iOS zoom on focus */
+  padding: 8px 12px;
+}
+
+@utility mobile-card {
+  padding: 16px;
+  margin-bottom: 16px;
+
+  @media (width >= 640px) {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  @media (width >= 1024px) {
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+}
+
+@utility mobile-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+
+  @media (width >= 640px) {
+    margin-top: 0;
+    justify-content: flex-end;
+  }
+}
+
+@utility mobile-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  @media (width >= 640px) {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 24px);
+}
+
+@utility mobile-section-spacing {
+  margin-bottom: 24px;
+  @media (width >= 640px) {
+    margin-bottom: 32px;
+  }
+  @media (width >= 1024px) {
+    margin-bottom: 48px;
+  }
+}
+
+@utility responsive-text {
+  font-size: 0.875rem;
+  @media (width >= 640px) {
+    font-size: 1rem;
+  }
+}
+
+@utility mobile-button {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
 }
 
 @utility touch-hitbox {
@@ -34,14 +133,22 @@
   }
 }
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+@utility mobile-form-bottom {
+  padding-bottom: max(6rem, calc(env(safe-area-inset-bottom, 0px) + 10rem));
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
+  @media (width >= 1024px) {
+    padding-bottom: 1.5rem;
+  }
+}
+
+@utility auto-textarea {
+  resize: none;
+  overflow: hidden;
+  min-height: 80px;
+
+  transition: height 0.1s ease-out;
+}
+
 @layer base {
   *,
   ::after,
@@ -56,14 +163,12 @@
 }
 
 @theme inline {
-  /* Radius */
   --radius-xs: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 6px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -105,12 +210,10 @@
   --color-landing-header-bg-back: var(--landing-header-bg-back);
   --color-landing-header-bg-front: var(--landing-header-bg-front);
 
-  /* Fonts */
   --font-sans: var(--font-sans);
   --font-serif: var(--font-serif);
   --font-mono: var(--font-mono);
 
-  /* Shadows */
   --shadow-2xs: var(--shadow-2xs);
   --shadow-xs: var(--shadow-xs);
   --shadow-sm: var(--shadow-sm);
@@ -120,7 +223,6 @@
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
 
-  /* Typography */
   --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
   --tracking-tight: calc(var(--tracking-normal) - 0.025em);
   --tracking-normal: var(--tracking-normal);
@@ -128,7 +230,6 @@
   --tracking-wider: calc(var(--tracking-normal) + 0.05em);
   --tracking-widest: calc(var(--tracking-normal) + 0.1em);
 
-  /* Legacy properties */
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
@@ -293,7 +394,6 @@ html {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Update existing scrollbar-gutter section */
 html {
   scrollbar-gutter: stable;
   overscroll-behavior-y: none;

@@ -6,23 +6,27 @@ import { Badge } from '../ui';
 
 export function LandingHeader() {
   return (
-    <div className="mt-5 mx-32">
+    <div className="mt-3 mx-3 sm:mt-5 sm:mx-8 lg:mx-32">
       <div className="bg-landing-header-bg-back text-landing-foreground border border-landing-border rounded-sm shadow-sm">
-        <div className="bg-landing-header-bg-front text-landing-foreground mt-4 mb-1 mx-2 rounded-sm">
-          <div className="flex justify-between items-center py-4 px-6">
+        <div className="bg-landing-header-bg-front text-landing-foreground mt-2 mb-1 mx-1 sm:mt-4 sm:mb-1 sm:mx-2 rounded-sm">
+          <div className="flex justify-between items-center py-3 px-4 sm:py-4 sm:px-6">
             <Link
               to="/"
-              className="font-mono text-lg text-landing-foreground font-semibold "
+              className="flex items-center gap-2 text-landing-foreground"
+              aria-label="Home"
             >
-              <span className="relative">
+              <div className="w-6 h-6 bg-primary rounded-sm flex items-center justify-center"></div>
+
+              <span className="hidden lg:inline font-mono text-base font-semibold">
                 profile.jazz.dev
-                <Badge variant="default" className="absolute ml-2 h-5">
-                  Beta
-                </Badge>
               </span>
+
+              <Badge variant="default" className="h-4 text-xs">
+                Beta
+              </Badge>
             </Link>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <ThemeToggle />
               <AuthButton />
             </div>

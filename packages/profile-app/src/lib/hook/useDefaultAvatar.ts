@@ -26,7 +26,15 @@ export function useDefaultAvatar(
 
     // Fall back to generated avatar
     if (profile.userHandle) {
-      const borderRadius = size === 92 ? 16 : 48;
+      const borderRadius =
+        size === 92
+          ? 16
+          : size === 72
+            ? 12
+            : size === 96
+              ? 16
+              : Math.max(4, Math.round(size * 0.17));
+
       return generateDefaultAvatar(profile.userHandle.nickname, borderRadius);
     }
 

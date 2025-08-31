@@ -19,19 +19,18 @@ export function About({ profile }: AboutProps) {
   }
 
   return (
-    <section
-      className="mx-auto flex flex-col gap-6 mb-10"
-      style={{ width: '580px' }}
-    >
-      {profile.bio && (
-        <div>
-          <p className="text-sm text-muted-foreground whitespace-pre-line">
-            {profile.bio}
-          </p>
-        </div>
-      )}
+    <div className="@container">
+      <section className="w-full max-w-[580px] mx-auto flex flex-col gap-4 mb-6">
+        {profile.bio && (
+          <div>
+            <p className="text-sm text-muted-foreground whitespace-pre-line break-words">
+              {profile.bio}
+            </p>
+          </div>
+        )}
 
-      <Contact profile={profile} />
-    </section>
+        <Contact profile={profile} />
+      </section>
+    </div>
   );
 }

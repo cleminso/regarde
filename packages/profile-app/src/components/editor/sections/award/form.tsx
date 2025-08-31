@@ -84,7 +84,7 @@ export function AwardEdit({
 
         <div className="space-y-6">
           <section>
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
                   Award Title<sup>*</sup>
@@ -98,7 +98,7 @@ export function AwardEdit({
                 />
               </div>
 
-              <div className="flex flex-col gap-2 w-full">
+              <div className="flex flex-col md:flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
                   Year<sup>*</sup>
                 </label>
@@ -118,7 +118,7 @@ export function AwardEdit({
           </section>
 
           <section>
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
                   Presenter<sup>*</sup>
@@ -132,7 +132,7 @@ export function AwardEdit({
                 />
               </div>
 
-              <div className="flex flex-col gap-2 w-full">
+              <div className="flex flex-col md:flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
                   Link to award
                 </label>
@@ -148,7 +148,7 @@ export function AwardEdit({
           </section>
 
           <section>
-            <div className="flex flex-col gap-2 w-full">
+            <div className="flex flex-col md:flex-col gap-2 w-full">
               <label className="text-sm font-sans block text-foreground">
                 Description
               </label>

@@ -190,12 +190,12 @@ function ProfileContent({ profile }: { profile: LoadedProfile }) {
       <title>{pageTitle}</title>
       <ProfileHeader profile={profile} />
 
-      <div className="w-full" style={{ maxWidth: '580px', margin: '0 auto' }}>
+      <div className="w-full max-w-full sm:max-w-[580px] mx-auto sm:px-0">
         <ProfileTabs
           activeTab={activeTab}
           onTabChange={handleTabChange}
           availableTabs={availableTabs}
-          className="mb-6"
+          className="mb-4 sm:mb-6"
         />
         {renderTabContent()}
       </div>
