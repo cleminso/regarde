@@ -75,8 +75,8 @@ export function SideProjectEdit({
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1">
+    <div className="flex flex-col h-full lg:h-full">
+      <div className="flex-1 lg:flex-1 mobile-form-bottom lg:pb-0">
         <SectionHeader
           title="Side Project"
           description="Showcase your personal project and experiment."
@@ -157,7 +157,7 @@ export function SideProjectEdit({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Add some details"
-                className="min-h-[180px] resize-none"
+                className="min-h-[270px] resize-none"
               />
             </div>
           </section>

@@ -75,8 +75,8 @@ export function AwardEdit({
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1">
+    <div className="flex flex-col h-full lg:h-full">
+      <div className="flex-1 lg:flex-1 mobile-form-bottom lg:pb-0">
         <SectionHeader
           title="Awards"
           description="Highlight your achievements and recognitions."
@@ -157,7 +157,7 @@ export function AwardEdit({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Add details about the award and your achievement"
-                className="min-h-[200px] resize-none"
+                className="min-h-[270px] resize-none"
               />
             </div>
           </section>

@@ -83,8 +83,8 @@ export function EducationEdit({
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1">
+    <div className="flex flex-col h-full lg:h-full">
+      <div className="flex-1 lg:flex-1 mobile-form-bottom lg:pb-0">
         <SectionHeader
           title="Education"
           description="Showcase your academic background and achievements."

@@ -137,7 +137,7 @@
   padding-bottom: max(6rem, calc(env(safe-area-inset-bottom, 0px) + 10rem));
 
   @media (width >= 1024px) {
-    padding-bottom: 1.5rem;
+    padding-bottom: 0;
   }
 }
 

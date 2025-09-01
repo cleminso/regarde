@@ -79,8 +79,8 @@ export function CertificationEdit({
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1">
+    <div className="flex flex-col h-full lg:h-full">
+      <div className="flex-1 lg:flex-1 mobile-form-bottom lg:pb-0">
         <SectionHeader
           title="Certification"
           description="Add professional certifications."

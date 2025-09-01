@@ -22,8 +22,8 @@ export function ContactEdit({
   const { updateSocialLink } = useContact({ profile, triggerSyncIndicator });
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1">
+    <div className="flex flex-col h-full lg:h-full">
+      <div className="flex-1 lg:flex-1 mobile-form-bottom lg:pb-0">
         <SectionHeader
           title="Contact Links"
           description="Connect your social profiles and website."

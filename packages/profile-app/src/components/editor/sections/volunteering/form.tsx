@@ -83,8 +83,8 @@ export function VolunteeringEdit({
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1">
+    <div className="flex flex-col h-full lg:h-full">
+      <div className="flex-1 lg:flex-1 mobile-form-bottom lg:pb-0">
         <SectionHeader
           title="Volunteering"
           description="Share your volunteer work and community involvement."
@@ -187,7 +187,7 @@ export function VolunteeringEdit({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Describe your volunteer work and impact..."
-                className="min-h-[180px] resize-none"
+                className="min-h-[190px] resize-none"
               />
             </div>
           </section>

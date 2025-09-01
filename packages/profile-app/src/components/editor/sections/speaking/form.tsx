@@ -80,8 +80,8 @@ export function SpeakingEdit({
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1">
+    <div className="flex flex-col h-full lg:h-full">
+      <div className="flex-1 lg:flex-1 mobile-form-bottom lg:pb-0">
         <SectionHeader
           title="Speaking"
           description="Share your speaking engagements and presentations."
@@ -177,7 +177,7 @@ export function SpeakingEdit({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Add some details about your presentation"
-                className="min-h-[200px] resize-none"
+                className="min-h-[180px] resize-none"
               />
             </div>
           </section>
