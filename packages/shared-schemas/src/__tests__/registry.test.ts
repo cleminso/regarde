@@ -40,7 +40,7 @@ function validateAuditEntry(entry: any) {
     errors.push("monotonicId is required");
   }
 
-  if (!entry.timestamp || typeof entry.timestamp !== "number") {
+  if (entry.timestamp === undefined || entry.timestamp === null || typeof entry.timestamp !== "number") {
     errors.push("timestamp must be a valid number");
   }
 
@@ -445,5 +445,91 @@ describe("Registry Business Rules - Registry Logic", () => {
     expect(invalidUpdate.errors).toContain(
       "Cannot update nickname owned by different account",
     );
+  });
+
+  describe("Registry Edge Cases - Complex Scenarios", () => {
+    it("should handle nickname reservation with boundary timestamps", () => {
+      // Test reservation with timestamp exactly at current time
+      const currentTime = Date.now();
+      const reservationAtCurrentTime = {
+        reservedBy: "admin-user",
+        reservedAt: currentTime,
+        reason: "Brand protection",
+        category: "brand",
+      };
+
+      const result = validateReservationEntry(reservationAtCurrentTime);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+
+      // Test reservation with future timestamp (should fail)
+      const futureReservation = {
+        reservedBy: "admin-user",
+        reservedAt: currentTime + 1000,
+        reason: "Brand protection",
+        category: "brand",
+      };
+
+      const futureResult = validateReservationEntry(futureReservation);
+      expect(futureResult.isValid).toBe(false);
+      expect(futureResult.errors).toContain("reservedAt cannot be in the future");
+    });
+
+    it("should validate nickname reservation with case sensitivity", () => {
+      const reservations = {
+        "testuser": {
+          category: "brand",
+          reason: "Brand protection",
+          reservedBy: "admin",
+          reservedAt: Date.now() - 3600000,
+        }
+      };
+
+      // Test exact match
+      const exactMatch = checkNicknameReservation("testuser", reservations);
+      expect(exactMatch.isReserved).toBe(true);
+      expect(exactMatch.canUse).toBe(false);
+
+      // Test case variations (should normalize to lowercase)
+      const upperCase = checkNicknameReservation("TESTUSER", reservations);
+      expect(upperCase.isReserved).toBe(true);
+      expect(upperCase.canUse).toBe(false);
+
+      const mixedCase = checkNicknameReservation("TestUser", reservations);
+      expect(mixedCase.isReserved).toBe(true);
+      expect(mixedCase.canUse).toBe(false);
+    });
+
+    it("should handle audit entries with edge case data", () => {
+      // Test audit entry with minimal valid data
+      const minimalAudit = {
+        monotonicId: "a",
+        timestamp: 0,
+        jazzAccountId: "x",
+        oldNickname: "",
+        newNickname: "",
+        changedBy: "y",
+        source: "admin-cli",
+        action: "add",
+      };
+
+      const result = validateAuditEntry(minimalAudit);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+
+      // Test audit entry with maximum timestamp
+      const maxTimestampAudit = {
+        monotonicId: "audit-max",
+        timestamp: Number.MAX_SAFE_INTEGER,
+        jazzAccountId: "account-max",
+        changedBy: "admin-user",
+        source: "worker",
+        action: "update",
+      };
+
+      const maxResult = validateAuditEntry(maxTimestampAudit);
+      expect(maxResult.isValid).toBe(true);
+      expect(maxResult.errors).toHaveLength(0);
+    });
   });
 });

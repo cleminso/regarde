@@ -219,4 +219,148 @@ describe("User Details Logic - Business Rules", () => {
     expect(result.found).toBe(false);
     expect(result.error).toBe("User not found");
   });
+
+  describe("User Details Error Recovery - Edge Cases", () => {
+    it("should handle malformed user details requests", () => {
+      // Test with various malformed inputs
+      const malformedRequests = [
+        { nickname: null },
+        { nickname: undefined },
+        { nickname: "" },
+        { nickname: "   " }, // whitespace only
+        { jazzAccountId: null },
+        { jazzAccountId: "" },
+        {},
+      ];
+
+      malformedRequests.forEach(request => {
+        const result = validateUserDetailsRequest(request);
+        expect(result.isValid).toBe(false);
+        expect(result.errors.length).toBeGreaterThan(0);
+      });
+    });
+
+    it("should handle profile data corruption gracefully", () => {
+      // Test with null/undefined profile data (should return null)
+      const nullProfiles = [null, undefined];
+
+      nullProfiles.forEach(profileData => {
+        const mockAccount = {
+          id: "test-account",
+          root: { "profile.jazz.dev": profileData },
+        };
+
+        const formatted = formatUserProfile(mockAccount);
+        expect(formatted).toBeNull();
+      });
+
+      // Test with corrupted but truthy profile data (should return defaults)
+      const corruptedProfiles = [
+        { name: null },
+        { userHandle: null },
+        { userHandle: { nickname: null } },
+        { userHandle: { isActive: null } },
+        { version: "invalid" },
+      ];
+
+      corruptedProfiles.forEach(profileData => {
+        const mockAccount = {
+          id: "test-account",
+          root: { "profile.jazz.dev": profileData },
+        };
+
+        const formatted = formatUserProfile(mockAccount);
+        // Should handle corruption gracefully with defaults
+        expect(formatted).not.toBeNull();
+        expect(formatted.name).toBe("");
+        expect(formatted.nickname).toBe("");
+        expect(formatted.isActive).toBe(false);
+      });
+    });
+
+    it("should validate account ID format edge cases", () => {
+      // Test account ID validation business logic
+      function validateAccountId(accountId: string) {
+        const errors: string[] = [];
+
+        if (!accountId || accountId.trim() === "") {
+          errors.push("Account ID is required");
+        }
+
+        if (accountId && accountId.length < 10) {
+          errors.push("Account ID too short");
+        }
+
+        if (accountId && !accountId.startsWith("co_")) {
+          errors.push("Account ID must start with co_");
+        }
+
+        return {
+          isValid: errors.length === 0,
+          errors,
+        };
+      }
+
+      // Test various account ID formats
+      const testCases = [
+        { id: "", expectedValid: false, expectedError: "Account ID is required" },
+        { id: "short", expectedValid: false, expectedError: "Account ID too short" },
+        { id: "invalid_prefix_123456", expectedValid: false, expectedError: "Account ID must start with co_" },
+        { id: "co_validaccountid123", expectedValid: true },
+      ];
+
+      testCases.forEach(({ id, expectedValid, expectedError }) => {
+        const result = validateAccountId(id);
+        expect(result.isValid).toBe(expectedValid);
+        if (!expectedValid) {
+          expect(result.errors).toContain(expectedError);
+        }
+      });
+    });
+
+    it("should handle concurrent user lookup scenarios", () => {
+      // Test business logic for handling concurrent requests
+      function handleConcurrentLookup(
+        nickname: string,
+        activeRequests: Set<string>
+      ) {
+        const normalizedNickname = nickname.toLowerCase();
+
+        if (activeRequests.has(normalizedNickname)) {
+          return {
+            shouldProceed: false,
+            reason: "Request already in progress",
+            waitTime: 100,
+          };
+        }
+
+        activeRequests.add(normalizedNickname);
+        return {
+          shouldProceed: true,
+          cleanup: () => activeRequests.delete(normalizedNickname),
+        };
+      }
+
+      const activeRequests = new Set<string>();
+
+      // First request should proceed
+      const firstRequest = handleConcurrentLookup("testuser", activeRequests);
+      expect(firstRequest.shouldProceed).toBe(true);
+      expect(firstRequest.cleanup).toBeDefined();
+
+      // Second request for same user should be blocked
+      const secondRequest = handleConcurrentLookup("testuser", activeRequests);
+      expect(secondRequest.shouldProceed).toBe(false);
+      expect(secondRequest.reason).toBe("Request already in progress");
+
+      // Case insensitive blocking
+      const caseVariantRequest = handleConcurrentLookup("TestUser", activeRequests);
+      expect(caseVariantRequest.shouldProceed).toBe(false);
+
+      // Cleanup should allow new requests
+      firstRequest.cleanup?.();
+      const afterCleanupRequest = handleConcurrentLookup("testuser", activeRequests);
+      expect(afterCleanupRequest.shouldProceed).toBe(true);
+    });
+  });
 });

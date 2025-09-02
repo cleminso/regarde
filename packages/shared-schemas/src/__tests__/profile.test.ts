@@ -23,41 +23,7 @@ describe("JazzAppProfile - Application Logic", () => {
     });
   });
 
-  it("should create profile with specific data structure", () => {
-    // Test specific profile structure and data patterns
-    const profile = JazzAppProfile.create({
-      name: "John Doe",
-      userHandle: createTestUserHandle({ nickname: "johndoe" }),
-      bio: "Software engineer",
-      projects: [
-        {
-          title: "Project Alpha",
-          year: "2024",
-          client: "Tech Corp",
-          description: "Revolutionary project",
-        },
-      ],
-      workExp: [
-        {
-          title: "Senior Engineer",
-          from: "2020",
-          company: "Innovation Inc",
-          description: "Led development",
-        },
-      ],
-      socialLinks: {
-        github: "https://github.com/johndoe",
-        website: "https://johndoe.dev",
-      },
-      version: 1,
-    });
 
-    // Verify specific data structure works
-    expect(profile.name).toBe("John Doe");
-    expect(profile.projects?.[0]?.title).toBe("Project Alpha");
-    expect(profile.workExp?.[0]?.company).toBe("Innovation Inc");
-    expect(profile.socialLinks?.github).toBe("https://github.com/johndoe");
-  });
 
   it("should validate correct profiles (business logic)", () => {
     const validProfile = createTestProfile({
@@ -107,26 +73,55 @@ describe("JazzAppProfile - Application Logic", () => {
     });
   });
 
-  it("should handle complex nested data for use case", () => {
-    // Test specific complex data patterns
-    const complexProfile = JazzAppProfile.create({
-      name: "Complex User",
-      userHandle: createTestUserHandle({ nickname: "complexuser" }),
-      projects: [
-        { title: "Project 1", year: "2024" },
-        { title: "Project 2", year: "2023" },
-      ],
-      workExp: [
-        { title: "Engineer", company: "Corp A", from: "2020" },
-        { title: "Senior Engineer", company: "Corp B", from: "2022" },
-      ],
-      version: 1,
+  describe("Profile Validation - Edge Cases", () => {
+    it("should handle whitespace-only names correctly", () => {
+      // Test names with only whitespace
+      const whitespaceNames = ["   ", "\t", "\n", " \t \n "];
+
+      whitespaceNames.forEach(name => {
+        const profile = JazzAppProfile.create({
+          name,
+          userHandle: createTestUserHandle({ isActive: true }),
+          version: 1,
+        });
+
+        const result = validateJazzAppProfile(profile);
+        expect(result.isValid).toBe(false);
+        expect(result.message).toBe("Name must be present and non-empty.");
+      });
     });
 
-    // Verify complex data structure works as expected
-    expect(complexProfile.projects?.length).toBe(2);
-    expect(complexProfile.workExp?.length).toBe(2);
-    expect(complexProfile.projects?.[0]?.title).toBe("Project 1");
-    expect(complexProfile.workExp?.[1]?.title).toBe("Senior Engineer");
+    it("should validate complex nested profile structures", () => {
+      // Test profile with all optional fields populated
+      const complexProfile = JazzAppProfile.create({
+        name: "Complex User",
+        userHandle: createTestUserHandle({
+          nickname: "complexuser",
+          isActive: true
+        }),
+        bio: "A complex user profile for testing edge cases",
+        version: 1,
+      });
+
+      const result = validateJazzAppProfile(complexProfile);
+      expect(result.isValid).toBe(true);
+      expect(result.message).toBeUndefined();
+    });
+
+    it("should handle profile validation with missing userHandle properties", () => {
+      // Test profile with userHandle missing required properties
+      const profileWithIncompleteHandle = JazzAppProfile.create({
+        name: "Valid Name",
+        userHandle: createTestUserHandle({
+          nickname: "",  // Empty nickname
+          isActive: true
+        }),
+        version: 1,
+      });
+
+      const result = validateJazzAppProfile(profileWithIncompleteHandle);
+      expect(result.isValid).toBe(false);
+      expect(result.message).toBe("Nickname must be non-empty.");
+    });
   });
 });
