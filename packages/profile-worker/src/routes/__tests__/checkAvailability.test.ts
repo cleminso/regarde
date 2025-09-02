@@ -5,8 +5,6 @@
 import { describe, it, expect } from "vitest";
 import {
   createMockCheckAvailabilityRequest,
-  createMockContext,
-  createMockRequest,
 } from "../../test-utils/index.js";
 
 // Simple business logic functions to test availability checking

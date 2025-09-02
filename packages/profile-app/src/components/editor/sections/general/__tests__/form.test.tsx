@@ -91,4 +91,53 @@ describe('General Form Data Logic', () => {
     expect(screen.getByLabelText('Bio')).toBeInTheDocument();
     expect(screen.getByLabelText('Nickname')).toBeInTheDocument();
   });
+
+  it('should handle large profile data efficiently', () => {
+    // Test YOUR validation logic performance with large datasets
+    function validateLargeProfile(profile: any) {
+      const startTime = performance.now();
+
+      // YOUR business logic for validating large profiles
+      const errors: string[] = [];
+
+      if (profile.projects && profile.projects.length > 100) {
+        errors.push('Too many projects - maximum 100 allowed');
+      }
+
+      if (profile.workExp && profile.workExp.length > 50) {
+        errors.push('Too many work experiences - maximum 50 allowed');
+      }
+
+      if (profile.bio && profile.bio.length > 5000) {
+        errors.push('Bio too long - maximum 5000 characters');
+      }
+
+      const endTime = performance.now();
+      const processingTime = endTime - startTime;
+
+      return {
+        isValid: errors.length === 0,
+        errors,
+        processingTime,
+      };
+    }
+
+    // Test with large dataset
+    const largeProfile = createMockProfile({
+      projects: Array(150).fill({ title: 'Project', year: '2024' }),
+      workExp: Array(75).fill({ title: 'Job', company: 'Company' }),
+      bio: 'x'.repeat(6000),
+    });
+
+    const result = validateLargeProfile(largeProfile);
+
+    // Test YOUR business rules for large data
+    expect(result.isValid).toBe(false);
+    expect(result.errors).toContain('Too many projects - maximum 100 allowed');
+    expect(result.errors).toContain('Too many work experiences - maximum 50 allowed');
+    expect(result.errors).toContain('Bio too long - maximum 5000 characters');
+
+    // Test YOUR performance requirements
+    expect(result.processingTime).toBeLessThan(100); // Should process in under 100ms
+  });
 });

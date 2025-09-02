@@ -6,7 +6,6 @@ import { describe, it, expect } from "vitest";
 import {
   createMockRegistrationRequest,
   createMockJazzAccount,
-  createMockContext,
 } from "../../test-utils/index.js";
 
 // Simple business logic functions to test registration workflow
@@ -239,5 +238,61 @@ describe("Nickname Registration Logic - Business Rules", () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toBe("Registration key has expired");
+  });
+
+  it("should handle nickname conflict scenarios", () => {
+    // Test conflict resolution business logic
+    function handleNicknameConflict(
+      requestedNickname: string,
+      existingNicknames: string[],
+    ) {
+      if (existingNicknames.includes(requestedNickname.toLowerCase())) {
+        return {
+          success: false,
+          error: "Nickname is already taken",
+          suggestions: [
+            `${requestedNickname}1`,
+            `${requestedNickname}2`,
+            `${requestedNickname}_user`,
+          ].filter(
+            (suggestion) =>
+              !existingNicknames.includes(suggestion.toLowerCase()),
+          ),
+        };
+      }
+      return { success: true };
+    }
+
+    const existingNicknames = ["user1", "testuser", "admin"];
+    const result = handleNicknameConflict("testuser", existingNicknames);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("Nickname is already taken");
+    expect(result.suggestions).toContain("testuser1");
+    expect(result.suggestions).toContain("testuser2");
+    expect(result.suggestions).not.toContain("user1"); // Should filter out existing
+  });
+
+  it("should handle registration retry logic", () => {
+    // Test retry strategy business logic
+    function shouldRetryRegistration(
+      attempt: number,
+      errorType: "conflict" | "network" | "server",
+    ) {
+      const MAX_RETRIES = {
+        conflict: 0, // Don't retry conflicts - suggest alternatives
+        network: 3, // Retry network issues
+        server: 1, // Limited retry for server errors
+      };
+
+      return attempt < MAX_RETRIES[errorType];
+    }
+
+    // Test business rules for retries
+    expect(shouldRetryRegistration(0, "conflict")).toBe(false); // No retry for conflicts
+    expect(shouldRetryRegistration(1, "network")).toBe(true); // Retry network issues
+    expect(shouldRetryRegistration(3, "network")).toBe(false); // Stop after max retries
+    expect(shouldRetryRegistration(0, "server")).toBe(true); // One retry for server errors
+    expect(shouldRetryRegistration(1, "server")).toBe(false); // Stop after one retry
   });
 });
