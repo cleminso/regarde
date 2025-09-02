@@ -11,9 +11,6 @@ node_modules
 dist
 dist-ssr
 *.local
-coverage/
-/test-results/
-/playwright-report/
 
 # Editor directories and files
 .vscode/*
@@ -25,10 +22,11 @@ coverage/
 *.njsproj
 *.sln
 *.sw?
-*.lcov
 
 playwright-report
 
-*.env.local
-*.ai*
-.vercel
+# Env
+.env
+.env.*
+!.env.example
+!.env.test

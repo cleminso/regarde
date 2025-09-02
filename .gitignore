@@ -38,3 +38,6 @@ packages/admin/reserveRegistry-backups/
 
 playwright-report
 .vercel
+
+tests/examples/*/node_modules/
+tests/examples/**/node_modules/
