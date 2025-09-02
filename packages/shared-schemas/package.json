@@ -15,7 +15,10 @@
     "build:vite": "pnpm clean && vite build",
     "build": "pnpm build:tsc",
     "dev": "tsc --watch",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "jazz-tools": "^0.17.13",
