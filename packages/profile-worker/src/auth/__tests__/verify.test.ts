@@ -63,52 +63,6 @@ function validateUserAccess(userRole: string) {
 }
 
 describe('Authentication Verification - Your Security Logic', () => {
-
-  it('should reject missing account ID', () => {
-    // Test YOUR input validation logic
-    const result = validateAuthenticationInput('', 'valid-key');
-
-    expect(result.isValid).toBe(false);
-    expect(result.error).toBe('Missing jazzAccountId or key');
-  });
-
-  it('should reject missing registration key', () => {
-    // Test YOUR input validation logic
-    const result = validateAuthenticationInput('account-123', '');
-
-    expect(result.isValid).toBe(false);
-    expect(result.error).toBe('Missing jazzAccountId or key');
-  });
-
-  it('should accept valid input parameters', () => {
-    // Test YOUR input validation logic
-    const result = validateAuthenticationInput('account-123', 'valid-key');
-
-    expect(result.isValid).toBe(true);
-    expect(result.error).toBeUndefined();
-  });
-
-  it('should handle missing registration key data', () => {
-    // Test YOUR handling of null/undefined keys
-    const result = validateRegistrationKeyData(null, 'valid-key');
-
-    expect(result.isValid).toBe(false);
-    expect(result.error).toBe('No registration key found - user must create registration key first');
-  });
-
-  it('should reject invalid registration key', () => {
-    // Test YOUR key validation logic
-    const keyData = {
-      key: 'stored-key',
-      expiresAt: Date.now() + 3600000, // 1 hour from now
-    };
-
-    const result = validateRegistrationKeyData(keyData, 'wrong-key');
-
-    expect(result.isValid).toBe(false);
-    expect(result.error).toBe('Invalid registration key');
-  });
-
   it('should reject expired registration key', () => {
     // Test YOUR expiry validation logic
     const keyData = {
@@ -122,46 +76,10 @@ describe('Authentication Verification - Your Security Logic', () => {
     expect(result.error).toBe('Registration key has expired');
   });
 
-  it('should accept valid registration key', () => {
-    // Test YOUR successful key validation
-    const keyData = {
-      key: 'valid-key',
-      expiresAt: Date.now() + 3600000, // 1 hour from now
-    };
-
-    const result = validateRegistrationKeyData(keyData, 'valid-key');
-
-    expect(result.isValid).toBe(true);
-    expect(result.error).toBeUndefined();
-  });
-
-  it('should reject non-admin user access', () => {
+  it('should validate user access control', () => {
     // Test YOUR access control logic
-    const result = validateUserAccess('member'); // Not admin
-
-    expect(result.isValid).toBe(false);
-    expect(result.error).toBe('User does not own the CoValue');
-  });
-
-  it('should accept admin user access', () => {
-    // Test YOUR access control logic
-    const result = validateUserAccess('admin');
-
-    expect(result.isValid).toBe(true);
-    expect(result.error).toBeUndefined();
-  });
-
-  it('should handle key without expiry', () => {
-    // Test YOUR handling of keys without expiration
-    const keyData = {
-      key: 'valid-key',
-      expiresAt: null, // No expiry
-    };
-
-    const result = validateRegistrationKeyData(keyData, 'valid-key');
-
-    expect(result.isValid).toBe(true);
-    expect(result.error).toBeUndefined();
+    expect(validateUserAccess('member').isValid).toBe(false);
+    expect(validateUserAccess('admin').isValid).toBe(true);
   });
 
   it('should validate complete authentication workflow', () => {

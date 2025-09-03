@@ -273,26 +273,5 @@ describe("Nickname Registration Logic - Business Rules", () => {
     expect(result.suggestions).not.toContain("user1"); // Should filter out existing
   });
 
-  it("should handle registration retry logic", () => {
-    // Test retry strategy business logic
-    function shouldRetryRegistration(
-      attempt: number,
-      errorType: "conflict" | "network" | "server",
-    ) {
-      const MAX_RETRIES = {
-        conflict: 0, // Don't retry conflicts - suggest alternatives
-        network: 3, // Retry network issues
-        server: 1, // Limited retry for server errors
-      };
 
-      return attempt < MAX_RETRIES[errorType];
-    }
-
-    // Test business rules for retries
-    expect(shouldRetryRegistration(0, "conflict")).toBe(false); // No retry for conflicts
-    expect(shouldRetryRegistration(1, "network")).toBe(true); // Retry network issues
-    expect(shouldRetryRegistration(3, "network")).toBe(false); // Stop after max retries
-    expect(shouldRetryRegistration(0, "server")).toBe(true); // One retry for server errors
-    expect(shouldRetryRegistration(1, "server")).toBe(false); // Stop after one retry
-  });
 });

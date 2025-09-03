@@ -6,21 +6,34 @@
 
 ---
 
-## The Simple Rule
+# Testing Guidelines - Simplified Approach
 
-### Test Business Logic
+## DO Test:
 
-- Validation rules and algorithms
-- Data transformation logic
-- Error recovery decisions
-- Performance boundaries
+- Complex business logic (nickname conflict resolution)
+- Custom validation rules (profile completeness)
+- Integration between packages
+- Real user error scenarios
+- Performance of critical business functions
 
-### Don't Test Framework Behavior
+## DON'T Test:
 
-- React rendering and hooks
-- Jazz synchronization
-- HTTP requests/responses
-- Database operations
+- Zod schema parsing (trust the framework)
+- Jazz framework behavior (trust the framework)
+- React hook lifecycle (trust the framework)
+- Basic property assignments (trivial operations)
+- Theoretical scenarios (test what exists)
+
+## Test Naming Convention:
+
+- `should [business outcome] when [business condition]`
+- Focus on WHAT the business logic should achieve
+- Avoid HOW the implementation works
+
+## Example:
+
+`should suggest alternative nicknames when requested nickname is taken`
+`should call UserHandle.shape.nickname.parse() without throwing`
 
 ---
 
