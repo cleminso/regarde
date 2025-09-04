@@ -276,17 +276,20 @@ profile-admin validate-data --verbose
 ## Production Deployment Checklist
 
 ### Pre-deployment Validation
+
 - [ ] Run `profile-admin health` to verify registry integrity
 - [ ] Run `profile-admin validate-data` to check data consistency
 - [ ] Run `profile-admin check-connectivity` to verify Jazz worker connection
 - [ ] Create backup with `profile-admin download-registries`
 
 ### Monitoring Setup
+
 - [ ] Set up metrics collection with `profile-admin metrics --format prometheus`
 - [ ] Configure health check alerts using `profile-admin health`
 - [ ] Schedule regular data validation with `profile-admin validate-data`
 
 ### Maintenance Tasks
+
 - [ ] Schedule backup cleanup with `profile-admin clean-old-backups --days-to-keep 30`
 - [ ] Run weekly security audits with `profile-admin audit-security --days 7`
 - [ ] Monitor performance with `profile-admin benchmark`

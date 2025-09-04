@@ -14,8 +14,8 @@ dist-ssr
 coverage/
 /test-results/
 /playwright-report/
+/tests/.auth/
 
-# Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea

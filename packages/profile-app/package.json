@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@clerk/testing": "^1.12.3",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.2",
     "@playwright/test": "^1.53.2",
     "@tailwindcss/postcss": "^4.1.11",
@@ -54,6 +55,7 @@
     "@types/react": "~19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
+    "dotenv": "^16.6.1",
     "globals": "^15.15.0",
     "is-ci": "^3.0.1",
     "postcss": "^8.5.6",

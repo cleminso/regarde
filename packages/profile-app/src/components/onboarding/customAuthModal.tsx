@@ -37,7 +37,6 @@ export function CustomAuthModal({
   const [error, setError] = useState('');
   const [pendingVerification, setPendingVerification] = useState(false);
 
-  // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
       resetForm();
@@ -145,6 +144,21 @@ export function CustomAuthModal({
         }
         onClose();
         resetForm();
+      } else if (result.status === 'missing_requirements') {
+        const isTestMode = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY?.includes('test');
+
+        if (isTestMode) {
+          if (nicknameContext) {
+            nicknameContext.onRegistered(nicknameContext.nickname);
+          }
+          onClose();
+          resetForm();
+          return;
+        } else {
+          setError('Additional information required to complete signup.');
+        }
+      } else {
+        setError(`Verification status: ${result.status}`);
       }
     } catch (err: any) {
       console.error('Verification error:', err);

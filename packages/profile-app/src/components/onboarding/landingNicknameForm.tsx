@@ -23,9 +23,13 @@ export function LandingNicknameForm() {
     return () => clearTimeout(timer);
   }, [nickname, onboarding.checkAvailability]);
 
-  const handleAuthRegistered = async (_nickname: string) => {
+  const handleAuthRegistered = async (nickname: string) => {
     setShowAuthModal(false);
     setPendingNickname('');
+
+    setTimeout(() => {
+      onboarding.register(nickname);
+    }, 500);
   };
 
   const handleAuthClose = () => {
@@ -33,12 +37,10 @@ export function LandingNicknameForm() {
     setPendingNickname('');
   };
 
-  // Show loading state for authenticated users
   if (onboarding.isAuthenticated && !onboarding.accountId) {
     return <div className="text-muted-foreground">Loading account...</div>;
   }
 
-  // Show form for unauthenticated users or authenticated users without nickname
   if (!onboarding.isAuthenticated || !onboarding.hasExistingNickname) {
     return (
       <div className="w-full max-w-lg mx-auto">
@@ -71,7 +73,6 @@ export function LandingNicknameForm() {
     );
   }
 
-  // Show redirect message for authenticated users with nickname
   return (
     <div className="text-muted-foreground">
       Redirecting to your profile editor...
