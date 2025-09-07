@@ -59,18 +59,20 @@ export function VolunteeringEdit({
   }, [volunteeringToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
-    if (!title.trim() || !organization.trim() || !fromDate.trim()) {
-      alert('Title, Organization, and From Date are required.');
-      return;
+    if (!title.trim()) {
+      const shouldContinue = confirm(
+        "Adding a role title helps visitors understand your volunteer work. Would you like to save anyway?"
+      );
+      if (!shouldContinue) return;
     }
 
     const volunteeringData = {
       title: title.trim(),
-      organization: organization.trim(),
+      organization: organization.trim() || undefined,
       location: location.trim() || undefined,
       url: getValidUrl(url.trim()),
       description: description.trim() || undefined,
-      from: fromDate.trim(),
+      from: fromDate.trim() || undefined,
       to: toDate.trim() || undefined,
     };
 
@@ -95,7 +97,37 @@ export function VolunteeringEdit({
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
-                  From<sup>*</sup>
+                  Title
+                </label>
+                <Input
+                  type="text"
+                  id="volunteering-title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="I've been..."
+                />
+              </div>
+
+              <div className="flex flex-col gap-2 w-full">
+                <label className="text-sm font-sans block text-foreground">
+                  At Organization
+                </label>
+                <Input
+                  type="text"
+                  id="volunteering-organization"
+                  value={organization}
+                  onChange={(e) => setOrganization(e.target.value)}
+                  placeholder="At which organization"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex flex-col gap-2 w-full">
+                <label className="text-sm font-sans block text-foreground">
+                  From
                 </label>
                 <SelectorDate
                   id="volunteering-from-date"
@@ -106,12 +138,14 @@ export function VolunteeringEdit({
                     label: 'Select Year',
                     disabled: true,
                   }}
-                  buttonDisplayValue={fromDate || 'Select Year'}
+                  buttonDisplayValue={fromDate || currentYear}
                 />
               </div>
 
               <div className="flex flex-col gap-2 w-full">
-                <Label htmlFor="volunteering-to-date">To</Label>
+                <label className="text-sm font-sans block text-foreground">
+                  To
+                </label>
                 <SelectorDate
                   id="volunteering-to-date"
                   value={toDate}
@@ -122,6 +156,7 @@ export function VolunteeringEdit({
               </div>
             </div>
           </section>
+
 
           <section>
             <div className="flex flex-col md:flex-row gap-4">
@@ -140,7 +175,7 @@ export function VolunteeringEdit({
 
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
-                  At Organization<sup>*</sup>
+                  At Organization
                 </label>
                 <Input
                   type="text"

@@ -53,14 +53,16 @@ export function SideProjectEdit({
   }, [sideProjectToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
-    if (!title.trim() || !year.trim()) {
-      alert('Project Name and Year are required.');
-      return;
+    if (!title.trim()) {
+      const shouldContinue = confirm(
+        "Adding a project title helps visitors understand what you built. Would you like to save anyway?"
+      );
+      if (!shouldContinue) return;
     }
 
     const sideProjectData = {
       title: title.trim(),
-      year: year.trim(),
+      year: year.trim() || undefined,
       client: client.trim() || undefined,
       url: getValidUrl(url.trim()),
       description: description.trim() || undefined,
@@ -100,7 +102,7 @@ export function SideProjectEdit({
 
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
-                  Year<sup>*</sup>
+                  Year
                 </label>
                 <SelectorDate
                   id="side-project-year"

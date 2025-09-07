@@ -110,16 +110,13 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
         return;
       }
 
-      if (!name.trim()) {
-        setUpdateError('Name cannot be empty.');
-        return;
-      }
+      // Allow empty values during editing - validation happens at profile level
 
       setIsUpdating(true);
       setUpdateError(null);
 
       try {
-        profile.name = name.trim();
+        profile.name = name.trim() || 'User';
         await triggerSyncIndicator(profile);
       } catch (error) {
         setUpdateError('Failed to update name. Please try again.');

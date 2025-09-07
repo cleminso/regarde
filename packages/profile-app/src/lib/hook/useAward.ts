@@ -16,8 +16,8 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
 
   const addAward = async (awardData: {
     title: string;
-    year: string;
-    presenter: string;
+    year?: string;
+    presenter?: string;
     url?: string;
     description?: string;
   }): Promise<Loaded<typeof Award> | undefined> => {
@@ -50,8 +50,8 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
     awardToUpdate: Loaded<typeof Award>,
     awardData: {
       title: string;
-      year: string;
-      presenter: string;
+      year?: string;
+      presenter?: string;
       url?: string;
       description?: string;
     },

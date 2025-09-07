@@ -11,6 +11,7 @@ import { ProfileHeader } from './header';
 import { AboutPage } from './paths/about';
 import { NowPage } from './paths/now';
 import { DEFAULT_TABS, ProfileTabs, TabId } from './tabs';
+import { ScrollArea } from '../ui/scroll-area';
 
 type LoadedProfile = co.loaded<typeof JazzAppProfile>;
 
@@ -190,15 +191,16 @@ function ProfileContent({ profile }: { profile: LoadedProfile }) {
       <title>{pageTitle}</title>
       <ProfileHeader profile={profile} />
 
-      <div className="w-full max-w-full sm:max-w-[580px] mx-auto sm:px-0">
+      <ScrollArea className="w-full max-w-full sm:max-w-[580px] mx-auto sm:px-0" viewportClassName="overflow-x-hidden">
         <ProfileTabs
           activeTab={activeTab}
           onTabChange={handleTabChange}
           availableTabs={availableTabs}
-          className="mb-4 sm:mb-6"
+          className="mb-4 sm:mb-6 overflow-x-hidden"
+
         />
         {renderTabContent()}
-      </div>
+      </ScrollArea>
     </main>
   );
 }

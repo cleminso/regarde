@@ -59,18 +59,20 @@ export function WorkExpEdit({
   }, [workExpToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
-    if (!title.trim() || !company.trim() || !fromDate.trim()) {
-      alert('Title, Company, and From Date are required.');
-      return;
+    if (!title.trim()) {
+      const shouldContinue = confirm(
+        "Adding a job title helps visitors understand your role. Would you like to save anyway?"
+      );
+      if (!shouldContinue) return;
     }
 
     const workExpData = {
       title: title.trim(),
-      company: company.trim(),
+      company: company.trim() || undefined,
       location: location.trim() || undefined,
       url: getValidUrl(url.trim()),
       description: description.trim() || undefined,
-      from: fromDate.trim(),
+      from: fromDate.trim() || undefined,
       to: toDate.trim() || undefined,
     };
 
@@ -95,7 +97,37 @@ export function WorkExpEdit({
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
-                  From<sup>*</sup>
+                  Title<sup>*</sup>
+                </label>
+                <Input
+                  type="text"
+                  id="work-title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Senior Software Engineer, Product Designer"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2 w-full">
+                <label className="text-sm font-sans block text-foreground">
+                  Company
+                </label>
+                <Input
+                  type="text"
+                  id="work-company"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  placeholder="Google, Microsoft, Startup Inc."
+                />
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex flex-col gap-2 w-full">
+                <label className="text-sm font-sans block text-foreground">
+                  From
                 </label>
                 <SelectorDate
                   id="work-from-date"
@@ -106,7 +138,7 @@ export function WorkExpEdit({
                     label: 'Select Year',
                     disabled: true,
                   }}
-                  buttonDisplayValue={fromDate || 'Select Year'}
+                  buttonDisplayValue={fromDate || currentYear}
                 />
               </div>
 
@@ -129,36 +161,6 @@ export function WorkExpEdit({
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
-                  Title<sup>*</sup>
-                </label>
-                <Input
-                  type="text"
-                  id="work-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Designer, Engineer, etc"
-                />
-              </div>
-
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
-                  Company<sup>*</sup>
-                </label>
-                <Input
-                  type="text"
-                  id="work-company"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                  placeholder="Acme Inc."
-                />
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
                   Location
                 </label>
                 <Input
@@ -166,7 +168,7 @@ export function WorkExpEdit({
                   id="work-location"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Where was it?"
+                  placeholder="e.g., San Francisco, CA or Remote"
                 />
               </div>
 
@@ -179,11 +181,12 @@ export function WorkExpEdit({
                   id="work-url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://company.com"
+                  placeholder="company.com"
                 />
               </div>
             </div>
           </section>
+
 
           <section>
             <div className="flex flex-col gap-2 w-full">
@@ -194,7 +197,7 @@ export function WorkExpEdit({
                 id="work-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe your role and achievements"
+                placeholder="Share your key responsibilities, achievements, and impact. What did you build or improve?"
                 className="min-h-[180px] resize-none"
               />
             </div>

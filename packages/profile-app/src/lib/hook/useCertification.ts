@@ -23,8 +23,8 @@ export function useCertification({
 
   const addCertification = async (certificationData: {
     name: string;
-    organization: string;
-    issued: string;
+    organization?: string;
+    issued?: string;
     expire?: string;
     url?: string;
     description?: string;
@@ -60,8 +60,8 @@ export function useCertification({
     certificationToUpdate: Loaded<typeof Certification>,
     certificationData: {
       name: string;
-      organization: string;
-      issued: string;
+      organization?: string;
+      issued?: string;
       expire?: string;
       url?: string;
       description?: string;

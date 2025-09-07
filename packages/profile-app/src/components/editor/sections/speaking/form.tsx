@@ -57,14 +57,16 @@ export function SpeakingEdit({
   }, [speakingToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
-    if (!title.trim() || !year.trim()) {
-      alert('Title and Year are required.');
-      return;
+    if (!title.trim()) {
+      const shouldContinue = confirm(
+        "Adding a talk title helps visitors understand your speaking topic. Would you like to save anyway?"
+      );
+      if (!shouldContinue) return;
     }
 
     const speakingData = {
       title: title.trim(),
-      year: year.trim(),
+      year: year.trim() || undefined,
       event: event.trim() || undefined,
       location: location.trim() || undefined,
       url: getValidUrl(url.trim()),
@@ -105,7 +107,7 @@ export function SpeakingEdit({
 
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
-                  Year<sup>*</sup>
+                  Year
                 </label>
                 <SelectorDate
                   id="speaking-year"

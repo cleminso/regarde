@@ -23,10 +23,10 @@ export function useEducation({
   };
 
   const addEducation = (educationData: {
-    from: string;
+    from?: string;
     to?: string;
     degree: string;
-    institution: string;
+    institution?: string;
     location?: string;
     url?: string;
     description?: string;
@@ -56,10 +56,10 @@ export function useEducation({
   const updateEducation = (
     educationToUpdate: Loaded<typeof Education>,
     educationData: {
-      from: string;
+      from?: string;
       to?: string;
       degree: string;
-      institution: string;
+      institution?: string;
       location?: string;
       url?: string;
       description?: string;

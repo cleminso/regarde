@@ -24,11 +24,11 @@ export function useVolunteering({
 
   const addVolunteering = async (volunteeringData: {
     title: string;
-    organization: string;
+    organization?: string;
     location?: string;
     url?: string;
     description?: string;
-    from: string;
+    from?: string;
     to?: string;
   }): Promise<Loaded<typeof Volunteering> | undefined> => {
     const volunteeringList = ensureVolunteeringList();
@@ -57,11 +57,11 @@ export function useVolunteering({
     volunteeringToUpdate: Loaded<typeof Volunteering>,
     volunteeringData: {
       title: string;
-      organization: string;
+      organization?: string;
       location?: string;
       url?: string;
       description?: string;
-      from: string;
+      from?: string;
       to?: string;
     },
   ) => {

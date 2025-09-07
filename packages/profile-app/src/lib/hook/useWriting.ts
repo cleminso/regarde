@@ -17,7 +17,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
 
   const addWriting = async (writingData: {
     title: string;
-    year: string;
+    year?: string;
     publisher?: string;
     url?: string;
     description?: string;
@@ -46,7 +46,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
     writingToUpdate: Loaded<typeof Writing>,
     writingData: {
       title: string;
-      year: string;
+      year?: string;
       publisher?: string;
       url?: string;
       description?: string;

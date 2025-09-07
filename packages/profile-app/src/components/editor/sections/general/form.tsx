@@ -1,5 +1,5 @@
 import { Loaded } from 'jazz-tools';
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useGeneral } from '#/lib/hook/useGeneral';
@@ -35,12 +35,41 @@ export function GeneralEdit({
     nickname,
   } = useGeneral({ profile, triggerSyncIndicator });
 
+  const [localDisplayName, setLocalDisplayName] = useState(profile.name || '');
+  const [isFocused, setIsFocused] = useState(false);
+  const originalNameRef = useRef(profile.name || '');
+
+  useEffect(() => {
+    if (!isFocused) {
+      setLocalDisplayName(profile.name || '');
+      originalNameRef.current = profile.name || '';
+    }
+  }, [profile.name, isFocused]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       nickname.checkAvailability(nickname.nicknameValue);
     }, 500);
     return () => clearTimeout(timer);
   }, [nickname.nicknameValue, nickname.checkAvailability]);
+
+  const handleDisplayNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalDisplayName(e.target.value);
+    updateName(e.target.value);
+  };
+
+  const handleDisplayNameFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleDisplayNameBlur = () => {
+    setIsFocused(false);
+
+    if (!localDisplayName.trim() && originalNameRef.current) {
+      setLocalDisplayName(originalNameRef.current);
+      updateName(originalNameRef.current);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full lg:h-full">
@@ -88,14 +117,15 @@ export function GeneralEdit({
           </section>
           <section>
             <label className="text-sm font-sans block text-foreground">
-              Display Name
-              <sup>*</sup>
+              Display Name<sup>*</sup>
             </label>
             <Input
               type="text"
               id="name"
-              value={profile.name || ''}
-              onChange={(e) => updateName(e.target.value)}
+              value={localDisplayName}
+              onChange={handleDisplayNameChange}
+              onFocus={handleDisplayNameFocus}
+              onBlur={handleDisplayNameBlur}
               placeholder="Your name"
               className="mt-2 mobile-button"
             />

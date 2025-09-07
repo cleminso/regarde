@@ -56,17 +56,19 @@ export function CertificationEdit({
   }, [certificationToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
-    if (!name.trim() || !organization.trim() || !issuedDate.trim()) {
-      alert('Name, Organization, and Issued Date are required.');
-      return;
+    if (!name.trim()) {
+      const shouldContinue = confirm(
+        "Adding the certification name helps visitors understand your credentials. Would you like to save anyway?"
+      );
+      if (!shouldContinue) return;
     }
 
     const certificationData = {
       name: name.trim(),
-      organization: organization.trim(),
+      organization: organization.trim() || undefined,
       url: getValidUrl(url.trim()),
       description: description.trim() || undefined,
-      issued: issuedDate.trim(),
+      issued: issuedDate.trim() || undefined,
       expire: expireDate.trim() || undefined,
     };
 
@@ -91,8 +93,37 @@ export function CertificationEdit({
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
+                  Name<sup>*</sup>
+                </label>
+                <Input
+                  type="text"
+                  id="cert-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="AWS Solutions Architect"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2 w-full">
+                <label className="text-sm font-sans block text-foreground">
+                  Organization
+                </label>
+                <Input
+                  type="text"
+                  id="cert-organization"
+                  value={organization}
+                  onChange={(e) => setOrganization(e.target.value)}
+                  placeholder="Amazon Web Services"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex flex-col gap-2 w-full">
+                <label className="text-sm font-sans block text-foreground">
                   Issued
-                  <sup>*</sup>
                 </label>
                 <SelectorDate
                   id="cert-issued-date"
@@ -123,38 +154,6 @@ export function CertificationEdit({
           </section>
 
           <section>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
-                  Name
-                  <sup>*</sup>
-                </label>
-                <Input
-                  type="text"
-                  id="cert-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="AWS Solutions Architect"
-                />
-              </div>
-
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
-                  Organization
-                  <sup>*</sup>
-                </label>
-                <Input
-                  type="text"
-                  id="cert-organization"
-                  value={organization}
-                  onChange={(e) => setOrganization(e.target.value)}
-                  placeholder="Amazon Web Services"
-                />
-              </div>
-            </div>
-          </section>
-
-          <section>
             <div className="flex flex-col gap-2 w-full">
               <label className="text-sm font-sans block text-foreground">
                 URL
@@ -164,10 +163,11 @@ export function CertificationEdit({
                 id="cert-url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://example.com"
+                placeholder="example.com"
               />
             </div>
           </section>
+
 
           <section>
             <div className="flex flex-col gap-2 w-full">

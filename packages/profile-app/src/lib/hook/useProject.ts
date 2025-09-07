@@ -16,7 +16,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
 
   const addProject = async (projectData: {
     title: string;
-    year: string;
+    year?: string;
     client?: string;
     link?: string;
     description?: string;
@@ -50,7 +50,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
     projectToUpdate: Loaded<typeof Project>,
     projectData: {
       title: string;
-      year: string;
+      year?: string;
       client?: string;
       link?: string;
       description?: string;

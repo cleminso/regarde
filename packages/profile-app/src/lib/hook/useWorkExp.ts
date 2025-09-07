@@ -18,12 +18,12 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
   };
 
   const addWorkExp = async (workExpData: {
-    title: string;
-    company: string;
+    title?: string;
+    company?: string;
     location?: string;
     url?: string;
     description?: string;
-    from: string;
+    from?: string;
     to?: string;
   }): Promise<Loaded<typeof WorkExp> | undefined> => {
     const workExpList = ensureWorkExpList();
@@ -33,7 +33,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
 
     const newWorkExp = WorkExp.create(
       {
-        title: workExpData.title,
+        title: workExpData.title || 'Work Experience',
         company: workExpData.company,
         location: workExpData.location,
         url: workExpData.url,
@@ -51,12 +51,12 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
   const updateWorkExp = async (
     workExpToUpdate: Loaded<typeof WorkExp>,
     workExpData: {
-      title: string;
-      company: string;
+      title?: string;
+      company?: string;
       location?: string;
       url?: string;
       description?: string;
-      from: string;
+      from?: string;
       to?: string;
     },
   ) => {
@@ -79,7 +79,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
       workExpData.title !== undefined &&
       workExpToUpdate.title !== workExpData.title
     ) {
-      workExpToUpdate.title = workExpData.title;
+      workExpToUpdate.title = workExpData.title || 'Work Experience';
       changed = true;
     }
 

@@ -11,7 +11,7 @@ export type SocialLinks = z.infer<typeof SocialLinks>;
 
 export const Project = co.map({
   title: z.string(),
-  year: z.string(),
+  year: z.optional(z.string()),
   client: z.optional(z.string()),
   link: z.optional(z.string()),
   description: z.optional(z.string()),
@@ -23,9 +23,9 @@ export const ListOfProjects = co.list(Project);
 
 export const WorkExp = co.map({
   title: z.string(),
-  from: z.string(),
+  from: z.optional(z.string()),
   to: z.optional(z.string()),
-  company: z.string(),
+  company: z.optional(z.string()),
   location: z.optional(z.string()),
   url: z.optional(z.string()),
   description: z.optional(z.string()),
@@ -37,7 +37,7 @@ export const ListOfWorkExp = co.list(WorkExp);
 
 export const Writing = co.map({
   title: z.string(),
-  year: z.string(),
+  year: z.optional(z.string()),
   publisher: z.optional(z.string()),
   url: z.optional(z.string()),
   description: z.optional(z.string()),
@@ -48,10 +48,10 @@ export type Writing = co.loaded<typeof Writing>;
 export const ListOfWriting = co.list(Writing);
 
 export const Education = co.map({
-  from: z.string(),
+  from: z.optional(z.string()),
   to: z.optional(z.string()),
   degree: z.string(),
-  institution: z.string(),
+  institution: z.optional(z.string()),
   location: z.optional(z.string()),
   url: z.optional(z.string()),
   description: z.optional(z.string()),
@@ -62,10 +62,10 @@ export type Education = co.loaded<typeof Education>;
 export const ListOfEducation = co.list(Education);
 
 export const Certification = co.map({
-  issued: z.string(),
+  issued: z.optional(z.string()),
   expire: z.optional(z.string()),
   name: z.string(),
-  organization: z.string(),
+  organization: z.optional(z.string()),
   url: z.optional(z.string()),
   description: z.optional(z.string()),
 });
@@ -76,7 +76,7 @@ export const ListOfCertification = co.list(Certification);
 
 export const Speaking = co.map({
   title: z.string(),
-  year: z.string(),
+  year: z.optional(z.string()),
   event: z.optional(z.string()),
   location: z.optional(z.string()),
   url: z.optional(z.string()),
@@ -89,8 +89,8 @@ export const ListOfSpeaking = co.list(Speaking);
 
 export const Award = co.map({
   title: z.string(),
-  year: z.string(),
-  presenter: z.string(),
+  year: z.optional(z.string()),
+  presenter: z.optional(z.string()),
   url: z.optional(z.string()),
   description: z.optional(z.string()),
 });
@@ -100,10 +100,10 @@ export type Award = co.loaded<typeof Award>;
 export const ListOfAward = co.list(Award);
 
 export const Volunteering = co.map({
-  from: z.string(),
+  from: z.optional(z.string()),
   to: z.optional(z.string()),
   title: z.string(),
-  organization: z.string(),
+  organization: z.optional(z.string()),
   location: z.optional(z.string()),
   url: z.optional(z.string()),
   description: z.optional(z.string()),
@@ -115,7 +115,7 @@ export const ListOfVolunteering = co.list(Volunteering);
 
 export const SideProject = co.map({
   title: z.string(),
-  year: z.string(),
+  year: z.optional(z.string()),
   client: z.optional(z.string()),
   url: z.optional(z.string()),
   description: z.optional(z.string()),

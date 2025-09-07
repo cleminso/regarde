@@ -59,18 +59,20 @@ export function EducationEdit({
   }, [educationToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
-    if (!degree.trim() || !institution.trim() || !fromDate.trim()) {
-      alert('Degree, Institution, and From Date are required.');
-      return;
+    if (!degree.trim()) {
+      const shouldContinue = confirm(
+        "Adding your degree helps visitors understand your educational background. Would you like to save anyway?"
+      );
+      if (!shouldContinue) return;
     }
 
     const educationData = {
       degree: degree.trim(),
-      institution: institution.trim(),
+      institution: institution.trim() || undefined,
       location: location.trim() || undefined,
       url: getValidUrl(url.trim()),
       description: description.trim() || undefined,
-      from: fromDate.trim(),
+      from: fromDate.trim() || undefined,
       to: toDate.trim() || undefined,
     };
 
@@ -95,7 +97,37 @@ export function EducationEdit({
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
-                  From<sup>*</sup>
+                  Degree<sup>*</sup>
+                </label>
+                <Input
+                  type="text"
+                  id="education-degree"
+                  value={degree}
+                  onChange={(e) => setDegree(e.target.value)}
+                  placeholder="Bachelor of Science in Computer Science, MBA"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2 w-full">
+                <label className="text-sm font-sans block text-foreground">
+                  Institution
+                </label>
+                <Input
+                  type="text"
+                  id="education-institution"
+                  value={institution}
+                  onChange={(e) => setInstitution(e.target.value)}
+                  placeholder="University of Dream"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex flex-col gap-2 w-full">
+                <label className="text-sm font-sans block text-foreground">
+                  From
                 </label>
                 <SelectorDate
                   id="education-from-date"
@@ -106,7 +138,7 @@ export function EducationEdit({
                     label: 'Select Year',
                     disabled: true,
                   }}
-                  buttonDisplayValue={fromDate || 'Select Year'}
+                  buttonDisplayValue={fromDate || currentYear}
                 />
               </div>
 
@@ -120,36 +152,6 @@ export function EducationEdit({
                   onChange={(e) => setToDate(e.target.value)}
                   placeholderOption={{ value: '', label: 'Now' }}
                   buttonDisplayValue={toDate || 'Now'}
-                />
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
-                  Degree<sup>*</sup>
-                </label>
-                <Input
-                  type="text"
-                  id="education-degree"
-                  value={degree}
-                  onChange={(e) => setDegree(e.target.value)}
-                  placeholder="Bachelor's, Master's, PhD..."
-                />
-              </div>
-
-              <div className="flex flex-col md:flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
-                  Institution<sup>*</sup>
-                </label>
-                <Input
-                  type="text"
-                  id="education-institution"
-                  value={institution}
-                  onChange={(e) => setInstitution(e.target.value)}
-                  placeholder="University of Dream"
                 />
               </div>
             </div>
@@ -179,11 +181,12 @@ export function EducationEdit({
                   id="education-url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://university.edu"
+                  placeholder="university.edu"
                 />
               </div>
             </div>
           </section>
+
 
           <section>
             <div className="flex flex-col gap-2 w-full">
@@ -194,7 +197,7 @@ export function EducationEdit({
                 id="education-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Add notable achievements, something that makes your degree memorable..."
+                placeholder="Add notable achievements, something that makes your degree memorable."
                 className="min-h-[180px] resize-none"
               />
             </div>

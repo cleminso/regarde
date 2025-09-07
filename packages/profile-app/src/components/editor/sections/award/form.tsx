@@ -53,15 +53,17 @@ export function AwardEdit({
   }, [awardToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
-    if (!title.trim() || !year.trim() || !presenter.trim()) {
-      alert('Award Title, Year, and Presenter are required.');
-      return;
+    if (!title.trim()) {
+      const shouldContinue = confirm(
+        "Adding the award title helps visitors understand your achievement. Would you like to save anyway?"
+      );
+      if (!shouldContinue) return;
     }
 
     const awardData = {
       title: title.trim(),
-      year: year.trim(),
-      presenter: presenter.trim(),
+      year: year.trim() || undefined,
+      presenter: presenter.trim() || undefined,
       url: getValidUrl(url.trim()),
       description: description.trim() || undefined,
     };
@@ -100,7 +102,7 @@ export function AwardEdit({
 
               <div className="flex flex-col md:flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
-                  Year<sup>*</sup>
+                  Year <span className="text-xs text-muted-foreground"></span>
                 </label>
                 <SelectorDate
                   id="award-year"
@@ -121,7 +123,7 @@ export function AwardEdit({
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex flex-col gap-2 w-full">
                 <label className="text-sm font-sans block text-foreground">
-                  Presenter<sup>*</sup>
+                  Presenter <span className="text-xs text-muted-foreground"></span>
                 </label>
                 <Input
                   type="text"

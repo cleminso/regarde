@@ -12,11 +12,8 @@ export function NowPage({ profile }: NowPageProps) {
 
   if (!nowPage || !nowPage.description) {
     return (
-      <div className="w-full">
-        <section
-          className="mx-auto flex flex-col gap-6 mb-10"
-          style={{ width: '580px' }}
-        >
+      <div className="@container">
+        <section className="w-full max-w-[580px] mx-auto flex flex-col gap-6 mb-10">
           <div className="text-center py-20">
             <p className="text-sm text-foreground">
               This person hasn't shared what they're doing now.
@@ -39,11 +36,8 @@ export function NowPage({ profile }: NowPageProps) {
   }
 
   return (
-    <div className="w-full">
-      <section
-        className="mx-auto flex flex-col gap-6 mb-10"
-        style={{ width: '580px' }}
-      >
+    <div className="@container">
+      <section className="w-full max-w-[580px] mx-auto flex flex-col gap-6 mb-10">
         <div className="flex items-center gap-3">
           <h2 className="text-lg font-medium text-foreground">
             {nowPage.title || "What I'm doing now"}

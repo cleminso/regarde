@@ -24,7 +24,7 @@ export function useSideProject({
 
   const addSideProject = async (sideProjectData: {
     title: string;
-    year: string;
+    year?: string;
     client?: string;
     url?: string;
     description?: string;
@@ -53,7 +53,7 @@ export function useSideProject({
     sideProjectToUpdate: Loaded<typeof SideProject>,
     sideProjectData: {
       title: string;
-      year: string;
+      year?: string;
       client?: string;
       url?: string;
       description?: string;

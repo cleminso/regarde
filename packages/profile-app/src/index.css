@@ -280,9 +280,9 @@
   --sidebar-accent-foreground: oklch(0.2686 0 0);
   --sidebar-border: oklch(0.7284 0 0);
   --sidebar-ring: oklch(0.5624 0 0);
-  --font-sans: Geist Mono, monospace;
-  --font-serif: Geist Mono, monospace;
-  --font-mono: JetBrains Mono, ui-monospace, monospace;
+  --font-sans: CommitMono, ui-monospace, monospace;
+  --font-serif: CommitMono, ui-monospace, monospace;
+  --font-mono: CommitMono, ui-monospace, monospace;
   --radius: 0.5rem;
   --shadow-2xs: 0px 1px 0px 0px hsl(0 0% 0% / 0);
   --shadow-xs: 0px 1px 0px 0px hsl(0 0% 0% / 0);
@@ -341,9 +341,9 @@
   --sidebar-accent-foreground: oklch(0.9851 0 0);
   --sidebar-border: oklch(0.3407 0 0);
   --sidebar-ring: oklch(0.4386 0 0);
-  --font-sans: Geist Mono, monospace;
-  --font-serif: Geist Mono, monospace;
-  --font-mono: JetBrains Mono, ui-monospace, monospace;
+  --font-sans: CommitMono, ui-monospace, monospace;
+  --font-serif: CommitMono, ui-monospace, monospace;
+  --font-mono: CommitMono, ui-monospace, monospace;
   --radius: 0.5rem;
   --shadow-2xs: 0px 1px 0px 0px hsl(0 0% 0% / 0);
   --shadow-xs: 0px 1px 0px 0px hsl(0 0% 0% / 0);

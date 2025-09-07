@@ -96,6 +96,7 @@ export const UserDetailsResponseSchema = z
               title: z.string().describe("Project name or title"),
               year: z
                 .string()
+                .optional()
                 .describe("Year the project was completed or started"),
               client: z
                 .string()
@@ -120,6 +121,7 @@ export const UserDetailsResponseSchema = z
               title: z.string().describe("Job title or position name"),
               from: z
                 .string()
+                .optional()
                 .describe("Start date of employment (flexible format)"),
               to: z
                 .string()
@@ -127,7 +129,10 @@ export const UserDetailsResponseSchema = z
                 .describe(
                   "End date of employment (optional for current positions)",
                 ),
-              company: z.string().describe("Company or organization name"),
+              company: z
+                .string()
+                .optional()
+                .describe("Company or organization name"),
               location: z
                 .string()
                 .optional()
@@ -153,6 +158,7 @@ export const UserDetailsResponseSchema = z
                 .describe("Title of the written work or article"),
               year: z
                 .string()
+                .optional()
                 .describe("Year the work was published or written"),
               publisher: z
                 .string()
@@ -189,11 +195,13 @@ export const UserDetailsResponseSchema = z
                 ),
               degree: z
                 .string()
+                .optional()
                 .describe(
                   "Degree, diploma, or educational qualification earned",
                 ),
               institution: z
                 .string()
+                .optional()
                 .describe("Educational institution or organization name"),
               location: z
                 .string()
@@ -219,6 +227,7 @@ export const UserDetailsResponseSchema = z
             z.object({
               issued: z
                 .string()
+                .optional()
                 .describe(
                   "Date when the certification was issued (flexible format)",
                 ),
@@ -231,6 +240,7 @@ export const UserDetailsResponseSchema = z
               name: z.string().describe("Name or title of the certification"),
               organization: z
                 .string()
+                .optional()
                 .describe(
                   "Organization or institution that issued the certification",
                 ),
@@ -253,6 +263,7 @@ export const UserDetailsResponseSchema = z
               title: z.string().describe("Title of the speaking engagement"),
               year: z
                 .string()
+                .optional()
                 .describe("Year when the speaking engagement took place"),
               event: z
                 .string()
@@ -281,9 +292,13 @@ export const UserDetailsResponseSchema = z
           .array(
             z.object({
               title: z.string().describe("Title or name of the award"),
-              year: z.string().describe("Year when the award was received"),
+              year: z
+                .string()
+                .optional()
+                .describe("Year when the award was received"),
               presenter: z
                 .string()
+                .optional()
                 .describe("Organization or entity that presented the award"),
               url: z
                 .string()
@@ -306,6 +321,7 @@ export const UserDetailsResponseSchema = z
                 .describe("Title or role of the volunteering position"),
               organization: z
                 .string()
+                .optional()
                 .describe("Organization or institution for volunteering"),
               location: z
                 .string()
@@ -323,6 +339,7 @@ export const UserDetailsResponseSchema = z
                 ),
               from: z
                 .string()
+                .optional()
                 .describe("Start date of volunteering (flexible format)"),
               to: z
                 .string()
@@ -341,6 +358,7 @@ export const UserDetailsResponseSchema = z
               title: z.string().describe("Side project name or title"),
               year: z
                 .string()
+                .optional()
                 .describe("Year the side project was completed or started"),
               client: z
                 .string()

@@ -20,7 +20,7 @@ export function useSpeaking({
 
   const addSpeaking = async (speakingData: {
     title: string;
-    year: string;
+    year?: string;
     event?: string;
     location?: string;
     url?: string;
@@ -51,7 +51,7 @@ export function useSpeaking({
     speakingToUpdate: Loaded<typeof Speaking>,
     speakingData: {
       title: string;
-      year: string;
+      year?: string;
       event?: string;
       location?: string;
       url?: string;
