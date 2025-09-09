@@ -210,11 +210,15 @@ export function validateJazzAppProfile(
 }
 
 export const JazzProfileProfile = co.profile({
-  "profile.jazz.dev": z.string(), // String ID, requires additional load
+  "regarde.dev": z.string(), // String ID, requires additional load
+  "profile.jazz.dev": z.optional(z.string()),
 });
+
 export const JazzProfileRoot = co.map({
-  "profile.jazz.dev": JazzAppProfile, // Direct object reference, already loaded
-  "auth.jazz.dev": RegistrationKey,
+  "regarde.dev": JazzAppProfile, // Direct object reference, already loaded
+  "auth.regarde.dev": RegistrationKey,
+  "profile.jazz.dev": co.optional(JazzAppProfile),
+  "auth.jazz.dev": co.optional(RegistrationKey),
 });
 
 export const OnboardingAccount = co
@@ -223,72 +227,70 @@ export const OnboardingAccount = co
     root: JazzProfileRoot,
   })
   .withMigration(async (account, creationProps?: { name: string }) => {
-    if (account.profile == null || account.root === null) {
-      console.warn("Something's null, Mark");
-      return;
-    }
+    // Load worker group once
+    const jazzProfileWorkerGroupID = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
+    const jazzProfileWorkerGroup = await Group.load(jazzProfileWorkerGroupID);
+    await jazzProfileWorkerGroup?.ensureLoaded();
 
-    const userHandle = UserHandle.create({
-      nickname: "",
-      registeredAt: Date.now(),
-      lastModified: Date.now(),
-      isActive: false,
-    });
-
-    const jazzProfileData = JazzAppProfile.create({
-      name: creationProps?.name || "Type your name",
-      userHandle,
-      version: 1,
-    });
-
-    const registrationKey = RegistrationKey.create({
-      key: "not-valid-" + Math.random(),
-      expiresAt: 0, // key should never be valid, expires as soon as it's generated
-    });
-
+    // Handle new account creation
     if (account.root === undefined) {
-      // This is the worker read group, must be hardcoded
-      const jazzProfileWorkerGroupID = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
-      const jazzProfileWorkerGroup = await Group.load(jazzProfileWorkerGroupID);
-      await jazzProfileWorkerGroup?.ensureLoaded();
-
-      account.root = JazzProfileRoot.create({
-        "profile.jazz.dev": jazzProfileData,
-        "auth.jazz.dev": registrationKey,
+      const userHandle = UserHandle.create({
+        nickname: "",
+        registeredAt: Date.now(),
+        lastModified: Date.now(),
+        isActive: false,
       });
 
-      account.waitForSync();
+      const jazzProfileData = JazzAppProfile.create({
+        name: creationProps?.name || "Type your name",
+        userHandle,
+        version: 1,
+      });
 
-      console.log(
-        "profile.jazz.dev namespace profile data created:",
-        jazzProfileData.id,
-      );
+      const registrationKey = RegistrationKey.create({
+        key: "not-valid-" + Math.random(),
+        expiresAt: 0,
+      });
 
-      // Grant Worker "write" permission on ProfileData
+      account.root = JazzProfileRoot.create({
+        "regarde.dev": jazzProfileData,
+        "auth.regarde.dev": registrationKey,
+      });
+
+      // Grant permissions in batch
       if (jazzProfileWorkerGroup) {
-        jazzProfileData._owner
-          .castAs(Group)
-          .addMember(jazzProfileWorkerGroup, "writer");
-
-        userHandle._owner
-          .castAs(Group)
-          .addMember(jazzProfileWorkerGroup, "writer");
-
-        account.root["auth.jazz.dev"]?._owner
-          .castAs(Group)
-          .addMember(jazzProfileWorkerGroup, "writer");
-      } else {
-        console.warn("Group is missing");
-      }
-
-      if (account.profile === undefined && account.profile !== null) {
-        account.profile = JazzProfileProfile.create({
-          name: "clc",
-          "profile.jazz.dev": jazzProfileData.id,
+        [jazzProfileData, userHandle, registrationKey].forEach((item) => {
+          item._owner.castAs(Group).addMember(jazzProfileWorkerGroup, "writer");
         });
-      } else if (account.profile?.["profile.jazz.dev"] === undefined)
-        account.profile["profile.jazz.dev"] = jazzProfileData.id;
+      }
+    }
 
-      console.log("Profile created successfully", jazzProfileData.id);
+    // Handle existing accounts
+    const { root } = await account.ensureLoaded({
+      resolve: { root: true },
+    });
+
+    // Ensure auth.regarde.dev exists
+    if (root["auth.regarde.dev"] === undefined) {
+      const registrationKey = RegistrationKey.create({
+        key: "migrated-" + Math.random(),
+        expiresAt: 0,
+      });
+
+      root["auth.regarde.dev"] = registrationKey;
+
+      if (jazzProfileWorkerGroup) {
+        registrationKey._owner
+          .castAs(Group)
+          .addMember(jazzProfileWorkerGroup, "writer");
+      }
+    }
+
+    // Handle profile creation if needed
+    if (account.profile === undefined) {
+      account.profile = JazzProfileProfile.create({
+        name: creationProps?.name || "Anonymous",
+        "regarde.dev": root["regarde.dev"]?.id || "",
+      });
     }
   });
