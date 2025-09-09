@@ -181,7 +181,7 @@ export class HealthService implements HealthServiceInterface {
         const account = await OnboardingAccount.load(targetAccountId, {
           resolve: {
             profile: {
-              "profile.jazz.dev": {
+              "regarde.dev": {
                 userHandle: true,
               },
             },
@@ -198,7 +198,7 @@ export class HealthService implements HealthServiceInterface {
           report.issues.push(`Account "${targetAccountId}" has no profile`);
         } else {
           const profileData = await JazzAppProfile.load(
-            account.profile["profile.jazz.dev"],
+            account.profile["regarde.dev"],
             {
               resolve: {
                 userHandle: true,

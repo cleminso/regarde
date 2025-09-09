@@ -38,15 +38,15 @@ export const avatarHandler = (nicknameRegistry: any) => {
       );
 
       const jazzUserAccount = await OnboardingAccount.load(accountId, {
-        resolve: { profile: { "profile.jazz.dev": true } },
+        resolve: { profile: { "regarde.dev": true } },
       });
 
-      if (!jazzUserAccount?.profile?.["profile.jazz.dev"]) {
+      if (!jazzUserAccount?.profile?.["regarde.dev"]) {
         return c.notFound();
       }
 
       const profileData = await JazzAppProfile.load(
-        jazzUserAccount.profile["profile.jazz.dev"],
+        jazzUserAccount.profile["regarde.dev"],
         {
           resolve: {
             avatarImage: { original: true },

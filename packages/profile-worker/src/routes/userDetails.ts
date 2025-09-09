@@ -262,7 +262,7 @@ export const userDetailsHandler = (
           {
             resolve: {
               profile: {
-                "profile.jazz.dev": true,
+                "regarde.dev": true,
               },
             },
           },
@@ -275,7 +275,7 @@ export const userDetailsHandler = (
 
         if (!jazzUserAccount) throw new Error("Profile not found");
 
-        const jazzAppProfileId = jazzUserAccount.profile["profile.jazz.dev"];
+        const jazzAppProfileId = jazzUserAccount.profile["regarde.dev"];
 
         console.log("JazzAppProfileID:", jazzAppProfileId);
 

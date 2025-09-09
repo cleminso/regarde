@@ -3,12 +3,28 @@ import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 
 export function useMyJazz() {
   const isAuthenticated = useIsAuthenticated();
-  
+
   const { me: account, logOut } = useAccount(
-    OnboardingAccount, 
+    OnboardingAccount,
     isAuthenticated ? {
       resolve: {
         root: {
+          'regarde.dev': {
+            socialLinks: true,
+            projects: { $each: true },
+            workExp: { $each: true },
+            writing: { $each: true },
+            education: { $each: true },
+            certification: { $each: true },
+            speaking: { $each: true },
+            award: { $each: true },
+            volunteering: { $each: true },
+            sideProject: { $each: true },
+            nowPage: true,
+            avatarImage: { original: true },
+          },
+          'auth.regarde.dev': true,
+
           'profile.jazz.dev': {
             socialLinks: true,
             projects: { $each: true },
@@ -29,15 +45,15 @@ export function useMyJazz() {
     } : {}
   );
 
+  const jazzAppProfile = account?.root?.['regarde.dev'] || account?.root?.['profile.jazz.dev'];
+  const registrationKey = account?.root?.['auth.regarde.dev'] || account?.root?.['auth.jazz.dev'];
+
   return {
-    isAuthenticated,
     account,
-    profile: account?.profile,
+    jazzAppProfile,
+    registrationKey,
+    isAuthenticated,
     logOut,
-    jazzAppProfile: account?.root?.['profile.jazz.dev'],
-    accountId: account?.id,
-    profileName: account?.profile?.name,
-    isAccountReady: Boolean(account?.profile),
-    hasStableProfile: Boolean(account?.profile?.name),
+    isAccountReady: !!account && !!jazzAppProfile,
   };
 }

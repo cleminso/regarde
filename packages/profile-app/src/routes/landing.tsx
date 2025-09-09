@@ -63,7 +63,7 @@ export function LandingPage() {
         <LandingNicknameForm />
         <Button variant="ghost" asChild className="mt-4">
           <a
-            href="https://profile.jazz.dev/cleminso"
+            href="https://regarde.dev/cleminso"
             target="_blank"
             rel="noopener noreferrer"
           >

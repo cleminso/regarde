@@ -1,7 +1,7 @@
 import { logger } from '#/lib/utils/logger';
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'https://api.jazz.dev';
+  import.meta.env.VITE_API_BASE_URL || 'https://api.regarde.dev';
 
 interface UserDetails {
   jazzAccountId?: string;

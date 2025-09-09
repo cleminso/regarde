@@ -184,7 +184,7 @@ function ProfileContent({ profile }: { profile: LoadedProfile }) {
 
   // Dynamic title based on profile nickname
   const profileNickname = profile.userHandle?.nickname;
-  const pageTitle = profileNickname ? `${profileNickname}` : 'profile.jazz.dev';
+  const pageTitle = profileNickname ? `${profileNickname}` : 'regarde.dev';
 
   return (
     <main className="w-full">

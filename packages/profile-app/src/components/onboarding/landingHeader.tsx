@@ -18,7 +18,7 @@ export function LandingHeader() {
               <div className="w-6 h-6 bg-primary rounded-sm flex items-center justify-center"></div>
 
               <span className="hidden lg:inline font-mono text-base font-semibold">
-                profile.jazz.dev
+                regarde.dev
               </span>
 
               <Badge variant="default" className="h-4 text-xs">
