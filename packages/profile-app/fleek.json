@@ -44,7 +44,7 @@
   "redirects": [
     {
       "source": "/:nickname",
-      "destination": "https://api.jazz.dev/:nickname",
+      "destination": "https://api.regarde.dev/:nickname",
       "statusCode": 200,
       "conditions": {
         "headers": {

@@ -172,7 +172,7 @@ done
 
 print_status "🌐 Testing health endpoint (through nginx)..."
 for i in {1..20}; do
-    HEALTH_RESPONSE=$(curl -s --max-time 10 https://api.jazz.dev/health)
+    HEALTH_RESPONSE=$(curl -s --max-time 10 https://api.regarde.dev/health)
     if echo "$HEALTH_RESPONSE" | jq -e '.status == "healthy"' > /dev/null 2>&1; then
         print_status "Nginx health check passed!"
         WORKER_ID=$(echo "$HEALTH_RESPONSE" | jq -r '.workerId')
@@ -206,7 +206,7 @@ NEW_COMMIT=$(git rev-parse HEAD)
 print_status "🎉 Deployment completed successfully!"
 print_status "📸 New commit: $NEW_COMMIT"
 print_status "💾 Backup available at: $BACKUP_PATH"
-print_status "🌐 API is available at: https://api.jazz.dev"
+print_status "🌐 API is available at: https://api.regarde.dev"
 
 # Return to original directory
 cd "$ORIGINAL_DIR"
