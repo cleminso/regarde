@@ -270,6 +270,33 @@ export const OnboardingAccount = co
       resolve: { root: true },
     });
 
+    // Migrate profile.jazz.dev data to regarde.dev
+    if (
+      root["regarde.dev"] === undefined &&
+      root["profile.jazz.dev"] !== undefined
+    ) {
+      root["regarde.dev"] = root["profile.jazz.dev"];
+      console.log("Migrated profile data from profile.jazz.dev to regarde.dev");
+    }
+
+    // Migrate auth.jazz.dev data to auth.regarde.dev
+    if (
+      root["auth.regarde.dev"] === undefined &&
+      root["auth.jazz.dev"] !== undefined
+    ) {
+      root["auth.regarde.dev"] = root["auth.jazz.dev"];
+      console.log("Migrated auth data from auth.jazz.dev to auth.regarde.dev");
+    }
+
+    // Update profile reference to new namespace
+    if (
+      account.profile &&
+      root["regarde.dev"] &&
+      !account.profile["regarde.dev"]
+    ) {
+      account.profile["regarde.dev"] = root["regarde.dev"].id;
+    }
+
     // Ensure auth.regarde.dev exists
     if (root["auth.regarde.dev"] === undefined) {
       const registrationKey = RegistrationKey.create({
@@ -284,6 +311,15 @@ export const OnboardingAccount = co
           .castAs(Group)
           .addMember(jazzProfileWorkerGroup, "writer");
       }
+    }
+
+    // Update profile reference if needed
+    if (
+      account.profile &&
+      (!account.profile["regarde.dev"] || account.profile["regarde.dev"] === "")
+    ) {
+      account.profile["regarde.dev"] = root["regarde.dev"]?.id || "";
+      console.log("Updated profile reference to point to regarde.dev profile");
     }
 
     // Handle profile creation if needed
