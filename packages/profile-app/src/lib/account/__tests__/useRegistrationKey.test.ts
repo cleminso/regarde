@@ -21,7 +21,7 @@ vi.mock('../useMyJazz', () => ({
 function createMockAccountWithValidKey(expiresAt = Date.now() + 3600000) {
   return {
     root: {
-      'auth.jazz.dev': {
+      'auth.regarde.dev': {
         id: 'test-key-id',
         key: 'valid-test-key',
         expiresAt

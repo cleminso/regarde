@@ -74,7 +74,7 @@ export function createMockJazzAccount(overrides = {}) {
   return {
     id: "test-account-id",
     root: {
-      "profile.jazz.dev": {
+      "regarde.dev": {
         id: "test-profile-id",
         name: "Test User",
         userHandle: {
@@ -86,7 +86,7 @@ export function createMockJazzAccount(overrides = {}) {
         bio: "Test bio",
         version: 1,
       },
-      "auth.jazz.dev": {
+      "auth.regarde.dev": {
         key: "valid-registration-key",
         expiresAt: Date.now() + 3600000, // 1 hour from now
       },

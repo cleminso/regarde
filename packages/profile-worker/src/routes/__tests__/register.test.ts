@@ -69,7 +69,7 @@ function processRegistration(request: any, account: any) {
   }
 
   // Validate registration key
-  const authData = account.root["auth.jazz.dev"];
+  const authData = account.root["auth.regarde.dev"];
   const keyValidation = validateRegistrationKey(
     request.registrationKey,
     authData.key,
@@ -178,7 +178,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
 
     const mockAccount = createMockJazzAccount({
       root: {
-        "auth.jazz.dev": {
+        "auth.regarde.dev": {
           key: "valid-registration-key",
           expiresAt: Date.now() + 3600000,
         },
@@ -203,7 +203,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
 
     const mockAccount = createMockJazzAccount({
       root: {
-        "auth.jazz.dev": {
+        "auth.regarde.dev": {
           key: "valid-registration-key",
           expiresAt: Date.now() + 3600000,
         },
@@ -227,7 +227,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
 
     const mockAccount = createMockJazzAccount({
       root: {
-        "auth.jazz.dev": {
+        "auth.regarde.dev": {
           key: "valid-registration-key",
           expiresAt: Date.now() - 3600000, // 1 hour ago (expired)
         },

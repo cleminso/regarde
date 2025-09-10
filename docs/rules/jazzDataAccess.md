@@ -1,4 +1,3 @@
-
 # Jazz.tools Data Access Rules
 
 Based on our analysis of your architecture, here are the practical rules to follow:
@@ -71,7 +70,7 @@ const editProfile = (updates) => {
 useAccount(OnboardingAccount, {
   resolve: {
     root: {
-      "profile.jazz.dev": {
+      "regarde.dev": {
         /* all fields */
       },
     },
@@ -86,7 +85,7 @@ useAccount(OnboardingAccount, {
 const { jazzAppProfile } = useMyJazz();
 
 // ❌ Bad - unnecessary additional load
-const profileId = account.profile["profile.jazz.dev"];
+const profileId = account.profile["regarde.dev"];
 const profile = await JazzAppProfile.load(profileId);
 ```
 
@@ -167,7 +166,7 @@ async function getPublicProfile(profileId) {
 ```typescript
 // ❌ Overkill for display
 const account = await OnboardingAccount.load(id);
-const name = account.root["profile.jazz.dev"].name;
+const name = account.root["regarde.dev"].name;
 
 // ✅ Better
 const profile = await JazzAppProfile.load(profileId);
@@ -179,14 +178,14 @@ const name = profile.name;
 ```typescript
 // ❌ Inefficient
 const account = await OnboardingAccount.load(id);
-const profileId = account.profile["profile.jazz.dev"];
+const profileId = account.profile["regarde.dev"];
 const profile = await JazzAppProfile.load(profileId);
 
 // ✅ Better
 const account = await OnboardingAccount.load(id, {
-  resolve: { root: { "profile.jazz.dev": true } },
+  resolve: { root: { "regarde.dev": true } },
 });
-const profile = account.root["profile.jazz.dev"];
+const profile = account.root["regarde.dev"];
 ```
 
 3. **Using profile data for auth decisions**

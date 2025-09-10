@@ -7,19 +7,21 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
 ## 1. 📋 Schema Design Questions
 
 ### 🔍 Data Structure Analysis
+
 - [ ] **What type of data am I storing?**
   - User-specific data → Extend `JazzAppProfile` or create new CoMap linked to it
   - System-wide data → Create worker-managed CoRecord (like `NicknameRegistry`)
   - Relational data → Use CoList or CoMap with references
 
 - [ ] **Does this extend existing data or require new structures?**
+
   ```typescript
   // ✅ Extending existing (add to shared-schemas/src/profile.ts)
   export const JazzAppProfile = co.map({
     // ... existing fields
     newFeature: co.optional(NewFeatureSchema),
   });
-  
+
   // ✅ New independent structure
   export const NewFeatureData = co.map({
     // ... new fields
@@ -32,14 +34,16 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
   - Worker-managed → Add to `RegistryWorkerAccountRoot`
 
 ### 🔗 Relationship Patterns
+
 - [ ] **Do I need references to other CoValues?**
+
   ```typescript
   // ✅ Reference pattern (like UserHandle in JazzAppProfile)
   userHandle: UserHandle,
-  
-  // ✅ List of references  
+
+  // ✅ List of references
   items: co.list(ItemSchema),
-  
+
   // ✅ Optional reference
   relatedData: co.optional(OtherSchema),
   ```
@@ -54,6 +58,7 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
 ## 2. 🔐 Account vs Profile Access Questions
 
 ### 🎯 Context Requirements
+
 - [ ] **Do I need authentication context?**
   - YES → Use `OnboardingAccount`
   - NO → Use `JazzAppProfile` or resolved data
@@ -63,15 +68,17 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
   - NO → Direct profile access is fine
 
 - [ ] **Is this user management or data display?**
+
   ```typescript
   // ✅ User management (auth context needed)
   const { account, logOut } = useMyJazz();
-  
+
   // ✅ Data display (resolved data sufficient)
   const { jazzAppProfile } = useMyJazz();
   ```
 
 ### ⚡ Performance Considerations
+
 - [ ] **Can I use pre-resolved data from `useMyJazz`?**
   - Already resolved → Use `jazzAppProfile` from hook
   - Need different resolution → Load directly
@@ -82,7 +89,7 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
   // Add to useMyJazz.ts resolve block
   resolve: {
     root: {
-      'profile.jazz.dev': {
+      'regarde.dev': {
         // ... existing fields
         newFeature: true, // ← Add here
       }
@@ -95,9 +102,10 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
 ## 3. 🏗️ Client vs Worker Responsibility Questions
 
 ### 🤔 Logic Placement Decision
+
 - [ ] **Does this require centralized coordination?**
   - Uniqueness constraints (like nicknames) → Worker
-  - Cross-user data management → Worker  
+  - Cross-user data management → Worker
   - Personal data management → Client
 
 - [ ] **Does this need to work offline?**
@@ -109,7 +117,9 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
   - NO → Client is fine
 
 ### 🔄 Communication Patterns
+
 - [ ] **How will client communicate with worker?**
+
   ```typescript
   // ✅ HTTP API pattern (like nickname registration)
   export async function newFeatureAction(
@@ -118,10 +128,10 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
   ): Promise<void> {
     const registrationKey = await getValidKey();
     const response = await fetch(`${API_BASE_URL}/new-feature`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'X-Registration-Key': registrationKey,
+        "Content-Type": "application/json",
+        "X-Registration-Key": registrationKey,
       },
       body: JSON.stringify(request),
     });
@@ -137,6 +147,7 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
 ## 4. 🔒 Permission and Security Questions
 
 ### 👥 Access Control Design
+
 - [ ] **Who should have access to this data?**
   - User only → User's owner group
   - Public reading → Grant "everyone" reader access
@@ -144,15 +155,14 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
   - Shared data → Use custom groups
 
 - [ ] **Should worker have write access?**
+
   ```typescript
   // ✅ Grant worker access pattern (like in profile.ts migration)
   const jazzProfileWorkerGroupID = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
   const jazzProfileWorkerGroup = await Group.load(jazzProfileWorkerGroupID);
-  
+
   if (jazzProfileWorkerGroup) {
-    newData._owner
-      .castAs(Group)
-      .addMember(jazzProfileWorkerGroup, "writer");
+    newData._owner.castAs(Group).addMember(jazzProfileWorkerGroup, "writer");
   }
   ```
 
@@ -162,6 +172,7 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
   - Semi-public → Custom group management
 
 ### 🔑 Authentication Requirements
+
 - [ ] **Do worker operations need authentication?**
   - User-specific actions → Use registration key pattern
   - Public operations → No auth needed
@@ -172,7 +183,9 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
 ## 5. 🌊 Data Flow Questions
 
 ### 📡 Sync and Loading Strategy
+
 - [ ] **What resolve queries do I need?**
+
   ```typescript
   // ✅ Add to existing patterns
   const data = await JazzAppProfile.load(profileId, {
@@ -181,8 +194,8 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
       newFeature: {
         subField: true,
         list: { $each: true },
-      }
-    }
+      },
+    },
   });
   ```
 
@@ -204,6 +217,7 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
   ```
 
 ### 🔄 Update Propagation
+
 - [ ] **How do changes flow through the system?**
   - Client updates → Jazz sync → Other clients (automatic)
   - Worker updates → Jazz sync → Clients (automatic)
@@ -218,17 +232,19 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
 ## 6. 🔌 Integration Questions
 
 ### 🎣 Hook Integration
+
 - [ ] **Should I extend `useMyJazz` or create new hooks?**
+
   ```typescript
   // ✅ Extend useMyJazz for core user data
   export function useMyJazz() {
     // ... existing code
     return {
       // ... existing returns
-      newFeatureData: account?.root['profile.jazz.dev']?.newFeature,
+      newFeatureData: account?.root["regarde.dev"]?.newFeature,
     };
   }
-  
+
   // ✅ Create dedicated hook for complex features
   export function useNewFeature() {
     const { jazzAppProfile } = useMyJazz();
@@ -242,6 +258,7 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
   - Include proper error handling
 
 ### 📦 Package Organization
+
 - [ ] **Where should code live?**
   - Schemas → `packages/shared-schemas/src/`
   - Client logic → `packages/profile-app/src/lib/`
@@ -260,20 +277,21 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
 
 ## 🎯 Quick Decision Matrix
 
-| **If your feature is...** | **Then use...** |
-|---|---|
-| Personal user data | Client-side with JazzAppProfile extension |
-| System-wide coordination | Worker with shared registry pattern |
+| **If your feature is...**  | **Then use...**                                 |
+| -------------------------- | ----------------------------------------------- |
+| Personal user data         | Client-side with JazzAppProfile extension       |
+| System-wide coordination   | Worker with shared registry pattern             |
 | Public profile enhancement | Extend JazzAppProfile, grant public read access |
-| Real-time collaboration | Client-side with Jazz sync |
-| Uniqueness enforcement | Worker with global state management |
-| User preference/setting | Client-side with local storage backup |
+| Real-time collaboration    | Client-side with Jazz sync                      |
+| Uniqueness enforcement     | Worker with global state management             |
+| User preference/setting    | Client-side with local storage backup           |
 
 ---
 
 ## ✅ Final Validation Questions
 
 Before implementing, ask:
+
 - [ ] Does this follow existing patterns in our codebase?
 - [ ] Can I reuse existing hooks, schemas, or API patterns?
 - [ ] Is the permission model consistent with our current approach?

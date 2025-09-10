@@ -23,7 +23,7 @@ function validateUserDetailsRequest(request: any) {
 }
 
 function formatUserProfile(account: any) {
-  const profileData = account.root["profile.jazz.dev"];
+  const profileData = account.root["regarde.dev"];
 
   if (!profileData) {
     return null;
@@ -44,7 +44,7 @@ function formatUserProfile(account: any) {
 function getUserDetails(nickname: string, accounts: any[] = []) {
   // Find account by nickname
   const account = accounts.find((acc) => {
-    const profile = acc.root["profile.jazz.dev"];
+    const profile = acc.root["regarde.dev"];
     return (
       profile?.userHandle?.nickname?.toLowerCase() === nickname.toLowerCase()
     );
@@ -77,7 +77,7 @@ describe("User Details Logic - Business Rules", () => {
     // Test profile formatting business logic
     const mockAccount = createMockJazzAccount({
       root: {
-        "profile.jazz.dev": {
+        "regarde.dev": {
           name: "John Doe",
           bio: "Software engineer",
           userHandle: { nickname: "johndoe", isActive: true },
@@ -98,7 +98,7 @@ describe("User Details Logic - Business Rules", () => {
     const mockAccounts = [
       createMockJazzAccount({
         root: {
-          "profile.jazz.dev": {
+          "regarde.dev": {
             name: "John Doe",
             userHandle: { nickname: "johndoe", isActive: true },
             version: 1,
@@ -117,7 +117,7 @@ describe("User Details Logic - Business Rules", () => {
     const mockAccounts = [
       createMockJazzAccount({
         root: {
-          "profile.jazz.dev": {
+          "regarde.dev": {
             userHandle: { nickname: "JohnDoe", isActive: true },
             version: 1,
           },

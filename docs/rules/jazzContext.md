@@ -18,16 +18,19 @@ packages/
 ## 🔑 Key Schemas
 
 ### OnboardingAccount
+
 - **Purpose**: User authentication + account management
 - **Contains**: `profile` (public ID ref) + `root` (private resolved data)
 - **Use for**: Authentication, permissions, account operations
 
-### JazzAppProfile  
+### JazzAppProfile
+
 - **Purpose**: User profile data structure
 - **Contains**: `name`, `userHandle`, `projects`, `workExp`, `socialLinks`
 - **Use for**: Profile display, editing, public access
 
 ### RegistryWorkerAccount
+
 - **Purpose**: Worker's own Jazz account for system operations
 - **Contains**: Nickname registry, audit logs, system data
 
@@ -38,19 +41,25 @@ packages/
 ## 📋 Common Imports
 
 ### Client Side
+
 ```typescript
-import { useAccount } from 'jazz-tools/react';
-import { OnboardingAccount, JazzAppProfile } from '@onboarding.jazz/shared-schemas';
+import { useAccount } from "jazz-tools/react";
+import {
+  OnboardingAccount,
+  JazzAppProfile,
+} from "@onboarding.jazz/shared-schemas";
 ```
 
 ### Worker Side
+
 ```typescript
-import { OnboardingAccount, JazzAppProfile } from '../shared-schemas';
+import { OnboardingAccount, JazzAppProfile } from "../shared-schemas";
 ```
 
 ## 🔧 Key Patterns
 
 ### Client: Central Hook Pattern
+
 ```typescript
 const { account, jazzAppProfile, isAuthenticated } = useMyJazz();
 if (!account) return <Loading />;
@@ -58,17 +67,19 @@ if (!account) return <Loading />;
 ```
 
 ### Worker: Permission Context
+
 ```typescript
-const account = await OnboardingAccount.load(accountId, { 
+const account = await OnboardingAccount.load(accountId, {
   loadAs: worker,
-  resolve: { root: { 'profile.jazz.dev': true } }
+  resolve: { root: { "regarde.dev": true } },
 });
 ```
 
 ### Public Profile Access
+
 ```typescript
 const profile = await JazzAppProfile.load(profileId, {
-  resolve: { socialLinks: true, projects: { $each: true } }
+  resolve: { socialLinks: true, projects: { $each: true } },
 });
 ```
 
@@ -91,7 +102,7 @@ Building public view? → JazzAppProfile.load()
 ## 🎯 Architecture Principles
 
 1. **"Context vs Data"** - Account for context, Profile for data
-2. **"Load once, resolve deep"** - Better than multiple loads  
+2. **"Load once, resolve deep"** - Better than multiple loads
 3. **"Pre-resolve in hooks"** - Expose resolved data from central hook
 4. **"Workers need loadAs"** - Always specify permission context
 5. **"Least privilege"** - Use minimal access level needed
