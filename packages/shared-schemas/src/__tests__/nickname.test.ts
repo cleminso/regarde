@@ -2,39 +2,46 @@
  * Focused tests for nickname business logic - testing core business rules only
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
+import {
+  setupJazzTestEnvironment,
+  createTestOnboardingAccount,
+} from "../test-utils/jazz-setup.js";
 import { setNicknameFromRegistry, deactivate } from "../nickname.js";
-
-// Simple test data that matches the business logic interface
-function createUserHandle(nickname: string, isActive: boolean) {
-  return {
-    nickname,
-    isActive,
-    registeredAt: Date.now(),
-    lastModified: Date.now(),
-  };
-}
+import { UserHandle } from "../nickname.js";
 
 describe("Nickname Business Logic", () => {
-  it("should handle nickname registration workflow", () => {
-    // Test business logic: registering a nickname activates the user handle
-    const userHandle = createUserHandle("oldname", false);
+  beforeEach(async () => {
+    await setupJazzTestEnvironment();
+  });
 
-    setNicknameFromRegistry(userHandle as any, "newname");
+  it("should handle nickname registration workflow", async () => {
+    // Create a real Jazz UserHandle object
+    const userHandle = UserHandle.create({
+      nickname: "oldname",
+      isActive: false,
+      registeredAt: Date.now(),
+      lastModified: Date.now(),
+    });
+
+    setNicknameFromRegistry(userHandle, "newname");
 
     expect(userHandle.nickname).toBe("newname");
     expect(userHandle.isActive).toBe(true);
   });
 
-  it("should handle user deactivation workflow", () => {
-    // Test business logic: deactivating preserves nickname but changes status
-    const userHandle = createUserHandle("activeuser", true);
+  it("should handle user deactivation workflow", async () => {
+    // Create a real Jazz UserHandle object
+    const userHandle = UserHandle.create({
+      nickname: "activeuser",
+      isActive: true,
+      registeredAt: Date.now(),
+      lastModified: Date.now(),
+    });
 
-    deactivate(userHandle as any);
+    deactivate(userHandle);
 
     expect(userHandle.nickname).toBe("activeuser");
     expect(userHandle.isActive).toBe(false);
   });
-
-
 });

@@ -65,7 +65,7 @@ export const RegistryWorkerAccount = co
   })
   .withMigration(async (account) => {
     try {
-      const loadedAccount = await account.ensureLoaded({
+      const loadedAccount = await account.$jazz.ensureLoaded({
         resolve: {
           root: true,
         },
@@ -80,7 +80,7 @@ export const RegistryWorkerAccount = co
           auditLog: RegistryAuditLog.create([]),
           reservedNicknames: ReservedNicknamesRegistry.create({}),
         });
-        loadedAccount.root = newRoot;
+        loadedAccount.$jazz.set("root", newRoot);
         console.log("Root created after ensureLoaded since it was missing.");
         return;
       }
@@ -89,7 +89,7 @@ export const RegistryWorkerAccount = co
 
       if (loadedAccount.root.registry === undefined) {
         const newRegistry = NicknameRegistryCoRecord.create({});
-        loadedAccount.root.registry = newRegistry;
+        loadedAccount.root.$jazz.set("registry", newRegistry);
         console.log("NicknameRegistry created in worker account root.");
       }
 
@@ -97,7 +97,7 @@ export const RegistryWorkerAccount = co
 
       if (loadedAccount.root.reverseRegistry === undefined) {
         const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
-        loadedAccount.root.reverseRegistry = newReverseRegistry;
+        loadedAccount.root.$jazz.set("reverseRegistry", newReverseRegistry);
         console.log("ReverseNicknameRegistry created in worker account root.");
       }
 
@@ -105,7 +105,7 @@ export const RegistryWorkerAccount = co
 
       if (loadedAccount.root.auditLog === undefined) {
         const newAuditLog = RegistryAuditLog.create([]);
-        loadedAccount.root.auditLog = newAuditLog;
+        loadedAccount.root.$jazz.set("auditLog", newAuditLog);
         console.log("AuditLog created in worker account root.");
       }
 
@@ -113,7 +113,7 @@ export const RegistryWorkerAccount = co
 
       if (loadedAccount.root.reservedNicknames === undefined) {
         const newReservedNicknames = ReservedNicknamesRegistry.create({});
-        loadedAccount.root.reservedNicknames = newReservedNicknames;
+        loadedAccount.root.$jazz.set("reservedNicknames", newReservedNicknames);
         console.log("ReservedNicknames created in worker account root.");
       }
 
@@ -128,7 +128,7 @@ export const RegistryWorkerAccount = co
           auditLog: RegistryAuditLog.create([]),
           reservedNicknames: ReservedNicknamesRegistry.create({}),
         });
-        account.root = newRoot;
+        account.$jazz.set("root", newRoot);
 
         console.log(
           "Root created with NicknameRegistry, ReverseNicknameRegistry, AuditLog, and ReservedNicknames in worker account since it was missing.",
@@ -136,26 +136,26 @@ export const RegistryWorkerAccount = co
       } else {
         if (account.root.registry === undefined) {
           const newRegistry = NicknameRegistryCoRecord.create({});
-          account.root.registry = newRegistry;
+          account.root.$jazz.set("registry", newRegistry);
           console.log(
             "NicknameRegistry created in existing root during fallback.",
           );
         }
         if (account.root.reverseRegistry === undefined) {
           const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
-          account.root.reverseRegistry = newReverseRegistry;
+          account.root.$jazz.set("reverseRegistry", newReverseRegistry);
           console.log(
             "ReverseNicknameRegistry created in existing root during fallback.",
           );
         }
         if (account.root.auditLog === undefined) {
           const newAuditLog = RegistryAuditLog.create([]);
-          account.root.auditLog = newAuditLog;
+          account.root.$jazz.set("auditLog", newAuditLog);
           console.log("AuditLog created in existing root during fallback.");
         }
         if (account.root.reservedNicknames === undefined) {
           const newReservedNicknames = ReservedNicknamesRegistry.create({});
-          account.root.reservedNicknames = newReservedNicknames;
+          account.root.$jazz.set("reservedNicknames", newReservedNicknames);
           console.log(
             "ReservedNicknames created in existing root during fallback.",
           );

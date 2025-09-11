@@ -151,7 +151,7 @@ async function syncUserHandle(
       },
     });
 
-    await data?.ensureLoaded({
+    await data?.$jazz.ensureLoaded({
       resolve: {
         userHandle: true,
       },
@@ -175,8 +175,8 @@ async function syncUserHandle(
       console.log(
         `UserHandle nickname synced with registry for AccountID "${jazzAccountID}": "${nickname}"`,
         account.profile["regarde.dev"],
-        data.id,
-        userHandle.id,
+        data.$jazz.id,
+        userHandle.$jazz.id,
       );
     }
   } catch (error) {
@@ -332,8 +332,8 @@ export const registerHandler = (
         }
       }
 
-      nicknameRegistry[nickname] = jazzAccountID;
-      reverseNicknameRegistry[jazzAccountID] = nickname;
+      nicknameRegistry.$jazz.set(nickname, jazzAccountID);
+      reverseNicknameRegistry.$jazz.set(jazzAccountID, nickname);
       console.log(
         `Nickname "${nickname}" registered/swapped for AccountID: ${jazzAccountID}.`,
       );

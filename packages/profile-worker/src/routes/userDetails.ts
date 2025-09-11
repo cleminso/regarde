@@ -267,7 +267,7 @@ export const userDetailsHandler = (
             },
           },
         );
-        jazzUserAccount?.ensureLoaded({
+        jazzUserAccount?.$jazz.ensureLoaded({
           resolve: {
             profile: true,
           },
@@ -297,7 +297,7 @@ export const userDetailsHandler = (
             avatarImage: { original: true },
           },
         });
-        profileData?.ensureLoaded({
+        profileData?.$jazz.ensureLoaded({
           resolve: {
             projects: { $each: true },
             socialLinks: true,

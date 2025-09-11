@@ -57,7 +57,10 @@ export const checkAvailabilityRoute = createRoute({
     "Check if a nickname is available for registration without making any changes to the registry",
 });
 
-export const checkAvailabilityHandler = (nicknameRegistry: any, reservedNicknames: any) => {
+export const checkAvailabilityHandler = (
+  nicknameRegistry: any,
+  reservedNicknames: any,
+) => {
   return async (c: any) => {
     try {
       const { nickname } = c.req.valid("json");
@@ -73,7 +76,10 @@ export const checkAvailabilityHandler = (nicknameRegistry: any, reservedNickname
       const existingAccountForNickname = nicknameRegistry[nickname];
       const reservation = reservedNicknames[nickname];
 
-      console.log(`Reservation check for "${nickname}":`, reservation ? "RESERVED" : "NOT RESERVED");
+      console.log(
+        `Reservation check for "${nickname}":`,
+        reservation ? "RESERVED" : "NOT RESERVED",
+      );
 
       // Nickname is unavailable if it's either taken or reserved
       const isAvailable = !existingAccountForNickname && !reservation;
@@ -85,14 +91,14 @@ export const checkAvailabilityHandler = (nicknameRegistry: any, reservedNickname
 
       // Add taken information if nickname is registered
       if (existingAccountForNickname) {
-        response.takenBy = existingAccountForNickname;
+        response.$jazz.set("takenBy", existingAccountForNickname);
       }
 
       // Add reservation information if nickname is reserved
       if (reservation) {
-        response.reserved = true;
-        response.reservationCategory = reservation.category;
-        response.reservationReason = reservation.reason;
+        response.$jazz.set("reserved", true);
+        response.$jazz.set("reservationCategory", reservation.category);
+        response.$jazz.set("reservationReason", reservation.reason);
       }
 
       return c.json(response, 200);

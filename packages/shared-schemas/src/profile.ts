@@ -210,16 +210,28 @@ export function validateJazzAppProfile(
 }
 
 export const JazzProfileProfile = co.profile({
-  "regarde.dev": z.string(), // String ID, requires additional load
-  "profile.jazz.dev": z.optional(z.string()),
+  "profile.jazz.dev": z.string(), // String ID, requires additional load
 });
 
-export const JazzProfileRoot = co.map({
-  "regarde.dev": JazzAppProfile, // Direct object reference, already loaded
-  "auth.regarde.dev": RegistrationKey,
-  "profile.jazz.dev": co.optional(JazzAppProfile),
-  "auth.jazz.dev": co.optional(RegistrationKey),
-});
+export const JazzProfileRoot = co
+  .map({
+    "profile.jazz.dev": JazzAppProfile,
+    "auth.jazz.dev": RegistrationKey,
+
+    "regarde.dev": co.optional(JazzAppProfile),
+    "auth.regarde.dev": co.optional(RegistrationKey),
+
+    version: z.optional(z.number()),
+  })
+  .withMigration((root) => {
+    if (!root.version || root.version < 2) {
+      if (!root["regarde.dev"]) {
+        root.$jazz.set("regarde.dev", root["profile.jazz.dev"]);
+        root.$jazz.set("auth.regarde.dev", root["auth.jazz.dev"]);
+      }
+      root.$jazz.set("version", 2);
+    }
+  });
 
 export const OnboardingAccount = co
   .account({
@@ -227,70 +239,84 @@ export const OnboardingAccount = co
     root: JazzProfileRoot,
   })
   .withMigration(async (account, creationProps?: { name: string }) => {
-    // Load worker group once
-    const jazzProfileWorkerGroupID = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
-    const jazzProfileWorkerGroup = await Group.load(jazzProfileWorkerGroupID);
-    await jazzProfileWorkerGroup?.ensureLoaded();
-
-    // Handle new account creation
-    if (account.root === undefined) {
-      const userHandle = UserHandle.create({
-        nickname: "",
-        registeredAt: Date.now(),
-        lastModified: Date.now(),
-        isActive: false,
-      });
-
-      const jazzProfileData = JazzAppProfile.create({
-        name: creationProps?.name || "Type your name",
-        userHandle,
-        version: 1,
-      });
-
-      const registrationKey = RegistrationKey.create({
-        key: "not-valid-" + Math.random(),
-        expiresAt: 0,
-      });
-
-      account.root = JazzProfileRoot.create({
-        "regarde.dev": jazzProfileData,
-        "auth.regarde.dev": registrationKey,
-      });
-
-      // Grant permissions in batch
-      if (jazzProfileWorkerGroup) {
-        [jazzProfileData, userHandle, registrationKey].forEach((item) => {
-          item._owner.castAs(Group).addMember(jazzProfileWorkerGroup, "writer");
-        });
-      }
+    if (!account.$jazz.has("profile") || !account.$jazz.has("root")) {
+      console.warn("Account structure incomplete");
+      return;
     }
 
-    // Handle existing accounts
-    const { root } = await account.ensureLoaded({
-      resolve: { root: true },
-    });
+    // For new accounts only - existing accounts are handled by CoMap migration
+    const root = account.root;
+    if (!root) return;
 
-    // Ensure auth.regarde.dev exists
-    if (root["auth.regarde.dev"] === undefined) {
-      const registrationKey = RegistrationKey.create({
-        key: "migrated-" + Math.random(),
-        expiresAt: 0,
-      });
+    const hasAnyProfile = root["regarde.dev"] || root["profile.jazz.dev"];
 
-      root["auth.regarde.dev"] = registrationKey;
-
-      if (jazzProfileWorkerGroup) {
-        registrationKey._owner
-          .castAs(Group)
-          .addMember(jazzProfileWorkerGroup, "writer");
-      }
+    if (!hasAnyProfile) {
+      await createNewAccount(account, creationProps);
     }
 
-    // Handle profile creation if needed
-    if (account.profile === undefined) {
-      account.profile = JazzProfileProfile.create({
-        name: creationProps?.name || "Anonymous",
-        "regarde.dev": root["regarde.dev"]?.id || "",
-      });
+    // Handle profile creation/update
+    if (!account.$jazz.has("profile")) {
+      const profileData = root["regarde.dev"] || root["profile.jazz.dev"];
+
+      if (profileData) {
+        account.$jazz.set(
+          "profile",
+          JazzProfileProfile.create({
+            name: "clc",
+            "profile.jazz.dev": profileData.$jazz.id,
+          }),
+        );
+      } else {
+        console.warn("No profile data found in either namespace");
+      }
     }
   });
+
+async function createNewAccount(
+  account: any,
+  creationProps?: { name: string },
+) {
+  const userHandle = UserHandle.create({
+    nickname: "",
+    registeredAt: Date.now(),
+    lastModified: Date.now(),
+    isActive: false,
+  });
+
+  const jazzProfileData = JazzAppProfile.create({
+    name: creationProps?.name || "Type your name",
+    userHandle,
+    version: 1,
+  });
+
+  const registrationKey = RegistrationKey.create({
+    key: "not-valid-" + Math.random(),
+    expiresAt: 0,
+  });
+
+  // New accounts only use new namespace
+  account.$jazz.set(
+    "root",
+    JazzProfileRoot.create({
+      "profile.jazz.dev": jazzProfileData,
+      "auth.jazz.dev": registrationKey,
+      "regarde.dev": jazzProfileData,
+      "auth.regarde.dev": registrationKey,
+      version: 2,
+    }),
+  );
+
+  await account.$jazz.waitForSync();
+
+  const jazzProfileWorkerGroupID = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
+  const jazzProfileWorkerGroup = await Group.load(jazzProfileWorkerGroupID);
+
+  if (jazzProfileWorkerGroup) {
+    await jazzProfileWorkerGroup.$jazz.ensureLoaded();
+    jazzProfileData.$jazz.owner.addMember(jazzProfileWorkerGroup, "writer");
+    userHandle.$jazz.owner.addMember(jazzProfileWorkerGroup, "writer");
+    registrationKey.$jazz.owner.addMember(jazzProfileWorkerGroup, "writer");
+  }
+
+  console.log("New account created with regarde.dev namespace (version 2)");
+}

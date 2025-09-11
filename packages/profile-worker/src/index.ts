@@ -94,11 +94,11 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`Worker started with Account ID: ${worker.id}`);
+  console.log(`Worker started with Account ID: ${worker.$jazz.id}`);
 
   let loadedWorker;
   try {
-    loadedWorker = await worker.ensureLoaded({
+    loadedWorker = await worker.$jazz.ensureLoaded({
       resolve: {
         root: {
           registry: true,
@@ -109,7 +109,9 @@ async function main() {
     });
 
     if (loadedWorker?.root?.reservedNicknames) {
-      await loadedWorker.root.reservedNicknames.ensureLoaded({ resolve: {} });
+      await loadedWorker.root.reservedNicknames.$jazz.ensureLoaded({
+        resolve: {},
+      });
       console.log("Reserved nicknames registry fully loaded");
     }
   } catch (loadError) {
@@ -136,11 +138,15 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`NicknameRegistry CoRecord loaded. ID: ${nicknameRegistry.id}`);
   console.log(
-    `ReverseNicknameRegistry CoRecord loaded. ID: ${reverseNicknameRegistry.id}`,
+    `NicknameRegistry CoRecord loaded. ID: ${nicknameRegistry.$jazz.id}`,
   );
-  console.log(`ReservedNicknames CoRecord loaded. ID: ${reservedNicknames.id}`);
+  console.log(
+    `ReverseNicknameRegistry CoRecord loaded. ID: ${reverseNicknameRegistry.$jazz.id}`,
+  );
+  console.log(
+    `ReservedNicknames CoRecord loaded. ID: ${reservedNicknames.$jazz.id}`,
+  );
 
   const app = new OpenAPIHono();
 
@@ -244,7 +250,7 @@ async function main() {
     return c.json({
       status: "healthy",
       timestamp: new Date().toISOString(),
-      workerId: worker.id,
+      workerId: worker.$jazz.id,
     });
   });
 

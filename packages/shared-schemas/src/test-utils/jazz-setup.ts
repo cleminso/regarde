@@ -3,9 +3,10 @@
  * Inspired by Jazz testing patterns but adapted for our specific schemas
  */
 
-import { Account, Group } from 'jazz-tools';
 import { setupJazzTestSync, createJazzTestAccount } from 'jazz-tools/testing';
+import { Account, Group } from 'jazz-tools';
 import { OnboardingAccount } from '../profile.js';
+import { UserHandle } from '../nickname.js';
 
 /**
  * Sets up Jazz testing environment with sync server
@@ -13,6 +14,24 @@ import { OnboardingAccount } from '../profile.js';
  */
 export async function setupJazzTestEnvironment() {
   await setupJazzTestSync();
+  
+  // Create a default test account to ensure Jazz context is available
+  await createJazzTestAccount({
+    isCurrentActiveAccount: true,
+    AccountSchema: OnboardingAccount,
+  });
+}
+
+/**
+ * Creates a test UserHandle with real Jazz CoValue
+ */
+export async function createTestUserHandle(nickname: string, isActive: boolean) {
+  return UserHandle.create({
+    nickname,
+    isActive,
+    registeredAt: Date.now(),
+    lastModified: Date.now(),
+  });
 }
 
 /**
@@ -25,7 +44,6 @@ export async function createTestOnboardingAccount(options: {
 } = {}) {
   const { isCurrentActiveAccount = true, name = 'Test User' } = options;
 
-  // Use the Jazz testing utility but with our OnboardingAccount schema
   const account = await createJazzTestAccount({
     isCurrentActiveAccount,
     creationProps: { name },
@@ -33,7 +51,10 @@ export async function createTestOnboardingAccount(options: {
   });
 
   // Wait for migration to complete
-  await account.waitForSync();
+  await account.$jazz.waitForSync();
+  
+  // Give migration time to run
+  await new Promise(resolve => setTimeout(resolve, 100));
 
   return account;
 }
@@ -49,7 +70,7 @@ export async function createTestWorkerAccount() {
   });
 
   // Wait for migration to complete
-  await account.waitForSync();
+  await account.$jazz.waitForSync();
 
   return account;
 }

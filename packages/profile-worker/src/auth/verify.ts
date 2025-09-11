@@ -1,8 +1,4 @@
-import {
-  OnboardingAccount,
-  RegistrationKey,
-} from "@onboarding.jazz/shared-schemas/profile";
-import { Group } from "jazz-tools";
+import { RegistrationKey } from "@onboarding.jazz/shared-schemas/profile";
 
 export interface VerificationResult {
   isValid: boolean;
@@ -31,14 +27,11 @@ export async function verifyRegistrationKey(
         resolve: true,
       });
 
-      await registrationKey?.ensureLoaded({
+      await registrationKey?.$jazz.ensureLoaded({
         resolve: true,
       });
 
-      if (
-        registrationKey?._owner.castAs(Group).getRoleOf(jazzAccountId) !==
-        "admin"
-      )
+      if (registrationKey?.$jazz.owner.getRoleOf(jazzAccountId) !== "admin")
         // TODO: Important! Must check who created the coValue instead of whether it's an admin or not
         throw new Error("User does not own the CoValue");
     } catch (loadError: any) {

@@ -124,7 +124,7 @@ async function getUserDetails(
     const jazzUserAccount = await OnboardingAccount.load(
       accountIdFromNickname,
       {
-        resolve: { profile: { "regarderegarde.dev": true } },
+        resolve: { profile: { "regarde.dev": true } },
       },
     );
 
