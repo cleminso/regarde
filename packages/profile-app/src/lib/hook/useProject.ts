@@ -8,8 +8,10 @@ type UseProjectProps = BaseHookProps;
 export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
   const ensureProjectsList = (): Loaded<typeof ListOfProjects> | undefined => {
     if (!profile.projects) {
-      const profileOwner = profile._owner;
-      profile.projects = ListOfProjects.create([], { owner: profileOwner });
+      const profileOwner = profile.$jazz.owner;
+      const newProjectsList = ListOfProjects.create([], { owner: profileOwner }); // store the created list in a variable
+      profile.$jazz.set("projects", newProjectsList); // set it on the profile
+      return newProjectsList; // return the variable
     }
     return profile.projects;
   };
@@ -24,10 +26,10 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
     const projectsList = ensureProjectsList();
     if (!projectsList) return undefined;
 
-    const listOwner = projectsList._owner;
+    const listOwner = projectsList.$jazz.owner;
     if (!listOwner) {
       logger.error(
-        'Cannot create a new project instance: projectsList._owner is undefined.',
+        'Cannot create a new project instance: projectsList.$jazz.owner is undefined.',
       );
       return undefined;
     }
@@ -41,7 +43,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
       },
       { owner: listOwner },
     );
-    projectsList.push(newProject);
+    projectsList.$jazz.push(newProject);
     await triggerSyncIndicator(profile);
     return newProject;
   };
@@ -67,7 +69,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
       projectData.title !== undefined &&
       projectToUpdate.title !== projectData.title
     ) {
-      projectToUpdate.title = projectData.title;
+      projectToUpdate.$jazz.set("title", projectData.title);
       changed = true;
     }
 
@@ -75,27 +77,27 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
       projectData.year !== undefined &&
       projectToUpdate.year !== projectData.year
     ) {
-      projectToUpdate.year = projectData.year;
+      projectToUpdate.$jazz.set("year", projectData.year);
       changed = true;
     }
 
     if (projectData.hasOwnProperty('client')) {
       if (projectToUpdate.client !== projectData.client) {
-        projectToUpdate.client = projectData.client;
+        projectToUpdate.$jazz.set("client", projectData.client);
         changed = true;
       }
     }
 
     if (projectData.hasOwnProperty('link')) {
       if (projectToUpdate.link !== projectData.link) {
-        projectToUpdate.link = projectData.link;
+        projectToUpdate.$jazz.set("link", projectData.link);
         changed = true;
       }
     }
 
     if (projectData.hasOwnProperty('description')) {
       if (projectToUpdate.description !== projectData.description) {
-        projectToUpdate.description = projectData.description;
+        projectToUpdate.$jazz.set("description", projectData.description);
         changed = true;
       }
     }
@@ -112,11 +114,11 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
       return;
     }
     const projectIndex = projectsList.findIndex(
-      (p: any) => p && p.id === projectId,
+      (p: any) => p && p.$jazz.id === projectId,
     );
 
     if (projectIndex !== -1) {
-      projectsList.splice(projectIndex, 1);
+      projectsList.$jazz.splice(projectIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
       logger.error(`Project with id ${projectId} not found for deletion.`);
@@ -127,6 +129,6 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
     addProject,
     updateProject,
     deleteProject,
-    // getProjectById: (projectId: string) => profile.projects?.find(p => p.id === projectId)
+    // getProjectById: (projectId: string) => profile.projects?.find(p => p.$jazz.id === projectId)
   };
 }

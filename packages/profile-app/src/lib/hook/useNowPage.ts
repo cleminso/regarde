@@ -15,11 +15,11 @@ export function useNowPage({ profile, triggerSyncIndicator }: UseNowPageProps) {
       location?: string;
       description: string;
     }) => {
-      const profileOwner = profile._owner;
+      const profileOwner = profile.$jazz.owner;
       if (!profileOwner) return;
 
       if (!profile.nowPage) {
-        profile.nowPage = NowPage.create(
+        profile.$jazz.set("nowPage", NowPage.create(
           {
             title: data.title,
             location: data.location,
@@ -27,12 +27,12 @@ export function useNowPage({ profile, triggerSyncIndicator }: UseNowPageProps) {
             lastUpdated: Date.now(),
           },
           { owner: profileOwner },
-        );
+        ));
       } else {
-        profile.nowPage.title = data.title;
-        profile.nowPage.location = data.location;
-        profile.nowPage.description = data.description;
-        profile.nowPage.lastUpdated = Date.now();
+        profile.nowPage.$jazz.set("title", data.title);
+        profile.nowPage.$jazz.set("location", data.location);
+        profile.nowPage.$jazz.set("description", data.description);
+        profile.nowPage.$jazz.set("lastUpdated", Date.now());
       }
 
       await triggerSyncIndicator(profile);

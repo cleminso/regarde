@@ -14,10 +14,12 @@ export function useVolunteering({
     | Loaded<typeof ListOfVolunteering>
     | undefined => {
     if (!profile.volunteering) {
-      const profileOwner = profile._owner;
-      profile.volunteering = ListOfVolunteering.create([], {
+      const profileOwner = profile.$jazz.owner;
+      const newVolunteeringList = ListOfVolunteering.create([], {
         owner: profileOwner,
       });
+      profile.$jazz.set("volunteering", newVolunteeringList);
+      return newVolunteeringList;
     }
     return profile.volunteering;
   };
@@ -34,7 +36,7 @@ export function useVolunteering({
     const volunteeringList = ensureVolunteeringList();
     if (!volunteeringList) return undefined;
 
-    const listOwner = volunteeringList._owner;
+    const listOwner = volunteeringList.$jazz.owner;
 
     const newVolunteering = Volunteering.create(
       {
@@ -48,7 +50,7 @@ export function useVolunteering({
       },
       { owner: listOwner },
     );
-    volunteeringList.push(newVolunteering);
+    volunteeringList.$jazz.push(newVolunteering);
     await triggerSyncIndicator(profile);
     return newVolunteering;
   };
@@ -76,7 +78,7 @@ export function useVolunteering({
       volunteeringData.from !== undefined &&
       volunteeringToUpdate.from !== volunteeringData.from
     ) {
-      volunteeringToUpdate.from = volunteeringData.from;
+      volunteeringToUpdate.$jazz.set("from", volunteeringData.from);
       changed = true;
     }
 
@@ -84,7 +86,7 @@ export function useVolunteering({
       volunteeringData.title !== undefined &&
       volunteeringToUpdate.title !== volunteeringData.title
     ) {
-      volunteeringToUpdate.title = volunteeringData.title;
+      volunteeringToUpdate.$jazz.set("title", volunteeringData.title);
       changed = true;
     }
 
@@ -92,34 +94,34 @@ export function useVolunteering({
       volunteeringData.organization !== undefined &&
       volunteeringToUpdate.organization !== volunteeringData.organization
     ) {
-      volunteeringToUpdate.organization = volunteeringData.organization;
+      volunteeringToUpdate.$jazz.set("organization", volunteeringData.organization);
       changed = true;
     }
 
     if (volunteeringData.hasOwnProperty('to')) {
       if (volunteeringToUpdate.to !== volunteeringData.to) {
-        volunteeringToUpdate.to = volunteeringData.to;
+        volunteeringToUpdate.$jazz.set("to", volunteeringData.to);
         changed = true;
       }
     }
 
     if (volunteeringData.hasOwnProperty('location')) {
       if (volunteeringToUpdate.location !== volunteeringData.location) {
-        volunteeringToUpdate.location = volunteeringData.location;
+        volunteeringToUpdate.$jazz.set("location", volunteeringData.location);
         changed = true;
       }
     }
 
     if (volunteeringData.hasOwnProperty('url')) {
       if (volunteeringToUpdate.url !== volunteeringData.url) {
-        volunteeringToUpdate.url = volunteeringData.url;
+        volunteeringToUpdate.$jazz.set("url", volunteeringData.url);
         changed = true;
       }
     }
 
     if (volunteeringData.hasOwnProperty('description')) {
       if (volunteeringToUpdate.description !== volunteeringData.description) {
-        volunteeringToUpdate.description = volunteeringData.description;
+        volunteeringToUpdate.$jazz.set("description", volunteeringData.description);
         changed = true;
       }
     }
@@ -136,11 +138,11 @@ export function useVolunteering({
       return;
     }
     const volunteeringIndex = volunteeringList.findIndex(
-      (v: any) => v && v.id === volunteeringId,
+      (v: any) => v && v.$jazz.id === volunteeringId,
     );
 
     if (volunteeringIndex !== -1) {
-      volunteeringList.splice(volunteeringIndex, 1);
+      volunteeringList.$jazz.splice(volunteeringIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
       logger.error(

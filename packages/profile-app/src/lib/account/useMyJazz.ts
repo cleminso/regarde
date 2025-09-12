@@ -23,8 +23,6 @@ export function useMyJazz() {
             nowPage: true,
             avatarImage: { original: true },
           },
-          'auth.regarde.dev': true,
-
           'profile.jazz.dev': {
             socialLinks: true,
             projects: { $each: true },
@@ -39,6 +37,7 @@ export function useMyJazz() {
             nowPage: true,
             avatarImage: { original: true },
           },
+          'auth.regarde.dev': true,
           'auth.jazz.dev': true,
         },
       },

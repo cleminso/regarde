@@ -9,10 +9,12 @@ type UseWorkExpProps = BaseHookProps;
 export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
   const ensureWorkExpList = (): Loaded<typeof ListOfWorkExp> | undefined => {
     if (!profile.workExp) {
-      const profileOwner = profile._owner;
-      profile.workExp = ListOfWorkExp.create([], {
+      const profileOwner = profile.$jazz.owner;
+      const newWorkExpList = ListOfWorkExp.create([], {
         owner: profileOwner,
       });
+      profile.$jazz.set("workExp", newWorkExpList);
+      return newWorkExpList;
     }
     return profile.workExp;
   };
@@ -29,7 +31,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
     const workExpList = ensureWorkExpList();
     if (!workExpList) return undefined;
 
-    const listOwner = workExpList._owner;
+    const listOwner = workExpList.$jazz.owner;
 
     const newWorkExp = WorkExp.create(
       {
@@ -43,7 +45,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
       },
       { owner: listOwner },
     );
-    workExpList.push(newWorkExp);
+    workExpList.$jazz.push(newWorkExp);
     await triggerSyncIndicator(profile);
     return newWorkExp;
   };
@@ -71,7 +73,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
       workExpData.from !== undefined &&
       workExpToUpdate.from !== workExpData.from
     ) {
-      workExpToUpdate.from = workExpData.from;
+      workExpToUpdate.$jazz.set("from", workExpData.from);
       changed = true;
     }
 
@@ -79,7 +81,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
       workExpData.title !== undefined &&
       workExpToUpdate.title !== workExpData.title
     ) {
-      workExpToUpdate.title = workExpData.title || 'Work Experience';
+      workExpToUpdate.$jazz.set("title", workExpData.title || 'Work Experience');
       changed = true;
     }
 
@@ -87,34 +89,34 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
       workExpData.company !== undefined &&
       workExpToUpdate.company !== workExpData.company
     ) {
-      workExpToUpdate.company = workExpData.company;
+      workExpToUpdate.$jazz.set("company", workExpData.company);
       changed = true;
     }
 
     if (workExpData.hasOwnProperty('to')) {
       if (workExpToUpdate.to !== workExpData.to) {
-        workExpToUpdate.to = workExpData.to;
+        workExpToUpdate.$jazz.set("to", workExpData.to);
         changed = true;
       }
     }
 
     if (workExpData.hasOwnProperty('location')) {
       if (workExpToUpdate.location !== workExpData.location) {
-        workExpToUpdate.location = workExpData.location;
+        workExpToUpdate.$jazz.set("location", workExpData.location);
         changed = true;
       }
     }
 
     if (workExpData.hasOwnProperty('url')) {
       if (workExpToUpdate.url !== workExpData.url) {
-        workExpToUpdate.url = workExpData.url;
+        workExpToUpdate.$jazz.set("url", workExpData.url);
         changed = true;
       }
     }
 
     if (workExpData.hasOwnProperty('description')) {
       if (workExpToUpdate.description !== workExpData.description) {
-        workExpToUpdate.description = workExpData.description;
+        workExpToUpdate.$jazz.set("description", workExpData.description);
         changed = true;
       }
     }
@@ -131,11 +133,11 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
       return;
     }
     const workExpIndex = workExpList.findIndex(
-      (w: any) => w && w.id === workExpId,
+      (w: any) => w && w.$jazz.id === workExpId,
     );
 
     if (workExpIndex !== -1) {
-      workExpList.splice(workExpIndex, 1);
+      workExpList.$jazz.splice(workExpIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
       logger.error(

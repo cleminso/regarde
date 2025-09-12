@@ -14,10 +14,12 @@ export function useEducation({
     | Loaded<typeof ListOfEducation>
     | undefined => {
     if (!profile.education) {
-      const profileOwner = profile._owner;
-      profile.education = ListOfEducation.create([], {
+      const profileOwner = profile.$jazz.owner;
+      const newEducationList = ListOfEducation.create([], {
         owner: profileOwner,
       });
+      profile.$jazz.set("education", newEducationList);
+      return newEducationList;
     }
     return profile.education;
   };
@@ -34,7 +36,7 @@ export function useEducation({
     const educationList = ensureEducationList();
     if (!educationList) return undefined;
 
-    const listOwner = educationList._owner;
+    const listOwner = educationList.$jazz.owner;
 
     const newEducation = Education.create(
       {
@@ -48,7 +50,7 @@ export function useEducation({
       },
       { owner: listOwner },
     );
-    educationList.push(newEducation);
+    educationList.$jazz.push(newEducation);
     triggerSyncIndicator(profile);
     return newEducation;
   };
@@ -76,7 +78,7 @@ export function useEducation({
       educationData.from !== undefined &&
       educationToUpdate.from !== educationData.from
     ) {
-      educationToUpdate.from = educationData.from;
+      educationToUpdate.$jazz.set("from", educationData.from);
       changed = true;
     }
 
@@ -84,7 +86,7 @@ export function useEducation({
       educationData.degree !== undefined &&
       educationToUpdate.degree !== educationData.degree
     ) {
-      educationToUpdate.degree = educationData.degree;
+      educationToUpdate.$jazz.set("degree", educationData.degree);
       changed = true;
     }
 
@@ -92,34 +94,34 @@ export function useEducation({
       educationData.institution !== undefined &&
       educationToUpdate.institution !== educationData.institution
     ) {
-      educationToUpdate.institution = educationData.institution;
+      educationToUpdate.$jazz.set("institution", educationData.institution);
       changed = true;
     }
 
     if (educationData.hasOwnProperty('to')) {
       if (educationToUpdate.to !== educationData.to) {
-        educationToUpdate.to = educationData.to;
+        educationToUpdate.$jazz.set("to", educationData.to);
         changed = true;
       }
     }
 
     if (educationData.hasOwnProperty('location')) {
       if (educationToUpdate.location !== educationData.location) {
-        educationToUpdate.location = educationData.location;
+        educationToUpdate.$jazz.set("location", educationData.location);
         changed = true;
       }
     }
 
     if (educationData.hasOwnProperty('url')) {
       if (educationToUpdate.url !== educationData.url) {
-        educationToUpdate.url = educationData.url;
+        educationToUpdate.$jazz.set("url", educationData.url);
         changed = true;
       }
     }
 
     if (educationData.hasOwnProperty('description')) {
       if (educationToUpdate.description !== educationData.description) {
-        educationToUpdate.description = educationData.description;
+        educationToUpdate.$jazz.set("description", educationData.description);
         changed = true;
       }
     }
@@ -136,11 +138,11 @@ export function useEducation({
       return;
     }
     const educationIndex = educationList.findIndex(
-      (e: any) => e && e.id === educationId,
+      (e: any) => e && e.$jazz.id === educationId,
     );
 
     if (educationIndex !== -1) {
-      educationList.splice(educationIndex, 1);
+      educationList.$jazz.splice(educationIndex, 1);
       triggerSyncIndicator(profile);
     } else {
       logger.error(`Education with id ${educationId} not found for deletion.`);

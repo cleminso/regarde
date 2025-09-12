@@ -37,13 +37,13 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
 
       try {
         const imageDefinition = await createImage(file, {
-          owner: profile._owner,
+          owner: profile.$jazz.owner,
           maxSize: 1024,
           placeholder: 'blur',
           progressive: true,
         });
 
-        profile.avatarImage = imageDefinition;
+        profile.$jazz.set("avatarImage", imageDefinition);
         await triggerSyncIndicator(profile);
         setUpdateError(null);
       } catch (error) {
@@ -93,7 +93,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
     setUpdateError(null);
 
     try {
-      profile.avatarImage = undefined;
+      profile.$jazz.set("avatarImage", undefined);
       await triggerSyncIndicator(profile);
       setUpdateError(null);
     } catch (error) {
@@ -116,7 +116,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
       setUpdateError(null);
 
       try {
-        profile.name = name.trim() || 'User';
+        profile.$jazz.set("name", name.trim() || 'User');
         await triggerSyncIndicator(profile);
       } catch (error) {
         setUpdateError('Failed to update name. Please try again.');
@@ -138,7 +138,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
       setUpdateError(null);
 
       try {
-        profile.bio = bio.length === 0 ? undefined : bio;
+        profile.$jazz.set("bio", bio.length === 0 ? undefined : bio);
         await triggerSyncIndicator(profile);
       } catch (error) {
         setUpdateError('Failed to update bio. Please try again.');

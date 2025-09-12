@@ -14,9 +14,11 @@ export function useCertification({
     | Loaded<typeof ListOfCertification>
     | undefined => {
     if (!profile.certification) {
-      profile.certification = ListOfCertification.create([], {
-        owner: profile._owner,
+      const newCertificationList = ListOfCertification.create([], {
+        owner: profile.$jazz.owner,
       });
+      profile.$jazz.set("certification", newCertificationList);
+      return newCertificationList;
     }
     return profile.certification;
   };
@@ -32,10 +34,10 @@ export function useCertification({
     const certificationList = ensureCertificationList();
     if (!certificationList) return undefined;
 
-    const listOwner = certificationList._owner;
+    const listOwner = certificationList.$jazz.owner;
     if (!listOwner) {
       logger.error(
-        'Cannot create a new certification instance: certificationList._owner is undefined.',
+        'Cannot create a new certification instance: certificationList.$jazz.owner is undefined.',
       );
       return undefined;
     }
@@ -51,7 +53,7 @@ export function useCertification({
       },
       { owner: listOwner },
     );
-    certificationList.push(newCertification);
+    certificationList.$jazz.push(newCertification);
     await triggerSyncIndicator(profile);
     return newCertification;
   };
@@ -78,7 +80,7 @@ export function useCertification({
       certificationData.name !== undefined &&
       certificationToUpdate.name !== certificationData.name
     ) {
-      certificationToUpdate.name = certificationData.name;
+      certificationToUpdate.$jazz.set("name",certificationData.name);
       changed = true;
     }
 
@@ -86,7 +88,7 @@ export function useCertification({
       certificationData.organization !== undefined &&
       certificationToUpdate.organization !== certificationData.organization
     ) {
-      certificationToUpdate.organization = certificationData.organization;
+      certificationToUpdate.$jazz.set("organization", certificationData.organization);
       changed = true;
     }
 
@@ -94,27 +96,27 @@ export function useCertification({
       certificationData.issued !== undefined &&
       certificationToUpdate.issued !== certificationData.issued
     ) {
-      certificationToUpdate.issued = certificationData.issued;
+      certificationToUpdate.$jazz.set("issued", certificationData.issued);
       changed = true;
     }
 
     if (certificationData.hasOwnProperty('expire')) {
       if (certificationToUpdate.expire !== certificationData.expire) {
-        certificationToUpdate.expire = certificationData.expire;
+        certificationToUpdate.$jazz.set("expire", certificationData.expire);
         changed = true;
       }
     }
 
     if (certificationData.hasOwnProperty('url')) {
       if (certificationToUpdate.url !== certificationData.url) {
-        certificationToUpdate.url = certificationData.url;
+        certificationToUpdate.$jazz.set("url", certificationData.url);
         changed = true;
       }
     }
 
     if (certificationData.hasOwnProperty('description')) {
       if (certificationToUpdate.description !== certificationData.description) {
-        certificationToUpdate.description = certificationData.description;
+        certificationToUpdate.$jazz.set("description", certificationData.description);
         changed = true;
       }
     }
@@ -131,11 +133,11 @@ export function useCertification({
       return;
     }
     const certificationIndex = certificationList.findIndex(
-      (c: any) => c && c.id === certificationId,
+      (c: any) => c && c.$jazz.id === certificationId,
     );
 
     if (certificationIndex !== -1) {
-      certificationList.splice(certificationIndex, 1);
+      certificationList.$jazz.splice(certificationIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
       logger.error(

@@ -6,7 +6,7 @@ export function useEditProfile() {
   const { syncState, triggerSyncIndicator } = useSyncState();
 
   const isLoading = account === undefined;
-  const accountId = account?.id || null;
+  const accountId = account?.$jazz.id || null;
 
   // Only trigger sync if we have a valid profile
   const handleSync = async () => {

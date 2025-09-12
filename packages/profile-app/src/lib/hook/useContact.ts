@@ -7,17 +7,19 @@ type UseContactProps = BaseHookProps;
 export function useContact({ profile, triggerSyncIndicator }: UseContactProps) {
   const ensureSocialLinks = () => {
     if (!profile.socialLinks) {
-      const owner = profile._owner;
+      const owner = profile.$jazz.owner;
       if (!owner) {
         logger.error('Cannot create SocialLinks: profile owner is undefined');
         return undefined;
       }
-      
-      profile.socialLinks = SocialLinks.create({
+
+      const newSocialLinks = SocialLinks.create({
         github: undefined,
         twitter: undefined,
         website: undefined,
       }, { owner });
+      profile.$jazz.set("socialLinks", newSocialLinks);
+      return newSocialLinks;
     }
     return profile.socialLinks;
   };
@@ -34,17 +36,17 @@ export function useContact({ profile, triggerSyncIndicator }: UseContactProps) {
     }
 
     if (profile.socialLinks) {
-      profile.socialLinks[field] = value || undefined;
+      profile.socialLinks.$jazz.set(field, value || undefined);
 
       if (
         !profile.socialLinks.github &&
         !profile.socialLinks.twitter &&
         !profile.socialLinks.website
       ) {
-        profile.socialLinks = undefined;
+        profile.$jazz.set("socialLinks", undefined);
       }
-      
-      await triggerSyncIndicator(profile); 
+
+      await triggerSyncIndicator(profile);
     }
   };
 

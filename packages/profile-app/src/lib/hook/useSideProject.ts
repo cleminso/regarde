@@ -14,10 +14,12 @@ export function useSideProject({
     | Loaded<typeof ListOfSideProject>
     | undefined => {
     if (!profile.sideProject) {
-      const profileOwner = profile._owner;
-      profile.sideProject = ListOfSideProject.create([], {
+      const profileOwner = profile.$jazz.owner;
+      const newSideProjectList = ListOfSideProject.create([], {
         owner: profileOwner,
       });
+      profile.$jazz.set("sideProject", newSideProjectList);
+      return newSideProjectList;
     }
     return profile.sideProject;
   };
@@ -32,7 +34,7 @@ export function useSideProject({
     const sideProjectList = ensureSideProjectList();
     if (!sideProjectList) return undefined;
 
-    const listOwner = sideProjectList._owner;
+    const listOwner = sideProjectList.$jazz.owner;
 
     const newSideProject = SideProject.create(
       {
@@ -44,7 +46,7 @@ export function useSideProject({
       },
       { owner: listOwner },
     );
-    sideProjectList.push(newSideProject);
+    sideProjectList.$jazz.push(newSideProject);
     await triggerSyncIndicator(profile);
     return newSideProject;
   };
@@ -70,7 +72,7 @@ export function useSideProject({
       sideProjectData.title !== undefined &&
       sideProjectToUpdate.title !== sideProjectData.title
     ) {
-      sideProjectToUpdate.title = sideProjectData.title;
+      sideProjectToUpdate.$jazz.set("title", sideProjectData.title);
       changed = true;
     }
 
@@ -78,27 +80,27 @@ export function useSideProject({
       sideProjectData.year !== undefined &&
       sideProjectToUpdate.year !== sideProjectData.year
     ) {
-      sideProjectToUpdate.year = sideProjectData.year;
+      sideProjectToUpdate.$jazz.set("year", sideProjectData.year);
       changed = true;
     }
 
     if (sideProjectData.hasOwnProperty('client')) {
       if (sideProjectToUpdate.client !== sideProjectData.client) {
-        sideProjectToUpdate.client = sideProjectData.client;
+        sideProjectToUpdate.$jazz.set("client", sideProjectData.client);
         changed = true;
       }
     }
 
     if (sideProjectData.hasOwnProperty('url')) {
       if (sideProjectToUpdate.url !== sideProjectData.url) {
-        sideProjectToUpdate.url = sideProjectData.url;
+        sideProjectToUpdate.$jazz.set("url", sideProjectData.url);
         changed = true;
       }
     }
 
     if (sideProjectData.hasOwnProperty('description')) {
       if (sideProjectToUpdate.description !== sideProjectData.description) {
-        sideProjectToUpdate.description = sideProjectData.description;
+        sideProjectToUpdate.$jazz.set("description", sideProjectData.description);
         changed = true;
       }
     }
@@ -115,11 +117,11 @@ export function useSideProject({
       return;
     }
     const sideProjectIndex = sideProjectList.findIndex(
-      (s: any) => s && s.id === sideProjectId,
+      (s: any) => s && s.$jazz.id === sideProjectId,
     );
 
     if (sideProjectIndex !== -1) {
-      sideProjectList.splice(sideProjectIndex, 1);
+      sideProjectList.$jazz.splice(sideProjectIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
       logger.error(

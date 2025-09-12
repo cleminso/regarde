@@ -105,7 +105,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
 
   // Handle post-auth registration - with global lock
   useEffect(() => {
-    if (!isAuthenticated || !account?.id) return;
+    if (!isAuthenticated || !account?.$jazz.id) return;
 
     if (!isAccountReady) return;
 
@@ -131,7 +131,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
       try {
         await registerNicknameWithServer({
           nickname: pendingNickname,
-          accountId: account.id,
+          accountId: account.$jazz.id,
           getRegistrationKey: getValidKey,
         });
 
@@ -156,7 +156,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
     completeRegistration();
   }, [
     isAuthenticated,
-    account?.id,
+    account?.$jazz.id,
     isAccountReady,
     currentNickname,
     navigate,
@@ -197,7 +197,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
           return;
         }
 
-        if (!account?.id || !isAccountReady) {
+        if (!account?.$jazz.id || !isAccountReady) {
           setError('Account not ready. Please try again.');
           registrationInProgress.current = false;
           setIsProcessing(false);
@@ -206,7 +206,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
 
         await registerNicknameWithServer({
           nickname,
-          accountId: account.id,
+          accountId: account.$jazz.id,
           oldNickname: currentNickname,
           getRegistrationKey: getValidKey,
         });
@@ -225,7 +225,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
     },
     [
       isAuthenticated,
-      account?.id,
+      account?.$jazz.id,
       isAccountReady,
       currentNickname,
       clerk,
@@ -258,7 +258,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
       try {
         await registerNicknameWithServer({
           nickname,
-          accountId: account!.id,
+          accountId: account!.$jazz.id,
           oldNickname: currentNickname,
           getRegistrationKey: getValidKey,
         });
@@ -269,8 +269,8 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
       }
     },
     [
-      account?.id,
-      jazzAppProfile?.userHandle?.id,
+      account?.$jazz.id,
+      jazzAppProfile?.userHandle?.$jazz.id,
       currentNickname,
       isProcessing,
       getValidKey,
@@ -308,7 +308,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
     hasExistingNickname: Boolean(currentNickname && isNicknameActive),
 
     // Account info
-    accountId: account?.id,
+    accountId: account?.$jazz.id,
     profile: account?.profile,
   };
 }

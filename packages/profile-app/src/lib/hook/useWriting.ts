@@ -9,8 +9,10 @@ type UseWritingProps = BaseHookProps;
 export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
   const ensureWritingList = (): Loaded<typeof ListOfWriting> | undefined => {
     if (!profile.writing) {
-      const profileOwner = profile._owner;
-      profile.writing = ListOfWriting.create([], { owner: profileOwner });
+      const profileOwner = profile.$jazz.owner;
+      const newWritingList = ListOfWriting.create([], { owner: profileOwner });
+      profile.$jazz.set("writing", newWritingList);
+      return newWritingList;
     }
     return profile.writing;
   };
@@ -25,7 +27,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
     const writingList = ensureWritingList();
     if (!writingList) return undefined;
 
-    const listOwner = writingList._owner;
+    const listOwner = writingList.$jazz.owner;
 
     const newWriting = Writing.create(
       {
@@ -37,7 +39,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
       },
       { owner: listOwner },
     );
-    writingList.push(newWriting);
+    writingList.$jazz.push(newWriting);
     await triggerSyncIndicator(profile);
     return newWriting;
   };
@@ -63,7 +65,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
       writingData.title !== undefined &&
       writingToUpdate.title !== writingData.title
     ) {
-      writingToUpdate.title = writingData.title;
+      writingToUpdate.$jazz.set("title", writingData.title);
       changed = true;
     }
 
@@ -71,27 +73,27 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
       writingData.year !== undefined &&
       writingToUpdate.year !== writingData.year
     ) {
-      writingToUpdate.year = writingData.year;
+      writingToUpdate.$jazz.set("year", writingData.year);
       changed = true;
     }
 
     if (writingData.hasOwnProperty('publisher')) {
       if (writingToUpdate.publisher !== writingData.publisher) {
-        writingToUpdate.publisher = writingData.publisher;
+        writingToUpdate.$jazz.set("publisher", writingData.publisher);
         changed = true;
       }
     }
 
     if (writingData.hasOwnProperty('url')) {
       if (writingToUpdate.url !== writingData.url) {
-        writingToUpdate.url = writingData.url;
+        writingToUpdate.$jazz.set("url", writingData.url);
         changed = true;
       }
     }
 
     if (writingData.hasOwnProperty('description')) {
       if (writingToUpdate.description !== writingData.description) {
-        writingToUpdate.description = writingData.description;
+        writingToUpdate.$jazz.set("description", writingData.description);
         changed = true;
       }
     }
@@ -108,11 +110,11 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
       return;
     }
     const writingIndex = writingList.findIndex(
-      (w: any) => w && w.id === writingId,
+      (w: any) => w && w.$jazz.id === writingId,
     );
 
     if (writingIndex !== -1) {
-      writingList.splice(writingIndex, 1);
+      writingList.$jazz.splice(writingIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
       logger.error(`Writing with id ${writingId} not found for deletion.`);

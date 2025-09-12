@@ -9,7 +9,9 @@ type UseAwardProps = BaseHookProps;
 export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
   const ensureAwardsList = (): Loaded<typeof ListOfAward> | undefined => {
     if (!profile.award) {
-      profile.award = ListOfAward.create([], { owner: profile._owner });
+      const newAwardsList = ListOfAward.create([], { owner: profile.$jazz.owner });
+      profile.$jazz.set("award", newAwardsList);
+      return newAwardsList;
     }
     return profile.award;
   };
@@ -24,10 +26,10 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
     const awardsList = ensureAwardsList();
     if (!awardsList) return undefined;
 
-    const listOwner = awardsList._owner;
+    const listOwner = awardsList.$jazz.owner;
     if (!listOwner) {
       logger.error(
-        'Cannot create a new award instance: awardsList._owner is undefined.',
+        'Cannot create a new award instance: awardsList.$jazz.owner is undefined.',
       );
       return undefined;
     }
@@ -41,7 +43,7 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
       },
       { owner: listOwner },
     );
-    awardsList.push(newAward);
+    awardsList.$jazz.push(newAward);
     await triggerSyncIndicator(profile);
     return newAward;
   };
@@ -67,12 +69,12 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
       awardData.title !== undefined &&
       awardToUpdate.title !== awardData.title
     ) {
-      awardToUpdate.title = awardData.title;
+      awardToUpdate.$jazz.set("title", awardData.title);
       changed = true;
     }
 
     if (awardData.year !== undefined && awardToUpdate.year !== awardData.year) {
-      awardToUpdate.year = awardData.year;
+      awardToUpdate.$jazz.set("year", awardData.year);
       changed = true;
     }
 
@@ -80,20 +82,20 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
       awardData.presenter !== undefined &&
       awardToUpdate.presenter !== awardData.presenter
     ) {
-      awardToUpdate.presenter = awardData.presenter;
+      awardToUpdate.$jazz.set("presenter", awardData.presenter);
       changed = true;
     }
 
     if (awardData.hasOwnProperty('url')) {
       if (awardToUpdate.url !== awardData.url) {
-        awardToUpdate.url = awardData.url;
+        awardToUpdate.$jazz.set("url", awardData.url);
         changed = true;
       }
     }
 
     if (awardData.hasOwnProperty('description')) {
       if (awardToUpdate.description !== awardData.description) {
-        awardToUpdate.description = awardData.description;
+        awardToUpdate.$jazz.set("description", awardData.description);
         changed = true;
       }
     }
@@ -109,10 +111,10 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
       logger.warn('No award list to delete from.');
       return;
     }
-    const awardIndex = awardsList.findIndex((a: any) => a && a.id === awardId);
+    const awardIndex = awardsList.findIndex((a: any) => a && a.$jazz.id === awardId);
 
     if (awardIndex !== -1) {
-      awardsList.splice(awardIndex, 1);
+      awardsList.$jazz.splice(awardIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
       logger.error(`Award with id ${awardId} not found for deletion.`);

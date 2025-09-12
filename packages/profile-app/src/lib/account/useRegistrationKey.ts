@@ -36,7 +36,7 @@ export async function storeRegistrationKey(
     return null;
   }
 
-  await account.ensureLoaded({
+  await account.$jazz.ensureLoaded({
     resolve: {
       root: {
         'auth.regarde.dev': true,
@@ -47,11 +47,10 @@ export async function storeRegistrationKey(
   const key = generateRegistrationKey();
 
   try {
-    account.root['auth.regarde.dev'].key = key;
-    account.root['auth.regarde.dev'].expiresAt =
-      Date.now() + KEY_LIFETIME_SECONDS * 1000;
+    account.root['auth.regarde.dev'].$jazz.set('key', key);
+    account.root['auth.regarde.dev'].$jazz.set('expiresAt', Date.now() + KEY_LIFETIME_SECONDS * 1000);
 
-    await account.waitForSync();
+    await account.$jazz.waitForSync();
 
     return key;
   } catch (error) {
@@ -73,7 +72,6 @@ export function useRegistrationKey() {
       return null;
     }
 
-    // Wait for account to load if it's still loading
     if (isLoading) {
       return null;
     }
@@ -85,10 +83,10 @@ export function useRegistrationKey() {
         account as Loaded<typeof OnboardingAccount>,
       );
       if (!key || registrationKey === undefined) return null;
-      return { key, registrationKeyId: registrationKey.id };
+      return { key, registrationKeyId: registrationKey.$jazz.id };
     }
 
-    return { key: registrationKey.key, registrationKeyId: registrationKey.id };
+    return { key: registrationKey.key, registrationKeyId: registrationKey.$jazz.id };
   }, [account, isAccountReady, registrationKey, isLoading]);
 
   return {
