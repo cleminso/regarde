@@ -241,10 +241,28 @@ export const OnboardingAccount = co
   .withMigration(async (account, creationProps?: { name: string }) => {
     if (!account.$jazz.has("profile") || !account.$jazz.has("root")) {
       console.warn("Account structure incomplete");
-      return;
+
+      if (!account.$jazz.has("root")) {
+        await createNewAccount(account, creationProps);
+        return;
+      }
+
+      if (!account.$jazz.has("profile")) {
+        const profileData =
+          account.root?.["regarde.dev"] || account.root?.["profile.jazz.dev"];
+
+        if (profileData) {
+          account.$jazz.set(
+            "profile",
+            JazzProfileProfile.create({
+              name: "clc",
+              "profile.jazz.dev": profileData.$jazz.id,
+            }),
+          );
+        }
+      }
     }
 
-    // For new accounts only - existing accounts are handled by CoMap migration
     const root = account.root;
     if (!root) return;
 
