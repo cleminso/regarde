@@ -31,8 +31,14 @@ export function isKeyExpired(registrationKey: any): boolean {
 export async function storeRegistrationKey(
   account: Loaded<typeof OnboardingAccount>,
 ): Promise<string | null> {
-  if (!account?.root || !account.root['auth.regarde.dev']) {
-    console.error('Account root or auth.regarde.dev not available');
+  if (!account?.root) {
+    console.error('Account root not available');
+    return null;
+  }
+
+  const authKey = account.root['auth.regarde.dev'] || account.root['auth.jazz.dev'];
+  if (!authKey) {
+    console.error('No auth key available in either namespace');
     return null;
   }
 
@@ -40,6 +46,7 @@ export async function storeRegistrationKey(
     resolve: {
       root: {
         'auth.regarde.dev': true,
+        'auth.jazz.dev': true,
       },
     },
   });
@@ -47,11 +54,16 @@ export async function storeRegistrationKey(
   const key = generateRegistrationKey();
 
   try {
-    account.root['auth.regarde.dev'].$jazz.set('key', key);
-    account.root['auth.regarde.dev'].$jazz.set('expiresAt', Date.now() + KEY_LIFETIME_SECONDS * 1000);
+    const targetAuth = account.root['auth.regarde.dev'] || account.root['auth.jazz.dev'];
+    if (!targetAuth) {
+      console.error('No auth target available after ensureLoaded');
+      return null;
+    }
+
+    targetAuth.$jazz.set('key', key);
+    targetAuth.$jazz.set('expiresAt', Date.now() + KEY_LIFETIME_SECONDS * 1000);
 
     await account.$jazz.waitForSync();
-
     return key;
   } catch (error) {
     console.error('Failed to store registration key:', error);
@@ -62,8 +74,7 @@ export async function storeRegistrationKey(
 export function useRegistrationKey() {
   const { account, isAccountReady } = useMyJazz();
 
-  // Access registration key from account.root['auth.regarde.dev']
-  const registrationKey = account?.root?.['auth.regarde.dev'];
+  const registrationKey = account?.root?.['auth.regarde.dev'] || account?.root?.['auth.jazz.dev'];
   const isLoading = account === undefined;
   const isAccessible = registrationKey !== null;
 
@@ -82,8 +93,12 @@ export function useRegistrationKey() {
       const key = await storeRegistrationKey(
         account as Loaded<typeof OnboardingAccount>,
       );
-      if (!key || registrationKey === undefined) return null;
-      return { key, registrationKeyId: registrationKey.$jazz.id };
+      if (!key) return null; // Remove the registrationKey check here
+
+      const updatedRegistrationKey = account.root?.['auth.regarde.dev'] || account.root?.['auth.jazz.dev'];
+      if (!updatedRegistrationKey) return null;
+
+      return { key, registrationKeyId: updatedRegistrationKey.$jazz.id };
     }
 
     return { key: registrationKey.key, registrationKeyId: registrationKey.$jazz.id };
@@ -94,7 +109,6 @@ export function useRegistrationKey() {
     isAccountReady,
     hasRegistrationKey: Boolean(registrationKey),
     isKeyExpired: registrationKey ? isKeyExpired(registrationKey) : true,
-
     isRegistrationKeyLoading: isLoading,
     isRegistrationKeyAccessible: isAccessible,
   };
