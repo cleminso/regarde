@@ -34,12 +34,12 @@
     "@onboarding.jazz/shared-schemas": "workspace:*",
     "dotenv": "^16.6.1",
     "hono": "^4.9.4",
-    "jazz-tools": "^0.18.7",
+    "jazz-tools": "catalog:",
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/node": "^20.19.11",
+    "@types/node": "catalog:",
     "nodemon": "^3.1.10",
-    "typescript": "^5.9.2"
+    "typescript": "catalog:"
   }
 }

@@ -21,13 +21,13 @@
     "test:run": "vitest run"
   },
   "dependencies": {
-    "jazz-tools": "^0.18.7",
-    "ulidx": "^2.4.1"
+    "jazz-tools": "catalog:",
+    "ulidx": "catalog:"
   },
   "devDependencies": {
-    "typescript": "^5.9.2",
-    "vite": "^6.3.5",
-    "vite-plugin-dts": "^4.5.4"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:"
   },
   "exports": {
     ".": {
