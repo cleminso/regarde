@@ -91,14 +91,14 @@ export const checkAvailabilityHandler = (
 
       // Add taken information if nickname is registered
       if (existingAccountForNickname) {
-        response.$jazz.set("takenBy", existingAccountForNickname);
+        response.takenBy = existingAccountForNickname;
       }
 
       // Add reservation information if nickname is reserved
       if (reservation) {
-        response.$jazz.set("reserved", true);
-        response.$jazz.set("reservationCategory", reservation.category);
-        response.$jazz.set("reservationReason", reservation.reason);
+        response.reserved = true;
+        response.reservationCategory = reservation.category;
+        response.reservationReason = reservation.reason;
       }
 
       return c.json(response, 200);

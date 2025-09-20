@@ -36,7 +36,7 @@ export async function storeRegistrationKey(
     return null;
   }
 
-  const authKey = account.root['auth.regarde.dev'] || account.root['auth.jazz.dev'];
+  const authKey = account.root['auth.regarde.dev'];
   if (!authKey) {
     console.error('No auth key available in either namespace');
     return null;
@@ -46,7 +46,6 @@ export async function storeRegistrationKey(
     resolve: {
       root: {
         'auth.regarde.dev': true,
-        'auth.jazz.dev': true,
       },
     },
   });
@@ -54,7 +53,7 @@ export async function storeRegistrationKey(
   const key = generateRegistrationKey();
 
   try {
-    const targetAuth = account.root['auth.regarde.dev'] || account.root['auth.jazz.dev'];
+    const targetAuth = account.root['auth.regarde.dev'];
     if (!targetAuth) {
       console.error('No auth target available after ensureLoaded');
       return null;
@@ -74,7 +73,7 @@ export async function storeRegistrationKey(
 export function useRegistrationKey() {
   const { account, isAccountReady } = useMyJazz();
 
-  const registrationKey = account?.root?.['auth.regarde.dev'] || account?.root?.['auth.jazz.dev'];
+  const registrationKey = account?.root?.['auth.regarde.dev'];
   const isLoading = account === undefined;
   const isAccessible = registrationKey !== null;
 
@@ -95,7 +94,7 @@ export function useRegistrationKey() {
       );
       if (!key) return null; // Remove the registrationKey check here
 
-      const updatedRegistrationKey = account.root?.['auth.regarde.dev'] || account.root?.['auth.jazz.dev'];
+      const updatedRegistrationKey = account.root?.['auth.regarde.dev'];
       if (!updatedRegistrationKey) return null;
 
       return { key, registrationKeyId: updatedRegistrationKey.$jazz.id };

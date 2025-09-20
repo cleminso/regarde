@@ -210,28 +210,13 @@ export function validateJazzAppProfile(
 }
 
 export const JazzProfileProfile = co.profile({
-  "profile.jazz.dev": z.string(), // String ID, requires additional load
+  "regarde.dev": z.string(), // String ID, requires additional load
 });
 
-export const JazzProfileRoot = co
-  .map({
-    "profile.jazz.dev": JazzAppProfile,
-    "auth.jazz.dev": RegistrationKey,
-
-    "regarde.dev": co.optional(JazzAppProfile),
-    "auth.regarde.dev": co.optional(RegistrationKey),
-
-    version: z.optional(z.number()),
-  })
-  .withMigration((root) => {
-    if (!root.version || root.version < 2) {
-      if (!root["regarde.dev"]) {
-        root.$jazz.set("regarde.dev", root["profile.jazz.dev"]);
-        root.$jazz.set("auth.regarde.dev", root["auth.jazz.dev"]);
-      }
-      root.$jazz.set("version", 2);
-    }
-  });
+export const JazzProfileRoot = co.map({
+  "regarde.dev": JazzAppProfile, // Direct object reference, already loaded
+  "auth.regarde.dev": RegistrationKey,
+});
 
 export const OnboardingAccount = co
   .account({
@@ -239,82 +224,123 @@ export const OnboardingAccount = co
     root: JazzProfileRoot,
   })
   .withMigration(async (account, creationProps?: { name: string }) => {
-    if (!account.$jazz.has("profile") || !account.$jazz.has("root")) {
-      console.warn("Account structure incomplete");
-    }
+    const publicGroup = Group.create({
+      owner: account,
+    });
+    publicGroup.makePublic();
 
-    const root = account.root;
-    if (!root) return;
-
-    const hasAnyProfile = root["regarde.dev"] || root["profile.jazz.dev"];
-
-    if (!hasAnyProfile) {
-      await createNewAccount(account, creationProps);
-    }
-
-    // Handle profile creation/update
     if (!account.$jazz.has("profile")) {
-      const profileData = root["regarde.dev"] || root["profile.jazz.dev"];
+      account.$jazz.set(
+        "profile",
+        JazzProfileProfile.create(
+          {
+            name: name ?? "no",
+            "regarde.dev": "",
+          },
+          publicGroup,
+        ),
+      );
+    }
 
-      if (profileData) {
-        account.$jazz.set(
-          "profile",
-          JazzProfileProfile.create({
-            name: "clc",
-            "profile.jazz.dev": profileData.$jazz.id,
+    if (!account.$jazz.has("root")) {
+      account.$jazz.set("root", {
+        "auth.regarde.dev": RegistrationKey.create(
+          {
+            key: "no",
+            expiresAt: 0,
+          },
+          Group.create({
+            owner: account,
           }),
-        );
-      } else {
-        console.warn("No profile data found in either namespace");
+        ),
+        "regarde.dev": {
+          name: name ?? "no",
+          version: 0,
+          userHandle: UserHandle.create(
+            {
+              nickname: "",
+              isActive: false,
+              lastModified: Date.now(),
+              registeredAt: Date.now(),
+            },
+            Group.create({
+              owner: account,
+            }),
+          ),
+        },
+      });
+    }
+
+    if (!account.$jazz.has("root")) {
+    }
+
+    const { profile, root } = await account.$jazz.ensureLoaded({
+      resolve: {
+        profile: true,
+        root: {
+          "auth.regarde.dev": true,
+        },
+      },
+    });
+
+    // First initialization
+    if (root["regarde.dev"] && root["regarde.dev"].version === 0) {
+      // This is the worker read group, must be hardcoded
+      const jazzProfileWorkerGroup = await co
+        .group()
+        .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21");
+
+      // (:
+      if (!jazzProfileWorkerGroup) {
+        console.debug("No public group");
+        return;
       }
+
+      const userGroup = Group.create({
+        owner: account,
+      });
+      userGroup.addMember(jazzProfileWorkerGroup, "writer");
+
+      const userHandle = UserHandle.create(
+        {
+          nickname: name ?? "fj",
+          registeredAt: Date.now(),
+          lastModified: Date.now(),
+          isActive: false,
+        },
+        userGroup,
+      );
+
+      const jazzProfileData = JazzAppProfile.create(
+        {
+          name: creationProps?.name || "Type your name",
+          userHandle,
+          version: 1,
+        },
+        userGroup,
+      );
+
+      const registrationKey = RegistrationKey.create(
+        {
+          key: "not-valid-" + Math.random(),
+          expiresAt: 0, // key should never be valid, expires as soon as it's generated
+        },
+        userGroup,
+      );
+
+      root.$jazz.set("regarde.dev", jazzProfileData);
+      root.$jazz.set("auth.regarde.dev", registrationKey);
+
+      await account.$jazz.waitForSync();
+
+      console.log(
+        "regarde.dev namespace profile data created:",
+        jazzProfileData.$jazz.id,
+      );
+
+      profile.$jazz.set("regarde.dev", jazzProfileData.$jazz.id);
+
+      console.log("Profile created successfully", jazzProfileData.$jazz.id);
+      console.log("Account created successfully", account.$jazz.id);
     }
   });
-
-async function createNewAccount(
-  account: any,
-  creationProps?: { name: string },
-) {
-  const userHandle = UserHandle.create({
-    nickname: "",
-    registeredAt: Date.now(),
-    lastModified: Date.now(),
-    isActive: false,
-  });
-
-  const jazzProfileData = JazzAppProfile.create({
-    name: creationProps?.name || "Type your name",
-    userHandle,
-    version: 1,
-  });
-
-  const registrationKey = RegistrationKey.create({
-    key: "not-valid-" + Math.random(),
-    expiresAt: 0,
-  });
-
-  // New accounts only use new namespace
-  account.$jazz.set(
-    "root",
-    JazzProfileRoot.create({
-      "profile.jazz.dev": jazzProfileData,
-      "auth.jazz.dev": registrationKey,
-      "regarde.dev": jazzProfileData,
-      "auth.regarde.dev": registrationKey,
-      version: 2,
-    }),
-  );
-
-  await account.$jazz.waitForSync();
-
-  const jazzProfileWorkerGroupID = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
-  const jazzProfileWorkerGroup = await Group.load(jazzProfileWorkerGroupID);
-
-  if (jazzProfileWorkerGroup) {
-    await jazzProfileWorkerGroup.$jazz.ensureLoaded();
-    jazzProfileData.$jazz.owner.addMember(jazzProfileWorkerGroup, "writer");
-    userHandle.$jazz.owner.addMember(jazzProfileWorkerGroup, "writer");
-    registrationKey.$jazz.owner.addMember(jazzProfileWorkerGroup, "writer");
-  }
-
-  console.log("New account created with regarde.dev namespace (version 2)");
-}
