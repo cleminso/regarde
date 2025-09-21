@@ -29,12 +29,12 @@
     "@alcyone-labs/arg-parser": "^2.7.2",
     "@onboarding.jazz/shared-schemas": "workspace:*",
     "dotenv": "^16.6.1",
-    "jazz-tools": "^0.18.7",
-    "ulidx": "^2.4.1",
+    "jazz-tools": "catalog:",
+    "ulidx": "catalog:",
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/node": "^20.19.11",
-    "typescript": "^5.9.2"
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
   }
 }
