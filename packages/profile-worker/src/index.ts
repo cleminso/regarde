@@ -63,7 +63,7 @@ async function main() {
       process.env.APP_PUBLIC_HOSTNAME.includes("localhost"))
   ) {
     console.warn(
-      "Warning: APP_PUBLIC_HOSTNAME is not set or is localhost. For production behind Nginx/HTTPS, set it to your public domain (e.g., api.regarde.dev) for correct documentation links.",
+      "Warning: APP_PUBLIC_HOSTNAME is not set or is localhost. For production behind Nginx/HTTPS, set it to your public domain (e.g., api.regarde.bio) for correct documentation links.",
     );
   }
 

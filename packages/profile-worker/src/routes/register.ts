@@ -128,7 +128,7 @@ async function syncUserHandle(
     const account = await OnboardingAccount.load(jazzAccountID, {
       resolve: {
         profile: {
-          "regarde.dev": true,
+          "regarde.bio": true,
         },
       },
     });
@@ -145,7 +145,7 @@ async function syncUserHandle(
       return;
     }
 
-    const data = await JazzAppProfile.load(account.profile["regarde.dev"], {
+    const data = await JazzAppProfile.load(account.profile["regarde.bio"], {
       resolve: {
         userHandle: true,
       },
@@ -174,7 +174,7 @@ async function syncUserHandle(
       setNicknameFromRegistry(userHandle, nickname);
       console.log(
         `UserHandle nickname synced with registry for AccountID "${jazzAccountID}": "${nickname}"`,
-        account.profile["regarde.dev"],
+        account.profile["regarde.bio"],
         data.$jazz.id,
         userHandle.$jazz.id,
       );

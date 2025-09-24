@@ -13,7 +13,7 @@ export const mockJazzHooks = {
     me: {
       id: 'test-account-id',
       profile: {
-        'regarde.dev': 'test-profile-id',
+        'regarde.bio': 'test-profile-id',
       },
     },
   }),
@@ -98,7 +98,7 @@ export function createMockAccount(overrides = {}) {
     me: {
       id: 'test-account-id',
       profile: {
-        'regarde.dev': 'test-profile-id',
+        'regarde.bio': 'test-profile-id',
       },
     },
     ...overrides,

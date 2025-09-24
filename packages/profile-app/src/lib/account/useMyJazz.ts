@@ -9,7 +9,7 @@ export function useMyJazz() {
     isAuthenticated ? {
       resolve: {
         root: {
-          'regarde.dev': {
+          'regarde.bio': {
             socialLinks: true,
             projects: { $each: true },
             workExp: { $each: true },
@@ -23,14 +23,14 @@ export function useMyJazz() {
             nowPage: true,
             avatarImage: { original: true },
           },
-          'auth.regarde.dev': true,
+          'auth.regarde.bio': true,
         },
       },
     } : {}
   );
 
-  const jazzAppProfile = account?.root?.['regarde.dev'];
-  const registrationKey = account?.root?.['auth.regarde.dev'];
+  const jazzAppProfile = account?.root?.['regarde.bio'];
+  const registrationKey = account?.root?.['auth.regarde.bio'];
 
   return {
     account,

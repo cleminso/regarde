@@ -210,12 +210,12 @@ export function validateJazzAppProfile(
 }
 
 export const JazzProfileProfile = co.profile({
-  "regarde.dev": z.string(), // String ID, requires additional load
+  "regarde.bio": z.string(), // String ID, requires additional load
 });
 
 export const JazzProfileRoot = co.map({
-  "regarde.dev": JazzAppProfile, // Direct object reference, already loaded
-  "auth.regarde.dev": RegistrationKey,
+  "regarde.bio": JazzAppProfile, // Direct object reference, already loaded
+  "auth.regarde.bio": RegistrationKey,
 });
 
 export const OnboardingAccount = co
@@ -235,7 +235,7 @@ export const OnboardingAccount = co
         JazzProfileProfile.create(
           {
             name: name ?? "no",
-            "regarde.dev": "",
+            "regarde.bio": "",
           },
           publicGroup,
         ),
@@ -244,7 +244,7 @@ export const OnboardingAccount = co
 
     if (!account.$jazz.has("root")) {
       account.$jazz.set("root", {
-        "auth.regarde.dev": RegistrationKey.create(
+        "auth.regarde.bio": RegistrationKey.create(
           {
             key: "no",
             expiresAt: 0,
@@ -253,7 +253,7 @@ export const OnboardingAccount = co
             owner: account,
           }),
         ),
-        "regarde.dev": {
+        "regarde.bio": {
           name: name ?? "no",
           version: 0,
           userHandle: UserHandle.create(
@@ -278,13 +278,13 @@ export const OnboardingAccount = co
       resolve: {
         profile: true,
         root: {
-          "auth.regarde.dev": true,
+          "auth.regarde.bio": true,
         },
       },
     });
 
     // First initialization
-    if (root["regarde.dev"] && root["regarde.dev"].version === 0) {
+    if (root["regarde.bio"] && root["regarde.bio"].version === 0) {
       // This is the worker read group, must be hardcoded
       const jazzProfileWorkerGroup = await co
         .group()
@@ -328,17 +328,17 @@ export const OnboardingAccount = co
         userGroup,
       );
 
-      root.$jazz.set("regarde.dev", jazzProfileData);
-      root.$jazz.set("auth.regarde.dev", registrationKey);
+      root.$jazz.set("regarde.bio", jazzProfileData);
+      root.$jazz.set("auth.regarde.bio", registrationKey);
 
       await account.$jazz.waitForSync();
 
       console.log(
-        "regarde.dev namespace profile data created:",
+        "regarde.bio namespace profile data created:",
         jazzProfileData.$jazz.id,
       );
 
-      profile.$jazz.set("regarde.dev", jazzProfileData.$jazz.id);
+      profile.$jazz.set("regarde.bio", jazzProfileData.$jazz.id);
 
       console.log("Profile created successfully", jazzProfileData.$jazz.id);
       console.log("Account created successfully", account.$jazz.id);

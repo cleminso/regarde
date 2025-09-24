@@ -28,7 +28,7 @@ nano .env
 sudo systemctl restart nickname-registry
 
 # 5. Verify setup
-curl -s https://api.regarde.dev/health | jq .
+curl -s https://api.regarde.bio/health | jq .
 ```
 
 ## Post-Setup Verification
@@ -40,7 +40,7 @@ curl -s https://api.regarde.dev/health | jq .
 sudo systemctl status nickname-registry
 
 # Test API health
-curl -s https://api.regarde.dev/health | jq .
+curl -s https://api.regarde.bio/health | jq .
 
 # Check SSL certificate
 sudo certbot certificates
@@ -120,7 +120,7 @@ VM Setup**
   - [ ] Restart service: `sudo systemctl restart nickname-registry`
 
 - [ ] **Verification**
-  - [ ] Test API: `curl -s https://api.regarde.dev/health | jq .`
+  - [ ] Test API: `curl -s https://api.regarde.bio/health | jq .`
   - [ ] Check service: `sudo systemctl status nickname-registry`
   - [ ] Verify SSL: `sudo certbot certificates
 ```

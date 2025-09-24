@@ -194,9 +194,9 @@ fi
 print_status "🏥 Testing health endpoint..."
 sleep 5
 for i in {1..10}; do
-    if curl -s --max-time 5 https://api.regarde.dev/health > /dev/null; then
+    if curl -s --max-time 5 https://api.regarde.bio/health > /dev/null; then
         print_status "🎉 Rollback completed successfully!"
-        print_status "🌐 API is available at: https://api.regarde.dev"
+        print_status "🌐 API is available at: https://api.regarde.bio"
         print_info "📁 Pre-rollback backup saved at: $PRE_ROLLBACK_DIR"
         break
     fi

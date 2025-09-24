@@ -67,11 +67,11 @@ describe("Jazz Framework Integration Tests", () => {
     expect(account.root).toBeDefined();
     expect(account.profile).toBeDefined();
 
-    expect(account.root["auth.regarde.dev"]).toBeDefined();
-    expect(account.root["regarde.dev"]).toBeDefined();
+    expect(account.root["auth.regarde.bio"]).toBeDefined();
+    expect(account.root["regarde.bio"]).toBeDefined();
 
     // Verify profile structure is valid
-    const profile = account.root["regarde.dev"];
+    const profile = account.root["regarde.bio"];
     expect(profile).toBeDefined();
     expect(profile!.name).toBe("Test User");
     expect(profile!.userHandle).toBeDefined();
@@ -79,7 +79,7 @@ describe("Jazz Framework Integration Tests", () => {
     expect(profile!.version).toBe(1);
 
     // Verify auth structure is valid
-    const auth = account.root["auth.regarde.dev"];
+    const auth = account.root["auth.regarde.bio"];
     expect(auth).toBeDefined();
     expect(auth!.key).toContain("not-valid-"); // From migration
     expect(auth!.expiresAt).toBe(0);

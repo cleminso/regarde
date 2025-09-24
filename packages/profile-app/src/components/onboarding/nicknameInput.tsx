@@ -274,13 +274,13 @@ export function NicknameInput({
 
       <div className="space-y-2 sm:space-y-0">
         <div className="text-sm text-muted-foreground font-mono sm:hidden">
-          regarde.dev/
+          regarde.bio/
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-transparent border border-input rounded-md overflow-hidden w-full">
           {/* Domain prefix - show inline on desktop */}
           <div className="hidden sm:flex items-center px-3 py-3 bg-secondary border-r border-border">
-            <span className="text-sm text-foreground">regarde.dev/</span>
+            <span className="text-sm text-foreground">regarde.bio/</span>
           </div>
 
           <div className="flex items-center flex-1">

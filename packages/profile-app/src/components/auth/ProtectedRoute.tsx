@@ -15,7 +15,7 @@ export function ProtectedRoute() {
     return <div>Loading account...</div>;
   }
 
-  if (account === null || !account.root?.['regarde.dev']) {
+  if (account === null || !account.root?.['regarde.bio']) {
     return <Navigate to="/" replace />;
   }
 

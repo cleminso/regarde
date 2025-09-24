@@ -5,7 +5,7 @@
   "redirects": [
     {
       "source": "/:nickname",
-      "destination": "https://api.regarde.dev/:nickname",
+      "destination": "https://api.regarde.bio/:nickname",
       "has": [
         {
           "type": "header",

@@ -89,7 +89,7 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
   // Add to useMyJazz.ts resolve block
   resolve: {
     root: {
-      'regarde.dev': {
+      'regarde.bio': {
         // ... existing fields
         newFeature: true, // ← Add here
       }
@@ -241,7 +241,7 @@ Use this checklist when implementing any new feature to ensure you follow Jazz b
     // ... existing code
     return {
       // ... existing returns
-      newFeatureData: account?.root["regarde.dev"]?.newFeature,
+      newFeatureData: account?.root["regarde.bio"]?.newFeature,
     };
   }
 

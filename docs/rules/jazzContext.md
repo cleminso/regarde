@@ -71,7 +71,7 @@ if (!account) return <Loading />;
 ```typescript
 const account = await OnboardingAccount.load(accountId, {
   loadAs: worker,
-  resolve: { root: { "regarde.dev": true } },
+  resolve: { root: { "regarde.bio": true } },
 });
 ```
 

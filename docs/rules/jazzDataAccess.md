@@ -70,7 +70,7 @@ const editProfile = (updates) => {
 useAccount(OnboardingAccount, {
   resolve: {
     root: {
-      "regarde.dev": {
+      "regarde.bio": {
         /* all fields */
       },
     },
@@ -85,7 +85,7 @@ useAccount(OnboardingAccount, {
 const { jazzAppProfile } = useMyJazz();
 
 // ❌ Bad - unnecessary additional load
-const profileId = account.profile["regarde.dev"];
+const profileId = account.profile["regarde.bio"];
 const profile = await JazzAppProfile.load(profileId);
 ```
 
@@ -166,7 +166,7 @@ async function getPublicProfile(profileId) {
 ```typescript
 // ❌ Overkill for display
 const account = await OnboardingAccount.load(id);
-const name = account.root["regarde.dev"].name;
+const name = account.root["regarde.bio"].name;
 
 // ✅ Better
 const profile = await JazzAppProfile.load(profileId);
@@ -178,14 +178,14 @@ const name = profile.name;
 ```typescript
 // ❌ Inefficient
 const account = await OnboardingAccount.load(id);
-const profileId = account.profile["regarde.dev"];
+const profileId = account.profile["regarde.bio"];
 const profile = await JazzAppProfile.load(profileId);
 
 // ✅ Better
 const account = await OnboardingAccount.load(id, {
-  resolve: { root: { "regarde.dev": true } },
+  resolve: { root: { "regarde.bio": true } },
 });
-const profile = account.root["regarde.dev"];
+const profile = account.root["regarde.bio"];
 ```
 
 3. **Using profile data for auth decisions**

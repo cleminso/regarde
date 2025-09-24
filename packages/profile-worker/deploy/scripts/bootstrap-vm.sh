@@ -77,14 +77,14 @@ if [ ! -f .env ]; then
 fi
 
 print_status "🌐 Configuring nginx..."
-sudo cp "$DEPLOY_DIR/config/nginx.conf" /etc/nginx/sites-available/api.regarde.dev
-sudo ln -sf /etc/nginx/sites-available/api.regarde.dev /etc/nginx/sites-enabled/
+sudo cp "$DEPLOY_DIR/config/nginx.conf" /etc/nginx/sites-available/api.regarde.bio
+sudo ln -sf /etc/nginx/sites-available/api.regarde.bio /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl restart nginx
 
 print_status "🔐 Setting up SSL certificate..."
 read -p "Enter your email for SSL certificate: " email
-sudo certbot --nginx -d api.regarde.dev --non-interactive --agree-tos --email "$email"
+sudo certbot --nginx -d api.regarde.bio --non-interactive --agree-tos --email "$email"
 
 print_status "🔧 Creating systemd service..."
 # Replace placeholders in service template
@@ -110,9 +110,9 @@ print_info "💡 You can run these from anywhere on the system!"
 
 print_status "🔍 Final verification..."
 sleep 15
-if curl -s https://api.regarde.dev/health > /dev/null; then
+if curl -s https://api.regarde.bio/health > /dev/null; then
     print_status "🎉 Setup completed successfully!"
-    print_status "🌐 API is available at: https://api.regarde.dev"
+    print_status "🌐 API is available at: https://api.regarde.bio"
     print_info ""
     print_info "🚀 Your VM is ready for production!"
     print_info "📋 Common next steps:"

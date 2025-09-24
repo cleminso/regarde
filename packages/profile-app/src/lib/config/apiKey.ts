@@ -6,4 +6,4 @@ export const WORKER_JAZZ_ID =
   import.meta.env.VITE_WORKER_JAZZ_ID || 'no-jazz-worker-id';
 
 export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'https://api.regarde.dev';
+  import.meta.env.VITE_API_BASE_URL || 'https://api.regarde.bio';

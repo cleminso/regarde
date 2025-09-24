@@ -124,16 +124,16 @@ async function getUserDetails(
     const jazzUserAccount = await OnboardingAccount.load(
       accountIdFromNickname,
       {
-        resolve: { profile: { "regarde.dev": true } },
+        resolve: { profile: { "regarde.bio": true } },
       },
     );
 
-    if (!jazzUserAccount?.profile?.["regarde.dev"]) {
+    if (!jazzUserAccount?.profile?.["regarde.bio"]) {
       return { exists: false, publicData: null };
     }
 
     const profileData = await JazzAppProfile.load(
-      jazzUserAccount.profile["regarde.dev"],
+      jazzUserAccount.profile["regarde.bio"],
       {
         resolve: {
           avatarImage: { original: true },
@@ -159,15 +159,15 @@ function generateProfileHTML(
 ): string {
   const name = profile.name || nickname;
   const bio = profile.bio || `Check out ${name}'s profile on Jazz`;
-  const title = `${name} (@${nickname}) - regarde.dev`;
-  const profileUrl = `https://regarde.dev/${nickname}`;
+  const title = `${name} (@${nickname}) - regarde.bio`;
+  const profileUrl = `https://regarde.bio/${nickname}`;
 
   let imageUrl = "";
   if (profile.avatarImage?.original) {
     try {
       const blob = profile.avatarImage.original.toBlob();
       if (blob) {
-        imageUrl = `https://api.regarde.dev/avatar/${nickname}`;
+        imageUrl = `https://api.regarde.bio/avatar/${nickname}`;
       }
     } catch (error) {
       console.warn("Error processing avatar:", error);
@@ -180,7 +180,7 @@ function generateProfileHTML(
     <script>
       // Redirect browsers to React app after a short delay
       setTimeout(() => {
-        window.location.href = 'https://regarde.dev/${nickname}';
+        window.location.href = 'https://regarde.bio/${nickname}';
       }, 100);
     </script>`;
 
@@ -197,7 +197,7 @@ function generateProfileHTML(
   <meta property="og:description" content="${escapeHtml(bio)}">
   <meta property="og:url" content="${profileUrl}">
   <meta property="og:type" content="profile">
-  <meta property="og:site_name" content="regarde.dev">
+  <meta property="og:site_name" content="regarde.bio">
   ${imageUrl ? `<meta property="og:image" content="${imageUrl}">` : ""}
   ${imageUrl ? `<meta property="og:image:alt" content="${escapeHtml(name)}'s profile picture">` : ""}
 
@@ -218,14 +218,14 @@ function generateProfileHTML(
     <h1>${escapeHtml(name)} (@${nickname})</h1>
     <p>${escapeHtml(bio)}</p>
     ${!isCrawler ? "<p>Redirecting to full profile...</p>" : ""}
-    <p><a href="https://regarde.dev/${nickname}">View full profile →</a></p>
+    <p><a href="https://regarde.bio/${nickname}">View full profile →</a></p>
   </div>
 </body>
 </html>`;
 }
 
 function generateNotFoundHTML(nickname: string, isCrawler: boolean): string {
-  const title = "Profile Not Found - regarde.dev";
+  const title = "Profile Not Found - regarde.bio";
   const description = `The profile @${nickname} could not be found.`;
 
   const redirectScript = isCrawler
@@ -233,7 +233,7 @@ function generateNotFoundHTML(nickname: string, isCrawler: boolean): string {
     : `
     <script>
       setTimeout(() => {
-        window.location.href = 'https://regarde.dev/';
+        window.location.href = 'https://regarde.bio/';
       }, 2000);
     </script>`;
 
@@ -253,7 +253,7 @@ function generateNotFoundHTML(nickname: string, isCrawler: boolean): string {
     <h1>Profile Not Found</h1>
     <p>The profile @${nickname} could not be found.</p>
     ${!isCrawler ? "<p>Redirecting to homepage...</p>" : ""}
-    <p><a href="https://regarde.dev/">Go to homepage →</a></p>
+    <p><a href="https://regarde.bio/">Go to homepage →</a></p>
   </div>
 </body>
 </html>`;
@@ -265,7 +265,7 @@ function generateErrorHTML(nickname: string, isCrawler: boolean): string {
     : `
     <script>
       setTimeout(() => {
-        window.location.href = 'https://regarde.dev/${nickname}';
+        window.location.href = 'https://regarde.bio/${nickname}';
       }, 1000);
     </script>`;
 
@@ -273,14 +273,14 @@ function generateErrorHTML(nickname: string, isCrawler: boolean): string {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Error Loading Profile - regarde.dev</title>
+  <title>Error Loading Profile - regarde.bio</title>
   ${redirectScript}
 </head>
 <body>
   <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 1rem; text-align: center;">
     <h1>Error Loading Profile</h1>
     <p>There was an error loading this profile. Please try again.</p>
-    <p><a href="https://regarde.dev/${nickname}">Try again →</a></p>
+    <p><a href="https://regarde.bio/${nickname}">Try again →</a></p>
   </div>
 </body>
 </html>`;
