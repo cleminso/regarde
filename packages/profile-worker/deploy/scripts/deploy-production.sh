@@ -1,212 +1,426 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Starting production deployment with backup..."
+# =============================================================================
+# Profile Worker Deployment Script
+# =============================================================================
+# Handles both regular deployments and rollbacks to specific versions
+# Usage: ./deploy-production.sh [OPTIONS]
+#
+# Options:
+#   --from-commit <hash>  Deploy from specific commit
+#   --from-tag <tag>      Deploy from specific tag
+#   --skip-checks         Skip health checks (faster deployment)
+#   --help                Show this help message
+#
+# Examples:
+#   ./deploy-production.sh                     # Deploy current code
+#   ./deploy-production.sh --from-commit abc123  # Rollback to commit
+#   ./deploy-production.sh --from-tag v1.2.3     # Deploy from tag
+#
+# Requirements:
+# - .env file in packages/profile-worker/ with configuration
+# - Clean git working directory (when using --from-commit/--from-tag)
+# =============================================================================
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+# Default options
+SKIP_CHECKS=false
+FROM_COMMIT=""
+FROM_TAG=""
 
-print_status() { echo -e "${GREEN}✅ $1${NC}"; }
-print_warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
-print_error() { echo -e "${RED}❌ $1${NC}"; }
-print_info() { echo -e "${BLUE}ℹ️  $1${NC}"; }
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --from-commit)
+            FROM_COMMIT="$2"
+            shift 2
+            ;;
+        --from-tag)
+            FROM_TAG="$2"
+            shift 2
+            ;;
+        --skip-checks)
+            SKIP_CHECKS=true
+            shift
+            ;;
+        --help)
+            echo "Profile Worker Deployment Script"
+            echo ""
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  --from-commit <hash>  Deploy from specific commit"
+            echo "  --from-tag <tag>      Deploy from specific tag"
+            echo "  --skip-checks         Skip health checks"
+            echo "  --help                Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  $0                           # Deploy current code"
+            echo "  $0 --from-commit abc123      # Deploy from commit"
+            echo "  $0 --from-tag v1.2.3         # Deploy from tag"
+            echo "  $0 --skip-checks             # Fast deployment"
+            echo ""
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+    esac
+done
 
-# Get the directory where this script is located
+# Get script directory and project paths
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 DEPLOY_DIR="$(dirname "$SCRIPT_DIR")"
 PROJECT_ROOT="$(dirname "$DEPLOY_DIR")"
 
-# Configuration
-BACKUP_DIR="$HOME/api-backups"
-TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-BACKUP_NAME="nickname-registry_$TIMESTAMP"
-BACKUP_PATH="$BACKUP_DIR/$BACKUP_NAME"
+# Load logging library
+source "$SCRIPT_DIR/logger.sh"
 
-# Create backup directory if it doesn't exist
-mkdir -p "$BACKUP_DIR"
+# Script header
+log_header "Profile Worker Deployment" "Production deployment"
 
-# Store current directory
-ORIGINAL_DIR=$(pwd)
+log_info "Project root: $PROJECT_ROOT"
+
+# Change to profile-worker directory
 cd "$PROJECT_ROOT"
 
-print_info "📂 Project directory: $PROJECT_ROOT"
-print_info "💾 Backup directory: $BACKUP_DIR"
-print_info "🏷️  Backup name: $BACKUP_NAME"
+# =============================================================================
+# Configuration Loading
+# =============================================================================
 
-# Function to create backup
-create_backup() {
-    print_status "📦 Creating backup of current version..."
+load_config() {
+    log_step "Loading configuration"
 
-    # Create backup with git info
-    mkdir -p "$BACKUP_PATH"
-
-    # Copy source code
-    cp -r src/ "$BACKUP_PATH/"
-    cp package.json "$BACKUP_PATH/"
-    cp tsconfig.json "$BACKUP_PATH/"
-
-    # Copy environment if exists
-    if [ -f .env ]; then
-        cp .env "$BACKUP_PATH/"
-    fi
-
-    # Store git information
-    echo "Git commit: $(git rev-parse HEAD)" > "$BACKUP_PATH/backup_info.txt"
-    echo "Git branch: $(git branch --show-current)" >> "$BACKUP_PATH/backup_info.txt"
-    echo "Backup date: $(date)" >> "$BACKUP_PATH/backup_info.txt"
-    echo "Backup by: $(whoami)" >> "$BACKUP_PATH/backup_info.txt"
-
-    print_status "💾 Backup created: $BACKUP_PATH"
-}
-
-# Function to restore from backup
-restore_backup() {
-    print_error "🔄 Restoring from backup: $BACKUP_NAME"
-
-    # Stop service
-    sudo systemctl stop nickname-registry
-
-    # Restore files
-    cp -r "$BACKUP_PATH/src/" ./
-    cp "$BACKUP_PATH/package.json" ./
-    cp "$BACKUP_PATH/tsconfig.json" ./
-
-    if [ -f "$BACKUP_PATH/.env" ]; then
-        cp "$BACKUP_PATH/.env" ./
-    fi
-
-    # Reinstall dependencies from backup
-    pnpm install
-
-    # Restart service
-    sudo systemctl start nickname-registry
-
-    print_warning "🔄 Restored from backup. Service restarted with previous version."
-}
-
-# Function to cleanup old backups (keep last 5)
-cleanup_backups() {
-    print_info "🧹 Cleaning up old backups (keeping last 5)..."
-    cd "$BACKUP_DIR"
-    ls -t | tail -n +6 | xargs -r rm -rf
-    print_status "🧹 Backup cleanup completed"
-}
-
-# Trap to restore on error
-trap 'restore_backup; exit 1' ERR
-
-# Check if service is running
-SERVICE_STATUS=$(sudo systemctl is-active nickname-registry || echo "inactive")
-if [ "$SERVICE_STATUS" != "active" ]; then
-    print_warning "Service is not currently running"
-fi
-
-# Step 1: Create backup
-create_backup
-
-# Step 2: Update code
-print_status "📥 Pulling latest code..."
-if ! git pull; then
-    print_error "Git pull failed!"
-    exit 1
-fi
-
-# Step 3: Install dependencies
-print_status "📦 Installing dependencies..."
-if ! pnpm install; then
-    print_error "Dependencies installation failed!"
-    exit 1
-fi
-
-# Step 4: Build schemas
-print_status "🔨 Building schemas..."
-if ! pnpm build:schema; then
-    print_error "Schema build failed!"
-    exit 1
-fi
-
-# Step 5: Test configuration
-print_status "🧪 Validating configuration..."
-if [ ! -f .env ]; then
-    print_error ".env file missing!"
-    exit 1
-fi
-
-# Step 6: Restart service (minimal downtime)
-print_status "🔄 Restarting service..."
-if ! sudo systemctl restart nickname-registry; then
-    print_error "Service restart failed!"
-    exit 1
-fi
-
-# Step 7: Wait for service to stabilize (longer wait)
-print_status "⏱️  Waiting for service to stabilize..."
-sleep 15
-
-# Step 8: Health checks with better error handling
-print_status "🔍 Checking service status..."
-if ! sudo systemctl is-active nickname-registry --quiet; then
-    print_error "Service is not active!"
-    sudo systemctl status nickname-registry --no-pager
-    exit 1
-fi
-
-print_status "🏥 Testing health endpoint (local backend)..."
-for i in {1..15}; do
-    if curl -s --max-time 5 http://localhost:3000/health > /dev/null; then
-        print_status "Local health check passed!"
-        break
-    fi
-    if [ $i -eq 15 ]; then
-        print_error "Local health check failed after 15 attempts!"
-        print_error "Service may not be fully started yet"
+    if [ ! -f .env ]; then
+        log_error ".env file not found in profile-worker directory!"
+        log_info "Copy the template: cp deploy/config/.env.template .env"
+        log_info "Then edit .env with your actual values"
         exit 1
     fi
-    print_warning "Local health check attempt $i failed, retrying in 2 seconds..."
-    sleep 2
-done
 
-print_status "🌐 Testing health endpoint (through nginx)..."
-for i in {1..20}; do
-    HEALTH_RESPONSE=$(curl -s --max-time 10 https://api.regarde.bio/health)
-    if echo "$HEALTH_RESPONSE" | jq -e '.status == "healthy"' > /dev/null 2>&1; then
-        print_status "Nginx health check passed!"
-        WORKER_ID=$(echo "$HEALTH_RESPONSE" | jq -r '.workerId')
-        print_info "🔍 Worker ID: $WORKER_ID"
-        break
-    elif echo "$HEALTH_RESPONSE" | grep -q '"status":"healthy"'; then
-        print_status "Nginx health check passed (fallback check)!"
-        break
+    # Load environment variables
+    set -a
+    source .env
+    set +a
+
+    # Required variables
+    REQUIRED_VARS=(
+        "APP_PUBLIC_HOSTNAME"
+        "JAZZ_WORKER_ACCOUNT"
+        "JAZZ_WORKER_SECRET"
+        "JAZZ_SYNC_SERVER_URL"
+        "ACCOUNT_ADMIN_ID"
+    )
+
+    # Optional variables with defaults
+    SERVICE_NAME=${SERVICE_NAME:-"nickname-registry"}
+    APP_PORT=${APP_PORT:-"3000"}
+    HEALTH_CHECK_TIMEOUT=${HEALTH_CHECK_TIMEOUT:-"10"}
+    SERVICE_RESTART_TIMEOUT=${SERVICE_RESTART_TIMEOUT:-"15"}
+    NODE_ENV=${NODE_ENV:-"production"}
+
+    # Validate required variables
+    for var in "${REQUIRED_VARS[@]}"; do
+        if [ -z "${!var}" ]; then
+            log_error "Required environment variable $var is not set!"
+            log_info "Please check your .env file"
+            exit 1
+        fi
+    done
+
+    log_success "Configuration loaded successfully"
+    log_status_ok "Domain" "$APP_PUBLIC_HOSTNAME"
+    log_status_ok "Service" "$SERVICE_NAME"
+    log_status_ok "Port" "$APP_PORT"
+}
+
+# =============================================================================
+# System Dependencies Check
+# =============================================================================
+
+check_dependencies() {
+    log_step "Checking system dependencies"
+
+    local missing_deps=()
+    local required_commands=("git" "pnpm" "bun" "nginx" "systemctl" "curl" "jq")
+
+    for cmd in "${required_commands[@]}"; do
+        if command -v "$cmd" &> /dev/null; then
+            log_status_ok "Command available" "$cmd"
+        else
+            missing_deps+=("$cmd")
+            log_status_missing "Command missing" "$cmd"
+        fi
+    done
+
+    if [ ${#missing_deps[@]} -ne 0 ]; then
+        log_error "Missing required dependencies: ${missing_deps[*]}"
+        log_info "Run the bootstrap script first: ./deploy/scripts/bootstrap-vm.sh"
+        exit 1
     fi
-    if [ $i -eq 20 ]; then
-        print_error "Nginx health check failed after 20 attempts!"
-        print_error "Backend is ready but nginx connection has issues"
-        print_error "Last response: $HEALTH_RESPONSE"
-        print_warning "Deployment completed but nginx connection has issues"
-        break
+
+    log_success "All dependencies available"
+}
+
+# =============================================================================
+# Version Control Functions
+# =============================================================================
+
+handle_version_change() {
+    # Check if we need to change version
+    if [ -n "$FROM_COMMIT" ] || [ -n "$FROM_TAG" ]; then
+        log_section "Version Change"
+
+        # Check for clean working directory
+        if [ -n "$(git status --porcelain)" ]; then
+            log_error "Git working directory is not clean!"
+            log_info "Commit or stash your changes first:"
+            log_info "  git stash           # To temporarily save changes"
+            log_info "  git commit -am 'message'  # To commit changes"
+            exit 1
+        fi
+
+        local target=""
+        if [ -n "$FROM_COMMIT" ]; then
+            target="$FROM_COMMIT"
+            log_step "Switching to commit: $target"
+        else
+            target="$FROM_TAG"
+            log_step "Switching to tag: $target"
+        fi
+
+        # Verify target exists
+        if ! git rev-parse --quiet --verify "$target" > /dev/null 2>&1; then
+            log_error "Invalid commit/tag: $target"
+            log_info "Use 'git log --oneline' to see commits"
+            log_info "Use 'git tag -l' to see tags"
+            exit 1
+        fi
+
+        # Get current state for logging
+        local current_commit=$(git rev-parse --short HEAD)
+        local target_commit=$(git rev-parse --short "$target")
+
+        if [ "$current_commit" != "$target_commit" ]; then
+            log_info "Current: $(git log -1 --pretty=format:'%h - %s' HEAD)"
+            log_info "Target:  $(git log -1 --pretty=format:'%h - %s' $target)"
+
+            # Perform the reset
+            if git reset --hard "$target"; then
+                log_success "Switched to $target"
+                log_info "To return to previous version: git reset --hard $current_commit"
+            else
+                log_error "Failed to switch to $target"
+                exit 1
+            fi
+        else
+            log_info "Already at target commit $target_commit"
+        fi
     fi
-    print_warning "Nginx health check attempt $i failed, retrying in 3 seconds..."
-    sleep 3
-done
+}
 
-# Disable trap (deployment successful)
-trap - ERR
+# =============================================================================
+# Initial Setup Functions
+# =============================================================================
 
-# Step 9: Cleanup and report
-cleanup_backups
+setup_nginx() {
+    log_step "Setting up nginx configuration"
 
-# Make sure we're in the project directory for git commands
-cd "$PROJECT_ROOT"
-NEW_COMMIT=$(git rev-parse HEAD)
+    local nginx_conf="/etc/nginx/sites-available/$APP_PUBLIC_HOSTNAME"
 
-print_status "🎉 Deployment completed successfully!"
-print_status "📸 New commit: $NEW_COMMIT"
-print_status "💾 Backup available at: $BACKUP_PATH"
-print_status "🌐 API is available at: https://api.regarde.bio"
+    sed "s|{{DOMAIN}}|$APP_PUBLIC_HOSTNAME|g; s|{{PORT}}|$APP_PORT|g" \
+        "$DEPLOY_DIR/config/nginx.conf" | sudo tee "$nginx_conf" > /dev/null
 
-# Return to original directory
-cd "$ORIGINAL_DIR"
+    sudo ln -sf "$nginx_conf" "/etc/nginx/sites-enabled/"
+    sudo rm -f /etc/nginx/sites-enabled/default
+
+    if sudo nginx -t && sudo systemctl restart nginx; then
+        log_success "Nginx configured for $APP_PUBLIC_HOSTNAME"
+    else
+        log_error "Failed to configure nginx"
+        exit 1
+    fi
+}
+
+setup_ssl() {
+    log_step "Setting up SSL certificate"
+
+    if [ -z "$SSL_CERTIFICATE_EMAIL" ]; then
+        log_warning "SSL_CERTIFICATE_EMAIL not set, skipping SSL setup"
+        log_info "Set SSL_CERTIFICATE_EMAIL in .env and run again to enable SSL"
+        return
+    fi
+
+    if sudo certbot --nginx -d "$APP_PUBLIC_HOSTNAME" \
+        --non-interactive --agree-tos --email "$SSL_CERTIFICATE_EMAIL"; then
+        log_success "SSL certificate configured"
+    else
+        log_error "Failed to configure SSL certificate"
+        exit 1
+    fi
+}
+
+setup_systemd() {
+    log_step "Setting up systemd service"
+
+    sed "s|{{USER}}|$(whoami)|g; \
+         s|{{PROJECT_ROOT}}|$PROJECT_ROOT|g; \
+         s|{{BUN_PATH}}|$HOME/.bun/bin|g; \
+         s|{{SERVICE_NAME}}|$SERVICE_NAME|g; \
+         s|{{NODE_ENV}}|$NODE_ENV|g" \
+        "$DEPLOY_DIR/config/systemd.service" | \
+        sudo tee "/etc/systemd/system/$SERVICE_NAME.service" > /dev/null
+
+    sudo systemctl daemon-reload
+    sudo systemctl enable "$SERVICE_NAME"
+
+    log_success "Systemd service configured"
+}
+
+# =============================================================================
+# Deployment Functions
+# =============================================================================
+
+install_dependencies() {
+    log_step "Installing dependencies"
+
+    if pnpm install; then
+        log_success "Dependencies installed"
+    else
+        log_error "Failed to install dependencies"
+        exit 1
+    fi
+}
+
+build_project() {
+    log_step "Building project"
+
+    if pnpm build:schema; then
+        log_success "Project built"
+    else
+        log_error "Failed to build project"
+        exit 1
+    fi
+}
+
+restart_service() {
+    log_step "Restarting service"
+
+    if sudo systemctl restart "$SERVICE_NAME"; then
+        log_progress "Waiting ${SERVICE_RESTART_TIMEOUT}s for service to stabilize..."
+        sleep "$SERVICE_RESTART_TIMEOUT"
+        log_success "Service restarted"
+    else
+        log_error "Failed to restart service"
+        exit 1
+    fi
+}
+
+# =============================================================================
+# Health Check Functions
+# =============================================================================
+
+check_service_status() {
+    log_check "Checking service status"
+
+    if sudo systemctl is-active "$SERVICE_NAME" --quiet; then
+        log_status_ok "Service status" "active"
+    else
+        log_status_error "Service status" "inactive"
+        sudo systemctl status "$SERVICE_NAME" --no-pager
+        return 1
+    fi
+}
+
+check_health() {
+    log_check "Testing health endpoint"
+
+    local max_attempts=10
+    for i in $(seq 1 $max_attempts); do
+        if curl -s --max-time "$HEALTH_CHECK_TIMEOUT" "http://localhost:$APP_PORT/health" > /dev/null; then
+            log_status_ok "Health check" "passed"
+            return 0
+        fi
+
+        if [ $i -eq $max_attempts ]; then
+            log_status_warning "Health check" "failed after $max_attempts attempts"
+            log_warning "Service may need more time to start. Check logs:"
+            log_info "sudo journalctl -u $SERVICE_NAME -f"
+            return 0
+        fi
+
+        log_progress "Health check attempt $i failed, retrying in 2 seconds..."
+        sleep 2
+    done
+}
+
+# =============================================================================
+# Main Deployment Logic
+# =============================================================================
+
+main() {
+    # Load configuration
+    load_config
+
+    # Check if this is initial setup or update
+    local is_initial_setup=false
+    if ! sudo systemctl list-unit-files | grep -q "^$SERVICE_NAME.service"; then
+        is_initial_setup=true
+        log_info "Initial setup detected"
+    else
+        log_info "Update deployment detected"
+    fi
+
+    log_section "Dependency Check"
+    check_dependencies
+
+    # Handle version change if requested
+    handle_version_change
+
+    # Initial setup tasks
+    if [ "$is_initial_setup" = true ]; then
+        log_section "Initial Setup"
+        setup_nginx
+        setup_ssl
+        setup_systemd
+    fi
+
+    log_section "Dependencies"
+    install_dependencies
+
+    log_section "Build"
+    build_project
+
+    log_section "Service Management"
+    restart_service
+
+    log_section "Service Status"
+    check_service_status
+
+    # Optional health check
+    if [ "$SKIP_CHECKS" = false ]; then
+        check_health
+    else
+        log_info "Health check skipped (--skip-checks flag set)"
+    fi
+
+    # Success message
+    log_section "Deployment Complete"
+    log_complete "Deployment completed successfully!"
+    log_status_ok "Commit" "$(git rev-parse --short HEAD)"
+    log_status_ok "API URL" "https://$APP_PUBLIC_HOSTNAME"
+
+    echo ""
+    log_info "Useful commands:"
+    log_info "• Check status: sudo systemctl status $SERVICE_NAME"
+    log_info "• View logs: sudo journalctl -u $SERVICE_NAME -f"
+    log_info "• Test API: curl -s https://$APP_PUBLIC_HOSTNAME/health | jq ."
+}
+
+# Error handling
+trap 'log_error "Deployment failed! Check the logs above for details."; exit 1' ERR
+
+# Run main function
+main "$@"

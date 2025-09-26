@@ -1,5 +1,9 @@
+# Systemd service template for Profile Worker
+# This file will be processed by deployment scripts to replace template variables
+# with actual values from the .env configuration
+
 [Unit]
-Description=Nickname Registry API
+Description={{SERVICE_NAME}} API
 After=network.target
 
 [Service]
@@ -10,7 +14,7 @@ ExecStart=/usr/bin/pnpm start:bun
 Environment=PATH={{BUN_PATH}}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 Restart=always
 RestartSec=10
-Environment=NODE_ENV=production
+Environment=NODE_ENV={{NODE_ENV}}
 
 [Install]
 WantedBy=multi-user.target

@@ -1,140 +1,180 @@
-# Nickname Registry - Infrastructure & Deployment
+# Profile Worker - Infrastructure & Deployment
 
-## 🚀 Quick Setup (30 minutes)
+## 🚀 Quick Setup (15 minutes)
 
 ### Requirements
 
-- Ubuntu 20.04+
-
+- Ubuntu 20.04+ VM
 - Domain pointing to VM IP
-
-- Email for SSL certificates
+- Non-root user with sudo access
+- Git repository cloned
 
 ### Fresh VM Setup
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/your-username/onboarding.jazz.git
-cd onboarding.jazz/packages/profile-worker
+cd onboarding.jazz
 
-# 2. Run bootstrap script
-chmod +x deploy/scripts/bootstrap-vm.sh
-./deploy/scripts/bootstrap-vm.sh
+# 2. Run bootstrap script to install dependencies
+chmod +x packages/profile-worker/deploy/scripts/bootstrap-vm.sh
+./packages/profile-worker/deploy/scripts/bootstrap-vm.sh
 
 # 3. Configure environment
-nano .env
+cp packages/profile-worker/deploy/config/.env.template packages/profile-worker/.env
+nano packages/profile-worker/.env  # Edit with your actual values
 
-# 4. Restart service
-sudo systemctl restart nickname-registry
-
-# 5. Verify setup
-curl -s https://api.regarde.bio/health | jq .
+# 4. Deploy the application
+./packages/profile-worker/deploy/scripts/deploy-production.sh
 ```
 
-## Post-Setup Verification
+That's it! The deployment script handles everything else automatically.
 
-### Quick Health Check
+## 🔄 Simplified Deployment Process
 
-```
-# Verify service is running
-sudo systemctl status nickname-registry
+### For Updates (2 commands only!)
 
-# Test API health
-curl -s https://api.regarde.bio/health | jq .
+```bash
+# 1. Pull latest changes
+git pull
 
-# Check SSL certificate
-sudo certbot certificates
-
-# Test management scripts
-./manage-backups.sh list
+# 2. Deploy
+./packages/profile-worker/deploy/scripts/deploy-production.sh
 ```
 
-### Test Management Scripts
+The deployment script automatically:
+- ✅ Validates configuration
+- ✅ Creates backups
+- ✅ Updates dependencies
+- ✅ Builds the project
+- ✅ Restarts services
+- ✅ Runs health checks
+- ✅ Cleans up old backups
 
+### Configuration Management
+
+All configuration is centralized in the `.env` file located in `packages/profile-worker/.env`:
+
+> **Note**: The .env file is located in the profile-worker directory (not the project root) so that Bun can automatically load it at runtime using its native .env support.
+
+```bash
+# View current configuration
+cat packages/profile-worker/.env
+
+# Edit configuration
+nano packages/profile-worker/.env
+
+# Template with all options
+cat packages/profile-worker/deploy/config/.env.template
 ```
-# List backups
-./manage-backups.sh list
 
-# Check backup size
-./manage-backups.sh size
+### Management Commands
 
-# Test deployment (dry run)
-git status  # Should show clean working directory
-```
-
-### Management Commandes
-
-# Deploy new version
-
-`./deploy-production.sh`
-
-# Check status
-
-`sudo systemctl status nickname-registry`
+```bash
+# Check service status
+sudo systemctl status nickname-registry  # (or your SERVICE_NAME)
 
 # View logs
+sudo journalctl -u nickname-registry -f
 
-`sudo journalctl -u nickname-registry -f`
+# Test API health
+curl -s https://your-domain.com/health | jq .
 
-# Rollback if needed
+# List backups
+./packages/profile-worker/deploy/scripts/manage-backups.sh list
 
-`./rollback.sh`
-
-# Manage backups
-
-```
-./manage-backups.sh list
-./manage-backups.sh clean
-./manage-backups.sh size
+# Rollback to previous version
+./packages/profile-worker/deploy/scripts/rollback.sh
 ```
 
-### File Infrastructure
+## 📁 Project Structure
 
-deploy/
+```
+packages/profile-worker/deploy/
 ├── scripts/
-│ ├── bootstrap-vm.sh # VM setup from scratch
-│ ├── deploy-production.sh # Production deployment
-│ ├── rollback.sh # Rollback tool
-│ └── manage-backups.sh # Backup management
+│   ├── bootstrap-vm.sh        # Install system dependencies
+│   ├── deploy-production.sh   # Main deployment script
+│   ├── rollback.sh           # Rollback to previous version
+│   └── manage-backups.sh     # Backup management
 ├── config/
-│ ├── nginx.conf # Nginx configuration
-│ ├── systemd.service # Systemd service template
-│ └── .env.template # Environment template
-└── README.md # This file
-
-### Deployment Checklist
-
+│   ├── nginx.conf            # Nginx template (parameterized)
+│   ├── systemd.service       # Systemd service template
+│   └── .env.template         # Environment configuration template
+└── README.md                 # This documentation
 ```
-VM Setup**
-  - [ ] VM created and accessible via SSH
-  - [ ] Domain DNS pointing to VM IP
-  - [ ] SSH key configured
 
-- [ ] **Initial Setup**
+## ✅ Deployment Checklist
+
+### Initial Setup
+- [ ] **VM Preparation**
+  - [ ] Ubuntu 20.04+ VM created
+  - [ ] Domain DNS pointing to VM IP
+  - [ ] SSH access configured
+
+- [ ] **Repository Setup**
   - [ ] Clone repository: `git clone https://github.com/your-username/onboarding.jazz.git`
-  - [ ] Navigate to project: `cd onboarding.jazz/packages/profile-worker`
-  - [ ] Run bootstrap: `./deploy/scripts/bootstrap-vm.sh`
+  - [ ] Navigate to project: `cd onboarding.jazz`
+  - [ ] Run bootstrap: `./packages/profile-worker/deploy/scripts/bootstrap-vm.sh`
 
 - [ ] **Configuration**
-  - [ ] Edit environment file: `nano .env`
-  - [ ] Restart service: `sudo systemctl restart nickname-registry`
+  - [ ] Copy template: `cp packages/profile-worker/deploy/config/.env.template packages/profile-worker/.env`
+  - [ ] Edit configuration: `nano packages/profile-worker/.env`
+  - [ ] Set required values: `APP_PUBLIC_HOSTNAME`, `SSL_CERTIFICATE_EMAIL`, Jazz credentials
 
-- [ ] **Verification**
-  - [ ] Test API: `curl -s https://api.regarde.bio/health | jq .`
-  - [ ] Check service: `sudo systemctl status nickname-registry`
-  - [ ] Verify SSL: `sudo certbot certificates
-```
+- [ ] **Deployment**
+  - [ ] Run deployment: `./packages/profile-worker/deploy/scripts/deploy-production.sh`
+  - [ ] Verify API: `curl -s https://your-domain.com/health | jq .`
 
-## Troubleshooting
+### Regular Updates
+- [ ] Pull changes: `git pull`
+- [ ] Deploy: `./packages/profile-worker/deploy/scripts/deploy-production.sh`
 
-```
+## 📋 Logging System
+
+All deployment scripts use a consistent logging system that provides clear, color-coded output without emojis for better compatibility:
+
+### Log Levels
+- `[SUCCESS]` - Operations completed successfully (green)
+- `[FAILED]` - Operations that failed (red)
+- `[ERROR]` - Error conditions (red)
+- `[WARNING]` - Warning conditions (yellow)
+- `[INFO]` - Informational messages (cyan)
+- `[STATUS]` - Status updates (yellow)
+- `[CHECK]` - Validation steps (blue)
+- `[STEP]` - Process steps (blue)
+- `[PROGRESS]` - Progress indicators (cyan)
+- `[COMPLETE]` - Completion messages (green)
+- `[DEBUG]` - Debug information (gray)
+
+### Status Indicators
+- `[OK]` - Healthy/working status (green)
+- `[ERROR]` - Error status (red)
+- `[WARN]` - Warning status (yellow)
+- `[MISSING]` - Missing components (red)
+- `[INACTIVE]` - Inactive services (gray)
+- `[UNKNOWN]` - Unknown status (cyan)
+
+This logging system matches the TypeScript Logger class used in other parts of the application for consistency.
+
+## 🔧 Troubleshooting
+
+### Service Issues
+```bash
+# Check service status
+sudo systemctl status nickname-registry  # (or your SERVICE_NAME)
+
+# View recent logs
+sudo journalctl -u nickname-registry -n 50
+
+# Follow logs in real-time
 sudo journalctl -u nickname-registry -f
-sudo systemctl status nickname-registry
+
+# Restart service
+sudo systemctl restart nickname-registry
 ```
 
 ### SSL Certificate Issues
-
-```
+```bash
 # Check certificate status
 sudo certbot certificates
 
@@ -146,9 +186,8 @@ sudo certbot renew --force-renewal
 sudo systemctl reload nginx
 ```
 
-### Nginx Configuration Issues
-
-```
+### Nginx Issues
+```bash
 # Test configuration
 sudo nginx -t
 
@@ -162,59 +201,47 @@ sudo tail -f /var/log/nginx/error.log
 sudo systemctl restart nginx
 ```
 
-`chmod +x deploy/scripts/*.sh` - make all scripts executable
+### Configuration Issues
+```bash
+# Validate .env file
+cat packages/profile-worker/.env
 
-### Environment Issues
+# Check for missing variables
+./packages/profile-worker/deploy/scripts/deploy-production.sh
 
-```
-# Check environment file
-cat .env
-
-# Verify service can read environment
-sudo systemctl cat nickname-registry
-
-# Check project dependencies
-pnpm install
+# Reset configuration from template
+cp packages/profile-worker/deploy/config/.env.template packages/profile-worker/.env
+nano packages/profile-worker/.env
 ```
 
-### Test the Implementation
+### Deployment Issues
+```bash
+# Check script permissions
+ls -la packages/profile-worker/deploy/scripts/
 
-```
-# 1. Verify all scripts are executable
-ls -la deploy/scripts/
+# Test script syntax
+bash -n packages/profile-worker/deploy/scripts/deploy-production.sh
 
-# 2. Test script syntax
-bash -n deploy/scripts/bootstrap-vm.sh
-bash -n deploy/scripts/deploy-production.sh
-bash -n deploy/scripts/rollback.sh
-bash -n deploy/scripts/manage-backups.sh
-
-# 3. Test backup management
-deploy/scripts/manage-backups.sh
-
-# 4. Copy scripts to home directory for easy access
-cp deploy/scripts/deploy-production.sh ~/
-cp deploy/scripts/rollback.sh ~/
-cp deploy/scripts/manage-backups.sh ~/
-chmod +x ~/*.sh
+# Run deployment with verbose output
+bash -x packages/profile-worker/deploy/scripts/deploy-production.sh
 ```
 
-## Advanced Operations
+## 🚀 Advanced Operations
 
-### Manuel Backup Creation
-
-```
+### Manual Backup Creation
+```bash
 # Create manual backup before risky changes
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+SERVICE_NAME=${SERVICE_NAME:-"nickname-registry"}
 mkdir -p ~/api-backups/manual-$TIMESTAMP
 cp -r src/ ~/api-backups/manual-$TIMESTAMP/
 cp package.json ~/api-backups/manual-$TIMESTAMP/
-cp .env ~/api-backups/manual-$TIMESTAMP/
+cp packages/profile-worker/.env ~/api-backups/manual-$TIMESTAMP/
+echo "Manual backup created at: $(date)" > ~/api-backups/manual-$TIMESTAMP/backup_info.txt
 ```
 
 ### Service Management
-
-```
+```bash
 # Enable service (start on boot)
 sudo systemctl enable nickname-registry
 
@@ -228,42 +255,48 @@ sudo systemctl is-enabled nickname-registry
 sudo systemctl cat nickname-registry
 ```
 
-### Update Infrastructure
+### Infrastructure Updates
+```bash
+# Update deployment infrastructure
+git pull
 
+# The deployment script automatically uses the latest configuration templates
+./packages/profile-worker/deploy/scripts/deploy-production.sh
 ```
-# Update deployment scripts
-git pull origin main
-cp deploy/scripts/*.sh ~/
-chmod +x ~/*.sh
 
-# Update service configuration
-sudo cp deploy/config/systemd.service /etc/systemd/system/nickname-registry.service
-sudo systemctl daemon-reload
+### Emergency Procedures
+```bash
+# Quick service restart
 sudo systemctl restart nickname-registry
-```
-
-### Service Down
-
-```
-# Quick restart
-sudo systemctl restart nickname-registry
-
-# If restart fails, check logs
-sudo journalctl -u nickname-registry -n 20
 
 # Emergency rollback
-./rollback.sh
-```
+./packages/profile-worker/deploy/scripts/rollback.sh
 
-### Disk Space Issues
-
-```
-# Check disk usage
+# Check system resources
 df -h
+free -h
+```
 
-# Clean old backups
-./manage-backups.sh clean
+### Maintenance
+```bash
+# Clean old backups (keeps last 5 by default)
+./packages/profile-worker/deploy/scripts/manage-backups.sh clean
 
-# Clear system logs
+# Check backup disk usage
+./packages/profile-worker/deploy/scripts/manage-backups.sh size
+
+# Clear system logs (keep last 30 days)
 sudo journalctl --vacuum-time=30d
 ```
+
+## 🔑 Key Improvements
+
+This refactored deployment system provides:
+
+- **Simplified Process**: Just 2 commands for deployment (`git pull` + `deploy-production.sh`)
+- **Parameterized Configuration**: All domain and service settings in `.env` file
+- **No Script Copying**: Scripts run from their original location
+- **Automatic Setup Detection**: Handles both initial setup and updates
+- **Better Error Handling**: Comprehensive validation and error messages
+- **Centralized Configuration**: Single source of truth for all settings
+- **Backward Compatibility**: Preserves existing functionality while simplifying usage
