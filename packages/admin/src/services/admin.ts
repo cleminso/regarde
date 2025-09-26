@@ -65,19 +65,19 @@ export class AdminService {
       throw new Error(`Failed to start Jazz worker: ${errorMessage}`);
     }
 
-    Logger.success(`Connected with Account ID: ${this.worker.id}`);
+    Logger.success(`Connected with Account ID: ${this.worker.$jazz.id}`);
 
     try {
-      this.loadedWorker = await this.worker.ensureLoaded({
-        resolve: {
-          root: {
-            registry: true,
-            reverseRegistry: true,
-            auditLog: { $each: true },
-            reservedNicknames: { $each: true },
-          },
-        },
-      });
+      this.loadedWorker = await this.worker.$jazz.ensureLoaded({
+              resolve: {
+                root: {
+                  registry: true,
+                  reverseRegistry: true,
+                  auditLog: { $each: true },
+                  reservedNicknames: { $each: true },
+                },
+              },
+            });
 
       if (!this.loadedWorker.root) {
         throw new Error("Worker account root is not available");
@@ -326,7 +326,7 @@ export class AdminService {
     if (!root?.auditLog) return;
 
     while (root.auditLog.length > 0) {
-      root.auditLog.pop();
+      root.auditLog.$jazz.pop();
     }
 
     Logger.info("Audit log cleared");
@@ -466,7 +466,7 @@ export class AdminService {
           issues.push(issue);
 
           if (fix && root.reverseRegistry) {
-            root.reverseRegistry[accountId as string] = nickname;
+            root.reverseRegistry.$jazz.set(accountId as string, nickname);
             fixedIssues.push(`Fixed reverse registry for ${accountId}`);
           }
         }
@@ -483,7 +483,7 @@ export class AdminService {
           issues.push(issue);
 
           if (fix && root.registry) {
-            root.registry[nickname as string] = accountId;
+            root.registry.$jazz.set(nickname as string, accountId);
             fixedIssues.push(`Fixed forward registry for ${nickname}`);
           }
         }

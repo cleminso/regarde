@@ -59,7 +59,7 @@ export class NicknameService implements NicknameServiceInterface {
       delete this.reservedNicknames[nickname];
 
       await this.auditService.logChange(
-        this.worker.id,
+        this.worker.$jazz.id,
         undefined,
         undefined,
         "admin-cli",
@@ -69,8 +69,8 @@ export class NicknameService implements NicknameServiceInterface {
       );
     }
 
-    this.nicknameRegistry[nickname] = accountId;
-    this.reverseNicknameRegistry[accountId] = nickname;
+    this.nicknameRegistry.$jazz.set(nickname, accountId);
+    this.reverseNicknameRegistry.$jazz.set(accountId, nickname);
 
     await this.auditService.logChange(accountId, undefined, nickname);
 
@@ -96,9 +96,10 @@ export class NicknameService implements NicknameServiceInterface {
       );
     }
 
-    this.nicknameRegistry[nickname] = accountId;
-    delete this.reverseNicknameRegistry[oldAccountId];
-    this.reverseNicknameRegistry[accountId] = nickname;
+    this.nicknameRegistry.$jazz.set(nickname, accountId);
+    this.reserveNicknameRegistry.$jazz.delete(oldAccountId);
+    // delete this.reverseNicknameRegistry[oldAccountId];
+    this.reverseNicknameRegistry.$jazz.set(accountId, nickname);
 
     await this.auditService.logChange(accountId, nickname, nickname);
 
@@ -116,8 +117,8 @@ export class NicknameService implements NicknameServiceInterface {
 
     const accountId = this.nicknameRegistry[nickname];
 
-    delete this.nicknameRegistry[nickname];
-    delete this.reverseNicknameRegistry[accountId];
+    this.nicknameRegistry.$jazz.delete(nickname);
+    this.reverseNicknameRegistry.$jazz.delete(accountId);
 
     await this.auditService.logChange(accountId, nickname, undefined);
 

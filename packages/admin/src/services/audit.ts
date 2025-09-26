@@ -48,7 +48,7 @@ export class AuditService implements AuditServiceInterface {
           jazzAccountId,
           oldNickname: oldNickname || undefined,
           newNickname: newNickname || undefined,
-          changedBy: this.worker.id,
+          changedBy: this.worker.$jazz.id,
           source,
           action: entryAction,
           reservationReason: reservationReason || undefined,
@@ -57,7 +57,7 @@ export class AuditService implements AuditServiceInterface {
         { owner: this.worker },
       );
 
-      this.auditLog.push(entry);
+      this.auditLog.$jazz.push(entry);
       Logger.debug(
         `Audit entry created successfully, total entries: ${this.auditLog.length}`,
       );
@@ -78,7 +78,7 @@ export class AuditService implements AuditServiceInterface {
 
       for (const entry of this.auditLog) {
         if (entry && typeof entry === "object") {
-          entries.push(entry as RegistryAuditEntry);
+          entries.$jazz.push(entry as RegistryAuditEntry);
         }
       }
 
@@ -109,7 +109,7 @@ export class AuditService implements AuditServiceInterface {
           "jazzAccountId" in entry &&
           entry.jazzAccountId === accountId
         ) {
-          entries.push(entry as RegistryAuditEntry);
+          entries.$jazz.push(entry as RegistryAuditEntry);
         }
       }
 
@@ -141,7 +141,7 @@ export class AuditService implements AuditServiceInterface {
             auditEntry.oldNickname === nickname ||
             auditEntry.newNickname === nickname
           ) {
-            entries.push(auditEntry);
+            entries.$jazz.push(auditEntry);
           }
         }
       }
@@ -173,7 +173,7 @@ export class AuditService implements AuditServiceInterface {
           "source" in entry &&
           entry.source === source
         ) {
-          entries.push(entry as RegistryAuditEntry);
+          entries.$jazz.push(entry as RegistryAuditEntry);
         }
       }
 
@@ -197,7 +197,7 @@ export class AuditService implements AuditServiceInterface {
     Logger.debug("Clearing corrupted audit log entries...");
 
     while (this.auditLog.length > 0) {
-      this.auditLog.pop();
+      this.auditLog.$jazz.pop();
     }
 
     Logger.debug("Audit log cleared");

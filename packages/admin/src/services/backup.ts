@@ -117,16 +117,16 @@ export class BackupService implements BackupServiceInterface {
     }
 
     for (const [nickname, accountId] of Object.entries(backupData.registry)) {
-      this.nicknameRegistry[nickname] = accountId;
+      this.nicknameRegistry.$jazz.set(nickname, accountId);
     }
     for (const [accountId, nickname] of Object.entries(
       backupData.reverseRegistry,
     )) {
-      this.reverseNicknameRegistry[accountId] = nickname;
+      this.reverseNicknameRegistry.$jazz.set(accountId, nickname);
     }
 
     await this.auditService.logChange(
-      this.worker.id,
+      this.worker.$jazz.id,
       undefined,
       undefined,
       "admin-cli",
@@ -168,7 +168,7 @@ export class BackupService implements BackupServiceInterface {
     }
 
     await this.auditService.logChange(
-      this.worker.id,
+      this.worker.$jazz.id,
       undefined,
       undefined,
       "admin-cli",

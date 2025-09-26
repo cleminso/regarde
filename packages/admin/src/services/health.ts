@@ -181,7 +181,7 @@ export class HealthService implements HealthServiceInterface {
         const account = await OnboardingAccount.load(targetAccountId, {
           resolve: {
             profile: {
-              "regarde.dev": {
+              "regarde.bio": {
                 userHandle: true,
               },
             },
@@ -198,7 +198,7 @@ export class HealthService implements HealthServiceInterface {
           report.issues.push(`Account "${targetAccountId}" has no profile`);
         } else {
           const profileData = await JazzAppProfile.load(
-            account.profile["regarde.dev"],
+            account.profile["regarde.bio"],
             {
               resolve: {
                 userHandle: true,
@@ -285,13 +285,13 @@ export class HealthService implements HealthServiceInterface {
 
     const registryAccountId = this.nicknameRegistry[targetNickname];
     if (registryAccountId !== targetAccountId) {
-      this.nicknameRegistry[targetNickname] = targetAccountId;
+      this.nicknameRegistry.$jazz.set(targetNickname, targetAccountId);
       changes.push(`Updated registry: ${targetNickname} → ${targetAccountId}`);
     }
 
     const reverseNickname = this.reverseNicknameRegistry[targetAccountId];
     if (reverseNickname !== targetNickname) {
-      this.reverseNicknameRegistry[targetAccountId] = targetNickname;
+      this.reverseNicknameRegistry.$jazz.set(targetAccountId, targetNickname);
       changes.push(
         `Updated reverse registry: ${targetAccountId} → ${targetNickname}`,
       );

@@ -142,24 +142,24 @@ export class ReservationService implements ReservationServiceInterface {
       }
 
       const reservationEntry = ReservationEntry.create({
-        reservedBy: this.worker.id,
+        reservedBy: this.worker.$jazz.id,
         reservedAt: Date.now(),
         reason: reason || undefined,
         category,
       });
 
-      this.reservedNicknames[nickname] = reservationEntry;
+      this.reservedNicknames.$jazz.set(nickname, reservationEntry);
 
       const reservation: ReservationDetails = {
         nickname,
-        reservedBy: this.worker.id,
+        reservedBy: this.worker.$jazz.id,
         reservedAt: Date.now(),
         reason,
         category,
       };
 
       await this.auditService.logChange(
-        this.worker.id,
+        this.worker.$jazz.id,
         undefined,
         undefined,
         "admin-cli",
@@ -226,7 +226,7 @@ export class ReservationService implements ReservationServiceInterface {
       delete this.reservedNicknames[nickname];
 
       await this.auditService.logChange(
-        this.worker.id,
+        this.worker.$jazz.id,
         undefined,
         undefined,
         "admin-cli",

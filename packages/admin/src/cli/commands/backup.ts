@@ -7,12 +7,14 @@ export const backupCommands: ToolConfig[] = [
     name: "download-registries",
     description: "Export registries as JSON backup",
     flags: [],
+
     handler: async (ctx) => {
-      return withAdminService(async (admin) => {
+      await withAdminService(async (admin) => {
         const backupFile = await admin.downloadRegistries();
         Logger.success(`Registries exported to: ${backupFile}`);
         return { backupFile };
       });
+      process.exit(1);
     },
   },
 

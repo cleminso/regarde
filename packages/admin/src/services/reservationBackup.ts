@@ -147,7 +147,7 @@ export class ReservationBackupService
             | "custom",
         });
 
-        this.reservedNicknames[nickname] = reservationEntry;
+        this.reservedNicknames.$jazz.set(nickname, reservationEntry);
         restoredCount++;
       } catch (error) {
         Logger.warning(
