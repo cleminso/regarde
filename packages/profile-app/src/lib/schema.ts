@@ -1,1 +1,1 @@
-export * from '@onboarding.jazz/shared-schemas';
+export * from '@regarde/shared-schemas';

@@ -1,4 +1,4 @@
-import { SocialLinks } from '@onboarding.jazz/shared-schemas';
+import { SocialLinks } from '@regarde/shared-schemas';
 import { logger } from '../utils/logger';
 import { BaseHookProps } from './types';
 

@@ -1,4 +1,4 @@
-import { UserHandle } from "@onboarding.jazz/shared-schemas/nickname";
+import { UserHandle } from "@regarde/shared-schemas/nickname";
 
 /**
  * Validation utilities for nicknames and account IDs

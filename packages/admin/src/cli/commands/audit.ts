@@ -1,7 +1,7 @@
 import { withAdminService } from "../types.js";
 import { type ToolConfig } from "@alcyone-labs/arg-parser";
 import { Logger } from "../../utils/logger.js";
-import { type RegistryAuditEntry } from "@onboarding.jazz/shared-schemas";
+import { type RegistryAuditEntry } from "@regarde/shared-schemas";
 
 export const auditCommands: ToolConfig[] = [
   {

@@ -12,7 +12,7 @@
     "resolveJsonModule": true,
     "baseUrl": "../../",
     "paths": {
-      "@onboarding.jazz/shared-schemas": ["packages/shared-schemas/src"]
+      "@regarde/shared-schemas": ["packages/shared-schemas/src"]
     }
   },
   "include": ["src/**/*.ts"],

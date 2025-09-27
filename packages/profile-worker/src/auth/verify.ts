@@ -1,4 +1,4 @@
-import { RegistrationKey } from "@onboarding.jazz/shared-schemas/profile";
+import { RegistrationKey } from "@regarde/shared-schemas/profile";
 
 export interface VerificationResult {
   isValid: boolean;

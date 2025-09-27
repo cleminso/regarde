@@ -1,4 +1,4 @@
-import { NowPage } from '@onboarding.jazz/shared-schemas';
+import { NowPage } from '@regarde/shared-schemas';
 import { useCallback } from 'react';
 
 import { BaseHookProps } from './types';

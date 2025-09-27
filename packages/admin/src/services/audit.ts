@@ -4,7 +4,7 @@ import {
   RegistryWorkerAccount,
   RegistryAuditEntry,
   RegistryAuditLog,
-} from "@onboarding.jazz/shared-schemas";
+} from "@regarde/shared-schemas";
 import { AuditServiceInterface } from "../types/services.js";
 import { Logger } from "../utils/logger.js";
 

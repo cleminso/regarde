@@ -1,6 +1,6 @@
 # Jazz.tools Development Context
 
-Quick reference for LLM assistance with the onboarding.jazz project.
+Quick reference for LLM assistance with the regarde project.
 
 ## 📁 Project Structure
 
@@ -44,10 +44,7 @@ packages/
 
 ```typescript
 import { useAccount } from "jazz-tools/react";
-import {
-  OnboardingAccount,
-  JazzAppProfile,
-} from "@onboarding.jazz/shared-schemas";
+import { OnboardingAccount, JazzAppProfile } from "@regarde/shared-schemas";
 ```
 
 ### Worker Side

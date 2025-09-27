@@ -93,16 +93,16 @@ cd "$PROJECT_ROOT"
 load_config() {
     log_step "Loading configuration"
 
-    if [ ! -f .env ]; then
-        log_error ".env file not found in profile-worker directory!"
-        log_info "Copy the template: cp deploy/config/.env.template .env"
-        log_info "Then edit .env with your actual values"
+    if [ ! -f packages/profile-worker/.env ]; then
+        log_error ".env file not found in packages/profile-worker/ directory!"
+        log_info "Copy the template: cp packages/profile-worker/deploy/config/.env.template packages/profile-worker/.env"
+        log_info "Then edit packages/profile-worker/.env with your actual values"
         exit 1
     fi
 
     # Load environment variables
     set -a
-    source .env
+    source packages/profile-worker/.env
     set +a
 
     # Required variables
@@ -266,6 +266,7 @@ setup_systemd() {
 
     sed "s|{{USER}}|$(whoami)|g; \
          s|{{PROJECT_ROOT}}|$PROJECT_ROOT|g; \
+         s|{{PACKAGE_ROOT}}|$PACKAGE_ROOT|g; \
          s|{{BUN_PATH}}|$HOME/.bun/bin|g; \
          s|{{SERVICE_NAME}}|$SERVICE_NAME|g; \
          s|{{NODE_ENV}}|$NODE_ENV|g" \
@@ -296,7 +297,7 @@ install_dependencies() {
 build_project() {
     log_step "Building project"
 
-    if pnpm build:schema; then
+    if pnpm --filter @regarde/profile-worker build:schema; then
         log_success "Project built"
     else
         log_error "Failed to build project"

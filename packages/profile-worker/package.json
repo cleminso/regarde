@@ -1,12 +1,12 @@
 {
-  "name": "@onboarding.jazz/profile-worker",
+  "name": "@regarde/profile-worker",
   "version": "0.1.0",
   "description": "Jazz.tool worker for nickname registration.",
   "main": "dist/index.js",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cleminso/onboarding.jazz.git",
+    "url": "https://github.com/cleminso/regarde.git",
     "directory": "packages/profile-worker"
   },
   "scripts": {
@@ -31,7 +31,7 @@
     "@hono/node-server": "^1.19.0",
     "@hono/swagger-ui": "^0.4.1",
     "@hono/zod-openapi": "^0.16.4",
-    "@onboarding.jazz/shared-schemas": "workspace:*",
+    "@regarde/shared-schemas": "workspace:*",
     "dotenv": "^16.6.1",
     "hono": "^4.9.4",
     "jazz-tools": "catalog:",

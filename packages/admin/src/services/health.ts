@@ -7,7 +7,7 @@ import {
   ReservedNicknamesRegistry,
   RegistryAuditLog,
   JazzAppProfile,
-} from "@onboarding.jazz/shared-schemas";
+} from "@regarde/shared-schemas";
 import {
   HealthServiceInterface,
   HealthReport,

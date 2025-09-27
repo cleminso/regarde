@@ -7,7 +7,7 @@ import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { startWorker } from "jazz-tools/worker";
 
-import { RegistryWorkerAccount } from "@onboarding.jazz/shared-schemas/registry";
+import { RegistryWorkerAccount } from "@regarde/shared-schemas/registry";
 
 import { rateLimit } from "./middleware/rateLimit.js";
 

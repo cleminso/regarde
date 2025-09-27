@@ -13,8 +13,8 @@
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-username/onboarding.jazz.git
-cd onboarding.jazz
+git clone https://github.com/your-username/regarde.git
+cd regarde
 
 # 2. Run bootstrap script to install dependencies
 chmod +x packages/profile-worker/deploy/scripts/bootstrap-vm.sh
@@ -43,6 +43,7 @@ git pull
 ```
 
 The deployment script automatically:
+
 - ✅ Validates configuration
 - ✅ Creates backups
 - ✅ Updates dependencies
@@ -106,14 +107,15 @@ packages/profile-worker/deploy/
 ## ✅ Deployment Checklist
 
 ### Initial Setup
+
 - [ ] **VM Preparation**
   - [ ] Ubuntu 20.04+ VM created
   - [ ] Domain DNS pointing to VM IP
   - [ ] SSH access configured
 
 - [ ] **Repository Setup**
-  - [ ] Clone repository: `git clone https://github.com/your-username/onboarding.jazz.git`
-  - [ ] Navigate to project: `cd onboarding.jazz`
+  - [ ] Clone repository: `git clone https://github.com/your-username/regarde.git`
+  - [ ] Navigate to project: `cd regarde`
   - [ ] Run bootstrap: `./packages/profile-worker/deploy/scripts/bootstrap-vm.sh`
 
 - [ ] **Configuration**
@@ -126,6 +128,7 @@ packages/profile-worker/deploy/
   - [ ] Verify API: `curl -s https://your-domain.com/health | jq .`
 
 ### Regular Updates
+
 - [ ] Pull changes: `git pull`
 - [ ] Deploy: `./packages/profile-worker/deploy/scripts/deploy-production.sh`
 
@@ -134,6 +137,7 @@ packages/profile-worker/deploy/
 All deployment scripts use a consistent logging system that provides clear, color-coded output without emojis for better compatibility:
 
 ### Log Levels
+
 - `[SUCCESS]` - Operations completed successfully (green)
 - `[FAILED]` - Operations that failed (red)
 - `[ERROR]` - Error conditions (red)
@@ -147,6 +151,7 @@ All deployment scripts use a consistent logging system that provides clear, colo
 - `[DEBUG]` - Debug information (gray)
 
 ### Status Indicators
+
 - `[OK]` - Healthy/working status (green)
 - `[ERROR]` - Error status (red)
 - `[WARN]` - Warning status (yellow)
@@ -159,6 +164,7 @@ This logging system matches the TypeScript Logger class used in other parts of t
 ## 🔧 Troubleshooting
 
 ### Service Issues
+
 ```bash
 # Check service status
 sudo systemctl status nickname-registry  # (or your SERVICE_NAME)
@@ -174,6 +180,7 @@ sudo systemctl restart nickname-registry
 ```
 
 ### SSL Certificate Issues
+
 ```bash
 # Check certificate status
 sudo certbot certificates
@@ -187,6 +194,7 @@ sudo systemctl reload nginx
 ```
 
 ### Nginx Issues
+
 ```bash
 # Test configuration
 sudo nginx -t
@@ -202,6 +210,7 @@ sudo systemctl restart nginx
 ```
 
 ### Configuration Issues
+
 ```bash
 # Validate .env file
 cat packages/profile-worker/.env
@@ -215,6 +224,7 @@ nano packages/profile-worker/.env
 ```
 
 ### Deployment Issues
+
 ```bash
 # Check script permissions
 ls -la packages/profile-worker/deploy/scripts/
@@ -229,6 +239,7 @@ bash -x packages/profile-worker/deploy/scripts/deploy-production.sh
 ## 🚀 Advanced Operations
 
 ### Manual Backup Creation
+
 ```bash
 # Create manual backup before risky changes
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
@@ -241,6 +252,7 @@ echo "Manual backup created at: $(date)" > ~/api-backups/manual-$TIMESTAMP/backu
 ```
 
 ### Service Management
+
 ```bash
 # Enable service (start on boot)
 sudo systemctl enable nickname-registry
@@ -256,6 +268,7 @@ sudo systemctl cat nickname-registry
 ```
 
 ### Infrastructure Updates
+
 ```bash
 # Update deployment infrastructure
 git pull
@@ -265,6 +278,7 @@ git pull
 ```
 
 ### Emergency Procedures
+
 ```bash
 # Quick service restart
 sudo systemctl restart nickname-registry
@@ -278,6 +292,7 @@ free -h
 ```
 
 ### Maintenance
+
 ```bash
 # Clean old backups (keeps last 5 by default)
 ./packages/profile-worker/deploy/scripts/manage-backups.sh clean

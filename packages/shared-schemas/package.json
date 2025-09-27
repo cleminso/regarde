@@ -1,12 +1,12 @@
 {
-  "name": "@onboarding.jazz/shared-schemas",
+  "name": "@regarde/shared-schemas",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cleminso/onboarding.jazz.git",
+    "url": "https://github.com/cleminso/regarde.git",
     "directory": "packages/shared-schemas"
   },
   "version": "0.1.0",
-  "description": "Shared Jazz schemas for onboarding application",
+  "description": "Shared Jazz schemas for regarde application",
   "main": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",

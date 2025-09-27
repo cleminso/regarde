@@ -5,11 +5,11 @@ import { verifyRegistrationKey } from "../auth/verify.js";
 import {
   setNicknameFromRegistry,
   deactivate,
-} from "@onboarding.jazz/shared-schemas/nickname";
+} from "@regarde/shared-schemas/nickname";
 import {
   JazzAppProfile,
   OnboardingAccount,
-} from "@onboarding.jazz/shared-schemas/profile";
+} from "@regarde/shared-schemas/profile";
 
 export const registerRoute = createRoute({
   method: "post",

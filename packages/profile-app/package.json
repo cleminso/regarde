@@ -1,11 +1,11 @@
 {
-  "name": "@onboarding.jazz/profile-app",
+  "name": "@regarde/profile-app",
   "private": true,
   "version": "0.0.83",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cleminso/onboarding.jazz.git",
+    "url": "https://github.com/cleminso/regarde.git",
     "directory": "packages/profile-app"
   },
   "scripts": {
@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@clerk/clerk-react": "catalog:",
-    "@onboarding.jazz/shared-schemas": "workspace:*",
+    "@regarde/shared-schemas": "workspace:*",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dialog": "^1.1.15",

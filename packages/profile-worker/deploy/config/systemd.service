@@ -10,7 +10,7 @@ After=network.target
 Type=simple
 User={{USER}}
 WorkingDirectory={{PROJECT_ROOT}}
-ExecStart=/usr/bin/pnpm start:bun
+ExecStart=/usr/bin/pnpm --filter @regarde/profile-worker start:bun
 Environment=PATH={{BUN_PATH}}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 Restart=always
 RestartSec=10

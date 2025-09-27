@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 import isCI from "is-ci";
 
 /**
- * E2E test configuration for onboarding.jazz application
+ * E2E test configuration for regarde application
  * Following Jazz.tools ecosystem patterns for reliable E2E testing
  */
 export default defineConfig({
@@ -22,22 +22,22 @@ export default defineConfig({
   use: {
     /* Base URL for the application */
     baseURL: "http://localhost:5173/",
-    
+
     /* Collect trace when retrying failed tests */
     trace: "on-first-retry",
-    
+
     /* Screenshot on failure */
     screenshot: "only-on-failure",
-    
+
     /* Video recording for debugging */
     video: "retain-on-failure",
-    
+
     /* Permissions needed for clipboard operations */
     permissions: ["clipboard-read", "clipboard-write"],
-    
+
     /* Timeout for individual actions */
     actionTimeout: 10000,
-    
+
     /* Timeout for navigation */
     navigationTimeout: 30000,
   },

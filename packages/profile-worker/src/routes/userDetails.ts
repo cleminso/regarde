@@ -8,7 +8,7 @@ import { ErrorResponseSchema } from "../schemas/common.js";
 import {
   JazzAppProfile,
   OnboardingAccount,
-} from "@onboarding.jazz/shared-schemas/profile";
+} from "@regarde/shared-schemas/profile";
 import { Loaded } from "jazz-tools";
 
 export const userDetailsRoute = createRoute({
