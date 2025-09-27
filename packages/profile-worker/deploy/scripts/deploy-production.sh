@@ -73,7 +73,9 @@ done
 # Get script directory and project paths
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 DEPLOY_DIR="$(dirname "$SCRIPT_DIR")"
-PROJECT_ROOT="$(dirname "$DEPLOY_DIR")"
+PACKAGE_ROOT="$(dirname "$DEPLOY_DIR")"
+PROJECT_ROOT="$(dirname "$(dirname "$PACKAGE_ROOT")")"
+
 
 # Load logging library
 source "$SCRIPT_DIR/logger.sh"
