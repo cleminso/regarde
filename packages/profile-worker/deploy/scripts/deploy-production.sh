@@ -111,7 +111,6 @@ load_config() {
         "JAZZ_WORKER_ACCOUNT"
         "JAZZ_WORKER_SECRET"
         "JAZZ_SYNC_SERVER_URL"
-        "ACCOUNT_ADMIN_ID"
     )
 
     # Optional variables with defaults

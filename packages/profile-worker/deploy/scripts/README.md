@@ -60,9 +60,11 @@ git commit -m "Fix bug in profile handler"
 ## Supporting Scripts
 
 ### bootstrap-vm.sh
+
 Initial VM setup - installs required dependencies (nginx, certbot, Node.js, pnpm, etc.)
 
 ### logger.sh
+
 Logging utilities used by other scripts for consistent output formatting.
 
 ## Configuration
@@ -73,7 +75,7 @@ All scripts require a `.env` file in the profile-worker directory with the follo
 - `JAZZ_WORKER_ACCOUNT` - Jazz worker account ID
 - `JAZZ_WORKER_SECRET` - Jazz worker secret key
 - `JAZZ_SYNC_SERVER_URL` - Jazz sync server URL
-- `ACCOUNT_ADMIN_ID` - Account admin ID
+
 - `SSL_CERTIFICATE_EMAIL` - (Optional) Email for SSL certificate
 
 ## Best Practices
