@@ -12,5 +12,8 @@ export const logger = {
     if (import.meta.env.DEV) {
       console.debug(`[DEBUG] ${message}`, ...args);
     }
+  },
+  success: (message: string, ...args: any[]) => {
+    console.log(`[SUCCESS] ${message}`, ...args);
   }
 };

@@ -47,7 +47,34 @@
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+### I. Test Business Logic, Trust the Framework
+- [ ] Feature plan includes test strategy focused on business logic only
+- [ ] No tests planned for Jazz sync, React rendering, or Zod parsing
+- [ ] Test naming follows: `should [business outcome] when [business condition]`
+- [ ] Tests located in `__tests__/` folders next to implementation
+
+### II. Jazz Architecture Discipline
+- [ ] Authentication/permissions use `OnboardingAccount` context
+- [ ] Profile data access uses `JazzAppProfile` or `useMyJazz()` hook
+- [ ] Worker endpoints specify `{ loadAs: worker }` pattern
+- [ ] No schema definitions outside `packages/shared-schemas/`
+
+### III. Type Safety & Validation
+- [ ] All public functions have explicit return types
+- [ ] No `any` types used (use `unknown` or proper types)
+- [ ] External data validated with Zod schemas
+- [ ] Error handling uses specific error types at boundaries
+
+### IV. Monorepo Package Boundaries
+- [ ] Changes respect package boundaries (no circular deps)
+- [ ] Schema changes only in `@regarde/shared-schemas`
+- [ ] Dependencies declared explicitly in `package.json`
+- [ ] Build order respects dependency graph
+
+### V. Code Style & Consistency
+- [ ] Import order: framework → workspace → aliased → relative
+- [ ] Naming: PascalCase (components/types), camelCase (functions), UPPER_SNAKE_CASE (constants)
+- [ ] Code will pass `biome check` before commit
 
 ## Project Structure
 
@@ -216,4 +243,4 @@ directories captured above]
 - [ ] Complexity deviations documented
 
 ---
-*Based on Constitution v2.1.1 - See `/memory/constitution.md`*
+*Based on Constitution v1.0.0 - See `.specify/memory/constitution.md`*
