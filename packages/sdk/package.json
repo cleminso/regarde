@@ -44,6 +44,11 @@
     "vitest": "catalog:"
   },
   "exports": {
+    "./auth": {
+      "types": "./dist/auth/index.d.ts",
+      "import": "./dist/auth.js",
+      "require": "./dist/auth.cjs"
+    },
     "./react": {
       "types": "./dist/react/index.d.ts",
       "import": "./dist/react.js",
@@ -53,6 +58,11 @@
       "types": "./dist/preact/index.d.ts",
       "import": "./dist/preact.js",
       "require": "./dist/preact.cjs"
+    },
+    "./verify": {
+      "types": "./dist/verify/index.d.ts",
+      "import": "./dist/verify.js",
+      "require": "./dist/verify.cjs"
     }
   },
   "files": [

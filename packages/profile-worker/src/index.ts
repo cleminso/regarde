@@ -19,6 +19,7 @@ import { registerRoute, registerHandler } from "./routes/register.js";
 import { userDetailsRoute, userDetailsHandler } from "./routes/userDetails.js";
 import { profilePageRoute, profilePageHandler } from "./routes/profilePage.js";
 import { avatarRoute, avatarHandler } from "./routes/avatar.js";
+import { verifyRoute, verifyHandler } from "./routes/verify.js";
 import { Hono } from "hono";
 
 const PORT = process.env.PORT || 3000;
@@ -162,14 +163,23 @@ async function main() {
       description:
         "API for managing nickname registration in Jazz.tools. This service provides endpoints for checking nickname availability and managing nickname registration, updates, and deletions.",
     },
-    servers: [
-      {
-        url: PUBLIC_BASE_URL,
-        description: IS_PRODUCTION_LIKE
-          ? "Production Server (via Nginx/HTTPS)"
-          : "Local Development Server",
-      },
-    ],
+    servers: IS_PRODUCTION_LIKE
+      ? [
+          {
+            url: "https://api.regarde.bio",
+            description: "Production Server - Nickname Registry (api.regarde.bio)",
+          },
+          {
+            url: "https://auth.regarde.dev",
+            description: "Production Server - Authentication (auth.regarde.dev)",
+          },
+        ]
+      : [
+          {
+            url: PUBLIC_BASE_URL,
+            description: "Local Development Server",
+          },
+        ],
   });
 
   app.get("/ui", swaggerUI({ url: `${PUBLIC_BASE_URL}/doc` }));
@@ -240,10 +250,20 @@ async function main() {
     }
   };
 
+  const safeVerifyHandler = async (c: any) => {
+    try {
+      return await verifyHandler(worker)(c);
+    } catch (error) {
+      console.error("Error in verifyHandler:", error);
+      return c.json({ error: "Internal server error" }, 500);
+    }
+  };
+
   app.openapi(checkAvailabilityRoute, safeCheckAvailabilityHandler);
   app.openapi(registerRoute, safeRegisterHandler);
   app.openapi(userDetailsRoute, safeUserDetailsHandler);
   app.openapi(avatarRoute, safeAvatarHandler);
+  app.openapi(verifyRoute, safeVerifyHandler);
 
   // Register non-OpenAPI specific routes BEFORE catch-all
   app.get("/health", (c) => {

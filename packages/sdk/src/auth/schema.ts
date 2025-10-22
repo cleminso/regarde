@@ -1,5 +1,8 @@
 import { co, z } from "jazz-tools";
 
+/**
+ * -- TODO: Document (à fond) how to use; instance in a schema; load; what not to do...
+ */
 export const RegistrationKey = co
   .map({
     key: z.string(),
@@ -14,3 +17,5 @@ export const RegistrationKey = co
       registrationKey.$jazz.set("expiresAt", 0);
     }
   });
+
+export type RegistrationKeyLoaded = co.loaded<typeof RegistrationKey>;

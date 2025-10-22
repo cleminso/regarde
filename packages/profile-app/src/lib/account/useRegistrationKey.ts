@@ -1,7 +1,7 @@
 import { Loaded } from 'jazz-tools';
 import { useCallback } from 'react';
 
-import { OnboardingAccount } from '../schema';
+import { OnboardingAccount, RegistrationKey } from '../schema';
 import { useMyJazz } from './useMyJazz';
 
 export type GetValidKeyFunctionOutput = Promise<{
@@ -50,19 +50,30 @@ export async function storeRegistrationKey(
     },
   });
 
+  const targetAuth = account.root['auth.regarde.bio'];
+  return await updateRegistrationKey({
+    loadedRegistrationKeyCoMap:  targetAuth
+
+  })
+}
+
+export async function updateRegistrationKey({
+  loadedRegistrationKeyCoMap
+}: {
+  loadedRegistrationKeyCoMap: Loaded<typeof RegistrationKey>
+}) {
   const key = generateRegistrationKey();
 
   try {
-    const targetAuth = account.root['auth.regarde.bio'];
-    if (!targetAuth) {
+    if (!loadedRegistrationKeyCoMap) {
       console.error('No auth target available after ensureLoaded');
       return null;
     }
 
-    targetAuth.$jazz.set('key', key);
-    targetAuth.$jazz.set('expiresAt', Date.now() + KEY_LIFETIME_SECONDS * 1000);
+    loadedRegistrationKeyCoMap.$jazz.set('key', key);
+    loadedRegistrationKeyCoMap.$jazz.set('expiresAt', Date.now() + KEY_LIFETIME_SECONDS * 1000);
 
-    await account.$jazz.waitForSync();
+    await loadedRegistrationKeyCoMap.$jazz.waitForSync();
     return key;
   } catch (error) {
     console.error('Failed to store registration key:', error);

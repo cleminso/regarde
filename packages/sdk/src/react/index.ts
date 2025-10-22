@@ -1,2 +1,1 @@
-export { useRegistrationKey } from "./useRegistrationKey";
-
+export { useRegistrationKey, type UseRegistrationKeyResult } from "./useRegistrationKey";
