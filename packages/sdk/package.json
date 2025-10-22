@@ -1,0 +1,61 @@
+{
+  "name": "@regarde/sdk",
+  "version": "1.0.0",
+  "description": "Regarde SDK for React and Preact with registration key logic",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cleminso/regarde.git",
+    "directory": "packages/sdk"
+  },
+  "scripts": {
+    "build": "pnpm clean && vite build",
+    "dev": "vite build --watch",
+    "clean": "rm -rf dist",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "keywords": ["regarde", "sdk", "react", "preact", "jazz-tools"],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.16.1",
+  "dependencies": {
+    "jazz-tools": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "preact": "^10.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "preact": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "react": "catalog:",
+    "preact": "^10.27.2",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
+  },
+  "exports": {
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react.js",
+      "require": "./dist/react.cjs"
+    },
+    "./preact": {
+      "types": "./dist/preact/index.d.ts",
+      "import": "./dist/preact.js",
+      "require": "./dist/preact.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ]
+}
