@@ -35,7 +35,7 @@ pnpm --filter profile-app format-and-lint:fix   # Auto-fix code style
 ```typescript
 // Order: builtins, third-party, absolute imports, relative imports
 import { useAccount } from "jazz-tools/react";  // Framework first
-import { OnboardingAccount } from "@regarde/shared-schemas";  // Workspace next
+import { OnboardingAccount } from "@regarde-dev/shared-schemas";  // Workspace next
 import { useMyJazz } from "#/lib/account/useMyJazz";  // Aliased imports
 import { MyComponent } from "./MyComponent";  // Relative last
 ```

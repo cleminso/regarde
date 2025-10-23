@@ -67,7 +67,7 @@
 
 ### IV. Monorepo Package Boundaries
 - [ ] Changes respect package boundaries (no circular deps)
-- [ ] Schema changes only in `@regarde/shared-schemas`
+- [ ] Schema changes only in `@regarde-dev/shared-schemas`
 - [ ] Dependencies declared explicitly in `package.json`
 - [ ] Build order respects dependency graph
 

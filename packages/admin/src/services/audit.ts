@@ -4,7 +4,7 @@ import {
   RegistryWorkerAccount,
   RegistryAuditEntry,
   RegistryAuditLog,
-} from "@regarde/shared-schemas";
+} from "@regarde-dev/shared-schemas";
 import { AuditServiceInterface } from "../types/services.js";
 import { Logger } from "../utils/logger.js";
 

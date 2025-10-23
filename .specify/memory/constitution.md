@@ -116,7 +116,7 @@ Rationale for Version 1.1.0:
 
 ### IV. Monorepo Package Boundaries
 
-**Rule**: Maintain clear package boundaries in the pnpm workspace. Shared schemas live in `@regarde/shared-schemas`. Client code in `@regarde/profile-app`. Worker code in `@regarde/profile-worker`. Admin tooling in `@regarde/admin`. Packages MUST declare dependencies explicitly. Use pnpm workspace catalog for shared dependency versions.
+**Rule**: Maintain clear package boundaries in the pnpm workspace. Shared schemas live in `@regarde-dev/shared-schemas`. Client code in `@regarde-dev/profile-app`. api.regarde.bio server code in `@regarde-dev/api.regarde.bio`, auth.regarde.dev server code in `@regarde-dev/auth.regarde.dev`. Admin tooling in `@regarde-dev/admin`. Packages MUST declare dependencies explicitly. Use pnpm workspace catalog for shared dependency versions.
 
 **Rationale**: Clear boundaries prevent circular dependencies and enable independent testing and deployment. Shared schemas as single source of truth prevents schema drift between client and worker. Centralized dependency management via workspace catalog ensures version consistency across packages.
 
@@ -218,7 +218,7 @@ Rationale for Version 1.1.0:
 - [ ] OnboardingAccount used for complete account context (not for pure profile data display)
 - [ ] JazzAppProfile used for all profile data display
 - [ ] No circular dependencies between packages
-- [ ] Shared schemas remain in `@regarde/shared-schemas`
+- [ ] Shared schemas remain in `@regarde-dev/shared-schemas`
 - [ ] Worker code uses custom registration key authentication (not `{ loadAs: worker }`)
 
 ## Governance

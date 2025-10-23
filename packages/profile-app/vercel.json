@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd ../.. && corepack prepare pnpm@latest --activate && pnpm install && pnpm --filter=\"@regarde/shared-schemas\" build && pnpm --filter @regarde/profile-app build",
+  "buildCommand": "cd ../.. && corepack prepare pnpm@latest --activate && pnpm install && pnpm --filter=\"@regarde-dev/shared-schemas\" build && pnpm --filter @regarde-dev/profile-app build",
   "outputDirectory": "dist",
   "installCommand": "cd ../.. && corepack prepare pnpm@latest --activate && pnpm install",
   "redirects": [

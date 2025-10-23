@@ -2310,6 +2310,7 @@ myChats: { $each: true },
 }});
 
 return (
+
 <div>
 <h1>Dashboard</h1>
 {me ? (
@@ -6642,6 +6643,7 @@ return project === null
 }
 
 return (
+
 <div>
 <h1>{project.name}</h1>
 <TaskList tasks={project.tasks} />
@@ -6651,6 +6653,7 @@ return (
 
 function TaskList({ tasks }: { tasks: ReadonlyArray<co.loaded<typeof Task>> }) {
 return (
+
 <ul>
 {tasks.map((task) => (
 <li key={task.$jazz.id}>
@@ -6774,6 +6777,7 @@ return <div>Loading...</div>;
 }
 
 return (
+
 <div>
 <h1>{me.profile.name}'s projects</h1>
 <ul>
@@ -8528,6 +8532,7 @@ const isGuest = agent.$type$ !== "Account"
 // Anonymous authentication: has an account but not fully authenticated
 const isAnonymous = agent.$type$ === "Account" && !isAuthenticated;
 return (
+
 <div>
 {isGuest && <span>Guest Mode</span>}
 {isAnonymous && <span>Anonymous Account</span>}
@@ -8760,6 +8765,7 @@ onOpenChange(false);
 };
 
 return (
+
 <div>
 <button onClick={handleLogIn}>Log in</button>
 <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
@@ -9936,6 +9942,7 @@ order: BubbleTeaOrder | DraftBubbleTeaOrder;
 onSave?: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
 return (
+
 <form onSubmit={onSave}>
 <label>
 Name
@@ -10287,6 +10294,7 @@ order: BubbleTeaOrder | DraftBubbleTeaOrder;
 onSave?: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
 return (
+
 <form onSubmit={onSave}>
 <label>
 Name
@@ -10442,6 +10450,7 @@ resolve: { root: { draft: true } },
 
 if (hasChanges(me?.root.draft)) {
 return (
+
 <p>You have a draft</p>
 );
 }
@@ -13918,7 +13927,7 @@ type Props = {
   height?: number;
   barColor?: string;
   progressColor?: string;
-  backgroundColor?: string;
+  Color?: string;
   className?: string;
 };
 

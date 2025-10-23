@@ -342,3 +342,5 @@ export function CustomAuthModal({
     </Dialog>
   );
 }
+
+// TODO: Replace the custom error div with the shadcn/ui Alert component

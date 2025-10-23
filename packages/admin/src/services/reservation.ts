@@ -4,7 +4,7 @@ import {
   ReservationEntry,
   NicknameRegistryCoRecord,
   ReservedNicknamesRegistry,
-} from "@regarde/shared-schemas/registry";
+} from "@regarde-dev/shared-schemas/registry";
 import {
   ReservationServiceInterface,
   ReservationDetails,

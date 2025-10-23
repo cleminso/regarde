@@ -3,7 +3,7 @@ import {
   RegistryWorkerAccount,
   ReservedNicknamesRegistry,
   ReservationEntry,
-} from "@regarde/shared-schemas/registry";
+} from "@regarde-dev/shared-schemas/registry";
 import {
   ReservationBackupServiceInterface,
   ReservationBackupInfo,

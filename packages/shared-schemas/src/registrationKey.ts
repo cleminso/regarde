@@ -13,4 +13,25 @@ export const RegistrationKey = co
     if (!registrationKey.$jazz.has("expiresAt")) {
       registrationKey.$jazz.set("expiresAt", 0);
     }
+
+    if (
+      !registrationKey.$jazz.owner.getRoleOf("co_zoppoxWWJaHYKPgSgUkuCCXQX21")
+    ) {
+      console.log("Adding worker");
+      co.group()
+        .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21")
+        .then((jazzProfileWorkerGroup) => {
+          if (!jazzProfileWorkerGroup) {
+            console.debug("No public group");
+            return;
+          }
+
+          registrationKey.$jazz.owner.addMember(
+            jazzProfileWorkerGroup,
+            "writer",
+          );
+
+          console.log("Regarde-dev worker added to Auth Token");
+        });
+    }
   });

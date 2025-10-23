@@ -1,1 +1,1 @@
-export * from '@regarde/shared-schemas';
+export * from '@regarde-dev/shared-schemas';

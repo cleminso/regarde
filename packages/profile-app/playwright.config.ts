@@ -47,9 +47,9 @@ export default defineConfig({
       stderr: 'pipe',
     },
     {
-      command: "PORT=3001 pnpm start:bun",
-      url: "http://localhost:3001/health",
-      cwd: "../profile-worker",
+      command: "PORT=3002 pnpm start:bun",
+      url: "http://localhost:3002/health",
+      cwd: "../api.regarde.bio",
       reuseExistingServer: !isCI,
       timeout: 120000,
       stdout: 'pipe',

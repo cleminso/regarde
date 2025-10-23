@@ -1,4 +1,4 @@
-import { SocialLinks } from '@regarde/shared-schemas';
+import { SocialLinks } from '@regarde-dev/shared-schemas';
 import { logger } from '../utils/logger';
 import { BaseHookProps } from './types';
 

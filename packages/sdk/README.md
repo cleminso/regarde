@@ -1,11 +1,11 @@
-# @regarde/sdk
+# @regarde-dev/sdk
 
 SDK for building apps with Jazz registration key authentication. Provides framework-agnostic utilities, React/Preact hooks, and a verification API client.
 
 ## Installation
 
 ```bash
-pnpm add @regarde/sdk jazz-tools
+pnpm add @regarde-dev/sdk jazz-tools
 ```
 
 ### For React users
@@ -40,7 +40,7 @@ import {
   isKeyExpired,
   generateRegistrationKey,
   KEY_LIFETIME_SECONDS
-} from '@regarde/sdk/auth';
+} from '@regarde-dev/sdk/auth';
 
 // Use the RegistrationKey schema in your Jazz account
 const MyAccountRoot = co.map({
@@ -64,7 +64,7 @@ const randomKey = generateRegistrationKey();
 
 ```typescript
 import { useAccount } from 'jazz-tools/react';
-import { useRegistrationKey } from '@regarde/sdk/react';
+import { useRegistrationKey } from '@regarde-dev/sdk/react';
 
 function MyComponent() {
   const { me } = useAccount();
@@ -107,7 +107,7 @@ function MyComponent() {
 
 ```typescript
 import { useAccount } from 'jazz-tools/preact';
-import { useRegistrationKey } from '@regarde/sdk/preact';
+import { useRegistrationKey } from '@regarde-dev/sdk/preact';
 
 function MyComponent() {
   const { me } = useAccount();
@@ -128,7 +128,7 @@ function MyComponent() {
 ### 4. Verification API Client
 
 ```typescript
-import { verifyRegistrationKeyViaServer } from '@regarde/sdk/verify';
+import { verifyRegistrationKeyViaServer } from '@regarde-dev/sdk/verify';
 
 // Call the central verification server
 const result = await verifyRegistrationKeyViaServer({
@@ -149,7 +149,7 @@ if (result.isValid) {
 
 ## API Reference
 
-### Auth Module (`@regarde/sdk/auth`)
+### Auth Module (`@regarde-dev/sdk/auth`)
 
 #### `RegistrationKey`
 Jazz CoMap schema for registration keys.
@@ -205,7 +205,7 @@ Constant for key lifetime (24 hours = 86400 seconds).
 }
 ```
 
-### Verify Module (`@regarde/sdk/verify`)
+### Verify Module (`@regarde-dev/sdk/verify`)
 
 #### `verifyRegistrationKeyViaServer(params)`
 

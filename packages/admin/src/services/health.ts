@@ -7,7 +7,7 @@ import {
   ReservedNicknamesRegistry,
   RegistryAuditLog,
   JazzAppProfile,
-} from "@regarde/shared-schemas";
+} from "@regarde-dev/shared-schemas";
 import {
   HealthServiceInterface,
   HealthReport,

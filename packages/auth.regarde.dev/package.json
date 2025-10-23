@@ -1,0 +1,45 @@
+{
+  "name": "@regarde-dev/auth.regarde.dev",
+  "version": "1.0.0",
+  "description": "auth.regarde.dev authentication server",
+  "main": "dist/index.js",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cleminso/regarde.git",
+    "directory": "packages/auth.regarde.dev"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build:schema": "pnpm --filter shared-schemas build",
+    "build": "pnpm clean && pnpm run build:schema && tsc",
+    "start": "pnpm build && node dist/index.js",
+    "debug": "pnpm build && node --inspect dist/index.js",
+    "start:bun": "pnpm build:schema && bun src/index.ts",
+    "dev": "pnpm build:schema && bun --watch src/index.ts",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run"
+  },
+  "keywords": [
+    "jazz",
+    "worker"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hono/node-server": "^1.19.0",
+    "@hono/swagger-ui": "^0.4.1",
+    "@hono/zod-openapi": "^0.16.4",
+    "@regarde-dev/shared-schemas": "workspace:*",
+    "dotenv": "^16.6.1",
+    "hono": "^4.9.4",
+    "jazz-tools": "catalog:",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "nodemon": "^3.1.10",
+    "typescript": "catalog:"
+  }
+}

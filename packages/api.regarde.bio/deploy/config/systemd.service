@@ -1,0 +1,30 @@
+# Systemd service template for Profile Worker
+# This file will be processed by deployment scripts to replace template variables
+# with actual values from the .env configuration
+
+[Unit]
+Description={{SERVICE_NAME}} API
+After=network.target
+
+[Service]
+Type=simple
+User={{USER}}
+WorkingDirectory={{PROJECT_ROOT}}
+ExecStart=/usr/bin/pnpm --filter @regarde-dev/auth.regarde.dev start:bun
+Environment=PATH={{BUN_PATH}}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Restart=always
+RestartSec=10
+Environment=NODE_ENV={{NODE_ENV}}
+
+[Service]
+Type=simple
+User={{USER}}
+WorkingDirectory={{PROJECT_ROOT}}
+ExecStart=/usr/bin/pnpm --filter @regarde-dev/api.regarde.bio start:bun
+Environment=PATH={{BUN_PATH}}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Restart=always
+RestartSec=10
+Environment=NODE_ENV={{NODE_ENV}}
+
+[Install]
+WantedBy=multi-user.target

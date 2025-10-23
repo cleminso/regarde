@@ -81,7 +81,7 @@ importers:
       '@alcyone-labs/arg-parser':
         specifier: ^2.7.2
         version: 2.7.2(typescript@5.9.2)
-      '@regarde/shared-schemas':
+      '@regarde-dev/shared-schemas':
         specifier: workspace:*
         version: link:../shared-schemas
       dotenv:
@@ -135,7 +135,7 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      '@regarde/shared-schemas':
+      '@regarde-dev/shared-schemas':
         specifier: workspace:*
         version: link:../shared-schemas
       '@tailwindcss/vite':
@@ -247,7 +247,7 @@ importers:
       '@hono/zod-openapi':
         specifier: ^0.16.4
         version: 0.16.4(hono@4.9.4)(zod@3.25.76)
-      '@regarde/shared-schemas':
+      '@regarde-dev/shared-schemas':
         specifier: workspace:*
         version: link:../shared-schemas
       dotenv:

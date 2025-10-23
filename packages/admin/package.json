@@ -1,5 +1,5 @@
 {
-  "name": "@regarde/admin",
+  "name": "@regarde-dev/admin",
   "version": "0.1.0",
   "description": "CLI tool for profile nickname registry admin operations",
   "main": "dist/cli.js",
@@ -27,7 +27,7 @@
   ],
   "dependencies": {
     "@alcyone-labs/arg-parser": "^2.7.2",
-    "@regarde/shared-schemas": "workspace:*",
+    "@regarde-dev/shared-schemas": "workspace:*",
     "dotenv": "^16.6.1",
     "jazz-tools": "catalog:",
     "ulidx": "catalog:",

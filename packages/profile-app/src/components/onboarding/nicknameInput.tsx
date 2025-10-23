@@ -1,4 +1,4 @@
-import { JazzAppProfile } from '@regarde/shared-schemas';
+import { JazzAppProfile } from '@regarde-dev/shared-schemas';
 import { Loaded } from 'jazz-tools';
 import { Loader2 } from 'lucide-react';
 import React, { useCallback } from 'react';

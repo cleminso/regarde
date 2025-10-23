@@ -320,13 +320,10 @@ export const OnboardingAccount = co
         userGroup,
       );
 
-      const registrationKey = RegistrationKey.create(
-        {
-          key: "not-valid-" + Math.random(),
-          expiresAt: 0, // key should never be valid, expires as soon as it's generated
-        },
-        userGroup,
-      );
+      const registrationKey = RegistrationKey.create({
+        key: "not-valid-" + Math.random(),
+        expiresAt: 0, // key should never be valid, expires as soon as it's generated
+      });
 
       root.$jazz.set("regarde.bio", jazzProfileData);
       root.$jazz.set("auth.regarde.bio", registrationKey);

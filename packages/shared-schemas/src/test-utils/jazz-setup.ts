@@ -60,7 +60,7 @@ export async function createTestOnboardingAccount(options: {
 }
 
 /**
- * Creates a test worker account (simulates profile-worker)
+ * Creates a test worker account (simulates worker)
  */
 export async function createTestWorkerAccount() {
   const account = await createJazzTestAccount({

@@ -1,7 +1,12 @@
-import { Loaded } from 'jazz-tools';
 import { useCallback } from 'react';
 
-import { OnboardingAccount, RegistrationKey } from '../schema';
+import { useRegistrationKey as useSDKRegistrationKey } from '@regarde-dev/sdk/react';
+import {
+  generateRegistrationKey,
+  getRegistrationKey,
+  isKeyExpired,
+} from '@regarde-dev/sdk/auth';
+
 import { useMyJazz } from './useMyJazz';
 
 export type GetValidKeyFunctionOutput = Promise<{
@@ -11,75 +16,8 @@ export type GetValidKeyFunctionOutput = Promise<{
 
 export type GetValidKeyFunction = () => GetValidKeyFunctionOutput;
 
-const KEY_LIFETIME_SECONDS = 24 * 60 * 60;
-
-export function generateRegistrationKey(): string {
-  const chars =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*"[]{}';
-  let result = '';
-  for (let i = 0; i < 16; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-}
-
-export function isKeyExpired(registrationKey: any): boolean {
-  if (!registrationKey?.expiresAt) return true;
-  return Date.now() > registrationKey.expiresAt;
-}
-
-export async function storeRegistrationKey(
-  account: Loaded<typeof OnboardingAccount>,
-): Promise<string | null> {
-  if (!account?.root) {
-    console.error('Account root not available');
-    return null;
-  }
-
-  const authKey = account.root['auth.regarde.bio'];
-  if (!authKey) {
-    console.error('No auth key available in either namespace');
-    return null;
-  }
-
-  await account.$jazz.ensureLoaded({
-    resolve: {
-      root: {
-        'auth.regarde.bio': true,
-      },
-    },
-  });
-
-  const targetAuth = account.root['auth.regarde.bio'];
-  return await updateRegistrationKey({
-    loadedRegistrationKeyCoMap:  targetAuth
-
-  })
-}
-
-export async function updateRegistrationKey({
-  loadedRegistrationKeyCoMap
-}: {
-  loadedRegistrationKeyCoMap: Loaded<typeof RegistrationKey>
-}) {
-  const key = generateRegistrationKey();
-
-  try {
-    if (!loadedRegistrationKeyCoMap) {
-      console.error('No auth target available after ensureLoaded');
-      return null;
-    }
-
-    loadedRegistrationKeyCoMap.$jazz.set('key', key);
-    loadedRegistrationKeyCoMap.$jazz.set('expiresAt', Date.now() + KEY_LIFETIME_SECONDS * 1000);
-
-    await loadedRegistrationKeyCoMap.$jazz.waitForSync();
-    return key;
-  } catch (error) {
-    console.error('Failed to store registration key:', error);
-    return null;
-  }
-}
+// Re-export SDK utilities for backward compatibility
+export { generateRegistrationKey, isKeyExpired, getRegistrationKey };
 
 export function useRegistrationKey() {
   const { account, isAccountReady } = useMyJazz();
@@ -87,6 +25,9 @@ export function useRegistrationKey() {
   const registrationKey = account?.root?.['auth.regarde.bio'];
   const isLoading = account === undefined;
   const isAccessible = registrationKey !== null;
+
+  // Use SDK hook for core registration key functionality
+  const sdkHook = useSDKRegistrationKey(registrationKey);
 
   const getValidKey = useCallback(async (): GetValidKeyFunctionOutput => {
     if (!account?.root || !isAccountReady) {
@@ -97,28 +38,33 @@ export function useRegistrationKey() {
       return null;
     }
 
-    const keyExpired = registrationKey ? isKeyExpired(registrationKey) : true;
+    // Check if key is expired or missing
+    if (!registrationKey || sdkHook.isExpired) {
+      // Refresh the key using SDK's refresh function
+      await sdkHook.refresh();
 
-    if (!registrationKey || keyExpired) {
-      const key = await storeRegistrationKey(
-        account as Loaded<typeof OnboardingAccount>,
-      );
-      if (!key) return null; // Remove the registrationKey check here
-
+      // After refresh, get the updated registration key
       const updatedRegistrationKey = account.root?.['auth.regarde.bio'];
-      if (!updatedRegistrationKey) return null;
+      if (!updatedRegistrationKey?.key) return null;
 
-      return { key, registrationKeyId: updatedRegistrationKey.$jazz.id };
+      return {
+        key: updatedRegistrationKey.key,
+        registrationKeyId: updatedRegistrationKey.$jazz.id,
+      };
     }
 
-    return { key: registrationKey.key, registrationKeyId: registrationKey.$jazz.id };
-  }, [account, isAccountReady, registrationKey, isLoading]);
+    // Return existing valid key
+    return {
+      key: registrationKey.key,
+      registrationKeyId: registrationKey.$jazz.id,
+    };
+  }, [account, isAccountReady, registrationKey, isLoading, sdkHook]);
 
   return {
     getValidKey,
     isAccountReady,
     hasRegistrationKey: Boolean(registrationKey),
-    isKeyExpired: registrationKey ? isKeyExpired(registrationKey) : true,
+    isKeyExpired: sdkHook.isExpired,
     isRegistrationKeyLoading: isLoading,
     isRegistrationKeyAccessible: isAccessible,
   };

@@ -22,13 +22,18 @@ function createMockAccountWithValidKey(expiresAt = Date.now() + 3600000) {
   return {
     root: {
       'auth.regarde.bio': {
-        id: 'test-key-id',
         key: 'valid-test-key',
-        expiresAt
+        expiresAt,
+        $jazz: {
+          id: 'test-key-id',
+          set: vi.fn(),
+          waitForSync: vi.fn().mockResolvedValue(undefined),
+        }
       }
     },
-    ensureLoaded: vi.fn().mockResolvedValue(undefined),
-    waitForSync: vi.fn().mockResolvedValue(undefined)
+    $jazz: {
+      ensureLoaded: vi.fn().mockResolvedValue(undefined),
+    }
   } as any; // Use type assertion to avoid complex Jazz type matching
 }
 

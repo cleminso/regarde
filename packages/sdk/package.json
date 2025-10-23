@@ -1,5 +1,5 @@
 {
-  "name": "@regarde/sdk",
+  "name": "@regarde-dev/sdk",
   "version": "1.0.0",
   "description": "Regarde SDK for React and Preact with registration key logic",
   "type": "module",
@@ -15,7 +15,13 @@
     "test": "vitest",
     "test:run": "vitest run"
   },
-  "keywords": ["regarde", "sdk", "react", "preact", "jazz-tools"],
+  "keywords": [
+    "regarde",
+    "sdk",
+    "react",
+    "preact",
+    "jazz-tools"
+  ],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.16.1",

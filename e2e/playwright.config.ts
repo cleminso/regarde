@@ -62,7 +62,7 @@ export default defineConfig({
       timeout: 120000,
     },
     {
-      command: "pnpm -F profile-worker dev",
+      command: "pnpm -F @regarde-dev/api.regarde.bio dev",
       url: "http://localhost:8787/health",
       reuseExistingServer: !isCI,
       timeout: 120000,

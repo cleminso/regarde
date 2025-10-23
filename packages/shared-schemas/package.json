@@ -1,5 +1,5 @@
 {
-  "name": "@regarde/shared-schemas",
+  "name": "@regarde-dev/shared-schemas",
   "repository": {
     "type": "git",
     "url": "https://github.com/cleminso/regarde.git",
