@@ -1,5 +1,5 @@
 import { co, Group, Loaded, z } from "jazz-tools";
-import { UserHandle } from "./nickname.js";
+import { UserHandle } from "../regarde.dev/nickname.js";
 
 export const SocialLinks = co.map({
   github: z.optional(z.string()),

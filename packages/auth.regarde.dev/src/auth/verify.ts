@@ -1,4 +1,4 @@
-import { RegistrationKey } from "@regarde-dev/shared-schemas/profile";
+import { RegistrationKey } from "@regarde-dev/shared-schemas";
 
 export interface VerificationResult {
   isValid: boolean;

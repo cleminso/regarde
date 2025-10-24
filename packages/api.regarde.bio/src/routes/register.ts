@@ -1,15 +1,15 @@
 import { createRoute } from "@hono/zod-openapi";
-import { RegisterRequestSchema } from "../schemas/register.js";
-import { ErrorResponseSchema } from "../schemas/common.js";
-import { verifyRegistrationKey } from "../auth/verify.js";
 import {
+  RegisterRequestSchema,
+  ErrorResponseSchema,
   setNicknameFromRegistry,
   deactivate,
-} from "@regarde-dev/shared-schemas/nickname";
-import {
   JazzAppProfile,
   OnboardingAccount,
-} from "@regarde-dev/shared-schemas/profile";
+} from "@regarde-dev/shared-schemas";
+
+const AUTH_SERVICE_URL =
+  process.env.AUTH_SERVICE_URL || "https://auth.regarde.dev";
 
 export const registerRoute = createRoute({
   method: "post",
@@ -187,12 +187,7 @@ async function syncUserHandle(
   }
 }
 
-export const registerHandler = (
-  nicknameRegistry: any,
-  reverseNicknameRegistry: any,
-  worker: any,
-  reservedNicknames: any,
-) => {
+export const registerHandler = () => {
   return async (c: any) => {
     try {
       const { nickname, jazzAccountID, oldNickname } = c.req.valid("json");
@@ -200,150 +195,65 @@ export const registerHandler = (
       const registrationKey = c.req.header("X-Registration-Key");
       const registrationKeyId = c.req.header("X-Registration-Key-Id");
 
-      if (!registrationKey) {
+      if (!registrationKey || !registrationKeyId) {
         console.log(
-          `Missing registration key header for AccountID "${jazzAccountID}"`,
+          `Missing registration key headers for AccountID "${jazzAccountID}"`,
         );
-        return c.json({ error: "Missing registration key header" }, 401);
+        return c.json({ error: "Missing registration key headers" }, 401);
       }
 
-      if (!nickname && !oldNickname) {
+      console.log(
+        `[api.regarde.bio] Proxying registration request to auth.regarde.dev: nickname="${nickname}", AccountID="${jazzAccountID}"`,
+      );
+
+      const authResponse = await fetch(`${AUTH_SERVICE_URL}/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Registration-Key": registrationKey,
+          "X-Registration-Key-Id": registrationKeyId,
+        },
+        body: JSON.stringify({
+          nickname,
+          jazzAccountID,
+          oldNickname,
+        }),
+      });
+
+      if (!authResponse.ok) {
+        const errorData = await authResponse.json().catch(() => ({}));
+        console.log(
+          `[api.regarde.bio] auth.regarde.dev returned error: ${authResponse.status}`,
+        );
         return c.json(
           {
             error:
-              "Must provide either a new nickname or an old one to delete/swap",
+              errorData.error ||
+              `Registration failed: ${authResponse.status} ${authResponse.statusText}`,
           },
-          400,
+          authResponse.status,
         );
       }
 
       console.log(
-        `Received registration request: nickname="${nickname}", AccountID="${jazzAccountID}"`,
+        `[api.regarde.bio] Registration successful at auth.regarde.dev, now syncing userHandle`,
       );
 
-      const verificationResult = await verifyRegistrationKey(
-        jazzAccountID,
-        registrationKey,
-        registrationKeyId,
-        worker,
-      );
-      if (!verificationResult.isValid) {
-        console.log(
-          `Authentication failed for AccountID "${jazzAccountID}": ${verificationResult.error}`,
-        );
-        return c.json(
-          { error: `Authentication failed: ${verificationResult.error}` },
-          403,
-        );
-      }
+      const operation = !nickname && oldNickname
+        ? "delete"
+        : oldNickname
+          ? "update"
+          : "register";
 
-      console.log(`Authentication successful for AccountID "${jazzAccountID}"`);
+      await syncUserHandle(jazzAccountID, nickname || null, operation);
 
-      const currentNicknameForAccount = reverseNicknameRegistry[jazzAccountID];
-      const existingAccountForNickname = nicknameRegistry[nickname];
-      const existingAccountForOldNickname = nicknameRegistry[oldNickname];
-
-      if (!nickname && oldNickname) {
-        if (currentNicknameForAccount !== oldNickname) {
-          console.log(
-            `Account "${jazzAccountID}" does not own nickname "${oldNickname}". Current: "${currentNicknameForAccount}"`,
-          );
-          return c.json(
-            { error: "Account does not own the nickname to delete" },
-            403,
-          );
-        }
-
-        delete nicknameRegistry[oldNickname];
-        delete reverseNicknameRegistry[jazzAccountID];
-        console.log(
-          `Nickname "${oldNickname}" and reverse entry for AccountID "${jazzAccountID}" deleted.`,
-        );
-
-        await syncUserHandle(jazzAccountID, null, "delete");
-
-        return c.body(null, 204);
-      }
-
-      if (
-        existingAccountForNickname &&
-        existingAccountForNickname !== jazzAccountID
-      ) {
-        console.log(
-          `Nickname "${nickname}" is already taken by AccountID: ${existingAccountForNickname}.`,
-        );
-        return c.json({ error: "Nickname already taken" }, 409);
-      }
-
-      // Check if nickname is reserved
-      const reservation = reservedNicknames[nickname];
-      if (reservation) {
-        console.log(
-          `Nickname "${nickname}" is reserved (category: ${reservation.category}, reserved by: ${reservation.reservedBy}).`,
-        );
-        return c.json(
-          {
-            error: "Nickname is reserved",
-            reservationCategory: reservation.category,
-            reservationReason: reservation.reason,
-          },
-          403,
-        );
-      }
-
-      if (oldNickname) {
-        if (existingAccountForOldNickname !== jazzAccountID) {
-          console.log(
-            `Account "${jazzAccountID}" does not own oldNickname "${oldNickname}" for swap. Current: "${currentNicknameForAccount}"`,
-          );
-          return c.json(
-            {
-              error:
-                "Account does not own the nickname specified as oldNickname",
-            },
-            403,
-          );
-        }
-
-        if (oldNickname === nickname) {
-          console.log(
-            `Swap request where oldNickname "${oldNickname}" is same as new nickname "${nickname}" for AccountID "${jazzAccountID}". No-op.`,
-          );
-
-          // Still sync to ensure CoMap is up to date
-          await syncUserHandle(jazzAccountID, nickname, "update");
-
-          return c.body(null, 204);
-        }
-
-        delete nicknameRegistry[oldNickname];
-        console.log(`Removed old nickname "${oldNickname}" from registry.`);
-      } else {
-        if (currentNicknameForAccount) {
-          console.log(
-            `AccountID "${jazzAccountID}" already has a nickname "${currentNicknameForAccount}". Cannot register a new one without specifying oldNickname for swap.`,
-          );
-          return c.json(
-            {
-              error: `Account already has a nickname: "${currentNicknameForAccount}"`,
-            },
-            409,
-          );
-        }
-      }
-
-      nicknameRegistry.$jazz.set(nickname, jazzAccountID);
-      reverseNicknameRegistry.$jazz.set(jazzAccountID, nickname);
       console.log(
-        `Nickname "${nickname}" registered/swapped for AccountID: ${jazzAccountID}.`,
+        `[api.regarde.bio] UserHandle synced for AccountID "${jazzAccountID}"`,
       );
-
-      const operation = oldNickname ? "update" : "register";
-      await syncUserHandle(jazzAccountID, nickname, operation);
 
       return c.body(null, 204);
     } catch (error: any) {
-      console.error(`Error processing /register request: ${error}`);
+      console.error(`[api.regarde.bio] Error processing /register request: ${error}`);
       return c.json({ error: error.message || "Internal server error" }, 500);
     }
   };

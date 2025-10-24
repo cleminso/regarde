@@ -17,6 +17,7 @@ export default defineConfig({
         preact: resolve(__dirname, "src/preact/index.ts"),
         auth: resolve(__dirname, "src/auth/index.ts"),
         verify: resolve(__dirname, "src/verify/index.ts"),
+        regardeUsers: resolve(__dirname, "src/regardeUsers/index.ts"),
       },
       formats: ["es", "cjs"],
     },

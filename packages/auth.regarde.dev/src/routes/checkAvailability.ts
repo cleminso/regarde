@@ -67,7 +67,6 @@ export const checkAvailabilityHandler = (
 
       console.log(`Checking availability for nickname: "${nickname}"`);
 
-      // Ensure reservedNicknames is properly loaded
       if (!reservedNicknames) {
         console.error("Reserved nicknames registry not available");
         return c.json({ error: "Service temporarily unavailable" }, 503);
@@ -81,7 +80,6 @@ export const checkAvailabilityHandler = (
         reservation ? "RESERVED" : "NOT RESERVED",
       );
 
-      // Nickname is unavailable if it's either taken or reserved
       const isAvailable = !existingAccountForNickname && !reservation;
 
       const response: any = {
@@ -89,12 +87,10 @@ export const checkAvailabilityHandler = (
         available: isAvailable,
       };
 
-      // Add taken information if nickname is registered
       if (existingAccountForNickname) {
         response.takenBy = existingAccountForNickname;
       }
 
-      // Add reservation information if nickname is reserved
       if (reservation) {
         response.reserved = true;
         response.reservationCategory = reservation.category;
@@ -108,3 +104,4 @@ export const checkAvailabilityHandler = (
     }
   };
 };
+

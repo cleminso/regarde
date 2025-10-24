@@ -118,7 +118,7 @@ async function getUserDetails(
 
   try {
     const { OnboardingAccount, JazzAppProfile } = await import(
-      "@regarde-dev/shared-schemas/profile"
+      "@regarde-dev/shared-schemas"
     );
 
     const jazzUserAccount = await OnboardingAccount.load(

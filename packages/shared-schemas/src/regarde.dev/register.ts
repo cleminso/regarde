@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "jazz-tools";
 
 export const RegisterRequestSchema = z.object({
   nickname: z

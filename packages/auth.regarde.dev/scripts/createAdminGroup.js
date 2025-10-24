@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { startWorker } from "jazz-tools/worker";
 import { Group } from "jazz-tools";
-import { RegistryWorkerAccount } from "@regarde-dev/shared-schemas/registry";
+import { RegistryWorkerAccount } from "@regarde-dev/shared-schemas";
 
 const JAZZ_SYNC_SERVER_URL =
   process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";

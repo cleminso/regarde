@@ -1,5 +1,5 @@
 import { createRoute } from "@hono/zod-openapi";
-import { ErrorResponseSchema } from "../schemas/common.js";
+import { ErrorResponseSchema } from "@regarde-dev/shared-schemas";
 import { verifyRegistrationKey } from "../auth/verify.js";
 import { z } from "zod";
 

@@ -7,3 +7,6 @@ export const WORKER_JAZZ_ID =
 
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'https://api.regarde.bio';
+
+export const AUTH_BASE_URL =
+  import.meta.env.VITE_AUTH_BASE_URL || 'https://auth.regarde.dev';

@@ -1,5 +1,5 @@
 import { GetValidKeyFunction } from '../account/useRegistrationKey';
-import { API_BASE_URL } from '../config/apiKey';
+import { API_BASE_URL, AUTH_BASE_URL } from '../config/apiKey';
 
 export interface CheckAvailabilityRequest {
   nickname: string;
@@ -44,7 +44,7 @@ export interface UserDetailsResponse {
 export async function checkNicknameAvailability(
   nickname: string,
 ): Promise<CheckAvailabilityResponse> {
-  const response = await fetch(`${API_BASE_URL}/checkAvailability`, {
+  const response = await fetch(`${AUTH_BASE_URL}/checkAvailability`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

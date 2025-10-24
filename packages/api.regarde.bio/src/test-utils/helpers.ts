@@ -55,13 +55,6 @@ export function createMockRegistrationRequest(overrides = {}) {
   };
 }
 
-export function createMockCheckAvailabilityRequest(overrides = {}) {
-  return {
-    nickname: "testuser",
-    ...overrides,
-  };
-}
-
 export function createMockUserDetailsRequest(overrides = {}) {
   return {
     nickname: "testuser",

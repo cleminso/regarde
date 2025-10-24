@@ -2,13 +2,10 @@ import { createRoute } from "@hono/zod-openapi";
 import {
   UserDetailsRequestSchema,
   UserDetailsResponseSchema,
-} from "../schemas/userDetails.js";
-import { ErrorResponseSchema } from "../schemas/common.js";
-
-import {
+  ErrorResponseSchema,
   JazzAppProfile,
   OnboardingAccount,
-} from "@regarde-dev/shared-schemas/profile";
+} from "@regarde-dev/shared-schemas";
 import { Loaded } from "jazz-tools";
 
 export const userDetailsRoute = createRoute({

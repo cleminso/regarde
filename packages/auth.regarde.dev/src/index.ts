@@ -7,11 +7,16 @@ import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { startWorker } from "jazz-tools/worker";
 
-import { RegistryWorkerAccount } from "@regarde-dev/shared-schemas/registry";
+import { RegistryWorkerAccount } from "@regarde-dev/shared-schemas";
 
 import { rateLimit } from "./middleware/rateLimit.js";
 
-import { verifyRoute, verifyHandler } from "./routes/verify.js";
+import { verifyRoute, verifyHandler } from "./routes/verifyToken.js";
+import {
+  checkAvailabilityRoute,
+  checkAvailabilityHandler,
+} from "./routes/checkAvailability.js";
+import { registerRoute, registerHandler } from "./routes/register.js";
 
 const PORT = process.env.PORT || 3000;
 const JAZZ_SYNC_SERVER_URL =
@@ -180,7 +185,35 @@ async function main() {
     }
   };
 
+  const safeCheckAvailabilityHandler = async (c: any) => {
+    try {
+      return await checkAvailabilityHandler(
+        nicknameRegistry,
+        reservedNicknames,
+      )(c);
+    } catch (error) {
+      console.error("Error in checkAvailabilityHandler:", error);
+      return c.json({ error: "Internal server error" }, 500);
+    }
+  };
+
+  const safeRegisterHandler = async (c: any) => {
+    try {
+      return await registerHandler(
+        nicknameRegistry,
+        reverseNicknameRegistry,
+        worker,
+        reservedNicknames,
+      )(c);
+    } catch (error) {
+      console.error("Error in registerHandler:", error);
+      return c.json({ error: "Internal server error" }, 500);
+    }
+  };
+
   app.openapi(verifyRoute, safeVerifyHandler);
+  app.openapi(checkAvailabilityRoute, safeCheckAvailabilityHandler);
+  app.openapi(registerRoute, safeRegisterHandler);
 
   // Register non-OpenAPI specific routes BEFORE catch-all
   app.get("/health", (c) => {

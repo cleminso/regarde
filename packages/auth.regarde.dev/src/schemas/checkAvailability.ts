@@ -22,3 +22,4 @@ export type CheckAvailabilityRequest = z.infer<
 export type CheckAvailabilityResponse = z.infer<
   typeof CheckAvailabilityResponseSchema
 >;
+

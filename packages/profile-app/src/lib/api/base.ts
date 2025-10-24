@@ -2,6 +2,8 @@ import { logger } from '#/lib/utils/logger';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'https://api.regarde.bio';
+const AUTH_BASE_URL =
+  import.meta.env.VITE_AUTH_BASE_URL || 'https://auth.regarde.dev';
 
 interface UserDetails {
   jazzAccountId?: string;
@@ -339,7 +341,7 @@ export function validateNicknameOwnership(
 export async function checkNicknameAvailability(
   nickname: string,
 ): Promise<CheckAvailabilityResponse> {
-  const response = await fetch(`${API_BASE_URL}/checkAvailability`, {
+  const response = await fetch(`${AUTH_BASE_URL}/checkAvailability`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -7,14 +7,10 @@ import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { startWorker } from "jazz-tools/worker";
 
-import { RegistryWorkerAccount } from "@regarde-dev/shared-schemas/registry";
+import { RegistryWorkerAccount } from "@regarde-dev/shared-schemas";
 
 import { rateLimit } from "./middleware/rateLimit.js";
 
-import {
-  checkAvailabilityRoute,
-  checkAvailabilityHandler,
-} from "./routes/checkAvailability.js";
 import { registerRoute, registerHandler } from "./routes/register.js";
 import { userDetailsRoute, userDetailsHandler } from "./routes/userDetails.js";
 import { profilePageRoute, profilePageHandler } from "./routes/profilePage.js";
@@ -178,26 +174,9 @@ async function main() {
 
   app.get("/ui", swaggerUI({ url: `${PUBLIC_BASE_URL}/doc` }));
 
-  const safeCheckAvailabilityHandler = async (c: any) => {
-    try {
-      return await checkAvailabilityHandler(
-        nicknameRegistry,
-        reservedNicknames,
-      )(c);
-    } catch (error) {
-      console.error("Error in checkAvailabilityHandler:", error);
-      return c.json({ error: "Internal server error" }, 500);
-    }
-  };
-
   const safeRegisterHandler = async (c: any) => {
     try {
-      return await registerHandler(
-        nicknameRegistry,
-        reverseNicknameRegistry,
-        worker,
-        reservedNicknames,
-      )(c);
+      return await registerHandler()(c);
     } catch (error) {
       console.error("Error in registerHandler:", error);
       return c.json({ error: "Internal server error" }, 500);
@@ -244,7 +223,6 @@ async function main() {
     }
   };
 
-  app.openapi(checkAvailabilityRoute, safeCheckAvailabilityHandler);
   app.openapi(registerRoute, safeRegisterHandler);
   app.openapi(userDetailsRoute, safeUserDetailsHandler);
   app.openapi(avatarRoute, safeAvatarHandler);
