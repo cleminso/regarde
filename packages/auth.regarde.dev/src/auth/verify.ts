@@ -1,4 +1,4 @@
-import { RegistrationKey } from "@regarde-dev/shared-schemas";
+import { RegistrationKey } from "@regarde-dev/jazz-schemas/regarde.dev";
 
 export interface VerificationResult {
   isValid: boolean;

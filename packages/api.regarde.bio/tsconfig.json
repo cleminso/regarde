@@ -10,9 +10,9 @@
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "baseUrl": "../../",
+    "baseUrl": "src/",
     "paths": {
-      "@regarde-dev/shared-schemas": ["packages/shared-schemas/src"]
+      "@/*": ["*"]
     }
   },
   "include": ["src/**/*.ts"],

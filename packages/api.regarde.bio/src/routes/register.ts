@@ -1,12 +1,12 @@
+import { ErrorResponseSchema } from "@/schemas/common";
 import { createRoute } from "@hono/zod-openapi";
 import {
-  RegisterRequestSchema,
-  ErrorResponseSchema,
-  setNicknameFromRegistry,
-  deactivate,
-  JazzAppProfile,
   OnboardingAccount,
-} from "@regarde-dev/shared-schemas";
+  JazzAppProfile,
+  deactivate,
+  setNicknameFromRegistry,
+} from "@regarde-dev/jazz-schemas";
+import { RegisterRequestSchema } from "@regarde-dev/jazz-schemas/regarde.dev";
 
 const AUTH_SERVICE_URL =
   process.env.AUTH_SERVICE_URL || "https://auth.regarde.dev";
@@ -239,11 +239,12 @@ export const registerHandler = () => {
         `[api.regarde.bio] Registration successful at auth.regarde.dev, now syncing userHandle`,
       );
 
-      const operation = !nickname && oldNickname
-        ? "delete"
-        : oldNickname
-          ? "update"
-          : "register";
+      const operation =
+        !nickname && oldNickname
+          ? "delete"
+          : oldNickname
+            ? "update"
+            : "register";
 
       await syncUserHandle(jazzAccountID, nickname || null, operation);
 
@@ -253,7 +254,9 @@ export const registerHandler = () => {
 
       return c.body(null, 204);
     } catch (error: any) {
-      console.error(`[api.regarde.bio] Error processing /register request: ${error}`);
+      console.error(
+        `[api.regarde.bio] Error processing /register request: ${error}`,
+      );
       return c.json({ error: error.message || "Internal server error" }, 500);
     }
   };

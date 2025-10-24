@@ -1,7 +1,7 @@
 import { withAdminService } from "../types.js";
 import { type ToolConfig } from "@alcyone-labs/arg-parser";
 import { Logger } from "../../utils/logger.js";
-import { OnboardingAccount } from "@regarde-dev/shared-schemas";
+import { OnboardingAccount } from "@regarde-dev/jazz-schemas";
 import { Group } from "jazz-tools";
 
 export const nicknameCommands: ToolConfig[] = [

@@ -1,15 +1,30 @@
 {
-  "name": "@regarde-dev/shared-schemas",
+  "name": "@regarde-dev/jazz-schemas",
   "repository": {
     "type": "git",
     "url": "https://github.com/cleminso/regarde.git",
-    "directory": "packages/shared-schemas"
+    "directory": "packages/jazz-schemas"
   },
   "version": "0.1.0",
   "description": "Shared Jazz schemas for regarde application",
   "main": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./regarde.bio": {
+      "types": "./dist/regarde.bio/index.d.ts",
+      "import": "./dist/regarde.bio/index.js"
+    },
+    "./regarde.dev": {
+      "types": "./dist/regarde.dev/index.d.ts",
+      "import": "./dist/regarde.dev/index.js"
+    }
+  },
   "scripts": {
     "build:tsc": "pnpm clean && tsc",
     "build:vite": "pnpm clean && vite build",
@@ -21,35 +36,15 @@
     "test:run": "vitest run"
   },
   "dependencies": {
+    "@hono/zod-openapi": "latest",
     "jazz-tools": "catalog:",
-    "ulidx": "catalog:"
+    "ulidx": "catalog:",
+    "zod": "latest"
   },
   "devDependencies": {
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
-    },
-    "./profile": {
-      "types": "./dist/profile.d.ts",
-      "import": "./dist/profile.js",
-      "default": "./dist/profile.js"
-    },
-    "./registry": {
-      "types": "./dist/registry.d.ts",
-      "import": "./dist/registry.js",
-      "default": "./dist/registry.js"
-    },
-    "./nickname": {
-      "types": "./dist/nickname.d.ts",
-      "import": "./dist/nickname.js",
-      "default": "./dist/nickname.js"
-    }
   },
   "files": [
     "dist"

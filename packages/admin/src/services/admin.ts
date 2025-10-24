@@ -1,6 +1,6 @@
 import { startWorker } from "jazz-tools/worker";
 import { Loaded } from "jazz-tools";
-import { RegistryWorkerAccount } from "@regarde-dev/shared-schemas";
+import { RegistryWorkerAccount } from "@regarde-dev/jazz-schemas";
 import { Logger } from "../utils/logger.js";
 
 import { AuditService } from "./audit.js";
@@ -24,7 +24,7 @@ import {
   NicknameHealthReport,
   FixResult,
 } from "../types/services.js";
-import { RegistryAuditEntry } from "@regarde-dev/shared-schemas/registry";
+import { RegistryAuditEntry } from "@regarde-dev/jazz-schemas/registry";
 
 export class AdminService {
   private worker: any;

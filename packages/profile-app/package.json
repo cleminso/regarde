@@ -34,7 +34,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@regarde-dev/sdk": "workspace:*",
-    "@regarde-dev/shared-schemas": "workspace:*",
+    "@regarde-dev/jazz-schemas": "workspace:*",
     "@tailwindcss/vite": "^4.1.13",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

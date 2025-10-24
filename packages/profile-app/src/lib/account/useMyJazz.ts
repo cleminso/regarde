@@ -1,4 +1,4 @@
-import { OnboardingAccount } from '@regarde-dev/shared-schemas';
+import { OnboardingAccount } from '@regarde-dev/jazz-schemas';
 import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 
 export function useMyJazz() {

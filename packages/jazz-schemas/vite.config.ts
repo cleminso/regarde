@@ -12,8 +12,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: "src/index.ts",
-      name: "shared-schemas",
-      fileName: (format) => `shared-schemas.${format}.js`,
+      name: "jazz-schemas",
+      fileName: (format) => `jazz-schemas.${format}.js`,
       formats: ["es", "cjs"],
     },
     sourcemap: true,

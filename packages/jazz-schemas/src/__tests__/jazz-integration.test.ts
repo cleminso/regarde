@@ -8,8 +8,14 @@ import {
   setupJazzTestEnvironment,
   createTestOnboardingAccount,
 } from "../test-utils/jazz-setup.js";
-import { UserHandle, setNicknameFromRegistry } from "../nickname.js";
-import { validateJazzAppProfile, JazzAppProfile } from "../profile.js";
+import {
+  UserHandle,
+  setNicknameFromRegistry,
+} from "../regarde.dev/nickname.js";
+import {
+  JazzAppProfile,
+  validateJazzAppProfile,
+} from "../regarde.bio/profile.js";
 
 describe("Jazz Framework Integration Tests", () => {
   beforeEach(async () => {

@@ -34,7 +34,7 @@ export const avatarHandler = (nicknameRegistry: any) => {
 
       // Load profile data to get avatar
       const { OnboardingAccount, JazzAppProfile } = await import(
-        "@regarde-dev/shared-schemas"
+        "@regarde-dev/jazz-schemas"
       );
 
       const jazzUserAccount = await OnboardingAccount.load(accountId, {

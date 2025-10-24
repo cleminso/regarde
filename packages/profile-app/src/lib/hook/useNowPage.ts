@@ -1,4 +1,4 @@
-import { NowPage } from '@regarde-dev/shared-schemas';
+import { NowPage } from '@regarde-dev/jazz-schemas';
 import { useCallback } from 'react';
 
 import { BaseHookProps } from './types';

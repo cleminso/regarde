@@ -7,7 +7,12 @@ import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { startWorker } from "jazz-tools/worker";
 
-import { RegistryWorkerAccount } from "@regarde-dev/shared-schemas";
+import {
+  RegistryWorkerAccount,
+  type NicknameRegistry,
+  type ReverseNicknameRegistry,
+  type ReservedNicknamesRegistry,
+} from "@regarde-dev/jazz-schemas/regarde.dev";
 
 import { rateLimit } from "./middleware/rateLimit.js";
 
@@ -115,9 +120,16 @@ async function main() {
     process.exit(1);
   }
 
-  const nicknameRegistry = loadedWorker?.root?.registry;
-  const reverseNicknameRegistry = loadedWorker?.root?.reverseRegistry;
-  const reservedNicknames = loadedWorker?.root?.reservedNicknames;
+  if (!loadedWorker?.root) {
+    console.error("Critical: Worker root not loaded properly");
+    process.exit(1);
+  }
+
+  const {
+    registry: nicknameRegistry,
+    reverseRegistry: reverseNicknameRegistry,
+    reservedNicknames,
+  } = loadedWorker.root;
 
   if (!nicknameRegistry || !reverseNicknameRegistry) {
     console.error(
@@ -161,7 +173,8 @@ async function main() {
       ? [
           {
             url: "https://api.regarde.bio",
-            description: "Production Server - Nickname Registry (api.regarde.bio)",
+            description:
+              "Production Server - Nickname Registry (api.regarde.bio)",
           },
         ]
       : [
@@ -270,9 +283,7 @@ async function main() {
     port: Number(PORT),
   };
 
-  console.log(
-    `api.regarde.bio HTTP server starting on internal port ${PORT}`,
-  );
+  console.log(`api.regarde.bio HTTP server starting on internal port ${PORT}`);
   console.log(`Public Swagger UI available at: ${PUBLIC_BASE_URL}/ui`);
   console.log(`Public OpenAPI spec available at: ${PUBLIC_BASE_URL}/doc`);
   console.log(`Public Health check available at: ${PUBLIC_BASE_URL}/health`);

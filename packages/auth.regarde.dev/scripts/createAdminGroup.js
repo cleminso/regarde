@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { startWorker } from "jazz-tools/worker";
 import { Group } from "jazz-tools";
-import { RegistryWorkerAccount } from "@regarde-dev/shared-schemas";
+import { RegistryWorkerAccount } from "@regarde-dev/jazz-schemas";
 
 const JAZZ_SYNC_SERVER_URL =
   process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
@@ -57,7 +57,7 @@ async function createAdminGroup() {
     
     console.log("\n📝 Next steps:");
     console.log("1. Copy the Group ID above");
-    console.log("2. Update packages/shared-schemas/src/profile.ts");
+    console.log("2. Update packages/jazz-schemas/src/profile.ts");
     console.log("3. Replace the empty string in jazzProfileAdminGroupID with this ID");
     console.log("4. Add admin members to the group as needed");
     

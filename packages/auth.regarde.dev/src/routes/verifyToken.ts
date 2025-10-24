@@ -1,5 +1,5 @@
 import { createRoute } from "@hono/zod-openapi";
-import { ErrorResponseSchema } from "@regarde-dev/shared-schemas";
+import { ErrorResponseSchema } from "../schemas/common.js";
 import { verifyRegistrationKey } from "../auth/verify.js";
 import { z } from "zod";
 
@@ -101,9 +101,7 @@ export const verifyHandler = (worker: any) => {
         );
       }
 
-      console.log(
-        `Verifying registration key for account: ${jazzAccountId}`,
-      );
+      console.log(`Verifying registration key for account: ${jazzAccountId}`);
 
       const verificationResult = await verifyRegistrationKey(
         jazzAccountId,
@@ -123,4 +121,3 @@ export const verifyHandler = (worker: any) => {
     }
   };
 };
-

@@ -7,7 +7,12 @@ import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { startWorker } from "jazz-tools/worker";
 
-import { RegistryWorkerAccount } from "@regarde-dev/shared-schemas";
+import {
+  RegistryWorkerAccount,
+  type NicknameRegistry,
+  type ReverseNicknameRegistry,
+  type ReservedNicknamesRegistry,
+} from "@regarde-dev/jazz-schemas/regarde.dev";
 
 import { rateLimit } from "./middleware/rateLimit.js";
 
@@ -255,9 +260,7 @@ async function main() {
     port: Number(PORT),
   };
 
-  console.log(
-    `auth.regarde.dev HTTP server starting on internal port ${PORT}`,
-  );
+  console.log(`auth.regarde.dev HTTP server starting on internal port ${PORT}`);
   console.log(`Public Swagger UI available at: ${PUBLIC_BASE_URL}/ui`);
   console.log(`Public OpenAPI spec available at: ${PUBLIC_BASE_URL}/doc`);
   console.log(`Public Health check available at: ${PUBLIC_BASE_URL}/health`);

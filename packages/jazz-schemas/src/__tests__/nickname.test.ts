@@ -7,8 +7,11 @@ import {
   setupJazzTestEnvironment,
   createTestOnboardingAccount,
 } from "../test-utils/jazz-setup.js";
-import { setNicknameFromRegistry, deactivate } from "../nickname.js";
-import { UserHandle } from "../nickname.js";
+import {
+  UserHandle,
+  setNicknameFromRegistry,
+  deactivate,
+} from "../regarde.dev/nickname.js";
 
 describe("Nickname Business Logic", () => {
   beforeEach(async () => {

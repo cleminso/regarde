@@ -1,5 +1,6 @@
 import { co, Group, Loaded, z } from "jazz-tools";
 import { UserHandle } from "../regarde.dev/nickname.js";
+import { RegistrationKey } from "../regarde.dev/registrationKey.js";
 
 export const SocialLinks = co.map({
   github: z.optional(z.string()),
@@ -125,13 +126,6 @@ export type SideProject = co.loaded<typeof SideProject>;
 
 export const ListOfSideProject = co.list(SideProject);
 
-export const RegistrationKey = co.map({
-  key: z.string(),
-  expiresAt: z.number(),
-});
-
-export type RegistrationKey = z.infer<typeof RegistrationKey>;
-
 export const NowPage = co.map({
   title: z.optional(z.string()),
   location: z.optional(z.string()),
@@ -209,13 +203,14 @@ export function validateJazzAppProfile(
   return { isValid: true };
 }
 
+// TODO(Clem): Add metadata handling to auth.regarde.dev/metadata
 export const JazzProfileProfile = co.profile({
   "regarde.bio": z.string(), // String ID, requires additional load
 });
 
 export const JazzProfileRoot = co.map({
   "regarde.bio": JazzAppProfile, // Direct object reference, already loaded
-  "auth.regarde.bio": RegistrationKey,
+  "auth.regarde.dev": RegistrationKey,
 });
 
 export const OnboardingAccount = co
@@ -244,7 +239,7 @@ export const OnboardingAccount = co
 
     if (!account.$jazz.has("root")) {
       account.$jazz.set("root", {
-        "auth.regarde.bio": RegistrationKey.create(
+        "auth.regarde.dev": RegistrationKey.create(
           {
             key: "no",
             expiresAt: 0,
@@ -278,7 +273,7 @@ export const OnboardingAccount = co
       resolve: {
         profile: true,
         root: {
-          "auth.regarde.bio": true,
+          "auth.regarde.dev": true,
         },
       },
     });
@@ -326,7 +321,7 @@ export const OnboardingAccount = co
       });
 
       root.$jazz.set("regarde.bio", jazzProfileData);
-      root.$jazz.set("auth.regarde.bio", registrationKey);
+      root.$jazz.set("auth.regarde.dev", registrationKey);
 
       await account.$jazz.waitForSync();
 

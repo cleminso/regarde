@@ -8,7 +8,7 @@ export function isPlaceholderNickname(nickname: string | undefined): boolean {
 // Validates nickname format according to business rules
 // Separate from availability checking for better separation of concerns
 
-import { UserHandle } from "@regarde-dev/shared-schemas/nickname";
+import { UserHandle } from "@regarde-dev/jazz-schemas/nickname";
 
 export function isValidNicknameFormat(nickname: string): boolean {
   try {

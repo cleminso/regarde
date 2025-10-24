@@ -1,4 +1,5 @@
 import { createRoute } from "@hono/zod-openapi";
+import { OnboardingAccount, JazzAppProfile } from "@regarde-dev/jazz-schemas";
 import { z } from "zod";
 
 export const profilePageRoute = createRoute({
@@ -117,10 +118,6 @@ async function getUserDetails(
   }
 
   try {
-    const { OnboardingAccount, JazzAppProfile } = await import(
-      "@regarde-dev/shared-schemas"
-    );
-
     const jazzUserAccount = await OnboardingAccount.load(
       accountIdFromNickname,
       {

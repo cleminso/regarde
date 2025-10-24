@@ -11,7 +11,7 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build:schema": "pnpm --filter shared-schemas build",
+    "build:schema": "pnpm --filter jazz-schemas build",
     "build": "pnpm clean && pnpm run build:schema && tsc",
     "start": "pnpm build && node dist/index.js",
     "debug": "pnpm build && node --inspect dist/index.js",
@@ -28,14 +28,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@hono/node-server": "^1.19.0",
-    "@hono/swagger-ui": "^0.4.1",
-    "@hono/zod-openapi": "^0.16.4",
-    "@regarde-dev/shared-schemas": "workspace:*",
+    "@hono/node-server": "^1.19.5",
+    "@hono/swagger-ui": "^0.5.2",
+    "@hono/zod-openapi": "^1.1.4",
+    "@regarde-dev/jazz-schemas": "workspace:*",
     "dotenv": "^16.6.1",
-    "hono": "^4.9.4",
+    "hono": "^4.10.2",
     "jazz-tools": "catalog:",
-    "zod": "^3.25.76"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/node": "catalog:",

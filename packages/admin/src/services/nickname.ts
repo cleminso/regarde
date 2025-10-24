@@ -4,7 +4,7 @@ import {
   NicknameRegistryCoRecord,
   ReverseNicknameRegistryCoRecord,
   ReservedNicknamesRegistry,
-} from "@regarde-dev/shared-schemas";
+} from "@regarde-dev/jazz-schemas";
 import { NicknameServiceInterface } from "../types/services.js";
 import { AuditService } from "./audit.js";
 import { ReservationService } from "./reservation.js";

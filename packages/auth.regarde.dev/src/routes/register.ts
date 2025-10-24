@@ -1,9 +1,7 @@
 import { createRoute } from "@hono/zod-openapi";
-import {
-  RegisterRequestSchema,
-  ErrorResponseSchema,
-} from "@regarde-dev/shared-schemas";
 import { verifyRegistrationKey } from "../auth/verify.js";
+import { ErrorResponseSchema } from "../schemas/common.js";
+import { RegisterRequestSchema } from "@regarde-dev/jazz-schemas/regarde.dev";
 
 export const registerRoute = createRoute({
   method: "post",
@@ -262,4 +260,3 @@ export const registerHandler = (
     }
   };
 };
-

@@ -1,5 +1,5 @@
 import { type Loaded } from 'jazz-tools';
-import { type JazzAppProfile } from '@regarde-dev/shared-schemas';
+import { type JazzAppProfile } from '@regarde-dev/jazz-schemas';
 
 export type SyncableObject = {
   waitForSync?: (options: { timeout: number }) => Promise<any>;

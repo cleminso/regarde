@@ -1,7 +1,7 @@
 import { co, z } from "jazz-tools";
 
 export const NicknameRegistryCoRecord = co.record(z.string(), z.string());
-export type NicknameRegistry = z.infer<typeof NicknameRegistryCoRecord>;
+export type NicknameRegistry = co.loaded<typeof NicknameRegistryCoRecord>;
 
 export const ReverseNicknameRegistryCoRecord = co.record(
   z.string(),
@@ -17,7 +17,7 @@ export const ReservationEntry = co.map({
   reason: z.optional(z.string()),
   category: z.enum(["admin", "brand", "system", "offensive", "custom"]),
 });
-export type ReservationEntry = z.infer<typeof ReservationEntry>;
+export type ReservationEntry = co.loaded<typeof ReservationEntry>;
 
 export const ReservedNicknamesRegistry = co.record(
   z.string(),
@@ -52,9 +52,7 @@ export const RegistryWorkerAccountRoot = co.map({
   auditLog: RegistryAuditLog,
   reservedNicknames: ReservedNicknamesRegistry,
 });
-export type RegistryWorkerAccountRoot = z.infer<
-  typeof RegistryWorkerAccountRoot
->;
+export type RegistryWorkerAccountRoot = co.loaded<typeof RegistryWorkerAccountRoot>;
 
 const EmptyProfile = co.profile();
 
