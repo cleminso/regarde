@@ -299,7 +299,7 @@ install_dependencies() {
 build_project() {
     log_step "Building project"
 
-    if pnpm --filter @regarde-dev/api.regarde.bio build:schema; && pnpm --filter @regarde-dev/auth.regarde.dev build:schema; then
+    if pnpm --filter @regarde-dev/auth.regarde.dev build:schema && pnpm --filter @regarde-dev/auth.regarde.dev build; then
         log_success "Project built"
     else
         log_error "Failed to build project"
