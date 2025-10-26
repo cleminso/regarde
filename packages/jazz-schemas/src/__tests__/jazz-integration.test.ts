@@ -73,7 +73,7 @@ describe("Jazz Framework Integration Tests", () => {
     expect(account.root).toBeDefined();
     expect(account.profile).toBeDefined();
 
-    expect(account.root["auth.regarde.bio"]).toBeDefined();
+    expect(account.root["auth.regarde.dev"]).toBeDefined();
     expect(account.root["regarde.bio"]).toBeDefined();
 
     // Verify profile structure is valid
@@ -85,7 +85,7 @@ describe("Jazz Framework Integration Tests", () => {
     expect(profile!.version).toBe(1);
 
     // Verify auth structure is valid
-    const auth = account.root["auth.regarde.bio"];
+    const auth = account.root["auth.regarde.dev"];
     expect(auth).toBeDefined();
     expect(auth!.key).toContain("not-valid-"); // From migration
     expect(auth!.expiresAt).toBe(0);

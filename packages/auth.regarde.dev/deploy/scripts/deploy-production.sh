@@ -116,9 +116,8 @@ load_config() {
     )
 
     # Optional variables with defaults
-    SERVICE_NAME=${SERVICE_NAME:-"nickname-registry"}
-    API-REGARDE-BIO_APP_PORT=${APP_PORT:-"3000"}
-    AUTH-REGARDE-DEV_APP_PORT=${APP_PORT:-"3001"}
+    SERVICE_NAME=${SERVICE_NAME:-"auth-regarde-dev"}
+    APP_PORT=${APP_PORT:-"3000"}
     HEALTH_CHECK_TIMEOUT=${HEALTH_CHECK_TIMEOUT:-"10"}
     SERVICE_RESTART_TIMEOUT=${SERVICE_RESTART_TIMEOUT:-"15"}
     NODE_ENV=${NODE_ENV:-"production"}
@@ -135,8 +134,7 @@ load_config() {
     log_success "Configuration loaded successfully"
     log_status_ok "Domain" "$APP_PUBLIC_HOSTNAME"
     log_status_ok "Service" "$SERVICE_NAME"
-    log_status_ok "Port (api.regarde.bio)" "${API-REGARDE-BIO_APP_PORT}"
-    log_status_ok "Port (auth.regarde.dev)" "${AUTH-REGARDE-DEV_APP_PORT}"
+    log_status_ok "Port" "$APP_PORT"
 }
 
 # =============================================================================

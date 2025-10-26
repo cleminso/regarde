@@ -8,10 +8,10 @@ import { swaggerUI } from "@hono/swagger-ui";
 import { startWorker } from "jazz-tools/worker";
 
 import {
+  NicknameRegistry,
   RegistryWorkerAccount,
-  type NicknameRegistry,
-  type ReverseNicknameRegistry,
-  type ReservedNicknamesRegistry,
+  ReservedNicknamesRegistry,
+  ReverseNicknameRegistry,
 } from "@regarde-dev/jazz-schemas/regarde.dev";
 
 import { rateLimit } from "./middleware/rateLimit.js";
@@ -22,6 +22,7 @@ import {
   checkAvailabilityHandler,
 } from "./routes/checkAvailability.js";
 import { registerRoute, registerHandler } from "./routes/register.js";
+import { Loaded } from "jazz-tools";
 
 const PORT = process.env.PORT || 3000;
 const JAZZ_SYNC_SERVER_URL =
@@ -98,7 +99,7 @@ async function main() {
 
   console.log(`Worker started with Account ID: ${worker.$jazz.id}`);
 
-  let loadedWorker;
+  let loadedWorker: Loaded<typeof RegistryWorkerAccount>;
   try {
     loadedWorker = await worker.$jazz.ensureLoaded({
       resolve: {
@@ -111,7 +112,9 @@ async function main() {
     });
 
     if (loadedWorker?.root?.reservedNicknames) {
-      await loadedWorker.root.reservedNicknames.$jazz.ensureLoaded({
+      await (
+        loadedWorker.root.reservedNicknames as ReservedNicknamesRegistry
+      ).$jazz.ensureLoaded({
         resolve: {},
       });
       console.log("Reserved nicknames registry fully loaded");
@@ -122,9 +125,14 @@ async function main() {
     process.exit(1);
   }
 
-  const nicknameRegistry = loadedWorker?.root?.registry;
-  const reverseNicknameRegistry = loadedWorker?.root?.reverseRegistry;
-  const reservedNicknames = loadedWorker?.root?.reservedNicknames;
+  const nicknameRegistry: NicknameRegistry | undefined = loadedWorker?.root
+    ?.registry as NicknameRegistry | undefined;
+  const reverseNicknameRegistry = loadedWorker?.root?.reverseRegistry as
+    | ReverseNicknameRegistry
+    | undefined;
+  const reservedNicknames = loadedWorker?.root?.reservedNicknames as
+    | ReservedNicknamesRegistry
+    | undefined;
 
   if (!nicknameRegistry || !reverseNicknameRegistry) {
     console.error(
@@ -168,7 +176,8 @@ async function main() {
       ? [
           {
             url: "https://auth.regarde.dev",
-            description: "Production Server - Authentication (auth.regarde.dev)",
+            description:
+              "Production Server - Authentication (auth.regarde.dev)",
           },
         ]
       : [

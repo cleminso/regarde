@@ -7,21 +7,15 @@ import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { startWorker } from "jazz-tools/worker";
 
-import {
-  RegistryWorkerAccount,
-  type NicknameRegistry,
-  type ReverseNicknameRegistry,
-  type ReservedNicknamesRegistry,
-} from "@regarde-dev/jazz-schemas/regarde.dev";
+import { RegistryWorkerAccount } from "@regarde-dev/jazz-schemas/regarde.dev";
 
 import { rateLimit } from "./middleware/rateLimit.js";
 
-import { registerRoute, registerHandler } from "./routes/register.js";
 import { userDetailsRoute, userDetailsHandler } from "./routes/userDetails.js";
 import { profilePageRoute, profilePageHandler } from "./routes/profilePage.js";
 import { avatarRoute, avatarHandler } from "./routes/avatar.js";
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 const JAZZ_SYNC_SERVER_URL =
   process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
 
