@@ -69,6 +69,11 @@
       "types": "./dist/verify/index.d.ts",
       "import": "./dist/verify.js",
       "require": "./dist/verify.cjs"
+    },
+    "./regarde-users": {
+      "types": "./dist/regarde-users/index.d.ts",
+      "import": "./dist/regarde-users.js",
+      "require": "./dist/regarde-users.cjs"
     }
   },
   "files": [

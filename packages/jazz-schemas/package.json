@@ -23,6 +23,10 @@
     "./regarde.dev": {
       "types": "./dist/regarde.dev/index.d.ts",
       "import": "./dist/regarde.dev/index.js"
+    },
+    "./userHandle": {
+      "types": "./dist/regarde.dev/userHandle.d.ts",
+      "import": "./dist/regarde.dev/userHandle.js"
     }
   },
   "scripts": {

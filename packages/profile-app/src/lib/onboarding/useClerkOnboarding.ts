@@ -2,8 +2,8 @@ import { useClerk } from '@clerk/clerk-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { useMyJazz } from '../account/useMyJazz';
-import { useRegardeAuth } from '../account/useRegardeAuth';
+import { useMyRegardeAccount } from '../account/useMyRegardeAccount';
+import { useRegardeAuth } from '../account/useRegistrationToken';
 import { checkNicknameAvailability } from '../api/nickname';
 import { registerNicknameWithServer } from '../nickname/services';
 import { isValidNicknameFormat } from '../nickname/utils';
@@ -30,7 +30,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
   const navigate = useNavigate();
   const clerk = useClerk();
 
-  const { regardeProfile, account, isAuthenticated } = useMyJazz();
+  const { regardeProfile, account, isAuthenticated } = useMyRegardeAccount();
 
   const { getValidKey, isAccountReady } = useRegardeAuth();
 
@@ -129,6 +129,26 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
       setError(null);
 
       try {
+        // Check availability before registering
+        const availabilityResult = await checkNicknameAvailability(pendingNickname);
+
+        if (!availabilityResult.available) {
+          if (availabilityResult.reserved) {
+            const categoryText = availabilityResult.reservationCategory
+              ? ` (${availabilityResult.reservationCategory})`
+              : '';
+            const reasonText = availabilityResult.reservationReason
+              ? `: ${availabilityResult.reservationReason}`
+              : '';
+            setError(`This nickname is reserved${categoryText}${reasonText}`);
+          } else {
+            setError('This nickname is already taken');
+          }
+          localStorage.removeItem(PENDING_NICKNAME_KEY);
+          hasProcessedPendingNickname.current = false;
+          return;
+        }
+
         await registerNicknameWithServer({
           nickname: pendingNickname,
           accountId: account.$jazz.id,
@@ -204,6 +224,26 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
           return;
         }
 
+        // Check availability before registering
+        const availabilityResult = await checkNicknameAvailability(nickname);
+
+        if (!availabilityResult.available) {
+          if (availabilityResult.reserved) {
+            const categoryText = availabilityResult.reservationCategory
+              ? ` (${availabilityResult.reservationCategory})`
+              : '';
+            const reasonText = availabilityResult.reservationReason
+              ? `: ${availabilityResult.reservationReason}`
+              : '';
+            setError(`This nickname is reserved${categoryText}${reasonText}`);
+          } else {
+            setError('This nickname is already taken');
+          }
+          registrationInProgress.current = false;
+          setIsProcessing(false);
+          return;
+        }
+
         await registerNicknameWithServer({
           nickname,
           accountId: account.$jazz.id,
@@ -256,6 +296,24 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
       setError(null);
 
       try {
+        // Check availability before updating
+        const availabilityResult = await checkNicknameAvailability(nickname);
+
+        if (!availabilityResult.available) {
+          if (availabilityResult.reserved) {
+            const categoryText = availabilityResult.reservationCategory
+              ? ` (${availabilityResult.reservationCategory})`
+              : '';
+            const reasonText = availabilityResult.reservationReason
+              ? `: ${availabilityResult.reservationReason}`
+              : '';
+            setError(`This nickname is reserved${categoryText}${reasonText}`);
+          } else {
+            setError('This nickname is already taken');
+          }
+          return;
+        }
+
         await registerNicknameWithServer({
           nickname,
           accountId: account!.$jazz.id,

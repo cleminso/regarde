@@ -182,7 +182,7 @@ Checks if a registration token has expired.
 
 **Returns:** `boolean` - True if expired or invalid
 
-#### `generateRegardeAuth()`
+#### `generateRegardeToken()`
 
 Generates a random 16-character registration token.
 

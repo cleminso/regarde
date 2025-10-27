@@ -1,4 +1,4 @@
-import { GetValidKeyFunction } from '../account/useRegardeAuth';
+import { type GetValidKeyFunction } from '../account/useRegistrationToken';
 import { registerNickname } from '../api/nickname';
 import { isPlaceholderNickname } from './utils';
 

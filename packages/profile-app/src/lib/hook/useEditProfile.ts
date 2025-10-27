@@ -1,8 +1,8 @@
-import { useMyJazz } from '../account/useMyJazz';
+import { useMyRegardeAccount } from '../account/useMyRegardeAccount';
 import { useSyncState } from './useSyncState';
 
 export function useEditProfile() {
-  const { account, regardeProfile, isAuthenticated } = useMyJazz();
+  const { account, regardeProfile, isAuthenticated } = useMyRegardeAccount();
   const { syncState, triggerSyncIndicator } = useSyncState();
 
   const isLoading = account === undefined;

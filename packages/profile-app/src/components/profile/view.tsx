@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 
 import { Button } from '#/components/ui/button';
-import { useMyJazz } from '#/lib/account/useMyJazz';
+import { useMyRegardeAccount } from '#/lib/account/useMyRegardeAccount';
 import { fetchUserDetailsByNickname } from '#/lib/api/base';
 import { RegardeProfile } from '#/lib/schema';
 import { logger } from '#/lib/utils/logger';
@@ -23,7 +23,7 @@ export function ProfileView() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const { account, regardeProfile } = useMyJazz();
+  const { account, regardeProfile } = useMyRegardeAccount();
 
   useEffect(() => {
     if (!nickname) {

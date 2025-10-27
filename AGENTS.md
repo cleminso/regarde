@@ -41,7 +41,7 @@ pnpm --filter profile-app format-and-lint:fix   # Auto-fix code style
 // Order: builtins, third-party, absolute imports, relative imports
 import { useAccount } from "jazz-tools/react"; // Framework first
 import { RegardeAccount } from "@regarde-dev/shared-schemas"; // Workspace next
-import { useMyJazz } from "#/lib/account/useMyJazz"; // Aliased imports
+import { useMyRegardeAccount } from "#/lib/account/useMyRegardeAccount"; // Aliased imports
 import { MyComponent } from "./MyComponent"; // Relative last
 ```
 
@@ -104,5 +104,5 @@ import { MyComponent } from "./MyComponent"; // Relative last
   - Worker gets account ID from nickname registry or public profile
   - Worker loads account: `RegardeAccount.load(accountId, { resolve: ... })`
   - No `{ loadAs: worker }` needed - verifies ownership via registration key
-- **Client data access**: Use `useMyJazz()` as single source of truth for user data
+- **Client data access**: Use `useMyRegardeAccount()` as single source of truth for user data
 - **Variable naming**: `account` for RegardeAccount, `RegardeProfile` for RegardeProfile, `worker` for RegistryWorkerAccount, `RegardeAuth` for RegardeAuth

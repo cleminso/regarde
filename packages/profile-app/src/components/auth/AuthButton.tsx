@@ -2,16 +2,16 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { useRegardeAuth } from '#/lib/account/useRegardeAuth';
+import { useRegardeAuth } from '#/lib/account/useRegistrationToken';
 import { logger } from '#/lib/utils/logger';
-import { useMyJazz } from '../../lib/account/useMyJazz';
+import { useMyRegardeAccount } from '../../lib/account/useMyRegardeAccount';
 import { CustomAuthModal } from '../onboarding/customAuthModal';
 import { Button } from '../ui/button';
 
 export function AuthButton() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const { logOut, isAuthenticated } = useMyJazz();
+  const { logOut, isAuthenticated } = useMyRegardeAccount();
   const { getValidKey, isAccountReady } = useRegardeAuth();
 
   const keyInitialized = useRef(false);

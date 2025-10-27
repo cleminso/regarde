@@ -1,28 +1,20 @@
 import { useCallback } from 'react';
 
 import { useRegardeAuth as useSDKRegardeAuth } from '@regarde-dev/sdk/react';
-import {
-  generateRegardeAuth,
-  getRegardeAuth,
-  isKeyExpired,
-} from '@regarde-dev/sdk/auth';
 
-import { useMyJazz } from './useMyJazz';
+import { useMyRegardeAccount } from './useMyRegardeAccount';
 
 export type GetValidKeyFunctionOutput = Promise<{
-  key: string;
-  regardeAuthId: string;
+  token: string;
+  tokenId: string;
 } | null>;
 
 export type GetValidKeyFunction = () => GetValidKeyFunctionOutput;
 
-// Re-export SDK utilities for backward compatibility
-export { generateRegardeAuth, isKeyExpired, getRegardeAuth };
-
 export function useRegardeAuth() {
-  const { account, isAccountReady } = useMyJazz();
+  const { account, isAccountReady } = useMyRegardeAccount();
 
-  const regardeAuth = account?.root?.['auth.regarde.bio'];
+  const regardeAuth = account?.root?.['api.regarde.dev'];
   const isLoading = account === undefined;
   const isAccessible = regardeAuth !== null;
 
@@ -38,25 +30,27 @@ export function useRegardeAuth() {
       return null;
     }
 
-    // Check if key is expired or missing
+    // Check if token is expired or missing
     if (!regardeAuth || sdkHook.isExpired) {
-      // Refresh the key using SDK's refresh function
+      // Refresh the token using SDK's refresh function
       await sdkHook.refresh();
 
-      // After refresh, get the updated registration key
-      const updatedRegardeAuth = account.root?.['auth.regarde.bio'];
-      if (!updatedRegardeAuth?.key) return null;
+      // After refresh, get the updated token from SDK hook
+      // The SDK hook will have the latest values after refresh
+      if (!sdkHook.token || !sdkHook.tokenId) return null;
 
       return {
-        key: updatedRegardeAuth.key,
-        regardeAuthId: updatedRegardeAuth.$jazz.id,
+        token: sdkHook.token,
+        tokenId: sdkHook.tokenId,
       };
     }
 
-    // Return existing valid key
+    // Return existing valid token from SDK hook
+    if (!sdkHook.token || !sdkHook.tokenId) return null;
+
     return {
-      key: regardeAuth.key,
-      regardeAuthId: regardeAuth.$jazz.id,
+      token: sdkHook.token,
+      tokenId: sdkHook.tokenId,
     };
   }, [account, isAccountReady, regardeAuth, isLoading, sdkHook]);
 

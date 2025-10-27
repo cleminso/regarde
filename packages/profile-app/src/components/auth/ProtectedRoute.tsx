@@ -1,11 +1,11 @@
 import { Navigate, Outlet, useParams } from 'react-router';
 
-import { useMyJazz } from '../../lib/account/useMyJazz';
+import { useMyRegardeAccount } from '../../lib/account/useMyRegardeAccount';
 import { createNicknameUrl } from '../../lib/utils/utils';
 
 export function ProtectedRoute() {
   const { nickname } = useParams();
-  const { account, regardeProfile, isAuthenticated } = useMyJazz();
+  const { account, regardeProfile, isAuthenticated } = useMyRegardeAccount();
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;

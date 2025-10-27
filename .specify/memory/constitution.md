@@ -53,7 +53,7 @@ Rationale for Version 1.1.0:
 
 ### II. Jazz Architecture Discipline
 
-**Rule**: Use `RegardeAccount` schema to represent a user's complete account structure including their identity and private data. Use `RegardeProfile` schema to represent a user's public profile information. Understand the namespace structure: `account.root["regarde.bio"]` contains the `RegardeProfile` data, while `account.profile["regarde.bio"]` contains the profile ID reference. Workers load `RegardeAccount` using the account's CoMap ID (found in public profile or nickname registry). Authentication uses Jazz-tools via Clerk APIs: Clerk stores Jazz account credentials, Jazz-tools retrieves these credentials via Clerk APIs to authenticate users. Custom registration key system provides stateless worker authorization by verifying ownership of a time-limited key stored in `account.root["auth.regarde.bio"]`. Client code must use `useMyJazz()` as the single source of truth for authenticated user data.
+**Rule**: Use `RegardeAccount` schema to represent a user's complete account structure including their identity and private data. Use `RegardeProfile` schema to represent a user's public profile information. Understand the namespace structure: `account.root["regarde.bio"]` contains the `RegardeProfile` data, while `account.profile["regarde.bio"]` contains the profile ID reference. Workers load `RegardeAccount` using the account's CoMap ID (found in public profile or nickname registry). Authentication uses Jazz-tools via Clerk APIs: Clerk stores Jazz account credentials, Jazz-tools retrieves these credentials via Clerk APIs to authenticate users. Custom registration key system provides stateless worker authorization by verifying ownership of a time-limited key stored in `account.root["auth.regarde.bio"]`. Client code must use `useMyRegardeAccount()` as the single source of truth for authenticated user data.
 
 **Rationale**: Clear separation between account structure and profile data prevents permission bugs and reduces unnecessary data loading. The namespace structure (`root` vs `profile`) determines whether data is pre-loaded or requires additional loading. Jazz-tools handles authentication by retrieving credentials stored in Clerk, providing seamless integration between Clerk's user management and Jazz's distributed state system. Custom registration key system provides secure, stateless worker authorization using CoMap ownership verification to prove user identity. Registration keys act as time-limited 2FA tokens that users generate and present to authorize their actions with the worker.
 
@@ -68,7 +68,7 @@ Rationale for Version 1.1.0:
 - `RegardeProfile` usage scenarios (user perspective):
   - When anyone views a user's public profile page
   - When displaying a user's name, bio, projects, or other public information
-  - When a user is editing their profile fields (useMyJazz already provides account context)
+  - When a user is editing their profile fields (useMyRegardeAccount already provides account context)
   - When the worker serves public profile data to anyone
   - When you only need profile data and not the full account structure
 - Namespace structure understanding:
@@ -87,7 +87,7 @@ Rationale for Version 1.1.0:
   - Worker loads `RegardeAccount` using account CoMap ID: `RegardeAccount.load(accountId, { resolve: ... })`
   - No `{ loadAs: worker }` needed - Regarde uses custom registration key authentication instead of Jazz's built-in `loadAs` permission system
   - Worker verifies user ownership via registration key validation (see Registration key authentication flow)
-- Client data access must use `useMyJazz()` hook as single source of truth:
+- Client data access must use `useMyRegardeAccount()` hook as single source of truth:
   - Returns pre-resolved `RegardeProfile` from `account.root["regarde.bio"]`
   - Provides `account` for the logged-in user's account context
   - Avoids redundant loads by resolving all data upfront

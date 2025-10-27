@@ -1,18 +1,11 @@
+import {
+  registerNickname as sdkRegisterNickname,
+  checkNicknameAvailability as sdkCheckNicknameAvailability,
+} from '@regarde-dev/sdk/regarde-users';
+import type { CheckAvailabilityResponse } from '@regarde-dev/sdk/regarde-users';
+
 import { GetValidKeyFunction } from '../account/useRegardeAuth';
 import { API_BASE_URL, AUTH_BASE_URL } from '../config/apiKey';
-
-export interface CheckAvailabilityRequest {
-  nickname: string;
-}
-
-export interface CheckAvailabilityResponse {
-  nickname: string;
-  available: boolean;
-  takenBy?: string;
-  reserved?: boolean;
-  reservationCategory?: string;
-  reservationReason?: string;
-}
 
 export interface RegisterRequest {
   nickname: string;
@@ -25,6 +18,9 @@ export interface ApiError {
   message?: string;
   details?: any;
 }
+
+// Re-export SDK type for backward compatibility
+export type { CheckAvailabilityResponse };
 
 export interface UserDetailsResponse {
   jazzAccountId: string;
@@ -44,27 +40,18 @@ export interface UserDetailsResponse {
 export async function checkNicknameAvailability(
   nickname: string,
 ): Promise<CheckAvailabilityResponse> {
-  const response = await fetch(`${AUTH_BASE_URL}/checkAvailability`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ nickname }),
-  });
-
-  if (!response.ok) {
-    const errorData: ApiError = await response.json();
-
-    if (response.status === 503) {
+  try {
+    return await sdkCheckNicknameAvailability({
+      baseUrl: AUTH_BASE_URL,
+      nickname,
+    });
+  } catch (error) {
+    // Handle 503 errors specifically
+    if (error instanceof Error && error.message.includes('503')) {
       throw new Error('Service is initializing, please try again in a moment');
     }
-
-    throw new Error(
-      errorData.error || `HTTP ${response.status}: ${response.statusText}`,
-    );
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function registerNickname(
@@ -73,26 +60,22 @@ export async function registerNickname(
 ): Promise<void> {
   const registrationData = await getValidRegardeAuth();
   if (!registrationData) {
-    throw new Error('Could not obtain valid registration key');
+    throw new Error('Could not obtain valid registration token');
   }
 
-  const { key, RegardeAuthId } = registrationData;
+  const { token, tokenId } = registrationData;
 
-  const response = await fetch(`${API_BASE_URL}/register`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Registration-Key': key,
-      'X-Registration-Key-Id': RegardeAuthId,
-    },
-    body: JSON.stringify(request),
+  const result = await sdkRegisterNickname({
+    baseUrl: API_BASE_URL,
+    nickname: request.nickname,
+    jazzAccountID: request.jazzAccountID,
+    oldNickname: request.oldNickname,
+    regardeAuth: token,
+    regardeAuthId: tokenId,
   });
 
-  if (!response.ok) {
-    const errorData: ApiError = await response.json();
-    throw new Error(
-      errorData.error || `HTTP ${response.status}: ${response.statusText}`,
-    );
+  if (!result.success) {
+    throw new Error(result.error || 'Registration failed');
   }
 }
 
