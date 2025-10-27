@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useAward } from '#/lib/hook/useAward.ts';
-import { Award, JazzAppProfile, ListOfAward } from '#/lib/schema';
+import { Award, RegardeProfile, ListOfAward } from '#/lib/schema';
 import { EditorFooter } from '../../index';
 import { SectionHeader } from './../../layout/header';
 import { AwardCard } from './card';
 
 type AwardViewProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
   triggerSyncIndicator: TriggerSyncIndicator;
   awards: Loaded<typeof ListOfAward> | undefined;
   onAddAward: () => void;

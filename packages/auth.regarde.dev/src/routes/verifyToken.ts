@@ -1,6 +1,6 @@
 import { createRoute } from "@hono/zod-openapi";
 import { ErrorResponseSchema } from "../schemas/common.js";
-import { verifyRegistrationKey } from "../auth/verify.js";
+import { verifyRegardeAuth } from "../auth/verify.js";
 import { z } from "zod";
 
 const HARDCODED_API_KEY = "nick-sauve.app-ilfaitbeautoday";
@@ -15,8 +15,8 @@ export const verifyRoute = createRoute({
   path: "/verify",
   request: {
     headers: z.object({
-      "x-registration-key": z.string(),
-      "x-registration-key-id": z.string(),
+      "x-regarde-token": z.string(),
+      "x-regarde-token-id": z.string(),
       "x-jazz-account-id": z.string(),
       "x-api-key": z.string(),
     }),
@@ -62,8 +62,8 @@ export const verifyRoute = createRoute({
 
     **Authentication:**
     - Header: X-API-Key (required) - API key for accessing this endpoint
-    - Header: X-Registration-Key (required) - Registration key from user's Jazz account
-    - Header: X-Registration-Key-Id (required) - CoMap ID of the registration key
+    - Header: X-Regarde-Token (required) - Registration key from user's Jazz account
+    - Header: X-Regarde-Token-Id (required) - CoMap ID of the registration key
     - Header: X-Jazz-Account-Id (required) - Jazz account ID of the user
 
     **Returns:**
@@ -76,8 +76,8 @@ export const verifyHandler = (worker: any) => {
   return async (c: any) => {
     try {
       const apiKey = c.req.header("X-API-Key");
-      const registrationKey = c.req.header("X-Registration-Key");
-      const registrationKeyId = c.req.header("X-Registration-Key-Id");
+      const regardeAuth = c.req.header("X-Regarde-Token");
+      const regardeAuthId = c.req.header("X-Regarde-Token-Id");
       const jazzAccountId = c.req.header("X-Jazz-Account-Id");
 
       if (!apiKey) {
@@ -90,12 +90,12 @@ export const verifyHandler = (worker: any) => {
         return c.json({ error: "Invalid API key" }, 401);
       }
 
-      if (!registrationKey || !registrationKeyId || !jazzAccountId) {
+      if (!regardeAuth || !regardeAuthId || !jazzAccountId) {
         console.log("Missing required headers");
         return c.json(
           {
             error:
-              "Missing required headers: X-Registration-Key, X-Registration-Key-Id, X-Jazz-Account-Id",
+              "Missing required headers: X-Regarde-Token, X-Regarde-Token-Id, X-Jazz-Account-Id",
           },
           400,
         );
@@ -103,11 +103,10 @@ export const verifyHandler = (worker: any) => {
 
       console.log(`Verifying registration key for account: ${jazzAccountId}`);
 
-      const verificationResult = await verifyRegistrationKey(
+      const verificationResult = await verifyRegardeAuth(
         jazzAccountId,
-        registrationKey,
-        registrationKeyId,
-        worker,
+        regardeAuth,
+        regardeAuthId,
       );
 
       console.log(

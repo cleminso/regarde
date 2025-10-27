@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useVolunteering } from '#/lib/hook/useVolunteering';
-import { JazzAppProfile, ListOfVolunteering, Volunteering } from '#/lib/schema';
+import { RegardeProfile, ListOfVolunteering, Volunteering } from '#/lib/schema';
 import { EditorFooter } from '../../index';
 import { SectionHeader } from '../../layout/header';
 import { VolunteeringCard } from './card';
 
 type VolunteeringViewProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
   triggerSyncIndicator: TriggerSyncIndicator;
   volunteering: Loaded<typeof ListOfVolunteering> | undefined;
   onAddVolunteering: () => void;

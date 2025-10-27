@@ -15,7 +15,7 @@ export const RegisterRequestSchema = z.object({
 export const RegisterResponseSchema = z.object({
   nickname: z.string(),
   jazzAccountID: z.string(),
-  registered: z.boolean(),
+  isRegistered: z.boolean(),
   message: z.string().optional(),
 });
 

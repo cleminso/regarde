@@ -3,7 +3,7 @@
  * These create valid instances of our schemas for testing
  */
 
-import { JazzAppProfile } from "../regarde.bio";
+import { RegardeProfile } from "../regarde.bio";
 import { UserHandle } from "../regarde.dev";
 
 /**
@@ -31,7 +31,7 @@ export function createTestUserHandle(
 }
 
 /**
- * Creates a minimal valid JazzAppProfile for testing
+ * Creates a minimal valid RegardeProfile for testing
  */
 export function createTestProfile(
   overrides: {
@@ -44,7 +44,7 @@ export function createTestProfile(
 
   const userHandle = createTestUserHandle({ nickname, isActive: true });
 
-  return JazzAppProfile.create({
+  return RegardeProfile.create({
     name,
     userHandle,
     bio,
@@ -53,12 +53,12 @@ export function createTestProfile(
 }
 
 /**
- * Creates a complex JazzAppProfile with nested structures for testing
+ * Creates a complex RegardeProfile with nested structures for testing
  */
 export function createComplexTestProfile() {
   const userHandle = createTestUserHandle({ nickname: "complexuser" });
 
-  return JazzAppProfile.create({
+  return RegardeProfile.create({
     name: "Complex Test User",
     userHandle,
     bio: "A complex user profile for testing",
@@ -104,21 +104,21 @@ export function createInvalidTestProfile(
 ) {
   switch (invalidationType) {
     case "emptyName":
-      return JazzAppProfile.create({
+      return RegardeProfile.create({
         name: "", // Invalid: empty name
         userHandle: createTestUserHandle({ isActive: true }),
         version: 1,
       });
 
     case "inactiveHandle":
-      return JazzAppProfile.create({
+      return RegardeProfile.create({
         name: "Test User",
         userHandle: createTestUserHandle({ isActive: false }), // Invalid: inactive handle
         version: 1,
       });
 
     case "emptyNickname":
-      return JazzAppProfile.create({
+      return RegardeProfile.create({
         name: "Test User",
         userHandle: createTestUserHandle({ nickname: "" }), // Invalid: empty nickname
         version: 1,

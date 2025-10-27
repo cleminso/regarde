@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useEducation } from '#/lib/hook/useEducation.ts';
-import { Education, JazzAppProfile, ListOfEducation } from '#/lib/schema';
+import { Education, RegardeProfile, ListOfEducation } from '#/lib/schema';
 import { EditorFooter } from '../../index';
 import { SectionHeader } from './../../layout/header';
 import { EducationCard } from './card';
 
 type EducationViewProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
   triggerSyncIndicator: TriggerSyncIndicator;
   education: Loaded<typeof ListOfEducation> | undefined;
   onAddEducation: () => void;

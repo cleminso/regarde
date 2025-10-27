@@ -54,8 +54,8 @@
 - [ ] Tests located in `__tests__/` folders next to implementation
 
 ### II. Jazz Architecture Discipline
-- [ ] Authentication/permissions use `OnboardingAccount` context
-- [ ] Profile data access uses `JazzAppProfile` or `useMyJazz()` hook
+- [ ] Authentication/permissions use `RegardeAccount` context
+- [ ] Profile data access uses `RegardeProfile` or `useMyJazz()` hook
 - [ ] Worker endpoints specify `{ loadAs: worker }` pattern
 - [ ] No schema definitions outside `packages/shared-schemas/`
 

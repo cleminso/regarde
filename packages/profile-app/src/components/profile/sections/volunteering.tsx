@@ -2,11 +2,11 @@ import { Loaded } from 'jazz-tools';
 import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
-import type { JazzAppProfile, Volunteering } from '#/lib/schema';
+import type { RegardeProfile, Volunteering } from '#/lib/schema';
 import { formatDateRange, getValidUrl } from '#/lib/utils/utils';
 
 type VolunteeringsProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
 };
 
 export function Volunteerings({ profile }: VolunteeringsProps) {

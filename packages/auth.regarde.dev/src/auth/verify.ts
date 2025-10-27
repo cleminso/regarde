@@ -1,74 +1,73 @@
-import { RegistrationKey } from "@regarde-dev/jazz-schemas/regarde.dev";
+import { RegardeAuth } from "@regarde-dev/jazz-schemas/regarde.dev";
 
 export interface VerificationResult {
   isValid: boolean;
   error?: string;
 }
 
-export async function verifyRegistrationKey(
+export async function verifyRegardeAuth(
   jazzAccountId: string,
-  providedRegistrationKey: string,
-  registrationKeyCoValueId: string,
-  worker: any,
+  providedRegardeAuth: string,
+  regardeAuthCoValueId: string,
 ): Promise<VerificationResult> {
   try {
-    if (!jazzAccountId || !providedRegistrationKey) {
+    if (!jazzAccountId || !providedRegardeAuth) {
       return { isValid: false, error: "Missing jazzAccountId or key" };
     }
 
     console.log(
-      `Attempting to load account: ${jazzAccountId} with registrationKeyCoValueId ${registrationKeyCoValueId}`,
+      `Attempting to load account: ${jazzAccountId} with regardeAuthCoValueId ${regardeAuthCoValueId}`,
     );
 
-    let registrationKey = null;
+    let regardeAuth = null;
 
     try {
-      registrationKey = await RegistrationKey.load(registrationKeyCoValueId, {
+      regardeAuth = await RegardeAuth.load(regardeAuthCoValueId, {
         resolve: true,
       });
 
-      await registrationKey?.$jazz.ensureLoaded({
+      await regardeAuth?.$jazz.ensureLoaded({
         resolve: true,
       });
 
-      if (registrationKey?.$jazz.owner.getRoleOf(jazzAccountId) !== "admin")
+      if (regardeAuth?.$jazz.owner.getRoleOf(jazzAccountId) !== "admin")
         // TODO: Important! Must check who created the coValue instead of whether it's an admin or not
         throw new Error("User does not own the CoValue");
     } catch (loadError: any) {
       console.error(`Failed to load account ${jazzAccountId}:`, loadError);
       return {
         isValid: false,
-        error: "RegistrationKey does not exist or is not accessible",
+        error: "regardeAuth does not exist or is not accessible",
       };
     }
 
-    if (!registrationKey) {
-      console.log(`No registration key found`);
+    if (!regardeAuth) {
+      console.log(`No registration token found`);
       return {
         isValid: false,
         error:
-          "No registration key found - user must create registration key first",
+          "No registration token found - user must create registration token first",
       };
     }
 
     console.log(
-      `Registration key found, verifying: ${registrationKey.key} - ${registrationKey.expiresAt}`,
+      `Registration token found, verifying: ${regardeAuth.token} - ${regardeAuth.expiresAt}`,
     );
 
-    if (registrationKey.key !== providedRegistrationKey) {
-      return { isValid: false, error: "Invalid registration key" };
+    if (regardeAuth.token !== providedRegardeAuth) {
+      return { isValid: false, error: "Invalid registration token" };
     }
 
-    if (registrationKey.expiresAt && Date.now() > registrationKey.expiresAt) {
-      return { isValid: false, error: "Registration key has expired" };
+    if (regardeAuth.expiresAt && Date.now() > regardeAuth.expiresAt) {
+      return { isValid: false, error: "Registration token has expired" };
     }
 
     console.log(
-      `Registration key verified successfully for account: ${jazzAccountId}`,
+      `Registration token verified successfully for account: ${jazzAccountId}`,
     );
     return { isValid: true };
   } catch (error: any) {
-    console.error("Error verifying registration key:", error);
+    console.error("Error verifying registration token:", error);
     return { isValid: false, error: `Verification failed: ${error.message}` };
   }
 }

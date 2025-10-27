@@ -3,8 +3,8 @@ export interface RegisterNicknameParams {
   nickname: string;
   jazzAccountID: string;
   oldNickname?: string;
-  registrationKey: string;
-  registrationKeyId: string;
+  regardeAuth: string;
+  regardeAuthId: string;
   signal?: AbortSignal;
 }
 
@@ -27,4 +27,3 @@ export interface RegisterNicknameResponse {
   success: boolean;
   error?: string;
 }
-

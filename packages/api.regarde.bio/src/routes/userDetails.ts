@@ -1,8 +1,8 @@
 import { createRoute } from "@hono/zod-openapi";
 
 import {
-  JazzAppProfile,
-  OnboardingAccount,
+  RegardeProfile,
+  RegardeAccount,
 } from "@regarde-dev/jazz-schemas/regarde.bio";
 
 import { Loaded } from "jazz-tools";
@@ -256,10 +256,10 @@ export const userDetailsHandler = (
       };
 
       let accountLoadError: string | null = null;
-      let profileData: Loaded<typeof JazzAppProfile> | null = null;
+      let profileData: Loaded<typeof RegardeProfile> | null = null;
 
       try {
-        const jazzUserAccount = await OnboardingAccount.load(
+        const jazzUserAccount = await RegardeAccount.load(
           processedJazzAccountId,
           {
             resolve: {
@@ -277,13 +277,13 @@ export const userDetailsHandler = (
 
         if (!jazzUserAccount) throw new Error("Profile not found");
 
-        const jazzAppProfileId = jazzUserAccount.profile["regarde.bio"];
+        const regardeProfileId = jazzUserAccount.profile["regarde.bio"];
 
-        console.log("JazzAppProfileID:", jazzAppProfileId);
+        console.log("regardeProfileId:", regardeProfileId);
 
-        if (!jazzAppProfileId) throw new Error("JazzAppProfileID not found");
+        if (!regardeProfileId) throw new Error("regardeProfileId not found");
 
-        profileData = await JazzAppProfile.load(jazzAppProfileId, {
+        profileData = await RegardeProfile.load(regardeProfileId, {
           resolve: {
             projects: { $each: true },
             socialLinks: true,

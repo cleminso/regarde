@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useVolunteering } from '#/lib/hook/useVolunteering';
-import { JazzAppProfile, Volunteering } from '#/lib/schema';
+import { RegardeProfile, Volunteering } from '#/lib/schema';
 import { getValidUrl } from '#/lib/utils/utils';
 import { Input, Label, Textarea } from '../../../ui/index';
 import { EditorFooter } from '../../layout/footer';
@@ -11,7 +11,7 @@ import { SectionHeader } from '../../layout/header';
 import { SelectorDate } from '../../shared/selectorDate';
 
 type VolunteeringEditProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
   triggerSyncIndicator: TriggerSyncIndicator;
   onDoneEditing: () => void;
   volunteeringToEdit?: Loaded<typeof Volunteering>;

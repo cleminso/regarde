@@ -5,7 +5,7 @@ import { useLocation, useNavigate, useParams } from 'react-router';
 import { Button } from '#/components/ui/button';
 import { useMyJazz } from '#/lib/account/useMyJazz';
 import { fetchUserDetailsByNickname } from '#/lib/api/base';
-import { JazzAppProfile } from '#/lib/schema';
+import { RegardeProfile } from '#/lib/schema';
 import { logger } from '#/lib/utils/logger';
 import { ProfileHeader } from './header';
 import { AboutPage } from './paths/about';
@@ -13,7 +13,7 @@ import { NowPage } from './paths/now';
 import { DEFAULT_TABS, ProfileTabs, TabId } from './tabs';
 import { ScrollArea } from '../ui/scroll-area';
 
-type LoadedProfile = co.loaded<typeof JazzAppProfile>;
+type LoadedProfile = co.loaded<typeof RegardeProfile>;
 
 export function ProfileView() {
   const { nickname } = useParams();
@@ -23,7 +23,7 @@ export function ProfileView() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const { account, jazzAppProfile } = useMyJazz();
+  const { account, regardeProfile } = useMyJazz();
 
   useEffect(() => {
     if (!nickname) {
@@ -32,7 +32,7 @@ export function ProfileView() {
       return;
     }
 
-    if (jazzAppProfile?.userHandle?.nickname === nickname) {
+    if (regardeProfile?.userHandle?.nickname === nickname) {
       setOtherUserProfile(null);
       setIsLoading(false);
       return;
@@ -76,7 +76,7 @@ export function ProfileView() {
   }
 
   if (error) {
-    const isAuthenticated = !!jazzAppProfile?.userHandle?.nickname;
+    const isAuthenticated = !!regardeProfile?.userHandle?.nickname;
     const showReturnButton = isAuthenticated;
 
     return (
@@ -91,7 +91,7 @@ export function ProfileView() {
             <div className="space-y-2">
               <Button
                 onClick={() =>
-                  navigate(`/${jazzAppProfile.userHandle!.nickname}`)
+                  navigate(`/${regardeProfile.userHandle!.nickname}`)
                 }
                 variant="default"
                 className="font-mono"
@@ -114,7 +114,7 @@ export function ProfileView() {
     );
   }
 
-  if (jazzAppProfile?.userHandle?.nickname === nickname) {
+  if (regardeProfile?.userHandle?.nickname === nickname) {
     if (account === undefined) {
       return (
         <div className="flex w-full justify-center items-center min-h-screen">
@@ -123,7 +123,7 @@ export function ProfileView() {
       );
     }
 
-    if (account === null || !jazzAppProfile) {
+    if (account === null || !regardeProfile) {
       return (
         <div className="flex w-full justify-center items-center min-h-screen">
           <p>Profile not accessible</p>
@@ -131,7 +131,7 @@ export function ProfileView() {
       );
     }
 
-    return <ProfileContent profile={jazzAppProfile} />;
+    return <ProfileContent profile={regardeProfile} />;
   }
 
   if (otherUserProfile) {

@@ -1,6 +1,6 @@
 # @regarde-dev/sdk
 
-SDK for building apps with Jazz registration key authentication. Provides framework-agnostic utilities, React/Preact hooks, and a verification API client.
+SDK for building apps with Regarde registration token authentication. Provides framework-agnostic utilities, React/Preact hooks, and a verification API client.
 
 ## Installation
 
@@ -22,7 +22,7 @@ pnpm add preact
 
 ## Features
 
-- **Framework-agnostic auth utilities** - Core registration key logic that works anywhere
+- **Framework-agnostic auth utilities** - Core registration token logic that works anywhere
 - **React and Preact hooks** - Easy integration with your UI framework
 - **Verification API client** - Call the central verification server
 - **TypeScript support** - Full type definitions included
@@ -35,67 +35,67 @@ pnpm add preact
 
 ```typescript
 import {
-  RegistrationKey,
-  getRegistrationKey,
-  isKeyExpired,
-  generateRegistrationKey,
-  KEY_LIFETIME_SECONDS
-} from '@regarde-dev/sdk/auth';
+  RegardeAuth,
+  getRegardeAuth,
+  isTokenExpired,
+  generateRegardeToken,
+  TOKEN_LIFETIME_SECONDS,
+} from "@regarde-dev/sdk/auth";
 
-// Use the RegistrationKey schema in your Jazz account
+// Use the RegardeAuth schema in your Jazz account
 const MyAccountRoot = co.map({
-  'auth.myapp': RegistrationKey,
+  "auth.myapp": RegardeAuth,
   // ... other fields
 });
 
-// Generate and store a registration key
-const key = await getRegistrationKey({
-  loadedRegistrationKeyCoMap: account.root['auth.myapp']
+// Generate and store a registration token
+const token = await getRegardeAuth({
+  loadedRegardeAuthCoMap: account.root["auth.myapp"],
 });
 
-// Check if a key is expired
-const expired = isKeyExpired(registrationKey);
+// Check if a token is expired
+const expired = isTokenExpired(regardeAuth);
 
-// Generate a random key (used internally by getRegistrationKey)
-const randomKey = generateRegistrationKey();
+// Generate a random token (used internally by getRegardeAuth)
+const randomToken = generateRegardeToken();
 ```
 
 ### 2. React Hook
 
 ```typescript
 import { useAccount } from 'jazz-tools/react';
-import { useRegistrationKey } from '@regarde-dev/sdk/react';
+import { useRegardeAuth } from '@regarde-dev/sdk/react';
 
 function MyComponent() {
   const { me } = useAccount();
-  const registrationKey = me?.root?.['auth.myapp'];
+  const regardeAuth = me?.root?.['auth.myapp'];
 
   const {
-    key,           // Current key value
-    keyId,         // CoMap ID for API headers
+    token,           // Current token value
+    tokenId,         // CoMap ID for API headers
     expiresAt,     // Expiry timestamp
-    isExpired,     // Whether key has expired
-    refresh,       // Function to regenerate key
+    isExpired,     // Whether token has expired
+    refresh,       // Function to regenerate token
     isLoading,     // Refresh in progress
     error          // Error message if any
-  } = useRegistrationKey(registrationKey);
+  } = useRegardeAuth(regardeAuth);
 
-  // Use key in API calls
+  // Use token in API calls
   useEffect(() => {
-    if (key && keyId && !isExpired) {
+    if (token && tokenId && !isExpired) {
       fetch('/api/register', {
         headers: {
-          'X-Registration-Key': key,
-          'X-Registration-Key-Id': keyId,
+          'X-Regarde-Token': token,
+          'X-Regarde-Token-Id': tokenId,
         }
       });
     }
-  }, [key, keyId, isExpired]);
+  }, [token, tokenId, isExpired]);
 
   return (
     <div>
       <button onClick={refresh} disabled={isLoading}>
-        {isExpired ? 'Generate New Key' : 'Refresh Key'}
+        {isExpired ? 'Generate New Token' : 'Refresh Token'}
       </button>
       {error && <p>Error: {error}</p>}
     </div>
@@ -107,18 +107,18 @@ function MyComponent() {
 
 ```typescript
 import { useAccount } from 'jazz-tools/preact';
-import { useRegistrationKey } from '@regarde-dev/sdk/preact';
+import { useRegardeAuth } from '@regarde-dev/sdk/preact';
 
 function MyComponent() {
   const { me } = useAccount();
-  const registrationKey = me?.root?.['auth.myapp'];
+  const regardeAuth = me?.root?.['auth.myapp'];
 
-  const { key, keyId, refresh, isExpired } = useRegistrationKey(registrationKey);
+  const { token, tokenId, refresh, isExpired } = useRegardeAuth(regardeAuth);
 
   return (
     <div>
       <button onClick={refresh}>
-        {isExpired ? 'Generate New Key' : 'Refresh Key'}
+        {isExpired ? 'Generate New Token' : 'Refresh Token'}
       </button>
     </div>
   );
@@ -128,22 +128,22 @@ function MyComponent() {
 ### 4. Verification API Client
 
 ```typescript
-import { verifyRegistrationKeyViaServer } from '@regarde-dev/sdk/verify';
+import { verifyRegardeAuthViaServer } from "@regarde-dev/sdk/verify";
 
 // Call the central verification server
-const result = await verifyRegistrationKeyViaServer({
-  baseUrl: 'https://api.regarde.bio',
-  jazzAccountId: 'account-123',
-  registrationKey: 'abc123...',
-  registrationKeyId: 'co_xyz...',
-  apiKey: 'your-api-key',
+const result = await verifyRegardeAuthViaServer({
+  baseUrl: "https://api.regarde.bio",
+  jazzAccountId: "account-123",
+  regardeAuth: "abc123...",
+  regardeAuthId: "co_xyz...",
+  apiToken: "your-api-token",
   signal: abortController.signal, // Optional
 });
 
 if (result.isValid) {
-  console.log('User authenticated successfully');
+  console.log("User authenticated successfully");
 } else {
-  console.error('Authentication failed:', result.error);
+  console.error("Authentication failed:", result.error);
 }
 ```
 
@@ -151,52 +151,61 @@ if (result.isValid) {
 
 ### Auth Module (`@regarde-dev/sdk/auth`)
 
-#### `RegistrationKey`
-Jazz CoMap schema for registration keys.
+#### `RegardeAuth`
+
+Jazz CoMap schema for registration tokens.
 
 ```typescript
-const RegistrationKey = co.map({
-  key: z.string(),
+const RegardeAuth = co.map({
+  token: z.string(),
   expiresAt: z.number(),
 });
 ```
 
-#### `getRegistrationKey(params)`
-Generates a new registration key and stores it in the provided CoMap.
+#### `getRegardeAuth(params)`
+
+Generates a new registration token and stores it in the provided CoMap.
 
 **Parameters:**
-- `loadedRegistrationKeyCoMap: Loaded<typeof RegistrationKey>` - The loaded RegistrationKey CoMap
 
-**Returns:** `Promise<string | null>` - The generated key, or null on error
+- `loadedRegardeAuthCoMap: Loaded<typeof RegardeAuth>` - The loaded RegardeAuth CoMap
 
-#### `isKeyExpired(registrationKey)`
-Checks if a registration key has expired.
+**Returns:** `Promise<string | null>` - The generated token, or null on error
+
+#### `isTokenExpired(regardeAuth)`
+
+Checks if a registration token has expired.
 
 **Parameters:**
-- `registrationKey: any` - Object with `expiresAt` property
+
+- `regardeAuth: any` - Object with `expiresAt` property
 
 **Returns:** `boolean` - True if expired or invalid
 
-#### `generateRegistrationKey()`
-Generates a random 16-character registration key.
+#### `generateRegardeAuth()`
 
-**Returns:** `string` - The generated key
+Generates a random 16-character registration token.
 
-#### `KEY_LIFETIME_SECONDS`
-Constant for key lifetime (24 hours = 86400 seconds).
+**Returns:** `string` - The generated token
+
+#### `TOKEN_LIFETIME_SECONDS`
+
+Constant for token lifetime (24 hours = 86400 seconds).
 
 ### React/Preact Hooks
 
-#### `useRegistrationKey(registrationKeyCoMap)`
+#### `useRegardeAuth(regardeAuthCoMap)`
 
 **Parameters:**
-- `registrationKeyCoMap: Loaded<typeof RegistrationKey> | null | undefined` - The loaded RegistrationKey CoMap
 
-**Returns:** `UseRegistrationKeyResult`
+- `RegardeAuthCoMap: Loaded<typeof RegardeAuth> | null | undefined` - The loaded RegardeAuth CoMap
+
+**Returns:** `UseRegardeAuthResult`
+
 ```typescript
 {
-  key: string | null;
-  keyId: string | null;
+  token: string | null;
+  tokenId: string | null;
   expiresAt: number | null;
   isExpired: boolean;
   refresh: () => Promise<void>;
@@ -207,21 +216,23 @@ Constant for key lifetime (24 hours = 86400 seconds).
 
 ### Verify Module (`@regarde-dev/sdk/verify`)
 
-#### `verifyRegistrationKeyViaServer(params)`
+#### `verifyRegardeAuthViaServer(params)`
 
 **Parameters:**
+
 ```typescript
 {
   baseUrl: string;              // e.g., 'https://api.regarde.bio'
   jazzAccountId: string;        // User's Jazz account ID
-  registrationKey: string;      // The key value
-  registrationKeyId: string;    // CoMap ID
-  apiKey: string;               // API key for accessing the verify endpoint
+  regardeAuth: string;      // The token value
+  regardeAuthId: string;    // CoMap ID
+  apiToken: string;               // API token for accessing the verify endpoint
   signal?: AbortSignal;         // Optional abort signal
 }
 ```
 
 **Returns:** `Promise<VerificationResult>`
+
 ```typescript
 {
   isValid: boolean;
@@ -245,4 +256,3 @@ pnpm test
 ## License
 
 ISC
-

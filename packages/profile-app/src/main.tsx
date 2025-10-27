@@ -9,7 +9,7 @@ import { ProtectedRoute } from '#/components/auth/ProtectedRoute.tsx';
 import { AppLayout } from '#/components/layouts/appLayout.tsx';
 import { ThemeProvider } from '#/components/layouts/themeProvider.tsx';
 import { apiKey, CLERK_PUBLISHABLE_KEY } from '#/lib/config/apiKey.ts';
-import { OnboardingAccount } from '#/lib/schema.ts';
+import { RegardeAccount } from '#/lib/schema.ts';
 import { routes } from '#/routes';
 
 import './index.css';
@@ -24,7 +24,7 @@ function JazzProvider({ children }: { children: React.ReactNode }) {
         peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
         when: "signedUp",
       }}
-      AccountSchema={OnboardingAccount}
+      AccountSchema={RegardeAccount}
       onLogOut={() => {
         window.location.href = '/';
       }}

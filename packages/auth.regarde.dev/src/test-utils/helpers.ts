@@ -48,7 +48,7 @@ export function createMockContext() {
 export function createMockRegistrationRequest(overrides = {}) {
   return {
     nickname: "testuser",
-    registrationKey: "valid-registration-key",
+    RegardeAuth: "valid-registration-key",
     accountId: "test-account-id",
     action: "register",
     ...overrides,

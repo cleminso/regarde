@@ -1,5 +1,5 @@
 import { createRoute } from "@hono/zod-openapi";
-import { verifyRegistrationKey } from "../auth/verify.js";
+import { verifyRegardeAuth } from "../auth/verify.js";
 import { ErrorResponseSchema } from "../schemas/common.js";
 import { RegisterRequestSchema } from "@regarde-dev/jazz-schemas/regarde.dev";
 
@@ -26,7 +26,7 @@ export const registerRoute = createRoute({
           schema: ErrorResponseSchema,
         },
       },
-      description: "Unauthorized - missing or invalid registration key",
+      description: "Unauthorized - missing or invalid registration token",
     },
     400: {
       content: {
@@ -75,11 +75,11 @@ export const registerRoute = createRoute({
   tags: ["Nickname Registry"],
   summary: "Register, update, or delete nickname",
   description: `
-    Polymorphic endpoint for nickname management. Requires X-Registration-Key header for authentication.
+    Polymorphic endpoint for nickname management. Requires X-Regarde-Token header for authentication.
 
     **Authentication:**
-    - Header: X-Registration-Key (required) - Registration key from user's Jazz account
-    - Header: X-Registration-Key-Id (required) - CoMap ID of the registration key
+    - Header: X-Regarde-Token (required) - Registration token from user's Jazz account
+    - Header: X-Regarde-Token-Id (required) - CoMap ID of the registration token
 
     **Operations based on nickname and oldNickname fields:**
 
@@ -118,14 +118,14 @@ export const registerHandler = (
     try {
       const { nickname, jazzAccountID, oldNickname } = c.req.valid("json");
 
-      const registrationKey = c.req.header("X-Registration-Key");
-      const registrationKeyId = c.req.header("X-Registration-Key-Id");
+      const regardeAuth = c.req.header("X-Regarde-Token");
+      const regardeAuthId = c.req.header("X-Regarde-Token-Id");
 
-      if (!registrationKey) {
+      if (!regardeAuth) {
         console.log(
-          `Missing registration key header for AccountID "${jazzAccountID}"`,
+          `Missing registration token header for AccountID "${jazzAccountID}"`,
         );
-        return c.json({ error: "Missing registration key header" }, 401);
+        return c.json({ error: "Missing registration token header" }, 401);
       }
 
       if (!nickname && !oldNickname) {
@@ -142,11 +142,10 @@ export const registerHandler = (
         `Received registration request: nickname="${nickname}", AccountID="${jazzAccountID}"`,
       );
 
-      const verificationResult = await verifyRegistrationKey(
+      const verificationResult = await verifyRegardeAuth(
         jazzAccountID,
-        registrationKey,
-        registrationKeyId,
-        worker,
+        regardeAuth,
+        regardeAuthId,
       );
       if (!verificationResult.isValid) {
         console.log(

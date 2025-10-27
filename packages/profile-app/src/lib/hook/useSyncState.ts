@@ -9,8 +9,8 @@ export function useSyncState() {
   );
 
   const triggerSyncIndicator: TriggerSyncIndicator = useCallback(
-    async (jazzAppProfile?: any) => {
-      if (!jazzAppProfile) {
+    async (regardeProfile?: any) => {
+      if (!regardeProfile) {
         // No profile to sync, just show brief syncing state
         setSyncState('syncing');
         setTimeout(() => setSyncState('saved'), 300);
@@ -21,7 +21,7 @@ export function useSyncState() {
 
       try {
         // Use Jazz's waitForSync with appropriate timeout
-        await jazzAppProfile.waitForSync({ timeout: 5000 });
+        await regardeProfile.waitForSync({ timeout: 5000 });
         setSyncState('saved');
       } catch (error) {
         logger.error('Profile sync failed:', error);

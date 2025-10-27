@@ -1,6 +1,6 @@
 import { co, Group, Loaded, z } from "jazz-tools";
-import { UserHandle } from "../regarde.dev/nickname.js";
-import { RegistrationKey } from "../regarde.dev/registrationKey.js";
+import { UserHandle } from "../regarde.dev/userHandle.js";
+import { RegardeAuth } from "../regarde.dev/regardeAuth.js";
 
 export const SocialLinks = co.map({
   github: z.optional(z.string()),
@@ -147,7 +147,7 @@ export type NowPage = z.infer<typeof NowPage>;
 //
 // Use it like:  mediaFiles: z.optional(co.list(AttachmentItem)),
 
-export const JazzAppProfile = co.map({
+export const RegardeProfile = co.map({
   name: z.string(),
   userHandle: UserHandle,
   bio: z.optional(z.string()),
@@ -166,8 +166,8 @@ export const JazzAppProfile = co.map({
   version: z.number(),
 });
 
-export function validateJazzAppProfile(
-  profile: Loaded<typeof JazzAppProfile>,
+export function validateRegardeProfile(
+  profile: Loaded<typeof RegardeProfile>,
 ): { isValid: boolean; message?: string } {
   if (!profile.name || profile.name.trim() === "") {
     return {
@@ -204,19 +204,19 @@ export function validateJazzAppProfile(
 }
 
 // TODO(Clem): Add metadata handling to auth.regarde.dev/metadata
-export const JazzProfileProfile = co.profile({
+export const RegardeProfileMetadata = co.profile({
   "regarde.bio": z.string(), // String ID, requires additional load
 });
 
-export const JazzProfileRoot = co.map({
-  "regarde.bio": JazzAppProfile, // Direct object reference, already loaded
-  "auth.regarde.dev": RegistrationKey,
+export const RegardeRoot = co.map({
+  "regarde.bio": RegardeProfile, // Direct object reference, already loaded
+  "auth.regarde.dev": RegardeAuth,
 });
 
-export const OnboardingAccount = co
+export const RegardeAccount = co
   .account({
-    profile: JazzProfileProfile,
-    root: JazzProfileRoot,
+    profile: RegardeProfileMetadata,
+    root: RegardeRoot,
   })
   .withMigration(async (account, creationProps?: { name: string }) => {
     const publicGroup = Group.create({
@@ -227,7 +227,7 @@ export const OnboardingAccount = co
     if (!account.$jazz.has("profile")) {
       account.$jazz.set(
         "profile",
-        JazzProfileProfile.create(
+        RegardeProfileMetadata.create(
           {
             name: name ?? "no",
             "regarde.bio": "",
@@ -239,9 +239,9 @@ export const OnboardingAccount = co
 
     if (!account.$jazz.has("root")) {
       account.$jazz.set("root", {
-        "auth.regarde.dev": RegistrationKey.create(
+        "auth.regarde.dev": RegardeAuth.create(
           {
-            key: "no",
+            token: "no",
             expiresAt: 0,
           },
           Group.create({
@@ -281,12 +281,12 @@ export const OnboardingAccount = co
     // First initialization
     if (root["regarde.bio"] && root["regarde.bio"].version === 0) {
       // This is the worker read group, must be hardcoded
-      const jazzProfileWorkerGroup = await co
+      const regardeProfileWorkerGroup = await co
         .group()
         .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21");
 
       // (:
-      if (!jazzProfileWorkerGroup) {
+      if (!regardeProfileWorkerGroup) {
         console.debug("No public group");
         return;
       }
@@ -294,7 +294,7 @@ export const OnboardingAccount = co
       const userGroup = Group.create({
         owner: account,
       });
-      userGroup.addMember(jazzProfileWorkerGroup, "writer");
+      userGroup.addMember(regardeProfileWorkerGroup, "writer");
 
       const userHandle = UserHandle.create(
         {
@@ -306,7 +306,7 @@ export const OnboardingAccount = co
         userGroup,
       );
 
-      const jazzProfileData = JazzAppProfile.create(
+      const regardeProfile = RegardeProfile.create(
         {
           name: creationProps?.name || "Type your name",
           userHandle,
@@ -315,24 +315,24 @@ export const OnboardingAccount = co
         userGroup,
       );
 
-      const registrationKey = RegistrationKey.create({
-        key: "not-valid-" + Math.random(),
-        expiresAt: 0, // key should never be valid, expires as soon as it's generated
+      const regardeAuth = RegardeAuth.create({
+        token: "not-valid-" + Math.random(),
+        expiresAt: 0, // token should never be valid, expires as soon as it's generated
       });
 
-      root.$jazz.set("regarde.bio", jazzProfileData);
-      root.$jazz.set("auth.regarde.dev", registrationKey);
+      root.$jazz.set("regarde.bio", regardeProfile);
+      root.$jazz.set("auth.regarde.dev", regardeAuth);
 
       await account.$jazz.waitForSync();
 
       console.log(
         "regarde.bio namespace profile data created:",
-        jazzProfileData.$jazz.id,
+        regardeProfile.$jazz.id,
       );
 
-      profile.$jazz.set("regarde.bio", jazzProfileData.$jazz.id);
+      profile.$jazz.set("regarde.bio", regardeProfile.$jazz.id);
 
-      console.log("Profile created successfully", jazzProfileData.$jazz.id);
+      console.log("Profile created successfully", regardeProfile.$jazz.id);
       console.log("Account created successfully", account.$jazz.id);
     }
   });

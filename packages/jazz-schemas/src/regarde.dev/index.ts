@@ -1,4 +1,4 @@
-export * from "./nickname.js";
+export * from "./userHandle.js";
 export * from "./register.js";
-export * from "./registrationKey.js";
-export * from "./registry.js";
+export * from "./regardeAuth.js";
+export * from "./regardeRegistry.js";

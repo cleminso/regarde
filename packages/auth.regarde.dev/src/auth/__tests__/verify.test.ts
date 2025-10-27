@@ -22,7 +22,7 @@ function validateAuthenticationInput(jazzAccountId: string, providedKey: string)
   };
 }
 
-function validateRegistrationKeyData(keyData: any, providedKey: string) {
+function validateRegardeAuthData(keyData: any, providedKey: string) {
   if (!keyData) {
     return {
       isValid: false,
@@ -70,7 +70,7 @@ describe('Authentication Verification - Your Security Logic', () => {
       expiresAt: Date.now() - 3600000, // 1 hour ago (expired)
     };
 
-    const result = validateRegistrationKeyData(keyData, 'valid-key');
+    const result = validateRegardeAuthData(keyData, 'valid-key');
 
     expect(result.isValid).toBe(false);
     expect(result.error).toBe('Registration key has expired');
@@ -97,7 +97,7 @@ describe('Authentication Verification - Your Security Logic', () => {
     expect(inputValidation.isValid).toBe(true);
 
     // Step 2: Validate key data
-    const keyValidation = validateRegistrationKeyData(keyData, providedKey);
+    const keyValidation = validateRegardeAuthData(keyData, providedKey);
     expect(keyValidation.isValid).toBe(true);
 
     // Step 3: Validate user access

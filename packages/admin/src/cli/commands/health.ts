@@ -105,7 +105,7 @@ export const healthCommands: ToolConfig[] = [
           `  ${Logger.formatStatus(healthReport.reverseRegistryStatus, "Reverse Registry", reverseValue)}`,
         );
         console.log(
-          `  ${Logger.formatStatus(healthReport.onboardingStatus, "Onboarding", healthReport.onboardingStatus === "ok" ? "Valid" : "Issues detected")}`,
+          `  ${Logger.formatStatus(healthReport.profileStatus, "Profile", healthReport.profileStatus === "ok" ? "Valid" : "Issues detected")}`,
         );
 
         if (healthReport.issues && healthReport.issues.length > 0) {

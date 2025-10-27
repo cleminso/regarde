@@ -1,7 +1,7 @@
 /**
  * @private
  */
-export function generateRegistrationKey(): string {
+export function generateRegardeToken(): string {
   const chars =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*"[]{}';
   let result = "";

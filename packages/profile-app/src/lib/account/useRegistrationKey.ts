@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 
-import { useRegistrationKey as useSDKRegistrationKey } from '@regarde-dev/sdk/react';
+import { useRegardeAuth as useSDKRegardeAuth } from '@regarde-dev/sdk/react';
 import {
-  generateRegistrationKey,
-  getRegistrationKey,
+  generateRegardeAuth,
+  getRegardeAuth,
   isKeyExpired,
 } from '@regarde-dev/sdk/auth';
 
@@ -11,23 +11,23 @@ import { useMyJazz } from './useMyJazz';
 
 export type GetValidKeyFunctionOutput = Promise<{
   key: string;
-  registrationKeyId: string;
+  regardeAuthId: string;
 } | null>;
 
 export type GetValidKeyFunction = () => GetValidKeyFunctionOutput;
 
 // Re-export SDK utilities for backward compatibility
-export { generateRegistrationKey, isKeyExpired, getRegistrationKey };
+export { generateRegardeAuth, isKeyExpired, getRegardeAuth };
 
-export function useRegistrationKey() {
+export function useRegardeAuth() {
   const { account, isAccountReady } = useMyJazz();
 
-  const registrationKey = account?.root?.['auth.regarde.bio'];
+  const regardeAuth = account?.root?.['auth.regarde.bio'];
   const isLoading = account === undefined;
-  const isAccessible = registrationKey !== null;
+  const isAccessible = regardeAuth !== null;
 
   // Use SDK hook for core registration key functionality
-  const sdkHook = useSDKRegistrationKey(registrationKey);
+  const sdkHook = useSDKRegardeAuth(regardeAuth);
 
   const getValidKey = useCallback(async (): GetValidKeyFunctionOutput => {
     if (!account?.root || !isAccountReady) {
@@ -39,33 +39,33 @@ export function useRegistrationKey() {
     }
 
     // Check if key is expired or missing
-    if (!registrationKey || sdkHook.isExpired) {
+    if (!regardeAuth || sdkHook.isExpired) {
       // Refresh the key using SDK's refresh function
       await sdkHook.refresh();
 
       // After refresh, get the updated registration key
-      const updatedRegistrationKey = account.root?.['auth.regarde.bio'];
-      if (!updatedRegistrationKey?.key) return null;
+      const updatedRegardeAuth = account.root?.['auth.regarde.bio'];
+      if (!updatedRegardeAuth?.key) return null;
 
       return {
-        key: updatedRegistrationKey.key,
-        registrationKeyId: updatedRegistrationKey.$jazz.id,
+        key: updatedRegardeAuth.key,
+        regardeAuthId: updatedRegardeAuth.$jazz.id,
       };
     }
 
     // Return existing valid key
     return {
-      key: registrationKey.key,
-      registrationKeyId: registrationKey.$jazz.id,
+      key: regardeAuth.key,
+      regardeAuthId: regardeAuth.$jazz.id,
     };
-  }, [account, isAccountReady, registrationKey, isLoading, sdkHook]);
+  }, [account, isAccountReady, regardeAuth, isLoading, sdkHook]);
 
   return {
     getValidKey,
     isAccountReady,
-    hasRegistrationKey: Boolean(registrationKey),
+    hasRegardeAuth: Boolean(regardeAuth),
     isKeyExpired: sdkHook.isExpired,
-    isRegistrationKeyLoading: isLoading,
-    isRegistrationKeyAccessible: isAccessible,
+    isRegardeAuthLoading: isLoading,
+    isRegardeAuthAccessible: isAccessible,
   };
 }

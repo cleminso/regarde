@@ -5,13 +5,13 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import {
   setupJazzTestEnvironment,
-  createTestOnboardingAccount,
+  createTestRegardeAccount,
 } from "../test-utils/jazz-setup.js";
 import {
   UserHandle,
   setNicknameFromRegistry,
   deactivate,
-} from "../regarde.dev/nickname.js";
+} from "../regarde.dev/userHandle.js";
 
 describe("Nickname Business Logic", () => {
   beforeEach(async () => {

@@ -1,7 +1,7 @@
 import { withAdminService } from "../types.js";
 import { type ToolConfig } from "@alcyone-labs/arg-parser";
 import { Logger } from "../../utils/logger.js";
-import { OnboardingAccount } from "@regarde-dev/jazz-schemas";
+import { RegardeAccount } from "@regarde-dev/jazz-schemas";
 import { Group } from "jazz-tools";
 
 export const nicknameCommands: ToolConfig[] = [
@@ -128,7 +128,7 @@ export const nicknameCommands: ToolConfig[] = [
 
         try {
           // Try to load the account with the worker's context
-          const account = await OnboardingAccount.load(accountId, {
+          const account = await RegardeAccount.load(accountId, {
             loadAs: admin.worker,
           });
 

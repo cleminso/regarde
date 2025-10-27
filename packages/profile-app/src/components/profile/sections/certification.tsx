@@ -2,7 +2,7 @@ import { Loaded } from 'jazz-tools';
 import { ArrowUpRight } from 'lucide-react';
 
 import { Button } from '#/components/ui/button';
-import type { Certification, JazzAppProfile } from '#/lib/schema';
+import type { Certification, RegardeProfile } from '#/lib/schema';
 import {
   formatDateRange,
   formatYearString,
@@ -10,7 +10,7 @@ import {
 } from '#/lib/utils/utils';
 
 type CertificationsProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
 };
 
 export function Certifications({ profile }: CertificationsProps) {

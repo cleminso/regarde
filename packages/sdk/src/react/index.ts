@@ -1,1 +1,1 @@
-export { useRegistrationKey, type UseRegistrationKeyResult } from "./useRegistrationKey";
+export { useRegardeAuth, type UseRegardeAuthResult } from "./useRegardeAuth";

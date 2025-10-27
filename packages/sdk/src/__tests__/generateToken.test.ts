@@ -1,37 +1,37 @@
 import { describe, it, expect } from 'vitest';
-import { generateRegistrationKey } from '../auth/generateKey';
+import { generateRegardeAuth } from '../auth/generateKey';
 
-describe('generateRegistrationKey', () => {
+describe('generateRegardeAuth', () => {
   it('should generate a key with correct length', () => {
-    const key = generateRegistrationKey();
+    const key = generateRegardeAuth();
     expect(key).toHaveLength(16);
   });
 
   it('should generate a string', () => {
-    const key = generateRegistrationKey();
+    const key = generateRegardeAuth();
     expect(typeof key).toBe('string');
   });
 
   it('should not have whitespace', () => {
-    const key = generateRegistrationKey();
+    const key = generateRegardeAuth();
     expect(key.trim()).toBe(key);
   });
 
   it('should not be empty', () => {
-    const key = generateRegistrationKey();
+    const key = generateRegardeAuth();
     expect(key).not.toBe('');
   });
 
   it('should only contain valid characters', () => {
-    const key = generateRegistrationKey();
+    const key = generateRegardeAuth();
     const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*"[]{}';
     const allCharsValid = key.split('').every(char => validChars.includes(char));
     expect(allCharsValid).toBe(true);
   });
 
   it('should generate unique keys', () => {
-    const key1 = generateRegistrationKey();
-    const key2 = generateRegistrationKey();
+    const key1 = generateRegardeAuth();
+    const key2 = generateRegardeAuth();
     expect(key1).not.toBe(key2);
   });
 
@@ -40,7 +40,7 @@ describe('generateRegistrationKey', () => {
     const iterations = 100;
     
     for (let i = 0; i < iterations; i++) {
-      keys.add(generateRegistrationKey());
+      keys.add(generateRegardeAuth());
     }
     
     expect(keys.size).toBe(iterations);

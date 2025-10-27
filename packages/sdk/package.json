@@ -1,7 +1,7 @@
 {
   "name": "@regarde-dev/sdk",
   "version": "1.0.0",
-  "description": "Regarde SDK for React and Preact with registration key logic",
+  "description": "Regarde SDK for React and Preact with registration token logic",
   "type": "module",
   "repository": {
     "type": "git",

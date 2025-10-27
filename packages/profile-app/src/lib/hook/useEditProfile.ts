@@ -2,7 +2,7 @@ import { useMyJazz } from '../account/useMyJazz';
 import { useSyncState } from './useSyncState';
 
 export function useEditProfile() {
-  const { account, jazzAppProfile, isAuthenticated } = useMyJazz();
+  const { account, regardeProfile, isAuthenticated } = useMyJazz();
   const { syncState, triggerSyncIndicator } = useSyncState();
 
   const isLoading = account === undefined;
@@ -10,13 +10,13 @@ export function useEditProfile() {
 
   // Only trigger sync if we have a valid profile
   const handleSync = async () => {
-    if (jazzAppProfile && isAuthenticated) {
-      await triggerSyncIndicator(jazzAppProfile);
+    if (regardeProfile && isAuthenticated) {
+      await triggerSyncIndicator(regardeProfile);
     }
   };
 
   return {
-    profile: jazzAppProfile,
+    profile: regardeProfile,
     accountId,
     isLoading,
     syncState,

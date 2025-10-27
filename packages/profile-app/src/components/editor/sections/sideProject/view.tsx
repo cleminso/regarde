@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useSideProject } from '#/lib/hook/useSideProject.ts';
-import { JazzAppProfile, ListOfSideProject, SideProject } from '#/lib/schema';
+import { RegardeProfile, ListOfSideProject, SideProject } from '#/lib/schema';
 import { EditorFooter } from '../../index';
 import { SectionHeader } from './../../layout/header';
 import { SideProjectCard } from './card';
 
 type SideProjectViewProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
   triggerSyncIndicator: TriggerSyncIndicator;
   sideProjects: Loaded<typeof ListOfSideProject> | undefined;
   onAddSideProject: () => void;

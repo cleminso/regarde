@@ -3,7 +3,7 @@ import {
   RegistryWorkerAccount,
   ReservedNicknamesRegistry,
   ReservationEntry,
-} from "@regarde-dev/jazz-schemas/registry";
+} from "@regarde-dev/jazz-schemas";
 import {
   ReservationBackupServiceInterface,
   ReservationBackupInfo,

@@ -5,7 +5,7 @@ import { createNicknameUrl } from '../../lib/utils/utils';
 
 export function ProtectedRoute() {
   const { nickname } = useParams();
-  const { account, jazzAppProfile, isAuthenticated } = useMyJazz();
+  const { account, regardeProfile, isAuthenticated } = useMyJazz();
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
@@ -19,7 +19,7 @@ export function ProtectedRoute() {
     return <Navigate to="/" replace />;
   }
 
-  const profileNickname = jazzAppProfile?.userHandle?.nickname;
+  const profileNickname = regardeProfile?.userHandle?.nickname;
 
   if (!profileNickname) {
     return <Navigate to="/" replace />;

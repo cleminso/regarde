@@ -1,4 +1,4 @@
-import { RegistryAuditEntry } from "@regarde-dev/jazz-schemas/registry";
+import { RegistryAuditEntry } from "@regarde-dev/jazz-schemas";
 
 export interface HealthReport {
   status: "healthy" | "warning" | "error";
@@ -24,7 +24,7 @@ export interface NicknameHealthReport {
   accountId?: string;
   registryStatus: "ok" | "missing" | "mismatch";
   reverseRegistryStatus: "ok" | "missing" | "mismatch";
-  onboardingStatus: "ok" | "missing" | "inactive" | "mismatch" | "not_found";
+  profileStatus: "ok" | "missing" | "inactive" | "mismatch" | "not_found";
   issues: string[];
   recommendations: string[];
 }

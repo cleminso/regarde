@@ -1,11 +1,11 @@
-import { OnboardingAccount } from '@regarde-dev/jazz-schemas';
+import { RegardeAccount } from '@regarde-dev/jazz-schemas';
 import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 
 export function useMyJazz() {
   const isAuthenticated = useIsAuthenticated();
 
   const { me: account, logOut } = useAccount(
-    OnboardingAccount,
+    RegardeAccount,
     isAuthenticated ? {
       resolve: {
         root: {
@@ -29,15 +29,15 @@ export function useMyJazz() {
     } : {}
   );
 
-  const jazzAppProfile = account?.root?.['regarde.bio'];
-  const registrationKey = account?.root?.['auth.regarde.bio'];
+  const regardeProfile = account?.root?.['regarde.bio'];
+  const regardeAuth = account?.root?.['auth.regarde.bio'];
 
   return {
     account,
-    jazzAppProfile,
-    registrationKey,
+    regardeProfile,
+    regardeAuth,
     isAuthenticated,
     logOut,
-    isAccountReady: !!account && !!jazzAppProfile,
+    isAccountReady: !!account && !!regardeProfile,
   };
 }

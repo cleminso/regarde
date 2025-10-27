@@ -1,4 +1,4 @@
-import { GetValidKeyFunction } from '../account/useRegistrationKey';
+import { GetValidKeyFunction } from '../account/useRegardeAuth';
 import { registerNickname } from '../api/nickname';
 import { isPlaceholderNickname } from './utils';
 
@@ -9,12 +9,12 @@ export async function registerNicknameWithServer({
   nickname,
   accountId,
   oldNickname,
-  getRegistrationKey,
+  getRegardeAuth,
 }: {
   nickname: string;
   accountId: string;
   oldNickname?: string;
-  getRegistrationKey: GetValidKeyFunction;
+  getRegardeAuth: GetValidKeyFunction;
 }): Promise<void> {
   // Only send oldNickname if it's a real nickname (not placeholder)
   // This determines server behavior: new registration vs swap/update
@@ -27,6 +27,6 @@ export async function registerNicknameWithServer({
       jazzAccountID: accountId,
       oldNickname: shouldSendOldNickname ? oldNickname : undefined,
     },
-    getRegistrationKey,
+    getRegardeAuth,
   );
 }

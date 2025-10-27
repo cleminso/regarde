@@ -1,11 +1,11 @@
 import { Loaded } from 'jazz-tools';
 import { useMemo } from 'react';
 
-import { type JazzAppProfile } from '../schema';
+import { type RegardeProfile } from '../schema';
 import { generateDefaultAvatar } from '../utils/utils';
 
 export function useDefaultAvatar(
-  profile: Loaded<typeof JazzAppProfile>,
+  profile: Loaded<typeof RegardeProfile>,
   size: number = 92,
 ) {
   return useMemo(() => {

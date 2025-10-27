@@ -1,6 +1,6 @@
 import { Loaded } from 'jazz-tools';
 
-import { JazzAppProfile } from '#/lib/schema';
+import { RegardeProfile } from '#/lib/schema';
 import {
   About,
   Awards,
@@ -15,7 +15,7 @@ import {
 } from '../index';
 
 type AboutPageProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
 };
 
 export function AboutPage({ profile }: AboutPageProps) {

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { useRegistrationKey } from '#/lib/account/useRegistrationKey';
+import { useRegardeAuth } from '#/lib/account/useRegardeAuth';
 import { logger } from '#/lib/utils/logger';
 import { useMyJazz } from '../../lib/account/useMyJazz';
 import { CustomAuthModal } from '../onboarding/customAuthModal';
@@ -12,7 +12,7 @@ export function AuthButton() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const { logOut, isAuthenticated } = useMyJazz();
-  const { getValidKey, isAccountReady } = useRegistrationKey();
+  const { getValidKey, isAccountReady } = useRegardeAuth();
 
   const keyInitialized = useRef(false);
 

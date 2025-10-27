@@ -16,7 +16,7 @@ function validateRegistrationRequest(request: any) {
     errors.push("Nickname is required");
   }
 
-  if (!request.registrationKey || request.registrationKey.trim() === "") {
+  if (!request.regardeAuth || request.regardeAuth.trim() === "") {
     errors.push("Registration key is required");
   }
 
@@ -34,11 +34,7 @@ function validateRegistrationRequest(request: any) {
   };
 }
 
-function validateRegistrationKey(
-  key: string,
-  validKey: string,
-  expiresAt: number,
-) {
+function validateRegardeAuth(key: string, validKey: string, expiresAt: number) {
   if (key !== validKey) {
     return {
       isValid: false,
@@ -70,8 +66,8 @@ function processRegistration(request: any, account: any) {
 
   // Validate registration key
   const authData = account.root["auth.regarde.bio"];
-  const keyValidation = validateRegistrationKey(
-    request.registrationKey,
+  const keyValidation = validateRegardeAuth(
+    request.regardeAuth,
     authData.key,
     authData.expiresAt,
   );
@@ -96,7 +92,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
     // Test request validation logic
     const validRequest = createMockRegistrationRequest({
       nickname: "newuser",
-      registrationKey: "valid-key",
+      RegardeAuth: "valid-key",
       accountId: "account-123",
       action: "register",
     });
@@ -114,7 +110,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
         expectedError: "Nickname is required",
       },
       {
-        request: createMockRegistrationRequest({ registrationKey: "" }),
+        request: createMockRegistrationRequest({ RegardeAuth: "" }),
         expectedError: "Registration key is required",
       },
       {
@@ -140,15 +136,11 @@ describe("Nickname Registration Logic - Business Rules", () => {
     const futureExpiry = Date.now() + 3600000;
 
     // Valid key
-    const validResult = validateRegistrationKey(
-      validKey,
-      validKey,
-      futureExpiry,
-    );
+    const validResult = validateRegardeAuth(validKey, validKey, futureExpiry);
     expect(validResult.isValid).toBe(true);
 
     // Invalid key
-    const invalidKeyResult = validateRegistrationKey(
+    const invalidKeyResult = validateRegardeAuth(
       "wrong-key",
       validKey,
       futureExpiry,
@@ -158,11 +150,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
 
     // Expired key
     const pastExpiry = Date.now() - 3600000;
-    const expiredResult = validateRegistrationKey(
-      validKey,
-      validKey,
-      pastExpiry,
-    );
+    const expiredResult = validateRegardeAuth(validKey, validKey, pastExpiry);
     expect(expiredResult.isValid).toBe(false);
     expect(expiredResult.reason).toBe("Registration key has expired");
   });
@@ -171,7 +159,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
     // Test complete registration workflow
     const validRequest = createMockRegistrationRequest({
       nickname: "newuser",
-      registrationKey: "valid-registration-key",
+      RegardeAuth: "valid-registration-key",
       accountId: "test-account-id",
       action: "register",
     });
@@ -196,7 +184,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
     // Test error handling for invalid keys
     const invalidRequest = createMockRegistrationRequest({
       nickname: "newuser",
-      registrationKey: "wrong-key",
+      RegardeAuth: "wrong-key",
       accountId: "test-account-id",
       action: "register",
     });
@@ -220,7 +208,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
     // Test error handling for expired keys
     const expiredRequest = createMockRegistrationRequest({
       nickname: "newuser",
-      registrationKey: "valid-registration-key",
+      RegardeAuth: "valid-registration-key",
       accountId: "test-account-id",
       action: "register",
     });
@@ -272,6 +260,4 @@ describe("Nickname Registration Logic - Business Rules", () => {
     expect(result.suggestions).toContain("testuser2");
     expect(result.suggestions).not.toContain("user1"); // Should filter out existing
   });
-
-
 });

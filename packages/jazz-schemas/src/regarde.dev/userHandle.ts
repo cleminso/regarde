@@ -31,13 +31,13 @@ export const UserHandle = co
       console.log("Adding worker account to UserHandle");
       co.group()
         .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21")
-        .then((jazzProfileWorkerGroup) => {
-          if (!jazzProfileWorkerGroup) {
+        .then((regardeProfileWorkerGroup) => {
+          if (!regardeProfileWorkerGroup) {
             console.debug("No public group");
             return;
           }
 
-          userHandle.$jazz.owner.addMember(jazzProfileWorkerGroup, "writer");
+          userHandle.$jazz.owner.addMember(regardeProfileWorkerGroup, "writer");
 
           console.log("Regarde.dev Account added to UserHandle");
         });

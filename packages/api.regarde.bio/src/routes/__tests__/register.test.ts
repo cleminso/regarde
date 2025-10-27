@@ -16,8 +16,8 @@ function validateRegistrationRequest(request: any) {
     errors.push("Nickname is required");
   }
 
-  if (!request.registrationKey || request.registrationKey.trim() === "") {
-    errors.push("Registration key is required");
+  if (!request.regardeAuth || request.regardeAuth.trim() === "") {
+    errors.push("Registration token is required");
   }
 
   if (!request.accountId || request.accountId.trim() === "") {
@@ -34,22 +34,18 @@ function validateRegistrationRequest(request: any) {
   };
 }
 
-function validateRegistrationKey(
-  key: string,
-  validKey: string,
-  expiresAt: number,
-) {
-  if (key !== validKey) {
+function validateRegardeAuth(token: string, validToken: string, expiresAt: number) {
+  if (token !== validToken) {
     return {
       isValid: false,
-      reason: "Invalid registration key",
+      reason: "Invalid registration token",
     };
   }
 
   if (Date.now() > expiresAt) {
     return {
       isValid: false,
-      reason: "Registration key has expired",
+      reason: "Registration token has expired",
     };
   }
 
@@ -68,18 +64,18 @@ function processRegistration(request: any, account: any) {
     };
   }
 
-  // Validate registration key
+  // Validate registration token
   const authData = account.root["auth.regarde.bio"];
-  const keyValidation = validateRegistrationKey(
-    request.registrationKey,
-    authData.key,
+  const tokenValidation = validateRegardeAuth(
+    request.regardeAuth,
+    authData.token,
     authData.expiresAt,
   );
 
-  if (!keyValidation.isValid) {
+  if (!tokenValidation.isValid) {
     return {
       success: false,
-      error: keyValidation.reason,
+      error: tokenValidation.reason,
     };
   }
 
@@ -96,7 +92,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
     // Test request validation logic
     const validRequest = createMockRegistrationRequest({
       nickname: "newuser",
-      registrationKey: "valid-key",
+      regardeAuth: "valid-key",
       accountId: "account-123",
       action: "register",
     });
@@ -114,8 +110,8 @@ describe("Nickname Registration Logic - Business Rules", () => {
         expectedError: "Nickname is required",
       },
       {
-        request: createMockRegistrationRequest({ registrationKey: "" }),
-        expectedError: "Registration key is required",
+        request: createMockRegistrationRequest({ regardeAuth: "" }),
+        expectedError: "Registration token is required",
       },
       {
         request: createMockRegistrationRequest({ accountId: "" }),
@@ -134,44 +130,36 @@ describe("Nickname Registration Logic - Business Rules", () => {
     });
   });
 
-  it("should validate registration keys correctly", () => {
-    // Test key validation logic
-    const validKey = "valid-registration-key";
+  it("should validate registration tokens correctly", () => {
+    // Test token validation logic
+    const validToken = "valid-registration-token";
     const futureExpiry = Date.now() + 3600000;
 
-    // Valid key
-    const validResult = validateRegistrationKey(
-      validKey,
-      validKey,
-      futureExpiry,
-    );
+    // Valid token
+    const validResult = validateRegardeAuth(validToken, validToken, futureExpiry);
     expect(validResult.isValid).toBe(true);
 
-    // Invalid key
-    const invalidKeyResult = validateRegistrationKey(
-      "wrong-key",
-      validKey,
+    // Invalid token
+    const invalidTokenResult = validateRegardeAuth(
+      "wrong-token",
+      validToken,
       futureExpiry,
     );
-    expect(invalidKeyResult.isValid).toBe(false);
-    expect(invalidKeyResult.reason).toBe("Invalid registration key");
+    expect(invalidTokenResult.isValid).toBe(false);
+    expect(invalidTokenResult.reason).toBe("Invalid registration token");
 
-    // Expired key
+    // Expired token
     const pastExpiry = Date.now() - 3600000;
-    const expiredResult = validateRegistrationKey(
-      validKey,
-      validKey,
-      pastExpiry,
-    );
+    const expiredResult = validateRegardeAuth(validToken, validToken, pastExpiry);
     expect(expiredResult.isValid).toBe(false);
-    expect(expiredResult.reason).toBe("Registration key has expired");
+    expect(expiredResult.reason).toBe("Registration token has expired");
   });
 
   it("should process valid registration successfully", () => {
     // Test complete registration workflow
     const validRequest = createMockRegistrationRequest({
       nickname: "newuser",
-      registrationKey: "valid-registration-key",
+      regardeAuth: "valid-registration-token",
       accountId: "test-account-id",
       action: "register",
     });
@@ -179,7 +167,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
     const mockAccount = createMockJazzAccount({
       root: {
         "auth.regarde.bio": {
-          key: "valid-registration-key",
+          token: "valid-registration-token",
           expiresAt: Date.now() + 3600000,
         },
       },
@@ -192,11 +180,11 @@ describe("Nickname Registration Logic - Business Rules", () => {
     expect(result.accountId).toBe("test-account-id");
   });
 
-  it("should reject registration with invalid key", () => {
-    // Test error handling for invalid keys
+  it("should reject registration with invalid token", () => {
+    // Test error handling for invalid tokens
     const invalidRequest = createMockRegistrationRequest({
       nickname: "newuser",
-      registrationKey: "wrong-key",
+      regardeAuth: "wrong-token",
       accountId: "test-account-id",
       action: "register",
     });
@@ -204,7 +192,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
     const mockAccount = createMockJazzAccount({
       root: {
         "auth.regarde.bio": {
-          key: "valid-registration-key",
+          token: "valid-registration-token",
           expiresAt: Date.now() + 3600000,
         },
       },
@@ -213,14 +201,14 @@ describe("Nickname Registration Logic - Business Rules", () => {
     const result = processRegistration(invalidRequest, mockAccount);
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe("Invalid registration key");
+    expect(result.error).toBe("Invalid registration token");
   });
 
-  it("should reject registration with expired key", () => {
-    // Test error handling for expired keys
+  it("should reject registration with expired token", () => {
+    // Test error handling for expired tokens
     const expiredRequest = createMockRegistrationRequest({
       nickname: "newuser",
-      registrationKey: "valid-registration-key",
+      regardeAuth: "valid-registration-token",
       accountId: "test-account-id",
       action: "register",
     });
@@ -228,7 +216,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
     const mockAccount = createMockJazzAccount({
       root: {
         "auth.regarde.bio": {
-          key: "valid-registration-key",
+          token: "valid-registration-token",
           expiresAt: Date.now() - 3600000, // 1 hour ago (expired)
         },
       },
@@ -237,7 +225,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
     const result = processRegistration(expiredRequest, mockAccount);
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe("Registration key has expired");
+    expect(result.error).toBe("Registration token has expired");
   });
 
   it("should handle nickname conflict scenarios", () => {
@@ -272,6 +260,4 @@ describe("Nickname Registration Logic - Business Rules", () => {
     expect(result.suggestions).toContain("testuser2");
     expect(result.suggestions).not.toContain("user1"); // Should filter out existing
   });
-
-
 });

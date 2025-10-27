@@ -3,7 +3,7 @@ import { Loaded } from 'jazz-tools';
 import * as React from 'react';
 
 import { useDefaultAvatar } from '#/lib/hook/useDefaultAvatar';
-import { type JazzAppProfile } from '#/lib/schema';
+import { type RegardeProfile } from '#/lib/schema';
 import { cn } from '#/lib/utils/utils';
 
 function Avatar({
@@ -57,7 +57,7 @@ function ProfileAvatar({
   size = 96,
   ...props
 }: {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
   className?: string;
   size?: number;
 } & React.ComponentProps<typeof AvatarPrimitive.Root>) {

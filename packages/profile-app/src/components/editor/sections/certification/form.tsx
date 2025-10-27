@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useCertification } from '#/lib/hook/useCertification';
-import { Certification, JazzAppProfile } from '#/lib/schema';
+import { Certification, RegardeProfile } from '#/lib/schema';
 import { getValidUrl } from '#/lib/utils/utils';
 import { Input, Textarea } from '../../../ui/index';
 import { EditorFooter } from '../../layout/footer';
@@ -11,7 +11,7 @@ import { SectionHeader } from '../../layout/header';
 import { SelectorDate } from '../../shared/selectorDate';
 
 type CertificationEditProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
   triggerSyncIndicator: TriggerSyncIndicator;
   onDoneEditing: () => void;
   certificationToEdit?: Loaded<typeof Certification>;

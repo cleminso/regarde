@@ -43,6 +43,7 @@ export const RegistryAuditEntry = co.map({
 });
 export type RegistryAuditEntry = co.loaded<typeof RegistryAuditEntry>;
 
+// co.feed
 export const RegistryAuditLog = co.list(RegistryAuditEntry);
 export type RegistryAuditLog = co.loaded<typeof RegistryAuditLog>;
 
@@ -52,7 +53,9 @@ export const RegistryWorkerAccountRoot = co.map({
   auditLog: RegistryAuditLog,
   reservedNicknames: ReservedNicknamesRegistry,
 });
-export type RegistryWorkerAccountRoot = co.loaded<typeof RegistryWorkerAccountRoot>;
+export type RegistryWorkerAccountRoot = co.loaded<
+  typeof RegistryWorkerAccountRoot
+>;
 
 const EmptyProfile = co.profile();
 

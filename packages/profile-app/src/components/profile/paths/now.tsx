@@ -1,10 +1,10 @@
 import { Loaded } from 'jazz-tools';
 
-import { type JazzAppProfile } from '#/lib/schema';
+import { type RegardeProfile } from '#/lib/schema';
 import { formatTimestamp } from '#/lib/utils/utils';
 
 type NowPageProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
 };
 
 export function NowPage({ profile }: NowPageProps) {

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useWorkExp } from '#/lib/hook/useWorkExp';
-import type { JazzAppProfile, WorkExp } from '#/lib/schema';
+import type { RegardeProfile, WorkExp } from '#/lib/schema';
 import { getValidUrl } from '#/lib/utils/utils';
 import { Input, Textarea } from '../../../ui/index';
 import { EditorFooter } from '../../layout/footer';
@@ -11,7 +11,7 @@ import { SectionHeader } from '../../layout/header';
 import { SelectorDate } from '../../shared/selectorDate';
 
 type WorkExpEditProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
   triggerSyncIndicator: TriggerSyncIndicator;
   onDoneEditing: () => void;
   workExpToEdit?: Loaded<typeof WorkExp>;

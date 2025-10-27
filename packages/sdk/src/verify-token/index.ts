@@ -1,2 +1,2 @@
-export { verifyRegistrationKeyViaServer, type VerifyRegistrationKeyParams, type VerificationResult } from './client';
+export { verifyRegardeAuthViaServer, type VerifyRegardeAuthParams, type VerificationResult } from './client';
 

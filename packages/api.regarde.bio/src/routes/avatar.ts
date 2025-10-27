@@ -33,11 +33,11 @@ export const avatarHandler = (nicknameRegistry: any) => {
       }
 
       // Load profile data to get avatar
-      const { OnboardingAccount, JazzAppProfile } = await import(
+      const { RegardeAccount, RegardeProfile } = await import(
         "@regarde-dev/jazz-schemas"
       );
 
-      const jazzUserAccount = await OnboardingAccount.load(accountId, {
+      const jazzUserAccount = await RegardeAccount.load(accountId, {
         resolve: { profile: { "regarde.bio": true } },
       });
 
@@ -45,7 +45,7 @@ export const avatarHandler = (nicknameRegistry: any) => {
         return c.notFound();
       }
 
-      const profileData = await JazzAppProfile.load(
+      const profileData = await RegardeProfile.load(
         jazzUserAccount.profile["regarde.bio"],
         {
           resolve: {

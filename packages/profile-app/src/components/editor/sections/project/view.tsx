@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useProject } from '#/lib/hook/useProject.ts';
-import { JazzAppProfile, ListOfProjects, Project } from '#/lib/schema';
+import { RegardeProfile, ListOfProjects, Project } from '#/lib/schema';
 import { EditorFooter } from '../../index';
 import { SectionHeader } from './../../layout/header';
 import { ProjectCard } from './card';
 
 type ProjectViewProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
   triggerSyncIndicator: TriggerSyncIndicator;
   projects: Loaded<typeof ListOfProjects> | undefined;
   onAddProject: () => void;

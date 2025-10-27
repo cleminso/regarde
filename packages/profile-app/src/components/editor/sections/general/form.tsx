@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useGeneral } from '#/lib/hook/useGeneral';
-import { JazzAppProfile } from '#/lib/schema';
+import { RegardeProfile } from '#/lib/schema';
 import { NicknameInput } from '../../../onboarding/nicknameInput';
 import { Input, Textarea } from '../../../ui';
 import { EditorFooter } from '../../layout/footer';
@@ -11,7 +11,7 @@ import { SectionHeader } from '../../layout/header';
 import { AvatarUpload } from './avatarUpload';
 
 type GeneralEditProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
   triggerSyncIndicator: TriggerSyncIndicator;
   onCloseEditor: () => void;
   accountId: string;

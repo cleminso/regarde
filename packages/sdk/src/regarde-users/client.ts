@@ -17,8 +17,8 @@ import {
  *   baseUrl: 'https://auth.regarde.dev',
  *   nickname: 'john_doe',
  *   jazzAccountID: 'acc123',
- *   registrationKey: 'key',
- *   registrationKeyId: 'keyId'
+ *   regardeAuth: 'token',
+ *   regardeAuthId: 'tokenId'
  * });
  *
  * @example
@@ -28,8 +28,8 @@ import {
  *   nickname: 'jane_doe',
  *   jazzAccountID: 'acc123',
  *   oldNickname: 'john_doe',
- *   registrationKey: 'key',
- *   registrationKeyId: 'keyId'
+ *   regardeAuth: 'token',
+ *   regardeAuthId: 'tokenId'
  * });
  *
  * @example
@@ -39,8 +39,8 @@ import {
  *   nickname: '',
  *   jazzAccountID: 'acc123',
  *   oldNickname: 'john_doe',
- *   registrationKey: 'key',
- *   registrationKeyId: 'keyId'
+ *   regardeAuth: 'token',
+ *   regardeAuthId: 'tokenId'
  * });
  */
 export async function registerNickname(
@@ -51,8 +51,8 @@ export async function registerNickname(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Registration-Key": params.registrationKey,
-        "X-Registration-Key-Id": params.registrationKeyId,
+        "X-Regarde-Token": params.regardeAuth,
+        "X-Regarde-Token-Id": params.regardeAuthId,
       },
       body: JSON.stringify({
         nickname: params.nickname,
@@ -123,4 +123,3 @@ export async function checkNicknameAvailability(
 
   return await response.json();
 }
-

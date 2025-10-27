@@ -1,12 +1,12 @@
 import { Loaded } from "jazz-tools";
 import {
   RegistryWorkerAccount,
-  OnboardingAccount,
+  RegardeAccount,
   NicknameRegistryCoRecord,
   ReverseNicknameRegistryCoRecord,
   ReservedNicknamesRegistry,
   RegistryAuditLog,
-  JazzAppProfile,
+  RegardeProfile,
 } from "@regarde-dev/jazz-schemas";
 import {
   HealthServiceInterface,
@@ -133,7 +133,7 @@ export class HealthService implements HealthServiceInterface {
       accountId: targetAccountId,
       registryStatus: "ok",
       reverseRegistryStatus: "ok",
-      onboardingStatus: "ok",
+      profileStatus: "ok",
       issues: [],
       recommendations: [],
     };
@@ -178,7 +178,7 @@ export class HealthService implements HealthServiceInterface {
 
     if (targetAccountId) {
       try {
-        const account = await OnboardingAccount.load(targetAccountId, {
+        const account = await RegardeAccount.load(targetAccountId, {
           resolve: {
             profile: {
               "regarde.bio": {
@@ -189,15 +189,15 @@ export class HealthService implements HealthServiceInterface {
         });
 
         if (!account) {
-          report.onboardingStatus = "not_found";
+          report.profileStatus = "not_found";
           report.issues.push(
             `Account "${targetAccountId}" not found or not accessible`,
           );
         } else if (!account.profile) {
-          report.onboardingStatus = "missing";
+          report.profileStatus = "missing";
           report.issues.push(`Account "${targetAccountId}" has no profile`);
         } else {
-          const profileData = await JazzAppProfile.load(
+          const profileData = await RegardeProfile.load(
             account.profile["regarde.bio"],
             {
               resolve: {
@@ -207,7 +207,7 @@ export class HealthService implements HealthServiceInterface {
           );
 
           if (!profileData) {
-            report.onboardingStatus = "missing";
+            report.profileStatus = "missing";
             report.issues.push(
               `Account "${targetAccountId}" has no profile data`,
             );
@@ -215,7 +215,7 @@ export class HealthService implements HealthServiceInterface {
             const userHandle = profileData.userHandle;
 
             if (!userHandle) {
-              report.onboardingStatus = "missing";
+              report.profileStatus = "missing";
               report.issues.push(
                 `Account "${targetAccountId}" has no userHandle data`,
               );
@@ -227,7 +227,7 @@ export class HealthService implements HealthServiceInterface {
               const storedNickname = userHandle.nickname;
 
               if (!isActive) {
-                report.onboardingStatus = "inactive";
+                report.profileStatus = "inactive";
                 report.issues.push(
                   `UserHandle is inactive (isActive: false)`,
                 );
@@ -237,7 +237,7 @@ export class HealthService implements HealthServiceInterface {
               }
 
               if (storedNickname !== targetNickname) {
-                report.onboardingStatus = "mismatch";
+                report.profileStatus = "mismatch";
                 report.issues.push(
                   `UserHandle shows "${storedNickname}", but registry shows "${targetNickname}"`,
                 );
@@ -249,7 +249,7 @@ export class HealthService implements HealthServiceInterface {
           }
         }
       } catch (error) {
-        report.onboardingStatus = "not_found";
+        report.profileStatus = "not_found";
         report.issues.push(
           `Failed to load account "${targetAccountId}": ${error}`,
         );

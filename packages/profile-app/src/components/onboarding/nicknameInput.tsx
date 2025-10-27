@@ -1,4 +1,4 @@
-import { JazzAppProfile } from '@regarde-dev/jazz-schemas';
+import { RegardeProfile } from '@regarde-dev/jazz-schemas';
 import { Loaded } from 'jazz-tools';
 import { Loader2 } from 'lucide-react';
 import React, { useCallback } from 'react';
@@ -17,7 +17,7 @@ type ValidationStatus =
 interface NicknameInputProps {
   value: string;
   onChange: (value: string) => void;
-  profile?: Loaded<typeof JazzAppProfile>;
+  profile?: Loaded<typeof RegardeProfile>;
   isProcessing?: boolean;
   disabled?: boolean;
   placeholder?: string;

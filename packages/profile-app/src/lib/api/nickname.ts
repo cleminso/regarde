@@ -1,4 +1,4 @@
-import { GetValidKeyFunction } from '../account/useRegistrationKey';
+import { GetValidKeyFunction } from '../account/useRegardeAuth';
 import { API_BASE_URL, AUTH_BASE_URL } from '../config/apiKey';
 
 export interface CheckAvailabilityRequest {
@@ -69,21 +69,21 @@ export async function checkNicknameAvailability(
 
 export async function registerNickname(
   request: RegisterRequest,
-  getValidRegistrationKey: GetValidKeyFunction,
+  getValidRegardeAuth: GetValidKeyFunction,
 ): Promise<void> {
-  const registrationData = await getValidRegistrationKey();
+  const registrationData = await getValidRegardeAuth();
   if (!registrationData) {
     throw new Error('Could not obtain valid registration key');
   }
 
-  const { key, registrationKeyId } = registrationData;
+  const { key, RegardeAuthId } = registrationData;
 
   const response = await fetch(`${API_BASE_URL}/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-Registration-Key': key,
-      'X-Registration-Key-Id': registrationKeyId,
+      'X-Registration-Key-Id': RegardeAuthId,
     },
     body: JSON.stringify(request),
   });

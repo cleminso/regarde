@@ -1,5 +1,5 @@
 import { createRoute } from "@hono/zod-openapi";
-import { OnboardingAccount, JazzAppProfile } from "@regarde-dev/jazz-schemas";
+import { RegardeAccount, RegardeProfile } from "@regarde-dev/jazz-schemas";
 import { z } from "zod";
 
 export const profilePageRoute = createRoute({
@@ -118,7 +118,7 @@ async function getUserDetails(
   }
 
   try {
-    const jazzUserAccount = await OnboardingAccount.load(
+    const jazzUserAccount = await RegardeAccount.load(
       accountIdFromNickname,
       {
         resolve: { profile: { "regarde.bio": true } },
@@ -129,7 +129,7 @@ async function getUserDetails(
       return { exists: false, publicData: null };
     }
 
-    const profileData = await JazzAppProfile.load(
+    const profileData = await RegardeProfile.load(
       jazzUserAccount.profile["regarde.bio"],
       {
         resolve: {

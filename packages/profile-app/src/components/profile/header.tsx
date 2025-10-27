@@ -11,11 +11,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu';
-import { JazzAppProfile } from '#/lib/schema';
+import { RegardeProfile } from '#/lib/schema';
 import { createNicknameUrl } from '#/lib/utils/utils';
 
 type ProfileHeaderProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
 };
 
 export function ProfileHeader({ profile }: ProfileHeaderProps) {

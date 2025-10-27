@@ -9,9 +9,9 @@ export const CheckAvailabilityRequestSchema = z.object({
 
 export const CheckAvailabilityResponseSchema = z.object({
   nickname: z.string(),
-  available: z.boolean(),
+  isAvailable: z.boolean(),
   takenBy: z.string().optional(),
-  reserved: z.boolean().optional(),
+  isReserved: z.boolean().optional(),
   reservationCategory: z.string().optional(),
   reservationReason: z.string().optional(),
 });
@@ -22,4 +22,3 @@ export type CheckAvailabilityRequest = z.infer<
 export type CheckAvailabilityResponse = z.infer<
   typeof CheckAvailabilityResponseSchema
 >;
-

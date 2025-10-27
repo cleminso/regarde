@@ -1,9 +1,9 @@
-export interface VerifyRegistrationKeyParams {
+export interface VerifyRegardeAuthParams {
   baseUrl: string;
   jazzAccountId: string;
-  registrationKey: string;
-  registrationKeyId: string;
-  apiKey: string;
+  regardeAuth: string;
+  regardeAuthId: string;
+  apiToken: string;
   signal?: AbortSignal;
 }
 
@@ -12,17 +12,17 @@ export interface VerificationResult {
   error?: string;
 }
 
-export async function verifyRegistrationKeyViaServer(
-  params: VerifyRegistrationKeyParams,
+export async function verifyRegardeAuthViaServer(
+  params: VerifyRegardeAuthParams,
 ): Promise<VerificationResult> {
   try {
     const response = await fetch(`${params.baseUrl}/verify`, {
       method: "POST",
       headers: {
-        "X-Registration-Key": params.registrationKey,
-        "X-Registration-Key-Id": params.registrationKeyId,
-        "X-Jazz-Account-Id": params.jazzAccountId,
-        "X-API-Key": params.apiKey,
+        "X-Regarde-Token": params.regardeAuth,
+        "X-Regarde-Token-Id": params.regardeAuthId,
+        "X-Regarde-Account-Id": params.jazzAccountId,
+        "X-API-Token": params.apiToken,
       },
       signal: params.signal,
     });

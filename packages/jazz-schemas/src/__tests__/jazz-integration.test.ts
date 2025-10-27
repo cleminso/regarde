@@ -6,15 +6,15 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import {
   setupJazzTestEnvironment,
-  createTestOnboardingAccount,
+  createTestRegardeAccount,
 } from "../test-utils/jazz-setup.js";
 import {
   UserHandle,
   setNicknameFromRegistry,
-} from "../regarde.dev/nickname.js";
+} from "../regarde.dev/userHandle.js";
 import {
-  JazzAppProfile,
-  validateJazzAppProfile,
+  RegardeProfile,
+  validateRegardeProfile,
 } from "../regarde.bio/profile.js";
 
 describe("Jazz Framework Integration Tests", () => {
@@ -31,14 +31,14 @@ describe("Jazz Framework Integration Tests", () => {
       lastModified: Date.now(),
     });
 
-    const profile = JazzAppProfile.create({
+    const profile = RegardeProfile.create({
       name: "Test User",
       userHandle,
       version: 1,
     });
 
     // Test that our business logic validation works with Jazz-created objects
-    const validationResult = validateJazzAppProfile(profile);
+    const validationResult = validateRegardeProfile(profile);
     expect(validationResult.isValid).toBe(true);
     expect(validationResult.message).toBeUndefined();
 
@@ -51,13 +51,13 @@ describe("Jazz Framework Integration Tests", () => {
 
   it("should create valid initial account structure through migration", async () => {
     // Test that account migration creates proper initial state
-    const account = await createTestOnboardingAccount({ name: "Test User" });
+    const account = await createTestRegardeAccount({ name: "Test User" });
 
     // Debug: Log account structure
     console.log("Account structure:", {
       hasRoot: !!account.root,
       hasProfile: !!account.profile,
-      rootKeys: account.root ? Object.keys(account.root) : "undefined",
+      rootTokens: account.root ? Object.keys(account.root) : "undefined",
     });
 
     // The migration might not have run yet in test environment
@@ -87,11 +87,11 @@ describe("Jazz Framework Integration Tests", () => {
     // Verify auth structure is valid
     const auth = account.root["auth.regarde.dev"];
     expect(auth).toBeDefined();
-    expect(auth!.key).toContain("not-valid-"); // From migration
+    expect(auth!.token).toContain("not-valid-"); // From migration
     expect(auth!.expiresAt).toBe(0);
 
     // Verify business logic validation
-    const validationResult = validateJazzAppProfile(profile!);
+    const validationResult = validateRegardeProfile(profile!);
     expect(validationResult.isValid).toBe(false); // Should be false because isActive is false
     expect(validationResult.message).toContain("Nickname must be active");
   });
@@ -121,26 +121,26 @@ describe("Jazz Framework Integration Tests", () => {
       lastModified: Date.now(),
     });
 
-    const invalidProfile = JazzAppProfile.create({
+    const invalidProfile = RegardeProfile.create({
       name: "", // Invalid: empty name
       userHandle,
       version: 1,
     });
 
-    const validationResult = validateJazzAppProfile(invalidProfile);
+    const validationResult = validateRegardeProfile(invalidProfile);
     expect(validationResult.isValid).toBe(false);
     expect(validationResult.message).toContain("Name must be present");
   });
 
   it("should handle missing userHandle gracefully", async () => {
     // Test that profiles without userHandle are properly rejected
-    const invalidProfile = JazzAppProfile.create({
+    const invalidProfile = RegardeProfile.create({
       name: "Test User",
       userHandle: null as any, // Invalid: missing userHandle
       version: 1,
     });
 
-    const validationResult = validateJazzAppProfile(invalidProfile);
+    const validationResult = validateRegardeProfile(invalidProfile);
     expect(validationResult.isValid).toBe(false);
     expect(validationResult.message).toContain("Onboarding data is required");
   });

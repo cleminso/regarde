@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import { TriggerSyncIndicator } from '#/lib/hook/types.ts';
 import { useSpeaking } from '#/lib/hook/useSpeaking.ts';
-import { JazzAppProfile, ListOfSpeaking, Speaking } from '#/lib/schema';
+import { RegardeProfile, ListOfSpeaking, Speaking } from '#/lib/schema';
 import { EditorFooter } from '../../index';
 import { SectionHeader } from './../../layout/header';
 import { SpeakingCard } from './card';
 
 type SpeakingViewProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
   triggerSyncIndicator: TriggerSyncIndicator;
   speaking: Loaded<typeof ListOfSpeaking> | undefined;
   onAddSpeaking: () => void;

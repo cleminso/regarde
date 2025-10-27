@@ -6,7 +6,7 @@ import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useCertification } from '#/lib/hook/useCertification';
 import {
   Certification,
-  JazzAppProfile,
+  RegardeProfile,
   ListOfCertification,
 } from '#/lib/schema';
 import { EditorFooter } from '../../index';
@@ -14,7 +14,7 @@ import { SectionHeader } from '../../layout/header';
 import { CertificationCard } from './card';
 
 type CertificationViewProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
   triggerSyncIndicator: TriggerSyncIndicator;
   certifications: Loaded<typeof ListOfCertification> | undefined;
   onAddCertification: () => void;

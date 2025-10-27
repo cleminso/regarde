@@ -5,7 +5,7 @@
 
 import { setupJazzTestSync, createJazzTestAccount } from "jazz-tools/testing";
 import { Account, Group } from "jazz-tools";
-import { OnboardingAccount } from "../regarde.bio";
+import { RegardeAccount } from "../regarde.bio";
 import { UserHandle } from "../regarde.dev";
 
 /**
@@ -18,7 +18,7 @@ export async function setupJazzTestEnvironment() {
   // Create a default test account to ensure Jazz context is available
   await createJazzTestAccount({
     isCurrentActiveAccount: true,
-    AccountSchema: OnboardingAccount,
+    AccountSchema: RegardeAccount,
   });
 }
 
@@ -38,10 +38,10 @@ export async function createTestUserHandle(
 }
 
 /**
- * Creates a test OnboardingAccount with optional creation props
+ * Creates a test RegardeAccount with optional creation props
  * This properly triggers the migration to create root and profile structures
  */
-export async function createTestOnboardingAccount(
+export async function createTestRegardeAccount(
   options: {
     isCurrentActiveAccount?: boolean;
     name?: string;
@@ -52,7 +52,7 @@ export async function createTestOnboardingAccount(
   const account = await createJazzTestAccount({
     isCurrentActiveAccount,
     creationProps: { name },
-    AccountSchema: OnboardingAccount,
+    AccountSchema: RegardeAccount,
   });
 
   // Wait for migration to complete
@@ -71,7 +71,7 @@ export async function createTestWorkerAccount() {
   const account = await createJazzTestAccount({
     isCurrentActiveAccount: false,
     creationProps: { name: "Test Worker" },
-    AccountSchema: OnboardingAccount,
+    AccountSchema: RegardeAccount,
   });
 
   // Wait for migration to complete

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { useMyJazz } from '../account/useMyJazz';
-import { useRegistrationKey } from '../account/useRegistrationKey';
+import { useRegardeAuth } from '../account/useRegardeAuth';
 import { checkNicknameAvailability } from '../api/nickname';
 import { registerNicknameWithServer } from '../nickname/services';
 import { isValidNicknameFormat } from '../nickname/utils';
@@ -30,9 +30,9 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
   const navigate = useNavigate();
   const clerk = useClerk();
 
-  const { jazzAppProfile, account, isAuthenticated } = useMyJazz();
+  const { regardeProfile, account, isAuthenticated } = useMyJazz();
 
-  const { getValidKey, isAccountReady } = useRegistrationKey();
+  const { getValidKey, isAccountReady } = useRegardeAuth();
 
   // Registration state
   const [isProcessing, setIsProcessing] = useState(false);
@@ -46,8 +46,8 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
   const [validationError, setValidationError] = useState('');
 
   // Single source of truth for current nickname
-  const currentNickname = jazzAppProfile?.userHandle?.nickname || '';
-  const isNicknameActive = jazzAppProfile?.userHandle?.isActive || false;
+  const currentNickname = regardeProfile?.userHandle?.nickname || '';
+  const isNicknameActive = regardeProfile?.userHandle?.isActive || false;
 
   // Validation logic
   const checkAvailability = useCallback(
@@ -132,7 +132,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
         await registerNicknameWithServer({
           nickname: pendingNickname,
           accountId: account.$jazz.id,
-          getRegistrationKey: getValidKey,
+          getRegardeAuth: getValidKey,
         });
 
         localStorage.removeItem(PENDING_NICKNAME_KEY);
@@ -208,7 +208,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
           nickname,
           accountId: account.$jazz.id,
           oldNickname: currentNickname,
-          getRegistrationKey: getValidKey,
+          getRegardeAuth: getValidKey,
         });
 
         // Wait a bit for the onboarding data to sync
@@ -245,7 +245,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
         registrationInProgress.current
       )
         return;
-      if (!jazzAppProfile?.userHandle) {
+      if (!regardeProfile?.userHandle) {
         setError(
           'Onboarding data not available. Please refresh and try again.',
         );
@@ -260,7 +260,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
           nickname,
           accountId: account!.$jazz.id,
           oldNickname: currentNickname,
-          getRegistrationKey: getValidKey,
+          getRegardeAuth: getValidKey,
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Update failed');
@@ -270,7 +270,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
     },
     [
       account?.$jazz.id,
-      jazzAppProfile?.userHandle?.$jazz.id,
+      regardeProfile?.userHandle?.$jazz.id,
       currentNickname,
       isProcessing,
       getValidKey,

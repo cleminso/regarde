@@ -48,7 +48,7 @@ export function createMockContext() {
 export function createMockRegistrationRequest(overrides = {}) {
   return {
     nickname: "testuser",
-    registrationKey: "valid-registration-key",
+    regardeAuth: "valid-registration-token",
     accountId: "test-account-id",
     action: "register",
     ...overrides,
@@ -80,7 +80,7 @@ export function createMockJazzAccount(overrides = {}) {
         version: 1,
       },
       "auth.regarde.bio": {
-        key: "valid-registration-key",
+        token: "valid-registration-token",
         expiresAt: Date.now() + 3600000, // 1 hour from now
       },
     },

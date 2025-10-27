@@ -1,4 +1,4 @@
-import { UserHandle } from "@regarde-dev/jazz-schemas/nickname";
+import { UserHandle } from "@regarde-dev/jazz-schemas";
 
 /**
  * Validation utilities for nicknames and account IDs

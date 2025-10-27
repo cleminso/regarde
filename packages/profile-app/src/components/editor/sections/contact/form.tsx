@@ -2,14 +2,14 @@ import { Loaded } from 'jazz-tools';
 
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useContact } from '#/lib/hook/useContact';
-import { JazzAppProfile } from '#/lib/schema';
+import { RegardeProfile } from '#/lib/schema';
 import { EditorFooter } from '../../layout/footer';
 import { SectionHeader } from '../../layout/header';
 import { contactFields } from './config';
 import { ContactInput } from './input';
 
 type ContactEditProps = {
-  profile: Loaded<typeof JazzAppProfile>;
+  profile: Loaded<typeof RegardeProfile>;
   triggerSyncIndicator: TriggerSyncIndicator;
   onCloseEditor: () => void;
 };
