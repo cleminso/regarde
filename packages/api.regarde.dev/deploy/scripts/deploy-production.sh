@@ -2,7 +2,7 @@
 set -e
 
 # =============================================================================
-# Profile Worker Deployment Script
+# API Server Deployment Script
 # =============================================================================
 # Handles both regular deployments and rollbacks to specific versions
 # Usage: ./deploy-production.sh [OPTIONS]
@@ -19,7 +19,7 @@ set -e
 #   ./deploy-production.sh --from-tag v1.2.3     # Deploy from tag
 #
 # Requirements:
-# - .env file in packages/api.regarde.bio/ with configuration
+# - .env file in packages/api.regarde.dev/ with configuration
 # - Clean git working directory (when using --from-commit/--from-tag)
 # =============================================================================
 
@@ -44,7 +44,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --help)
-            echo "Profile Worker Deployment Script"
+            echo "API Server Deployment Script"
             echo ""
             echo "Usage: $0 [OPTIONS]"
             echo ""
@@ -81,11 +81,11 @@ PROJECT_ROOT="$(dirname "$(dirname "$PACKAGE_ROOT")")"
 source "$SCRIPT_DIR/logger.sh"
 
 # Script header
-log_header "Profile Worker Deployment" "Production deployment"
+log_header "API Server Deployment" "Production deployment"
 
 log_info "Project root: $PROJECT_ROOT"
 
-# Change to api.regarde.bio directory
+# Change to api.regarde.dev directory
 cd "$PROJECT_ROOT"
 
 # =============================================================================
@@ -95,16 +95,16 @@ cd "$PROJECT_ROOT"
 load_config() {
     log_step "Loading configuration"
 
-    if [ ! -f packages/api.regarde.bio/.env ]; then
-        log_error ".env file not found in packages/api.regarde.bio/ directory!"
-        log_info "Copy the template: cp packages/api.regarde.bio/deploy/config/.env.template packages/api.regarde.bio/.env"
-        log_info "Then edit packages/api.regarde.bio/.env with your actual values"
+    if [ ! -f packages/api.regarde.dev/.env ]; then
+        log_error ".env file not found in packages/api.regarde.dev/ directory!"
+        log_info "Copy the template: cp packages/api.regarde.dev/deploy/config/.env.template packages/api.regarde.dev/.env"
+        log_info "Then edit packages/api.regarde.dev/.env with your actual values"
         exit 1
     fi
 
     # Load environment variables
     set -a
-    source packages/api.regarde.bio/.env
+    source packages/api.regarde.dev/.env
     set +a
 
     # Required variables
@@ -116,8 +116,8 @@ load_config() {
     )
 
     # Optional variables with defaults
-    SERVICE_NAME=${SERVICE_NAME:-"api-regarde-bio"}
-    APP_PORT=${APP_PORT:-"4000"}
+    SERVICE_NAME=${SERVICE_NAME:-"nickname-registry"}
+    APP_PORT=${APP_PORT:-"3000"}
     HEALTH_CHECK_TIMEOUT=${HEALTH_CHECK_TIMEOUT:-"10"}
     SERVICE_RESTART_TIMEOUT=${SERVICE_RESTART_TIMEOUT:-"15"}
     NODE_ENV=${NODE_ENV:-"production"}
@@ -299,7 +299,7 @@ install_dependencies() {
 build_project() {
     log_step "Building project"
 
-    if pnpm --filter @regarde-dev/api.regarde.bio build:schema && pnpm --filter @regarde-dev/api.regarde.bio build; then
+    if pnpm --filter @regarde-dev/api.regarde.dev build:schema && pnpm --filter @regarde-dev/api.regarde.dev build; then
         log_success "Project built"
     else
         log_error "Failed to build project"
@@ -341,11 +341,7 @@ check_health() {
 
     local max_attempts=10
     for i in $(seq 1 $max_attempts); do
-        if curl -s --max-time "$HEALTH_CHECK_TIMEOUT" "http://localhost:${API-REGARDE-BIO_APP_PORT}/health" > /dev/null; then
-            log_status_ok "Health check (api.regarde.bio)" "passed"
-            return 0
-        fi
-        if curl -s --max-time "$HEALTH_CHECK_TIMEOUT" "http://localhost:${AUTH-REGARDE-DEV_APP_PORT}/health" > /dev/null; then
+        if curl -s --max-time "$HEALTH_CHECK_TIMEOUT" "http://localhost:${APP_PORT}/health" > /dev/null; then
             log_status_ok "Health check (api.regarde.dev)" "passed"
             return 0
         fi

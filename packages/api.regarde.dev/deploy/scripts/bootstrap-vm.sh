@@ -2,7 +2,7 @@
 set -e
 
 # =============================================================================
-# Profile Worker VM Bootstrap Script
+# API Server VM Bootstrap Script
 # =============================================================================
 # This script sets up a fresh Ubuntu VM with all required dependencies
 # Usage: ./packages/api.regarde.dev/deploy/scripts/bootstrap-vm.sh
@@ -10,7 +10,7 @@ set -e
 # Requirements:
 # - Fresh Ubuntu 20.04+ VM
 # - Non-root user with sudo access
-# - Domain pointing to VM IP
+# - Domain pointing to VM IP (api.regarde.dev)
 # =============================================================================
 
 # Get the directory where this script is located
@@ -22,7 +22,7 @@ PROJECT_ROOT="$(dirname "$DEPLOY_DIR")"
 source "$SCRIPT_DIR/logger.sh"
 
 # Script header
-log_header "Profile Worker Bootstrap" "Setting up fresh Ubuntu VM with required dependencies"
+log_header "API Server Bootstrap" "Setting up fresh Ubuntu VM with required dependencies"
 
 log_info "Script location: $SCRIPT_DIR"
 log_info "Deploy directory: $DEPLOY_DIR"

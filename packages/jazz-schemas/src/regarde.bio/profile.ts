@@ -203,14 +203,14 @@ export function validateRegardeProfile(
   return { isValid: true };
 }
 
-// TODO(Clem): Add metadata handling to auth.regarde.dev/metadata
+// TODO(Clem): Add metadata handling to api.regarde.dev/metadata
 export const RegardeProfileMetadata = co.profile({
   "regarde.bio": z.string(), // String ID, requires additional load
 });
 
 export const RegardeRoot = co.map({
   "regarde.bio": RegardeProfile, // Direct object reference, already loaded
-  "auth.regarde.dev": RegardeAuth,
+  "api.regarde.dev": RegardeAuth,
 });
 
 export const RegardeAccount = co
@@ -239,7 +239,7 @@ export const RegardeAccount = co
 
     if (!account.$jazz.has("root")) {
       account.$jazz.set("root", {
-        "auth.regarde.dev": RegardeAuth.create(
+        "api.regarde.dev": RegardeAuth.create(
           {
             token: "no",
             expiresAt: 0,
@@ -273,7 +273,7 @@ export const RegardeAccount = co
       resolve: {
         profile: true,
         root: {
-          "auth.regarde.dev": true,
+          "api.regarde.dev": true,
         },
       },
     });
@@ -321,7 +321,7 @@ export const RegardeAccount = co
       });
 
       root.$jazz.set("regarde.bio", regardeProfile);
-      root.$jazz.set("auth.regarde.dev", regardeAuth);
+      root.$jazz.set("api.regarde.dev", regardeAuth);
 
       await account.$jazz.waitForSync();
 

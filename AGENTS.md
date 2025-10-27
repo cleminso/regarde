@@ -93,9 +93,9 @@ import { MyComponent } from "./MyComponent"; // Relative last
 - **Namespace structure**:
   - `account.root["regarde.bio"]` = pre-loaded RegardeProfile (use this)
   - `account.profile["regarde.bio"]` = string ID reference to RegardeProfile CoMap
-  - `account.root["auth.regarde.dev"]` = private RegardeAuth CoMap (24-hour expiry)
+  - `account.root["api.regarde.dev"]` = private RegardeAuth CoMap (24-hour expiry)
 - **Registration token authentication (acts as 2FA)**:
-  - User generates token via `useRegardeAuth()` (stored in `account.root["auth.regarde.dev"]`)
+  - User generates token via `useRegardeAuth()` (stored in `account.root["api.regarde.dev"]`)
   - User sends token + token CoMap ID in headers (`X-Regarde-Token`, `X-Regarde-Token-Id`)
   - Worker loads RegardeAuth CoMap and verifies user owns it
   - Worker validates token matches and has not expired (24-hour lifetime)

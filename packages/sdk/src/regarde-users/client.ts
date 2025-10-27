@@ -6,7 +6,7 @@ import {
 } from "./types";
 
 /**
- * Register, update, or delete a nickname via the auth.regarde.dev service
+ * Register, update, or delete a nickname via the api.regarde.dev service
  *
  * @param params - Registration parameters
  * @returns Promise resolving to registration result
@@ -14,7 +14,7 @@ import {
  * @example
  * // Register new nickname
  * await registerNickname({
- *   baseUrl: 'https://auth.regarde.dev',
+ *   baseUrl: 'https://api.regarde.dev',
  *   nickname: 'john_doe',
  *   jazzAccountID: 'acc123',
  *   regardeAuth: 'token',
@@ -24,7 +24,7 @@ import {
  * @example
  * // Update/swap nickname
  * await registerNickname({
- *   baseUrl: 'https://auth.regarde.dev',
+ *   baseUrl: 'https://api.regarde.dev',
  *   nickname: 'jane_doe',
  *   jazzAccountID: 'acc123',
  *   oldNickname: 'john_doe',
@@ -35,7 +35,7 @@ import {
  * @example
  * // Delete nickname
  * await registerNickname({
- *   baseUrl: 'https://auth.regarde.dev',
+ *   baseUrl: 'https://api.regarde.dev',
  *   nickname: '',
  *   jazzAccountID: 'acc123',
  *   oldNickname: 'john_doe',
@@ -89,7 +89,7 @@ export async function registerNickname(
  *
  * @example
  * const result = await checkNicknameAvailability({
- *   baseUrl: 'https://auth.regarde.dev',
+ *   baseUrl: 'https://api.regarde.dev',
  *   nickname: 'john_doe'
  * });
  *
