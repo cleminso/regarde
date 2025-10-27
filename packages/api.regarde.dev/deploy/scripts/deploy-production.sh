@@ -116,7 +116,7 @@ load_config() {
     )
 
     # Optional variables with defaults
-    SERVICE_NAME=${SERVICE_NAME:-"nickname-registry"}
+    SERVICE_NAME=${SERVICE_NAME:-"api-regarde-dev"}
     APP_PORT=${APP_PORT:-"3000"}
     HEALTH_CHECK_TIMEOUT=${HEALTH_CHECK_TIMEOUT:-"10"}
     SERVICE_RESTART_TIMEOUT=${SERVICE_RESTART_TIMEOUT:-"15"}
@@ -395,8 +395,11 @@ main() {
         log_section "Initial Setup"
         setup_nginx
         setup_ssl
-        setup_systemd
     fi
+
+    # Always update systemd service (in case of package name changes)
+    log_section "Service Configuration"
+    setup_systemd
 
     log_section "Dependencies"
     install_dependencies

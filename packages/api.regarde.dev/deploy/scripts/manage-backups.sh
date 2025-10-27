@@ -31,7 +31,7 @@ if [ -f .env ]; then
 fi
 
 # Set defaults
-SERVICE_NAME=${SERVICE_NAME:-"nickname-registry"}
+SERVICE_NAME=${SERVICE_NAME:-"api-regarde-dev"}
 BACKUP_DIR_NAME=${BACKUP_DIR_NAME:-"api-backups"}
 
 BACKUP_DIR="$HOME/$BACKUP_DIR_NAME"

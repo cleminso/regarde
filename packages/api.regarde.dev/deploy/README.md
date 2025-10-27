@@ -78,10 +78,10 @@ cat packages/api.regarde.dev/deploy/config/.env.template
 
 ```bash
 # Check service status
-sudo systemctl status nickname-registry  # (or your SERVICE_NAME)
+sudo systemctl status api-regarde-dev  # (or your SERVICE_NAME)
 
 # View logs
-sudo journalctl -u nickname-registry -f
+sudo journalctl -u api-regarde-dev -f
 
 # Test API health
 curl -s https://your-domain.com/health | jq .
@@ -172,16 +172,16 @@ This logging system matches the TypeScript Logger class used in other parts of t
 
 ```bash
 # Check service status
-sudo systemctl status nickname-registry  # (or your SERVICE_NAME)
+sudo systemctl status api-regarde-dev  # (or your SERVICE_NAME)
 
 # View recent logs
-sudo journalctl -u nickname-registry -n 50
+sudo journalctl -u api-regarde-dev -n 50
 
 # Follow logs in real-time
-sudo journalctl -u nickname-registry -f
+sudo journalctl -u api-regarde-dev -f
 
 # Restart service
-sudo systemctl restart nickname-registry
+sudo systemctl restart api-regarde-dev
 ```
 
 ### SSL Certificate Issues
@@ -248,7 +248,7 @@ bash -x packages/api.regarde.dev/deploy/scripts/deploy-production.sh
 ```bash
 # Create manual backup before risky changes
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-SERVICE_NAME=${SERVICE_NAME:-"nickname-registry"}
+SERVICE_NAME=${SERVICE_NAME:-"api-regarde-dev"}
 mkdir -p ~/api-backups/manual-$TIMESTAMP
 cp -r src/ ~/api-backups/manual-$TIMESTAMP/
 cp package.json ~/api-backups/manual-$TIMESTAMP/
@@ -260,16 +260,16 @@ echo "Manual backup created at: $(date)" > ~/api-backups/manual-$TIMESTAMP/backu
 
 ```bash
 # Enable service (start on boot)
-sudo systemctl enable nickname-registry
+sudo systemctl enable api-regarde-dev
 
 # Disable service
-sudo systemctl disable nickname-registry
+sudo systemctl disable api-regarde-dev
 
 # Check if service is enabled
-sudo systemctl is-enabled nickname-registry
+sudo systemctl is-enabled api-regarde-dev
 
 # View service configuration
-sudo systemctl cat nickname-registry
+sudo systemctl cat api-regarde-dev
 ```
 
 ### Infrastructure Updates
@@ -286,7 +286,7 @@ git pull
 
 ```bash
 # Quick service restart
-sudo systemctl restart nickname-registry
+sudo systemctl restart api-regarde-dev
 
 # Emergency rollback
 ./packages/api.regarde.dev/deploy/scripts/rollback.sh

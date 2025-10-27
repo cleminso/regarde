@@ -83,16 +83,16 @@ All scripts require a `.env` file in the api.regarde.dev directory with the foll
 1. **Always commit before deployment**: Keep your git history clean
 2. **Tag releases**: Use `git tag v1.0.0` for important versions
 3. **Test locally first**: Ensure code works before deploying
-4. **Monitor after deployment**: Check logs with `sudo journalctl -u nickname-registry -f`
+4. **Monitor after deployment**: Check logs with `sudo journalctl -u api-regarde-dev -f`
 
 ## Quick Commands
 
 ```bash
 # Check service status
-sudo systemctl status nickname-registry
+sudo systemctl status api-regarde-dev
 
 # View logs
-sudo journalctl -u nickname-registry -f
+sudo journalctl -u api-regarde-dev -f
 
 # Test health endpoint
 curl -s https://your-domain.com/health | jq .
