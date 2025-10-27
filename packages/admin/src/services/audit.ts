@@ -3,6 +3,7 @@ import { ulid } from "ulidx";
 import {
   RegistryWorkerAccount,
   RegistryAuditEntry,
+  RegistryAuditEntryCoMap,
   RegistryAuditLog,
 } from "@regarde-dev/jazz-schemas";
 import { AuditServiceInterface } from "../types/services.js";
@@ -11,7 +12,7 @@ import { Logger } from "../utils/logger.js";
 export class AuditService implements AuditServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
-    private auditLog: Loaded<typeof RegistryAuditLog>,
+    private auditLog: RegistryAuditLog,
   ) {}
 
   async logChange(
@@ -41,21 +42,18 @@ export class AuditService implements AuditServiceInterface {
         }
       }
 
-      const entry = RegistryAuditEntry.create(
-        {
-          monotonicId: ulid(),
-          timestamp: Date.now(),
-          jazzAccountId,
-          oldNickname: oldNickname || undefined,
-          newNickname: newNickname || undefined,
-          changedBy: this.worker.$jazz.id,
-          source,
-          action: entryAction,
-          reservationReason: reservationReason || undefined,
-          reservationCategory: reservationCategory || undefined,
-        },
-        { owner: this.worker },
-      );
+      const entry = RegistryAuditEntryCoMap.create({
+        monotonicId: ulid(),
+        timestamp: Date.now(),
+        jazzAccountId,
+        oldNickname: oldNickname || undefined,
+        newNickname: newNickname || undefined,
+        changedBy: this.worker.$jazz.id,
+        source,
+        action: entryAction,
+        reservationReason: reservationReason || undefined,
+        reservationCategory: reservationCategory || undefined,
+      });
 
       this.auditLog.$jazz.push(entry);
       Logger.debug(
@@ -74,13 +72,7 @@ export class AuditService implements AuditServiceInterface {
         `Retrieving audit history, limit: ${limit}, total entries: ${this.auditLog.length}`,
       );
 
-      const entries: RegistryAuditEntry[] = [];
-
-      for (const entry of this.auditLog) {
-        if (entry && typeof entry === "object") {
-          entries.$jazz.push(entry as RegistryAuditEntry);
-        }
-      }
+      const entries = [...this.auditLog].filter(e => e !== null) as unknown as RegistryAuditEntry[];
 
       const sortedEntries = entries
         .sort((a, b) => b.timestamp - a.timestamp)
@@ -100,18 +92,8 @@ export class AuditService implements AuditServiceInterface {
     try {
       Logger.debug(`Searching audit history for account: ${accountId}`);
 
-      const entries: RegistryAuditEntry[] = [];
-
-      for (const entry of this.auditLog) {
-        if (
-          entry &&
-          typeof entry === "object" &&
-          "jazzAccountId" in entry &&
-          entry.jazzAccountId === accountId
-        ) {
-          entries.$jazz.push(entry as RegistryAuditEntry);
-        }
-      }
+      const entries = [...this.auditLog]
+        .filter(e => e !== null && e.jazzAccountId === accountId) as unknown as RegistryAuditEntry[];
 
       const sortedEntries = entries.sort((a, b) => b.timestamp - a.timestamp);
       Logger.debug(
@@ -128,23 +110,8 @@ export class AuditService implements AuditServiceInterface {
 
   async getHistoryForNickname(nickname: string): Promise<RegistryAuditEntry[]> {
     try {
-      const entries: RegistryAuditEntry[] = [];
-
-      for (const entry of this.auditLog) {
-        if (
-          entry &&
-          typeof entry === "object" &&
-          ("oldNickname" in entry || "newNickname" in entry)
-        ) {
-          const auditEntry = entry as RegistryAuditEntry;
-          if (
-            auditEntry.oldNickname === nickname ||
-            auditEntry.newNickname === nickname
-          ) {
-            entries.$jazz.push(auditEntry);
-          }
-        }
-      }
+      const entries = [...this.auditLog]
+        .filter(e => e !== null && (e.oldNickname === nickname || e.newNickname === nickname)) as unknown as RegistryAuditEntry[];
 
       const sortedEntries = entries.sort((a, b) => b.timestamp - a.timestamp);
       Logger.debug(
@@ -164,18 +131,8 @@ export class AuditService implements AuditServiceInterface {
     limit: number = 50,
   ): Promise<RegistryAuditEntry[]> {
     try {
-      const entries: RegistryAuditEntry[] = [];
-
-      for (const entry of this.auditLog) {
-        if (
-          entry &&
-          typeof entry === "object" &&
-          "source" in entry &&
-          entry.source === source
-        ) {
-          entries.$jazz.push(entry as RegistryAuditEntry);
-        }
-      }
+      const entries = [...this.auditLog]
+        .filter(e => e !== null && e.source === source) as unknown as RegistryAuditEntry[];
 
       const sortedEntries = entries
         .sort((a, b) => b.timestamp - a.timestamp)

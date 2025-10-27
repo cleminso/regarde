@@ -1,8 +1,8 @@
 import { Loaded } from "jazz-tools";
 import {
   RegistryWorkerAccount,
-  NicknameRegistryCoRecord,
-  ReverseNicknameRegistryCoRecord,
+  NicknameRegistry,
+  ReverseNicknameRegistry,
   ReservedNicknamesRegistry,
 } from "@regarde-dev/jazz-schemas";
 import { NicknameServiceInterface } from "../types/services.js";
@@ -13,11 +13,9 @@ import { validateNickname, validateAccountId } from "../utils/validation.js";
 export class NicknameService implements NicknameServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
-    private nicknameRegistry: Loaded<typeof NicknameRegistryCoRecord>,
-    private reverseNicknameRegistry: Loaded<
-      typeof ReverseNicknameRegistryCoRecord
-    >,
-    private reservedNicknames: Loaded<typeof ReservedNicknamesRegistry>,
+    private nicknameRegistry: NicknameRegistry,
+    private reverseNicknameRegistry: ReverseNicknameRegistry,
+    private reservedNicknames: ReservedNicknamesRegistry,
     private auditService: AuditService,
     private reservationService: ReservationService,
   ) {}
@@ -37,7 +35,7 @@ export class NicknameService implements NicknameServiceInterface {
     }
 
     if (this.reservedNicknames[nickname] && !allowReserved) {
-      const reservation = this.reservedNicknames[nickname] as any;
+      const reservation = this.reservedNicknames[nickname];
       const category = reservation?.category || "unknown";
       const reservedBy = reservation?.reservedBy || "unknown";
       throw new Error(
@@ -52,11 +50,11 @@ export class NicknameService implements NicknameServiceInterface {
     }
 
     if (this.reservedNicknames[nickname] && allowReserved) {
-      const reservation = this.reservedNicknames[nickname] as any;
+      const reservation = this.reservedNicknames[nickname];
       const entryReason = reservation?.reason;
       const entryCategory = reservation?.category;
 
-      delete this.reservedNicknames[nickname];
+      this.reservedNicknames.$jazz.delete(nickname);
 
       await this.auditService.logChange(
         this.worker.$jazz.id,
@@ -97,8 +95,7 @@ export class NicknameService implements NicknameServiceInterface {
     }
 
     this.nicknameRegistry.$jazz.set(nickname, accountId);
-    this.reserveNicknameRegistry.$jazz.delete(oldAccountId);
-    // delete this.reverseNicknameRegistry[oldAccountId];
+    this.reverseNicknameRegistry.$jazz.delete(oldAccountId);
     this.reverseNicknameRegistry.$jazz.set(accountId, nickname);
 
     await this.auditService.logChange(accountId, nickname, nickname);

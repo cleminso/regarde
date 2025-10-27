@@ -27,7 +27,7 @@ export type ReservedNicknamesRegistry = co.loaded<
   typeof ReservedNicknamesRegistry
 >;
 
-export const RegistryAuditEntry = co.map({
+export const RegistryAuditEntryCoMap = co.map({
   monotonicId: z.string(),
   timestamp: z.number(),
   jazzAccountId: z.string(),
@@ -41,10 +41,9 @@ export const RegistryAuditEntry = co.map({
     z.enum(["admin", "brand", "system", "offensive", "custom"]),
   ),
 });
-export type RegistryAuditEntry = co.loaded<typeof RegistryAuditEntry>;
+export type RegistryAuditEntry = co.loaded<typeof RegistryAuditEntryCoMap>;
 
-// co.feed
-export const RegistryAuditLog = co.list(RegistryAuditEntry);
+export const RegistryAuditLog = co.list(RegistryAuditEntryCoMap);
 export type RegistryAuditLog = co.loaded<typeof RegistryAuditLog>;
 
 export const RegistryWorkerAccountRoot = co.map({

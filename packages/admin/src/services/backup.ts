@@ -1,8 +1,8 @@
 import { Loaded } from "jazz-tools";
 import {
   RegistryWorkerAccount,
-  NicknameRegistryCoRecord,
-  ReverseNicknameRegistryCoRecord,
+  NicknameRegistry,
+  ReverseNicknameRegistry,
 } from "@regarde-dev/jazz-schemas";
 import { BackupServiceInterface, BackupInfo } from "../types/services.js";
 import { AuditService } from "./audit.js";
@@ -35,10 +35,8 @@ interface BackupData {
 export class BackupService implements BackupServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
-    private nicknameRegistry: Loaded<typeof NicknameRegistryCoRecord>,
-    private reverseNicknameRegistry: Loaded<
-      typeof ReverseNicknameRegistryCoRecord
-    >,
+    private nicknameRegistry: NicknameRegistry,
+    private reverseNicknameRegistry: ReverseNicknameRegistry,
     private auditService: AuditService,
   ) {}
 
@@ -110,10 +108,10 @@ export class BackupService implements BackupServiceInterface {
     }
 
     for (const key of Object.keys(this.nicknameRegistry)) {
-      delete this.nicknameRegistry[key];
+      this.nicknameRegistry.$jazz.delete(key);
     }
     for (const key of Object.keys(this.reverseNicknameRegistry)) {
-      delete this.reverseNicknameRegistry[key];
+      this.reverseNicknameRegistry.$jazz.delete(key);
     }
 
     for (const [nickname, accountId] of Object.entries(backupData.registry)) {
@@ -161,10 +159,10 @@ export class BackupService implements BackupServiceInterface {
     };
 
     for (const key of Object.keys(this.nicknameRegistry)) {
-      delete this.nicknameRegistry[key];
+      this.nicknameRegistry.$jazz.delete(key);
     }
     for (const key of Object.keys(this.reverseNicknameRegistry)) {
-      delete this.reverseNicknameRegistry[key];
+      this.reverseNicknameRegistry.$jazz.delete(key);
     }
 
     await this.auditService.logChange(

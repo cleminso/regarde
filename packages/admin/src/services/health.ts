@@ -2,8 +2,8 @@ import { Loaded } from "jazz-tools";
 import {
   RegistryWorkerAccount,
   RegardeAccount,
-  NicknameRegistryCoRecord,
-  ReverseNicknameRegistryCoRecord,
+  NicknameRegistry,
+  ReverseNicknameRegistry,
   ReservedNicknamesRegistry,
   RegistryAuditLog,
   RegardeProfile,
@@ -19,10 +19,10 @@ import { AuditService } from "./audit.js";
 export class HealthService implements HealthServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
-    private nicknameRegistry: Loaded<typeof NicknameRegistryCoRecord>,
-    private reverseNicknameRegistry: Loaded<typeof ReverseNicknameRegistryCoRecord>,
-    private reservedNicknames: Loaded<typeof ReservedNicknamesRegistry>,
-    private auditLog: Loaded<typeof RegistryAuditLog>,
+    private nicknameRegistry: NicknameRegistry,
+    private reverseNicknameRegistry: ReverseNicknameRegistry,
+    private reservedNicknames: ReservedNicknamesRegistry,
+    private auditLog: RegistryAuditLog,
     private auditService: AuditService,
   ) {}
 

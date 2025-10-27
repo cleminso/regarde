@@ -2,7 +2,6 @@ import { withAdminService } from "../types.js";
 import { type ToolConfig } from "@alcyone-labs/arg-parser";
 import { Logger } from "../../utils/logger.js";
 import { RegardeAccount } from "@regarde-dev/jazz-schemas";
-import { Group } from "jazz-tools";
 
 export const nicknameCommands: ToolConfig[] = [
   {
@@ -141,9 +140,13 @@ export const nicknameCommands: ToolConfig[] = [
 
           // Grant current worker access to the account's root
           if (account.root) {
-            const rootOwner = account.root.$jazz.owner as Group;
-            rootOwner.addMember(admin.worker, "writer");
-            Logger.success("Granted worker access to account root");
+            const rootOwner = account.root.$jazz.owner;
+            if (rootOwner && "addMember" in rootOwner) {
+              rootOwner.addMember(admin.worker, "writer");
+              Logger.success("Granted worker access to account root");
+            } else {
+              Logger.error("Root owner is not a Group, cannot grant access");
+            }
           }
         } catch (error: unknown) {
           const errorMessage =

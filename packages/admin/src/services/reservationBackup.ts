@@ -46,7 +46,7 @@ export class ReservationBackupService
 {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
-    private reservedNicknames: Loaded<typeof ReservedNicknamesRegistry>,
+    private reservedNicknames: ReservedNicknamesRegistry,
     private auditService: AuditService,
   ) {}
 
@@ -69,12 +69,11 @@ export class ReservationBackupService
       this.reservedNicknames,
     )) {
       if (reservation) {
-        const reservationEntry = reservation as any;
         reservedNicknamesData[nickname] = {
-          reservedBy: reservationEntry?.reservedBy || "",
-          reservedAt: reservationEntry?.reservedAt || 0,
-          reason: reservationEntry?.reason,
-          category: reservationEntry?.category || "custom",
+          reservedBy: reservation.reservedBy,
+          reservedAt: reservation.reservedAt,
+          reason: reservation.reason,
+          category: reservation.category,
         };
         totalReservations++;
       }
@@ -127,7 +126,7 @@ export class ReservationBackupService
     }
 
     for (const key of Object.keys(this.reservedNicknames)) {
-      delete this.reservedNicknames[key];
+      this.reservedNicknames.$jazz.delete(key);
     }
 
     let restoredCount = 0;

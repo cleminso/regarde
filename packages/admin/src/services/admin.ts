@@ -1,6 +1,13 @@
 import { startWorker } from "jazz-tools/worker";
 import { Loaded } from "jazz-tools";
-import { RegistryWorkerAccount, RegistryAuditEntry } from "@regarde-dev/jazz-schemas";
+import {
+  RegistryWorkerAccount,
+  RegistryAuditEntry,
+  NicknameRegistry,
+  ReverseNicknameRegistry,
+  RegistryAuditLog,
+  ReservedNicknamesRegistry,
+} from "@regarde-dev/jazz-schemas";
 import { Logger } from "../utils/logger.js";
 
 import { AuditService } from "./audit.js";
@@ -124,43 +131,48 @@ export class AdminService {
       throw new Error("Required root properties are not loaded");
     }
 
-    this.auditService = new AuditService(this.loadedWorker, root.auditLog);
+    const registry = root.registry as NicknameRegistry;
+    const reverseRegistry = root.reverseRegistry as ReverseNicknameRegistry;
+    const auditLog = root.auditLog as unknown as RegistryAuditLog;
+    const reservedNicknames = root.reservedNicknames as ReservedNicknamesRegistry;
+
+    this.auditService = new AuditService(this.loadedWorker, auditLog);
 
     this.reservationService = new ReservationService(
       this.loadedWorker,
-      root.registry,
-      root.reservedNicknames,
+      registry,
+      reservedNicknames,
       this.auditService,
     );
 
     this.nicknameService = new NicknameService(
       this.loadedWorker,
-      root.registry,
-      root.reverseRegistry,
-      root.reservedNicknames,
+      registry,
+      reverseRegistry,
+      reservedNicknames,
       this.auditService,
       this.reservationService,
     );
 
     this.backupService = new BackupService(
       this.loadedWorker,
-      root.registry,
-      root.reverseRegistry,
+      registry,
+      reverseRegistry,
       this.auditService,
     );
 
     this.reservationBackupService = new ReservationBackupService(
       this.loadedWorker,
-      root.reservedNicknames,
+      reservedNicknames,
       this.auditService,
     );
 
     this.healthService = new HealthService(
       this.loadedWorker,
-      root.registry,
-      root.reverseRegistry,
-      root.reservedNicknames,
-      root.auditLog,
+      registry,
+      reverseRegistry,
+      reservedNicknames,
+      auditLog,
       this.auditService,
     );
   }
@@ -453,38 +465,39 @@ export class AdminService {
       throw new Error("Worker root is not available");
     }
 
+    if (!root.registry || !root.reverseRegistry) {
+      throw new Error("Registries are not available");
+    }
+
+    const registry = root.registry as NicknameRegistry;
+    const reverseRegistry = root.reverseRegistry as ReverseNicknameRegistry;
+
     if (verbose) {
       Logger.info("Validating registry integrity...");
     }
 
-    if (root.registry) {
-      for (const [nickname, accountId] of Object.entries(root.registry)) {
-        const reverseEntry = root.reverseRegistry?.[accountId as string];
-        if (reverseEntry !== nickname) {
-          const issue = `Forward registry maps ${nickname} -> ${accountId}, but reverse registry maps ${accountId} -> ${reverseEntry}`;
-          issues.push(issue);
+    for (const [nickname, accountId] of Object.entries(registry)) {
+      const reverseEntry = reverseRegistry[accountId as string];
+      if (reverseEntry !== nickname) {
+        const issue = `Forward registry maps ${nickname} -> ${accountId}, but reverse registry maps ${accountId} -> ${reverseEntry}`;
+        issues.push(issue);
 
-          if (fix && root.reverseRegistry) {
-            root.reverseRegistry.$jazz.set(accountId as string, nickname);
-            fixedIssues.push(`Fixed reverse registry for ${accountId}`);
-          }
+        if (fix) {
+          reverseRegistry.$jazz.set(accountId as string, nickname);
+          fixedIssues.push(`Fixed reverse registry for ${accountId}`);
         }
       }
     }
 
-    if (root.reverseRegistry) {
-      for (const [accountId, nickname] of Object.entries(
-        root.reverseRegistry,
-      )) {
-        const forwardEntry = root.registry?.[nickname as string];
-        if (forwardEntry !== accountId) {
-          const issue = `Reverse registry maps ${accountId} -> ${nickname}, but forward registry maps ${nickname} -> ${forwardEntry}`;
-          issues.push(issue);
+    for (const [accountId, nickname] of Object.entries(reverseRegistry)) {
+      const forwardEntry = registry[nickname as string];
+      if (forwardEntry !== accountId) {
+        const issue = `Reverse registry maps ${accountId} -> ${nickname}, but forward registry maps ${nickname} -> ${forwardEntry}`;
+        issues.push(issue);
 
-          if (fix && root.registry) {
-            root.registry.$jazz.set(nickname as string, accountId);
-            fixedIssues.push(`Fixed forward registry for ${nickname}`);
-          }
+        if (fix) {
+          registry.$jazz.set(nickname as string, accountId);
+          fixedIssues.push(`Fixed forward registry for ${nickname}`);
         }
       }
     }
