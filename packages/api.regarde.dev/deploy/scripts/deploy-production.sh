@@ -174,13 +174,20 @@ handle_version_change() {
     if [ -n "$FROM_COMMIT" ] || [ -n "$FROM_TAG" ]; then
         log_section "Version Change"
 
-        # Check for clean working directory
-        if [ -n "$(git status --porcelain)" ]; then
+        # Check for clean working directory (excluding pnpm-lock.yaml)
+        local dirty_files=$(git status --porcelain | grep -v "pnpm-lock.yaml" || true)
+        if [ -n "$dirty_files" ]; then
             log_error "Git working directory is not clean!"
             log_info "Commit or stash your changes first:"
             log_info "  git stash           # To temporarily save changes"
             log_info "  git commit -am 'message'  # To commit changes"
             exit 1
+        fi
+
+        # Discard pnpm-lock.yaml changes if present
+        if git status --porcelain | grep -q "pnpm-lock.yaml"; then
+            log_info "Discarding local pnpm-lock.yaml changes (will be regenerated)"
+            git checkout -- pnpm-lock.yaml
         fi
 
         local target=""
@@ -288,7 +295,9 @@ setup_systemd() {
 install_dependencies() {
     log_step "Installing dependencies"
 
-    if pnpm install; then
+    # Use --frozen-lockfile to ensure exact versions from committed lockfile
+    # This prevents unexpected dependency changes in production
+    if pnpm install --frozen-lockfile; then
         log_success "Dependencies installed"
     else
         log_error "Failed to install dependencies"

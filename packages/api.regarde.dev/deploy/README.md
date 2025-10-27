@@ -32,15 +32,20 @@ That's it! The deployment script handles everything else automatically.
 
 ## 🔄 Simplified Deployment Process
 
-### For Updates (2 commands only!)
+### For Updates (2-3 commands only!)
 
 ```bash
-# 1. Pull latest changes
+# 1. Handle lockfile conflicts (if any)
+git checkout -- pnpm-lock.yaml  # Discard local lockfile changes
+
+# 2. Pull latest changes
 git pull
 
-# 2. Deploy
+# 3. Deploy
 ./packages/api.regarde.dev/deploy/scripts/deploy-production.sh
 ```
+
+**Note:** The deployment script uses `pnpm install --frozen-lockfile` to ensure exact dependency versions from the committed lockfile.
 
 The deployment script automatically:
 
