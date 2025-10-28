@@ -5,7 +5,6 @@ import {
   RegardeAccount,
 } from "@regarde-dev/jazz-schemas/regarde.bio";
 
-import { Loaded } from "jazz-tools";
 import { ErrorResponseSchema } from "../schemas/common";
 import {
   UserDetailsRequestSchema,
@@ -108,10 +107,7 @@ export const userDetailsRoute = createRoute({
   `,
 });
 
-export const userDetailsHandler = (
-  reverseNicknameRegistry: any,
-  nicknameRegistry: any,
-) => {
+export const userDetailsHandler = () => {
   return async (c: any) => {
     // Variable to hold the Jazz Account ID once it's successfully resolved for the main logic.
     // It will be a string if parameter processing is successful.
@@ -140,19 +136,41 @@ export const userDetailsHandler = (
         if (queryNickname) {
           let accountIdFromNickname: string | undefined;
           try {
-            // TODO: change it as API
-            if (
-              nicknameRegistry &&
-              typeof nicknameRegistry === "object" &&
-              nicknameRegistry[queryNickname]
-            ) {
-              accountIdFromNickname = nicknameRegistry[queryNickname];
+            // Call api.regarde.dev /lookup endpoint to resolve nickname
+            const authServiceUrl =
+              process.env.AUTH_SERVICE_URL || "https://api.regarde.dev";
+            const lookupUrl = `${authServiceUrl}/lookup/${encodeURIComponent(queryNickname)}`;
+
+            console.log(
+              `Calling api.regarde.dev lookup API: ${lookupUrl}`,
+            );
+
+            const lookupResponse = await fetch(lookupUrl);
+
+            if (lookupResponse.status === 404) {
+              return c.json({ error: "Nickname not found" }, 404);
             }
+
+            if (!lookupResponse.ok) {
+              console.error(
+                `api.regarde.dev lookup API returned error: ${lookupResponse.status}`,
+              );
+              return c.json(
+                { error: "Internal server error during nickname lookup" },
+                500,
+              );
+            }
+
+            const lookupData = await lookupResponse.json();
+            accountIdFromNickname = lookupData.accountId;
+
+            console.log(
+              `Nickname "${queryNickname}" resolved to accountId: ${accountIdFromNickname}`,
+            );
           } catch (registryError: any) {
             console.error(
-              `Error accessing nickname registry for nickname "${queryNickname}": ${registryError.message || registryError}`,
+              `Error calling api.regarde.dev lookup API for nickname "${queryNickname}": ${registryError.message || registryError}`,
             );
-            // This is a server-side issue if the registry is expected to be valid.
             return c.json(
               { error: "Internal server error during nickname lookup" },
               500,
@@ -229,34 +247,11 @@ export const userDetailsHandler = (
         `Looking up user details for Jazz Account ID: "${processedJazzAccountId}"`,
       );
 
+      // Nickname will be retrieved from the loaded profile's userHandle below
       let currentNicknameInRegistry: string | undefined;
-      try {
-        if (
-          reverseNicknameRegistry &&
-          typeof reverseNicknameRegistry === "object"
-        ) {
-          currentNicknameInRegistry =
-            reverseNicknameRegistry[processedJazzAccountId];
-        } else {
-          console.warn("ReverseNicknameRegistry is not available or invalid");
-        }
-      } catch (registryError: any) {
-        console.error(
-          `Error accessing reverse nickname registry for ${processedJazzAccountId}: ${registryError.message || registryError}`,
-        );
-        // Depending on policy, might return 500 or proceed without reverse lookup.
-      }
-
-      const hasNickname = Boolean(currentNicknameInRegistry);
-      const nicknameStatus = {
-        hasNickname,
-        isRegistered: hasNickname,
-        registrationDate: undefined, // Not tracked in current implementation
-        canRegisterNickname: !hasNickname,
-      };
 
       let accountLoadError: string | null = null;
-      let profileData: Loaded<typeof RegardeProfile> | null = null;
+      let profileData: any = null;
 
       try {
         const jazzUserAccount = await RegardeAccount.load(
@@ -285,6 +280,7 @@ export const userDetailsHandler = (
 
         profileData = await RegardeProfile.load(regardeProfileId, {
           resolve: {
+            userHandle: true,
             projects: { $each: true },
             socialLinks: true,
             workExp: { $each: true },
@@ -301,6 +297,7 @@ export const userDetailsHandler = (
         });
         profileData?.$jazz.ensureLoaded({
           resolve: {
+            userHandle: true,
             projects: { $each: true },
             socialLinks: true,
             workExp: { $each: true },
@@ -323,6 +320,19 @@ export const userDetailsHandler = (
         );
         // Account remains null
       }
+
+      // Get nickname from loaded profile's userHandle
+      if (profileData?.userHandle) {
+        currentNicknameInRegistry = profileData.userHandle.nickname;
+      }
+
+      const hasNickname = Boolean(currentNicknameInRegistry);
+      const nicknameStatus = {
+        hasNickname,
+        isRegistered: hasNickname,
+        registrationDate: profileData?.userHandle?.registeredAt,
+        canRegisterNickname: !hasNickname,
+      };
 
       // Build the response
       try {

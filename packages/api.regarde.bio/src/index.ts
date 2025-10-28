@@ -7,7 +7,7 @@ import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { startWorker } from "jazz-tools/worker";
 
-import { RegistryWorkerAccount } from "@regarde-dev/jazz-schemas/regarde.dev";
+import { ProfileWorkerAccount } from "@regarde-dev/jazz-schemas/regarde.bio";
 
 import { rateLimit } from "./middleware/rateLimit.js";
 
@@ -72,14 +72,14 @@ async function main() {
 
   let worker;
   try {
-    console.debug("Starting worker");
+    console.debug("Starting ProfileWorkerAccount for api.regarde.bio");
     const workerResult = await startWorker({
-      AccountSchema: RegistryWorkerAccount,
+      AccountSchema: ProfileWorkerAccount,
       syncServer:
         JAZZ_SYNC_SERVER_URL +
         (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
     });
-    console.debug("Worker started");
+    console.debug("ProfileWorkerAccount started");
 
     worker = workerResult.worker;
   } catch (workerError) {
@@ -88,65 +88,9 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`Worker started with Account ID: ${worker.$jazz.id}`);
-
-  let loadedWorker;
-  try {
-    loadedWorker = await worker.$jazz.ensureLoaded({
-      resolve: {
-        root: {
-          registry: true,
-          reverseRegistry: true,
-          reservedNicknames: true,
-        },
-      },
-    });
-
-    if (loadedWorker?.root?.reservedNicknames) {
-      await loadedWorker.root.reservedNicknames.$jazz.ensureLoaded({
-        resolve: {},
-      });
-      console.log("Reserved nicknames registry fully loaded");
-    }
-  } catch (loadError) {
-    console.error("Failed to load worker data:", loadError);
-    console.error("This is a critical error. Exiting...");
-    process.exit(1);
-  }
-
-  if (!loadedWorker?.root) {
-    console.error("Critical: Worker root not loaded properly");
-    process.exit(1);
-  }
-
-  const {
-    registry: nicknameRegistry,
-    reverseRegistry: reverseNicknameRegistry,
-    reservedNicknames,
-  } = loadedWorker.root;
-
-  if (!nicknameRegistry || !reverseNicknameRegistry) {
-    console.error(
-      "Critical: NicknameRegistry or ReverseNicknameRegistry CoRecord not found in worker's account root. Migration might have failed.",
-    );
-    process.exit(1);
-  }
-
-  if (!reservedNicknames) {
-    console.error(
-      "Critical: ReservedNicknames CoRecord not found in worker's account root. Migration might have failed.",
-    );
-    process.exit(1);
-  }
-
+  console.log(`ProfileWorkerAccount started with ID: ${worker.$jazz.id}`);
   console.log(
-    `NicknameRegistry CoRecord loaded. ID: ${nicknameRegistry.$jazz.id}`,
-  );
-  console.log(
-    `ReverseNicknameRegistry CoRecord loaded. ID: ${reverseNicknameRegistry.$jazz.id}`,
-  );
-  console.log(
-    `ReservedNicknames CoRecord loaded. ID: ${reservedNicknames.$jazz.id}`,
+    "Note: This worker only loads user profiles - all nickname lookups go through api.regarde.dev API",
   );
 
   const app = new OpenAPIHono();
@@ -181,18 +125,9 @@ async function main() {
 
   app.get("/ui", swaggerUI({ url: `${PUBLIC_BASE_URL}/doc` }));
 
-  const safeRegisterHandler = async (c: any) => {
-    try {
-      return await registerHandler()(c);
-    } catch (error) {
-      console.error("Error in registerHandler:", error);
-      return c.json({ error: "Internal server error" }, 500);
-    }
-  };
-
   const safeAvatarHandler = async (c: any) => {
     try {
-      return await avatarHandler(nicknameRegistry)(c);
+      return await avatarHandler()(c);
     } catch (error) {
       console.error("Error in avatarHandler:", error);
       return c.notFound();
@@ -201,10 +136,7 @@ async function main() {
 
   const safeUserDetailsHandler = async (c: any) => {
     try {
-      return await userDetailsHandler(
-        reverseNicknameRegistry,
-        nicknameRegistry,
-      )(c);
+      return await userDetailsHandler()(c);
     } catch (error) {
       console.error("Error in userDetailsHandler:", error);
       return c.json(
@@ -220,17 +152,13 @@ async function main() {
 
   const safeProfilePageHandler = async (c: any) => {
     try {
-      return await profilePageHandler(
-        reverseNicknameRegistry,
-        nicknameRegistry,
-      )(c);
+      return await profilePageHandler()(c);
     } catch (error) {
       console.error("Error in profilePageHandler:", error);
       return c.json({ error: "Internal server error" }, 500);
     }
   };
 
-  app.openapi(registerRoute, safeRegisterHandler);
   app.openapi(userDetailsRoute, safeUserDetailsHandler);
   app.openapi(avatarRoute, safeAvatarHandler);
 

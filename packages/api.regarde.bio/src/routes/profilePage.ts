@@ -34,10 +34,7 @@ export const profilePageRoute = createRoute({
     "Serves HTML page with Open Graph meta tags for social media crawlers, then redirects to React app",
 });
 
-export const profilePageHandler = (
-  reverseNicknameRegistry: any,
-  nicknameRegistry: any,
-) => {
+export const profilePageHandler = () => {
   return async (c: any) => {
     console.log("Profile page handler called!");
     console.log("Request path:", c.req.path);
@@ -52,11 +49,7 @@ export const profilePageHandler = (
     const isCrawler = detectCrawler(userAgent);
 
     try {
-      const userDetails = await getUserDetails(
-        nickname,
-        reverseNicknameRegistry,
-        nicknameRegistry,
-      );
+      const userDetails = await getUserDetails(nickname);
 
       if (!userDetails.exists || !userDetails.publicData) {
         const html = generateNotFoundHTML(nickname, isCrawler);
@@ -101,16 +94,36 @@ function detectCrawler(userAgent: string): boolean {
   return crawlerPatterns.some((pattern) => pattern.test(userAgent));
 }
 
-async function getUserDetails(
-  nickname: string,
-  reverseNicknameRegistry: any,
-  nicknameRegistry: any,
-) {
-  // Reuse the same logic from userDetailsHandler
+async function getUserDetails(nickname: string) {
+  // Call api.regarde.dev /lookup endpoint to resolve nickname
   let accountIdFromNickname: string | undefined;
 
-  if (nicknameRegistry && nicknameRegistry[nickname]) {
-    accountIdFromNickname = nicknameRegistry[nickname];
+  try {
+    const authServiceUrl =
+      process.env.AUTH_SERVICE_URL || "https://api.regarde.dev";
+    const lookupUrl = `${authServiceUrl}/lookup/${encodeURIComponent(nickname)}`;
+
+    const lookupResponse = await fetch(lookupUrl);
+
+    if (lookupResponse.status === 404) {
+      return { exists: false, publicData: null };
+    }
+
+    if (!lookupResponse.ok) {
+      console.error(
+        `api.regarde.dev lookup API returned error: ${lookupResponse.status}`,
+      );
+      return { exists: false, publicData: null };
+    }
+
+    const lookupData = await lookupResponse.json();
+    accountIdFromNickname = lookupData.accountId;
+  } catch (error) {
+    console.error(
+      `Error calling api.regarde.dev lookup API for nickname "${nickname}":`,
+      error,
+    );
+    return { exists: false, publicData: null };
   }
 
   if (!accountIdFromNickname) {

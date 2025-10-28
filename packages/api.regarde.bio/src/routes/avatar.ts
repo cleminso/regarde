@@ -21,13 +21,32 @@ export const avatarRoute = createRoute({
   },
 });
 
-export const avatarHandler = (nicknameRegistry: any) => {
+export const avatarHandler = () => {
   return async (c: any) => {
     const { nickname } = c.req.valid("param");
 
     try {
-      // Get profile and serve avatar
-      const accountId = nicknameRegistry[nickname];
+      // Call api.regarde.dev /lookup endpoint to resolve nickname
+      const authServiceUrl =
+        process.env.AUTH_SERVICE_URL || "https://api.regarde.dev";
+      const lookupUrl = `${authServiceUrl}/lookup/${encodeURIComponent(nickname)}`;
+
+      const lookupResponse = await fetch(lookupUrl);
+
+      if (lookupResponse.status === 404) {
+        return c.notFound();
+      }
+
+      if (!lookupResponse.ok) {
+        console.error(
+          `api.regarde.dev lookup API returned error: ${lookupResponse.status}`,
+        );
+        return c.notFound();
+      }
+
+      const lookupData = await lookupResponse.json();
+      const accountId = lookupData.accountId;
+
       if (!accountId) {
         return c.notFound();
       }

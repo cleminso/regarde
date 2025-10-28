@@ -19,10 +19,15 @@ import { rateLimit } from "./middleware/rateLimit.js";
 import { verifyRoute } from "./routes/verifyToken.js";
 import { checkAvailabilityRoute } from "./routes/checkAvailability.js";
 import { registerRoute } from "./routes/register.js";
+import { lookupRoute } from "./routes/lookup.js";
 import { Loaded } from "jazz-tools";
 
 import { verifyHandler } from "#/domains/auth";
-import { registerHandler, checkAvailabilityHandler } from "#/domains/nickname";
+import {
+  registerHandler,
+  checkAvailabilityHandler,
+  lookupHandler,
+} from "#/domains/nickname";
 
 const PORT = process.env.PORT || 3000;
 const JAZZ_SYNC_SERVER_URL =
@@ -225,9 +230,19 @@ async function main() {
     }
   };
 
+  const safeLookupHandler = async (c: any) => {
+    try {
+      return await lookupHandler(nicknameRegistry)(c);
+    } catch (error) {
+      console.error("Error in lookupHandler:", error);
+      return c.json({ error: "Internal server error" }, 500);
+    }
+  };
+
   app.openapi(verifyRoute, safeVerifyHandler);
   app.openapi(checkAvailabilityRoute, safeCheckAvailabilityHandler);
   app.openapi(registerRoute, safeRegisterHandler);
+  app.openapi(lookupRoute, safeLookupHandler);
 
   // Register non-OpenAPI specific routes BEFORE catch-all
   app.get("/health", (c) => {

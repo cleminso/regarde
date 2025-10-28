@@ -4,8 +4,9 @@ import {
 } from '@regarde-dev/sdk/regarde-users';
 import type { CheckAvailabilityResponse } from '@regarde-dev/sdk/regarde-users';
 
-import { GetValidKeyFunction } from '../account/useRegardeAuth';
+
 import { API_BASE_URL, AUTH_BASE_URL } from '../config/apiKey';
+import { GetValidKeyFunction } from '../account/useRegistrationToken';
 
 export interface RegisterRequest {
   nickname: string;
