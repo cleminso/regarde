@@ -44,9 +44,9 @@ process.on("SIGINT", () => {
 });
 
 async function main() {
-  if (!process.env.JAZZ_WORKER_ACCOUNT || !process.env.JAZZ_WORKER_SECRET) {
+  if (!process.env.PROFILE_WORKER_ACCOUNT || !process.env.PROFILE_WORKER_SECRET) {
     console.error(
-      "Error: JAZZ_WORKER_ACCOUNT and JAZZ_WORKER_SECRET environment variables must be set.",
+      "Error: PROFILE_WORKER_ACCOUNT and PROFILE_WORKER_SECRET environment variables must be set.",
     );
     process.exit(1);
   }

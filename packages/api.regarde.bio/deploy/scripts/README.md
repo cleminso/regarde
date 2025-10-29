@@ -72,8 +72,8 @@ Logging utilities used by other scripts for consistent output formatting.
 All scripts require a `.env` file in the api.regarde.bio directory with the following variables:
 
 - `APP_PUBLIC_HOSTNAME` - Domain name for the service
-- `JAZZ_WORKER_ACCOUNT` - Jazz worker account ID
-- `JAZZ_WORKER_SECRET` - Jazz worker secret key
+- `PROFILE_WORKER_ACCOUNT` - Jazz worker account ID
+- `PROFILE_WORKER_SECRET` - Jazz worker secret key
 - `JAZZ_SYNC_SERVER_URL` - Jazz sync server URL
 
 - `SSL_CERTIFICATE_EMAIL` - (Optional) Email for SSL certificate
