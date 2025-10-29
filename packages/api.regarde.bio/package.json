@@ -11,7 +11,7 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build:schema": "pnpm --filter jazz-schemas build",
+    "build:schema": "pnpm --filter @regarde-dev/sdk build && pnpm --filter jazz-schemas build",
     "build": "pnpm clean && pnpm run build:schema && tsc",
     "start": "pnpm build && node dist/index.js",
     "debug": "pnpm build && node --inspect dist/index.js",
@@ -32,6 +32,7 @@
     "@hono/swagger-ui": "^0.5.2",
     "@hono/zod-openapi": "^1.1.4",
     "@regarde-dev/jazz-schemas": "workspace:*",
+    "@regarde-dev/sdk": "workspace:*",
     "dotenv": "^16.6.1",
     "hono": "^4.10.2",
     "jazz-tools": "catalog:",

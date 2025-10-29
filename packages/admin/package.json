@@ -14,7 +14,7 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build:schema": "pnpm --filter jazz-schemas build",
+    "build:schema": "pnpm --filter @regarde-dev/sdk build && pnpm --filter jazz-schemas build",
     "build": "pnpm clean && pnpm run build:schema && tsc",
     "dev": "pnpm build:schema && bun --watch src/cli.ts",
     "cli": "pnpm build:schema && bun src/cli.ts"
