@@ -1,4 +1,4 @@
-import { RegardeAccount } from '@regarde-dev/jazz-schemas';
+import { RegardeAccount } from '@regarde-dev/jazz-schemas/regarde.bio';
 import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 
 export function useMyRegardeAccount() {

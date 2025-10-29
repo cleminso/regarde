@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd ../.. && corepack prepare pnpm@latest --activate && pnpm install && pnpm --filter=\"@regarde-dev/jazz-schemas\" build && pnpm --filter @regarde-dev/regarde.bio build",
+  "buildCommand": "cd ../.. && corepack prepare pnpm@latest --activate && pnpm install && pnpm --filter=\"@regarde-dev/sdk\" build && pnpm --filter=\"@regarde-dev/jazz-schemas\" build && pnpm --filter @regarde-dev/regarde.bio build",
   "outputDirectory": "dist",
   "installCommand": "cd ../.. && corepack prepare pnpm@latest --activate && pnpm install",
   "redirects": [

@@ -1,13 +1,15 @@
 import { Loaded } from "jazz-tools";
 import {
   RegistryWorkerAccount,
-  RegardeAccount,
   NicknameRegistry,
   ReverseNicknameRegistry,
   ReservedNicknamesRegistry,
   RegistryAuditLog,
+} from "@regarde-dev/sdk/registry";
+import {
+  RegardeAccount,
   RegardeProfile,
-} from "@regarde-dev/jazz-schemas";
+} from "@regarde-dev/jazz-schemas/regarde.bio";
 import {
   HealthServiceInterface,
   HealthReport,

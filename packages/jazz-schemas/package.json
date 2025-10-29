@@ -19,14 +19,6 @@
     "./regarde.bio": {
       "types": "./dist/regarde.bio/index.d.ts",
       "import": "./dist/regarde.bio/index.js"
-    },
-    "./regarde.dev": {
-      "types": "./dist/regarde.dev/index.d.ts",
-      "import": "./dist/regarde.dev/index.js"
-    },
-    "./userHandle": {
-      "types": "./dist/regarde.dev/userHandle.d.ts",
-      "import": "./dist/regarde.dev/userHandle.js"
     }
   },
   "scripts": {
@@ -41,6 +33,7 @@
   },
   "dependencies": {
     "@hono/zod-openapi": "latest",
+    "@regarde-dev/sdk": "workspace:*",
     "jazz-tools": "catalog:",
     "ulidx": "catalog:",
     "zod": "latest"

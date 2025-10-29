@@ -5,7 +5,7 @@ import {
   RegistryAuditEntry,
   RegistryAuditEntryCoMap,
   RegistryAuditLog,
-} from "@regarde-dev/jazz-schemas";
+} from "@regarde-dev/sdk/registry";
 import { AuditServiceInterface } from "../types/services.js";
 import { Logger } from "../utils/logger.js";
 

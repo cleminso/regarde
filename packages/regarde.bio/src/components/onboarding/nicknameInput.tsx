@@ -1,4 +1,4 @@
-import { RegardeProfile } from '@regarde-dev/jazz-schemas';
+import { RegardeProfile } from '@regarde-dev/jazz-schemas/regarde.bio';
 import { Loaded } from 'jazz-tools';
 import { Loader2 } from 'lucide-react';
 import React, { useCallback } from 'react';

@@ -44,10 +44,10 @@ export const UserHandle = co
     }
   });
 
-export type UserHandle = co.loaded<typeof UserHandle>;
+export type UserHandleLoaded = co.loaded<typeof UserHandle>;
 
 export function setNicknameFromRegistry(
-  nicknameData: Loaded<typeof UserHandle>,
+  nicknameData: UserHandleLoaded,
   registeredNickname: string,
 ): void {
   nicknameData.$jazz.set("nickname", registeredNickname);
@@ -55,7 +55,7 @@ export function setNicknameFromRegistry(
   nicknameData.$jazz.set("lastModified", Date.now());
 }
 
-export function deactivate(nicknameData: Loaded<typeof UserHandle>): void {
+export function deactivate(nicknameData: UserHandleLoaded): void {
   nicknameData.$jazz.set("isActive", false);
   nicknameData.$jazz.set("lastModified", Date.now());
 }

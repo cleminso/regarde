@@ -11,7 +11,7 @@ import {
   UserHandle,
   setNicknameFromRegistry,
   deactivate,
-} from "../regarde.dev/userHandle.js";
+} from "@regarde-dev/sdk/regarde-users";
 
 describe("Nickname Business Logic", () => {
   beforeEach(async () => {

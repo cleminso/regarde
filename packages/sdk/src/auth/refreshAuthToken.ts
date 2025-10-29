@@ -1,7 +1,7 @@
 import { Loaded } from "jazz-tools";
-import { RegardeAuth } from "./schema";
 import { generateRegardeToken } from "./generateToken";
-import { TOKEN_LIFETIME_SECONDS } from "./utils";
+import { TOKEN_LIFETIME_SECONDS } from "./tokenUtils";
+import { RegardeAuth } from "./schemas/auth";
 
 /**
  * Coucou

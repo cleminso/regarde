@@ -7,7 +7,7 @@ import {
   ReverseNicknameRegistry,
   RegistryAuditLog,
   ReservedNicknamesRegistry,
-} from "@regarde-dev/jazz-schemas";
+} from "@regarde-dev/sdk/registry";
 import { Logger } from "../utils/logger.js";
 
 import { AuditService } from "./audit.js";
@@ -75,15 +75,15 @@ export class AdminService {
 
     try {
       this.loadedWorker = await this.worker.$jazz.ensureLoaded({
-              resolve: {
-                root: {
-                  registry: true,
-                  reverseRegistry: true,
-                  auditLog: { $each: true },
-                  reservedNicknames: { $each: true },
-                },
-              },
-            });
+        resolve: {
+          root: {
+            registry: true,
+            reverseRegistry: true,
+            auditLog: { $each: true },
+            reservedNicknames: { $each: true },
+          },
+        },
+      });
 
       if (!this.loadedWorker.root) {
         throw new Error("Worker account root is not available");
@@ -134,7 +134,8 @@ export class AdminService {
     const registry = root.registry as NicknameRegistry;
     const reverseRegistry = root.reverseRegistry as ReverseNicknameRegistry;
     const auditLog = root.auditLog as unknown as RegistryAuditLog;
-    const reservedNicknames = root.reservedNicknames as ReservedNicknamesRegistry;
+    const reservedNicknames =
+      root.reservedNicknames as ReservedNicknamesRegistry;
 
     this.auditService = new AuditService(this.loadedWorker, auditLog);
 

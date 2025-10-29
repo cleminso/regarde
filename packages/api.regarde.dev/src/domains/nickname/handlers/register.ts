@@ -3,9 +3,9 @@ import type {
   NicknameRegistry,
   ReverseNicknameRegistry,
   ReservedNicknamesRegistry,
-} from "@regarde-dev/jazz-schemas/regarde.dev";
+  RegistryWorkerAccount,
+} from "@regarde-dev/sdk/registry";
 import type { Loaded } from "jazz-tools";
-import type { RegistryWorkerAccount } from "@regarde-dev/jazz-schemas/regarde.dev";
 
 export const registerHandler = (
   nicknameRegistry: NicknameRegistry,

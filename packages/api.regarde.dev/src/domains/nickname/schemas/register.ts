@@ -1,2 +1,2 @@
-export { RegisterRequestSchema } from "@regarde-dev/jazz-schemas/regarde.dev";
+export { RegisterRequestSchema } from "@regarde-dev/sdk/auth";
 

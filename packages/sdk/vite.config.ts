@@ -18,18 +18,20 @@ export default defineConfig({
         auth: resolve(__dirname, "src/auth/index.ts"),
         verify: resolve(__dirname, "src/verify-token/index.ts"),
         "regarde-users": resolve(__dirname, "src/regarde-users/index.ts"),
+        registry: resolve(__dirname, "src/registry/index.ts"),
       },
       formats: ["es", "cjs"],
     },
     sourcemap: true,
     rollupOptions: {
       treeshake: true,
-      external: ["react", "preact", "jazz-tools"],
+      external: ["react", "preact", "jazz-tools", "zod"],
       output: {
         globals: {
           react: "React",
           preact: "Preact",
           "jazz-tools": "JazzTools",
+          zod: "Zod",
         },
       },
     },

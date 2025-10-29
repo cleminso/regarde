@@ -1,7 +1,7 @@
 import { withAdminService } from "../types.js";
 import { type ToolConfig } from "@alcyone-labs/arg-parser";
 import { Logger } from "../../utils/logger.js";
-import { RegardeAccount } from "@regarde-dev/jazz-schemas";
+import { RegardeAccount } from "@regarde-dev/jazz-schemas/regarde.bio";
 
 export const nicknameCommands: ToolConfig[] = [
   {

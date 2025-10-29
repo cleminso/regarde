@@ -8,11 +8,13 @@ import { swaggerUI } from "@hono/swagger-ui";
 import { startWorker } from "jazz-tools/worker";
 
 import {
-  NicknameRegistry,
+  NicknameRegistryCoRecord,
+  type NicknameRegistry,
   RegistryWorkerAccount,
   ReservedNicknamesRegistry,
-  ReverseNicknameRegistry,
-} from "@regarde-dev/jazz-schemas/regarde.dev";
+  ReverseNicknameRegistryCoRecord,
+  type ReverseNicknameRegistry,
+} from "@regarde-dev/sdk/registry";
 
 import { rateLimit } from "./middleware/rateLimit.js";
 

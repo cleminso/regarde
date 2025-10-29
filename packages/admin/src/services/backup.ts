@@ -3,7 +3,7 @@ import {
   RegistryWorkerAccount,
   NicknameRegistry,
   ReverseNicknameRegistry,
-} from "@regarde-dev/jazz-schemas";
+} from "@regarde-dev/sdk/registry";
 import { BackupServiceInterface, BackupInfo } from "../types/services.js";
 import { AuditService } from "./audit.js";
 import { Logger } from "../utils/logger.js";

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { verifyRegardeAuthViaServer } from "../verify-token/client";
+import { verifyRegardeAuthViaServer } from "../verify-token/verifyApi";
 
 describe("verifyRegardeAuthViaServer", () => {
   const mockParams = {

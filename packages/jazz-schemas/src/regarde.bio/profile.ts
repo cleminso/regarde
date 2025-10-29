@@ -1,6 +1,6 @@
 import { co, Group, Loaded, z } from "jazz-tools";
-import { UserHandle } from "../regarde.dev/userHandle.js";
-import { RegardeAuth } from "../regarde.dev/regardeAuth.js";
+import { UserHandle } from "@regarde-dev/sdk/regarde-users";
+import { RegardeAuth, addWorkerToGroup } from "@regarde-dev/sdk/auth";
 
 export const SocialLinks = co.map({
   github: z.optional(z.string()),
@@ -238,16 +238,19 @@ export const RegardeAccount = co
     }
 
     if (!account.$jazz.has("root")) {
+      const regardeAuth = RegardeAuth.create(
+        {
+          token: "no",
+          expiresAt: 0,
+        },
+        Group.create({
+          owner: account,
+        }),
+      );
+      addWorkerToGroup(regardeAuth);
+
       account.$jazz.set("root", {
-        "api.regarde.dev": RegardeAuth.create(
-          {
-            token: "no",
-            expiresAt: 0,
-          },
-          Group.create({
-            owner: account,
-          }),
-        ),
+        "api.regarde.dev": regardeAuth,
         "regarde.bio": {
           name: name ?? "no",
           version: 0,

@@ -1,4 +1,4 @@
-import { RegardeAuth } from "@regarde-dev/jazz-schemas/regarde.dev";
+import { RegardeAuth } from "@regarde-dev/sdk/auth";
 
 export interface VerificationResult {
   isValid: boolean;

@@ -1,5 +1,5 @@
 import { createRoute } from "@hono/zod-openapi";
-import { RegardeAccount, RegardeProfile } from "@regarde-dev/jazz-schemas";
+import { RegardeAccount, RegardeProfile } from "@regarde-dev/jazz-schemas/";
 import { z } from "zod";
 
 export const profilePageRoute = createRoute({
@@ -131,12 +131,9 @@ async function getUserDetails(nickname: string) {
   }
 
   try {
-    const jazzUserAccount = await RegardeAccount.load(
-      accountIdFromNickname,
-      {
-        resolve: { profile: { "regarde.bio": true } },
-      },
-    );
+    const jazzUserAccount = await RegardeAccount.load(accountIdFromNickname, {
+      resolve: { profile: { "regarde.bio": true } },
+    });
 
     if (!jazzUserAccount?.profile?.["regarde.bio"]) {
       return { exists: false, publicData: null };

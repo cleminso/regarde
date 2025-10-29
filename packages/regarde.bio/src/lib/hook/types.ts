@@ -1,5 +1,5 @@
 import { type Loaded } from 'jazz-tools';
-import { type RegardeProfile } from '@regarde-dev/jazz-schemas';
+import { type RegardeProfile } from '@regarde-dev/jazz-schemas/regarde.bio';
 
 export type SyncableObject = {
   waitForSync?: (options: { timeout: number }) => Promise<any>;

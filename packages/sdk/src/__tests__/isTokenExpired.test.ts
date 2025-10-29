@@ -1,44 +1,43 @@
-import { describe, it, expect } from 'vitest';
-import { isKeyExpired } from '../auth/utils';
+import { describe, it, expect } from "vitest";
+import { isTokenExpired } from "../auth/tokenUtils";
 
-describe('isKeyExpired', () => {
-  it('should return false for future expiry', () => {
+describe("isKeyExpired", () => {
+  it("should return false for future expiry", () => {
     const futureKey = { expiresAt: Date.now() + 10000 };
-    expect(isKeyExpired(futureKey)).toBe(false);
+    expect(isTokenExpired(futureKey)).toBe(false);
   });
 
-  it('should return true for past expiry', () => {
+  it("should return true for past expiry", () => {
     const pastKey = { expiresAt: Date.now() - 10000 };
-    expect(isKeyExpired(pastKey)).toBe(true);
+    expect(isTokenExpired(pastKey)).toBe(true);
   });
 
-  it('should return true for null expiresAt', () => {
+  it("should return true for null expiresAt", () => {
     const noExpiryKey = { expiresAt: null };
-    expect(isKeyExpired(noExpiryKey)).toBe(true);
+    expect(isTokenExpired(noExpiryKey)).toBe(true);
   });
 
-  it('should return true for undefined expiresAt', () => {
+  it("should return true for undefined expiresAt", () => {
     const noExpiryKey = { expiresAt: undefined };
-    expect(isKeyExpired(noExpiryKey)).toBe(true);
+    expect(isTokenExpired(noExpiryKey)).toBe(true);
   });
 
-  it('should return true for null key', () => {
-    expect(isKeyExpired(null)).toBe(true);
+  it("should return true for null key", () => {
+    expect(isTokenExpired(null)).toBe(true);
   });
 
-  it('should return true for undefined key', () => {
-    expect(isKeyExpired(undefined)).toBe(true);
+  it("should return true for undefined key", () => {
+    expect(isTokenExpired(undefined)).toBe(true);
   });
 
-  it('should return true for key without expiresAt property', () => {
-    const invalidKey = { key: 'some-key' };
-    expect(isKeyExpired(invalidKey)).toBe(true);
+  it("should return true for key without expiresAt property", () => {
+    const invalidKey = { key: "some-key" };
+    expect(isTokenExpired(invalidKey)).toBe(true);
   });
 
-  it('should handle edge case of expiry exactly at current time', () => {
+  it("should handle edge case of expiry exactly at current time", () => {
     const now = Date.now();
     const keyExpiringNow = { expiresAt: now };
-    expect(isKeyExpired(keyExpiringNow)).toBe(false);
+    expect(isTokenExpired(keyExpiringNow)).toBe(false);
   });
 });
-

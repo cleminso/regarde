@@ -1,4 +1,4 @@
-import { SocialLinks } from '@regarde-dev/jazz-schemas';
+import { SocialLinks } from '@regarde-dev/jazz-schemas/regarde.bio';
 import { logger } from '../utils/logger';
 import { BaseHookProps } from './types';
 

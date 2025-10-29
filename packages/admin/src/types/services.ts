@@ -1,4 +1,4 @@
-import { RegistryAuditEntry } from "@regarde-dev/jazz-schemas";
+import { RegistryAuditEntry } from "@regarde-dev/sdk/registry";
 
 export interface HealthReport {
   status: "healthy" | "warning" | "error";

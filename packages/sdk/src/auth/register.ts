@@ -4,12 +4,14 @@ export const RegisterRequestSchema = z.object({
   nickname: z
     .string()
     .min(1, "Nickname is required")
-    .transform((val) => val.toLowerCase().trim()),
+    .transform((val: string) => val.toLowerCase().trim()),
   jazzAccountID: z.string().min(1, "Jazz Account ID is required"),
   oldNickname: z
     .string()
     .optional()
-    .transform((val) => (val ? val.toLowerCase().trim() : val)),
+    .transform((val: string | undefined) =>
+      val ? val.toLowerCase().trim() : val,
+    ),
 });
 
 export const RegisterResponseSchema = z.object({

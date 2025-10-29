@@ -1,4 +1,4 @@
-import { NowPage } from '@regarde-dev/jazz-schemas';
+import { NowPage } from '@regarde-dev/jazz-schemas/regarde.bio';
 import { useCallback } from 'react';
 
 import { BaseHookProps } from './types';

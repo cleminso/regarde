@@ -26,7 +26,8 @@
   "license": "ISC",
   "packageManager": "pnpm@10.16.1",
   "dependencies": {
-    "jazz-tools": "catalog:"
+    "jazz-tools": "catalog:",
+    "zod": "catalog:"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
@@ -74,6 +75,11 @@
       "types": "./dist/regarde-users/index.d.ts",
       "import": "./dist/regarde-users.js",
       "require": "./dist/regarde-users.cjs"
+    },
+    "./registry": {
+      "types": "./dist/registry/index.d.ts",
+      "import": "./dist/registry.js",
+      "require": "./dist/registry.cjs"
     }
   },
   "files": [

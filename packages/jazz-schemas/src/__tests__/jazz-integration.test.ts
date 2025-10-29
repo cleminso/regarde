@@ -11,7 +11,7 @@ import {
 import {
   UserHandle,
   setNicknameFromRegistry,
-} from "../regarde.dev/userHandle.js";
+} from "@regarde-dev/sdk/regarde-users";
 import {
   RegardeProfile,
   validateRegardeProfile,

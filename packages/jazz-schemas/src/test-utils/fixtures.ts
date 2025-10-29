@@ -4,7 +4,7 @@
  */
 
 import { RegardeProfile } from "../regarde.bio";
-import { UserHandle } from "../regarde.dev";
+import { UserHandle } from "@regarde-dev/sdk/regarde-users";
 
 /**
  * Creates a valid UserHandle for testing

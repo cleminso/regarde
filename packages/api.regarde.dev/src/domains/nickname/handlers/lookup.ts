@@ -1,4 +1,4 @@
-import type { NicknameRegistry } from "@regarde-dev/jazz-schemas/regarde.dev";
+import type { NicknameRegistry } from "@regarde-dev/sdk/registry";
 
 export const lookupHandler = (nicknameRegistry: NicknameRegistry) => {
   return async (c: any) => {

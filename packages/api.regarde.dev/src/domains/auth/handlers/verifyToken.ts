@@ -1,6 +1,6 @@
 import { verifyRegardeAuth } from "./verify";
 import type { Loaded } from "jazz-tools";
-import type { RegistryWorkerAccount } from "@regarde-dev/jazz-schemas/regarde.dev";
+import type { RegistryWorkerAccount } from "@regarde-dev/sdk/registry";
 
 const HARDCODED_API_KEY = "nick-sauve.app-ilfaitbeautoday";
 

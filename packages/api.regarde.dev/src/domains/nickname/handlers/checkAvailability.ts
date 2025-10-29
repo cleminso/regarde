@@ -1,7 +1,7 @@
 import type {
   NicknameRegistry,
   ReservedNicknamesRegistry,
-} from "@regarde-dev/jazz-schemas/regarde.dev";
+} from "@regarde-dev/sdk/registry";
 
 export const checkAvailabilityHandler = (
   nicknameRegistry: NicknameRegistry,
