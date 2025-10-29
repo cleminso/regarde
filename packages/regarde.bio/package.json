@@ -1,12 +1,12 @@
 {
-  "name": "@regarde-dev/profile-app",
+  "name": "@regarde-dev/regarde.bio",
   "private": true,
   "version": "0.0.83",
   "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/cleminso/regarde.git",
-    "directory": "packages/profile-app"
+    "directory": "packages/regarde.bio"
   },
   "scripts": {
     "dev": "vite",

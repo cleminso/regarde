@@ -19,7 +19,7 @@ Added Sections:
 
 Templates Requiring Updates:
 AGENTS.md - Runtime guidance synchronized with new naming conventions and logging standards
-packages/profile-app/src/lib/utils/logger.ts - Added [SUCCESS] log level
+packages/regarde.bio/src/lib/utils/logger.ts - Added [SUCCESS] log level
 
 Follow-up TODOs:
 - None - all requirements specified
@@ -116,7 +116,7 @@ Rationale for Version 1.1.0:
 
 ### IV. Monorepo Package Boundaries
 
-**Rule**: Maintain clear package boundaries in the pnpm workspace. Shared schemas live in `@regarde-dev/shared-schemas`. Client code in `@regarde-dev/profile-app`. api.regarde.bio server code in `@regarde-dev/api.regarde.bio`, api.regarde.dev server code in `@regarde-dev/api.regarde.dev`. Admin tooling in `@regarde-dev/admin`. Packages MUST declare dependencies explicitly. Use pnpm workspace catalog for shared dependency versions.
+**Rule**: Maintain clear package boundaries in the pnpm workspace. Shared schemas live in `@regarde-dev/shared-schemas`. Client code in `@regarde-dev/regarde.bio`. api.regarde.bio server code in `@regarde-dev/api.regarde.bio`, api.regarde.dev server code in `@regarde-dev/api.regarde.dev`. Admin tooling in `@regarde-dev/admin`. Packages MUST declare dependencies explicitly. Use pnpm workspace catalog for shared dependency versions.
 
 **Rationale**: Clear boundaries prevent circular dependencies and enable independent testing and deployment. Shared schemas as single source of truth prevents schema drift between client and worker. Centralized dependency management via workspace catalog ensures version consistency across packages.
 
@@ -158,7 +158,7 @@ Rationale for Version 1.1.0:
 
 - No emojis in: code comments, console output, error messages, log statements, AI-generated responses
 - All logging must use logger utility with standard prefixes: `[ERROR]`, `[WARN]`, `[INFO]`, `[DEBUG]`, `[SUCCESS]`
-- Logger utility location: `packages/profile-app/src/lib/utils/logger.ts`
+- Logger utility location: `packages/regarde.bio/src/lib/utils/logger.ts`
 - File names must use camelCase: `userProfile.tsx`, `validateNickname.ts`, `apiClient.ts`
 - Component files must use camelCase: `userProfile.tsx` (component name is `UserProfile` in PascalCase, file name is camelCase)
 - Folder names must use kebab-case: `user-profile/`, `api-client/`, `shared-utils/`

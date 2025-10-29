@@ -21,8 +21,8 @@ vitest path/to/test.test.ts         # Run single test file
 
 ```bash
 pnpm --filter <package> build       # Build specific package
-pnpm --filter profile-app format-and-lint       # Check code style
-pnpm --filter profile-app format-and-lint:fix   # Auto-fix code style
+pnpm --filter regarde.bio format-and-lint       # Check code style
+pnpm --filter regarde.bio format-and-lint:fix   # Auto-fix code style
 ```
 
 ## Code Style Guidelines
@@ -73,7 +73,7 @@ import { MyComponent } from "./MyComponent"; // Relative last
 ### Output & Logging Standards
 
 - No emojis in code, logs, error messages, or AI responses
-- Use standardized logger: `packages/profile-app/src/lib/utils/logger.ts`
+- Use standardized logger: `packages/regarde.bio/src/lib/utils/logger.ts`
 - Logger prefixes: `[ERROR]`, `[WARN]`, `[INFO]`, `[DEBUG]`, `[SUCCESS]`
 - Example: `logger.error('Failed to validate nickname')`, `logger.info('User registered successfully')`
 

@@ -208,7 +208,7 @@ importers:
 
   packages/jazz.dev: {}
 
-  packages/profile-app:
+  packages/regarde.bio:
     dependencies:
       '@clerk/clerk-react':
         specifier: 'catalog:'

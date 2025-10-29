@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/profile-app.tsconfig.node.tsbuildinfo",
+    "tsBuildInfoFile": "./node_modules/.tmp/regarde.bio.tsconfig.node.tsbuildinfo",
     "target": "ES2022",
     "lib": ["ES2023"],
     "module": "ESNext",

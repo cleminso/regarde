@@ -1,6 +1,6 @@
 # api.regarde.dev API Server
 
-This worker provides an HTTP API for registering and checking nicknames for the profile-app. It uses Jazz to store the nickname-to-AccountID mappings in a `CoMap` owned by the worker itself.
+This worker provides an HTTP API for registering and checking nicknames for the regarde.bio. It uses Jazz to store the nickname-to-AccountID mappings in a `CoMap` owned by the worker itself.
 
 ## Prerequisites
 
@@ -10,7 +10,7 @@ This worker provides an HTTP API for registering and checking nicknames for the 
 ## Setup
 
 1.  **Install Dependencies**:
-    Navigate to this directory (`packages/profile-app/workers`) and run:
+    Navigate to this directory (`packages/regarde.bio/workers`) and run:
     ```bash
     npm install
     # or
@@ -25,7 +25,7 @@ This worker provides an HTTP API for registering and checking nicknames for the 
     This command will output an `Account ID` and an `Account Secret`.
 
 3.  **Environment Variables**:
-    Create a `.env` file in this directory (`packages/profile-app/workers/.env`) or set the following environment variables in your deployment environment:
+    Create a `.env` file in this directory (`packages/regarde.bio/workers/.env`) or set the following environment variables in your deployment environment:
 
     ```env
     JAZZ_WORKER_ACCOUNT="<WORKER_ACCOUNT_ID_FROM_STEP_2>"

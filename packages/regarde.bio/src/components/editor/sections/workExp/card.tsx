@@ -1,4 +1,4 @@
-// packages/profile-app/src/components/editor/workExp/card.tsx
+// packages/regarde.bio/src/components/editor/workExp/card.tsx
 import { Loaded } from 'jazz-tools';
 import { ArrowUpRight } from 'lucide-react';
 

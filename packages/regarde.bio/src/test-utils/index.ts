@@ -1,5 +1,5 @@
 /**
- * Main exports for profile-app test utilities
+ * Main exports for regarde.bio test utilities
  */
 
 export * from './render-helpers';
