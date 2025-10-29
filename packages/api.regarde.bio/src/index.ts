@@ -75,6 +75,8 @@ async function main() {
     console.debug("Starting ProfileWorkerAccount for api.regarde.bio");
     const workerResult = await startWorker({
       AccountSchema: ProfileWorkerAccount,
+      accountID: process.env.PROFILE_WORKER_ACCOUNT,
+      accountSecret: process.env.PROFILE_WORKER_SECRET,
       syncServer:
         JAZZ_SYNC_SERVER_URL +
         (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
