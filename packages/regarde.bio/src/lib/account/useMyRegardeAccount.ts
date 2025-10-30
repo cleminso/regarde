@@ -1,4 +1,4 @@
-import { RegardeAccount } from '@regarde-dev/jazz-schemas/regarde.bio';
+import { RegardeAccount } from '@regarde-dev/jazz-schemas';
 import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
 
 export function useMyRegardeAccount() {
@@ -23,14 +23,14 @@ export function useMyRegardeAccount() {
             nowPage: true,
             avatarImage: { original: true },
           },
-          'api.regarde.dev': true,
+          "regarde-sdk": true
         },
       },
     } : {}
   );
 
   const regardeProfile = account?.root?.['regarde.bio'];
-  const regardeAuth = account?.root?.['api.regarde.dev'];
+  const regardeAuth = account?.root?.['regarde-sdk'];
 
   return {
     account,

@@ -46,7 +46,6 @@ export function createTestProfile(
 
   return RegardeProfile.create({
     name,
-    userHandle,
     bio,
     version: 1,
   });
@@ -60,7 +59,6 @@ export function createComplexTestProfile() {
 
   return RegardeProfile.create({
     name: "Complex Test User",
-    userHandle,
     bio: "A complex user profile for testing",
     projects: [
       {
@@ -106,21 +104,18 @@ export function createInvalidTestProfile(
     case "emptyName":
       return RegardeProfile.create({
         name: "", // Invalid: empty name
-        userHandle: createTestUserHandle({ isActive: true }),
         version: 1,
       });
 
     case "inactiveHandle":
       return RegardeProfile.create({
         name: "Test User",
-        userHandle: createTestUserHandle({ isActive: false }), // Invalid: inactive handle
         version: 1,
       });
 
     case "emptyNickname":
       return RegardeProfile.create({
         name: "Test User",
-        userHandle: createTestUserHandle({ nickname: "" }), // Invalid: empty nickname
         version: 1,
       });
 

@@ -24,7 +24,7 @@
   "scripts": {
     "build:tsc": "pnpm clean && tsc",
     "build:vite": "pnpm clean && vite build",
-    "build": "pnpm build:tsc",
+    "build": "pnpm build:vite",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "test": "vitest",
@@ -32,11 +32,11 @@
     "test:run": "vitest run"
   },
   "dependencies": {
-    "@hono/zod-openapi": "latest",
+    "@hono/zod-openapi": "catalog:",
     "@regarde-dev/sdk": "workspace:*",
     "jazz-tools": "catalog:",
     "ulidx": "catalog:",
-    "zod": "latest"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "typescript": "catalog:",

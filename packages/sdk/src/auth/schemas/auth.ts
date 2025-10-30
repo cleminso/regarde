@@ -1,4 +1,5 @@
-import { co, CoValue, z } from "jazz-tools";
+import { Account, co, CoMap, CoValueClass, Group, Loaded, z } from "jazz-tools";
+import { UserHandle } from "../../regarde-users";
 
 /**
  * # RegardeAuth - Temporary authentication tokens for API requests
@@ -30,56 +31,94 @@ export const RegardeAuth = co
     if (!regardeAuth.$jazz.has("expiresAt")) {
       regardeAuth.$jazz.set("expiresAt", 0);
     }
-
-    if (!regardeAuth.$jazz.owner.getRoleOf("co_zoppoxWWJaHYKPgSgUkuCCXQX21")) {
-      console.log("Adding worker");
-      co.group()
-        .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21")
-        .then((regardeProfileWorkerGroup) => {
-          if (!regardeProfileWorkerGroup) {
-            console.debug("No public group");
-            return;
-          }
-
-          regardeAuth.$jazz.owner.addMember(
-            regardeProfileWorkerGroup,
-            "writer",
-          );
-
-          console.log("Regarde-dev worker added to Auth Token");
-        });
-    }
   });
 
 export type RegardeAuthLoaded = co.loaded<typeof RegardeAuth>;
 
-export const addWorkerToGroup = (coValue: CoValue) => {
+export const RegardeSDK = co.map({
+  userHandle: UserHandle,
+  auth: RegardeAuth,
+  version: z.number().default(0),
+});
+
+export const initRegardeSchema = async (
+  account: Account,
+): Promise<co.loaded<typeof RegardeSDK>> => {
+  const regardeProfileWorkerGroup = await co
+    .group()
+    .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", {
+      loadAs: account,
+    });
+
+  // (:
+  if (!regardeProfileWorkerGroup) {
+    console.debug("No public group");
+    throw new Error("Group not available");
+  }
+
+  const userGroup = Group.create({
+    owner: account,
+  });
+  userGroup.addMember(regardeProfileWorkerGroup as Group, "writer");
+
+  await userGroup.$jazz.waitForSync();
+
+  return RegardeSDK.create(
+    {
+      userHandle: UserHandle.create(
+        {
+          nickname: "not-yet",
+          registeredAt: 0,
+          lastModified: 0,
+          isActive: false,
+        },
+        {
+          owner: userGroup,
+        },
+      ),
+      auth: RegardeAuth.create(
+        {
+          token: "not-valid-yet-" + Math.random(),
+          expiresAt: 0,
+        },
+        {
+          owner: userGroup,
+        },
+      ),
+      version: 1,
+    },
+    {
+      owner: userGroup,
+    },
+  );
+};
+
+export const addRegardePermissions = (coValue: Loaded<CoValueClass>) => {
   if (!coValue.$jazz.owner) {
     // TODO: Create group with worker
-  } else if (
-    coValue.$jazz.owner &&
-    !coValue.$jazz.owner.getRoleOf("co_zoppoxWWJaHYKPgSgUkuCCXQX21")
-  ) {
-    // TODO: Add worker to group
+
+    throw new Error(`There are no owner for this coValue ${coValue.$jazz.id}`, {
+      cause: new Error("Owner is undefined"),
+    });
+  }
+
+  if (!coValue.$jazz.owner?.getRoleOf("co_zoppoxWWJaHYKPgSgUkuCCXQX21")) {
+    console.debug("Adding worker account to coValue", {
+      coValueId: coValue.$jazz.id,
+    });
+
     co.group()
-      .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21")
+      .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", {})
       .then((regardeProfileWorkerGroup) => {
         if (!regardeProfileWorkerGroup) {
           console.debug("No public group");
           return;
         }
 
-        console.log("Group", regardeProfileWorkerGroup);
-
+        debugger;
         coValue.$jazz.owner?.addMember(regardeProfileWorkerGroup, "writer");
 
-        console.log("Regarde-dev worker added to Auth Token");
-      })
-      .catch((error) => {
-        console.error(
-          "Couldn't udpate the worker in regardeAuth coValue",
-          error,
-        );
+        console.log("Regarde.dev Account added to UserHandle");
       });
   }
 };

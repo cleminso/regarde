@@ -1,4 +1,4 @@
-import { co, Loaded, z } from "jazz-tools";
+import { co, z } from "jazz-tools";
 
 export const UserHandle = co
   .map({
@@ -25,22 +25,6 @@ export const UserHandle = co
 
     if (!userHandle.$jazz.has("lastModified")) {
       userHandle.$jazz.set("lastModified", Date.now());
-    }
-
-    if (!userHandle.$jazz.owner.getRoleOf("co_zoppoxWWJaHYKPgSgUkuCCXQX21")) {
-      console.log("Adding worker account to UserHandle");
-      co.group()
-        .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21")
-        .then((regardeProfileWorkerGroup) => {
-          if (!regardeProfileWorkerGroup) {
-            console.debug("No public group");
-            return;
-          }
-
-          userHandle.$jazz.owner.addMember(regardeProfileWorkerGroup, "writer");
-
-          console.log("Regarde.dev Account added to UserHandle");
-        });
     }
   });
 

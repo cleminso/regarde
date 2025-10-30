@@ -44,7 +44,10 @@ process.on("SIGINT", () => {
 });
 
 async function main() {
-  if (!process.env.PROFILE_WORKER_ACCOUNT || !process.env.PROFILE_WORKER_SECRET) {
+  if (
+    !process.env.PROFILE_WORKER_ACCOUNT ||
+    !process.env.PROFILE_WORKER_SECRET
+  ) {
     console.error(
       "Error: PROFILE_WORKER_ACCOUNT and PROFILE_WORKER_SECRET environment variables must be set.",
     );

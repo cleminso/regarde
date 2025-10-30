@@ -10,13 +10,11 @@
     "directory": "packages/api.regarde.dev"
   },
   "scripts": {
-    "clean": "rm -rf dist",
-    "build:schema": "pnpm --filter @regarde-dev/sdk build",
-    "build": "pnpm clean && pnpm run build:schema && tsc",
-    "start": "pnpm build && node dist/index.js",
+    "build": "tsc",
+    "start": "node dist/index.js",
     "debug": "pnpm build && node --inspect dist/index.js",
-    "start:bun": "pnpm build:schema && bun src/index.ts",
-    "dev": "pnpm build:schema && bun --watch src/index.ts",
+    "start:bun": "bun src/index.ts",
+    "dev": "bun --watch src/index.ts",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run"
@@ -31,12 +29,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@hono/node-server": "^1.19.0",
-    "@hono/swagger-ui": "^0.4.1",
-    "@hono/zod-openapi": "^1.1.4",
+    "@hono/node-server": "catalog:",
+    "@hono/swagger-ui": "catalog:",
+    "@hono/zod-openapi": "catalog:",
     "@regarde-dev/sdk": "workspace:*",
-    "dotenv": "^16.6.1",
-    "hono": "^4.9.4",
+    "dotenv": "catalog:",
+    "hono": "catalog:",
     "jazz-tools": "catalog:",
     "zod": "catalog:"
   },

@@ -1,6 +1,5 @@
 import { co, Group, Loaded, z } from "jazz-tools";
-import { UserHandle } from "@regarde-dev/sdk/regarde-users";
-import { RegardeAuth, addWorkerToGroup } from "@regarde-dev/sdk/auth";
+import { RegardeSDK, initRegardeSchema } from "@regarde-dev/sdk/auth";
 
 export const SocialLinks = co.map({
   github: z.optional(z.string()),
@@ -149,7 +148,6 @@ export type NowPage = z.infer<typeof NowPage>;
 
 export const RegardeProfile = co.map({
   name: z.string(),
-  userHandle: UserHandle,
   bio: z.optional(z.string()),
   avatarImage: co.optional(co.image()),
   socialLinks: co.optional(SocialLinks),
@@ -176,29 +174,30 @@ export function validateRegardeProfile(
     };
   }
 
-  if (!profile.userHandle) {
-    return {
-      isValid: false,
-      message: "Onboarding data is required.",
-    };
-  }
+  // TODO: Move to hook the SDK + move out of profile to `RegardeSDK` co.map
+  // if (!profile.userHandle) {
+  //   return {
+  //     isValid: false,
+  //     message: "Onboarding data is required.",
+  //   };
+  // }
 
-  if (
-    !profile.userHandle.nickname ||
-    profile.userHandle.nickname.trim() === ""
-  ) {
-    return {
-      isValid: false,
-      message: "Nickname must be non-empty.",
-    };
-  }
+  // if (
+  //   !profile.userHandle.nickname ||
+  //   profile.userHandle.nickname.trim() === ""
+  // ) {
+  //   return {
+  //     isValid: false,
+  //     message: "Nickname must be non-empty.",
+  //   };
+  // }
 
-  if (!profile.userHandle.isActive) {
-    return {
-      isValid: false,
-      message: "Nickname must be active.",
-    };
-  }
+  // if (!profile.userHandle.isActive) {
+  //   return {
+  //     isValid: false,
+  //     message: "Nickname must be active.",
+  //   };
+  // }
 
   return { isValid: true };
 }
@@ -209,8 +208,8 @@ export const RegardeProfileMetadata = co.profile({
 });
 
 export const RegardeRoot = co.map({
-  "regarde.bio": RegardeProfile, // Direct object reference, already loaded
-  "api.regarde.dev": RegardeAuth,
+  "regarde.bio": RegardeProfile,
+  "regarde-sdk": RegardeSDK,
 });
 
 export const RegardeAccount = co
@@ -238,93 +237,57 @@ export const RegardeAccount = co
     }
 
     if (!account.$jazz.has("root")) {
-      const regardeAuth = RegardeAuth.create(
-        {
-          token: "no",
-          expiresAt: 0,
-        },
-        Group.create({
-          owner: account,
-        }),
-      );
-      addWorkerToGroup(regardeAuth);
+      const regardeSdk = await initRegardeSchema(account);
 
       account.$jazz.set("root", {
-        "api.regarde.dev": regardeAuth,
+        "regarde-sdk": regardeSdk,
         "regarde.bio": {
           name: name ?? "no",
-          version: 0,
-          userHandle: UserHandle.create(
-            {
-              nickname: "",
-              isActive: false,
-              lastModified: Date.now(),
-              registeredAt: Date.now(),
-            },
-            Group.create({
-              owner: account,
-            }),
-          ),
+          version: 1,
         },
       });
     }
 
-    if (!account.$jazz.has("root")) {
-    }
+    await account.$jazz.waitForAllCoValuesSync();
 
     const { profile, root } = await account.$jazz.ensureLoaded({
       resolve: {
         profile: true,
         root: {
-          "api.regarde.dev": true,
+          "regarde-sdk": true,
         },
       },
     });
 
-    // First initialization
-    if (root["regarde.bio"] && root["regarde.bio"].version === 0) {
-      // This is the worker read group, must be hardcoded
-      const regardeProfileWorkerGroup = await co
-        .group()
-        .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21");
+    if (!root) {
+      console.log("Coucou");
+      return;
+    }
 
-      // (:
-      if (!regardeProfileWorkerGroup) {
-        console.debug("No public group");
-        return;
-      }
+    console.log("Done for now");
 
+    // First initialization for older accounts
+    if (
+      (root["regarde.bio"] && root["regarde.bio"].version === 0) ||
+      !root["regarde-sdk"] ||
+      root["regarde-sdk"].version < 1
+    ) {
       const userGroup = Group.create({
         owner: account,
       });
-      userGroup.addMember(regardeProfileWorkerGroup, "writer");
-
-      const userHandle = UserHandle.create(
-        {
-          nickname: name ?? "fj",
-          registeredAt: Date.now(),
-          lastModified: Date.now(),
-          isActive: false,
-        },
-        userGroup,
-      );
 
       const regardeProfile = RegardeProfile.create(
         {
           name: creationProps?.name || "Type your name",
-          userHandle,
           version: 1,
         },
         userGroup,
       );
 
-      const regardeAuth = RegardeAuth.create({
-        token: "not-valid-" + Math.random(),
-        expiresAt: 0, // token should never be valid, expires as soon as it's generated
-      });
+      const regardeSdk = await initRegardeSchema(account);
 
       root.$jazz.set("regarde.bio", regardeProfile);
-      root.$jazz.set("api.regarde.dev", regardeAuth);
+      root.$jazz.set("regarde-sdk", regardeSdk);
 
       await account.$jazz.waitForSync();
 
