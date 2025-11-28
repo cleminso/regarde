@@ -22,7 +22,6 @@ function JazzProvider({ children }: { children: React.ReactNode }) {
       clerk={clerk}
       sync={{
         peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
-        when: "signedUp",
       }}
       AccountSchema={RegardeAccount}
       onLogOut={() => {
