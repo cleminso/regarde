@@ -34,6 +34,7 @@ pnpm --filter regarde.bio format-and-lint:fix   # Auto-fix code style
 - Extract complex logic into well-named functions
 - Only add comments for non-obvious business rules or external constraints
 - Refactor unclear code rather than documenting it
+- Keep JSDoc updated after changes
 
 ### Imports (Prettier enforced)
 
@@ -69,6 +70,52 @@ import { MyComponent } from "./MyComponent"; // Relative last
 - DON'T test: Jazz sync, React rendering, framework behavior
 - Use `__tests__/` folders next to implementation files
 - Test naming: `should [outcome] when [condition]`
+
+### Documentation Standards
+
+#### JSDoc Guidelines
+
+**"Write precise and detailed documentation that removes ambiguity"**
+
+##### Core Principles
+
+- **Be specific over general**: Use "generates and refreshes" instead of "manages"
+- **Specify who performs actions**: "SDK generates" instead of "generates"
+- **Explain purpose behind design choices**: Clarify why an approach was chosen
+- **Add context for technical steps**: Explain "why" behind "what"
+
+##### The Four-Question Framework
+
+For any JSDoc section, ask:
+
+1. **Who performs the action?** (user, worker, function, SDK)
+2. **What exactly happens?** (specific operations, not general concepts)
+3. **Where does it happen?** (exact schema locations, files)
+4. **Why does it matter?** (purpose, trade-offs, consequences)
+
+##### Error Handling Documentation
+
+Use actionable error messages with numbered fix-checklists:
+
+```typescript
+// Don't do
+console.error("Failed to authenticate");
+
+// Do
+console.error(
+  "[ERROR] Authentication failed. Fix by: (1) Checking network connectivity, (2) Verifying Jazz account access, (3) Confirming token format validity",
+);
+```
+
+##### Vocabulary Substitutions
+
+| Instead of       | Use                                     |
+| ---------------- | --------------------------------------- |
+| manage/handle    | generate/store/load/refresh/verify      |
+| actual/real      | specific action description             |
+| automatically    | specify when/how trigger happens        |
+| system/process   | specify which component performs action |
+| data/information | exact data type/location                |
 
 ### Output & Logging Standards
 
@@ -106,3 +153,5 @@ import { MyComponent } from "./MyComponent"; // Relative last
   - No `{ loadAs: worker }` needed - verifies ownership via registration key
 - **Client data access**: Use `useMyRegardeAccount()` as single source of truth for user data
 - **Variable naming**: `account` for RegardeAccount, `RegardeProfile` for RegardeProfile, `worker` for RegistryWorkerAccount, `RegardeAuth` for RegardeAuth
+
+For UI development and Tailwind CSS rules, refer to [INTERFACE-GUIDELINES.md](./INTERFACE-GUIDELINES.md)

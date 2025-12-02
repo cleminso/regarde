@@ -1,5 +1,27 @@
+/**
+ * # Registration Schemas - User Registration Data Flow
+ *
+ * ## Purpose
+ * - Defines request/response data structure for nickname registration
+ * - Validates incoming registration data with specific rules
+ * - Standardizes communication between client and registry server
+ *
+ * ## Request Flow
+ * 1. Client creates registration request with nickname/jazzAccountId
+ * 2. Schema validates and formats the nickname (lowercase, trimmed)
+ * 3. Server processes validated request and updates registry
+ * 4. Server returns standardized response with registration outcome
+ *
+ * ## Validation Rules
+ * - Nickname: Required, transformed to lowercase and trimmed whitespace
+ * - Jazz Account ID: Required, string format validation
+ * - Previous Nickname: Optional, for nickname change operations
+ */
 import { z } from "zod";
 
+/**
+ * Validates registration request data before server processing
+ */
 export const RegisterRequestSchema = z.object({
   nickname: z
     .string()
@@ -14,6 +36,9 @@ export const RegisterRequestSchema = z.object({
     ),
 });
 
+/**
+ * Standardizes registration response format for client consumption
+ */
 export const RegisterResponseSchema = z.object({
   nickname: z.string(),
   jazzAccountID: z.string(),
@@ -21,5 +46,12 @@ export const RegisterResponseSchema = z.object({
   message: z.string().optional(),
 });
 
+/**
+ * TypeScript type for validated registration request parameters
+ */
 export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;
+
+/**
+ * TypeScript type for registration response from server
+ */
 export type RegisterResponse = z.infer<typeof RegisterResponseSchema>;

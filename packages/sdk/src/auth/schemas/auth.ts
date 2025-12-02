@@ -1,22 +1,29 @@
-import { Account, co, CoMap, CoValueClass, Group, Loaded, z } from "jazz-tools";
+import { Account, co, CoValueClass, Group, Loaded, z } from "jazz-tools";
 import { UserHandle } from "../../regarde-users";
 
 /**
- * # RegardeAuth - Temporary authentication tokens for API requests
+ * # RegardeAuth - Provides temporary authentication tokens for API requests
  *
  * ## Purpose
  * - Stores 24-hour expiring tokens for stateless API authentication
  * - Stored in account.root["api.regarde.dev"]
  *
  * ## Flow
- * 1. User generates token via SDK (useRegardeAuth hook)
- * 2. User sends token in headers: X-Regarde-Token, X-Regarde-Token-Id
- * 3. Worker loads RegardeAuth CoMap using token ID
+ * 1. SDK generates token via useRegardeAuth hook
+ * 2. Client sends token to server in headers: X-Regarde-Token, X-Regarde-Token-Id
+ * 3. Worker loads RegardeAuth CoMap using token ID (has write permission)
  * 4. Worker verifies user owns token (no session storage needed)
  *
  * ## Migration
- * - Adds worker (co_zoppoxWWJaHYKPgSgUkuCCXQX21) with "writer" permissions
- * - Worker needs access to validate tokens belong to requesting user
+ * - User adds worker (co_zoppoxWWJaHYKPgSgUkuCCXQX21) with "writer" permissions
+ * - Worker requires write access to validate token ownership during API
+ */
+/**
+ * Temporary authentication tokens for API requests
+ *
+ * - token - Authentication token for API requests
+ *
+ * - expiresAt - Unix timestamp when token expires
  */
 export const RegardeAuth = co
   .map({
@@ -35,6 +42,15 @@ export const RegardeAuth = co
 
 export type RegardeAuthLoaded = co.loaded<typeof RegardeAuth>;
 
+/**
+ * Container schema for all Regarde SDK components
+ *
+ * - userHandle - User's profile and nickname data
+ *
+ * - auth - Authentication token for API requests
+ *
+ * - version - Schema version for migration tracking
+ */
 export const RegardeSDK = co.map({
   userHandle: UserHandle,
   auth: RegardeAuth,
@@ -50,9 +66,10 @@ export const initRegardeSchema = async (
       loadAs: account,
     });
 
-  // (:
   if (!regardeProfileWorkerGroup) {
-    console.debug("No public group");
+    console.error(
+      "[ERROR] No public group found. Check: (1) Network connectivity, (2) Worker account ID is correct: co_zoppoxWWJaHYKPgSgUkuCCXQX21, (3) Jazz network is accessible from your environment",
+    );
     throw new Error("Group not available");
   }
 
@@ -95,6 +112,9 @@ export const initRegardeSchema = async (
 
 export const addRegardePermissions = (coValue: Loaded<CoValueClass>) => {
   if (!coValue.$jazz.owner) {
+    console.error(
+      `[ERROR] No owner found for coValue ${coValue.$jazz.id}. Fix by: (1) Checking if CoValue.create() was called with proper owner parameter, (2) Verifying account initialization sequence in your application`,
+    );
     // TODO: Create group with worker
 
     throw new Error(`There are no owner for this coValue ${coValue.$jazz.id}`, {
@@ -103,22 +123,24 @@ export const addRegardePermissions = (coValue: Loaded<CoValueClass>) => {
   }
 
   if (!coValue.$jazz.owner?.getRoleOf("co_zoppoxWWJaHYKPgSgUkuCCXQX21")) {
-    console.debug("Adding worker account to coValue", {
-      coValueId: coValue.$jazz.id,
-    });
+    console.log("[INFO] Adding worker account to coValue", coValue.$jazz.id);
 
     co.group()
       .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", {})
       .then((regardeProfileWorkerGroup) => {
         if (!regardeProfileWorkerGroup) {
-          console.debug("No public group");
+          console.error(
+            "[ERROR] Failed to add worker to coValue. Fix by: (1) Checking if Regarde environment is initialized, (2) Verifying network connection to Jazz network, (3) Confirming worker account accessibility",
+          );
           return;
         }
 
-        debugger;
         coValue.$jazz.owner?.addMember(regardeProfileWorkerGroup, "writer");
 
-        console.log("Regarde.dev Account added to UserHandle");
+        console.log(
+          "[SUCCESS] Regarde.dev Account added to UserHandle",
+          coValue.$jazz.id,
+        );
       });
   }
 };

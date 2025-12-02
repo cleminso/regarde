@@ -1,8 +1,29 @@
 import { co, z } from "jazz-tools";
 
+/**
+ * # Nickname Registry Module - User Identity Management
+ *
+ * ## Purpose
+ * - Maintains nickname-to-account ID mappings
+ * - Provides reverse lookup from accounts to nicknames
+ * - Tracks all nickname operations with audit trail
+ * - Implements nickname reservations and policies
+ *
+ * ## Registry Structure
+ * - Forward registry: nickname → Jazz Account ID
+ * - Reverse registry: Jazz Account ID → nickname
+ * - Reserved nicknames: protected names with metadata
+ * - Audit log: complete change history
+ */
+/**
+ * Forward mapping from nicknames to Jazz Account IDs
+ */
 export const NicknameRegistryCoRecord = co.record(z.string(), z.string());
 export type NicknameRegistry = co.loaded<typeof NicknameRegistryCoRecord>;
 
+/**
+ * Reverse mapping from Jazz Account IDs to nicknames
+ */
 export const ReverseNicknameRegistryCoRecord = co.record(
   z.string(),
   z.string(),
@@ -11,6 +32,17 @@ export type ReverseNicknameRegistry = co.loaded<
   typeof ReverseNicknameRegistryCoRecord
 >;
 
+/**
+ * Information about a reserved nickname
+ *
+ * - reservedBy - ID of the user/admin who reserved the nickname
+ *
+ * - reservedAt - Unix timestamp when the reservation was created
+ *
+ * - reason - Optional explanation for the reservation
+ *
+ * - category - Reservation type for policy enforcement
+ */
 export const ReservationEntry = co.map({
   reservedBy: z.string(),
   reservedAt: z.number(),
@@ -27,6 +59,29 @@ export type ReservedNicknamesRegistry = co.loaded<
   typeof ReservedNicknamesRegistry
 >;
 
+/**
+ * Audit record for registry change tracking
+ *
+ * - monotonicId - Sequential ID for ordering audit entries
+ *
+ * - timestamp - Unix timestamp of the change
+ *
+ * - jazzAccountId - Jazz Account ID affected by the change
+ *
+ * - oldNickname - Previous nickname (for update operations)
+ *
+ * - newNickname - New nickname (for add/update operations)
+ *
+ * - changedBy - ID of the entity that made the change
+ *
+ * - source - System that initiated the change
+ *
+ * - action - Type of registry operation
+ *
+ * - reservationReason - Reason for reservation (if applicable)
+ *
+ * - reservationCategory - Reservation type (if applicable)
+ */
 export const RegistryAuditEntryCoMap = co.map({
   monotonicId: z.string(),
   timestamp: z.number(),
@@ -43,9 +98,20 @@ export const RegistryAuditEntryCoMap = co.map({
 });
 export type RegistryAuditEntry = co.loaded<typeof RegistryAuditEntryCoMap>;
 
+/**
+ * Sequential list of all registry audit entries
+ */
 export const RegistryAuditLog = co.list(RegistryAuditEntryCoMap);
 export type RegistryAuditLog = co.loaded<typeof RegistryAuditLog>;
 
+/**
+ * Root schema containing all registry components
+ *
+ * - registry - Forward nickname-to-account mapping
+ * - reverseRegistry - Reverse account-to-nickname mapping
+ * - auditLog - Complete change history
+ * - reservedNicknames - Protected names with metadata
+ */
 export const RegistryWorkerAccountRoot = co.map({
   registry: NicknameRegistryCoRecord,
   reverseRegistry: ReverseNicknameRegistryCoRecord,
@@ -58,6 +124,16 @@ export type RegistryWorkerAccountRoot = co.loaded<
 
 const EmptyProfile = co.profile();
 
+/**
+ * Worker account that manages the nickname registry and serves public requests
+ *
+ * Worker account that manages all nickname operations while maintaining
+ * audit trails and enforcing reservation policies.
+ *
+ * - profile - Empty placeholder (worker account has no personal profile)
+ *
+ * - root - Schema containing all registry data structures
+ */
 export const RegistryWorkerAccount = co
   .account({
     profile: EmptyProfile,

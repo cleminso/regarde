@@ -1,17 +1,52 @@
+/**
+ * # Token Verification - Server-Side Authentication
+ *
+ * ## Purpose
+ * - Validates tokens against Jazz network data
+ * - Provides secure token validation for API requests
+ * - Returns structured verification results
+ *
+ * ## Verification Flow
+ * 1. Client sends verification request with token headers
+ * 2. Server loads RegardeAuth using provided token ID
+ * 3. Server validates token matches the stored value
+ * 4. Server checks token has not expired
+ */
+
+/**
+ * Parameters sent to verification server
+ */
 export interface VerifyRegardeAuthParams {
+  /** Base URL of the verification API endpoint */
   baseUrl: string;
+  /** Jazz Account ID claiming ownership of the token */
   jazzAccountId: string;
+  /** Token string from user's RegardeAuth schema */
   regardeAuth: string;
+  /** ID of the RegardeAuth CoMap containing the token */
   regardeAuthId: string;
+  /** Server API token for authentication (internal use) */
   apiToken: string;
+  /** Optional signal to abort the request */
   signal?: AbortSignal;
 }
 
+/**
+ * Verification result from server
+ */
 export interface VerificationResult {
+  /** True if token matches and hasn't expired */
   isValid: boolean;
+  /** Error details when verification fails */
   error?: string;
 }
 
+/**
+ * Sends verification request to server with token details
+ *
+ * @param params - Verification parameters with token and identification
+ * @returns Promise resolving to verification status
+ */
 export async function verifyRegardeAuthViaServer(
   params: VerifyRegardeAuthParams,
 ): Promise<VerificationResult> {
@@ -38,7 +73,10 @@ export async function verifyRegardeAuthViaServer(
   } catch (error) {
     return {
       isValid: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Verification failed: Network or parsing error. Check connection and retry.",
     };
   }
 }
