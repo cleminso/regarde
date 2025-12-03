@@ -1,5 +1,23 @@
 # AGENTS.md - Repository Guidelines
 
+## Table of Contents
+
+- [Commands](#commands)
+  - [Development](#development)
+  - [Testing](#testing)
+  - [Build & Lint](#build--lint)
+- [Directory Structure](#directory-structure)
+- [Code Style Guidelines](#code-style-guidelines)
+  - [Code Readability](#code-readability)
+  - [Imports (Prettier enforced)](#imports-prettier-enforced)
+  - [Naming Conventions](#naming-conventions)
+  - [Types & Error Handling](#types--error-handling)
+  - [Testing Philosophy - Critical](#testing-philosophy---critical)
+  - [Documentation Standards](#documentation-standards)
+    - [JSDoc Guidelines](#jsdoc-guidelines)
+  - [Output & Logging Standards](#output--logging-standards)
+  - [Jazz Architecture Rules](#jazz-architecture-rules)
+
 ## Commands
 
 ### Development
@@ -21,8 +39,23 @@ vitest path/to/test.test.ts         # Run single test file
 
 ```bash
 pnpm --filter <package> build       # Build specific package
-pnpm --filter regarde.bio format-and-lint       # Check code style
-pnpm --filter regarde.bio format-and-lint:fix   # Auto-fix code style
+pnpm --filter @regarde-dev/regarde.bio format-and-lint       # Check code style
+pnpm --filter @regarde-dev/regarde.bio format-and-lint:fix   # Auto-fix code style
+```
+
+## Directory Structure
+
+```
+regarde.dev/
+├── app/
+│   └── regarde.bio/
+│       ├── frontend/          # Frontend application (previously regarde.bio package)
+│       ├── api.regarde.bio/   # Profile API service
+│       └── jazz-schemas/      # Jazz schemas shared across the app
+└── packages/
+    ├── sdk/                   # Regarde SDK for authentication and profile management
+    ├── api.regarde.dev/       # Nickname registry API service
+    └── admin/                 # Admin CLI tool
 ```
 
 ## Code Style Guidelines
@@ -120,7 +153,7 @@ console.error(
 ### Output & Logging Standards
 
 - No emojis in code, logs, error messages, or AI responses
-- Use standardized logger: `packages/regarde.bio/src/lib/utils/logger.ts`
+- Use standardized logger: `app/regarde.bio/frontend/src/lib/utils/logger.ts`
 - Logger prefixes: `[ERROR]`, `[WARN]`, `[INFO]`, `[DEBUG]`, `[SUCCESS]`
 - Example: `logger.error('Failed to validate nickname')`, `logger.info('User registered successfully')`
 

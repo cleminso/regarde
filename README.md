@@ -20,11 +20,17 @@ Regarde.dev is a distributed profile system built on Jazz. It provides stateless
 
 ## Packages
 
-- `@regarde-dev/sdk` - Client SDK for authentication, profile management, and token generation. Interfaces with APIs and manages user permissions.
-- `api.regarde.dev` - API service for nickname registry operations. Uses RegistryWorkerAccount with write access to nickname registries.
+### App Directory (app/regarde.bio/)
+
+- `frontend` (formerly `regarde.bio`) - **Internal testing application** for SDK development. Will be moved outside this project in the future. When documenting "user profiles", refer to the SDK perspective unless specifically discussing regarde.bio.
 - `api.regarde.bio` - API service for profile access and reading user data. Uses ProfileWorkerAccount with read-only access.
 - `jazz-schemas` - Shared CoValue schemas for profiles and accounts. Loads SDK during migration to assign proper worker permissions.
-- `regarde.bio` - **Internal testing application** for SDK development. Will be moved outside this project in the future. When documenting "user profiles", refer to the SDK perspective unless specifically discussing regarde.bio.
+
+### Packages Directory (packages/)
+
+- `@regarde-dev/sdk` - Client SDK for authentication, profile management, and token generation. Interfaces with APIs and manages user permissions.
+- `api.regarde.dev` - API service for nickname registry operations. Uses RegistryWorkerAccount with write access to nickname registries.
+- `admin` - CLI tool for profile nickname registry admin operations.
 
 ## Schemas
 
@@ -110,8 +116,8 @@ RegistryWorkerAccount = CoAccount<{
 
 Reads user profiles with no registry access.
 
-**Implementation:** `packages/jazz-schemas/src/regarde.bio/profileWorker.ts:23-26`
-**Startup:** `packages/api.regarde.bio/src/index.ts:79-80` - Starts via `startWorker()`
+**Implementation:** `app/regarde.bio/jazz-schemas/src/regarde.bio/profileWorker.ts:23-26`
+**Startup:** `app/regarde.bio/api.regarde.bio/src/index.ts:79-80` - Starts via `startWorker()`
 
 ```typescript
 ProfileWorkerAccountRoot = CoMap<{
@@ -278,7 +284,7 @@ account.root["api.regarde.bio"] → (future use)
 
 **Permission Flow:**
 
-1. `jazz-schemas` loads SDK during migration
+1. `app/regarde.bio/jazz-schemas` loads SDK during migration
 2. SDK creates user group with worker as "writer" member
 3. Worker gains access to validate tokens and read profiles
 4. All permissions managed through Jazz group membership
