@@ -10,7 +10,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/cleminso/regarde.git",
-    "directory": "packages/admin"
+    "directory": "app/regarde.bio/admin"
   },
   "scripts": {
     "clean": "rm -rf dist",

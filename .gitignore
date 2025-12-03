@@ -32,8 +32,8 @@ ai*
 .zed*
 
 playwright-report
-packages/admin/registry-backups/
-packages/admin/reserveRegistry-backups/
+app/regarde.bio/admin/registry-backups/
+app/regarde.bio/admin/reserveRegistry-backups/
 
 playwright-report
 .vercel
