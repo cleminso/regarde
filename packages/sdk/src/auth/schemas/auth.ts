@@ -1,5 +1,6 @@
 import { Account, co, CoValueClass, Group, Loaded, z } from "jazz-tools";
 import { UserHandle } from "../../regarde-users";
+import { PaymentManager } from "../../payments/schemas";
 
 /**
  * # RegardeAuth - Provides temporary authentication tokens for API requests
@@ -49,11 +50,14 @@ export type RegardeAuthLoaded = co.loaded<typeof RegardeAuth>;
  *
  * - auth - Authentication token for API requests
  *
+ * - payments - Payment manager for subscriptions and transactions
+ *
  * - version - Schema version for migration tracking
  */
 export const RegardeSDK = co.map({
   userHandle: UserHandle,
   auth: RegardeAuth,
+  payments: PaymentManager,
   version: z.number().default(0),
 });
 
@@ -102,7 +106,15 @@ export const initRegardeSchema = async (
           owner: userGroup,
         },
       ),
-      version: 1,
+      payments: PaymentManager.create(
+        {
+          version: 1,
+        },
+        {
+          owner: userGroup,
+        },
+      ),
+      version: 2,
     },
     {
       owner: userGroup,

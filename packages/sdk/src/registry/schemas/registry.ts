@@ -1,20 +1,23 @@
 import { co, z } from "jazz-tools";
-
 /**
- * # Nickname Registry Module - User Identity Management
+ * # Registry Module - Nickname and App Management
  *
  * ## Purpose
  * - Maintains nickname-to-account ID mappings
  * - Provides reverse lookup from accounts to nicknames
  * - Tracks all nickname operations with audit trail
  * - Implements nickname reservations and policies
+ * - Manages application registrations and metadata
+ * - Tracks payment webhook configuration status
  *
  * ## Registry Structure
  * - Forward registry: nickname → Jazz Account ID
  * - Reverse registry: Jazz Account ID → nickname
  * - Reserved nicknames: protected names with metadata
  * - Audit log: complete change history
+ * - Apps registry: application definitions and metadata
  */
+
 /**
  * Forward mapping from nicknames to Jazz Account IDs
  */
@@ -36,11 +39,8 @@ export type ReverseNicknameRegistry = co.loaded<
  * Information about a reserved nickname
  *
  * - reservedBy - ID of the user/admin who reserved the nickname
- *
  * - reservedAt - Unix timestamp when the reservation was created
- *
  * - reason - Optional explanation for the reservation
- *
  * - category - Reservation type for policy enforcement
  */
 export const ReservationEntry = co.map({
@@ -63,23 +63,14 @@ export type ReservedNicknamesRegistry = co.loaded<
  * Audit record for registry change tracking
  *
  * - monotonicId - Sequential ID for ordering audit entries
- *
  * - timestamp - Unix timestamp of the change
- *
  * - jazzAccountId - Jazz Account ID affected by the change
- *
  * - oldNickname - Previous nickname (for update operations)
- *
  * - newNickname - New nickname (for add/update operations)
- *
  * - changedBy - ID of the entity that made the change
- *
  * - source - System that initiated the change
- *
  * - action - Type of registry operation
- *
  * - reservationReason - Reason for reservation (if applicable)
- *
  * - reservationCategory - Reservation type (if applicable)
  */
 export const RegistryAuditEntryCoMap = co.map({
@@ -105,18 +96,87 @@ export const RegistryAuditLog = co.list(RegistryAuditEntryCoMap);
 export type RegistryAuditLog = co.loaded<typeof RegistryAuditLog>;
 
 /**
+ * Represents an application controlled by the app owner
+ *
+ * - id - Unique identifier for the application
+ * - name - Human-readable application name
+ * - description - Application description and purpose
+ * - ownerAccountId - Jazz Account ID of the app owner
+ * - paymentProvider - Payment provider handling subscriptions
+ * - providerAppId - Provider-specific application identifier
+ * - isEnabled - Can this app accept payments?
+ * - createdAt - Unix timestamp when app was registered
+ * - metadata - Additional app configuration data
+ * - lastPaymentAt - When last successful payment received
+ */
+export const App = co.map({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  ownerAccountId: z.string(),
+  paymentProvider: z.enum(["lemonsqueezy", "stripe"]),
+  providerAppId: z.string(),
+  isEnabled: z.boolean(),
+  createdAt: z.number(),
+  metadata: co.record(z.string(), z.string()),
+  lastPaymentAt: z.number(),
+});
+
+/**
+ * Registry-controlled metadata for an application
+ *
+ * - appId - Reference to the App CoValue
+ * - isVerified - Whether app is verified and accepting subscriptions
+ * - hasAccess - Does user have access right now?
+ * - webhookConfigured - Whether webhook is set up for payment processing
+ * - createdAt - When Regarde created this metadata record
+ */
+export const RegistryAppMetadata = co.map({
+  appId: z.string(),
+  isVerified: z.boolean().default(true),
+  hasAccess: z.boolean(),
+  webhookConfigured: z.boolean().default(false),
+  createdAt: z.number(),
+});
+
+/**
+ * CoMap for RegistryAppMetadata items
+ */
+export const RegistryAppMetadataRecord = co.record(
+  z.string(),
+  RegistryAppMetadata,
+);
+
+/**
+ * Registry of all applications and their metadata
+ *
+ * - apps - Mapping of app IDs to app definitions owned by developers
+ * - metadata - Registry-controlled metadata for each app
+ * - registeredAt - Unix timestamp when registry was created
+ * - version - Schema version for migration tracking
+ */
+export const AppRegistry = co.map({
+  apps: co.optional(co.record(z.string(), App)),
+  metadata: co.optional(RegistryAppMetadataRecord),
+  registeredAt: z.number(),
+  version: z.number().default(1),
+});
+
+/**
  * Root schema containing all registry components
  *
  * - registry - Forward nickname-to-account mapping
  * - reverseRegistry - Reverse account-to-nickname mapping
  * - auditLog - Complete change history
  * - reservedNicknames - Protected names with metadata
+ * - apps - Application registry for subscription management
  */
 export const RegistryWorkerAccountRoot = co.map({
   registry: NicknameRegistryCoRecord,
   reverseRegistry: ReverseNicknameRegistryCoRecord,
   auditLog: RegistryAuditLog,
   reservedNicknames: ReservedNicknamesRegistry,
+  apps: AppRegistry,
 });
 export type RegistryWorkerAccountRoot = co.loaded<
   typeof RegistryWorkerAccountRoot
@@ -125,13 +185,11 @@ export type RegistryWorkerAccountRoot = co.loaded<
 const EmptyProfile = co.profile();
 
 /**
- * Worker account that manages the nickname registry and serves public requests
+ * Worker account that manages the nickname registry and serves public requests.
  *
  * Worker account that manages all nickname operations while maintaining
  * audit trails and enforcing reservation policies.
- *
  * - profile - Empty placeholder (worker account has no personal profile)
- *
  * - root - Schema containing all registry data structures
  */
 export const RegistryWorkerAccount = co
@@ -155,6 +213,12 @@ export const RegistryWorkerAccount = co
           reverseRegistry: ReverseNicknameRegistryCoRecord.create({}),
           auditLog: RegistryAuditLog.create([]),
           reservedNicknames: ReservedNicknamesRegistry.create({}),
+          apps: AppRegistry.create({
+            apps: {},
+            metadata: {},
+            registeredAt: Date.now(),
+            version: 1,
+          }),
         });
         loadedAccount.$jazz.set("root", newRoot);
         console.log("Root created after ensureLoaded since it was missing.");
@@ -194,6 +258,19 @@ export const RegistryWorkerAccount = co
       }
 
       console.debug("Root reservedNicknames done");
+
+      if (loadedAccount.root.apps === undefined) {
+        const newAppsRegistry = AppRegistry.create({
+          apps: {},
+          metadata: {},
+          registeredAt: Date.now(),
+          version: 1,
+        });
+        loadedAccount.root.$jazz.set("apps", newAppsRegistry);
+        console.log("AppRegistry created in worker account root.");
+      }
+
+      console.debug("Root apps done");
     } catch (e) {
       console.log("EnsureLoaded Root failed, fallback", account, e);
 
@@ -203,11 +280,17 @@ export const RegistryWorkerAccount = co
           reverseRegistry: ReverseNicknameRegistryCoRecord.create({}),
           auditLog: RegistryAuditLog.create([]),
           reservedNicknames: ReservedNicknamesRegistry.create({}),
+          apps: AppRegistry.create({
+            apps: {},
+            metadata: {},
+            registeredAt: Date.now(),
+            version: 1,
+          }),
         });
         account.$jazz.set("root", newRoot);
 
         console.log(
-          "Root created with NicknameRegistry, ReverseNicknameRegistry, AuditLog, and ReservedNicknames in worker account since it was missing.",
+          "Root created with NicknameRegistry, ReverseNicknameRegistry, AuditLog, ReservedNicknames, and AppRegistry in worker account since it was missing.",
         );
       } else {
         if (account.root.registry === undefined) {
@@ -235,6 +318,16 @@ export const RegistryWorkerAccount = co
           console.log(
             "ReservedNicknames created in existing root during fallback.",
           );
+        }
+        if (account.root.apps === undefined) {
+          const newAppsRegistry = AppRegistry.create({
+            apps: {},
+            metadata: {},
+            registeredAt: Date.now(),
+            version: 1,
+          });
+          account.root.$jazz.set("apps", newAppsRegistry);
+          console.log("AppRegistry created in existing root during fallback.");
         }
       }
     }
