@@ -66,7 +66,7 @@ export const initRegardeSchema = async (
       loadAs: account,
     });
 
-  if (!regardeProfileWorkerGroup) {
+  if (!regardeProfileWorkerGroup.$isLoaded) {
     console.error(
       "[ERROR] No public group found. Check: (1) Network connectivity, (2) Worker account ID is correct: co_zoppoxWWJaHYKPgSgUkuCCXQX21, (3) Jazz network is accessible from your environment",
     );
@@ -111,7 +111,7 @@ export const initRegardeSchema = async (
 };
 
 export const addRegardePermissions = (coValue: Loaded<CoValueClass>) => {
-  if (!coValue.$jazz.owner) {
+  if (!coValue.$jazz.owner?.$isLoaded) {
     console.error(
       `[ERROR] No owner found for coValue ${coValue.$jazz.id}. Fix by: (1) Checking if CoValue.create() was called with proper owner parameter, (2) Verifying account initialization sequence in your application`,
     );
@@ -128,7 +128,7 @@ export const addRegardePermissions = (coValue: Loaded<CoValueClass>) => {
     co.group()
       .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", {})
       .then((regardeProfileWorkerGroup) => {
-        if (!regardeProfileWorkerGroup) {
+        if (!regardeProfileWorkerGroup.$isLoaded) {
           console.error(
             "[ERROR] Failed to add worker to coValue. Fix by: (1) Checking if Regarde environment is initialized, (2) Verifying network connection to Jazz network, (3) Confirming worker account accessibility",
           );

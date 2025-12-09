@@ -72,7 +72,7 @@ export function useRegardeAuth(
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    if (!RegardeAuthCoMap) {
+    if (!RegardeAuthCoMap?.$isLoaded) {
       setError("No registration token CoMap provided");
       return;
     }

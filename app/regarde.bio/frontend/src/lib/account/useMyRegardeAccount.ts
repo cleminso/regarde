@@ -1,10 +1,10 @@
 import { RegardeAccount } from '@regarde-dev/jazz-schemas';
-import { useAccount, useIsAuthenticated } from 'jazz-tools/react';
+import { useAccount, useIsAuthenticated, useLogOut } from 'jazz-tools/react';
 
 export function useMyRegardeAccount() {
   const isAuthenticated = useIsAuthenticated();
 
-  const { me: account, logOut } = useAccount(
+  const account = useAccount(
     RegardeAccount,
     isAuthenticated ? {
       resolve: {
@@ -26,11 +26,13 @@ export function useMyRegardeAccount() {
           "regarde-sdk": true
         },
       },
+      select: (account) => account.$isLoaded ? account : account.$jazz.loadingState === "loading" ? undefined : null
     } : {}
   );
+  const logOut = useLogOut();
 
-  const regardeProfile = account?.root?.['regarde.bio'];
-  const regardeAuth = account?.root?.['regarde-sdk'];
+  const regardeProfile = account && account.$isLoaded ? account.root['regarde.bio'] : undefined;
+  const regardeAuth = account && account.$isLoaded ? account.root['regarde-sdk'] : undefined;
 
   return {
     account,
@@ -38,6 +40,6 @@ export function useMyRegardeAccount() {
     regardeAuth,
     isAuthenticated,
     logOut,
-    isAccountReady: !!account && !!regardeProfile,
+    isAccountReady: !!(account && account.$isLoaded) && !!regardeProfile,
   };
 }

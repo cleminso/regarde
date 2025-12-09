@@ -123,7 +123,7 @@ export function ProfileView() {
       );
     }
 
-    if (account === null || !regardeProfile) {
+    if (account === null || !account.$isLoaded || !regardeProfile) {
       return (
         <div className="flex w-full justify-center items-center min-h-screen">
           <p>Profile not accessible</p>

@@ -1,4 +1,4 @@
-# Jazz
+# Jazz (react)
 
 ## Getting started
 
@@ -25,7 +25,7 @@ It also provides auth, orgs & teams, real-time multiplayer, edit histories, perm
 
 ```
 
-**Using an LLM?** [Add our llms.txt](https://jazz.tools/llms-full.txt) to your context window!
+**Using an LLM?** [Add our llms.txt](/react/llms-full.txt) to your context window!
 
 **Info:**
 
@@ -66,13 +66,9 @@ This quickstart guide will take you from an empty project to a working app with 
 
 ## Create your App
 
-\--- Section applies only to react ---
-
 We'll be using Next.js for this guide per the [React team's recommendation](https://react.dev/learn/creating-a-react-app), but Jazz works great with vanilla React and other full-stack frameworks too.
 
 You can accept the defaults for all the questions, or customise the project as you like.
-
-##### npm:
 
 ```sh
 npx create-next-app@latest --typescript jazzfest
@@ -80,57 +76,14 @@ cd jazzfest
 
 ```
 
-##### pnpm:
-
-```sh
-pnpx create-next-app@latest --typescript jazzfest
-cd jazzfest
-
-```
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-We'll be using SvelteKit for this guide, per the [Svelte team's recommendation](https://svelte.dev/docs/svelte/getting-started), but Jazz works great with vanilla Svelte too.
-
-You can accept the defaults for all the questions, or customise the project as you like.
-
-##### npm:
-
-```sh
-npx sv create --types ts --template minimal jazzfest
-cd jazzfest
-
-```
-
-##### pnpm:
-
-```sh
-pnpx sv create --types ts --template minimal jazzfest
-cd jazzfest
-
-```
-
-\--- End of svelte specific section ---
-
 **Note: Requires Node.js 20+**
 
 ## Install Jazz
 
 The `jazz-tools` package includes everything you're going to need to build your first Jazz app.
 
-##### npm:
-
 ```sh
 npm install jazz-tools
-
-```
-
-##### pnpm:
-
-```sh
-pnpm add jazz-tools
 
 ```
 
@@ -138,29 +91,10 @@ pnpm add jazz-tools
 
 Sign up for a free API key at [dashboard.jazz.tools](https://dashboard.jazz.tools) for higher limits or production use, or use your email address as a temporary key to get started quickly.
 
-\--- Section applies only to react ---
-
 **File name: .env**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: .env**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```bash
 NEXT_PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
-
-```
-
-##### Svelte:
-
-```bash
-PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
 
 ```
 
@@ -170,17 +104,7 @@ Jazz uses Zod for more simple data types (like strings, numbers, booleans), and 
 
 Adding a `root` to the user's account gives us a container that can be used to keep a track of all the data a user might need to use the app. The migration runs when the user logs in, and ensures the account is properly set up before we try to use it.
 
-\--- Section applies only to react ---
-
 **File name: app/schema.ts**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/lib/schema.ts**
-
-\--- End of svelte specific section ---
 
 ```ts
 import { co, z } from "jazz-tools";
@@ -213,8 +137,6 @@ export const JazzFestAccount = co
 
 Wrap your app with a provider so components can use Jazz.
 
-\--- Section applies only to react ---
-
 **File name: app/components/JazzWrapper.tsx**
 
 ```tsx
@@ -238,21 +160,7 @@ export function JazzWrapper({ children }: { children: React.ReactNode }) {
 }
 ```
 
-\--- End of react specific section ---
-
-\--- Section applies only to react ---
-
 **File name: app/layout.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/routes/+layout.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 import { JazzWrapper } from "@/app/components/JazzWrapper";
@@ -272,72 +180,23 @@ export default function RootLayout({
 }
 ```
 
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  import { JazzSvelteProvider } from "jazz-tools/svelte";
-  import { JazzFestAccount } from "$lib/schema";
-	import { PUBLIC_JAZZ_API_KEY } from "$env/static/public";
-
-  const apiKey = PUBLIC_JAZZ_API_KEY;
-  let { children } = $props();
-  const sync = { peer: `wss://cloud.jazz.tools/?key=${apiKey}` };
-</script>
-
-<JazzSvelteProvider {sync} AccountSchema={JazzFestAccount}>
-  {@render children?.()}
-</JazzSvelteProvider>
-
-```
-
 ## Start your app
 
 Moment of truth — time to start your app and see if it works.
-
-##### npm:
 
 ```bash
 npm run dev
 
 ```
 
-##### pnpm:
-
-```bash
-pnpm run dev
-
-```
-
-\--- Section applies only to react ---
-
 If everything's going according to plan, you should see the default Next.js welcome page!
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-If everything's going according to plan, you should see the default SvelteKit welcome page!
-
-\--- End of svelte specific section ---
 
 ### Not loading?
 
 If you're not seeing the welcome page:
 
-\--- Section applies only to react ---
-
 - Check you wrapped your app with the Jazz Provider in `app/layout.tsx`
 - Check your schema is properly defined in `app/schema.ts`
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-- Check you wrapped your app with the Jazz Provider in `src/routes/+layout.svelte`
-- Check your schema is properly defined in `src/lib/schema.ts`
-
-\--- End of svelte specific section ---
 
 **Info: Still stuck?** Ask for help on [Discord](https://discord.gg/utDMjHYg42)!
 
@@ -345,19 +204,7 @@ If you're not seeing the welcome page:
 
 Let's create a simple form to add a new band to the festival. We'll use the `useAccount` hook to get the current account and tell Jazz to load the `myFestival` CoValue by passing a `resolve` query.
 
-\--- Section applies only to react ---
-
 **File name: app/components/NewBand.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/lib/components/NewBand.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 "use client";
@@ -366,13 +213,13 @@ import { JazzFestAccount } from "@/app/schema";
 import { useState } from "react";
 
 export function NewBand() {
-  const { me } = useAccount(JazzFestAccount, {
+  const me = useAccount(JazzFestAccount, {
     resolve: { root: { myFestival: true } },
   });
   const [name, setName] = useState("");
 
   const handleSave = () => {
-    if (!me) return; // not loaded yet
+    if (!me.$isLoaded) return;
     me.root.myFestival.$jazz.push({ name });
     setName("");
   };
@@ -393,49 +240,11 @@ export function NewBand() {
 }
 ```
 
-##### Svelte:
-
-```svelte
-<script lang="ts">
-	import { AccountCoState } from "jazz-tools/svelte";
-	import { JazzFestAccount } from "$lib/schema";
-
-  const me = new AccountCoState(JazzFestAccount, {
-    resolve: { root: { myFestival: true } }
-  });
-  let name = $state("");
-
-  function handleSave() {
-    if (!me.current) return; // not loaded yet
-    me.current.root.myFestival.$jazz.push({ name });
-    name = "";
-  }
-</script>
-
-<div>
-  <input type="text" bind:value={name} placeholder="Band name" />
-  <button type="button" onclick={handleSave}>Add</button>
-</div>
-
-```
-
 ## Display your data
 
 Now we've got a way to create data, so let's add a component to display it.
 
-\--- Section applies only to react ---
-
 **File name: app/components/Festival.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/lib/components/Festival.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 "use client";
@@ -443,13 +252,19 @@ import { useAccount } from "jazz-tools/react";
 import { JazzFestAccount } from "@/app/schema";
 
 export function Festival() {
-  const { me } = useAccount(JazzFestAccount, {
-    resolve: { root: { myFestival: true } },
+  const me = useAccount(JazzFestAccount, {
+    resolve: {
+      root: {
+        myFestival: {
+          $each: true,
+        },
+      },
+    },
   });
-  if (!me) return null; // not loaded yet
+  if (!me.$isLoaded) return null;
   return (
     <ul>
-      {me?.root.myFestival.map(
+      {me.root.myFestival.map(
         (band) => band && <li key={band.$jazz.id}>{band.name}</li>,
       )}
     </ul>
@@ -457,42 +272,11 @@ export function Festival() {
 }
 ```
 
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  import { AccountCoState } from "jazz-tools/svelte";
-  import { JazzFestAccount } from "$lib/schema";
-  const me = new AccountCoState(JazzFestAccount, {
-    resolve: { root: { myFestival: true } }
-  });
-</script>
-
-<ul>
-  {#each me.current?.root.myFestival || [] as band}
-    <li>{band?.name}</li>
-  {/each}
-</ul>
-
-```
-
 ## Put it all together
 
 You've built all your components, time to put them together.
 
-\--- Section applies only to react ---
-
 **File name: app/page.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/routes/+page.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 import { Festival } from "@/app/components/Festival";
@@ -509,33 +293,13 @@ export default function Home() {
 }
 ```
 
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  import NewBand from "$lib/components/NewBand.svelte";
-  import Festival from "$lib/components/Festival.svelte";
-</script>
-
-<main>
-  <h1>🎪 My Festival</h1>
-  <NewBand />
-  <Festival />
-</main>
-
-```
-
 You should now be able to add a band to your festival, and see it appear in the list!
 
 **Congratulations! 🎉** You've built your first Jazz app!
 
 You've begun to scratch the surface of what's possible with Jazz. Behind the scenes, your local-first JazzFest app is **already** securely syncing your data to the cloud in real-time, ready for you to build more and more powerful features.
 
-\--- Section applies only to react ---
-
 Psst! Got a few more minutes and want to add Server Side Rendering to your app? [We've got you covered!](/docs/server-side/ssr)
-
-\--- End of react specific section ---
 
 ## Next steps
 
@@ -545,6 +309,138 @@ Psst! Got a few more minutes and want to add Server Side Rendering to your app? 
 - Complete the [server-side quickstart](/docs/server-side/quickstart) to learn more about Jazz on the server
 
 ### Installation
+
+# Providers
+
+`<JazzReactProvider />` is the core component that connects your React application to Jazz. It handles:
+
+- **Data Synchronization**: Manages connections to peers and the Jazz cloud
+- **Local Storage**: Persists data locally between app sessions
+- **Schema Types**: Provides APIs for the [AccountSchema](/docs/core-concepts/schemas/accounts-and-migrations)
+- **Authentication**: Connects your authentication system to Jazz
+
+Our [Chat example app](https://jazz.tools/examples#chat) provides a complete implementation of JazzReactProvider with authentication and real-time data sync.
+
+## Setting up the Provider
+
+The provider accepts several configuration options:
+
+```tsx
+import { JazzReactProvider } from "jazz-tools/react";
+import { MyAppAccount } from "./schema";
+
+export function MyApp({ children }: { children: React.ReactNode }) {
+  return (
+    <JazzReactProvider
+      sync={{
+        peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+        when: "always", // When to sync: "always", "never", or "signedUp"
+      }}
+      AccountSchema={MyAppAccount}
+    >
+      {children}
+    </JazzReactProvider>
+  );
+}
+```
+
+**Info: Tip**
+
+Sign up for a free API key at [dashboard.jazz.tools](https://dashboard.jazz.tools) for higher limits or production use, or use your email address as a temporary key to get started quickly.
+
+**File name: .env**
+
+```bash
+NEXT_PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
+
+```
+
+## Provider Options
+
+### Sync Options
+
+The `sync` property configures how your application connects to the Jazz network:
+
+```ts
+import { type SyncConfig } from "jazz-tools";
+
+export const syncConfig: SyncConfig = {
+  // Connection to Jazz Cloud or your own sync server
+  peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+
+  // When to sync: "always" (default), "never", or "signedUp"
+  when: "always",
+};
+```
+
+See [Authentication States](/docs/key-features/authentication/authentication-states#controlling-sync-for-different-authentication-states) for more details on how the `when` property affects synchronization based on authentication state.
+
+### Account Schema
+
+The `AccountSchema` property defines your application's account structure:
+
+```tsx
+import { JazzReactProvider } from "jazz-tools/react";
+import { MyAppAccount } from "./schema";
+
+export function MyApp({ children }: { children: React.ReactNode }) {
+  return (
+    <JazzReactProvider
+      sync={{
+        peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+        when: "always", // When to sync: "always", "never", or "signedUp"
+      }}
+      AccountSchema={MyAppAccount}
+    >
+      {children}
+    </JazzReactProvider>
+  );
+}
+```
+
+### Additional Options
+
+The provider accepts these additional options:
+
+```tsx
+export function MyApp({ children }: { children: React.ReactNode }) {
+  return (
+    <JazzReactProvider
+      sync={syncConfig}
+      // Enable guest mode for account-less access
+      guestMode={false}
+      // Enable SSR mode
+      enableSSR={false}
+      // Set default name for new user profiles
+      defaultProfileName="New User"
+      // Override the default storage key
+      authSecretStorageKey="jazz-logged-in-secret"
+      // Handle user logout
+      onLogOut={() => {
+        console.log("User logged out");
+      }}
+      // Handle anonymous account data when user logs in to existing account
+      onAnonymousAccountDiscarded={(account) => {
+        console.log("Anonymous account discarded", account.$jazz.id);
+        // Migrate data here
+        return Promise.resolve();
+      }}
+    >
+      {children}
+    </JazzReactProvider>
+  );
+}
+```
+
+See [Authentication States](/docs/key-features/authentication/authentication-states) for more information on authentication states, guest mode, and handling anonymous accounts.
+
+## Authentication
+
+The Jazz Provider works with various authentication methods to enable users to access their data across multiple devices. For a complete guide to authentication, see our [Authentication Overview](/docs/key-features/authentication/overview).
+
+## Need Help?
+
+If you have questions about configuring the Jazz Provider for your specific use case, [join our Discord community](https://discord.gg/utDMjHYg42) for help.
 
 ### Troubleshooting
 
@@ -556,7 +452,7 @@ A few reported setup hiccups and how to fix them.
 
 ## Node.js version requirements
 
-Jazz requires **Node.js v20 or later** due to native module dependencies.
+Jazz requires **Node.js v20 or later** due to native module dependencies.  
 Check your version:
 
 ```sh
@@ -681,6 +577,8 @@ We're always happy to help! If you're stuck, reachout via [Discord](https://disc
 
 ## Upgrade guides
 
+### 0.19.0 - Explicit loading states
+
 ### 0.18.0 - New `$jazz` field in CoValues
 
 ### 0.17.0 - New image APIs
@@ -724,11 +622,10 @@ Even before you know the details of how your app will work, you'll probably know
 
 In Jazz, you define schemas using `co` for CoValues and `z` (from [Zod](https://zod.dev/)) for their primitive fields.
 
-```ts
-// schema.ts
-import { co, z } from "jazz-tools";
+**File name: schema.ts**
 
-const ListOfTasks = co.list(z.string());
+```ts
+import { co, z } from "jazz-tools";
 
 export const TodoProject = co.map({
   title: z.string(),
@@ -741,19 +638,6 @@ This gives us schema info that is available for type inference _and_ at runtime.
 Check out the inferred type of `project` in the example below, as well as the input `.create()` expects.
 
 ```ts
-// @filename: schema.ts
-import { co, z, CoMap, CoList } from "jazz-tools";
-
-export const ListOfTasks = co.list(z.string());
-
-export const TodoProject = co.map({
-  title: z.string(),
-  tasks: ListOfTasks,
-});
-
-// @filename: app.ts
-// ---cut---
-// app.ts
 import { Group } from "jazz-tools";
 import { TodoProject, ListOfTasks } from "./schema";
 
@@ -769,24 +653,8 @@ const project = TodoProject.create(
 When creating CoValues that contain other CoValues, you can pass in a plain JSON object. Jazz will automatically create the CoValues for you.
 
 ```ts
-// @filename: schema.ts
-import { co, z, CoMap, CoList } from "jazz-tools";
-
-export const ListOfTasks = co.list(z.string());
-
-export const TodoProject = co.map({
-  title: z.string(),
-  tasks: ListOfTasks,
-});
-
-// @filename: app.ts
-// ---cut---
-// app.ts
-import { Group } from "jazz-tools";
-import { TodoProject, ListOfTasks } from "./schema";
-
 const group = Group.create().makePublic();
-const project = TodoProject.create(
+const publicProject = TodoProject.create(
   {
     title: "New Project",
     tasks: [], // Permissions are inherited, so the tasks list will also be public
@@ -808,10 +676,7 @@ CoMaps are the most commonly used type of CoValue. They are the equivalent of JS
 You can either declare struct-like CoMaps:
 
 ```ts
-// schema.ts
-import { co, z } from "jazz-tools";
-// ---cut---
-const Task = co.map({
+export const Task = co.map({
   title: z.string(),
   completed: z.boolean(),
 });
@@ -820,15 +685,8 @@ const Task = co.map({
 Or record-like CoMaps (key-value pairs, where keys are always `string`):
 
 ```ts
-import { co, z } from "jazz-tools";
-const Fruit = co.map({
-  name: z.string(),
-  color: z.string(),
-});
-// ---cut---
-const ColorToHex = co.record(z.string(), z.string());
-
-const ColorToFruit = co.record(z.string(), Fruit);
+export const ColourToHex = co.record(z.string(), z.string());
+export const ColorToFruit = co.record(z.string(), Fruit);
 ```
 
 See the corresponding sections for [creating](/docs/core-concepts/covalues/comaps#creating-comaps),[subscribing/loading](/docs/core-concepts/subscription-and-loading),[reading from](/docs/core-concepts/covalues/comaps#reading-from-comaps) and[updating](/docs/core-concepts/covalues/comaps#updating-comaps) CoMaps.
@@ -840,14 +698,8 @@ CoLists are ordered lists and are the equivalent of JSON arrays. (They support c
 You define them by specifying the type of the items they contain:
 
 ```ts
-import { co, z } from "jazz-tools";
-const Task = co.map({
-  title: z.string(),
-  completed: z.boolean(),
-});
-// ---cut---
-const ListOfColors = co.list(z.string());
-const ListOfTasks = co.list(Task);
+export const ListOfColors = co.list(z.string());
+export const ListOfTasks = co.list(Task);
 ```
 
 See the corresponding sections for [creating](/docs/core-concepts/covalues/colists#creating-colists),[subscribing/loading](/docs/core-concepts/subscription-and-loading),[reading from](/docs/core-concepts/covalues/colists#reading-from-colists) and[updating](/docs/core-concepts/covalues/colists#updating-colists) CoLists.
@@ -861,13 +713,7 @@ They allow easy access of the latest or all items belonging to a user or their s
 You define them by specifying the type of feed item:
 
 ```ts
-import { co, z } from "jazz-tools";
-const Task = co.map({
-  title: z.string(),
-  completed: z.boolean(),
-});
-// ---cut---
-const FeedOfTasks = co.feed(Task);
+export const FeedOfTasks = co.feed(Task);
 ```
 
 See the corresponding sections for [creating](/docs/core-concepts/covalues/overview#creating-cofeeds),[subscribing/loading](/docs/core-concepts/subscription-and-loading),[reading from](/docs/core-concepts/covalues/cofeeds#reading-from-cofeeds) and[writing to](/docs/core-concepts/covalues/cofeeds#writing-to-cofeeds) CoFeeds.
@@ -881,9 +727,7 @@ They allow you to upload and reference files.
 You typically don't need to declare or extend them yourself, you simply refer to the built-in `co.fileStream()` from another CoValue:
 
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
-const Document = co.map({
+export const Document = co.map({
   title: z.string(),
   file: co.fileStream(),
 });
@@ -898,21 +742,21 @@ See the corresponding sections for [creating](/docs/core-concepts/covalues/files
 You can declare unions of CoMaps that have discriminating fields, using `co.discriminatedUnion()`.
 
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
-
-const ButtonWidget = co.map({
+export const ButtonWidget = co.map({
   type: z.literal("button"),
   label: z.string(),
 });
 
-const SliderWidget = co.map({
+export const SliderWidget = co.map({
   type: z.literal("slider"),
   min: z.number(),
   max: z.number(),
 });
 
-const WidgetUnion = co.discriminatedUnion("type", [ButtonWidget, SliderWidget]);
+export const WidgetUnion = co.discriminatedUnion("type", [
+  ButtonWidget,
+  SliderWidget,
+]);
 ```
 
 See the corresponding sections for [creating](/docs/core-concepts/schemas/schemaunions#creating-schema-unions),[subscribing/loading](/docs/core-concepts/subscription-and-loading) and[narrowing](/docs/core-concepts/schemas/schemaunions#narrowing-unions) schema unions.
@@ -923,23 +767,11 @@ Now that we've seen the different types of CoValues, let's see more precisely ho
 
 ### Primitive fields
 
-You can declare primitive field types using `z` (re-exported in `jazz-tools` from [Zod](https://zod.dev/)):
-
-```ts
-import { co, z } from "jazz-tools";
-
-const Person = co.map({
-  title: z.string(),
-});
-
-export const ListOfColors = co.list(z.string());
-```
+You can declare primitive field types using `z` (re-exported in `jazz-tools` from [Zod](https://zod.dev/)).
 
 Here's a quick overview of the primitive types you can use:
 
 ```ts
-import { z } from "jazz-tools";
-// ---cut---
 z.string(); // For simple strings
 z.number(); // For numbers
 z.boolean(); // For booleans
@@ -952,8 +784,6 @@ Finally, for more complex JSON data, that you _don't want to be collaborative in
 For example, you can use `z.object()` to represent an internally immutable position:
 
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
 const Sprite = co.map({
   // assigned as a whole
   position: z.object({ x: z.number(), y: z.number() }),
@@ -963,9 +793,7 @@ const Sprite = co.map({
 Or you could use a `z.tuple()`:
 
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
-const Sprite = co.map({
+const SpriteWithTuple = co.map({
   // assigned as a whole
   position: z.tuple([z.number(), z.number()]),
 });
@@ -982,9 +810,6 @@ The important caveat here is that **a referenced CoValue might or might not be l
 In Schemas, you declare references by just using the schema of the referenced CoValue:
 
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
-// schema.ts
 const Person = co.map({
   name: z.string(),
 });
@@ -1006,12 +831,7 @@ You can make schema fields optional using either `z.optional()` or `co.optional(
 You can make references optional with `co.optional()`:
 
 ```ts
-import { co, z } from "jazz-tools";
-const Pet = co.map({
-  name: z.string(),
-});
-// ---cut---
-const Person = co.map({
+const PersonWithOptionalProperties = co.map({
   age: z.optional(z.number()), // primitive
   pet: co.optional(Pet), // CoValue
 });
@@ -1022,9 +842,7 @@ const Person = co.map({
 You can wrap references in getters. This allows you to defer evaluation until the property is accessed. This technique is particularly useful for defining circular references, including recursive (self-referencing) schemas, or mutually recursive schemas.
 
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
-const Person = co.map({
+const SelfReferencingPerson = co.map({
   name: z.string(),
   get bestFriend() {
     return Person;
@@ -1035,17 +853,14 @@ const Person = co.map({
 You can use the same technique for mutually recursive references:
 
 ```ts
-// ---cut---
-import { co, z } from "jazz-tools";
-
-const Person = co.map({
+const MutuallyRecursivePerson = co.map({
   name: z.string(),
   get friends() {
-    return ListOfPeople;
+    return ListOfFriends;
   },
 });
 
-const ListOfPeople = co.list(Person);
+const ListOfFriends = co.list(Person);
 ```
 
 If you try to reference `ListOfPeople` in `Person` without using a getter, you'll run into a `ReferenceError` because of the [temporal dead zone](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let#temporal%5Fdead%5Fzone%5Ftdz).
@@ -1055,12 +870,6 @@ If you try to reference `ListOfPeople` in `Person` without using a getter, you'l
 If you find yourself repeating the same logic to access computed CoValues properties, you can define helper functions to encapsulate it for better reusability:
 
 ```ts
-import { co, z } from "jazz-tools";
-function differenceInYears(date1: Date, date2: Date) {
-  const diffTime = Math.abs(date1.getTime() - date2.getTime());
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 365.25));
-}
-// ---cut---
 const Person = co.map({
   firstName: z.string(),
   lastName: z.string(),
@@ -1070,6 +879,11 @@ type Person = co.loaded<typeof Person>;
 
 export function getPersonFullName(person: Person) {
   return `${person.firstName} ${person.lastName}`;
+}
+
+function differenceInYears(date1: Date, date2: Date) {
+  const diffTime = Math.abs(date1.getTime() - date2.getTime());
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 365.25));
 }
 
 export function getPersonAgeAsOf(person: Person, date: Date) {
@@ -1089,24 +903,12 @@ const age = getPersonAgeAsOf(person, new Date());
 Similarly, you can encapsulate logic needed to update CoValues:
 
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
-const Person = co.map({
-  firstName: z.string(),
-  lastName: z.string(),
-});
-type Person = co.loaded<typeof Person>;
-
 export function updatePersonName(person: Person, fullName: string) {
   const [firstName, lastName] = fullName.split(" ");
   person.$jazz.set("firstName", firstName);
   person.$jazz.set("lastName", lastName);
 }
 
-const person = Person.create({
-  firstName: "John",
-  lastName: "Doe",
-});
 console.log(person.firstName, person.lastName); // John Doe
 
 updatePersonName(person, "Jane Doe");
@@ -1125,10 +927,6 @@ CoMaps are key-value objects that work like JavaScript objects. You can access p
 CoMaps are typically defined with `co.map()` and specifying primitive fields using `z` (see [Defining schemas: CoValues](/docs/core-concepts/covalues/overview) for more details on primitive fields):
 
 ```ts
-const Member = co.map({
-  name: z.string(),
-});
-// ---cut---
 import { co, z } from "jazz-tools";
 
 const Project = co.map({
@@ -1144,28 +942,12 @@ export type ProjectInitShape = co.input<typeof Project>; // type accepted by `Pr
 You can create either struct-like CoMaps with fixed fields (as above) or record-like CoMaps for key-value pairs:
 
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
 const Inventory = co.record(z.string(), z.number());
 ```
 
 To instantiate a CoMap:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const Member = co.map({
-  name: z.string(),
-});
-const Project = co.map({
-  name: z.string(),
-  startDate: z.date(),
-  status: z.literal(["planning", "active", "completed"]),
-  coordinator: co.optional(Member),
-});
-const Inventory = co.record(z.string(), z.number());
-// ---cut---
 const project = Project.create({
   name: "Spring Planting",
   startDate: new Date("2025-03-15"),
@@ -1183,23 +965,6 @@ const inventory = Inventory.create({
 When creating CoMaps, you can specify ownership to control access:
 
 ```ts
-import { Group, co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const memberAccount = await createJazzTestAccount();
-
-const Member = co.map({
-  name: z.string(),
-});
-
-const Project = co.map({
-  name: z.string(),
-  startDate: z.date(),
-  status: z.literal(["planning", "active", "completed"]),
-  coordinator: co.optional(Member),
-});
-
-// ---cut---
 // Create with default owner (current user)
 const privateProject = Project.create({
   name: "My Herb Garden",
@@ -1228,24 +993,6 @@ See [Groups as permission scopes](/docs/permissions-and-sharing/overview) for mo
 CoMaps can be accessed using familiar JavaScript object notation:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const Member = co.map({
-  name: z.string(),
-});
-const Project = co.map({
-  name: z.string(),
-  startDate: z.date(),
-  status: z.literal(["planning", "active", "completed"]),
-  coordinator: co.optional(Member),
-});
-const project = Project.create({
-  name: "Spring Planting",
-  startDate: new Date("2025-03-20"),
-  status: "planning",
-});
-// ---cut---
 console.log(project.name); // "Spring Planting"
 console.log(project.status); // "planning"
 ```
@@ -1255,24 +1002,6 @@ console.log(project.status); // "planning"
 Optional fields require checks before access:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const Member = co.map({
-  name: z.string(),
-});
-const Project = co.map({
-  name: z.string(),
-  startDate: z.date(),
-  status: z.literal(["planning", "active", "completed"]),
-  coordinator: co.optional(Member),
-});
-const project = Project.create({
-  name: "Spring Planting",
-  startDate: new Date("2025-03-20"),
-  status: "planning",
-});
-// ---cut---
 if (project.coordinator) {
   console.log(project.coordinator.name); // Safe access
 }
@@ -1283,10 +1012,6 @@ if (project.coordinator) {
 You can wrap references in getters. This allows you to defer evaluation until the property is accessed. This technique is particularly useful for defining circular references, including recursive (self-referencing) schemas, or mutually recursive schemas.
 
 ```ts
-const Member = co.map({
-  name: z.string(),
-});
-// ---cut---
 import { co, z } from "jazz-tools";
 
 const Project = co.map({
@@ -1298,27 +1023,24 @@ const Project = co.map({
     return Project.optional();
   },
 });
+
 export type Project = co.loaded<typeof Project>;
 ```
 
 When the recursive references involve more complex types, it is sometimes required to specify the getter return type:
 
 ```ts
-const Member = co.map({
-  name: z.string(),
-});
-// ---cut---
-import { co, z } from "jazz-tools";
-
-const Project = co.map({
+const ProjectWithTypedGetter = co.map({
   name: z.string(),
   startDate: z.date(),
   status: z.literal(["planning", "active", "completed"]),
   coordinator: co.optional(Member),
+  // [!code ++:3]
   get subProjects(): co.Optional<co.List<typeof Project>> {
     return co.optional(co.list(Project));
   },
 });
+
 export type Project = co.loaded<typeof Project>;
 ```
 
@@ -1327,8 +1049,6 @@ export type Project = co.loaded<typeof Project>;
 For convenience Jazz provies a dedicated API for making all the properties of a CoMap optional:
 
 ```ts
-import { co, z } from "jazz-tools";
-
 const Project = co.map({
   name: z.string(),
   startDate: z.date(),
@@ -1346,8 +1066,6 @@ const project = ProjectDraft.create({});
 You can also pick specific fields from a CoMap:
 
 ```ts
-import { co, z } from "jazz-tools";
-
 const Project = co.map({
   name: z.string(),
   startDate: z.date(),
@@ -1371,11 +1089,6 @@ const project = ProjectStep1.create({
 For record-type CoMaps, you can access values using bracket notation:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const Inventory = co.record(z.string(), z.number());
-// ---cut---
 const inventory = Inventory.create({
   tomatoes: 48,
   peppers: 24,
@@ -1390,25 +1103,6 @@ console.log(inventory["tomatoes"]); // 48
 To update a CoMap's properties, use the `$jazz.set` method:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const Member = co.map({
-  name: z.string(),
-});
-const Project = co.map({
-  name: z.string(),
-  startDate: z.date(),
-  status: z.literal(["planning", "active", "completed"]),
-  coordinator: co.optional(Member),
-});
-const Inventory = co.record(z.string(), z.number());
-const project = Project.create({
-  name: "Spring Planting",
-  startDate: new Date("2025-03-20"),
-  status: "planning",
-});
-// ---cut---
 project.$jazz.set("name", "Spring Vegetable Garden"); // Update name
 project.$jazz.set("startDate", new Date("2025-03-20")); // Update date
 ```
@@ -1420,8 +1114,6 @@ The `$jazz` namespace is available on all CoValues, and provides access to metho
 When updating references to other CoValues, you can provide both the new CoValue or a JSON object from which the new CoValue will be created.
 
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
 const Dog = co.map({
   name: co.plainText(),
 });
@@ -1448,28 +1140,11 @@ When providing a JSON object, Jazz will automatically create the CoValues for yo
 CoMaps are fully typed in TypeScript, giving you autocomplete and error checking:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const Member = co.map({
-  name: z.string(),
-});
-const Project = co.map({
-  name: z.string(),
-  startDate: z.date(),
-  status: z.literal(["planning", "active", "completed"]),
-  coordinator: co.optional(Member),
-});
-const Inventory = co.record(z.string(), z.number());
-const project = Project.create({
-  name: "Spring Planting",
-  startDate: new Date("2025-03-20"),
-  status: "planning",
-});
-// ---cut---
 project.$jazz.set("name", "Spring Vegetable Planting"); // ✓ Valid string
-// @errors: 2345
+// [!code --]
 project.$jazz.set("startDate", "2025-03-15"); // ✗ Type error: expected Date
+// [!code --]
+// Argument of type 'string' is not assignable to parameter of type 'Date'
 ```
 
 ### Soft Deletion
@@ -1477,12 +1152,10 @@ project.$jazz.set("startDate", "2025-03-15"); // ✗ Type error: expected Date
 Implementing a soft deletion pattern by using a `deleted` flag allows you to maintain data for potential recovery and auditing.
 
 ```ts
-import { co, z } from "jazz-tools";
-
-// ---cut---
 const Project = co.map({
   name: z.string(),
-  deleted: z.optional(z.boolean()), // [!code ++]
+  // [!code ++]
+  deleted: z.optional(z.boolean()),
 });
 ```
 
@@ -1493,30 +1166,6 @@ When an object needs to be "deleted", instead of removing it from the system, th
 You can delete properties from CoMaps:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const Member = co.map({
-  name: z.string(),
-});
-const Project = co.map({
-  name: z.string(),
-  startDate: z.date(),
-  status: z.literal(["planning", "active", "completed"]),
-  coordinator: co.optional(Member),
-});
-const Inventory = co.record(z.string(), z.number());
-const project = Project.create({
-  name: "Spring Planting",
-  startDate: new Date("2025-03-20"),
-  status: "planning",
-});
-const inventory = Inventory.create({
-  tomatoes: 48,
-  peppers: 24,
-  basil: 12,
-});
-// ---cut---
 inventory.$jazz.delete("basil"); // Remove a key-value pair
 
 // For optional fields in struct-like CoMaps
@@ -1532,9 +1181,6 @@ Migrations are functions that run when a CoMap is loaded, allowing you to update
 Here's an example of a migration that adds the `priority` field to the `Task` CoMap:
 
 ```ts
-import { co, z } from "jazz-tools";
-
-// ---cut---
 const Task = co
   .map({
     done: z.boolean(),
@@ -1570,9 +1216,6 @@ Migrations need write access to modify CoMaps. If some users only have read perm
 When you can't guarantee all users can run migrations, handle multiple schema versions explicitly:
 
 ```ts
-import { co, z } from "jazz-tools";
-
-// ---cut---
 const TaskV1 = co.map({
   version: z.literal(1),
   done: z.boolean(),
@@ -1589,7 +1232,6 @@ const TaskV2 = co
     priority: z.enum(["low", "medium", "high"]),
   })
   .withMigration((task) => {
-    // @ts-expect-error - check if we need to run the migration
     if (task.version === 1) {
       task.$jazz.set("version", 2);
       task.$jazz.set("priority", "medium");
@@ -1617,9 +1259,6 @@ export type Task = co.loaded<typeof Task>;
 You should define helper methods of CoValue schemas separately, in standalone functions:
 
 ```ts
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-// ---cut---
 import { co, z } from "jazz-tools";
 
 const Project = co.map({
@@ -1673,11 +1312,6 @@ CoMaps are typically created with a CoValue ID that acts as an opaque UUID, by w
 Consider a scenario where one wants to identify a CoMap using some unique identifier that isn't the Jazz CoValue ID:
 
 ```ts
-import { co, z, Group, ID } from "jazz-tools";
-const Task = co.map({
-  text: z.string(),
-});
-// ---cut---
 // This will not work as `learning-jazz` is not a CoValue ID
 const myTask = await Task.load("learning-jazz");
 ```
@@ -1687,23 +1321,8 @@ To make it possible to use human-readable identifiers Jazz lets you to define a 
 Then the CoValue ID is deterministically derived from the `unique` property and the owner of the CoMap.
 
 ```ts
-import { co, z, Group, ID } from "jazz-tools";
-const Task = co.map({
-  text: z.string(),
-});
-const Project = co.map({
-  name: z.string(),
-  startDate: z.date(),
-  endDate: z.optional(z.date()),
-});
-const project = Project.create({
-  name: "My project",
-  startDate: new Date("2025-04-01"),
-  endDate: new Date("2025-04-04"),
-});
-// ---cut---
 // Given the project owner, myTask will have always the same id
-const learnJazzTask = await Task.create(
+Task.create(
   {
     text: "Let's learn some Jazz!",
   },
@@ -1717,21 +1336,6 @@ const learnJazzTask = await Task.create(
 Now you can use `CoMap.loadUnique` to easily load the CoMap using the human-readable identifier:
 
 ```ts
-import { co, z, Group, ID } from "jazz-tools";
-const Task = co.map({
-  text: z.string(),
-});
-const Project = co.map({
-  name: z.string(),
-  startDate: z.date(),
-  endDate: z.optional(z.date()),
-});
-const project = Project.create({
-  name: "My project",
-  startDate: new Date("2025-04-01"),
-  endDate: new Date("2025-04-04"),
-});
-// ---cut---
 const learnJazzTask = await Task.loadUnique(
   "learning-jazz",
   project.$jazz.owner.$jazz.id,
@@ -1741,22 +1345,7 @@ const learnJazzTask = await Task.loadUnique(
 It's also possible to combine the create+load operation using `CoMap.upsertUnique`:
 
 ```ts
-import { co, z, Group, ID } from "jazz-tools";
-const Task = co.map({
-  text: z.string(),
-});
-const Project = co.map({
-  name: z.string(),
-  startDate: z.date(),
-  endDate: z.optional(z.date()),
-});
-const project = Project.create({
-  name: "My project",
-  startDate: new Date("2025-04-01"),
-  endDate: new Date("2025-04-04"),
-});
-// ---cut---
-const learnJazzTask = await Task.upsertUnique({
+await Task.upsertUnique({
   value: {
     text: "Let's learn some Jazz!",
   },
@@ -1771,6 +1360,51 @@ const learnJazzTask = await Task.upsertUnique({
   - To make dynamic renaming possible, you can create an indirection where a stable CoMap identified by a specific value of `unique` is simply a pointer to another CoMap with a normal, dynamic CoValue ID. This pointer can then be updated as desired by users with the corresponding permissions.
 - This way of introducing identifiers allows for very fast lookup of individual CoMaps by identifier, but it doesn't let you enumerate all the CoMaps identified this way within a `Group`. If you also need enumeration, consider using a global `co.record()` that maps from identifier to a CoMap, which you then do lookups in (this requires at least a shallow load of the entire `co.record()`, but this should be fast for up to 10s of 1000s of entries)
 
+#### Creating Set-like Collections
+
+You can use CoRecords as a way to create set-like collections, by keying the CoRecord on the item's CoValue ID. You can then use static `Object` methods to iterate over the CoRecord, effectively allowing you to treat it as a set.
+
+```ts
+const Chat = co.map({
+  messages: co.list(Message),
+  participants: co.record(z.string(), MyAppUser),
+});
+
+const chat = await Chat.load(chatId, {
+  resolve: {
+    participants: true,
+  },
+});
+
+let participantList: string[];
+
+// Note that I don't need to load the map deeply to read and set keys
+if (chat.$isLoaded) {
+  chat.participants.$jazz.set(me.$jazz.id, me);
+  participantList = Object.keys(chat.participants);
+}
+```
+
+You can choose a loading strategy for the CoRecord. Use $each when you need all item properties to be immediately available. In general, it is enough to shallowly load a CoRecord to access its keys, and then load the values of those keys as needed (for example, by passing the keys as strings to a child component).
+
+```ts
+const { participants } = await chat.$jazz.ensureLoaded({
+  resolve: {
+    participants: {
+      $each: {
+        profile: {
+          avatar: true,
+        },
+      },
+    },
+  },
+});
+
+const avatarList = Object.values(participants).map(
+  (user) => user.profile.avatar,
+);
+```
+
 ### CoLists
 
 # CoLists
@@ -1782,12 +1416,6 @@ CoLists are ordered collections that work like JavaScript arrays. They provide i
 CoLists are defined by specifying the type of items they contain:
 
 ```ts
-const Task = co.map({
-  title: z.string(),
-  status: z.literal(["todo", "in-progress", "complete"]),
-});
-
-// ---cut---
 import { co, z } from "jazz-tools";
 
 const ListOfResources = co.list(z.string());
@@ -1801,13 +1429,6 @@ export type ListOfTasksInitShape = co.input<typeof ListOfTasks>; // type accepte
 To create a `CoList`:
 
 ```ts
-import { co, z } from "jazz-tools";
-
-const Task = co.map({
-  title: z.string(),
-  status: z.literal(["todo", "in-progress", "complete"]),
-});
-// ---cut---
 // Create an empty list
 const resources = co.list(z.string()).create([]);
 
@@ -1823,16 +1444,6 @@ const tasks = co.list(Task).create([
 Like other CoValues, you can specify ownership when creating CoLists.
 
 ```ts
-import { Group, co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const colleagueAccount = await createJazzTestAccount();
-const Task = co.map({
-  title: z.string(),
-  status: z.string(),
-});
-
-// ---cut---
 // Create with shared ownership
 const teamGroup = Group.create();
 teamGroup.addMember(colleagueAccount, "writer");
@@ -1847,20 +1458,6 @@ See [Groups as permission scopes](/docs/permissions-and-sharing/overview) for mo
 CoLists support standard array access patterns:
 
 ```ts
-import { co, z } from "jazz-tools";
-
-const Task = co.map({
-  title: z.string(),
-  status: z.literal(["todo", "in-progress", "complete"]),
-});
-
-const ListOfTasks = co.list(Task);
-
-const tasks = ListOfTasks.create([
-  Task.create({ title: "Prepare soil beds", status: "todo" }),
-  Task.create({ title: "Order compost", status: "todo" }),
-]);
-// ---cut---
 // Access by index
 const firstTask = tasks[0];
 console.log(firstTask.title); // "Prepare soil beds"
@@ -1885,21 +1482,6 @@ console.log(todoTasks.length); // 1
 Methods to update a CoList's items are grouped inside the `$jazz` namespace:
 
 ```ts
-import { co, z } from "jazz-tools";
-
-const Task = co.map({
-  title: z.string(),
-  status: z.literal(["todo", "in-progress", "complete"]),
-});
-
-const ListOfTasks = co.list(Task);
-
-const ListOfResources = co.list(z.string());
-
-const resources = ListOfResources.create([]);
-const tasks = ListOfTasks.create([]);
-
-// ---cut---
 // Add items
 resources.$jazz.push("Tomatoes"); // Add to end
 resources.$jazz.unshift("Lettuce"); // Add to beginning
@@ -1921,9 +1503,6 @@ tasks[0].$jazz.set("status", "complete"); // Update properties of references
 You can do a soft deletion by using a deleted flag, then creating a helper method that explicitly filters out items where the deleted property is true.
 
 ```ts
-import { co, z } from "jazz-tools";
-
-// ---cut---
 const Task = co.map({
   title: z.string(),
   status: z.literal(["todo", "in-progress", "complete"]),
@@ -1934,8 +1513,8 @@ type Task = typeof Task;
 const ListOfTasks = co.list(Task);
 type ListOfTasks = typeof ListOfTasks;
 
-export function getCurrentTasks(list: co.loaded<ListOfTasks>) {
-  return list.filter((task): task is co.loaded<Task> => !task?.deleted);
+export function getCurrentTasks(list: co.loaded<ListOfTasks, { $each: true }>) {
+  return list.filter((task): task is co.loaded<Task> => !task.deleted);
 }
 
 async function main() {
@@ -1972,13 +1551,6 @@ There are several benefits to soft deletions:
 Jazz provides two methods to retain or remove items from a CoList:
 
 ```ts
-import { co, z } from "jazz-tools";
-
-const ListOfResources = co.list(z.string());
-
-const resources = ListOfResources.create(["Tomatoes", "Cucumber", "Peppers"]);
-
-// ---cut---
 // Remove items
 resources.$jazz.remove(2); // By index
 console.log(resources); // ["Cucumber", "Peppers"]
@@ -1993,13 +1565,6 @@ console.log(resources); // ["Tomatoes", "Peppers"]
 You can also remove specific items by index with `splice`, or remove the first or last item with `pop` or `shift`:
 
 ```ts
-import { co, z } from "jazz-tools";
-
-const ListOfResources = co.list(z.string());
-
-const resources = ListOfResources.create(["Tomatoes", "Cucumber", "Peppers"]);
-
-// ---cut---
 // Remove 2 items starting at index 1
 resources.$jazz.splice(1, 2);
 console.log(resources); // ["Tomatoes"]
@@ -2018,13 +1583,6 @@ resources.$jazz.shift(); // Remove first item
 `CoList`s support the standard JavaScript array methods you already know. Methods that mutate the array are grouped inside the `$jazz` namespace.
 
 ```ts
-import { co, z } from "jazz-tools";
-
-const ListOfResources = co.list(z.string());
-
-const resources = ListOfResources.create([]);
-
-// ---cut---
 // Add multiple items at once
 resources.$jazz.push("Tomatoes", "Basil", "Peppers");
 
@@ -2041,24 +1599,12 @@ console.log(tItems); // ["Tomatoes"]
 CoLists maintain type safety for their items:
 
 ```ts
-import { co, z } from "jazz-tools";
-
-const Task = co.map({
-  title: z.string(),
-  status: z.literal(["todo", "in-progress", "complete"]),
-});
-
-const ListOfTasks = co.list(Task);
-const ListOfResources = co.list(z.string());
-
-const resources = ListOfResources.create([]);
-const tasks = ListOfTasks.create([]);
-// ---cut---
 // TypeScript catches type errors
 resources.$jazz.push("Carrots"); // ✓ Valid string
-// @errors: 2345
+// [!code --]
 resources.$jazz.push(42); // ✗ Type error: expected string
-
+// [!code --]
+// Argument of type 'number' is not assignable to parameter of type 'string'
 // For lists of references
 tasks.forEach((task) => {
   console.log(task.title); // TypeScript knows task has title
@@ -2073,15 +1619,7 @@ tasks.forEach((task) => {
 
 CoLists work well with UI rendering libraries:
 
-```tsx
-import * as React from "react";
-
-const Task = co.map({
-  title: z.string(),
-  status: z.literal(["todo", "in-progress", "complete"]),
-});
-
-// ---cut---
+```ts
 import { co, z } from "jazz-tools";
 const ListOfTasks = co.list(Task);
 
@@ -2090,7 +1628,7 @@ function TaskList({ tasks }: { tasks: co.loaded<typeof ListOfTasks> }) {
   return (
     <ul>
       {tasks.map((task) =>
-        task ? (
+        task.$isLoaded ? (
           <li key={task.$jazz.id}>
             {task.title} - {task.status}
           </li>
@@ -2099,6 +1637,7 @@ function TaskList({ tasks }: { tasks: co.loaded<typeof ListOfTasks> }) {
     </ul>
   );
 }
+
 ```
 
 #### Managing Relations
@@ -2145,6 +1684,12 @@ project.tasks.$jazz.push(task);
 console.log(task.project); // { name: "Garden Project", tasks: [task] }
 ```
 
+#### Set-like Collections
+
+CoLists, like JavaScript arrays, allow you to insert the same item multiple times. In some cases, you might want to have a collection of unique items (similar to a set). To achieve this, you can use a CoRecord with entries keyed on a unique identifier (for example, the CoValue ID).
+
+You can read [more about this pattern here](/docs/core-concepts/covalues/comaps#creating-set-like-collections).
+
 ### CoFeeds
 
 # CoFeeds
@@ -2163,8 +1708,6 @@ The following examples demonstrate a practical use of CoFeeds:
 CoFeeds are defined by specifying the type of items they'll contain, similar to how you define CoLists:
 
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
 // Define a schema for feed items
 const Activity = co.map({
   timestamp: z.date(),
@@ -2185,23 +1728,8 @@ const activityFeed = ActivityFeed.create([]);
 Like other CoValues, you can specify ownership when creating CoFeeds.
 
 ```ts
-import { Group, co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const colleagueAccount = await createJazzTestAccount();
-
-const Activity = co.map({
-  timestamp: z.date(),
-  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
-  notes: z.optional(z.string()),
-});
-
-const ActivityFeed = co.feed(Activity);
-
-// ---cut---
 const teamGroup = Group.create();
 teamGroup.addMember(colleagueAccount, "writer");
-
 const teamFeed = ActivityFeed.create([], { owner: teamGroup });
 ```
 
@@ -2216,51 +1744,25 @@ Since CoFeeds are made of entries from users over multiple sessions, you can acc
 To retrieve entries from a session:
 
 ```ts
-import { co, z, SessionID } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-
-const Activity = co.map({
-  timestamp: z.date(),
-  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
-  notes: z.optional(z.string()),
-});
-
-const ActivityFeed = co.feed(Activity);
-const activityFeed = ActivityFeed.create([]);
-const sessionId = `${me.$jazz.id}_session_z1` as SessionID;
-
-// ---cut---
 // Get the feed for a specific session
 const sessionFeed = activityFeed.perSession[sessionId];
 
 // Latest entry from a session
-console.log(sessionFeed?.value?.action); // "watering"
+if (sessionFeed?.value.$isLoaded) {
+  console.log(sessionFeed.value.action); // "watering"
+}
 ```
 
 For convenience, you can also access the latest entry from the current session with `inCurrentSession`:
 
 ```ts
-import { co, z, SessionID } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-
-const Activity = co.map({
-  timestamp: z.date(),
-  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
-  notes: z.optional(z.string()),
-});
-
-const ActivityFeed = co.feed(Activity);
-const activityFeed = ActivityFeed.create([]);
-const sessionId = `${me.$jazz.id}_session_z1` as SessionID;
-
-// ---cut---
 // Get the feed for the current session
 const currentSessionFeed = activityFeed.inCurrentSession;
 
 // Latest entry from the current session
-console.log(currentSessionFeed?.value?.action); // "harvesting"
+if (currentSessionFeed?.value.$isLoaded) {
+  console.log(currentSessionFeed.value.action); // "harvesting"
+}
 ```
 
 ### Per-Account Access
@@ -2268,51 +1770,25 @@ console.log(currentSessionFeed?.value?.action); // "harvesting"
 To retrieve entries from a specific account (with entries from all sessions combined) use `perAccount`:
 
 ```ts
-import { co, z, SessionID } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-
-const Activity = co.map({
-  timestamp: z.date(),
-  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
-  notes: z.optional(z.string()),
-});
-
-const ActivityFeed = co.feed(Activity);
-const activityFeed = ActivityFeed.create([]);
-const accountId = me.$jazz.id;
-
-// ---cut---
-// Get the feed for a specific account
+// Get the feed for a specific session
 const accountFeed = activityFeed.perAccount[accountId];
 
-// Latest entry from the account
-console.log(accountFeed.value?.action); // "watering"
+// Latest entry from an account
+if (accountFeed?.value.$isLoaded) {
+  console.log(accountFeed.value.action); // "watering"
+}
 ```
 
 For convenience, you can also access the latest entry from the current account with `byMe`:
 
 ```ts
-import { co, z, SessionID } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-
-const Activity = co.map({
-  timestamp: z.date(),
-  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
-  notes: z.optional(z.string()),
-});
-
-const ActivityFeed = co.feed(Activity);
-const activityFeed = ActivityFeed.create([]);
-const accountId = me.$jazz.id;
-
-// ---cut---
 // Get the feed for the current account
 const myLatestEntry = activityFeed.byMe;
 
 // Latest entry from the current account
-console.log(myLatestEntry?.value?.action); // "harvesting"
+if (myLatestEntry?.value.$isLoaded) {
+  console.log(myLatestEntry.value.action); // "harvesting"
+}
 ```
 
 ### Feed Entries
@@ -2322,34 +1798,22 @@ console.log(myLatestEntry?.value?.action); // "harvesting"
 To retrieve all entries from a CoFeed:
 
 ```ts
-import { co, z, SessionID } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-
-const Activity = co.map({
-  timestamp: z.date(),
-  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
-  notes: z.optional(z.string()),
-});
-
-const ActivityFeed = co.feed(Activity);
-const activityFeed = ActivityFeed.create([]);
-const accountId = me.$jazz.id;
-const sessionId = `${me.$jazz.id}_session_z1` as SessionID;
-
-// ---cut---
 // Get the feeds for a specific account and session
 const accountFeed = activityFeed.perAccount[accountId];
 const sessionFeed = activityFeed.perSession[sessionId];
 
 // Iterate over all entries from the account
 for (const entry of accountFeed.all) {
-  console.log(entry.value);
+  if (entry.value.$isLoaded) {
+    console.log(entry.value);
+  }
 }
 
 // Iterate over all entries from the session
 for (const entry of sessionFeed.all) {
-  console.log(entry.value);
+  if (entry.value.$isLoaded) {
+    console.log(entry.value);
+  }
 }
 ```
 
@@ -2358,30 +1822,20 @@ for (const entry of sessionFeed.all) {
 To retrieve the latest entry from a CoFeed, ie. the last update:
 
 ```ts
-import { co, z, SessionID } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-
-const Activity = co.map({
-  timestamp: z.date(),
-  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
-  notes: z.optional(z.string()),
-});
-
-const ActivityFeed = co.feed(Activity);
-const activityFeed = ActivityFeed.create([]);
-
-// ---cut---
 // Get the latest entry from the current account
 const latestEntry = activityFeed.byMe;
 
-console.log(`My last action was ${latestEntry?.value?.action}`);
-// "My last action was harvesting"
+if (latestEntry?.value.$isLoaded) {
+  console.log(`My last action was ${latestEntry?.value?.action}`);
+  // "My last action was harvesting"
+}
 
 // Get the latest entry from each account
 const latestEntriesByAccount = Object.values(activityFeed.perAccount).map(
   (entry) => ({
-    accountName: entry.by?.profile?.name,
+    accountName: entry.by?.profile.$isLoaded
+      ? entry.by.profile.name
+      : "Unknown",
     value: entry.value,
   }),
 );
@@ -2394,20 +1848,6 @@ CoFeeds are append-only; you can add new items, but not modify existing ones. Th
 ### Adding Items
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-
-const Activity = co.map({
-  timestamp: z.date(),
-  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
-  notes: z.optional(z.string()),
-});
-
-const ActivityFeed = co.feed(Activity);
-const activityFeed = ActivityFeed.create([]);
-
-// ---cut---
 // Log a new activity
 activityFeed.$jazz.push(
   Activity.create({
@@ -2425,21 +1865,6 @@ Each item is automatically associated with the current user's session. You don't
 Each entry is automatically added to the current session's feed. When a user has multiple open sessions (like both a mobile app and web browser), each session creates its own separate entries:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-
-const Activity = co.map({
-  timestamp: z.date(),
-  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
-  notes: z.optional(z.string()),
-});
-
-const ActivityFeed = co.feed(Activity);
-const fromMobileFeed = ActivityFeed.create([]);
-const fromBrowserFeed = ActivityFeed.create([]);
-
-// ---cut---
 // On mobile device:
 fromMobileFeed.$jazz.push(
   Activity.create({
@@ -2470,25 +1895,14 @@ CoFeeds support metadata, which is useful for tracking information about the fee
 The `by` property is the account that made the entry.
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
+Me;
+// Get the feed for the current account
+const myLatestEntry = activityFeed.byMe;
 
-const Activity = co.map({
-  timestamp: z.date(),
-  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
-  notes: z.optional(z.string()),
-});
-
-const ActivityFeed = co.feed(Activity);
-const activityFeed = ActivityFeed.create([]);
-const accountId = me.$jazz.id;
-
-// ---cut---
-const accountFeed = activityFeed.perAccount[accountId];
-
-// Get the account that made the last entry
-console.log(accountFeed?.by);
+// Latest entry from the current account
+if (myLatestEntry?.value.$isLoaded) {
+  console.log(myLatestEntry.value.action); // "harvesting"
+}
 ```
 
 ### MadeAt
@@ -2496,21 +1910,6 @@ console.log(accountFeed?.by);
 The `madeAt` property is a timestamp of when the entry was added to the feed.
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-
-const Activity = co.map({
-  timestamp: z.date(),
-  action: z.literal(["watering", "planting", "harvesting", "maintenance"]),
-  notes: z.optional(z.string()),
-});
-
-const ActivityFeed = co.feed(Activity);
-const activityFeed = ActivityFeed.create([]);
-const accountId = me.$jazz.id;
-
-// ---cut---
 const accountFeed = activityFeed.perAccount[accountId];
 
 // Get the timestamp of the last update
@@ -2547,12 +1946,7 @@ Both types enable real-time collaborative editing of text content while maintain
 **Note:** If you're looking for a quick way to add rich text editing to your app, check out [our prosemirror plugin](#using-rich-text-with-prosemirror).
 
 ```ts
-import { co } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-
-// ---cut---
-const note = co.plainText().create("Meeting notes", { owner: me });
+const note = co.plainText().create("Meeting notes");
 
 // Update the text
 note.$jazz.applyDiff("Meeting notes for Tuesday");
@@ -2579,9 +1973,6 @@ Both support real-time updates, but `co.plainText()` provides specialized tools 
 CoText values are typically used as fields in your schemas:
 
 ```ts
-import { co, z } from "jazz-tools";
-
-// ---cut---
 const Profile = co.profile({
   name: z.string(),
   bio: co.plainText(), // Plain text field
@@ -2592,18 +1983,13 @@ const Profile = co.profile({
 Create a CoText value with a simple string:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-
-// ---cut---
 // Create plaintext with default ownership (current user)
-const note = co.plainText().create("Meeting notes", { owner: me });
+const meetingNotes = co.plainText().create("Meeting notes");
 
 // Create rich text with HTML content
 const document = co
   .richText()
-  .create("<p>Project <strong>overview</strong></p>", { owner: me });
+  .create("<p>Project <strong>overview</strong></p>");
 ```
 
 ### Ownership
@@ -2611,12 +1997,6 @@ const document = co
 Like other CoValues, you can specify ownership when creating CoTexts.
 
 ```ts
-import { co, z, Group } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const colleagueAccount = await createJazzTestAccount();
-
-// ---cut---
 // Create with shared ownership
 const teamGroup = Group.create();
 teamGroup.addMember(colleagueAccount, "writer");
@@ -2631,12 +2011,6 @@ See [Groups as permission scopes](/docs/permissions-and-sharing/overview) for mo
 CoText values work similarly to JavaScript strings:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const note = co.plainText().create("Meeting notes", { owner: me });
-
-// ---cut---
 // Get the text content
 console.log(note.toString()); // "Meeting notes"
 console.log(`${note}`); // "Meeting notes"
@@ -2645,37 +2019,20 @@ console.log(`${note}`); // "Meeting notes"
 console.log(note.length); // 14
 ```
 
-\--- Section applies only to react ---
-
 When using CoTexts in JSX, you can read the text directly:
 
 ```tsx
-import * as React from "react";
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const note = co.plainText().create("Meeting notes", { owner: me });
-
-// ---cut---
 <>
   <p>{note.toString()}</p>
   <p>{note}</p>
-</>;
+</>
 ```
-
-\--- End of react specific section ---
 
 ## Making Edits
 
 Insert and delete text with intuitive methods:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const note = co.plainText().create("Meeting notes", { owner: me });
-
-// ---cut---
 // Insert text at a specific position
 note.insertBefore(8, "weekly "); // "Meeting weekly notes"
 
@@ -2694,13 +2051,8 @@ note.$jazz.applyDiff("Team meeting notes for Tuesday");
 Use `applyDiff` to efficiently update text with minimal changes:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-
-// ---cut---
 // Original text: "Team status update"
-const minutes = co.plainText().create("Team status update", { owner: me });
+const minutes = co.plainText().create("Team status update");
 
 // Replace the entire text with a new version
 minutes.$jazz.applyDiff("Weekly team status update for Project X");
@@ -2713,21 +2065,12 @@ minutes.$jazz.applyDiff(text); // Efficiently updates only what changed
 
 Perfect for handling user input in form controls:
 
-\--- Section applies only to react ---
-
-```tsx
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-import { useCoState } from "jazz-tools/react";
-import React, { useState } from "react";
-const me = await createJazzTestAccount();
-
-// ---cut---
+```ts
 function TextEditor({ textId }: { textId: string }) {
   const note = useCoState(co.plainText(), textId);
 
   return (
-    note && (
+    note.$isLoaded && (
       <textarea
         value={note.toString()}
         onChange={(e) => {
@@ -2738,88 +2081,8 @@ function TextEditor({ textId }: { textId: string }) {
     )
   );
 }
-```
-
-\--- End of react specific section ---
-
-\--- Section applies only to vanilla ---
-
-```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-
-// ---cut---
-const note = co.plainText().create("", { owner: me });
-
-// Create and set up the textarea
-const textarea = document.createElement("textarea");
-textarea.value = note.toString();
-
-// Add event listener for changes
-textarea.addEventListener("input", (e: Event) => {
-  const target = e.target as HTMLTextAreaElement;
-  // Efficiently update only what the user changed
-  note.$jazz.applyDiff(target.value);
-});
-
-// Add the textarea to the document
-document.body.appendChild(textarea);
-```
-
-\--- End of vanilla specific section ---
-
-\--- Section applies only to vue ---
-
-```vue
-<script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-
-const note = ref(null);
-const textContent = ref("");
-
-onMounted(async () => {
-  const me = await createJazzTestAccount();
-  note.value = co.plainText().create("", { owner: me });
-  textContent.value = note.value.toString();
-});
-
-function updateText(e) {
-  if (note.value) {
-    note.value.$jazz.applyDiff(e.target.value);
-    textContent.value = note.value.toString();
-  }
-}
-</script>
-
-<template>
-  <textarea :value="textContent" @input="updateText" />
-</template>
-```
-
-\--- End of vue specific section ---
-
-\--- Section applies only to svelte ---
-
-```svelte
-<script lang="ts">
-import { co } from "jazz-tools";
-import { createJazzTestAccount } from 'jazz-tools/testing';
-const me = await createJazzTestAccount();
-
-const note = co.plainText().create("", { owner: me });
-</script>
-
-<textarea
-  value={note.toString()}
-  oninput={e => note.$jazz.applyDiff(e.target.value)}
-/>
 
 ```
-
-\--- End of svelte specific section ---
 
 ## Using Rich Text with ProseMirror
 
@@ -2842,54 +2105,20 @@ pnpm add prosemirror-view \
 
 ### Integration
 
-\--- Section applies only to react-native ---
-
-We don't currently have a React Native-specific example, but you need help you can [request one](https://github.com/garden-co/jazz/issues/new), or ask on [Discord](https://discord.gg/utDMjHYg42).
-
-\--- End of react-native specific section ---
-
-\--- Section applies only to react-native-expo ---
-
-We don't currently have a React Native Expo-specific example, but you need help please [request one](https://github.com/garden-co/jazz/issues/new), or ask on [Discord](https://discord.gg/utDMjHYg42).
-
-\--- End of react-native-expo specific section ---
-
-\--- Section applies only to react,react-native,react-native-expo ---
-
 For use with React:
 
 ```tsx
-const JazzProfile = co.profile({
-  bio: co.richText(),
-});
-
-const JazzAccount = co.account({
-  profile: JazzProfile,
-  root: co.map({}),
-});
-
-import { useAccount, useCoState } from "jazz-tools/react";
-import { co, z } from "jazz-tools";
-import React, { useEffect, useRef } from "react";
-// ---cut---
-// RichTextEditor.tsx
-import { createJazzPlugin } from "jazz-tools/prosemirror";
-import { exampleSetup } from "prosemirror-example-setup";
-import { schema } from "prosemirror-schema-basic";
-import { EditorState } from "prosemirror-state";
-import { EditorView } from "prosemirror-view";
-
 function RichTextEditor() {
-  const { me } = useAccount(JazzAccount, { resolve: { profile: true } });
+  const me = useAccount(JazzAccount, { resolve: { profile: { bio: true } } });
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
+  const bio = me.$isLoaded ? me.profile.bio : undefined;
 
   useEffect(() => {
-    if (!me?.profile.bio || !editorRef.current) return;
-
+    if (!bio || !editorRef.current) return;
     // Create the Jazz plugin for ProseMirror
     // Providing a co.richText() instance to the plugin to automatically sync changes
-    const jazzPlugin = createJazzPlugin(me.profile.bio); // [!code ++]
+    const jazzPlugin = createJazzPlugin(bio); // [!code ++]
 
     // Set up ProseMirror with the Jazz plugin
     if (!viewRef.current) {
@@ -2910,76 +2139,17 @@ function RichTextEditor() {
         viewRef.current = null;
       }
     };
-  }, [me?.profile.bio?.$jazz.id]);
+  }, [bio?.$jazz.id]);
 
-  if (!me) return null;
+  if (!me.$isLoaded) return null;
 
   return (
-    <div className="border rounded">
+    <div className="rounded border">
       <div ref={editorRef} className="p-2" />
     </div>
   );
 }
 ```
-
-\--- End of react,react-native,react-native-expo specific section ---
-
-\--- Section applies only to svelte ---
-
-We don't currently have a Svelte-specific example, but you need help you can [request one](https://github.com/garden-co/jazz/issues/new), or ask on [Discord](https://discord.gg/utDMjHYg42).
-
-\--- End of svelte specific section ---
-
-\--- Section applies only to vue ---
-
-We don't currently have a Vue-specific example, but you need help you can [request one](https://github.com/garden-co/jazz/issues/new), or ask on [Discord](https://discord.gg/utDMjHYg42).
-
-\--- End of vue specific section ---
-
-\--- Section applies only to vanilla,svelte,vue,react-native,react-native-expo ---
-
-For use without a framework:
-
-```js
-import { co, z } from "jazz-tools";
-import { createJazzPlugin } from "jazz-tools/prosemirror";
-import { exampleSetup } from "prosemirror-example-setup";
-import { schema } from "prosemirror-schema-basic";
-import { EditorState } from "prosemirror-state";
-import { EditorView } from "prosemirror-view";
-
-function setupRichTextEditor(coRichText, container) {
-  // Create the Jazz plugin for ProseMirror
-  // Providing a co.richText() instance to the plugin to automatically sync changes
-  const jazzPlugin = createJazzPlugin(coRichText); // [!code ++]
-
-  // Set up ProseMirror with Jazz plugin
-  const view = new EditorView(container, {
-    state: EditorState.create({
-      schema,
-      plugins: [
-        ...exampleSetup({ schema }),
-        jazzPlugin, // [!code ++]
-      ],
-    }),
-  });
-
-  // Return cleanup function
-  return () => {
-    view.destroy();
-  };
-}
-
-// Usage
-const document = co.richText().create("<p>Initial content</p>", { owner: me });
-const editorContainer = document.getElementById("editor");
-const cleanup = setupRichTextEditor(document, editorContainer);
-
-// Later when done with the editor
-cleanup();
-```
-
-\--- End of vanilla,svelte,vue,react-native,react-native-expo specific section ---
 
 ### FileStreams
 
@@ -2999,8 +2169,9 @@ FileStreams provide automatic chunking when using the `createFromBlob` method, t
 
 In your schema, reference FileStreams like any other CoValue:
 
+**File name: schema.ts**
+
 ```ts
-// schema.ts
 import { co, z } from "jazz-tools";
 
 const Document = co.map({
@@ -3018,11 +2189,6 @@ There are two main ways to create FileStreams: creating empty ones for manual da
 For files from input elements or drag-and-drop interfaces, use `createFromBlob`:
 
 ```ts
-import { co, Group } from "jazz-tools";
-const myGroup = Group.create();
-const progressBar: HTMLElement = document.querySelector(".progress-bar")!;
-
-// ---cut---
 // From a file input
 const fileInput = document.querySelector(
   'input[type="file"]',
@@ -3055,11 +2221,7 @@ fileInput.addEventListener("change", async () => {
 Create an empty FileStream when you want to manually [add binary data in chunks](#writing-to-filestreams):
 
 ```ts
-import { Group, FileStream } from "jazz-tools";
-const myGroup = Group.create();
-// ---cut---
-// Create a new empty FileStream
-const fileStream = FileStream.create({ owner: myGroup });
+const fileStream = co.fileStream().create({ owner: myGroup });
 ```
 
 ### Ownership
@@ -3067,18 +2229,12 @@ const fileStream = FileStream.create({ owner: myGroup });
 Like other CoValues, you can specify ownership when creating FileStreams.
 
 ```ts
-import { Group, FileStream } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const colleagueAccount = await createJazzTestAccount();
-
-// ---cut---
 // Create a team group
 const teamGroup = Group.create();
 teamGroup.addMember(colleagueAccount, "writer");
 
 // Create a FileStream with shared ownership
-const teamFileStream = FileStream.create({ owner: teamGroup });
+const teamFileStream = co.fileStream().create({ owner: teamGroup });
 ```
 
 See [Groups as permission scopes](/docs/permissions-and-sharing/overview) for more information on how to use groups to control access to FileStreams.
@@ -3092,9 +2248,6 @@ See [Groups as permission scopes](/docs/permissions-and-sharing/overview) for mo
 To access the raw binary data and metadata:
 
 ```ts
-import { FileStream } from "jazz-tools";
-const fileStream = FileStream.create();
-// ---cut---
 // Get all chunks and metadata
 const fileData = fileStream.getChunks();
 
@@ -3115,9 +2268,6 @@ if (fileData) {
 By default, `getChunks()` only returns data for completely synced `FileStream`s. To start using chunks from a `FileStream` that's currently still being synced use the `allowUnfinished` option:
 
 ```ts
-import { FileStream } from "jazz-tools";
-const fileStream = FileStream.create();
-// ---cut---
 // Get data even if the stream isn't complete
 const partialData = fileStream.getChunks({ allowUnfinished: true });
 ```
@@ -3127,9 +2277,6 @@ const partialData = fileStream.getChunks({ allowUnfinished: true });
 For easier integration with web APIs, convert to a `Blob`:
 
 ```ts
-import { FileStream } from "jazz-tools";
-const fileStream = FileStream.create();
-// ---cut---
 // Convert to a Blob
 const blob = fileStream.toBlob();
 
@@ -3156,15 +2303,12 @@ if (blob) {
 You can directly load a `FileStream` as a `Blob` when you only have its ID:
 
 ```ts
-import { FileStream, type ID } from "jazz-tools";
-const fileStreamId = "co_z123" as ID<FileStream>;
-// ---cut---
 // Load directly as a Blob when you have an ID
-const blob = await FileStream.loadAsBlob(fileStreamId);
+const blobFromID = await co.fileStream().loadAsBlob(fileStreamId);
 
 // By default, waits for complete uploads
 // For in-progress uploads:
-const partialBlob = await FileStream.loadAsBlob(fileStreamId, {
+const partialBlob = await co.fileStream().loadAsBlob(fileStreamId, {
   allowUnfinished: true,
 });
 ```
@@ -3174,9 +2318,6 @@ const partialBlob = await FileStream.loadAsBlob(fileStreamId, {
 Check if a `FileStream` is fully synced:
 
 ```ts
-import { FileStream } from "jazz-tools";
-const fileStream = FileStream.create();
-// ---cut---
 if (fileStream.isBinaryStreamEnded()) {
   console.log("File is completely synced");
 } else {
@@ -3201,14 +2342,11 @@ When creating a `FileStream` manually (not using `createFromBlob`), you need to 
 Begin by providing metadata about the file:
 
 ```ts
-import { FileStream, Group } from "jazz-tools";
-const myGroup = Group.create();
-// ---cut---
 // Create an empty FileStream
-const fileStream = FileStream.create({ owner: myGroup });
+const manualFileStream = co.fileStream().create({ owner: myGroup });
 
 // Initialize with metadata
-fileStream.start({
+manualFileStream.start({
   mimeType: "application/pdf", // MIME type (required)
   totalSizeBytes: 1024 * 1024 * 2, // Size in bytes (if known)
   fileName: "document.pdf", // Original filename (optional)
@@ -3220,13 +2358,6 @@ fileStream.start({
 Add binary data in chunks - this helps with large files and progress tracking:
 
 ```ts
-import { FileStream, Group } from "jazz-tools";
-const fileStream = FileStream.create();
-const file = [0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64]; // "Hello World" in ASCII
-const bytes = new Uint8Array(file);
-const arrayBuffer = bytes.buffer;
-
-// ---cut---
 const data = new Uint8Array(arrayBuffer);
 
 // For large files, break into chunks (e.g., 100KB each)
@@ -3245,6 +2376,11 @@ for (let i = 0; i < data.length; i += chunkSize) {
   );
   console.log(`Upload progress: ${progress}%`);
 }
+
+// Finalise the upload
+fileStream.end();
+
+console.log("Upload complete!");
 ```
 
 ### Completing the Upload
@@ -3252,10 +2388,7 @@ for (let i = 0; i < data.length; i += chunkSize) {
 Once all chunks are pushed, mark the `FileStream` as complete:
 
 ```ts
-import { FileStream } from "jazz-tools";
-const fileStream = FileStream.create();
-// ---cut---
-// Finalize the upload
+// Finalise the upload
 fileStream.end();
 
 console.log("Upload complete!");
@@ -3270,13 +2403,9 @@ Like other CoValues, you can subscribe to `FileStream`s to get notified of chang
 Load a `FileStream` when you have its ID:
 
 ```ts
-import { FileStream } from "jazz-tools";
-const fileStreamId = "co_z123";
-// ---cut---
-// Load a FileStream by ID
-const fileStream = await FileStream.load(fileStreamId);
+const fileStreamFromId = await co.fileStream().load(fileStreamId);
 
-if (fileStream) {
+if (fileStream.$isLoaded) {
   console.log("FileStream loaded successfully");
 
   // Check if it's complete
@@ -3292,14 +2421,9 @@ if (fileStream) {
 Subscribe to a `FileStream` to be notified when chunks are added or when the upload is complete:
 
 ```ts
-import { FileStream } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const fileStreamId = "co_z123";
-// ---cut---
-// Subscribe to a FileStream by ID
-const unsubscribe = FileStream.subscribe(
-  fileStreamId,
-  (fileStream: FileStream) => {
+const unsubscribe = co
+  .fileStream()
+  .subscribe(fileStreamId, (fileStream: FileStream) => {
     // Called whenever the FileStream changes
     console.log("FileStream updated");
 
@@ -3327,8 +2451,7 @@ const unsubscribe = FileStream.subscribe(
         unsubscribe();
       }
     }
-  },
-);
+  });
 ```
 
 ### Waiting for Upload Completion
@@ -3336,9 +2459,6 @@ const unsubscribe = FileStream.subscribe(
 If you need to wait for a `FileStream` to be fully synchronized across devices:
 
 ```ts
-import { FileStream } from "jazz-tools";
-const fileStream = FileStream.create();
-// ---cut---
 // Wait for the FileStream to be fully synced
 await fileStream.$jazz.waitForSync({
   timeout: 5000, // Optional timeout in ms
@@ -3379,17 +2499,6 @@ The number of dimensions matches the embedding model used in your app. Many smal
 You can create vectors in your Jazz application from an array of numbers, or Float32Array instance.
 
 ```ts
-import { co, z } from "jazz-tools";
-const Embedding = co.vector(384);
-const Document = co.map({
-  content: z.string(),
-  embedding: Embedding,
-});
-export const DocumentsList = co.list(Document);
-const documents = DocumentsList.create([]);
-const createEmbedding: (text: string) => Promise<number[]> = async () => [];
-
-// ---cut---
 // Generate embeddings (bring your own embeddings model)
 const vectorData = await createEmbedding("Text");
 
@@ -3406,13 +2515,6 @@ documents.$jazz.push(newDocument);
 Like other CoValues, you can specify ownership when creating CoVectors.
 
 ```ts
-import { Group, co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-const colleagueAccount = await createJazzTestAccount();
-const vector: number[] = [];
-
-// ---cut---
 // Create with shared ownership
 const teamGroup = Group.create();
 teamGroup.addMember(colleagueAccount, "writer");
@@ -3430,50 +2532,19 @@ CoVectors cannot be changed after creation. Instead, create a new CoVector with 
 
 Semantic search lets you find data based on meaning, not just keywords. In Jazz, you can easily sort results by how similar they are to your search query.
 
-\--- Section applies only to react ---
+Use the `useCoState` hook to load your data and sort it by similarity to your query embedding:
 
-Use the `useCoStateWithSelector` hook to load your data and sort it by similarity to your query embedding:
+```tsx
+import { useCoState } from "jazz-tools/react";
 
-\--- End of react specific section ---
+const { queryEmbedding } = useCreateEmbedding();
 
-\--- Section applies only to vanilla ---
-
-You can load your data using the `.load` method, then compute and sort the results by similarity to your query embedding:
-
-\--- End of vanilla specific section ---
-
-##### React:
-
-```ts
-import { co, z } from "jazz-tools";
-const Document = co.map({
-  content: z.string(),
-  embedding: co.vector(384),
-});
-export const DocumentsList = co.list(Document);
-const documents = DocumentsList.create([]);
-const documentsListId: string = "co_876TBN";
-
-type YourCustomHook = {
-  queryEmbedding: number[] | null;
-  createQueryEmbedding: (text: string) => Promise<number[]>;
-};
-const useCreateEmbedding: () => YourCustomHook = () => ({
-  queryEmbedding: null,
-  createQueryEmbedding: async (s) => [],
-});
-
-// ---cut---
-import { useCoStateWithSelector } from "jazz-tools/react";
-
-const { queryEmbedding, createQueryEmbedding } = useCreateEmbedding();
-
-const foundDocuments = useCoStateWithSelector(DocumentsList, documentsListId, {
+const foundDocuments = useCoState(DocumentsList, documentsListId, {
   resolve: {
     $each: { embedding: true },
   },
   select(documents) {
-    if (!documents) return;
+    if (!documents.$isLoaded) return;
 
     // If no query embedding, return all entries
     if (!queryEmbedding) return documents.map((value) => ({ value }));
@@ -3487,76 +2558,6 @@ const foundDocuments = useCoStateWithSelector(DocumentsList, documentsListId, {
       .filter((result) => result.similarity > 0.5);
   },
 });
-```
-
-##### VanillaJS:
-
-```ts
-import { co, z } from "jazz-tools";
-const Document = co.map({
-  content: z.string(),
-  embedding: co.vector(384),
-});
-export const DocumentsList = co.list(Document);
-const documentsListId: string = "co_876TBN";
-const createEmbedding: (text: string) => Promise<number[]> = async () => [];
-
-// ---cut---
-// 1) Load your documents
-const documents = await DocumentsList.load(documentsListId, {
-  resolve: {
-    $each: { embedding: true },
-  },
-});
-
-// 2) Obtain vector for your search query
-const queryEmbedding = await createEmbedding("search query");
-
-// 3) Sort documents by vector similarity
-const similarDocuments = documents
-  ?.map((value) => ({
-    value,
-    similarity: value.embedding.$jazz.cosineSimilarity(queryEmbedding), // [!code ++]
-  }))
-  .sort((a, b) => b.similarity - a.similarity)
-  .filter((result) => result.similarity > 0.5);
-```
-
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  import { CoState } from "jazz-tools/svelte";
-
-  export let queryEmbedding: number[] | null;
-  export let documentsListId: string;
-
-  // 1) Load your documents
-  const documents = new CoState(DocumentsList, documentsListId, {
-    resolve: {
-      $each: { embedding: true },
-    }
-  });
-
-  // 2) Sort documents by vector similarity
-  const foundDocuments = $derived((() => {
-    const docs = documents.current;
-    if (!docs) return;
-
-    if (!queryEmbedding) {
-      return docs.map((value) => ({ value }));
-    }
-
-    return docs
-      .map((value) => ({
-        value,
-        similarity: value.embedding.$jazz.cosineSimilarity(queryEmbedding), // [!code ++]
-      }))
-      .sort((a, b) => b.similarity - a.similarity)
-      .filter((result) => result.similarity > 0.5);
-  })());
-</script>
-
 ```
 
 Wrapping each item with its similarity score makes it easy to sort, filter, and display the most relevant results. This approach is widely used in vector search and recommendation systems, since it keeps both the data and its relevance together for further processing or display.
@@ -3592,12 +2593,351 @@ Alternatively, you can generate embeddings using server-side or commercial APIs 
 
 ### Changing embedding models
 
-**Always use the same embedding model for all vectors you intend to compare.**
-Mixing vectors from different models (or even different versions of the same model) will result in meaningless similarity scores, as the vector spaces are not compatible.
+**Always use the same embedding model for all vectors you intend to compare.**Mixing vectors from different models (or even different versions of the same model) will result in meaningless similarity scores, as the vector spaces are not compatible.
 
 If you need to switch models, consider storing the model identifier alongside each vector, and re-embedding your data as needed.
 
 ### ImageDefinitions
+
+# ImageDefinition
+
+`ImageDefinition` is a specialized CoValue designed specifically for managing images in Jazz applications. It extends beyond basic file storage by supporting a blurry placeholder, built-in resizing, and progressive loading patterns.
+
+Beyond `ImageDefinition`, Jazz offers higher-level functions and components that make it easier to use images:
+
+- [createImage()](#creating-images) \- function to create an `ImageDefinition` from a file
+- [loadImage, loadImageBySize, highestResAvailable](#displaying-images) \- functions to load and display images
+- [Image](#displaying-images) \- Component to display an image
+
+The [Image Upload example](https://github.com/gardencmp/jazz/tree/main/examples/image-upload) demonstrates use of images in Jazz.
+
+## Creating Images
+
+The easiest way to create and use images in your Jazz application is with the `createImage()` function:
+
+```ts
+import { createImage } from "jazz-tools/media";
+
+// Create an image from a file input
+async function handleFileUpload(event: Event) {
+  const input = event.target as HTMLInputElement | null;
+  const file = input?.files?.[0];
+  if (file && me.profile.$isLoaded) {
+    // Creates ImageDefinition with a blurry placeholder, limited to 1024px on the longest side, and multiple resolutions automatically
+    const image = await createImage(file, {
+      owner: me.$jazz.owner,
+      maxSize: 1024,
+      placeholder: "blur",
+      progressive: true,
+    });
+
+    // Store the image in your application data
+    me.profile.$jazz.set("image", image);
+  }
+}
+```
+
+The `createImage()` function:
+
+- Creates an `ImageDefinition` with the right properties
+- Optionally generates a small placeholder for immediate display
+- Creates multiple resolution variants of your image
+- Returns the created `ImageDefinition`
+
+### Configuration Options
+
+```ts
+declare function createImage(
+  image: Blob | File | string,
+  options?: {
+    owner?: Group | Account;
+    placeholder?: false | "blur";
+    maxSize?: number;
+    progressive?: boolean;
+  },
+): Promise<Loaded<typeof ImageDefinition, { original: true }>>;
+```
+
+#### `image`
+
+The image to create an `ImageDefinition` from.
+
+This can be a `Blob` or a `File`.
+
+#### `owner`
+
+The owner of the `ImageDefinition`. This is used to control access to the image. See [Groups as permission scopes](/docs/permissions-and-sharing/overview) for more information on how to use groups to control access to images.
+
+#### `placeholder`
+
+Disabled by default. This option allows you to automatically generate a low resolution preview for use while the image is loading. Currently, only `"blur"` is a supported.
+
+#### `maxSize`
+
+The image generation process includes a maximum size setting that controls the longest side of the image. A built-in resizing feature is applied based on this setting.
+
+#### `progressive`
+
+The progressive loading pattern is a technique that allows images to load incrementally, starting with a small version and gradually replacing it with a larger version as it becomes available. This is useful for improving the user experience by showing a placeholder while the image is loading.
+
+Passing `progressive: true` to `createImage()` will create internal smaller versions of the image for future uses.
+
+### Create multiple resized copies
+
+To create multiple resized copies of an original image for better layout control, you can use the `createImage` function multiple times with different parameters for each desired size. Here’s an example of how you might implement this:
+
+```ts
+import { co } from "jazz-tools";
+import { createImage } from "jazz-tools/media";
+
+// Jazz Schema
+const ProductImage = co.map({
+  image: co.image(),
+  thumbnail: co.image(),
+});
+
+const mainImage = await createImage(myBlob);
+const thumbnail = await createImage(myBlob, {
+  maxSize: 100,
+});
+
+// or, in case of migration, you can use the original stored image.
+const newThumb = await createImage(mainImage!.original!.toBlob()!, {
+  maxSize: 100,
+});
+
+const imageSet = ProductImage.create({
+  image: mainImage,
+  thumbnail,
+});
+```
+
+### Creating images on the server
+
+We provide a `createImage` function to create images from server side using the same options as the browser version, using the package `jazz-tools/media/server`. Check the [server worker](/docs/server-side/setup) documentation to learn more.
+
+The resize features are based on the `sharp` library, then it is requested as peer dependency in order to use it.
+
+```sh
+npm install sharp
+
+```
+
+```ts
+import fs from "node:fs";
+import { createImage } from "jazz-tools/media/server";
+
+const image = fs.readFileSync(new URL("./image.jpg", import.meta.url));
+
+await createImage(image, {
+  // options
+});
+```
+
+## Displaying Images
+
+To use the stored ImageDefinition, there are two ways: declaratively, using the `Image` component, and imperatively, using the static methods.
+
+The Image component is the best way to let Jazz handle the image loading.
+
+### `<Image>` component \[!framework=react,svelte,react-native,react-native-expo\]
+
+```tsx
+import { co, ImageDefinition } from "jazz-tools";
+import { Image } from "jazz-tools/react";
+
+function GalleryView({ image }: { image: co.loaded<typeof ImageDefinition> }) {
+  return (
+    <div className="image-container">
+      <Image imageId={image.$jazz.id} alt="Profile" width={600} />
+    </div>
+  );
+}
+```
+
+The `Image` component handles:
+
+- Showing a placeholder while loading, if generated or specified
+- Automatically selecting the appropriate resolution, if generated with progressive loading
+- Progressive enhancement as higher resolutions become available, if generated with progressive loading
+- Determining the correct width/height attributes to avoid layout shifting
+- Cleaning up resources when unmounted
+
+The component's props are:
+
+```ts
+export type ImageProps = Omit<
+  HTMLImgAttributes,
+  "src" | "srcset" | "width" | "height"
+> & {
+  imageId: string;
+  width?: number | "original";
+  height?: number | "original";
+  placeholder?: string;
+};
+```
+
+#### Width and Height props \[!framework=react,svelte,react-native,react-native-expo\]
+
+The `width` and `height` props are used to control the best resolution to use but also the width and height attributes of the image tag.
+
+Let's say we have an image with a width of 1920px and a height of 1080px.
+
+```tsx
+<Image imageId="123" />
+      // Image with the highest resolution available
+      <Image imageId="123" width="original" height="original" />
+      // Image with width 1920 and height 1080
+      <Image imageId="123" width={600} />
+      // Better to avoid, as may be rendered with 0 height
+      <Image imageId="123" width={600} height="original" />
+      // Keeps the aspect ratio (height: 338)
+      <Image imageId="123" width="original" height={600} />
+      // As above, aspect ratio is maintained, width is 1067
+      <Image imageId="123" width={600} height={600} />
+      // Renders as a 600x600 square
+
+```
+
+If the image was generated with progressive loading, the `width` and `height` props will determine the best resolution to use.
+
+#### Lazy loading \[!framework=react,svelte\]
+
+The `Image` component supports lazy loading with the \[same options as the native browser `loading` attribute\].(https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#loading). It will generate the blob url for the image when the browser's viewport reaches the image.
+
+```tsx
+<Image imageId="123" width="original" height="original" loading="lazy" />
+```
+
+#### Placeholder
+
+You can choose to specify a custom placeholder to display as a fallback while an image is loading in case your image does not have a placeholder generated. A data URL or a URL for a static asset works well here.
+
+### Imperative Usage \[!framework=react,svelte,react-native,react-native-expo\]
+
+Like other CoValues, `ImageDefinition` can be used to load the object.
+
+```tsx
+const image = await ImageDefinition.load("123", {
+  resolve: {
+    original: true,
+  },
+});
+
+if (image.$isLoaded) {
+  console.log({
+    originalSize: image.originalSize,
+    placeholderDataUrl: image.placeholderDataURL,
+    original: image.original, // this FileStream may be not loaded yet
+  });
+}
+```
+
+`image.original` is a `FileStream` and its content can be read as described in the [FileStream](/docs/core-concepts/covalues/filestreams#reading-from-filestreams) documentation.
+
+Since FileStream objects are also CoValues, they must be loaded before use. To simplify loading, if you want to load the binary data saved as Original, you can use the `loadImage` function.
+
+```tsx
+import { loadImage } from "jazz-tools/media";
+
+const loadedImage = await loadImage(imageDefinitionOrId);
+if (loadedImage === null) {
+  throw new Error("Image not found");
+}
+
+const img = document.createElement("img");
+img.width = loadedImage.width;
+img.height = loadedImage.height;
+img.src = URL.createObjectURL(loadedImage.image.toBlob()!);
+img.onload = () => URL.revokeObjectURL(img.src);
+```
+
+If the image was generated with progressive loading, and you want to access the best-fit resolution, use `loadImageBySize`. It will load the image of the best resolution that fits the wanted width and height.
+
+```tsx
+import { loadImageBySize } from "jazz-tools/media";
+
+const imageLoadedBySize = await loadImageBySize(imageDefinitionOrId, 600, 600); // 600x600
+
+if (imageLoadedBySize) {
+  console.log({
+    width: imageLoadedBySize.width,
+    height: imageLoadedBySize.height,
+    image: imageLoadedBySize.image,
+  });
+}
+```
+
+If want to dynamically listen to the _loaded_ resolution that best fits the wanted width and height, you can use the `subscribe` and the `highestResAvailable` function.
+
+```tsx
+import { highestResAvailable } from "jazz-tools/media";
+
+const progressiveImage = await ImageDefinition.load(imageId);
+
+if (!progressiveImage.$isLoaded) {
+  throw new Error("Image not loaded");
+}
+
+const img = document.createElement("img");
+img.width = 600;
+img.height = 600;
+
+// start with the placeholder
+if (progressiveImage.placeholderDataURL) {
+  img.src = progressiveImage.placeholderDataURL;
+}
+
+// then listen to the image changes
+progressiveImage.$jazz.subscribe({}, (image) => {
+  const bestImage = highestResAvailable(image, 600, 600);
+
+  if (bestImage) {
+    // bestImage is again a FileStream
+    const blob = bestImage.image.toBlob();
+    if (blob) {
+      const url = URL.createObjectURL(blob);
+      img.src = url;
+      img.onload = () => URL.revokeObjectURL(url);
+    }
+  }
+});
+```
+
+## Custom image manipulation implementations
+
+To manipulate images (like placeholders, resizing, etc.), `createImage()` uses different implementations depending on the environment.
+
+On the browser, image manipulation is done using the `canvas` API.
+
+If you want to use a custom implementation, you can use the `createImageFactory` function in order create your own `createImage` function and use your preferred image manipulation library.
+
+```tsx
+import { createImageFactory } from "jazz-tools/media";
+
+const customCreateImage = createImageFactory({
+  createFileStreamFromSource: async (source, owner) => {
+    // ...
+  },
+  getImageSize: async (image) => {
+    // ...
+  },
+  getPlaceholderBase64: async (image) => {
+    // ...
+  },
+  resize: async (image, width, height) => {
+    // ...
+  },
+});
+```
+
+## Best Practices
+
+- **Set image sizes** when possible to avoid layout shifts
+- **Use placeholders** (like LQIP - Low Quality Image Placeholders) for instant rendering
+- **Prioritize loading** the resolution appropriate for the current viewport
+- **Consider device pixel ratio** (window.devicePixelRatio) for high-DPI displays
+- **Always call URL.revokeObjectURL** after the image loads to prevent memory leaks
 
 ### Connecting CoValues
 
@@ -3662,8 +3002,6 @@ To find all data related to a user, the account acts as a root node from where y
 Every Jazz app that wants to refer to per-user data needs to define a custom root `CoMap` schema and declare it in a custom `Account` schema as the `root` field:
 
 ```ts
-const Chat = co.map({});
-// ---cut---
 import { co, z } from "jazz-tools";
 
 const MyAppRoot = co.map({
@@ -3683,9 +3021,6 @@ The built-in `Account` schema class comes with a default `profile` field, which 
 Their pre-defined schemas roughly look like this:
 
 ```ts
-// @noErrors: 2416
-import { co, z } from "jazz-tools";
-// ---cut---
 // ...somewhere in jazz-tools itself...
 const Account = co.account({
   root: co.map({}),
@@ -3693,42 +3028,19 @@ const Account = co.account({
 });
 ```
 
-If you want to keep the default `co.profile()` schema, but customise your account's private `root`, all you have to do is define a new `root` field in your account schema and use `co.profile()` without options:
+If you want to keep the default `co.profile()` schema, but customise your account's private `root`, you can use `co.profile()` without options.
+
+If you want to extend the `profile` to contain additional fields (such as an avatar `co.image()`), you can declare your own profile schema class using `co.profile({...})`. A `co.profile({...})` is a [type of CoMap](/docs/core-concepts/covalues/comaps), so you can add fields in the same way:
 
 ```ts
-const Chat = co.map({});
-import { co, z } from "jazz-tools";
-// ---cut---
-const MyAppRoot = co.map({
-  // [!code ++:3]
-  myChats: co.list(Chat),
-});
-
-export const MyAppAccount = co.account({
-  root: MyAppRoot, // [!code ++]
-  profile: co.profile(),
-});
-```
-
-If you want to extend the `profile` to contain additional fields (such as an avatar `co.image()`), you can declare your own profile schema class using `co.profile({...})`:
-
-```ts
-import { co, z } from "jazz-tools";
-const Chat = co.map({});
-// ---cut---
-export const MyAppRoot = co.map({
-  myChats: co.list(Chat),
-});
-
 export const MyAppProfile = co.profile({
-  // [!code ++:4]
   name: z.string(), // compatible with default Profile schema
   avatar: co.optional(co.image()),
 });
 
-export const MyAppAccount = co.account({
+export const MyAppAccountWithProfile = co.account({
   root: MyAppRoot,
-  profile: MyAppProfile, // [!code ++]
+  profile: MyAppProfile,
 });
 ```
 
@@ -3738,36 +3050,15 @@ When using custom profile schemas, you need to take care of initializing the `pr
 
 ## Resolving CoValues starting at `profile` or `root`
 
-\--- Section applies only to react ---
+To use per-user data in your app, you typically use `useAccount` with your custom Account schema and specify which references to resolve using a resolve query (see [Subscribing & deep loading](/docs/core-concepts/subscription-and-loading)).
 
-To use per-user data in your app, you typically use `useAccount` somewhere in a high-level component, pass it your custom Account schema and specify which references to resolve using a resolve query (see [Subscribing & deep loading](/docs/core-concepts/subscription-and-loading)).
+Jazz will deduplicate loads, so you can safely use `useAccount` multiple times throughout your app without any performance overhead to ensure each component has exactly the data it needs.
 
 ```tsx
-import * as React from "react";
-import { co, z } from "jazz-tools";
-
-const Chat = co.map({});
-
-const MyAppRoot = co.map({
-  myChats: co.list(Chat),
-});
-
-const MyAppProfile = co.profile();
-
-const MyAppAccount = co.account({
-  root: MyAppRoot,
-  profile: MyAppProfile,
-});
-
-class ChatPreview extends React.Component<{ chat: co.loaded<typeof Chat> }> {}
-class ContactPreview extends React.Component<{
-  contact: co.loaded<typeof MyAppAccount>;
-}> {}
-// ---cut---
 import { useAccount } from "jazz-tools/react";
 
 function DashboardPageComponent() {
-  const { me } = useAccount(MyAppAccount, {
+  const me = useAccount(MyAppAccount, {
     resolve: {
       profile: true,
       root: {
@@ -3779,7 +3070,7 @@ function DashboardPageComponent() {
   return (
     <div>
       <h1>Dashboard</h1>
-      {me ? (
+      {me.$isLoaded ? (
         <div>
           <p>Logged in as {me.profile.name}</p>
           <h2>My chats</h2>
@@ -3794,8 +3085,6 @@ function DashboardPageComponent() {
   );
 }
 ```
-
-\--- End of react specific section ---
 
 ## Populating and evolving `root` and `profile` schemas with migrations
 
@@ -3813,20 +3102,7 @@ Migrations are run after account creation and every time a user logs in. Jazz wa
 ### Initialising user data after account creation
 
 ```ts
-import { co, z, Group } from "jazz-tools";
-const Chat = co.map({});
-const Bookmark = co.map({});
-
-const MyAppRoot = co.map({
-  myChats: co.list(Chat),
-});
-
-const MyAppProfile = co.profile({
-  name: z.string(),
-  bookmarks: co.list(Bookmark),
-});
-// ---cut---
-export const MyAppAccount = co
+export const MyAppAccountWithMigration = co
   .account({
     root: MyAppRoot,
     profile: MyAppProfile,
@@ -3849,7 +3125,6 @@ export const MyAppAccount = co
         MyAppProfile.create(
           {
             name: creationProps?.name ?? "New user",
-            bookmarks: co.list(Bookmark).create([], profileGroup),
           },
           profileGroup,
         ),
@@ -3867,16 +3142,6 @@ To do deeply nested migrations, you might need to use the asynchronous `$jazz.en
 Now let's say we want to add a `myBookmarks` field to the `root` schema:
 
 ```ts
-import { co, z, Group } from "jazz-tools";
-const Chat = co.map({});
-const Bookmark = co.map({});
-
-const MyAppProfile = co.profile({
-  name: z.string(),
-  bookmarks: co.list(Bookmark),
-});
-
-// ---cut---
 const MyAppRoot = co.map({
   myChats: co.list(Chat),
   myBookmarks: co.optional(co.list(Bookmark)), // [!code ++:1]
@@ -3894,7 +3159,7 @@ export const MyAppAccount = co
       });
     }
 
-    // We need to load the root field to check for the myContacts field
+    // We need to load the root field to check for the myBookmarks field
     const { root } = await account.$jazz.ensureLoaded({
       resolve: { root: true },
     });
@@ -3908,6 +3173,12 @@ export const MyAppAccount = co
     }
   });
 ```
+
+### Guidance on building robust schemas
+
+Once you've published a schema, you should only ever add fields to it. This is because you have no way of ensuring that a new schema is distributed to all clients, especially if you're building a local-first app.
+
+You should plan to be able to handle data from users using any former schema version that you have published for your app.
 
 ### Schema Unions
 
@@ -3926,48 +3197,26 @@ The following operations are not available in schema unions:
 Schema unions are defined with `co.discriminatedUnion()` by providing an array of schemas and a discriminator field. The discriminator field must be a `z.literal()`.
 
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
-const ButtonWidget = co.map({
+export const ButtonWidget = co.map({
   type: z.literal("button"),
   label: z.string(),
 });
 
-const SliderWidget = co.map({
+export const SliderWidget = co.map({
   type: z.literal("slider"),
   min: z.number(),
   max: z.number(),
 });
 
-const Widget = co.discriminatedUnion("type", [ButtonWidget, SliderWidget]);
-
-const Dashboard = co.map({
-  widgets: co.list(Widget),
-});
+export const WidgetUnion = co.discriminatedUnion("type", [
+  ButtonWidget,
+  SliderWidget,
+]);
 ```
 
 To instantiate a schema union, just use the `create` method of one of the member schemas:
 
 ```ts
-import { co, z } from "jazz-tools";
-
-const ButtonWidget = co.map({
-  type: z.literal("button"),
-  label: z.string(),
-});
-
-const SliderWidget = co.map({
-  type: z.literal("slider"),
-  min: z.number(),
-  max: z.number(),
-});
-
-const Widget = co.discriminatedUnion("type", [ButtonWidget, SliderWidget]);
-
-const Dashboard = co.map({
-  widgets: co.list(Widget),
-});
-// ---cut---
 const dashboard = Dashboard.create({
   widgets: [
     ButtonWidget.create({ type: "button", label: "Click me" }),
@@ -3979,26 +3228,7 @@ const dashboard = Dashboard.create({
 You can also use plain JSON objects, and let Jazz infer the concrete type from the discriminator field:
 
 ```ts
-import { co, z } from "jazz-tools";
-
-const ButtonWidget = co.map({
-  type: z.literal("button"),
-  label: z.string(),
-});
-
-const SliderWidget = co.map({
-  type: z.literal("slider"),
-  min: z.number(),
-  max: z.number(),
-});
-
-const Widget = co.discriminatedUnion("type", [ButtonWidget, SliderWidget]);
-
-const Dashboard = co.map({
-  widgets: co.list(Widget),
-});
-// ---cut---
-const dashboard = Dashboard.create({
+const dashboardFromJSON = Dashboard.create({
   widgets: [
     { type: "button", label: "Click me" },
     { type: "slider", min: 0, max: 100 },
@@ -4011,32 +3241,6 @@ const dashboard = Dashboard.create({
 When working with schema unions, you can access any property that is common to all members of the union. To access properties specific to a particular union member, you need to narrow the type. You can do this using a [TypeScript type guard](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) on the discriminator field:
 
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
-const ButtonWidget = co.map({
-  type: z.literal("button"),
-  label: z.string(),
-});
-
-const SliderWidget = co.map({
-  type: z.literal("slider"),
-  min: z.number(),
-  max: z.number(),
-});
-
-const Widget = co.discriminatedUnion("type", [ButtonWidget, SliderWidget]);
-
-const Dashboard = co.map({
-  widgets: co.list(Widget),
-});
-
-const dashboard = Dashboard.create({
-  widgets: [
-    { type: "button", label: "Click me" },
-    { type: "slider", min: 0, max: 100 },
-  ],
-});
-// ---cut---
 dashboard.widgets.forEach((widget) => {
   if (widget.type === "button") {
     console.log(`Button: ${widget.label}`);
@@ -4051,43 +3255,19 @@ dashboard.widgets.forEach((widget) => {
 You can load an instance of a schema union using its ID, without having to know its concrete type:
 
 ```ts
-import { co, z } from "jazz-tools";
-
-const ButtonWidget = co.map({
-  type: z.literal("button"),
-  label: z.string(),
-});
-
-const SliderWidget = co.map({
-  type: z.literal("slider"),
-  min: z.number(),
-  max: z.number(),
-});
-
-const Widget = co.discriminatedUnion("type", [ButtonWidget, SliderWidget]);
-
-const widgetId = "widgetId";
-// ---cut---
-// Load a widget by ID
-const widget = await Widget.load(widgetId);
+const widget = await WidgetUnion.load(widgetId);
 
 // Subscribe to updates
-const unsubscribe = Widget.subscribe(widgetId, {}, (widget) => {
+const unsubscribe = WidgetUnion.subscribe(widgetId, {}, (widget) => {
   console.log("Widget updated:", widget);
 });
 ```
-
-**Info:**
-
-Resolve queries are not supported in schema unions yet. If you need to [deeply load](/docs/core-concepts/subscription-and-loading#deep-loading) a schema union, you'll need to first shallowly load the union, and then load the nested properties after narrowing the union type (using `$jazz.ensureLoaded` or `useCoState`).
 
 ## Nested schema unions
 
 You can create complex hierarchies by nesting discriminated unions within other unions:
 
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
 // Define error types
 const BadRequestError = co.map({
   status: z.literal("failed"),
@@ -4148,13 +3328,50 @@ Schema unions have some limitations that you should be aware of. They are due to
 
 Note that these methods may still work at runtime, but their use is not recommended as you will lose type safety.
 
-### `$jazz.ensureLoaded` and `$jazz.subscribe` not supported
+### `$jazz.ensureLoaded` and `$jazz.subscribe` require type narrowing
 
-The `$jazz.ensureLoaded` and `$jazz.subscribe` methods are not available in schema unions. Instead, use the union schema's `load` and `subscribe` methods.
+The `$jazz.ensureLoaded` and `$jazz.subscribe` methods are not supported directly on a schema union unless you first narrow the type using the discriminator.
 
 ### Updating union fields
 
 You can't use `$jazz.set` to modify a schema union's fields (even if the field is present in all the union members). Use `$jazz.applyDiff` instead.
+
+### Codecs
+
+# Codecs
+
+You can use Zod `z.codec()` schemas to store arbitrary data types such as class instances within CoValues by defining custom encoders. This allows you to directly use these data types within CoValues without having to do an extra manual conversion step.
+
+## Using Zod codecs
+
+To use a Zod `z.codec()` with Jazz, your encoder must encode the data into a JSON-compatible format. This is means that the `Input` type shall map to the JSON-compatible type, and `Output` will map to your custom type.
+
+```ts
+class Greeter {
+  constructor(public name: string) {}
+
+  greet() {
+    console.log(`Hello, ${this.name}!`);
+  }
+}
+
+const schema = co.map({
+  greeter: z.codec(z.string(), z.z.instanceof(Greeter), {
+    encode: (value) => value.name,
+    decode: (value) => new Greeter(value),
+  }),
+});
+
+const porter = schema.create({
+  greeter: new Greeter("Alice"),
+});
+
+porter.greeter.greet();
+```
+
+**Info:**
+
+Schemas that are not directly supported by Jazz such as `z.instanceof` are not re-exported by Jazz under the `z` object. The full Zod API is exported under `z.z` if you need to use any of these schemas as part of a codec.
 
 ### Subscriptions & Deep Loading
 
@@ -4169,25 +3386,17 @@ You can load and subscribe to CoValues in one of two ways:
 - **shallowly** — all of the primitive fields are available (such as strings, numbers, dates), but the references to other CoValues are not loaded
 - **deeply** — some or all of the referenced CoValues have been loaded
 
+**Info: Tip**
+
+Jazz automatically deduplicates loading. If you subscribe to the same CoValue multiple times in your app, Jazz will only fetch it once. That means you don’t need to deeply load a CoValue _just in case_ a child component might need its data, and you don’t have to worry about tracking every possible field your app needs in a top-level query. Instead, pass the CoValue ID to the child component and subscribe there — Jazz will only load what that component actually needs.
+
 ## Subscription Hooks
 
 On your front-end, using a subscription hook is the easiest way to manage your subscriptions. The subscription and related clean-up is handled automatically, and you can use your data like any other piece of state in your app.
 
 ### Subscribe to CoValues
 
-\--- Section applies only to react ---
-
 The `useCoState` hook allows you to reactively subscribe to CoValues in your React components. It will subscribe to updates when the component mounts and unsubscribe when it unmounts, ensuring your UI stays in sync and avoiding memory leaks.
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-The `CoState` class allows you to reactively subscribe to CoValues in your Svelte components. It will subscribe to updates when the component mounts and unsubscribe when it unmounts, ensuring your UI stays in sync and avoiding memory leaks.
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 import { useCoState } from "jazz-tools/react";
@@ -4198,10 +3407,15 @@ function ProjectView({ projectId }: { projectId: string }) {
     resolve: { tasks: { $each: true } }, // Tell Jazz to load each task in the list
   });
 
-  if (project === null) {
-    return "Project not found or not accessible";
-  } else if (project === undefined) {
-    return "Loading...";
+  if (!project.$isLoaded) {
+    switch (project.$jazz.loadingState) {
+      case "unauthorized":
+        return "Project not accessible";
+      case "unavailable":
+        return "Project not found";
+      case "loading":
+        return "Loading project...";
+    }
   }
 
   return (
@@ -4217,64 +3431,22 @@ function ProjectView({ projectId }: { projectId: string }) {
 }
 ```
 
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  import { CoState } from "jazz-tools/svelte";
-
-  const { projectId } : { projectId: string } = $props();
-
-  // Subscribe to a project and resolve its tasks
-  const project = new CoState(Project, projectId, {
-    resolve: { tasks: { $each: true } } // Tell Jazz to load each task in the list
-  });
-</script>
-
-{#if project.current === null}
-  Project not found or not accessible
-{:else if project.current === undefined}
-  Loading...
-{:else}
-  <div>
-    <h1>{project.current.name}</h1>
-    <ul>
-      {#each project.current.tasks as task (task.$jazz.id)}
-        <li>{task.title}</li>
-      {/each}
-    </ul>
-  </div>
-{/if}
-
-```
-
 **Note:** If you don't need to load a CoValue's references, you can choose to load it _shallowly_ by omitting the resolve query.
 
 ### Subscribe to the current user's account
 
-\--- Section applies only to react ---
-
 `useAccount` is similar to `useCoState`, but it returns the current user's account. You can use this at the top level of your app to subscribe to the current user's [account profile and root](/docs/core-concepts/schemas/accounts-and-migrations#covalues-as-a-graph-of-data-rooted-in-accounts).
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-`AccountCoState` is similar to `CoState`, but it returns the current user's account. You can use this at the top level of your app to subscribe to the current user's [account profile and root](/docs/core-concepts/schemas/accounts-and-migrations#covalues-as-a-graph-of-data-rooted-in-accounts).
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 import { useAccount } from "jazz-tools/react";
+import { MyAppAccount } from "./schema";
 
 function ProjectList() {
-  const { me } = useAccount(MyAppAccount, {
+  const me = useAccount(MyAppAccount, {
     resolve: { profile: true },
   });
 
-  if (!me) {
+  if (!me.$isLoaded) {
     return "Loading...";
   }
 
@@ -4286,36 +3458,20 @@ function ProjectList() {
 }
 ```
 
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  import { AccountCoState } from "jazz-tools/svelte";
-
-  const account = new AccountCoState(MyAppAccount, {
-    resolve: { profile: true }
-  });
-</script>
-
-{#if !account.current}
-  Loading...
-{:else}
-  <div>
-    <h1>{account.current.profile.name}'s projects</h1>
-  </div>
-{/if}
-
-```
-
 ### Loading States
 
-When you load or subscribe to a CoValue through a hook (or directly), it can return one of three states:
+When you load or subscribe to a CoValue through a hook (or directly), it can be either:
 
-- `undefined` → an interim state while Jazz is fetching the CoValue
-- `null` → a failure state. Either the CoValue couldn't be found, or it isn't accessible (e.g. due to permissions)
-- `Value` → The successfully loaded CoValue instance
+- **Loaded** → The CoValue has been successfully loaded and all its data is available
+- **Not Loaded** → The CoValue is not yet available
 
-Check the examples above for practical demonstrations of how to handle these three states in your application.
+You can use the `$isLoaded` field to check whether a CoValue is loaded. For more detailed information about why a CoValue is not loaded, you can check `$jazz.loadingState`:
+
+- `"loading"` → The CoValue is still being fetched
+- `"unauthorized"` → The current user doesn't have permission to access this CoValue
+- `"unavailable"` → The CoValue couldn't be found or an error (e.g. a network timeout) occurred while loading
+
+See the examples above for practical demonstrations of how to handle these three states in your application.
 
 ## Deep Loading
 
@@ -4330,9 +3486,9 @@ A `resolve` query tells Jazz how deeply to load data for your app to use. We can
 ```ts
 const Task = co.map({
   title: z.string(),
-  description: co.plainText().optional(),
+  description: co.plainText(),
   get subtasks() {
-    return co.list(Task).optional();
+    return co.list(Task);
   },
 });
 
@@ -4342,20 +3498,20 @@ const Project = co.map({
 });
 
 const project = await Project.load(projectId);
-if (!project) throw new Error("Project not found or not accessible");
+if (!project.$isLoaded) throw new Error("Project not found or not accessible");
 
 // This will be loaded
 project.name; // string
 
 // This *may not be loaded*, and *may not be accessible*
-project.tasks; // undefined | null | ListOfTasks
+project.tasks; // MaybeLoaded<ListOfTasks>
 
 const projectWithTasksShallow = await Project.load(projectId, {
   resolve: {
     tasks: true,
   },
 });
-if (!projectWithTasksShallow)
+if (!projectWithTasksShallow.$isLoaded)
   throw new Error("Project not found or not accessible");
 
 // This list of tasks will be shallowly loaded
@@ -4363,7 +3519,7 @@ projectWithTasksShallow.tasks; // ListOfTasks
 // We can access the properties of the shallowly loaded list
 projectWithTasksShallow.tasks.length; // number
 // This *may not be loaded*, and *may not be accessible*
-projectWithTasksShallow.tasks[0]; // undefined | null | Task
+projectWithTasksShallow.tasks[0]; // MaybeLoaded<Task>
 ```
 
 We can use an `$each` expression to tell Jazz to load the items in a list.
@@ -4376,16 +3532,17 @@ const projectWithTasks = await Project.load(projectId, {
     },
   },
 });
-if (!projectWithTasks) throw new Error("Project not found or not accessible");
+if (!projectWithTasks.$isLoaded)
+  throw new Error("Project not found or not accessible");
 
-// The task will either be loaded or null if it is not accessible
-projectWithTasks.tasks[0]; // Task | null
+// The task will be loaded
+projectWithTasks.tasks[0]; // Task
 // Primitive fields are always loaded
 projectWithTasks.tasks[0].title; // string
-// References on the Task may not be loaded, and may not be accessible
-projectWithTasks.tasks[0].subtasks; // undefined | null | ListOfTasks
+// References on the Task may not be loaded
+projectWithTasks.tasks[0].subtasks; // MaybeLoaded<ListOfTasks>
 // CoTexts are CoValues too
-projectWithTasks.tasks[0].description; // undefined | null | CoPlainText
+projectWithTasks.tasks[0].description; // MaybeLoaded<CoPlainText>
 ```
 
 We can also build a query that _deeply resolves_ to multiple levels:
@@ -4403,12 +3560,14 @@ const projectDeep = await Project.load(projectId, {
     },
   },
 });
-if (!projectDeep) throw new Error("Project not found or not accessible");
+if (!projectDeep.$isLoaded)
+  throw new Error("Project not found or not accessible");
 
 // Primitive fields are always loaded
 projectDeep.tasks[0].subtasks[0].title; // string
-// The description will either be loaded or null if it is not accessible
-projectDeep.tasks[0].description; // CoPlainText | null
+
+// The description will be loaded as well
+projectDeep.tasks[0].description; // CoPlainText
 ```
 
 **Warning: Always load data explicitly**
@@ -4421,9 +3580,8 @@ Expecting data to be there which is not explicitly included in your `resolve` qu
 
 The syntax for resolve queries is shared throughout Jazz. As well as using them in `load` and `subscribe` method calls, you can pass a resolve query to a front-end hook.
 
-##### React:
-
 ```tsx
+const projectId = "";
 const projectWithTasksShallow = useCoState(Project, projectId, {
   resolve: {
     tasks: true,
@@ -4431,58 +3589,67 @@ const projectWithTasksShallow = useCoState(Project, projectId, {
 });
 ```
 
-##### Svelte:
+You can also specify resolve queries at the schema level, using the `.resolved()` method. These queries will be used when loading CoValues from that schema (if no resolve query is provided by the user) and in types defined with [co.loaded](/docs/core-concepts/subscription-and-loading#type-safety-with-coloaded).
 
-```svelte
-<script lang="ts">
-  import { CoState } from "jazz-tools/svelte";
+```ts
+const TaskWithDescription = Task.resolved({
+  description: true,
+});
+const ProjectWithTasks = Project.resolved({
+  tasks: {
+    // Use `.resolveQuery` to get the resolve query from a schema and compose it in other queries
+    $each: TaskWithDescription.resolveQuery,
+  },
+});
 
-  export let projectId: string;
-
-  const projectWithTasksShallow = new CoState(Project, projectId, {
-    resolve: {
-      tasks: true
-    }
-  });
-</script>
-
+// .load() will use the resolve query from the schema
+const project = await ProjectWithTasks.load(projectId);
+if (!project.$isLoaded) throw new Error("Project not found or not accessible");
+// Both the tasks and the descriptions are loaded
+project.tasks[0].description; // CoPlainText
 ```
 
 ## Loading Errors
 
-A load operation will be successful **only** in case all references requested (both optional and required) could be successfully loaded, otherwise the load operation will return null in order to avoid potential inconsistencies.
+A load operation will be successful **only** if all references requested (both optional and required) could be successfully loaded. If any reference cannot be loaded, the entire load operation will return a not-loaded CoValue to avoid potential inconsistencies.
 
 ```ts
 // If permissions on description are restricted:
 const task = await Task.load(taskId, {
   resolve: { description: true },
 });
-task; // null
+task.$isLoaded; // false
+task.$jazz.loadingState; // "unauthorized"
 ```
 
 This is also true if **any** element of a list is inaccessible, even if all the others can be loaded.
 
 ```ts
 // One task in the list has restricted permissions
-const project = await Project.load(projectId, {
+const projectWithUnauthorizedTasks = await Project.load(projectId, {
   resolve: { tasks: { $each: true } },
 });
 
-project; // null
+project.$isLoaded; // false
+project.$jazz.loadingState; // "unauthorized"
 ```
 
-Loading will be successful if all requested references are loaded, even if other references may not be accessible.
+Loading will be successful if all requested references are loaded. Non-requested references may or may not be available.
 
 ```ts
 // One task in the list has restricted permissions
-const project = await Project.load(projectId, {
-  resolve: true,
-});
-if (!project) throw new Error("Project not found or not accessible");
+const shallowlyLoadedProjectWithUnauthorizedTasks = await Project.load(
+  projectId,
+  {
+    resolve: true,
+  },
+);
+if (!project.$isLoaded) throw new Error("Project not found or not accessible");
 
 // Assuming the user has permissions on the project, this load will succeed, even if the user cannot load one of the tasks in the list
-project; // Project | null
-project.tasks[0]; // Task | null
+project.$isLoaded; // true
+// Tasks may not be loaded since we didn't request them
+project.tasks.$isLoaded; // may be false
 ```
 
 ### Catching loading errors
@@ -4499,21 +3666,25 @@ For example, in case of a `project` (which the user can access) with three `task
 
 #### Scenario 1: Skip Inaccessible List Items
 
-If some of your list items may not be accessible, you can skip loading them by specifying `$onError: null`, and inaccessible items will be `null`, while accessible items load properly.
+If some of your list items may not be accessible, you can skip loading them by specifying `$onError: 'catch'`. Inaccessible items will be not-loaded CoValues, while accessible items load properly.
 
 ```ts
-// Inaccessible tasks will be null, but the project will be loaded
-const project = await Project.load(projectId, {
-  resolve: { tasks: { $each: true, $onError: null } },
+// Inaccessible tasks will not be loaded, but the project will
+const projectWithInaccessibleSkipped = await Project.load(projectId, {
+  resolve: { tasks: { $each: { $onError: "catch" } } },
 });
-if (!project) throw new Error("Project not found or not accessible");
-if (!project.tasks)
-  throw new Error("Project's task list not found or not accessible");
 
-project; // Project
-project.tasks[0]; // Task
-project.tasks[1]; // Task
-project.tasks[2]; // null
+if (!project.$isLoaded) {
+  throw new Error("Project not found or not accessible");
+}
+
+if (!project.tasks.$isLoaded) {
+  throw new Error("Task List not found or not accessible");
+}
+
+project.tasks[0].$isLoaded; // true
+project.tasks[1].$isLoaded; // true
+project.tasks[2].$isLoaded; // false (caught by $onError)
 ```
 
 #### Scenario 2: Handling Inaccessible Nested References
@@ -4523,39 +3694,47 @@ An `$onError` applies only in the block where it's defined. If you need to handl
 This load will fail, because the `$onError` is defined only for the `task.description`, not for failures in loading the `task` itself.
 
 ```ts
-const project = await Project.load(projectId, {
+// Inaccessible tasks will not be loaded, but the project will
+const projectWithNestedInaccessibleSkipped = await Project.load(projectId, {
   resolve: {
     tasks: {
-      $each: { description: true, $onError: null },
+      $each: {
+        description: true,
+        $onError: "catch",
+      },
     },
   },
 });
 
-// The load fails because task[2] is inaccessible and no $onError caught it.
-project; // null
+if (!project.$isLoaded) {
+  throw new Error("Project not found or not accessible");
+}
+
+project.tasks[0].$isLoaded; // true
+project.tasks[1].$isLoaded; // true
+project.tasks[2].$isLoaded; // false (caught by $onError)
 ```
 
 We can fix this by adding handlers at both levels
 
 ```ts
-const project = await Project.load(projectId, {
+const projectWithMultipleCatches = await Project.load(projectId, {
   resolve: {
     tasks: {
       $each: {
-        description: true,
-        $onError: null, // catch errors loading task descriptions
+        description: { $onError: "catch" }, // catch errors loading task descriptions
+        $onError: "catch", // catch errors loading tasks too
       },
-      $onError: null, // catch errors loading tasks too
     },
   },
 });
 
-project; // Project
-project.tasks[0]; // Task
-project.tasks[0]?.description; // CoPlainText
-project.tasks[1]; // Task
-project.tasks[1]?.description; // null (caught by the inner handler)
-project.tasks[2]; // null (caught by the outer handler)
+project.$isLoaded; // true
+project.tasks[0].$isLoaded; // true
+project.tasks[0].description.$isLoaded; // true
+project.tasks[1].$isLoaded; // true
+project.tasks[1].description.$isLoaded; // false (caught by the inner handler)
+project.tasks[2].$isLoaded; // false (caught by the outer handler)
 ```
 
 ## Type safety with co.loaded
@@ -4564,9 +3743,10 @@ You can tell your application how deeply your data is loaded by using the `co.lo
 
 The `co.loaded` type is especially useful when passing data between components, because it allows TypeScript to check at compile time whether data your application depends is properly loaded. The second argument lets you pass a `resolve` query to specify how deeply your data is loaded.
 
-##### React:
-
 ```tsx
+import { co } from "jazz-tools";
+import { Project } from "./schema";
+
 type ProjectWithTasks = co.loaded<
   typeof Project,
   {
@@ -4587,33 +3767,6 @@ function TaskList({ project }: { project: ProjectWithTasks }) {
     </ul>
   );
 }
-```
-
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  import { co } from "jazz-tools";
-
-  type ProjectWithTasks = co.loaded<typeof Project,
-    {
-      tasks: {
-        $each: true
-      };
-    }
-  >;
-
-  const { project } : { project: ProjectWithTasks } = $props();
-</script>
-
-<!-- In case the project prop isn't loaded as required, TypeScript will warn -->
-<!-- TypeScript knows tasks are loaded, so this is type-safe -->
-<ul>
-  {#each project.tasks as task (task.$jazz.id)}
-    <li>{task.title}</li>
-  {/each}
-</ul>
-
 ```
 
 You can pass a `resolve` query of any complexity to `co.loaded`.
@@ -4650,41 +3803,47 @@ const unsubscribe = myTask.$jazz.subscribe((updatedTask) => {
 unsubscribe();
 ```
 
-\--- Section applies only to react,react-native,react-native-expo ---
-
 ## Selectors \[!framework=react,react-native,react-native-expo\]
 
-Sometimes, you only need to react to changes in specific parts of a CoValue. In those cases, you can use the `useCoStateWithSelector` hook to specify what data you are interested in.
-
-When you use `useCoStateWithSelector` , in addition to `resolve` you can also add a `select` and optionally an `equalityFn` option.
+Sometimes, you only need to react to changes in specific parts of a CoValue. In those cases, you can provide a `select` function to specify what data you are interested in, and an optional `equalityFn` option to control re-renders.
 
 - `select`: extract the fields you care about
 - `equalityFn`: (optional) control when data should be considered equal
 
 ```tsx
-import { useCoStateWithSelector } from "jazz-tools/react";
-
-function ProjectView({ projectId }: { projectId: string }) {
+function ProjectViewWithSelector({ projectId }: { projectId: string }) {
   // Subscribe to a project
-  const project = useCoStateWithSelector(Project, projectId, {
+  const project = useCoState(Project, projectId, {
     resolve: {
       tasks: true,
     },
     select: (project) => {
-      if (!project) return project;
+      if (!project.$isLoaded)
+        return {
+          loadingState: project.$jazz.loadingState,
+        };
       return {
         name: project.name,
         taskCount: project.tasks.length,
+        loadingState: project.$jazz.loadingState,
       };
     },
     // Only re-render if the name or the number of tasks change
-    equalityFn: (a, b) => a?.name === b?.name && a?.taskCount === b?.taskCount,
+    equalityFn: (a, b) => {
+      if (a.loadingState !== "loaded" || b.loadingState !== "loaded")
+        return false;
+
+      return a?.name === b?.name && a?.taskCount === b?.taskCount;
+    },
   });
 
-  if (!project) {
-    return project === null
-      ? "Project not found or not accessible"
-      : "Loading...";
+  switch (project.loadingState) {
+    case "unauthorized":
+      return "Project not accessible";
+    case "unavailable":
+      return "Project not found";
+    case "loading":
+      return "Loading...";
   }
 
   return (
@@ -4698,25 +3857,93 @@ function ProjectView({ projectId }: { projectId: string }) {
 
 By default, the return values of the select function will be compared using `Object.is`, but you can use the `equalityFn` to add your own logic.
 
-You can also use `useAccountWithSelector` in the same way, to subscribe to only the changes in a user's account you are interested in.
+You can also use `useAccount` in the same way, to subscribe to only the changes in a user's account you are interested in.
 
 ```tsx
-import { useAccountWithSelector } from "jazz-tools/react";
+import { useAccount } from "jazz-tools/react";
 
 function ProfileName() {
   // Only re-renders when the profile name changes
-  const profileName = useAccountWithSelector(MyAppAccount, {
+  const profileName = useAccount(MyAppAccount, {
     resolve: {
       profile: true,
     },
-    select: (account) => (account ? account.profile.name : "Loading..."),
+    select: (account) =>
+      account.$isLoaded ? account.profile.name : "Loading...",
   });
 
   return <div>{profileName}</div>;
 }
 ```
 
-\--- End of react,react-native,react-native-expo specific section ---
+### Avoiding Expensive Selectors
+
+Selector functions optimise re-renders by only updating React state if the underlying CoValue has changed in a way that you care about.
+
+However, the selector function itself still runs on every CoValue update, even if your `equalityFn` returns `true` and your component does not re-render. Because of this, you should **avoid doing expensive computation inside a selector**.
+
+For expensive operations, use a lightweight selector which only tracks the minimum necessary to identify when the dependencies change, and run the expensive operations separately, wrapped in a `useMemo` hook.
+
+This way, React can [batch state updates efficiently](https://react.dev/learn/queueing-a-series-of-state-updates) and only recompute the expensive memoised operation if the dependencies have changed.
+
+```tsx
+function ProjectViewWithExpensiveOperations({
+  projectId,
+}: {
+  projectId: string;
+}) {
+  const project = useCoState(Project, projectId, {
+    resolve: {
+      tasks: {
+        $each: true,
+      },
+    },
+    select: (project) => {
+      if (!project.$isLoaded)
+        return {
+          loadingState: project.$jazz.loadingState,
+          tasks: [],
+          taskIds: [],
+        };
+      return {
+        name: project.name,
+        tasks: project.tasks,
+        loadingState: project.$jazz.loadingState,
+      };
+    },
+    equalityFn: (a, b) => {
+      if (a.loadingState !== "loaded" || b.loadingState !== "loaded")
+        return false;
+      if (a.name !== b.name) return false;
+      if (a.tasks.length !== b.tasks.length) return false;
+      const aTaskIds = new Set(a.tasks.map((t) => t.$jazz.id));
+      return b.tasks.every((t) => aTaskIds.has(t.$jazz.id));
+    },
+  });
+
+  const tasksAfterExpensiveComputations = useMemo(() => {
+    const sortedTasks = project.tasks.slice(0).sort(someExpensiveSortFunction);
+    const groupedTasks = sortedTasks.reduce(someExpensiveReduceFunction, {});
+    return groupedTasks;
+  }, [project.tasks]);
+
+  switch (project.loadingState) {
+    case "unauthorized":
+      return "Project not accessible";
+    case "unavailable":
+      return "Project not found";
+    case "loading":
+      return "Loading...";
+  }
+
+  return (
+    <div>
+      <h1>{project.name}</h1>
+      <GroupedTaskDisplay tasks={tasksAfterExpensiveComputations} />
+    </div>
+  );
+}
+```
 
 ## Ensuring data is loaded
 
@@ -4726,7 +3953,7 @@ In most cases, you'll have specified the depth of data you need in a `resolve` q
 async function completeAllTasks(projectId: string) {
   // Load the project
   const project = await Project.load(projectId, { resolve: true });
-  if (!project) return;
+  if (!project.$isLoaded) return;
 
   // Ensure tasks are deeply loaded
   const loadedProject = await project.$jazz.ensureLoaded({
@@ -4749,15 +3976,9 @@ This can be useful if you have a shallowly loaded CoValue instance, and would li
 ## Best practices
 
 - Load exactly what you need. Start shallow and add your nested references with care.
-- Handle all three states up front. Treat `undefined` as loading, `null` as not found or not accessible, and only render data for real values.
-- Use `$onError` at each level of your query that can fail.
-
-\--- Section applies only to react ---
-
+- Always check `$isLoaded` before accessing CoValue data. Use `$jazz.loadingState` for more detailed information.
+- Use `$onError: 'catch'` at each level of your query that can fail to handle inaccessible data gracefully.
 - Use selectors and an `equalityFn` to prevent unnecessary re-renders.
-
-\--- End of react specific section ---
-
 - Never rely on data being present unless it is requested in your `resolve` query.
 
 ### Sync and storage
@@ -4770,63 +3991,19 @@ For sync and storage, you can either use Jazz Cloud for zero-config magic, or ru
 
 Sign up for a free API key at [dashboard.jazz.tools](https://dashboard.jazz.tools) for higher limits or production use, or use your email address as a temporary key to get started quickly.
 
-\--- Section applies only to react ---
-
 **File name: .env**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: .env**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```bash
 NEXT_PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
 
 ```
 
-##### Svelte:
-
-```bash
-PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
-
-```
-
-\--- Section applies only to vanilla ---
-
-Replace the API key in the sync server URL with your API key.
-
-```
-wss://cloud.jazz.tools/?key=YOUR_API_KEY
-
-```
-
-\--- End of vanilla specific section ---
-
-\--- Section applies only to react,react-native,react-native-expo,svelte ---
-
 Replace the API key in the Jazz provider sync server URL with your API key:
 
-\--- End of react,react-native,react-native-expo,svelte specific section ---
-
-\--- Section applies only to react ---
-
 ```tsx
-import * as React from "react";
-import { JazzReactProvider } from "jazz-tools/react";
-/**
- * Get a free API Key at dashboard.jazz.tools, or use your email as a temporary key.
- *
- * @link https://dashboard.jazz.tools
- */
-const apiKey = "you@example.com";
-
-// ---cut---
 export function MyApp({ children }: { children: React.ReactNode }) {
+  // Get a free API Key at dashboard.jazz.tools, or use your email as a temporary key.
+  const apiKey = "you@example.com";
   return (
     <JazzReactProvider
       sync={{
@@ -4839,87 +4016,6 @@ export function MyApp({ children }: { children: React.ReactNode }) {
   );
 }
 ```
-
-\--- End of react specific section ---
-
-\--- Section applies only to react-native ---
-
-```tsx
-import * as React from "react";
-import { JazzReactNativeProvider } from "jazz-tools/react-native";
-/**
- * Get a free API Key at dashboard.jazz.tools, or use your email as a temporary key.
- *
- * @link https://dashboard.jazz.tools
- */
-const apiKey = "you@example.com";
-// ---cut---
-export function MyApp({ children }: { children: React.ReactNode }) {
-  return (
-    <JazzReactNativeProvider
-      sync={{
-        peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
-        // ...
-      }}
-    >
-      {children}
-    </JazzReactNativeProvider>
-  );
-}
-```
-
-\--- End of react-native specific section ---
-
-\--- Section applies only to react-native-expo ---
-
-```tsx
-import * as React from "react";
-import { JazzExpoProvider } from "jazz-tools/expo";
-/**
- * Get a free API Key at dashboard.jazz.tools, or use your email as a temporary key.
- *
- * @link https://dashboard.jazz.tools
- */
-const apiKey = "you@example.com";
-// ---cut---
-export function MyApp({ children }: { children: React.ReactNode }) {
-  return (
-    <JazzExpoProvider
-      sync={{
-        peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
-        // ...
-      }}
-    >
-      {children}
-    </JazzExpoProvider>
-  );
-}
-```
-
-\--- End of react-native-expo specific section ---
-
-\--- Section applies only to svelte ---
-
-```svelte
-<script lang="ts">
-  import { JazzSvelteProvider } from "jazz-tools/svelte";
-  import { MyAppAccount } from "$lib/schema";
-  let { children } = $props();
-  let apiKey = "Get a free API Key at dashboard.jazz.tools, or use your email as a temporary key.";
-</script>
-
-<JazzSvelteProvider
-  sync={{
-    peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
-  }}
-  AccountSchema={MyAppAccount}
->
-  {@render children()}
-</JazzSvelteProvider>
-
-```
-
-\--- End of svelte specific section ---
 
 Jazz Cloud will
 
@@ -4997,6 +4093,8 @@ Jazz provides several ways to authenticate users:
 - [**Clerk Integration**](/docs/key-features/authentication/clerk): Third-party authentication service with OAuth support
 - [**Better Auth**](/docs/key-features/authentication/better-auth): Self-hosted authentication service
 
+**Note**: For serverless authentication methods (passkey, passphrase), Jazz stores your account's credentials in your browser's local storage. This avoids needing to reauthenticate on every page load, but means you must take extra care to avoid [XSS attacks](https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/XSS). In particular, you should take care to [sanitise user input](https://github.com/cure53/DOMPurify), set [appropriate CSP headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP), and avoid third-party JavaScript wherever possible.
+
 ### Quickstart
 
 # Add Authentication to your App
@@ -5011,19 +4109,7 @@ If you haven't gone through the [front-end Quickstart](/docs/quickstart), you mi
 
 Jazz has a built-in passkey authentication component that you can use to add authentication to your app. This is the easiest way to get started with securely authenticating users into your application. By adding this component, when users access your app, they'll be greeted with an input where they can enter their name, and create a passkey.
 
-\--- Section applies only to react ---
-
 **File name: app/components/JazzWrapper.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/routes/+layout.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 "use client"; // tells Next.js that this component can't be server-side rendered. If you're not using Next.js, you can remove it.
@@ -5053,33 +4139,6 @@ export function JazzWrapper({ children }: { children: React.ReactNode }) {
 }
 ```
 
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  // [!code --:1]
-  import { JazzSvelteProvider } from "jazz-tools/svelte";
-  // [!code ++:1]
-  import { JazzSvelteProvider, PasskeyAuthBasicUI } from "jazz-tools/svelte";
-  import { JazzFestAccount } from "$lib/schema";
-  import { PUBLIC_JAZZ_API_KEY } from "$env/static/public";
-
-  const apiKey = PUBLIC_JAZZ_API_KEY;
-  let { children } = $props();
-  const sync = { peer: `wss://cloud.jazz.tools/?key=${apiKey}` };
-</script>
-
-<JazzSvelteProvider {sync} AccountSchema={JazzFestAccount}>
-  <!-- [!code ++:1] -->
-  <PasskeyAuthBasicUI appName="JazzFest">
-    {@render children?.()}
-  </PasskeyAuthBasicUI>
-</JazzSvelteProvider>
-
-```
-
-\--- Section applies only to react ---
-
 Already completed the server-side rendering guide?
 
 You'll need to make a couple of small changes to your structure in order for this to work on the server. In particular, we only want to display the passkey auth UI on the client, otherwise, we should just render on the child.
@@ -5094,7 +4153,7 @@ import { JazzReactProvider, PasskeyAuthBasicUI } from "jazz-tools/react";
 import {
   JazzReactProvider,
   PasskeyAuthBasicUI,
-  useAccount,
+  useAgent,
 } from "jazz-tools/react";
 import { JazzFestAccount } from "@/app/schema";
 
@@ -5119,7 +4178,7 @@ export function JazzWrapper({ children }: { children: React.ReactNode }) {
 
 // [!code ++:10]
 export function Auth({ children }: { children: React.ReactNode }) {
-  const { agent } = useAccount();
+  const agent = useAgent();
   const isGuest = agent.$type$ !== "Account";
   if (isGuest) return children;
   return <PasskeyAuthBasicUI appName="JazzFest">{children}</PasskeyAuthBasicUI>;
@@ -5128,23 +4187,12 @@ export function Auth({ children }: { children: React.ReactNode }) {
 
 You'll also need to be aware that the server agent can only render public CoValues.
 
-\--- End of react specific section ---
-
 ## Give it a go!
 
 ... what, already?! Yes! Run your app and try creating a passkey and logging in!
 
-##### npm:
-
 ```bash
 npm run dev
-
-```
-
-##### pnpm:
-
-```bash
-pnpm run dev
 
 ```
 
@@ -5168,19 +4216,7 @@ So, let's add a secondary login method using a passphrase. You can integrate [as
 
 The `PasskeyAuthBasicUI` component is not customisable, so we'll implement our own Auth component so that we can extend it.
 
-\--- Section applies only to react ---
-
 **File name: app/components/Auth.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/lib/components/Auth.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 import { useState } from "react";
@@ -5211,43 +4247,9 @@ export function Auth({ children }: { children: React.ReactNode }) {
 }
 ```
 
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  import { usePasskeyAuth } from 'jazz-tools/svelte';
-  const { children } = $props();
-  const auth = usePasskeyAuth({ appName: 'JazzFest' });
-  let name = $state('');
-</script>
-
-{#if auth.current.state === "signedIn"}
-  {@render children?.()}
-{:else}
-  <div>
-    <button onclick={() => auth.current.logIn()}>Log in</button>
-    <input type="text" bind:value={name} />
-    <button onclick={() => auth.current.signUp(name)}>Sign up</button>
-  </div>
-{/if}
-
-```
-
 ### Use your new component
 
-\--- Section applies only to react ---
-
 **File name: app/components/JazzWrapper.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/routes/+layout.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 "use client"; // tells Next.js that this component can't be server-side rendered. If you're not using Next.js, you can remove it.
@@ -5255,6 +4257,7 @@ export function Auth({ children }: { children: React.ReactNode }) {
 import { JazzReactProvider, PasskeyAuthBasicUI } from "jazz-tools/react";
 // [!code ++:1]
 import { JazzReactProvider } from "jazz-tools/react";
+import { Auth } from "./Auth.tsx";
 import { JazzFestAccount } from "@/app/schema";
 
 const apiKey = process.env.NEXT_PUBLIC_JAZZ_API_KEY;
@@ -5276,36 +4279,6 @@ export function JazzWrapper({ children }: { children: React.ReactNode }) {
 }
 ```
 
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  // [!code --:1]
-  import { JazzSvelteProvider, PasskeyAuthBasicUI } from "jazz-tools/svelte";
-  // [!code ++:2]
-  import { JazzSvelteProvider } from "jazz-tools/svelte";
-  import Auth from '$lib/components/Auth.svelte';
-  import { JazzFestAccount } from "$lib/schema";
-  import { PUBLIC_JAZZ_API_KEY } from "$env/static/public";
-
-  const apiKey = PUBLIC_JAZZ_API_KEY;
-  let { children } = $props();
-  const sync = { peer: `wss://cloud.jazz.tools/?key=${apiKey}` };
-</script>
-
-<JazzSvelteProvider {sync} AccountSchema={JazzFestAccount}>
-  <!-- [!code --:3] -->
-  <PasskeyAuthBasicUI appName="JazzFest">
-    {@render children?.()}
-  </PasskeyAuthBasicUI>
-  <!-- [!code ++:3] -->
-  <Auth>
-    {@render children?.()}
-  </Auth>
-</JazzSvelteProvider>
-
-```
-
 ### Show recovery key
 
 Jazz allows you to generate a passphrase from a wordlist which can be used to log in to an account. This passphrase will work regardless of how the account was originally created (passkey, Clerk, BetterAuth, etc.). Each account will always have the same recovery key.
@@ -5324,15 +4297,13 @@ export const wordlist = [
 
 We'll import this, and add a textarea into our auth component which will show the recovery key for the current user's account.
 
-##### React:
-
 ```tsx
 import { useState } from "react";
 // [!code --:1]
 import { usePasskeyAuth } from "jazz-tools/react";
 // [!code ++:2]
 import { usePasskeyAuth, usePassphraseAuth } from "jazz-tools/react";
-import wordlist from "./wordlist"; // or the path to your wordlist
+import { wordlist } from "./wordlist"; // or the path to your wordlist
 
 export function Auth({ children }: { children: React.ReactNode }) {
   const [name, setName] = useState("");
@@ -5368,39 +4339,6 @@ export function Auth({ children }: { children: React.ReactNode }) {
 }
 ```
 
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  // [!code --:1]
-  import { usePasskeyAuth } from 'jazz-tools/svelte';
-  // [!code ++:3]
-  import { usePasskeyAuth, usePassphraseAuth } from 'jazz-tools/svelte';
-  import { wordlist } from './wordlist';
-  const { children } = $props();
-  const passphraseAuth = usePassphraseAuth({ wordlist });
-  const auth = usePasskeyAuth({ appName: 'JazzFest' });
-  let name = $state('');
-</script>
-
-{#if auth.current.state === "signedIn"}
-  {@render children?.()}
-  <!-- [!code ++:5] -->
-  <textarea
-    readonly
-    value={passphraseAuth.passphrase}
-    rows={5}
-  />
-{:else}
-  <div>
-    <button onclick={() => auth.current.logIn()}>Log in</button>
-    <input type="text" bind:value={name} />
-    <button onclick={() => auth.current.signUp(name)}>Sign up</button>
-  </div>
-{/if}
-
-```
-
 **Warning: Security Warning**
 
 This 'recovery key' is a method of authenticating into an account, and if compromised, it _cannot_ be changed! You should impress on your users the importance of keeping this key secret.
@@ -5409,12 +4347,10 @@ This 'recovery key' is a method of authenticating into an account, and if compro
 
 Now you're displaying a recovery key to users, so we'll allow users to login using a saved recovery key by extending the Auth component a little further.
 
-##### React:
-
 ```tsx
 import { useState } from "react";
 import { usePasskeyAuth, usePassphraseAuth } from "jazz-tools/react";
-import wordlist from "./wordlist"; // or the path to your wordlist
+import { wordlist } from "./wordlist"; // or the path to your wordlist
 
 export function Auth({ children }: { children: React.ReactNode }) {
   const [name, setName] = useState("");
@@ -5460,45 +4396,6 @@ export function Auth({ children }: { children: React.ReactNode }) {
     </>
   );
 }
-```
-
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  import { usePasskeyAuth, usePassphraseAuth } from 'jazz-tools/svelte';
-  import { wordlist } from './wordlist';
-  const { children } = $props();
-  const passphraseAuth = usePassphraseAuth({ wordlist });
-  const auth = usePasskeyAuth({ appName: 'JazzFest' });
-  let name = $state('');
-  // [!code ++:1]
-  let passphrase = $state('');
-</script>
-
-{#if auth.current.state === "signedIn"}
-  {@render children?.()}
-  <textarea
-    readonly
-    value={passphraseAuth.passphrase}
-    rows={5}
-  />
-{:else}
-  <div>
-    <button onclick={() => auth.current.logIn()}>Log in</button>
-    <input type="text" bind:value={name} />
-    <button onclick={() => auth.current.signUp(name)}>Sign up</button>
-    <!-- [!code ++:7] -->
-    <textarea
-      bind:value={passphrase}
-      rows={5}
-    />
-    <button onClick={() => passphraseAuth.logIn(passphrase)}>
-      Sign In with Passphrase
-    </button>
-  </div>
-{/if}
-
 ```
 
 **Info: Tip**
@@ -5548,17 +4445,13 @@ When a user loads a Jazz application for the first time, we create a new Account
 
 ## Detecting Authentication State
 
-You can detect the current authentication state using `useAccount` and `useIsAuthenticated`.
-
-\--- Section applies only to react ---
+You can detect the current authentication state using `useAgent` and `useIsAuthenticated`.
 
 ```tsx
-import * as React from "react";
-// ---cut---
-import { useAccount, useIsAuthenticated } from "jazz-tools/react";
+import { useAgent, useIsAuthenticated } from "jazz-tools/react";
 
 function AuthStateIndicator() {
-  const { agent } = useAccount();
+  const agent = useAgent();
   const isAuthenticated = useIsAuthenticated();
 
   // Check if guest mode is enabled in JazzReactProvider
@@ -5576,8 +4469,6 @@ function AuthStateIndicator() {
 }
 ```
 
-\--- End of react specific section ---
-
 ## Migrating data from anonymous to authenticated account
 
 When a user signs up, their anonymous account is transparently upgraded to an authenticated account, preserving all their data.
@@ -5587,28 +4478,6 @@ However, if a user has been using your app anonymously and later logs in with an
 This example from our [music player example app](https://github.com/garden-co/jazz/tree/main/examples/music-player) shows how to migrate data:
 
 ```ts
-import { co, z, Group } from "jazz-tools";
-
-const MusicTrack = co.map({
-  title: z.string(),
-  duration: z.number(),
-  isExampleTrack: z.boolean().optional(),
-});
-const Playlist = co.map({
-  title: z.string(),
-  tracks: co.list(MusicTrack),
-});
-const MusicaAccountRoot = co.map({
-  rootPlaylist: Playlist,
-});
-
-const MusicaAccount = co.account({
-  root: MusicaAccountRoot,
-  profile: co.profile(),
-});
-type MusicaAccount = co.loaded<typeof MusicaAccount>;
-
-// ---cut---
 export async function onAnonymousAccountDiscarded(
   anonymousAccount: MusicaAccount,
 ) {
@@ -5667,24 +4536,7 @@ You can control network sync with [Providers](/docs/project-setup/providers/) ba
 - `when: "signedUp"`: Sync is enabled when the user is authenticated
 - `when: "never"`: Sync is disabled, content stays local
 
-\--- Section applies only to react ---
-
 ```tsx
-import * as React from "react";
-import { JazzReactProvider } from "jazz-tools/react";
-
-/**
- * Use your email as a temporary key, or get a free
- * API Key at dashboard.jazz.tools for higher limits.
- *
- * @link https://dashboard.jazz.tools
- */
-const apiKey = "you@example.com";
-
-function App() {
-  return <div>Hello World</div>;
-}
-// ---cut---
 <JazzReactProvider
   sync={{
     peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
@@ -5694,10 +4546,8 @@ function App() {
   }}
 >
   <App />
-</JazzReactProvider>;
+</JazzReactProvider>
 ```
-
-\--- End of react specific section ---
 
 ### Disable sync for Anonymous Authentication
 
@@ -5705,23 +4555,7 @@ You can disable network sync to make your app local-only under specific circumst
 
 For example, you may want to give users with Anonymous Authentication the opportunity to try your app locally-only (incurring no sync traffic), then enable network sync only when the user is fully authenticated.
 
-\--- Section applies only to react ---
-
 ```tsx
-import * as React from "react";
-import { JazzReactProvider } from "jazz-tools/react";
-
-/**
- * Use your email as a temporary key, or get a free
- * API Key at dashboard.jazz.tools for higher limits.
- *
- * @link https://dashboard.jazz.tools
- */
-const apiKey = "you@example.com";
-function App() {
-  return <div>Hello World</div>;
-}
-// ---cut---
 <JazzReactProvider
   sync={{
     peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
@@ -5730,33 +4564,14 @@ function App() {
   }}
 >
   <App />
-</JazzReactProvider>;
+</JazzReactProvider>
 ```
 
-\--- End of react specific section ---
-
-### Configuring Guest Mode Access
+### Configuring Guest Mode Access \[!framework=react,react-native,react-native-expo,svelte\]
 
 You can configure Guest Mode access with the `guestMode` prop for [Providers](/docs/project-setup/providers/).
 
-\--- Section applies only to react ---
-
 ```tsx
-import * as React from "react";
-import { JazzReactProvider } from "jazz-tools/react";
-
-/**
- * Use your email as a temporary key, or get a free
- * API Key at dashboard.jazz.tools for higher limits.
- *
- * @link https://dashboard.jazz.tools
- */
-const apiKey = "you@example.com";
-
-function App() {
-  return <div>Hello World</div>;
-}
-// ---cut---
 <JazzReactProvider
   // Enable Guest Mode for public content
   guestMode={true}
@@ -5767,10 +4582,8 @@ function App() {
   }}
 >
   <App />
-</JazzReactProvider>;
+</JazzReactProvider>
 ```
-
-\--- End of react specific section ---
 
 For more complex behaviours, you can manually control sync by statefully switching when between `"always"` and `"never"`.
 
@@ -5796,17 +4609,7 @@ Passkey authentication is based on the [Web Authentication API](https://develope
 
 Using passkeys in Jazz is as easy as this:
 
-##### React:
-
 ```tsx
-import * as React from "react";
-import { useState } from "react";
-import { usePasskeyAuth } from "jazz-tools/react";
-type AuthModalProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-};
-// ---cut---
 export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [username, setUsername] = useState("");
 
@@ -5842,31 +4645,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     </div>
   );
 }
-```
-
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  import { usePasskeyAuth } from 'jazz-tools/svelte';
-  const auth = usePasskeyAuth({ appName: 'My super-cool web app' });
-  let username = $state('');
-
-  async function handleSignUp(e: Event) {
-    await auth.current.signUp(username);
-  }
-
-  asyn function handleLogIn(e: Event) {
-    await auth.current.logIn();
-  }
-</script>
-
-<div>
-  <button onclick={handleLogIn}>Log in</button>
-  <input type="text" bind:value={username} />
-  <button onclick={handleSignUp}>Sign up</button>
-</div>
-
 ```
 
 ## Examples
@@ -5926,43 +4704,9 @@ You can use one of the ready-to-use wordlists from the [BIP39 repository](https:
 
 ## Implementation
 
-\--- Section applies only to react ---
+You can implement passphrase authentication in your application quickly and easily:
 
 ```tsx
-// @filename: wordlist.ts
-export const wordlist = [
-  "apple",
-  "banana",
-  "cherry",
-  "date",
-  "elderberry",
-  "fig",
-  "grape",
-  "honeydew",
-  "kiwi",
-  "lemon",
-  "mango",
-  "orange",
-  "pear",
-  "quince",
-  "raspberry",
-  "strawberry",
-  "tangerine",
-  "uva",
-  "watermelon",
-  "xigua",
-  "yuzu",
-  "zucchini",
-];
-// @filename: AuthModal.tsx
-import * as React from "react";
-import { useState } from "react";
-import { usePassphraseAuth } from "jazz-tools/react";
-type AuthModalProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-};
-// ---cut---
 import { wordlist } from "./wordlist";
 
 export function AuthModal({ open, onOpenChange }: AuthModalProps) {
@@ -6010,103 +4754,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   );
 }
 ```
-
-\--- End of react specific section ---
-
-\--- Section applies only to react-native,react-native-expo ---
-
-```tsx
-// @filename: wordlist.ts
-export const wordlist = [
-  "apple",
-  "banana",
-  "cherry",
-  "date",
-  "elderberry",
-  "fig",
-  "grape",
-  "honeydew",
-  "kiwi",
-  "lemon",
-  "mango",
-  "orange",
-  "pear",
-  "quince",
-  "raspberry",
-  "strawberry",
-  "tangerine",
-  "uva",
-  "watermelon",
-  "xigua",
-  "yuzu",
-  "zucchini",
-];
-// @filename: AuthModal.tsx
-import * as React from "react";
-import { View, TextInput, Button, Text } from "react-native";
-import { useState } from "react";
-import { usePassphraseAuth } from "jazz-tools/react-native";
-
-type AuthModalProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-};
-// ---cut---
-import { wordlist } from "./wordlist";
-
-export function AuthModal({ open, onOpenChange }: AuthModalProps) {
-  const [loginPassphrase, setLoginPassphrase] = useState("");
-
-  const auth = usePassphraseAuth({
-    wordlist: wordlist,
-  });
-
-  if (auth.state === "signedIn") {
-    return <Text>You are already signed in</Text>;
-  }
-
-  const handleSignUp = async () => {
-    await auth.signUp();
-    onOpenChange(false);
-  };
-
-  const handleLogIn = async () => {
-    await auth.logIn(loginPassphrase);
-    onOpenChange(false);
-  };
-
-  return (
-    <View>
-      <View>
-        <Text>Your current passphrase</Text>
-        <TextInput
-          editable={false}
-          value={auth.passphrase}
-          multiline
-          numberOfLines={5}
-        />
-      </View>
-
-      <Button title="I have stored my passphrase" onPress={handleSignUp} />
-
-      <View>
-        <Text>Log in with your passphrase</Text>
-        <TextInput
-          value={loginPassphrase}
-          onChangeText={setLoginPassphrase}
-          placeholder="Enter your passphrase"
-          multiline
-          numberOfLines={5}
-        />
-      </View>
-
-      <Button title="Log in" onPress={handleLogIn} />
-    </View>
-  );
-}
-```
-
-\--- End of react-native,react-native-expo specific section ---
 
 ## Examples
 
@@ -6188,8 +4835,9 @@ The `jazz-tools/better-auth/auth` plugin provides both server-side and client-si
 
 Add the `jazzPlugin` to the Better Auth instance:
 
-```typescript
-// src/lib/auth.ts
+**File name: src/lib/auth.ts**
+
+```ts
 import { betterAuth } from "better-auth";
 import { jazzPlugin } from "jazz-tools/better-auth/auth/server";
 
@@ -6204,6 +4852,20 @@ export const auth = betterAuth({
   // rest of the Better Auth configuration
   // like database, email/password authentication, social providers, etc.
 });
+
+export const authWithHooks = betterAuth({
+  plugins: [jazzPlugin()],
+  databaseHooks: {
+    user: {
+      create: {
+        async after(user) {
+          // Here we can send a welcome email to the user
+          console.log("User created with Jazz Account ID:", user.accountID);
+        },
+      },
+    },
+  },
+});
 ```
 
 Now run [migrations](https://www.better-auth.com/docs/concepts/database#running-migrations) to add the new fields to the users table.
@@ -6216,8 +4878,9 @@ The server-side plugin intercepts the custom header `x-jazz-auth` sent by client
 
 Create the Better Auth client with the Jazz plugin:
 
-```typescript
-// src/lib/auth-client.ts
+**File name: src/lib/auth-client.ts**
+
+```ts
 "use client";
 
 import { createAuthClient } from "better-auth/client";
@@ -6231,17 +4894,13 @@ export const betterAuthClient = createAuthClient({
 });
 ```
 
-\--- Section applies only to react,react-native,react-native-expo ---
-
 Wrap your app with the `AuthProvider`, passing the `betterAuthClient` instance:
 
-```typescript
-// src/App.tsx
+```ts
 "use client";
 
 import { AuthProvider } from "jazz-tools/better-auth/auth/react";
 import { betterAuthClient } from "@/lib/auth-client";
-
 
 export function App() {
   return (
@@ -6258,23 +4917,6 @@ export function App() {
 
 The AuthProvider component uses the `better-auth/client` package, not `better-auth/react`. To verify the authentication state in your app, see [Authentication states](#authentication-states).
 
-\--- End of react,react-native,react-native-expo specific section ---
-
-\--- Section applies only to vanilla,svelte ---
-
-Set JazzContext and AuthSecretStorage in the Better Auth client:
-
-```ts
-const jazzContext = // get the singleton from your own implementation
-const authSecretStorage = // get the singleton from your own implementation
-
-betterAuthClient.jazz.setJazzContext(jazzContext);
-betterAuthClient.jazz.setAuthSecretStorage(authSecretStorage);
-
-```
-
-\--- End of vanilla,svelte specific section ---
-
 ## Authentication methods
 
 The Jazz plugin intercepts the Better Auth client's calls, so you can use the Better Auth [methods](https://www.better-auth.com/docs/basic-usage) as usual.
@@ -6282,8 +4924,7 @@ The Jazz plugin intercepts the Better Auth client's calls, so you can use the Be
 Here is how to sign up with email and password, and transform an anonymous Jazz account into a logged in user authenticated by Better Auth:
 
 ```ts
-import { betterAuthClient } from "@/lib/auth-client";
-
+const me = Account.getMe();
 await betterAuthClient.signUp.email(
   {
     email: "email@example.com",
@@ -6293,8 +4934,8 @@ await betterAuthClient.signUp.email(
   {
     onSuccess: async () => {
       // Don't forget to update the profile's name. It's not done automatically.
-      if (account?.me?.profile) {
-        account.me.profile.$jazz.set("name", "John Doe");
+      if (me.profile.$isLoaded) {
+        me.profile.$jazz.set("name", "John Doe");
       }
     },
   },
@@ -6304,8 +4945,6 @@ await betterAuthClient.signUp.email(
 You can then use the `signIn` and `signOut` methods on the `betterAuthClient`:
 
 ```ts
-import { betterAuthClient } from "@/lib/auth-client";
-
 await betterAuthClient.signIn.email({
   email: "email@example.com",
   password: "password",
@@ -6325,10 +4964,7 @@ You can use Better Auth's [native methods](https://www.better-auth.com/docs/basi
 Better Auth provides [database hooks](https://www.better-auth.com/docs/reference/options#databasehooks) to run code when things happen. When using the Jazz, the user's Jazz account ID is always available in the `user` object. This means you can access it anywhere in Better Auth hooks.
 
 ```ts
-import { betterAuth } from "better-auth";
-import { jazzPlugin } from "jazz-tools/better-auth/auth/server";
-
-export const auth = betterAuth({
+export const authWithHooks = betterAuth({
   plugins: [jazzPlugin()],
   databaseHooks: {
     user: {
@@ -6366,7 +5002,7 @@ Although all workers have the same capabilities, we recommend to use different w
 
 1. Setup the database adapter on Better Auth server instance.
 
-```typescript
+```ts
 import { betterAuth } from "better-auth";
 import { JazzBetterAuthDatabaseAdapter } from "jazz-tools/better-auth/database-adapter";
 const apiKey = process.env.JAZZ_API_KEY;
@@ -6394,7 +5030,7 @@ Internally it uses specialized repository for known models like `User`, `Session
 
 The easiest way to access the database is using the same Server Worker's credentials and access the table we're looking for.
 
-```typescript
+```ts
 import { startWorker } from "jazz-tools/worker";
 import { co, z } from "jazz-tools";
 const apiKey = process.env.JAZZ_API_KEY;
@@ -6418,7 +5054,7 @@ const DatabaseRoot = co.map({
 
 const db = await DatabaseRoot.loadUnique(
   "better-auth-root",
-  process.env.WORKER_ACCOUNT_ID,
+  process.env.WORKER_ACCOUNT_ID!,
   {
     resolve: {
       tables: {
@@ -6430,15 +5066,17 @@ const db = await DatabaseRoot.loadUnique(
   },
 );
 
-console.log(db.tables.user);
+if (db.$isLoaded) {
+  console.log(db.tables.user);
+}
 ```
 
 ## Rotating the worker's credentials
 
 If you need to change the worker, you can create a new one and add it to the master Group.
 
-```typescript
-import { Account } from "jazz-tools";
+```ts
+import { Account, Group, co } from "jazz-tools";
 import { startWorker } from "jazz-tools/worker";
 const apiKey = process.env.JAZZ_API_KEY;
 
@@ -6456,7 +5094,7 @@ const DatabaseRoot = co.map({
 
 const db = await DatabaseRoot.loadUnique(
   "better-auth-root",
-  process.env.WORKER_ACCOUNT_ID,
+  process.env.WORKER_ACCOUNT_ID!,
   {
     loadAs: worker,
     resolve: {
@@ -6467,34 +5105,37 @@ const db = await DatabaseRoot.loadUnique(
 );
 
 // Load the new worker account
-const newWorkerRef = await Account.load(process.env.NEW_WORKER_ACCOUNT_ID);
+const newWorkerRef = await co
+  .account()
+  .load(process.env.NEW_WORKER_ACCOUNT_ID!);
 
-// Add the new worker to the group as admin
-db.group.$jazz.addMember(newWorkerRef, "admin");
+if (db.$isLoaded && newWorkerRef.$isLoaded) {
+  // Add the new worker to the group as admin
+  db.group.addMember(newWorkerRef, "admin");
+  await db.group.$jazz.waitForSync();
 
-await db.group.$jazz.waitForSync();
+  // Now the new worker can access the tables
+  const { worker: newWorker } = await startWorker({
+    syncServer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+    accountID: process.env.NEW_WORKER_ACCOUNT_ID,
+    accountSecret: process.env.NEW_WORKER_ACCOUNT_SECRET,
+  });
 
-// Now the new worker can access the tables
-const { worker: newWorker } = await startWorker({
-  syncServer: `wss://cloud.jazz.tools/?key=${apiKey}`,
-  accountID: process.env.NEW_WORKER_ACCOUNT_ID,
-  accountSecret: process.env.NEW_WORKER_ACCOUNT_SECRET,
-});
+  // Create the database root on the new worker with the same group's and tables' references
+  await DatabaseRoot.upsertUnique({
+    unique: "better-auth-root",
+    value: {
+      group: db.group,
+      tables: db.tables,
+    },
+    owner: newWorker,
+  });
 
-// Create the database root on the new worker with the same group's and tables' references
-await DatabaseRoot.upsertUnique({
-  unique: "better-auth-root",
-  value: {
-    group: db.group,
-    tables: db.tables,
-  },
-  owner: newWorker,
-});
+  // Now the new worker can be used for the Database Adapter.
 
-// Now the new worker can be used for the Database Adapter.
-
-// Don't forget to remove the old worker from the group
-db.group.$jazz.removeMember(worker);
+  // Don't forget to remove the old worker from the group
+  db.group.removeMember(worker);
+}
 ```
 
 **Warning: Security**
@@ -6539,7 +5180,7 @@ While creating CoValues with Accounts as owners is still technically possible fo
 | Can add admins\*                   | ✅           | ❌                   | ❌              | ❌                | ❌     |
 | Can add/remove managers            | ✅           | ❌                   | ❌              | ❌                | ❌     |
 | Can add/remove readers and writers | ✅           | ✅                   | ❌              | ❌                | ❌     |
-| Can write                          | ✅           | ✅                   | ✅              | ✅\*              | ❌     |
+| Can write                          | ✅           | ✅                   | ✅              | ✅\*\*            | ❌     |
 | Can read                           | ✅           | ✅                   | ✅              | ❌\*\*\*          | ✅     |
 
 \* `admin` users cannot be removed by anyone else, they must leave the group themselves.
@@ -6552,7 +5193,7 @@ While creating CoValues with Accounts as owners is still technically possible fo
 
 Here's how you can create a `Group`.
 
-```tsx
+```ts
 import { Group } from "jazz-tools";
 
 const group = Group.create();
@@ -6564,39 +5205,13 @@ You typically add members using [public sharing](/docs/permissions-and-sharing/s
 
 ## Adding group members by ID
 
-You can add group members by ID by using `Account.load` and `Group.addMember`.
+You can add group members by ID by using `co.account().load` and `Group.addMember`.
 
 ```tsx
-const bobsID = "co_z123";
+import { co } from "jazz-tools";
+const bob = await co.account().load(bobsId);
 
-// ---cut---
-import { Group, co } from "jazz-tools";
-
-const group = Group.create();
-
-const bob = await co.account().load(bobsID);
-
-if (bob) {
-  group.addMember(bob, "writer");
-}
-```
-
-**Note:**
-
-- Both `Account.load(id)` and `co.account().load(id)` do the same thing — they load an account from its ID.
-
-```tsx
-const bobsID = "co_z123";
-import { Group } from "jazz-tools";
-const group = Group.create();
-
-// ---cut---
-import { ID, Account, co } from "jazz-tools";
-
-const bob = await Account.load(bobsID);
-// Or: const bob = await co.account().load(bobsID);
-
-if (bob) {
+if (bob.$isLoaded) {
   group.addMember(bob, "writer");
 }
 ```
@@ -6606,12 +5221,9 @@ if (bob) {
 To change a member's role, use the `addMember` method.
 
 ```ts
-import { Group } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const bob = await createJazzTestAccount();
-const group = Group.create();
-// ---cut---
-group.addMember(bob, "reader");
+if (bob.$isLoaded) {
+  group.addMember(bob, "reader");
+}
 ```
 
 Bob just went from a writer to a reader.
@@ -6623,12 +5235,9 @@ Bob just went from a writer to a reader.
 To remove a member, use the `removeMember` method.
 
 ```ts
-import { Group } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const bob = await createJazzTestAccount();
-const group = Group.create();
-// ---cut---
-group.removeMember(bob);
+if (bob.$isLoaded) {
+  group.removeMember(bob);
+}
 ```
 
 Rules:
@@ -6642,16 +5251,7 @@ Rules:
 You can get the group of an existing CoValue by using `coValue.$jazz.owner`.
 
 ```ts
-import { createJazzTestAccount } from "jazz-tools/testing";
-import { co, z } from "jazz-tools";
-const existingCoValue = await createJazzTestAccount();
-
-const MyCoMap = co.map({
-  color: z.string(),
-});
-
-// ---cut---
-const group = existingCoValue.$jazz.owner;
+const owningGroup = existingCoValue.$jazz.owner;
 const newValue = MyCoMap.create({ color: "red" }, { owner: group });
 ```
 
@@ -6660,22 +5260,16 @@ const newValue = MyCoMap.create({ color: "red" }, { owner: group });
 You can check the permissions of an account on a CoValue by using the `canRead`, `canWrite`, `canManage` and `canAdmin` methods.
 
 ```ts
-import { co, z } from "jazz-tools";
+const red = MyCoMap.create({ color: "red" });
+const me = co.account().getMe();
 
-const MyCoMap = co.map({
-  color: z.string(),
-});
-// ---cut---
-const value = await MyCoMap.create({ color: "red" });
-const me = await co.account().getMe();
-
-if (me.canAdmin(value)) {
+if (me.canAdmin(red)) {
   console.log("I can add users of any role");
-} else if (me.canManage(value)) {
+} else if (me.canManage(red)) {
   console.log("I can share value with others");
-} else if (me.canWrite(value)) {
+} else if (me.canWrite(red)) {
   console.log("I can edit value");
-} else if (me.canRead(value)) {
+} else if (me.canRead(red)) {
   console.log("I can view value");
 } else {
   console.log("I cannot access value");
@@ -6685,27 +5279,18 @@ if (me.canAdmin(value)) {
 To check the permissions of another account, you need to load it first:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
+const blue = MyCoMap.create({ color: "blue" });
+const alice = await co.account().load(alicesId);
 
-const MyCoMap = co.map({
-  color: z.string(),
-});
-const account = await createJazzTestAccount();
-const accountID = account.$jazz.id;
-// ---cut---
-const value = await MyCoMap.create({ color: "red" });
-const bob = await co.account().load(accountID);
-
-if (bob) {
-  if (bob.canAdmin(value)) {
-    console.log("Bob can share value with others");
-  } else if (bob.canWrite(value)) {
-    console.log("Bob can edit value");
-  } else if (bob.canRead(value)) {
-    console.log("Bob can view value");
+if (alice.$isLoaded) {
+  if (alice.canAdmin(blue)) {
+    console.log("Alice can share value with others");
+  } else if (alice.canWrite(blue)) {
+    console.log("Alice can edit value");
+  } else if (alice.canRead(blue)) {
+    console.log("Alice can view value");
   } else {
-    console.log("Bob cannot access value");
+    console.log("Alice cannot access value");
   }
 }
 ```
@@ -6732,19 +5317,7 @@ Let's create an invite link that others can use to access our data. We'll create
 
 When we create a link, we can choose what level of permission to grant. Here, we want others to be able to collaborate, so we'll grant `writer` permissions.
 
-\--- Section applies only to react ---
-
 **File name: app/components/Festival.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/lib/components/Festival.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 "use client";
@@ -6759,10 +5332,10 @@ import { JazzFestAccount } from "@/app/schema";
 export function Festival() {
   // [!code ++:1]
   const [inviteLink, setInviteLink] = useState<string>("");
-  const { me } = useAccount(JazzFestAccount, {
-    resolve: { root: { myFestival: true } },
+  const me = useAccount(JazzFestAccount, {
+    resolve: { root: { myFestival: { $each: true } } },
   });
-  if (!me) return null; // not loaded yet
+  if (!me.$isLoaded) return null;
   // [!code ++:4]
   const inviteLinkClickHandler = () => {
     const link = createInviteLink(me.root.myFestival, "writer");
@@ -6772,9 +5345,9 @@ export function Festival() {
     // [!code ++:1]
     <>
       <ul>
-        {me.root.myFestival.map(
-          (band) => band && <li key={band.$jazz.id}>{band.name}</li>,
-        )}
+        {me.root.myFestival.map((band) => (
+          <li key={band.$jazz.id}>{band.name}</li>
+        ))}
       </ul>
       {/* [!code ++:5] */}
       <input type="text" value={inviteLink} readOnly />
@@ -6784,65 +5357,16 @@ export function Festival() {
 }
 ```
 
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  // [!code --:1]
-  import { AccountCoState } from "jazz-tools/svelte";
-  // [!code ++:1]
-  import { AccountCoState, createInviteLink } from "jazz-tools/svelte";
-  import { JazzFestAccount } from "$lib/schema";
-
-  const me = new AccountCoState(JazzFestAccount, {
-    resolve: { root: { myFestival: true } }
-  });
-  // [!code ++:7]
-  let inviteLink = $state<string | null>(null);
-
-  function inviteLinkClickHandler() {
-    if (!me.current) return; // not loaded yet
-    const link = createInviteLink(me.current?.root.myFestival, "writer")
-    inviteLink = link;
-  }
-</script>
-
-<ul>
-  {#each me.current?.root?.myFestival || [] as band}
-    <li>{band?.name}</li>
-  {/each}
-</ul>
-
-<input type="text" bind:value={inviteLink} readonly />
-<button onclick={inviteLinkClickHandler}>
-  Create Invite Link
-</button>
-
-```
-
 ## Accept an invite
 
 Now we need to set up a way for Jazz to handle the links for the users who are following them.
 
 Jazz provides a handler which we can add to our `Festival` component to accept the invite. This will automatically fire when there's an invite link in the URL, and grant the user the right accesses.
 
-\--- Section applies only to react ---
-
 **File name: app/components/Festival.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/lib/components/Festival.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 "use client";
-// [!code --:1]
 import { createInviteLink, useAccount } from "jazz-tools/react";
 // [!code ++:2]
 import {
@@ -6860,8 +5384,8 @@ import { Festival as FestivalSchema, JazzFestAccount } from "@/app/schema";
 
 export function Festival() {
   const [inviteLink, setInviteLink] = useState<string>("");
-  const { me } = useAccount(JazzFestAccount, {
-    resolve: { root: { myFestival: true } },
+  const me = useAccount(JazzFestAccount, {
+    resolve: { root: { myFestival: { $each: true } } },
   });
   // [!code ++:7]
   const router = useRouter();
@@ -6871,7 +5395,7 @@ export function Festival() {
       router.push(`/festival/${festivalID}`);
     },
   });
-  if (!me) return null; // not loaded yet
+  if (!me.$isLoaded) return null;
 
   const inviteLinkClickHandler = () => {
     const link = createInviteLink(me.root.myFestival, "writer");
@@ -6880,9 +5404,9 @@ export function Festival() {
   return (
     <>
       <ul>
-        {me.root.myFestival.map(
-          (band) => band && <li key={band.$jazz.id}>{band.name}</li>,
-        )}
+        {me.root.myFestival.map((band) => (
+          <li key={band.$jazz.id}>{band.name}</li>
+        ))}
       </ul>
       <input type="text" value={inviteLink} readOnly />
       <button onClick={inviteLinkClickHandler}>Create Invite Link</button>
@@ -6890,53 +5414,6 @@ export function Festival() {
   );
 }
 ```
-
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  // [!code --:2]
-  import { AccountCoState, createInviteLink } from "jazz-tools/svelte";
-  import { JazzFestAccount } from "$lib/schema";
-  // [!code ++:3]
-  import { AccountCoState, createInviteLink, InviteListener } from "jazz-tools/svelte";
-  import { goto } from "$app/navigation";
-  import { Festival, JazzFestAccount } from "$lib/schema";
-
-  const me = new AccountCoState(JazzFestAccount, {
-    resolve: { root: { myFestival: true } }
-  });
-  let inviteLink = $state<string | null>(null);
-
-  // [!code ++:6]
-  new InviteListener({
-		invitedObjectSchema: Festival,
-		onAccept: (festivalID) => {
-			goto(`/festival/${festivalID}`);
-		}
-	});
-
-  function inviteLinkClickHandler() {
-    if (!me.current) return; // not loaded yet
-    const link = createInviteLink(me.current?.root.myFestival, "writer")
-    inviteLink = link;
-  }
-</script>
-
-<ul>
-  {#each me.current?.root?.myFestival || [] as band}
-    <li>{band?.name}</li>
-  {/each}
-</ul>
-
-<input type="text" bind:value={inviteLink} readonly />
-<button onclick={inviteLinkClickHandler}>
-  Create Invite Link
-</button>
-
-```
-
-\--- Section applies only to react ---
 
 Already completed the server-side rendering guide?
 
@@ -6950,23 +5427,23 @@ import {
   createInviteLink,
   useAcceptInvite,
   useAccount,
-  useCoState
+  useAgent,
+  useCoState,
 } from "jazz-tools/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Festival as FestivalSchema, JazzFestAccount } from "@/app/schema";
 
-export function Festival({id}: {id?: string}) {
+export function Festival({ id }: { id?: string }) {
   const [inviteLink, setInviteLink] = useState<string>("");
-  // [!code --:1]
-  const { me } = useAccount(JazzFestAccount, {
   // [!code ++:1]
-  const { me, agent } = useAccount(JazzFestAccount, {
+  const agent = useAgent();
+  const me = useAccount(JazzFestAccount, {
     resolve: { root: { myFestival: true } },
   });
   const router = useRouter();
   // [!code ++:2]
-  const isGuest = agent.$type$ !== "Account"
+  const isGuest = agent.$type$ !== "Account";
   if (!isGuest) {
     useAcceptInvite({
       invitedObjectSchema: FestivalSchema,
@@ -6974,12 +5451,13 @@ export function Festival({id}: {id?: string}) {
         router.push(`/festival/${festivalID}`);
       },
     });
-  // [!code ++:1]
+    // [!code ++:1]
   }
 
-  const festivalId = id ?? me?.root.myFestival.$jazz.id;
+  const festivalId =
+    id ?? (me.$isLoaded ? me.root.myFestival.$jazz.id : undefined);
   const festival = useCoState(FestivalSchema, festivalId);
-  if (!festival) return null; // not loaded yet
+  if (!festival.$isLoaded) return null;
   const inviteLinkClickHandler = () => {
     const link = createInviteLink(festival, "writer");
     setInviteLink(link);
@@ -6988,7 +5466,7 @@ export function Festival({id}: {id?: string}) {
     <>
       <ul>
         {festival.map(
-          (band) => band && <li key={band.$jazz.id}>{band.name}</li>,
+          (band) => band.$isLoaded && <li key={band.$jazz.id}>{band.name}</li>,
         )}
       </ul>
       <input type="text" value={inviteLink} readOnly />
@@ -6998,12 +5476,9 @@ export function Festival({id}: {id?: string}) {
     </>
   );
 }
-
 ```
 
 You'll also need to be aware that the server agent can only render public CoValues, and the schema above does not publicly share any data (neither bands nor festivals).
-
-\--- End of react specific section ---
 
 ## Create the festival page
 
@@ -7013,19 +5488,7 @@ Now we need to create the festival page, so that we can view other people's fest
 
 We're going to continue updating our existing `Festival` component so that it can optionally take a prop for the festival ID.
 
-\--- Section applies only to react ---
-
 **File name: app/components/Festival.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/lib/components/Festival.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 "use client";
@@ -7033,20 +5496,18 @@ import {
   createInviteLink,
   useAcceptInvite,
   useAccount,
-// [!code ++:1]
-  useCoState
+  // [!code ++:1]
+  useCoState,
 } from "jazz-tools/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 // We need to alias the schema because our component is also named Festival
 import { Festival as FestivalSchema, JazzFestAccount } from "@/app/schema";
 
-// [!code --:1]
-export function Festival() {
 // [!code ++:1]
-export function Festival({id}: {id?: string}) {
+export function Festival({ id }: { id?: string }) {
   const [inviteLink, setInviteLink] = useState<string>("");
-  const { me } = useAccount(JazzFestAccount, {
+  const me = useAccount(JazzFestAccount, {
     resolve: { root: { myFestival: true } },
   });
   const router = useRouter();
@@ -7057,12 +5518,13 @@ export function Festival({id}: {id?: string}) {
     },
   });
   // [!code ++:2]
-  const festivalId = id ?? me?.root.myFestival.$jazz.id;
+  const festivalId =
+    id ?? (me.$isLoaded ? me.root.myFestival.$jazz.id : undefined);
   const festival = useCoState(FestivalSchema, festivalId);
   // [!code --:1]
-  if (!me) return null; // not loaded yet
+  if (!me.$isLoaded) return null;
   // [!code ++:1]
-  if (!festival) return null; // not loaded yet
+  if (!festival.$isLoaded) return null;
   const inviteLinkClickHandler = () => {
     // [!code --:1]
     const link = createInviteLink(me.root.myFestival, "writer");
@@ -7073,95 +5535,33 @@ export function Festival({id}: {id?: string}) {
   return (
     <>
       <ul>
-        {/* [!code --:1] */}
-        {me.root.myFestival.map(
-        {/* [!code ++:1] */}
+        {/* [!code --:3] */}
+        {me.root.myFestival.map((band) => {
+          return band.$isLoaded && <li key={band.$jazz.id}>{band.name}</li>;
+        })}
+        {/* [!code ++:3] */}
         {festival.map(
-          (band) => band && <li key={band.$jazz.id}>{band.name}</li>,
+          (band) => band.$isLoaded && <li key={band.$jazz.id}>{band.name}</li>,
         )}
       </ul>
-      {me?.canAdmin(festival) && (
-        <input type="text" value={inviteLink} readOnly />
-        <button type="button" onClick={inviteLinkClickHandler}>
-          Create Invite Link
-        </button>
+      {me.canAdmin(festival) && (
+        <>
+          <input type="text" value={inviteLink} readOnly />
+          <button type="button" onClick={inviteLinkClickHandler}>
+            Create Invite Link
+          </button>
+        </>
       )}
     </>
   );
 }
-
-```
-
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  // [!code --:1]
-  import { AccountCoState, createInviteLink, InviteListener } from "jazz-tools/svelte";
-  // [!code ++:1]
-  import { AccountCoState, CoState, createInviteLink, InviteListener } from "jazz-tools/svelte";
-  import { goto } from "$app/navigation";
-  import { Festival, JazzFestAccount } from "$lib/schema";
-
-  // [!code ++:1]
-	const { id }: { id?: string } = $props();
-  const me = new AccountCoState(JazzFestAccount, {
-    resolve: { root: { myFestival: true } }
-  });
-  // [!code ++:2]
-  const festivalId = $derived(id ?? me.current?.root.myFestival.$jazz.id);
-	const festival = $derived(new CoState(Festival, festivalId));
-  let inviteLink = $state<string | null>(null);
-
-  new InviteListener({
-		invitedObjectSchema: Festival,
-		onAccept: (festivalID) => {
-			goto(`/festival/${festivalID}`);
-		}
-	});
-
-  function inviteLinkClickHandler() {
-    if (!me.current) return; // not loaded yet
-    const link = createInviteLink(me.current?.root.myFestival, "writer")
-    inviteLink = link;
-  }
-</script>
-
-<ul>
-  <!-- [!code --:1] -->
-  {#each me.current?.root?.myFestival || [] as band}
-  <!-- [!code ++:1] -->
-  {#each festival?.current || [] as band}
-    <li>{band?.name}</li>
-  {/each}
-</ul>
-
-{#if me.current?.canAdmin(festival.current)}
-<input type="text" bind:value={inviteLink} readonly />
-<button onclick={inviteLinkClickHandler}>
-  Create Invite Link
-</button>
-{/if}
-
 ```
 
 ### Update our New Band component
 
 We'll also update our `NewBand` component so that it can take a prop for the festival ID, which will make it reusable on our home page and the new festival page.
 
-\--- Section applies only to react ---
-
 **File name: app/components/NewBand.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/lib/components/NewBand.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 "use client";
@@ -7173,25 +5573,27 @@ import { useAccount, useCoState } from "jazz-tools/react";
 import { useState } from "react";
 import { JazzFestAccount, Festival } from "@/app/schema";
 
-// [!code --:1]
-export function NewBand() {
 // [!code ++:1]
 export function NewBand({ id }: { id?: string }) {
-  const { me } = useAccount(JazzFestAccount, {
-      resolve: { root: { myFestival: true } }
-    });
+  const me = useAccount(JazzFestAccount, {
+    resolve: { root: { myFestival: true } },
+  });
   const [name, setName] = useState("");
 
   // [!code ++:2]
-  const festivalId = id ?? me?.root.myFestival.$jazz.id;
+  const festivalId =
+    id ??
+    (me.$isLoaded && me.root.$isLoaded
+      ? me.root.myFestival.$jazz.id
+      : undefined);
   const festival = useCoState(Festival, festivalId);
 
   const handleSave = () => {
     // [!code --:2]
-    if (!me) return; // not loaded yet
+    if (!me.$isLoaded) return;
     me.root.myFestival.$jazz.push({ name });
     // [!code ++:2]
-    if (!festival) return; // not loaded yet
+    if (!festival.$isLoaded) return;
     festival.$jazz.push({ name });
     setName("");
   };
@@ -7204,72 +5606,22 @@ export function NewBand({ id }: { id?: string }) {
         placeholder="Band name"
         onChange={(e) => setName(e.target.value)}
       />
-      <button type="button" onClick={handleSave}>Add</button>
+      <button type="button" onClick={handleSave}>
+        Add
+      </button>
     </div>
   );
 }
-
-```
-
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  // [!code --:2]
-	import { AccountCoState } from "jazz-tools/svelte";
-	import { JazzFestAccount } from "$lib/schema";
-  // [!code ++:2]
-  import { AccountCoState, CoState } from "jazz-tools/svelte";
-  import { JazzFestAccount, Festival } from "$lib/schema";
-
-	const { id }: { id?: string } = $props();
-  const me = new AccountCoState(JazzFestAccount, {
-    resolve: { root: { myFestival: true } }
-  });
-  let name = $state("");
-
-    // [!code ++:2]
-  const festivalId = $derived(id ?? me.current?.root.myFestival.$jazz.id);
-	const festival = $derived(new CoState(Festival, festivalId));
-
-  function handleSave() {
-    // [!code --:2]
-    if (!me.current) return; // not loaded yet
-    me.current.root.myFestival.$jazz.push({ name });
-    // [!code ++:2]
-    if (!festival.current) return; // not loaded yet
-    festival.current.$jazz.push({ name });
-    name = "";
-  }
-</script>
-
-<div>
-  <input type="text" bind:value={name} placeholder="Band name" />
-  <button type="button" onclick={handleSave}>Add</button>
-</div>
-
 ```
 
 ### Create a route
 
-\--- Section applies only to react ---
-
 **File name: app/festival/\[festivalId\]/page.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/routes/festival/\[festivalId\]/+page.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 "use client";
 import { use } from "react";
-import { Festival } from "@/app/components/Festival";
+import { Festival } from "$lib/Festival";
 import { NewBand } from "@/app/components/NewBand";
 
 export default function FestivalPage(props: {
@@ -7285,24 +5637,6 @@ export default function FestivalPage(props: {
     </main>
   );
 }
-```
-
-##### Svelte:
-
-```svelte
-<script lang="ts">
-	import { page } from '$app/state';
-	import Festival from '$lib/components/Festival.svelte';
-	import NewBand from '$lib/components/NewBand.svelte';
-	const { festivalId } = page.params;
-</script>
-
-<main>
-  <h1>🎪 Festival {festivalId}</h1>
-  <Festival id={festivalId} />
-  <NewBand id={festivalId} />
-</main>
-
 ```
 
 ## Put it all together
@@ -7332,8 +5666,6 @@ Now we can test it out by inviting someone to collaborate on our festival.
 You can share CoValues publicly by setting the `owner` to a `Group`, and granting access to "everyone".
 
 ```ts
-import { Group } from "jazz-tools";
-// ---cut---
 const group = Group.create();
 group.addMember("everyone", "writer");
 ```
@@ -7341,8 +5673,6 @@ group.addMember("everyone", "writer");
 You can also use `makePublic(role)` alias to grant access to everyone with a specific role (defaults to `reader`).
 
 ```ts
-import { Group } from "jazz-tools";
-// ---cut---
 const group = Group.create();
 group.addMember("everyone", "writer"); // [!code --]
 group.makePublic("writer"); // [!code ++]
@@ -7359,135 +5689,36 @@ You can grant users access to a CoValue by sending them an invite link.
 
 This is used in the [todo example](https://github.com/garden-co/jazz/tree/main/examples/todo).
 
-\--- Section applies only to react,react-native,react-native-expo,vue,svelte ---
-
-```ts
-import { co, z } from "jazz-tools";
-
-const Organization = co.map({
-  name: z.string(),
-});
-const organization = Organization.create({ name: "Garden Computing" });
-// ---cut---
+```tsx
 import { createInviteLink } from "jazz-tools/react";
 
-createInviteLink(organization, "writer"); // or reader, admin, writeOnly
+const inviteLink = createInviteLink(organization, "writer"); // or reader, admin, writeOnly
 ```
-
-\--- End of react,react-native,react-native-expo,vue,svelte specific section ---
 
 It generates a URL that looks like `.../invite/[CoValue ID]/[inviteSecret]`
 
 In your app, you need to handle this route, and let the user accept the invitation, as done [here](https://github.com/garden-co/jazz/tree/main/examples/todo/src/2%5Fmain.tsx).
 
-\--- Section applies only to react ---
-
-```ts
-import { co, z } from "jazz-tools";
-
-const Organization = co.map({
-  name: z.string(),
-});
-const organization = Organization.create({ name: "Garden Computing" });
-const organizationID = organization.$jazz.id;
-// ---cut---
+```tsx
 import { useAcceptInvite } from "jazz-tools/react";
 
 useAcceptInvite({
   invitedObjectSchema: Organization,
-  onAccept: (organizationID) => {
-    console.log("Accepted invite!");
+  onAccept: async (organizationID) => {
+    const organization = await Organization.load(organizationID);
+    if (!organization.$isLoaded)
+      throw new Error("Organization could not be loaded");
+    me.root.organizations.$jazz.push(organization);
     // navigate to the organization page
   },
 });
 ```
 
-\--- End of react specific section ---
+You can accept an invitation programmatically by using the `acceptInvite` method on an account.
 
-\--- Section applies only to react-native ---
-
-```ts
-import { co, z } from "jazz-tools";
-
-const Organization = co.map({
-  name: z.string(),
-});
-const organization = Organization.create({ name: "Garden Computing" });
-const organizationID = organization.$jazz.id;
-// ---cut---
-import { useAcceptInviteNative } from "jazz-tools/react-native";
-
-useAcceptInviteNative({
-  invitedObjectSchema: Organization,
-  onAccept: (organizationID) => {
-    console.log("Accepted invite!");
-    // navigate to the organization page
-  },
-});
-```
-
-\--- End of react-native specific section ---
-
-\--- Section applies only to react-native-expo ---
+Pass the ID of the CoValue you're being invited to, the secret from the invite link, and the schema of the CoValue.
 
 ```ts
-import { co, z } from "jazz-tools";
-
-const Organization = co.map({
-  name: z.string(),
-});
-const organization = Organization.create({ name: "Garden Computing" });
-const organizationID = organization.$jazz.id;
-// ---cut---
-import { useAcceptInviteNative } from "jazz-tools/expo";
-
-useAcceptInviteNative({
-  invitedObjectSchema: Organization,
-  onAccept: (organizationID) => {
-    console.log("Accepted invite!");
-    // navigate to the organization page
-  },
-});
-```
-
-\--- End of react-native-expo specific section ---
-
-\--- Section applies only to svelte ---
-
-```ts
-import { co, z } from "jazz-tools";
-
-const Organization = co.map({
-  name: z.string(),
-});
-const organization = Organization.create({ name: "Garden Computing" });
-const organizationID = organization.$jazz.id;
-// ---cut---
-import { InviteListener } from "jazz-tools/svelte";
-
-new InviteListener({
-  invitedObjectSchema: Organization,
-  onAccept: (organizationID) => {
-    console.log("Accepted invite!");
-    // navigate to the organization page
-  },
-});
-```
-
-\--- End of svelte specific section ---
-
-You can accept an invitation programmatically by using the `acceptInvite` method on an account. Pass the ID of the CoValue you're being invited to, the secret from the invite link, and the schema of the CoValue.
-
-```ts
-import { co, z, Account } from "jazz-tools";
-
-const Organization = co.map({
-  name: z.string(),
-});
-const account = {} as unknown as Account;
-const organizationId = "";
-const inviteSecret = "inviteSecret_z";
-// ---cut---
 await account.acceptInvite(organizationId, inviteSecret, Organization);
 ```
 
@@ -7500,8 +5731,8 @@ In case you would prefer more direct control over the invite, you can create an 
 This will generate a string starting with `inviteSecret_`. You can then accept this invite using `acceptInvite`, with the group ID as the first argument, and the invite secret as the second.
 
 ```ts
-const group = Group.create();
-const readerInvite = group.$jazz.createInvite("reader");
+const groupToInviteTo = Group.create();
+const readerInvite = groupToInviteTo.$jazz.createInvite("reader");
 // `inviteSecret_`
 
 await account.acceptInvite(group.$jazz.id, readerInvite);
@@ -7520,10 +5751,8 @@ To allow a non-group member to request an invitation to a group you can use the 
 Create the data models.
 
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
 const JoinRequest = co.map({
-  account: co.account,
+  account: co.account(),
   status: z.literal(["pending", "approved", "rejected"]),
 });
 
@@ -7533,18 +5762,6 @@ const RequestsList = co.list(JoinRequest);
 Set up the request system with appropriate access controls.
 
 ```ts
-import { co, z, Group } from "jazz-tools";
-
-const JoinRequest = co.map({
-  account: co.account(),
-  status: z.literal(["pending", "approved", "rejected"]),
-});
-
-const RequestsList = co.list(JoinRequest);
-const Account = co.account();
-type Account = co.loaded<typeof Account>;
-
-// ---cut-before---
 function createRequestsToJoin() {
   const requestsGroup = Group.create();
   requestsGroup.addMember("everyone", "writeOnly");
@@ -7573,31 +5790,13 @@ async function sendJoinRequest(
 Using the write-only access users can submit requests that only administrators can review and approve.
 
 ```ts
-import { co, z, Group } from "jazz-tools";
-
-const Account = co.account();
-type Account = co.loaded<typeof Account>;
-
-const JoinRequest = co.map({
-  account: Account,
-  status: z.literal(["pending", "approved", "rejected"]),
-});
-
-const RequestsList = co.list(JoinRequest);
-
-const RequestsToJoin = co.map({
-  writeOnlyInvite: z.string(),
-  requests: RequestsList,
-});
-
-// ---cut-before---
 async function approveJoinRequest(
   joinRequest: co.loaded<typeof JoinRequest, { account: true }>,
   targetGroup: Group,
 ) {
-  const account = await Account.load(joinRequest.$jazz.refs.account.id);
+  const account = await co.account().load(joinRequest.$jazz.refs.account.id);
 
-  if (account) {
+  if (account.$isLoaded) {
     targetGroup.addMember(account, "reader");
     joinRequest.$jazz.set("status", "approved");
 
@@ -7621,8 +5820,6 @@ When a group is added as a member of another group, members of the added group w
 Here's how to add a group as a member of another group:
 
 ```ts
-import { Group } from "jazz-tools";
-// ---cut---
 const playlistGroup = Group.create();
 const trackGroup = Group.create();
 
@@ -7641,8 +5838,6 @@ When you add groups as members:
 Adding a group as a member of another is not limited in depth:
 
 ```ts
-import { Group } from "jazz-tools";
-// ---cut---
 const grandParentGroup = Group.create();
 const parentGroup = Group.create();
 const childGroup = Group.create();
@@ -7660,10 +5855,6 @@ Members of the grandparent group will get access to all descendant groups based 
 If the account is already a member of the container group, it will get the more permissive role:
 
 ```ts
-import { Group } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const bob = await createJazzTestAccount();
-// ---cut---
 const addedGroup = Group.create();
 addedGroup.addMember(bob, "reader");
 
@@ -7678,28 +5869,18 @@ containingGroup.addMember(addedGroup);
 When adding a group to another group, only admin, writer and reader roles are inherited:
 
 ```ts
-import { Group } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const bob = await createJazzTestAccount();
-// ---cut---
 const addedGroup = Group.create();
-addedGroup.addMember(bob, "writeOnly");
+containingGroup.addMember(bob, "writeOnly");
 
-const containingGroup = Group.create();
-containingGroup.addMember(addedGroup);
-
-// Bob does not become a member of the containing group
+const mainGroup = Group.create();
+mainGroup.addMember(containingGroup);
 ```
 
 ### Overriding the added group's roles
 
 In some cases you might want to inherit all members from an added group but override their roles to the same specific role in the containing group. You can do so by passing an "override role" as a second argument to `addMember`:
 
-```ts
-import { Group } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const bob = await createJazzTestAccount();
-// ---cut---
+````ts
 const organizationGroup = Group.create();
 organizationGroup.addMember(bob, "admin");
 
@@ -7708,38 +5889,17 @@ const billingGroup = Group.create();
 // This way the members of the organization
 // can only read the billing data
 billingGroup.addMember(organizationGroup, "reader");
-```
+```ts index.ts#OverrideContainers
 
-The "override role" works in both directions:
-
-```ts
-import { Group } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const alice = await createJazzTestAccount();
-const bob = await createJazzTestAccount();
-// ---cut---
-const addedGroup = Group.create();
-addedGroup.addMember(bob, "reader");
-addedGroup.addMember(alice, "admin");
-
-const containingGroup = Group.create();
-containingGroup.addMember(addedGroup, "writer");
-
-// Bob and Alice are now writers in the containing group
-```
+````
 
 ### Permission changes
 
 When you remove a member from an added group, they automatically lose access to all containing groups. We handle key rotation automatically to ensure security.
 
 ```ts
-import { Group } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const bob = await createJazzTestAccount();
-const addedGroup = Group.create();
-// ---cut---
 // Remove member from added group
-await addedGroup.removeMember(bob);
+addedGroup.removeMember(bob);
 
 // Bob loses access to both groups.
 // If Bob was also a member of the containing group,
@@ -7751,15 +5911,13 @@ await addedGroup.removeMember(bob);
 You can remove a group from another group by using the `removeMember` method:
 
 ```ts
-import { Group } from "jazz-tools";
-// ---cut---
 const addedGroup = Group.create();
 const containingGroup = Group.create();
 
 containingGroup.addMember(addedGroup);
 
 // Revoke the extension
-await containingGroup.removeMember(addedGroup);
+containingGroup.removeMember(addedGroup);
 ```
 
 ## Getting all added groups
@@ -7767,8 +5925,6 @@ await containingGroup.removeMember(addedGroup);
 You can get all of the groups added to a group by calling the `getParentGroups` method:
 
 ```ts
-import { Group } from "jazz-tools";
-// ---cut---
 const containingGroup = Group.create();
 const addedGroup = Group.create();
 containingGroup.addMember(addedGroup);
@@ -7781,9 +5937,6 @@ console.log(containingGroup.getParentGroups()); // [addedGroup]
 When creating CoValues that contain other CoValues (or updating references to CoValues) using plain JSON objects, Jazz not only creates the necessary CoValues automatically but it will also manage their group ownership.
 
 ```ts
-import { co, z } from "jazz-tools";
-
-// ---cut---
 const Task = co.plainText();
 const Column = co.list(Task);
 const Board = co.map({
@@ -7803,22 +5956,11 @@ const board = Board.create({
 For each created column and task CoValue, Jazz also creates a new group as its owner and adds the referencing CoValue's owner as a member of that group. This means permissions for nested CoValues are inherited from the CoValue that references them, but can also be modified independently for each CoValue if needed.
 
 ```ts
-import { co, z, Group, Account } from "jazz-tools";
-
-const alice = {} as unknown as Account;
-const bob = {} as unknown as Account;
-const Task = co.plainText();
-const Column = co.list(Task);
-const Board = co.map({
-  title: z.string(),
-  columns: co.list(Column),
-});
-// ---cut---
 const writeAccess = Group.create();
 writeAccess.addMember(bob, "writer");
 
 // Give Bob write access to the board, columns and tasks
-const board = Board.create(
+const boardWithGranularPermissions = Board.create(
   {
     title: "My board",
     columns: [
@@ -7830,7 +5972,7 @@ const board = Board.create(
 );
 
 // Give Alice read access to one specific task
-const task = board.columns[0][0];
+const task = boardWithGranularPermissions.columns[0][0];
 const taskGroup = task.$jazz.owner;
 taskGroup.addMember(alice, "reader");
 ```
@@ -7838,24 +5980,13 @@ taskGroup.addMember(alice, "reader");
 If you prefer to manage permissions differently, you can always create CoValues explicitly:
 
 ```ts
-import { co, Group, z, Account } from "jazz-tools";
-
-const bob = {} as unknown as Account;
-const Task = co.plainText();
-const Column = co.list(Task);
-const Board = co.map({
-  title: z.string(),
-  columns: co.list(Column),
-});
-
-// ---cut---
 const writeAccess = Group.create();
 writeAccess.addMember(bob, "writer");
 const readAccess = Group.create();
 readAccess.addMember(bob, "reader");
 
 // Give Bob read access to the board and write access to the columns and tasks
-const board = Board.create(
+const boardWithExplicitPermissions = Board.create(
   {
     title: "My board",
     columns: co.list(Column).create(
@@ -7875,13 +6006,6 @@ const board = Board.create(
 Here's a practical example of using group inheritance for team permissions:
 
 ```ts
-import { Group } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const CEO = await createJazzTestAccount();
-const teamLead = await createJazzTestAccount();
-const developer = await createJazzTestAccount();
-const client = await createJazzTestAccount();
-// ---cut---
 // Company-wide group
 const companyGroup = Group.create();
 companyGroup.addMember(CEO, "admin");
@@ -7929,8 +6053,6 @@ const branch = await Project.load(projectId, {
 });
 ```
 
-\--- Section applies only to react,react-native,expo ---
-
 You can also create a branch via the `useCoState` hook:
 
 ```ts
@@ -7938,20 +6060,6 @@ const branch = useCoState(Project, projectId, {
   unstable_branch: { name: "feature-branch" },
 });
 ```
-
-\--- End of react,react-native,expo specific section ---
-
-\--- Section applies only to svelte ---
-
-You can also create a branch via `CoState`:
-
-```ts
-const branch = new CoState(Project, projectId, {
-  unstable_branch: { name: "feature-branch" },
-});
-```
-
-\--- End of svelte specific section ---
 
 You can also include nested CoValues in your branch by using a [resolve query](/docs/core-concepts/subscription-and-loading#resolve-queries).
 
@@ -7967,10 +6075,14 @@ In case you create a separate reference to a nested CoValue (for example by load
 
 Once you have a branch, you can make changes just as you would with the original CoValue:
 
-\--- Section applies only to react,react-native,expo,vue,vanilla ---
-
 ```tsx
-function EditProject({ projectId, currentBranchName }) {
+function EditProject({
+  projectId,
+  currentBranchName,
+}: {
+  projectId: ID<typeof Project>;
+  currentBranchName: string;
+}) {
   const project = useCoState(Project, projectId, {
     resolve: {
       tasks: { $each: true },
@@ -7982,81 +6094,24 @@ function EditProject({ projectId, currentBranchName }) {
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Won't be visible on main until merged
-    project.$jazz.set("title", e.target.value);
+    project.$isLoaded && project.$jazz.set("title", e.target.value);
   };
 
   const handleTaskTitleChange = (
     index: number,
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    const task = project.tasks[index];
+    const task = project.$isLoaded && project.tasks[index];
 
     // The task is also part of the branch because we used the `resolve` option
     // with `tasks: { $each: true }`
     // so the changes won't be visible on main until merged
-    task?.$jazz.set("title", e.target.value);
+    task && task.$jazz.set("title", e.target.value);
   };
 
   return <form onSubmit={handleSave}>{/* Edit form fields */}</form>;
 }
 ```
-
-\--- End of react,react-native,expo,vue,vanilla specific section ---
-
-\--- Section applies only to svelte ---
-
-```svelte
-<script lang="ts">
-  import { CoState } from 'jazz-tools/svelte';
-  import { Project } from './schema.js';
-
-  let projectId = $state<string>();
-  let currentBranchName = $state<string>('main');
-
-  const project = new CoState(Project, () => projectId, () => ({
-    resolve: {
-      tasks: { $each: true }
-    },
-    unstable_branch: currentBranchName === 'main' ? undefined : { name: currentBranchName }
-  }));
-
-  function handleTitleChange(e: Event) {
-    const target = e.target as HTMLInputElement;
-    // Won't be visible on main until merged
-    project.current?.$jazz.set("title", target.value);
-  }
-
-  function handleTaskTitleChange(index: number, e: Event) {
-    const target = e.target as HTMLInputElement;
-    const task = project.current?.tasks[index];
-
-    // The task is also part of the branch because we used the `resolve` option
-    // with `tasks: { $each: true }`
-    // so the changes won't be visible on main until merged
-    task?.$jazz.set("title", target.value);
-  }
-</script>
-
-<form>
-  <!-- Edit form fields -->
-  <input
-    type="text"
-    value={project.current?.title || ''}
-    oninput={handleTitleChange}
-  />
-
-  {#each project.current?.tasks || [] as task, index}
-    <input
-      type="text"
-      value={task.title || ''}
-      oninput={(e) => handleTaskTitleChange(index, e)}
-    />
-  {/each}
-</form>
-
-```
-
-\--- End of svelte specific section ---
 
 ### Account & Group
 
@@ -8064,14 +6119,15 @@ Branching does not bring isolation on Account and Group CoValues.
 
 This means that, adding a member on a branched Group will also add the member to the main Group.
 
-```tsx
-const branch = await Project.load(projectId, {
+```ts
+const featureBranch = await Project.load(projectId, {
   unstable_branch: { name: "feature-branch" },
 });
-branch.$jazz.owner.addMember(member, "writer"); // Will also add the member to the main Group
+featureBranch.$isLoaded &&
+  featureBranch.$jazz.owner.addMember(member, "writer"); // Will also add the member to the main Group
 ```
 
-On account only root and profile replacements are not affected by the branching.
+If you are modifying an account, be aware that replacing the root or profile will also modify the main account (although updating the properties will happen on the branch).
 
 ```tsx
 const me = useAccount(MyAccount, {
@@ -8079,8 +6135,8 @@ const me = useAccount(MyAccount, {
   unstable_branch: { name: "feature-branch" },
 });
 
-me.$jazz.set("root", { value: "Feature Branch" }); // Will also modify the main account
-me.root.$jazz.set("value", "Feature Branch"); // This only modifies the branch
+me.$isLoaded && me.$jazz.set("root", { value: "Feature Branch" }); // Will also modify the main account
+me.$isLoaded && me.root.$jazz.set("value", "Feature Branch"); // This only modifies the branch
 ```
 
 ### Merging Branches
@@ -8091,11 +6147,10 @@ There are two ways to merge a branch in Jazz, each with different characteristic
 
 This method merges all the values that are currently loaded inside the branch. It happens synchronously and there is no possibility of errors because the values are already loaded.
 
-```tsx
+```ts
 async function handleSave() {
   // Merge all currently loaded values in the branch
-  branch.$jazz.unstable_merge();
-  router.navigate("/");
+  branch.$isLoaded && branch.$jazz.unstable_merge();
 }
 ```
 
@@ -8109,8 +6164,8 @@ This approach is recommended when you can co-locate the merge operation with the
 
 This is a shortcut for loading a value and calling `branch.$jazz.unstable_merge()` on it and will fail if the load isn't possible due to permission errors or network issues.
 
-```tsx
-async function handleSave() {
+```ts
+async function handleSaveWithResolve() {
   // Merge the branch changes back to main
   await Project.unstable_merge(projectId, {
     resolve: {
@@ -8118,7 +6173,6 @@ async function handleSave() {
     },
     branch: { name: "feature-branch" },
   });
-  router.navigate("/");
 }
 ```
 
@@ -8140,7 +6194,7 @@ The merge operation cascades down to the CoValue's children, but not to its pare
 async function handleTaskSave(index: number) {
   const task = project.tasks[index];
   // Only the changes to the task will be merged
-  task?.$jazz.unstable_merge();
+  task.$jazz.unstable_merge();
 }
 ```
 
@@ -8148,15 +6202,16 @@ async function handleTaskSave(index: number) {
 
 When conflicts occur (the same field is modified in both the branch and main), Jazz uses a "last writer wins" strategy:
 
-```tsx
+```ts
 // Branch modifies priority to "high"
-branch.$jazz.applyDiff({ priority: "high" });
+branch.$isLoaded && branch.$jazz.applyDiff({ priority: "high" });
 
 // Meanwhile, main modifies priority to "urgent"
-originalProject.$jazz.applyDiff({ priority: "urgent" });
+originalProject.$isLoaded &&
+  originalProject.$jazz.applyDiff({ priority: "urgent" });
 
 // Merge the branch
-branch.$jazz.unstable_merge();
+branch.$isLoaded && branch.$jazz.unstable_merge();
 
 // Main's value ("urgent") wins because it was written later
 console.log(originalProject.priority); // "urgent"
@@ -8168,11 +6223,11 @@ When the owner is not specified, the branch has the same permissions as the main
 
 You can also create a private branch by providing a group owner.
 
-```tsx
+```ts
 // Create a private group for the branch
 const privateGroup = Group.create();
 
-const privateBranch = useCoState(Project, projectId, {
+const privateBranch = Project.load(projectId, {
   unstable_branch: {
     name: "private-edit",
     owner: privateGroup,
@@ -8196,13 +6251,13 @@ Only users with both write access to the main branch and read access to the priv
 You can get the current branch information from the `$jazz` field.
 
 ```ts
-const branch = await Project.load(projectId, {
+const myBranch = await Project.load(projectId, {
   unstable_branch: { name: "feature-branch" },
 });
 
-console.log(branch.$jazz.id); // Branch ID is the same as source
-console.log(branch.$jazz.branchName); // "feature-branch"
-console.log(branch.$jazz.isBranched); // true
+console.log(myBranch.$jazz.id); // Branch ID is the same as source
+console.log(myBranch.$isLoaded && myBranch.$jazz.branchName); // "feature-branch"
+console.log(myBranch.$isLoaded && myBranch.$jazz.isBranched); // true
 ```
 
 ### History
@@ -8216,9 +6271,7 @@ See the [version history example](https://github.com/garden-co/jazz/tree/main/ex
 Let's use the following schema to see how we can use the edit history.
 
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
-const Task = co.map({
+export const Task = co.map({
   title: z.string(),
   status: z.literal(["todo", "in-progress", "completed"]),
 });
@@ -8230,19 +6283,6 @@ export type Task = co.loaded<typeof Task>;
 Every CoValue has a `$jazz.getEdits()` method that contains the complete history for each field. Here's how to get the edit history for `task.status`:
 
 ```ts
-import { createJazzTestAccount } from "jazz-tools/testing";
-import { co, z } from "jazz-tools";
-
-const me = await createJazzTestAccount();
-
-const Task = co.map({
-  title: z.string(),
-  status: z.literal(["todo", "in-progress", "completed"]),
-});
-
-const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
-// ---cut---
-// Access edit history for a field
 task.$jazz.getEdits().status;
 // Returns the latest edit
 
@@ -8251,8 +6291,8 @@ task.$jazz.getEdits().status?.all;
 
 // Check if edits exist
 const statusEdits = task.$jazz.getEdits().status;
-if (statusEdits) {
-  const name = statusEdits.by?.profile?.name;
+if (statusEdits && statusEdits.by?.profile.$isLoaded) {
+  const name = statusEdits.by.profile.name;
   console.log(`Last changed by ${name}`);
 }
 ```
@@ -8262,19 +6302,6 @@ if (statusEdits) {
 Each edit contains:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-
-const me = await createJazzTestAccount();
-
-const Task = co.map({
-  title: z.string(),
-  status: z.literal(["todo", "in-progress", "completed"]),
-});
-
-const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
-task.$jazz.set("status", "in-progress");
-// ---cut---
 const edit = task.$jazz.getEdits().status;
 
 // The edit object contains:
@@ -8290,18 +6317,6 @@ edit?.madeAt; // Date when the change occurred
 Get the most recent change to a field:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-
-const me = await createJazzTestAccount();
-
-const Task = co.map({
-  title: z.string(),
-  status: z.literal(["todo", "in-progress", "completed"]),
-});
-
-const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
-// ---cut---
 // Direct access to latest edit
 const latest = task.$jazz.getEdits().title;
 if (latest) {
@@ -8314,20 +6329,6 @@ if (latest) {
 Get the complete history for a field:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-
-const me = await createJazzTestAccount();
-
-const Task = co.map({
-  title: z.string(),
-  status: z.literal(["todo", "in-progress", "completed"]),
-});
-
-const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
-task.$jazz.set("status", "in-progress");
-task.$jazz.set("status", "completed");
-// ---cut---
 // Get all edits (chronologically)
 const allStatusEdits = task.$jazz.getEdits().status?.all || [];
 
@@ -8344,19 +6345,6 @@ allStatusEdits.forEach((edit, index) => {
 The first edit contains the initial value:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-
-const me = await createJazzTestAccount();
-
-const Task = co.map({
-  title: z.string(),
-  status: z.literal(["todo", "in-progress", "completed"]),
-});
-
-const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
-task.$jazz.set("status", "in-progress");
-// ---cut---
 const allEdits = task.$jazz.getEdits().status?.all || [];
 const initialValue = allEdits[0]?.value;
 console.log(`Started as: ${initialValue}`);
@@ -8368,13 +6356,6 @@ console.log(`Started as: ${initialValue}`);
 To show created date and last updated date, use the `$jazz.createdAt` and `$jazz.lastUpdatedAt` getters.
 
 ```tsx
-import { co, z } from "jazz-tools";
-const Task = co.map({
-  title: z.string(),
-  status: z.literal(["todo", "in-progress", "completed"]),
-});
-const task = Task.create({ title: "New task", status: "todo" });
-// ---cut---
 console.log(new Date(task.$jazz.createdAt));
 console.log(new Date(task.$jazz.lastUpdatedAt));
 ```
@@ -8406,57 +6387,17 @@ This quickstart guide will take you from an empty project to a server worker whi
 - You'll get the most out of this guide if you complete [the frontend quickstart guide](/docs/quickstart) first.
 - If you've already completed the frontend quickstart, you can skip straight to [extending your schema](#define-your-schema).
 
-\--- Section applies only to react ---
-
 ## Create your Next.js App
 
 We'll be using Next.js for simplicity, but you can use any framework you like.
 
 You can accept the defaults for all the questions, or customise the project as you like.
 
-##### npm:
-
 ```sh
 npx create-next-app@latest --typescript jazzfest
 cd jazzfest
 
 ```
-
-##### pnpm:
-
-```sh
-pnpx create-next-app@latest --typescript jazzfest
-cd jazzfest
-
-```
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-## Create your SvelteKit App
-
-We'll be using SvelteKit for simplicity, but you can use any framework you like.
-
-You can accept the defaults for all the questions, or customise the project as you like.
-
-##### npm:
-
-```sh
-npx sv create --types ts --template minimal jazzfest
-cd jazzfest
-
-```
-
-##### pnpm:
-
-```sh
-pnpx sv create --types ts --template minimal jazzfest
-cd jazzfest
-
-```
-
-\--- End of svelte specific section ---
 
 **Info:**
 
@@ -8466,17 +6407,8 @@ Requires Node.js 20+
 
 The `jazz-tools` package includes everything you're going to need to build your first Jazz server worker.
 
-##### npm:
-
 ```sh
 npm install jazz-tools
-
-```
-
-##### pnpm:
-
-```sh
-pnpm add jazz-tools
 
 ```
 
@@ -8484,29 +6416,10 @@ pnpm add jazz-tools
 
 Sign up for a free API key at [dashboard.jazz.tools](https://dashboard.jazz.tools) for higher limits or production use, or use your email address as a temporary key to get started quickly.
 
-\--- Section applies only to react ---
-
 **File name: .env**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: .env**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```bash
 NEXT_PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
-
-```
-
-##### Svelte:
-
-```bash
-PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
 
 ```
 
@@ -8514,17 +6427,7 @@ PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
 
 We're going to define a simple schema for our server worker. We'll use the `root` on the worker to store a list of bands. We're also going to add a migration to initialise the `root` if it doesn't exist.
 
-\--- Section applies only to react ---
-
 **File name: app/schema.ts**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/lib/schema.ts**
-
-\--- End of svelte specific section ---
 
 ```ts
 import { co, z } from "jazz-tools";
@@ -8542,12 +6445,14 @@ export const JazzFestWorkerAccount = co
     }),
     profile: co.profile(),
   })
-  .withMigration((account) => {
+  .withMigration(async (account) => {
     if (!account.$jazz.has("root")) {
       account.$jazz.set("root", {
         bandList: [],
       });
-      account.root?.$jazz.owner.makePublic();
+      if (account.root.$isLoaded) {
+        account.root.$jazz.owner.makePublic();
+      }
     }
   });
 ```
@@ -8560,17 +6465,8 @@ If you're continuing from the [front-end Quickstart](/docs/quickstart), you can 
 
 Jazz provides a CLI to create server workers. You can create a server worker using the following command:
 
-##### npm:
-
 ```sh
 npx jazz-run account create --name "JazzFest Server Worker"
-
-```
-
-##### pnpm:
-
-```sh
-pnpx jazz-run account create --name "JazzFest Server Worker"
 
 ```
 
@@ -8578,22 +6474,10 @@ You can copy the output of this command and paste it directly into your `.env` f
 
 **File name: .env**
 
-##### Next.js:
-
 ```bash
 NEXT_PUBLIC_JAZZ_API_KEY=you@example.com # or your API key
 #[!code ++:2]
 NEXT_PUBLIC_JAZZ_WORKER_ACCOUNT=co_z...
-JAZZ_WORKER_SECRET=sealerSecret_z.../signerSecret_z...
-
-```
-
-##### SvelteKit:
-
-```bash
-PUBLIC_JAZZ_API_KEY=you@example.com # or your API key
-#[!code ++:2]
-PUBLIC_JAZZ_WORKER_ACCOUNT=co_z...
 JAZZ_WORKER_SECRET=sealerSecret_z.../signerSecret_z...
 
 ```
@@ -8608,19 +6492,7 @@ Next, we're going to set up an HTTP request schema to define our request and res
 
 We also need to tell Jazz which keys should be treated as loaded in the request and response using the `resolve` query.
 
-\--- Section applies only to react ---
-
 **File name: app/announceBandSchema.ts**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/lib/announceBandSchema.ts**
-
-\--- End of svelte specific section ---
-
-##### Next.js:
 
 ```ts
 import { experimental_defineRequest } from "jazz-tools";
@@ -8634,26 +6506,10 @@ export const announceBand = experimental_defineRequest({
   url: "/api/announce-band",
   workerId: workerId,
   request: { schema: { band: Band }, resolve: { band: true } },
-  response: { schema: { bandList: BandList }, resolve: { bandList: true } },
-});
-```
-
-##### SvelteKit:
-
-```ts
-import { experimental_defineRequest } from "jazz-tools";
-import { Band, BandList } from "./schema";
-import { PUBLIC_JAZZ_WORKER_ACCOUNT } from "$env/static/public";
-
-const workerId = PUBLIC_JAZZ_WORKER_ACCOUNT;
-
-if (!workerId) throw new Error("PUBLIC_JAZZ_WORKER_ACCOUNT is not set");
-
-export const announceBand = experimental_defineRequest({
-  url: "/api/announce-band",
-  workerId: workerId,
-  request: { schema: { band: Band }, resolve: { band: true } },
-  response: { schema: { bandList: BandList }, resolve: { bandList: true } },
+  response: {
+    schema: { bandList: BandList },
+    resolve: { bandList: { $each: true } },
+  },
 });
 ```
 
@@ -8663,24 +6519,12 @@ We're going to use the `startWorker` function to start our server worker, and re
 
 We'll also use a `resolve` query here to make sure that the `bandList` is loaded on the worker's root.
 
-\--- Section applies only to react ---
-
 **File name: app/api/announce-band/route.ts**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/routes/api/announce-band/+server.ts**
-
-\--- End of svelte specific section ---
-
-##### Next.js:
 
 ```ts
 import { startWorker } from "jazz-tools/worker";
 import { announceBand } from "@/app/announceBandSchema";
-import { JazzFestWorkerAccount } from "@/app/schema";
+import { JazzFestWorkerAccount } from "./schema";
 
 const { worker } = await startWorker({
   syncServer: `wss://cloud.jazz.tools/?key=${process.env.NEXT_PUBLIC_JAZZ_API_KEY}`,
@@ -8704,95 +6548,25 @@ export async function POST(request: Request) {
       },
     });
     bandList.$jazz.push(band);
-    return { bandList: worker.root.bandList };
+    return { bandList };
   });
 }
-```
-
-##### SvelteKit:
-
-```ts
-import { startWorker } from "jazz-tools/worker";
-import { announceBand } from "$lib/announceBandSchema";
-import { JazzFestWorkerAccount } from "$lib/schema";
-import {
-  PUBLIC_JAZZ_API_KEY,
-  PUBLIC_JAZZ_WORKER_ACCOUNT,
-} from "$env/static/public";
-import { JAZZ_WORKER_SECRET } from "$env/static/private";
-import type { RequestHandler } from "./$types";
-
-const { worker } = await startWorker({
-  syncServer: `wss://cloud.jazz.tools/?key=${PUBLIC_JAZZ_API_KEY}`,
-  accountID: PUBLIC_JAZZ_WORKER_ACCOUNT,
-  accountSecret: JAZZ_WORKER_SECRET,
-  AccountSchema: JazzFestWorkerAccount,
-});
-
-export const POST: RequestHandler = async ({ request }) => {
-  return announceBand.handle(request, worker, async ({ band }) => {
-    if (!band) {
-      throw new Error("Band is required");
-    }
-    const {
-      root: { bandList },
-    } = await worker.$jazz.ensureLoaded({
-      resolve: {
-        root: {
-          bandList: true,
-        },
-      },
-    });
-    bandList.$jazz.push(band);
-    return { bandList: worker.root.bandList };
-  });
-};
 ```
 
 ## Start your server worker
 
 We can now start our development server to make sure everything is working.
 
-##### npm:
-
 ```bash
 npm run dev
 
 ```
 
-##### pnpm:
-
-```bash
-pnpm run dev
-
-```
-
-\--- Section applies only to react ---
-
 If you open your browser, you should see the default Next.js welcome page.
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-If you open your browser, you should see the default SvelteKit welcome page.
-
-\--- End of svelte specific section ---
 
 ### Not working?
 
-\--- Section applies only to react ---
-
 - Check you set up your `.env` file correctly with `NEXT_PUBLIC_` where necessary
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-- Check you set up your `.env` file correctly with `PUBLIC_` where necessary
-
-\--- End of svelte specific section ---
-
 - Check you're importing `startWorker` from `jazz-tools/worker`
 
 **Info: Still stuck?** Ask for help on [Discord](https://discord.gg/utDMjHYg42)!
@@ -8803,31 +6577,9 @@ If you open your browser, you should see the default SvelteKit welcome page.
 
 _If you already have a working provider from the frontend quickstart, you can skip this step._
 
-\--- Section applies only to react ---
-
 We're going to wrap our Next.js app in a `JazzReactProvider` so that we can use Jazz on our client.
 
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-We're going to wrap our SvelteKit app in a `JazzSvelteProvider` so that we can use Jazz on our client.
-
-\--- End of svelte specific section ---
-
-\--- Section applies only to react ---
-
 **File name: app/layout.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/routes/+layout.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 import { JazzReactProvider } from "jazz-tools/react";
@@ -8853,56 +6605,29 @@ export default function RootLayout({
 }
 ```
 
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  import { JazzSvelteProvider } from "jazz-tools/svelte";
-	import { PUBLIC_JAZZ_API_KEY } from "$env/static/public";
-  let { children } = $props();
-  const sync = { peer: `wss://cloud.jazz.tools/?key=${PUBLIC_JAZZ_API_KEY}` };
-</script>
-
-<JazzSvelteProvider {sync}>
-  {@render children?.()}
-</JazzSvelteProvider>
-
-```
-
 ### Creating your page component
 
 We're going to send a request to our server worker to announce a new band. Our worker will respond with a list of bands that we can display on our page.
 
-\--- Section applies only to react ---
-
 **File name: app/page.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/routes/+page.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 "use client";
 import type { co } from "jazz-tools";
 import { useState } from "react";
 import { announceBand } from "@/app/announceBandSchema";
-import type { BandList } from "@/app/schema";
+import type { BandList } from "./schema";
 
 export default function Home() {
   const [bandName, setBandName] = useState("");
-  const [bandList, setBandList] = useState<co.loaded<typeof BandList>>();
+  const [bandList, setBandList] =
+    useState<co.loaded<typeof BandList, { $each: true }>>();
   const handleAnnounceBand = async () => {
     const bandListResponse = await announceBand.send({
       band: { name: bandName },
     });
     setBandName("");
-    if (bandListResponse.bandList) {
+    if (bandListResponse.bandList.$isLoaded) {
       setBandList(bandListResponse.bandList);
     }
   };
@@ -8918,45 +6643,14 @@ export default function Home() {
         Announce Band
       </button>
       <div>
-        {bandList?.map(
-          (band) => band && <div key={band?.$jazz.id}>{band?.name}</div>,
-        )}
+        {bandList?.$isLoaded &&
+          bandList.map(
+            (band) => band && <div key={band?.$jazz.id}>{band.name}</div>,
+          )}
       </div>
     </div>
   );
 }
-```
-
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  import type { co } from "jazz-tools";
-  import { announceBand } from "$lib/announceBandSchema";
-  import type { BandList } from "$lib/schema";
-  let bandName = $state("");
-  let bandList = $state<co.loaded<typeof BandList>>();
-  async function handleAnnounceBand() {
-    const bandListResponse = await announceBand.send({
-      band: { name: bandName },
-    });
-    bandName = "";
-    if (bandListResponse.bandList) {
-      bandList = bandListResponse.bandList;
-    }
-  }
-</script>
-
-<div>
-  <input type="text" bind:value={bandName} />
-  <button type="button" onclick={handleAnnounceBand}> Announce Band </button>
-  <div>
-    {#each bandList || [] as band (band?.$jazz.id)}
-      <div>{band?.name}</div>
-    {/each}
-  </div>
-</div>
-
 ```
 
 ## Try it out!
@@ -9026,19 +6720,6 @@ You can use `startWorker` to run a Server Worker. Similarly to setting up a clie
 The migration defined in the `AccountSchema` will be executed every time the worker starts, the same way as it would be for a client-side Jazz context.
 
 ```ts
-import { co } from "jazz-tools";
-const MyWorkerAccount = co.account();
-type MyWorkerAccount = co.loaded<typeof MyWorkerAccount>;
-
-/**
- * Use your email as a temporary key, or get a free
- * API Key at dashboard.jazz.tools for higher limits.
- *
- * @link https://dashboard.jazz.tools
- */
-const apiKey = "you@example.com";
-
-// ---cut---
 import { startWorker } from "jazz-tools/worker";
 
 const { worker } = await startWorker({
@@ -9076,7 +6757,7 @@ import "jazz-tools/load-edge-wasm";
 // Other Jazz Imports
 
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext) {
     // Jazz application logic
     return new Response("Hello from Jazz on Cloudflare!");
   },
@@ -9130,21 +6811,21 @@ You can do this by adding the required packages to the [serverExternalPackages](
 
 **Note**: if you're deploying to Vercel, be sure to use the `nodejs` runtime!
 
-```ts
-// next.config.js
-module.exports = {
-    serverExternalPackages: [
-        "cojson-core-napi",
-        "cojson-core-napi-linux-x64-gnu",
-        "cojson-core-napi-linux-x64-musl",
-        "cojson-core-napi-linux-arm64-gnu",
-        "cojson-core-napi-linux-arm64-musl",
-        "cojson-core-napi-darwin-x64",
-        "cojson-core-napi-darwin-arm64"
-        "cojson-core-napi-linux-arm-gnueabihf",
-    ],
-};
+**File name: next.config.js**
 
+```ts
+module.exports = {
+  serverExternalPackages: [
+    "cojson-core-napi",
+    "cojson-core-napi-linux-x64-gnu",
+    "cojson-core-napi-linux-x64-musl",
+    "cojson-core-napi-linux-arm64-gnu",
+    "cojson-core-napi-linux-arm64-musl",
+    "cojson-core-napi-darwin-x64",
+    "cojson-core-napi-darwin-arm64",
+    "cojson-core-napi-linux-arm-gnueabihf",
+  ],
+};
 ```
 
 ### Overview
@@ -9213,7 +6894,7 @@ Use `experimental_defineRequest` to define your API schema:
 
 ```ts
 import { experimental_defineRequest, z } from "jazz-tools";
-import { Event, Ticket } from "./schema";
+import { Event, Ticket } from "@/lib/schema";
 
 const workerId = process.env.NEXT_PUBLIC_JAZZ_WORKER_ACCOUNT!;
 
@@ -9263,8 +6944,9 @@ Create API routes to handle the defined RPC requests. Here's an example using Ne
 
 ```ts
 import { jazzServer } from "@/jazzServer";
-import { bookEventTicket, Ticket, Event } from "@/schema";
-import { JazzRequestError } from "jazz-tools";
+import { Ticket } from "@/lib/schema";
+import { bookEventTicket } from "@/bookEventTicket";
+import { Group, JazzRequestError } from "jazz-tools";
 
 export async function POST(request: Request) {
   return bookEventTicket.handle(
@@ -9280,7 +6962,7 @@ export async function POST(request: Request) {
       // Give access to the ticket to the client
       ticketGroup.addMember(madeBy, "reader");
 
-      event.reservations.push(ticket);
+      event.reservations.$jazz.push(ticket);
 
       return {
         ticket,
@@ -9297,13 +6979,28 @@ export async function POST(request: Request) {
 Make requests from the client using the defined API:
 
 ```ts
-import { bookEventTicket, Ticket, Event } from "@/schema";
-import { isJazzRequestError } from "jazz-tools";
+import { bookEventTicket } from "@/bookEventTicket";
+import { Event } from "@/lib/schema";
+import { co, isJazzRequestError } from "jazz-tools";
 
-export async function sendEventBookingRequest(event: Event) {
+export async function sendEventBookingRequest(event: co.loaded<typeof Event>) {
   const { ticket } = await bookEventTicket.send({ event });
 
   return ticket;
+}
+
+export async function sendEventBookingRequest(event: co.loaded<typeof Event>) {
+  try {
+    const { ticket } = await bookEventTicket.send({ event });
+
+    return ticket;
+  } catch (error) {
+    // This works as a type guard, so you can easily get the error message and details
+    if (isJazzRequestError(error)) {
+      alert(error.message);
+      return;
+    }
+  }
 }
 ```
 
@@ -9314,10 +7011,6 @@ export async function sendEventBookingRequest(event: Event) {
 Use `JazzRequestError` to return proper HTTP error responses:
 
 ```ts
-import { jazzServer } from "@/jazzServer";
-import { bookEventTicket, Ticket, Event } from "@/schema";
-import { JazzRequestError } from "jazz-tools";
-
 export async function POST(request: Request) {
   return bookEventTicket.handle(
     request,
@@ -9338,7 +7031,7 @@ export async function POST(request: Request) {
       // Give access to the ticket to the client
       ticketGroup.addMember(madeBy, "reader");
 
-      event.reservations.push(ticket);
+      event.reservations.$jazz.push(ticket);
 
       return {
         ticket,
@@ -9359,10 +7052,7 @@ Details on how to deploy a single instance Worker are available in the [Deployme
 Handle errors on the client side:
 
 ```ts
-import { bookEventTicket, Ticket, Event } from "@/schema";
-import { isJazzRequestError } from "jazz-tools";
-
-export async function sendEventBookingRequest(event: Event) {
+export async function sendEventBookingRequest(event: co.loaded<typeof Event>) {
   try {
     const { ticket } = await bookEventTicket.send({ event });
 
@@ -9529,12 +7219,6 @@ If you are using multiple accounts in your environment - for instance if your se
 `generateAuthToken` accepts an optional account parameter, so you can generate a token for a specific account.
 
 ```ts
-import { Account } from "jazz-tools";
-// @ts-ignore
-const account: Account = {};
-// ---cut---
-import { generateAuthToken } from "jazz-tools";
-
 const response = await fetch("https://example.com", {
   headers: {
     Authorization: `Jazz ${generateAuthToken(account)}`,
@@ -9605,7 +7289,7 @@ export async function GET(request: Request) {
 }
 ```
 
-## Addendum: Manual token parsing
+## Manual token parsing
 
 If you need to manually parse a token from a string, you can use the `parseAuthToken` function.
 
@@ -9633,7 +7317,7 @@ Define the inbox message schema in your schema file:
 
 ```ts
 export const BookTicketMessage = co.map({
-  type: co.literal("bookTicket"),
+  type: z.literal("bookTicket"),
   event: Event,
 });
 ```
@@ -9645,8 +7329,9 @@ Any kind of CoMap is valid as an inbox message.
 Run a server worker and subscribe to the `inbox`:
 
 ```ts
+import { Account, co, Group } from "jazz-tools";
 import { startWorker } from "jazz-tools/worker";
-import { BookTicketMessage } from "@/schema";
+import { BookTicketMessage, Ticket } from "@/lib/schema";
 
 const {
   worker,
@@ -9657,7 +7342,7 @@ const {
   syncServer: "wss://cloud.jazz.tools/?key=your-api-key",
 });
 
-inbox.$jazz.subscribe(BookTicketMessage, async (message, senderID) => {
+inbox.subscribe(BookTicketMessage, async (message, senderID) => {
   const madeBy = await co.account().load(senderID, { loadAs: worker });
 
   const { event } = await message.$jazz.ensureLoaded({
@@ -9668,16 +7353,17 @@ inbox.$jazz.subscribe(BookTicketMessage, async (message, senderID) => {
     },
   });
 
-  const ticketGroup = Group.create(jazzServer.worker);
+  const ticketGroup = Group.create(worker);
   const ticket = Ticket.create({
     account: madeBy,
     event,
   });
 
-  // Give access to the ticket to the client
-  ticketGroup.addMember(madeBy, "reader");
-
-  event.reservations.push(ticket);
+  if (madeBy.$isLoaded) {
+    // Give access to the ticket to the client
+    ticketGroup.addMember(madeBy, "reader");
+    event.reservations.$jazz.push(ticket);
+  }
 
   return ticket;
 });
@@ -9685,13 +7371,13 @@ inbox.$jazz.subscribe(BookTicketMessage, async (message, senderID) => {
 
 ### Handling multiple message types
 
-`inbox.$jazz.subscribe` should be called once per worker instance.
+`inbox.subscribe` should be called once per worker instance.
 
 If you need to handle multiple message types, you can use the `co.discriminatedUnion` function to create a union of the message types.
 
 ```ts
 const CancelReservationMessage = co.map({
-  type: co.literal("cancelReservation"),
+  type: z.literal("cancelReservation"),
   event: Event,
   ticket: Ticket,
 });
@@ -9705,9 +7391,9 @@ export const InboxMessage = co.discriminatedUnion("type", [
 And check the message type in the handler:
 
 ```ts
-import { InboxMessage } from "@/schema";
+import { InboxMessage } from "@/lib/schema";
 
-inbox.$jazz.subscribe(InboxMessage, async (message, senderID) => {
+inbox.subscribe(InboxMessage, async (message, senderID) => {
   switch (message.type) {
     case "bookTicket":
       return await handleBookTicket(message, senderID);
@@ -9724,11 +7410,12 @@ inbox.$jazz.subscribe(InboxMessage, async (message, senderID) => {
 Use `experimental_useInboxSender` to send messages from React components:
 
 ```ts
+import { co } from "jazz-tools";
 import { experimental_useInboxSender } from "jazz-tools/react";
-import { BookTicketMessage, Event } from "@/schema";
+import { BookTicketMessage, Event } from "@/lib/schema";
 
-function EventComponent({ event }: { event: Event }) {
-  const sendInboxMessage = experimental_useInboxSender(WORKER_ID);
+function EventComponent({ event }: { event: co.loaded<typeof Event> }) {
+  const sendInboxMessage = experimental_useInboxSender(process.env.WORKER_ID);
   const [isLoading, setIsLoading] = useState(false);
 
   const onBookTicketClick = async () => {
@@ -9742,18 +7429,19 @@ function EventComponent({ event }: { event: Event }) {
     );
 
     alert(`Ticket booked: ${ticketId}`);
+    setIsLoading(false);
   };
 
   return (
-    <Button onClick={onBookTicketClick} loading={isLoading}>
+    <button onClick={onBookTicketClick} disabled={isLoading}>
       Book Ticket
-    </Button>
+    </button>
   );
 }
 
 ```
 
-The `sendInboxMessage` API returns a Promise that waits for the message to be handled by a Worker. A message is considered to be handled when the Promise returned by `inbox.$jazz.subscribe` resolves. The value returned will be the id of the CoValue returned in the `inbox.$jazz.subscribe` resolved promise.
+The `sendInboxMessage` API returns a Promise that waits for the message to be handled by a Worker. A message is considered to be handled when the Promise returned by `inbox.subscribe` resolves. The value returned will be the id of the CoValue returned in the `inbox.subscribe` resolved promise.
 
 ## Deployment considerations
 
@@ -9777,19 +7465,9 @@ For Jazz to access data on the server, we need to create an SSR agent, which is 
 
 We can create this user using the `createSSRJazzAgent` function. In this example, we'll create a new file and export the agent, which allows us to import and use the same agent in multiple pages.
 
-\--- Section applies only to react ---
-
 **File name: app/jazzSSR.ts**
 
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/lib/jazzSSR.ts**
-
-\--- End of svelte specific section ---
-
-```tsx
+```ts
 import { createSSRJazzAgent } from "jazz-tools/ssr";
 
 export const jazzSSR = createSSRJazzAgent({
@@ -9801,24 +7479,12 @@ export const jazzSSR = createSSRJazzAgent({
 
 Normally, Jazz expects a logged in user (or an anonymous user) to be accessing data. We can use the `enableSSR` setting to tell Jazz that this may not be the case, and the data on the page may be being accessed by an agent.
 
-\--- Section applies only to react ---
-
 **File name: app/components/JazzWrapper.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/routes/+layout.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 "use client";
 import { JazzReactProvider } from "jazz-tools/react";
-import { JazzFestAccount } from "@/app/schema";
+import { JazzFestAccount } from "./schema";
 
 const apiKey = process.env.NEXT_PUBLIC_JAZZ_API_KEY;
 
@@ -9827,34 +7493,12 @@ export function JazzWrapper({ children }: { children: React.ReactNode }) {
     <JazzReactProvider
       sync={{ peer: `wss://cloud.jazz.tools/?key=${apiKey}` }}
       AccountSchema={JazzFestAccount}
-      {/* [!code ++:1] */}
-      enableSSR
+      enableSSR // [!code ++]
     >
       {children}
     </JazzReactProvider>
   );
 }
-
-```
-
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  import { JazzSvelteProvider } from "jazz-tools/svelte";
-  import { apiKey } from "$lib/apiKey";
-
-  let { children } = $props();
-  const sync = { peer: `wss://cloud.jazz.tools/?key=${apiKey}` };
-</script>
-
-<!--[!code --:1]-->
-<JazzSvelteProvider {sync}>
-<!--[!code ++:1]-->
-<JazzSvelteProvider {sync} enableSSR>
-  {@render children?.()}
-</JazzSvelteProvider>
-
 ```
 
 ## Making your data public
@@ -9877,9 +7521,7 @@ export const Band = co
     band.$jazz.owner.makePublic();
   });
 
-export const Festival = co
-  .list(Band)
-  .withMigration((festival) => festival.$jazz.owner.makePublic());
+export const Festival = co.list(Band);
 
 export const JazzFestAccountRoot = co.map({
   myFestival: Festival,
@@ -9890,13 +7532,21 @@ export const JazzFestAccount = co
     root: JazzFestAccountRoot,
     profile: co.profile(),
   })
-  .withMigration((account) => {
+  .withMigration(async (account) => {
     if (!account.$jazz.has("root")) {
       account.$jazz.set("root", {
         myFestival: [],
       });
-      // [!code ++:1]
-      account.root?.myFestival?.$jazz.owner.makePublic();
+
+      // [!code ++:8]
+      if (account.root.$isLoaded) {
+        const { myFestival } = await account.root.$jazz.ensureLoaded({
+          resolve: {
+            myFestival: true,
+          },
+        });
+        myFestival.$jazz.owner.makePublic();
+      }
     }
   });
 ```
@@ -9905,19 +7555,7 @@ export const JazzFestAccount = co
 
 Now let's set up a page which will be read by the agent we created earlier, and rendered fully on the server.
 
-\--- Section applies only to react ---
-
 **File name: app/festival/\[festivalId\]/page.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: src/routes/festival/\[festivalId\]/+page.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 import { jazzSSR } from "@/app/jazzSSR";
@@ -9931,7 +7569,7 @@ export default async function ServerSidePage(props: {
     loadAs: jazzSSR,
     resolve: {
       $each: {
-        $onError: null,
+        $onError: "catch",
       },
     },
   });
@@ -9941,76 +7579,26 @@ export default async function ServerSidePage(props: {
       <h1>🎪 Server-rendered Festival {festivalId}</h1>
 
       <ul>
-        {festival?.filter(Boolean).map((band) => {
-          if (!band) return null;
-          return <li key={band.$jazz.id}>🎶 {band.name}</li>;
-        })}
+        {festival.$isLoaded &&
+          festival.map((band) => {
+            if (!band.$isLoaded) return null;
+            return <li key={band.$jazz.id}>🎶 {band.name}</li>;
+          })}
       </ul>
     </main>
   );
 }
 ```
 
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  import { jazzSSR } from "$lib/jazzSSR";
-  import { Festival } from "$lib/schema";
-  import { page } from '$app/state';
-
-	const festivalId = $derived(page.params.festivalId);
-
-  const festival = $derived(Festival.load(festivalId, {
-    loadAs: jazzSSR,
-    resolve: {
-      $each: {
-        $onError: null,
-      },
-    },
-  }));
-</script>
-
-<main>
-  <h1>🎪 Server-rendered Festival {festivalId}</h1>
-  <ul>
-    {#await festival then festival}
-      {#each festival?.filter(Boolean) || [] as band (band.$jazz.id)}
-        <li>🎶 {band.name}</li>;
-      {/each}
-    {/await}
-  </ul>
-</main>
-
-```
-
-**Note**: `filter(Boolean)` allows us to remove any bands which have resolved to `null` during the loading process — this is often the case when the SSR agent tries to load a CoValue where the permissions are not set to public.
-
-\--- Section applies only to react ---
-
 **Info:**
 
 TypeScript might not recognise that `params` is a promise. This is a new feature in Next.js 15, which you can [read more about here](https://nextjs.org/docs/messages/sync-dynamic-apis).
-
-\--- End of react specific section ---
 
 ## Linking to your server-rendered page
 
 The last step is to link to your server-rendered page from your `Festival` component so that you can find it easily!
 
-\--- Section applies only to react ---
-
 **File name: app/components/Festival.tsx**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: lib/components/Festival.svelte**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```tsx
 "use client";
@@ -10020,16 +7608,17 @@ import Link from "next/link";
 import { JazzFestAccount } from "@/app/schema";
 
 export function Festival() {
-  const { me } = useAccount(JazzFestAccount, {
-    resolve: { root: { myFestival: true } },
+  const me = useAccount(JazzFestAccount, {
+    resolve: { root: { myFestival: { $each: { $onError: "catch" } } } },
   });
-  if (!me) return null; // not loaded yet
+  if (!me.$isLoaded) return null;
   return (
     <>
       <ul>
-        {me?.root.myFestival.map(
-          (band) => band && <li key={band.$jazz.id}>{band.name}</li>,
-        )}
+        {me.root.myFestival.map((band) => {
+          if (!band.$isLoaded) return null;
+          return <li key={band.$jazz.id}>{band.name}</li>;
+        })}
       </ul>
       {/* [!code ++:3] */}
       <Link href={`/festival/${me.root.myFestival.$jazz.id}`}>
@@ -10040,44 +7629,12 @@ export function Festival() {
 }
 ```
 
-##### Svelte:
-
-```svelte
-<script lang="ts">
-  import { AccountCoState } from "jazz-tools/svelte";
-  import { JazzFestAccount } from "$lib/schema";
-  const me = new AccountCoState(JazzFestAccount, {
-    resolve: { root: { myFestival: true } }
-  });
-</script>
-
-<ul>
-  {#each me.current?.root.myFestival || [] as band}
-    <li>{band?.name}</li>
-  {/each}
-</ul>
-<!-- [!code ++:3] -->
-<a href={`/festival/${me.root.myFestival.$jazz.id}`}>
-  Go to my Server-Rendered Festival Page!
-</a>
-
-```
-
 ## Start your app
 
 Let's fire up your app and see if it works!
 
-##### npm:
-
 ```bash
 npm run dev
-
-```
-
-##### pnpm:
-
-```bash
-pnpm run dev
 
 ```
 
@@ -10092,6 +7649,94 @@ If everything's going according to plan, your app will load with the home page. 
 - Did you add the migrations to make the data public?
 
 **Info: Still stuck?** Ask for help on [Discord](https://discord.gg/utDMjHYg42)!
+
+## Bonus: making the server-rendered page dynamic
+
+Just like client-side pages, Jazz can update server-rendered pages in real-time.
+
+For that we can use `export` to serialize values from Jazz and pass them to a client component:
+
+**File name: app/festival/\[festivalId\]/page.tsx**
+
+```tsx
+import { jazzSSR } from "@/app/jazzSSR";
+import { Festival } from "@/app/schema";
+import { FestivalComponent } from "./FestivalComponent";
+
+export default async function ServerSidePage(props: {
+  params: { festivalId: string };
+}) {
+  const { festivalId } = await props.params;
+  const festival = await Festival.load(festivalId, {
+    loadAs: jazzSSR,
+    resolve: {
+      $each: {
+        $onError: "catch",
+      },
+    },
+  });
+
+  if (!festival.$isLoaded) return <div>Festival not found</div>;
+
+  return (
+    // [!code ++:1]
+    <FestivalComponent
+      preloaded={festival.$jazz.export()}
+      festivalId={festivalId}
+    />
+  );
+}
+```
+
+Then we can pass the exported value to the preloaded option of the `useCoState` hook.
+
+This way Jazz can synchronously hydrate the CoValue data directly from the component props, avoiding the need to load the data:
+
+**File name: app/festival/\[festivalId\]/FestivalComponent.tsx**
+
+```tsx
+"use client";
+import { Festival } from "@/app/schema";
+// [!code ++:2]
+import { ExportedCoValue, co } from "jazz-tools";
+import { useCoState } from "jazz-tools/react";
+
+// [!code ++:1]
+type ExportedFestival = ExportedCoValue<
+  co.loaded<typeof Festival, { $each: { $onError: "catch" } }>
+>;
+
+export function FestivalComponent(props: {
+  preloaded: ExportedFestival;
+  festivalId: string;
+}) {
+  const festival = useCoState(Festival, props.festivalId, {
+    // [!code ++:1]
+    preloaded: props.preloaded,
+    resolve: {
+      $each: {
+        $onError: "catch",
+      },
+    },
+  });
+
+  return (
+    <main>
+      <h1>🎪 Server-rendered Festival {props.festivalId}</h1>
+
+      <ul>
+        {festival.$isLoaded &&
+          festival.map((band) => {
+            if (!band.$isLoaded) return null;
+            return <li key={band.$jazz.id}>🎶 {band.name}</li>;
+          })}
+      </ul>
+    </main>
+  );
+}
+```
+
+Now your festival page will update in real-time, without needing to reload the page.
 
 ## Next steps
 
@@ -10127,29 +7772,10 @@ npx create-jazz-app@latest --api-key YOUR_API_KEY
 
 Sign up for a free API key at [dashboard.jazz.tools](https://dashboard.jazz.tools) for higher limits or production use, or use your email address as a temporary key to get started quickly.
 
-\--- Section applies only to react ---
-
 **File name: .env**
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-**File name: .env**
-
-\--- End of svelte specific section ---
-
-##### React:
 
 ```bash
 NEXT_PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
-
-```
-
-##### Svelte:
-
-```bash
-PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
 
 ```
 
@@ -10235,8 +7861,6 @@ Alternatively, you can pass the Account ID and Account Secret separately.
 
 <https://inspector.jazz.tools>
 
-\--- Section applies only to react,svelte,vue,vanilla ---
-
 ## Exporting current account to Inspector from your app
 
 In development mode, you can launch the Inspector from your Jazz app to inspect your account by pressing `Cmd+J`.
@@ -10245,45 +7869,21 @@ In development mode, you can launch the Inspector from your Jazz app to inspect 
 
 You can also embed the Inspector directly into your app, so you don't need to open a separate window.
 
-\--- Section applies only to react ---
-
 ```tsx
 import { JazzInspector } from "jazz-tools/inspector";
 import { JazzReactProvider } from "jazz-tools/react";
 
-<JazzReactProvider>
-  // [!code ++]
-  <JazzInspector />
-</JazzReactProvider>;
+function App() {
+  return (
+    <JazzReactProvider>
+      {/* [!code ++] */}
+      <JazzInspector />
+    </JazzReactProvider>
+  );
+}
 ```
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte,vue,vanilla ---
-
-Install the custom element and render it.
-
-```ts
-import "jazz-tools/inspector/register-custom-element";
-
-document.body.appendChild(document.createElement("jazz-inspector"));
-```
-
-Or
-
-```tsx
-import "jazz-tools/inspector/register-custom-element";
-
-<jazz-inspector />;
-```
-
-\--- End of svelte,vue,vanilla specific section ---
 
 This will show the Inspector launch button on the right of your page.
-
-\--- End of react,svelte,vue,vanilla specific section ---
-
-\--- Section applies only to react ---
 
 ### Positioning the Inspector button \[!framework=react\]
 
@@ -10304,19 +7904,7 @@ For example:
 
 Your app
 
-\--- End of react specific section ---
-
-\--- Section applies only to react ---
-
 Check out the [music player app](https://github.com/garden-co/jazz/blob/main/examples/music-player/src/2%5Fmain.tsx) for a full example.
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-Check out the [file share app](https://github.com/garden-co/jazz/blob/main/examples/file-share-svelte/src/routes/%2Blayout.svelte) for a full example.
-
-\--- End of svelte specific section ---
 
 ### AI tools (llms.txt)
 
@@ -10328,7 +7916,7 @@ However, Jazz is a rapidly evolving framework, so sometimes AI might get things 
 
 To help the LLMs, we provide the Jazz documentation in a txt file that is optimized for use with AI tools, like Cursor.
 
-[llms-full.txt](/llms-full.txt)
+[llms-full.txt](/react/llms-full.txt)
 
 ## Setting up AI tools
 
@@ -10381,7 +7969,7 @@ This approach creates a foundation that can continue regardless of any single co
 
 ## How secure is my data?
 
-Jazz encrypts all your data by default using modern cryptographic standards. Every transaction is cryptographically signed, and data is encrypted using industry-standard algorithms including Blake3 hashing, ed25519 signatures, and xsalsa20 stream ciphers.
+Jazz encrypts all your data by default using modern cryptographic standards. Every transaction is cryptographically signed, and data is encrypted using industry-standard algorithms including BLAKE3 hashing, Ed25519 signatures, and XSalsa20 stream ciphers.
 
 Key features of Jazz's security:
 
@@ -10391,6 +7979,12 @@ Key features of Jazz's security:
 - **Zero-trust architecture**: Only people you explicitly grant access can read your data
 
 For technical details, see our [encryption documentation](/docs/reference/encryption).
+
+## Does Jazz use Non-standard cryptography?
+
+Jazz uses BLAKE3, XSalsa20, and Ed25519, which are all widely published and publicly reviewed standard cryptographic algorithms.
+
+Although we're not lawyers, and so can't give legal advice, we believe that Jazz does not use 'Non-standard cryptography' as defined in the [BIS requirements](https://www.ecfr.gov/current/title-15/subtitle-B/chapter-VII/subchapter-C/part-772#p-772.1%28Non-standard%20cryptography%29) and therefore the requirements for publishing Jazz apps in the Apple App Store.
 
 ### Encryption
 
@@ -10435,14 +8029,16 @@ Jazz automatically handles key management:
 
 Jazz encrypts data efficiently for real-time collaboration:
 
-- **Incremental hashing**: CoValue sessions use [Blake3](https://github.com/BLAKE3-team/BLAKE3) for append-only hashing
-- **Session signatures**: Each session is signed with [ed25519](https://ed25519.cr.yp.to/) after each transaction
-- **Stream ciphers**: Data is encrypted using [xsalsa20](https://cr.yp.to/salsa20.html) stream cipher
+- **Incremental hashing**: CoValue sessions use [BLAKE3](https://github.com/BLAKE3-team/BLAKE3) for append-only hashing
+- **Session signatures**: Each session is signed with [Ed25519](https://ed25519.cr.yp.to/) after each transaction
+- **Stream ciphers**: Data is encrypted using [XSalsa20](https://cr.yp.to/salsa20.html) stream cipher
 - **Integrity protection**: Hashing and signing ensure data hasn't been tampered with
+
+Although we're not lawyers, and so can't give legal advice, the encryption algorithms used in Jazz are widely published. As a result, we believe that Jazz does not use 'Non-standard cryptography' per the [BIS requirements](https://www.ecfr.gov/current/title-15/subtitle-B/chapter-VII/subchapter-C/part-772#p-772.1%28Non-standard%20cryptography%29) (and therefore the requirements for publishing Jazz apps in the Apple App Store).
 
 ## Content addressing
 
-CoValue IDs are the [Blake3](https://github.com/BLAKE3-team/BLAKE3) hash of their immutable "header" (containing CoValue type and owning group). This allows CoValues to be "content addressed" while remaining dynamic and changeable.
+CoValue IDs are the [BLAKE3](https://github.com/BLAKE3-team/BLAKE3) hash of their immutable "header" (containing CoValue type and owning group). This allows CoValues to be "content addressed" while remaining dynamic and changeable.
 
 ## What this means for you
 
@@ -10456,9 +8052,9 @@ CoValue IDs are the [Blake3](https://github.com/BLAKE3-team/BLAKE3) hash of thei
 
 ## Further reading
 
-- [Blake3](https://github.com/BLAKE3-team/BLAKE3) \- append-only hashing
-- [ed25519](https://ed25519.cr.yp.to/) \- signature scheme
-- [xsalsa20](https://cr.yp.to/salsa20.html) \- stream cipher for data encryption
+- [BLAKE3](https://github.com/BLAKE3-team/BLAKE3) \- append-only hashing
+- [Ed25519](https://ed25519.cr.yp.to/) \- signature scheme
+- [XSalsa20](https://cr.yp.to/salsa20.html) \- stream cipher for data encryption
 
 ### Implementation details
 
@@ -10486,14 +8082,19 @@ Jazz provides some key helpers that you can use to simplify writing complex test
 This should normally be the first thing you call in your test setup, for example in a `beforeEach` or `beforeAll` block. This function sets up an in-memory sync node for the test session, which is needed in case you want to test data synchronisation functionality. Test data is not persisted, and no clean-up is needed between test runs.
 
 ```ts
-import { co } from "jazz-tools";
+import { co, z } from "jazz-tools";
 import { beforeEach, describe, expect, test } from "vitest";
-import { createJazzTestAccount, setupJazzTestSync } from "jazz-tools/testing";
+import {
+  createJazzTestAccount,
+  runWithoutActiveAccount,
+  setActiveAccount,
+  setupJazzTestSync,
+} from "jazz-tools/testing";
 const MyAccountSchema = co.account({
   profile: co.profile(),
   root: co.map({}),
 });
-// ---cut---
+
 describe("My app's tests", () => {
   beforeEach(async () => {
     await setupJazzTestSync();
@@ -10520,13 +8121,6 @@ You can use `createJazzTestAccount()` to create an account and link it to the sy
 You can use it like this:
 
 ```ts
-import { co } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const MyAccountSchema = co.account({
-  profile: co.profile(),
-  root: co.map({}),
-});
-// ---cut---
 const account = await createJazzTestAccount({
   AccountSchema: MyAccountSchema,
   isCurrentActiveAccount: true,
@@ -10543,12 +8137,10 @@ This option allows you to provide a custom account schema to the utility to be u
 This option (disabled by default) allows you to quickly switch to the newly created account when it is created.
 
 ```ts
-import { co } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-// ---cut---
 const account1 = await createJazzTestAccount({
   isCurrentActiveAccount: true,
 });
+
 const group1 = co.group().create(); // Group is owned by account1;
 
 const account2 = await createJazzTestAccount();
@@ -10570,27 +8162,10 @@ Use `setActiveAccount()` to switch between active accounts during a test run.
 You can use this to test your app with multiple accounts.
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount, setActiveAccount } from "jazz-tools/testing";
-const MyMap = co.map({
-  text: z.string(),
-});
-function expect(actual?: any) {
-  return {
-    toBe(expected?: any) {
-      return null;
-    },
-    toThrow() {
-      return null;
-    },
-  };
-}
-// ---cut---
 const account1 = await createJazzTestAccount({
   isCurrentActiveAccount: true,
 });
 const account2 = await createJazzTestAccount();
-
 const group1 = co.group().create(); // Group is owned by account1;
 group1.addMember(account2, "reader");
 
@@ -10606,10 +8181,12 @@ setActiveAccount(account2);
 // myMap is still loaded as account1, so we need to load again as account2
 const myMapFromAccount2 = await MyMap.load(myMapId);
 
-expect(myMapFromAccount2?.text).toBe("Created by account1");
-expect(() =>
-  myMapFromAccount2?.$jazz.set("text", "Updated by account2"),
-).toThrow();
+if (myMapFromAccount2.$isLoaded) {
+  expect(myMapFromAccount2.text).toBe("Created by account1");
+  expect(() =>
+    myMapFromAccount2.$jazz.set("text", "Updated by account2"),
+  ).toThrow();
+}
 ```
 
 ### `runWithoutActiveAccount`
@@ -10617,25 +8194,10 @@ expect(() =>
 If you need to test how a particular piece of code behaves when run without an active account.
 
 ```ts
-import { co } from "jazz-tools";
-import {
-  createJazzTestAccount,
-  runWithoutActiveAccount,
-} from "jazz-tools/testing";
-function expect(actual?: any) {
-  return {
-    toBe(expected?: any) {
-      return null;
-    },
-    toThrow() {
-      return null;
-    },
-  };
-}
-// ---cut---
 const account1 = await createJazzTestAccount({
   isCurrentActiveAccount: true,
 });
+
 runWithoutActiveAccount(() => {
   expect(() => co.group().create()).toThrow(); // can't create new group
 });
@@ -10645,32 +8207,7 @@ runWithoutActiveAccount(() => {
 
 To test UI components, you may need to create a mock Jazz context.
 
-\--- Section applies only to react ---
-
 In most cases, you'd use this for initialising a provider. You can see how we [initialise a test provider for React tests here](https://github.com/garden-co/jazz/blob/main/packages/jazz-tools/src/react-core/testing.tsx), or see how you could [integrate with @testing-library/react here](https://github.com/garden-co/jazz/blob/main/packages/jazz-tools/src/react-core/tests/testUtils.tsx).
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-You can render your components for testing by passing a mocked Jazz context to the `@testing-library/svelte` `render` helper.
-
-[You can see an example of how we do that here](https://github.com/garden-co/jazz/blob/main/packages/jazz-tools/src/svelte/tests/testUtils.ts).
-
-\--- End of svelte specific section ---
-
-\--- Section applies only to vanilla ---
-
-The `TestJazzContextManager` mocks the `JazzContextManager` to allow you to instantiate a Jazz context as a user or a guest, allowing you to run tests which depend on an authenticated or a guest session.
-
-You'll normally use either:
-
-- `TestJazzContextManager.fromAccount(account, props?)` to simulate a logged-in context. You can pass `isAuthenticated: false` as an option to simulate an [anonymous user](docs/key-features/authentication/authentication-states#anonymous-authentication).
-- `TestJazzContextManager.fromGuest({ guest }, props?)` allows you to simulate a [guest context](/docs/key-features/authentication/authentication-states#guest-mode).
-
-You can also use `TestJazzContextManager.fromAccountOrGuest()` to allow you to pass either.
-
-\--- End of vanilla specific section ---
 
 ### Simulating connection state changes
 
@@ -10682,18 +8219,7 @@ You're ready to start writing your own tests for your Jazz apps now. For further
 
 - [Unit test examples](https://github.com/garden-co/jazz/tree/main/packages/jazz-tools/src/tools/tests)
 - [End-to-end examples](https://github.com/garden-co/jazz/tree/main/tests/e2e/tests)
-
-\--- Section applies only to react ---
-
 - [React-specific tests](https://github.com/garden-co/jazz/tree/main/packages/jazz-tools/src/react-core/tests)
-
-\--- End of react specific section ---
-
-\--- Section applies only to svelte ---
-
-- [Svelte-specific tests](https://github.com/garden-co/jazz/tree/main/packages/jazz-tools/src/svelte/tests)
-
-\--- End of svelte specific section ---
 
 ### Performance tips
 
@@ -10703,7 +8229,7 @@ You're ready to start writing your own tests for your Jazz apps now. For further
 
 The fastest implementations are (in order):
 
-1. [Node-API crypto](/docs/server-side/setup#node-api) (only available in some Node/Deno environments) or [RNQuickCrypto on React Native](/docs/react-native/project-setup/providers#quick-crypto)
+1. [Node-API crypto](/docs/server-side/setup#node-api) (only available in some Node/Deno environments) or [RNCrypto](/docs/project-setup/providers#react-native-crypto) and [RNQuickCrypto](/docs/react-native/project-setup/providers#quick-crypto) on React Native
 2. [WASM crypto](/docs/server-side/setup#wasm-on-edge-runtimes)
 3. JavaScript fallback (slowest, but most compatible)
 
@@ -10796,6 +8322,12 @@ myLocation.$jazz.set("position", [-33.868, -63.987]);
 // Note: you cannot replace a single array element, only replace the whole tuple
 ```
 
+### Avoid expensive selectors \[!framework=react\]
+
+Using selectors is a great way to avoid unnecessary re-renders in your app. However, an expensive selector will cause your app to run slowly as the selector will re-run every time the CoValue updates.
+
+In case you need to run expensive computations on your CoValues, [extract this into a separate useMemo call](/docs/react/core-concepts/subscription-and-loading#avoiding-expensive-selectors).
+
 ### Forms
 
 # How to write forms with Jazz
@@ -10826,10 +8358,11 @@ When creating a CoValue, we can use a partial version that allows us to build up
 
 Let's say we have a CoValue called `BubbleTeaOrder`. We can create a partial version,`PartialBubbleTeaOrder`, which has some fields made optional so we can build up the data incrementally.
 
-```tsx
+**File name: schema.ts**
+
+```ts
 import { co, z } from "jazz-tools";
-// ---cut---
-// schema.ts
+
 export const BubbleTeaOrder = co.map({
   name: z.string(),
 });
@@ -10844,18 +8377,9 @@ export type PartialBubbleTeaOrder = co.loaded<typeof PartialBubbleTeaOrder>;
 Let's write the form component that will be used for both create and update.
 
 ```tsx
-import * as React from "react";
-import { co, z } from "jazz-tools";
+import { co } from "jazz-tools";
+import { BubbleTeaOrder, PartialBubbleTeaOrder } from "./schema";
 
-export const BubbleTeaOrder = co.map({
-  name: z.string(),
-});
-export type BubbleTeaOrder = co.loaded<typeof BubbleTeaOrder>;
-
-export const PartialBubbleTeaOrder = BubbleTeaOrder.partial();
-export type PartialBubbleTeaOrder = co.loaded<typeof PartialBubbleTeaOrder>;
-// ---cut---
-// OrderForm.tsx
 export function OrderForm({
   order,
   onSave,
@@ -10869,7 +8393,7 @@ export function OrderForm({
         Name
         <input
           type="text"
-          value={order.name || ""}
+          value={order.name}
           onChange={(e) => order.$jazz.set("name", e.target.value)}
           required
         />
@@ -10886,38 +8410,10 @@ export function OrderForm({
 To make the edit form, simply pass the `BubbleTeaOrder`. Changes are automatically saved as you type.
 
 ```tsx
-import { co, z } from "jazz-tools";
-import { useCoState } from "jazz-tools/react";
-import * as React from "react";
-
-export const BubbleTeaOrder = co.map({
-  name: z.string(),
-});
-export type BubbleTeaOrder = co.loaded<typeof BubbleTeaOrder>;
-
-export const PartialBubbleTeaOrder = BubbleTeaOrder.partial();
-export type PartialBubbleTeaOrder = co.loaded<typeof PartialBubbleTeaOrder>;
-
-export function OrderForm({ order }: { order: PartialBubbleTeaOrder }) {
-  return (
-    <form onSubmit={(e) => e.preventDefault()}>
-      <label>
-        Name
-        <input
-          type="text"
-          value={order.name}
-          onChange={(e) => order.$jazz.set("name", e.target.value)}
-        />
-      </label>
-    </form>
-  );
-}
-// ---cut---
-// EditOrder.tsx
 export function EditOrder(props: { id: string }) {
   const order = useCoState(BubbleTeaOrder, props.id);
 
-  if (!order) return;
+  if (!order.$isLoaded) return;
 
   return <OrderForm order={order} />;
 }
@@ -10934,62 +8430,15 @@ For the create form, we need to:
 Here's how that looks like:
 
 ```tsx
-import { co, z } from "jazz-tools";
-import { useCoState, useAccountWithSelector } from "jazz-tools/react";
-import * as React from "react";
-import { useState } from "react";
-
-export const BubbleTeaOrder = co.map({
-  name: z.string(),
-});
-export type BubbleTeaOrder = co.loaded<typeof BubbleTeaOrder>;
-
-export const PartialBubbleTeaOrder = BubbleTeaOrder.partial();
-export type PartialBubbleTeaOrder = co.loaded<typeof PartialBubbleTeaOrder>;
-
-export const AccountRoot = co.map({
-  orders: co.list(BubbleTeaOrder),
-});
-
-export const JazzAccount = co.account({
-  root: AccountRoot,
-  profile: co.profile(),
-});
-
-export function OrderForm({
-  order,
-  onSave,
-}: {
-  order: BubbleTeaOrder | PartialBubbleTeaOrder;
-  onSave?: (e: React.FormEvent<HTMLFormElement>) => void;
-}) {
-  return (
-    <form onSubmit={onSave || ((e) => e.preventDefault())}>
-      <label>
-        Name
-        <input
-          type="text"
-          value={order.name || ""}
-          onChange={(e) => order.$jazz.set("name", e.target.value)}
-          required
-        />
-      </label>
-
-      {onSave && <button type="submit">Submit</button>}
-    </form>
-  );
-}
-// ---cut---
-// CreateOrder.tsx
 export function CreateOrder(props: { id: string }) {
-  const orders = useAccountWithSelector(JazzAccount, {
+  const orders = useAccount(JazzAccount, {
     resolve: { root: { orders: true } },
-    select: (account) => account?.root.orders,
+    select: (account) => (account.$isLoaded ? account.root.orders : undefined),
   });
 
   const newOrder = useCoState(PartialBubbleTeaOrder, props.id);
 
-  if (!newOrder || !orders) return;
+  if (!newOrder.$isLoaded || !orders) return;
 
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -11009,7 +8458,6 @@ export function CreateOrder(props: { id: string }) {
 If you need a save button for editing (rather than automatic saving), you can use Jazz's branching feature. The example app shows how to create a private branch for editing that can be merged back when the user saves:
 
 ```tsx
-import { useCoState } from "jazz-tools/react";
 import { Group } from "jazz-tools";
 import { useState, useMemo } from "react";
 
@@ -11020,7 +8468,7 @@ export function EditOrderWithSave(props: { id: string }) {
 
   const order = useCoState(BubbleTeaOrder, props.id, {
     resolve: {
-      addOns: { $each: true },
+      addOns: { $each: true, $onError: "catch" },
       instructions: true,
     },
     unstable_branch: {
@@ -11031,7 +8479,7 @@ export function EditOrderWithSave(props: { id: string }) {
 
   function handleSave(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!order) return;
+    if (!order.$isLoaded) return;
 
     // Merge the branch back to the original
     order.$jazz.unstable_merge();
@@ -11042,11 +8490,9 @@ export function EditOrderWithSave(props: { id: string }) {
     // Navigate away without saving - the branch will be discarded
   }
 
-  if (!order) return;
+  if (!order.$isLoaded) return;
 
-  return (
-    <OrderForm order={order} onSave={handleSave} onCancel={handleCancel} />
-  );
+  return <OrderForm order={order} onSave={handleSave} />;
 }
 ```
 
@@ -11078,10 +8524,9 @@ Create a CoMap shared by the users of the same organization to act as a root (or
 
 For this example, users within an `Organization` will be sharing `Project`s.
 
+**File name: schema.ts**
+
 ```ts
-import { co, z } from "jazz-tools";
-// ---cut---
-// schema.ts
 export const Project = co.map({
   name: z.string(),
 });
@@ -11102,21 +8547,7 @@ Learn more about [defining schemas](/docs/core-concepts/covalues/overview).
 
 Let's add the list of `Organization`s to the user's Account `root` so they can access them.
 
-```ts
-import { Group, co, z } from "jazz-tools";
-export const Project = co.map({
-  name: z.string(),
-});
-
-export const Organization = co.map({
-  name: z.string(),
-
-  // shared data between users of each organization
-  projects: co.list(Project),
-});
-
-// ---cut---
-// schema.ts
+```tsx
 export const JazzAccountRoot = co.map({
   organizations: co.list(Organization),
 });
@@ -11166,57 +8597,18 @@ Here's how you can generate an [invite link](/docs/permissions-and-sharing/shari
 When the user accepts the invite, add the `Organization` to the user's `organizations` list.
 
 ```tsx
-import * as React from "react";
-import { useAcceptInvite, useAccount } from "jazz-tools/react";
-import { co, z } from "jazz-tools";
+import { useAcceptInvite } from "jazz-tools/react";
 
-const Project = co.map({
-  name: z.string(),
+useAcceptInvite({
+  invitedObjectSchema: Organization,
+  onAccept: async (organizationID) => {
+    const organization = await Organization.load(organizationID);
+    if (!organization.$isLoaded)
+      throw new Error("Organization could not be loaded");
+    me.root.organizations.$jazz.push(organization);
+    // navigate to the organization page
+  },
 });
-
-const Organization = co.map({
-  name: z.string(),
-  projects: co.list(Project),
-});
-
-const JazzAccountRoot = co.map({
-  organizations: co.list(Organization),
-});
-
-const JazzAccount = co.account({
-  root: JazzAccountRoot,
-  profile: co.profile(),
-});
-
-// ---cut---
-export function AcceptInvitePage() {
-  const { me } = useAccount(JazzAccount, {
-    resolve: { root: { organizations: { $each: { $onError: null } } } },
-  });
-
-  const onAccept = (organizationId: string) => {
-    if (me) {
-      Organization.load(organizationId).then((organization) => {
-        if (organization) {
-          // avoid duplicates
-          const ids = me.root.organizations.map(
-            (organization) => organization?.$jazz.id,
-          );
-          if (ids.includes(organizationId)) return;
-
-          me.root.organizations.$jazz.push(organization);
-        }
-      });
-    }
-  };
-
-  useAcceptInvite({
-    invitedObjectSchema: Organization,
-    onAccept,
-  });
-
-  return <p>Accepting invite...</p>;
-}
 ```
 
 ## Further reading
@@ -11235,20 +8627,13 @@ Jazz's automatic history tracking enables powerful patterns for building collabo
 Build a complete audit trail showing all changes to your data:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-
-const Task = co.map({
-  title: z.string(),
-  status: z.literal(["todo", "in-progress", "completed"]),
-});
-type Task = co.loaded<typeof Task>;
-const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
-
-// ---cut---
 function getAuditLog(task: Task) {
-  const changes = [];
+  const changes: {
+    field: string;
+    value: Task[keyof Task] | undefined;
+    by: Account | null;
+    at: Date;
+  }[] = [];
 
   // Collect edits for all fields
   const fields = Object.keys(task);
@@ -11274,8 +8659,9 @@ function getAuditLog(task: Task) {
 // Use it to show change history
 const auditLog = getAuditLog(task);
 auditLog.forEach((entry) => {
+  if (!entry.by?.profile?.$isLoaded) return;
   const when = entry.at.toLocaleString();
-  const who = entry.by?.profile?.name;
+  const who = entry.by.profile.name;
   const what = entry.field;
   const value = entry.value;
 
@@ -11289,25 +8675,14 @@ auditLog.forEach((entry) => {
 Show recent activity across your application:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-const me = await createJazzTestAccount();
-
-const Project = co.map({
-  name: z.string(),
-  status: z.literal(["todo", "in-progress", "completed"]),
-});
-type Project = co.loaded<typeof Project>;
-
-const project = Project.create(
-  { name: "New project", status: "todo" },
-  { owner: me },
-);
-const myProjects = [project];
-
-// ---cut---
 function getRecentActivity(projects: Project[], since: Date) {
-  const activity = [];
+  const activity: {
+    project: string;
+    field: string;
+    value: Task[keyof Task] | undefined;
+    by: Account | null;
+    at: Date;
+  }[] = [];
 
   for (const project of projects) {
     // Get all fields that might have edits
@@ -11355,22 +8730,9 @@ const recentActivity = getRecentActivity(myProjects, hourAgo);
 Show when something was last updated:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-
-const me = await createJazzTestAccount();
-
-const Task = co.map({
-  title: z.string(),
-  status: z.literal(["todo", "in-progress", "completed"]),
-});
-type Task = co.loaded<typeof Task>;
-const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
-
-// ---cut---
 function getLastUpdated(task: Task) {
   // Find the most recent edit across all fields
-  let lastEdit: any = null;
+  let lastEdit: CoMapEdit<unknown> | null = null;
 
   const edits = task.$jazz.getEdits();
   for (const field of Object.keys(task)) {
@@ -11384,12 +8746,12 @@ function getLastUpdated(task: Task) {
     }
   }
 
-  if (!lastEdit) return null;
+  if (!lastEdit || !lastEdit.by?.profile?.$isLoaded) return null;
 
   return {
-    updatedBy: lastEdit.by?.profile?.name,
+    updatedBy: lastEdit.by.profile.name,
     updatedAt: lastEdit.madeAt,
-    message: `Last updated by ${lastEdit.by?.profile?.name} at ${lastEdit.madeAt.toLocaleString()}`,
+    message: `Last updated by ${lastEdit.by.profile.name} at ${lastEdit.madeAt.toLocaleString()}`,
   };
 }
 
@@ -11403,23 +8765,6 @@ console.log(lastUpdated?.message);
 Query history for specific events:
 
 ```ts
-import { co, z } from "jazz-tools";
-import { createJazzTestAccount } from "jazz-tools/testing";
-
-const me = await createJazzTestAccount();
-
-const Task = co.map({
-  title: z.string(),
-  status: z.literal(["todo", "in-progress", "completed"]),
-});
-type Task = co.loaded<typeof Task>;
-const task = Task.create({ title: "New task", status: "todo" }, { owner: me });
-
-task.$jazz.set("status", "completed");
-task.$jazz.set("status", "in-progress");
-task.$jazz.set("status", "completed");
-
-// ---cut---
 // Find when a task was completed
 function findCompletionTime(task: Task): Date | null {
   const statusEdits = task.$jazz.getEdits().status;
@@ -11462,7 +8807,9 @@ function findWhoChanged(task: Task, field: string, value: any) {
   return matchingEdit?.by || null;
 }
 const account = findWhoChanged(task, "status", "completed");
-console.log(account?.profile?.name);
+if (account?.profile?.$isLoaded) {
+  console.log(account.profile.name);
+}
 // Alice
 ```
 
@@ -11528,6 +8875,12 @@ export const Playlist = co.map({
   tracks: co.list(MusicTrack), // CoList is the collaborative version of Array
 });
 export type Playlist = co.loaded<typeof Playlist>;
+
+export const PlaylistWithTracks = Playlist.resolved({
+  tracks: { $each: true },
+});
+export type PlaylistWithTracks = co.loaded<typeof PlaylistWithTracks>;
+
 /** The account root is an app-specific per-user private `CoMap`
  *  where you can store top-level objects for that user */
 export const MusicaAccountRoot = co.map({
@@ -11601,6 +8954,14 @@ export const MusicaAccount = co
   });
 export type MusicaAccount = co.loaded<typeof MusicaAccount>;
 
+export const MusicaAccountWithPlaylists = MusicaAccount.resolved({
+  root: {
+    playlists: {
+      $each: { $onError: "catch", ...PlaylistWithTracks.resolveQuery },
+    },
+  },
+});
+
 /** Walkthrough: Continue with ./2_main.tsx */
 ```
 
@@ -11647,7 +9008,7 @@ function AppContent({
   mediaPlayer: ReturnType<typeof useMediaPlayer>;
 }) {
   const showWelcomeScreen = useAccountSelector({
-    select: (me) => !me.root.accountSetupCompleted,
+    select: (me) => !me.$isLoaded || !me.root.accountSetupCompleted,
   });
 
   const isReady = usePrepareAppState(mediaPlayer);
@@ -11725,9 +9086,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 ### 3_HomePage.tsx
 
 ```tsx
-import { useCoState } from "jazz-tools/react";
 import { useParams } from "react-router";
-import { Playlist } from "./1_schema";
+import { PlaylistWithTracks } from "./1_schema";
 import { uploadMusicTracks } from "./4_actions";
 import { MediaPlayer } from "./5_useMediaPlayer";
 import { FileUploadButton } from "./components/FileUploadButton";
@@ -11742,6 +9102,7 @@ import { SidebarInset, SidebarTrigger } from "./components/ui/sidebar";
 import { usePlayState } from "./lib/audio/usePlayState";
 import { useState } from "react";
 import { useAccountSelector } from "@/components/AccountProvider.tsx";
+import { useSuspenseCoState } from "jazz-tools/react-core";
 
 export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
   const playState = usePlayState();
@@ -11762,21 +9123,16 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
     select: (me) => params.playlistId ?? me.root.$jazz.refs.rootPlaylist.id,
   });
 
-  const playlist = useCoState(Playlist, playlistId, {
-    resolve: {
-      tracks: {
-        $each: true,
-      },
-    },
-  });
+  const playlist = useSuspenseCoState(PlaylistWithTracks, playlistId);
 
-  const membersIds = playlist?.$jazz.owner.members.map((member) => member.id);
+  const membersIds = playlist.$jazz.owner.members.map((member) => member.id);
   const isRootPlaylist = !params.playlistId;
   const canEdit = useAccountSelector({
     select: (me) => Boolean(playlist && me.canWrite(playlist)),
   });
   const isActivePlaylist = useAccountSelector({
-    select: (me) => playlistId === me.root.activePlaylist?.$jazz.id,
+    select: (me) =>
+      me.$isLoaded && playlistId === me.root.activePlaylist?.$jazz.id,
   });
 
   const handlePlaylistShareClick = () => {
@@ -11877,7 +9233,12 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
 ```ts
 import { getAudioFileData } from "@/lib/audio/getAudioFileData";
 import { Group } from "jazz-tools";
-import { MusicTrack, MusicaAccount, Playlist } from "./1_schema";
+import {
+  MusicTrack,
+  MusicaAccount,
+  Playlist,
+  PlaylistWithTracks,
+} from "./1_schema";
 
 /**
  * Walkthrough: Actions
@@ -11961,9 +9322,7 @@ export async function addTrackToPlaylist(
   track: MusicTrack,
 ) {
   const { tracks } = await playlist.$jazz.ensureLoaded({
-    resolve: {
-      tracks: { $each: true },
-    },
+    resolve: PlaylistWithTracks.resolveQuery,
   });
 
   const isPartOfThePlaylist = tracks.some((t) => t.$jazz.id === track.$jazz.id);
@@ -12000,18 +9359,18 @@ export async function removeTrackFromAllPlaylists(track: MusicTrack) {
       root: {
         playlists: {
           $each: {
-            $onError: null,
+            $onError: "catch",
           },
         },
-        rootPlaylist: true,
       },
     },
   });
 
   const playlists = root.playlists;
 
+  // @ts-expect-error - https://github.com/microsoft/TypeScript/issues/62621
   for (const playlist of playlists) {
-    if (!playlist) continue;
+    if (!playlist.$isLoaded) continue;
 
     removeTrackFromPlaylist(playlist, track);
   }
@@ -12073,6 +9432,7 @@ export async function onAnonymousAccountDiscarded(
     },
   });
 
+  // @ts-expect-error - https://github.com/microsoft/TypeScript/issues/62621
   for (const track of anonymousAccountRoot.rootPlaylist.tracks) {
     if (track.isExampleTrack) continue;
 
@@ -12132,8 +9492,8 @@ export function useMediaPlayer() {
     updateActiveTrack(track);
 
     const file = await MusicTrack.shape.file.loadAsBlob(
-      track.$jazz.refs.file!.id,
-    ); // TODO: see if we can avoid !
+      track.$jazz.refs.file.id,
+    );
 
     if (!file) {
       setLoading(null);
@@ -12154,7 +9514,7 @@ export function useMediaPlayer() {
   async function playNextTrack() {
     const track = await getNextTrack();
 
-    if (track) {
+    if (track.$isLoaded) {
       updateActiveTrack(track);
       await loadTrack(track);
     }
@@ -12163,7 +9523,7 @@ export function useMediaPlayer() {
   async function playPrevTrack() {
     const track = await getPrevTrack();
 
-    if (track) {
+    if (track.$isLoaded) {
       await loadTrack(track);
     }
   }
@@ -12223,7 +9583,7 @@ export function InvitePage() {
             root: {
               playlists: {
                 $each: {
-                  $onError: null,
+                  $onError: "catch",
                 },
               },
             },
@@ -12263,24 +9623,20 @@ export const apiKey =
 ### components/AccountProvider.tsx
 
 ```tsx
-import { MusicaAccount } from "@/1_schema.ts";
+import { MusicaAccount, PlaylistWithTracks } from "@/1_schema.ts";
 import { createAccountSubscriptionContext } from "jazz-tools/react-core";
 
 export const { Provider: AccountProvider, useSelector: useAccountSelector } =
   createAccountSubscriptionContext(MusicaAccount, {
     root: {
-      rootPlaylist: {
-        tracks: {
-          $each: true,
-        },
-      },
+      rootPlaylist: PlaylistWithTracks.resolveQuery,
       playlists: {
         $each: {
-          $onError: null,
+          $onError: "catch",
         },
       },
-      activeTrack: { $onError: null },
-      activePlaylist: { $onError: null },
+      activeTrack: { $onError: "catch" },
+      activePlaylist: { $onError: "catch" },
     },
     profile: true,
   });
@@ -12292,14 +9648,14 @@ export const { Provider: AccountProvider, useSelector: useAccountSelector } =
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useAccount, useIsAuthenticated } from "jazz-tools/react";
+import { useLogOut, useIsAuthenticated } from "jazz-tools/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthModal } from "./AuthModal";
 
 export function AuthButton() {
   const [open, setOpen] = useState(false);
-  const { logOut } = useAccount();
+  const logOut = useLogOut();
   const navigate = useNavigate();
 
   const isAuthenticated = useIsAuthenticated();
@@ -12369,7 +9725,9 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
     try {
       if (isSignUp) {
-        await auth.signUp(profileName);
+        if (profileName) {
+          await auth.signUp(profileName);
+        }
       } else {
         await auth.logIn();
       }
@@ -12642,8 +10000,8 @@ export function EditPlaylistModal({
 
   // Reset local title when modal opens or playlist changes
   useEffect(() => {
-    if (isOpen && playlist) {
-      setLocalPlaylistTitle(playlist.title ?? "");
+    if (isOpen && playlist.$isLoaded) {
+      setLocalPlaylistTitle(playlist.title);
     }
   }, [isOpen, playlist]);
 
@@ -12652,14 +10010,14 @@ export function EditPlaylistModal({
   }
 
   function handleSave() {
-    if (playlist && localPlaylistTitle.trim()) {
+    if (playlist.$isLoaded && localPlaylistTitle.trim()) {
       updatePlaylistTitle(playlist, localPlaylistTitle.trim());
       onClose();
     }
   }
 
   function handleCancel() {
-    setLocalPlaylistTitle(playlist?.title ?? "");
+    setLocalPlaylistTitle(playlist.$isLoaded ? playlist.title : "");
     onClose();
   }
 
@@ -12798,11 +10156,11 @@ export function LocalOnlyTag() {
 ### components/LogoutButton.tsx
 
 ```tsx
-import { useAccount } from "jazz-tools/react";
+import { useLogOut } from "jazz-tools/react";
 import { Button } from "./ui/button";
 
 export function LogoutButton() {
-  const { logOut } = useAccount();
+  const logOut = useLogOut();
 
   return <Button onClick={logOut}>Logout</Button>;
 }
@@ -12832,7 +10190,7 @@ export function Member({
     resolve: { profile: true },
   });
 
-  if (!account) {
+  if (!account.$isLoaded) {
     return (
       <div
         className={`rounded-full bg-gray-200 border-2 border-white flex items-center justify-center ${getSizeClasses(size)} ${className}`}
@@ -12842,8 +10200,8 @@ export function Member({
     );
   }
 
-  const avatar = account.profile?.avatar;
-  const name = account.profile?.name || "Unknown User";
+  const avatar = account.profile.avatar;
+  const name = account.profile.name || "Unknown User";
 
   return (
     <div
@@ -12939,7 +10297,7 @@ export function MemberAccessModal(props: MemberAccessModalProps) {
   >("reader");
   const { toast } = useToast();
 
-  if (!group) return null;
+  if (!group.$isLoaded) return null;
 
   // Get all members from the group
   const members = group.members.map((m) => m.account);
@@ -13062,7 +10420,11 @@ export function MemberAccessModal(props: MemberAccessModalProps) {
                         />
                         <div className="flex-1">
                           <p className="font-medium text-gray-900">
-                            {isCurrentUser ? "You" : member.profile?.name}
+                            {isCurrentUser
+                              ? "You"
+                              : member.profile.$isLoaded
+                                ? member.profile.name
+                                : ""}
                           </p>
                           <div className="flex items-center gap-2 mt-1">
                             {getRoleIcon(currentRole)}
@@ -13213,7 +10575,12 @@ export function MemberAccessModal(props: MemberAccessModalProps) {
 ### components/MusicTrackRow.tsx
 
 ```tsx
-import { MusicTrack, MusicaAccount, Playlist } from "@/1_schema";
+import {
+  MusicTrack,
+  Playlist,
+  PlaylistWithTracks,
+  MusicaAccountWithPlaylists,
+} from "@/1_schema";
 import {
   addTrackToPlaylist,
   removeTrackFromAllPlaylists,
@@ -13226,19 +10593,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { Loaded } from "jazz-tools";
-import { useAccountWithSelector, useCoState } from "jazz-tools/react";
 import { MoreHorizontal, Pause, Play } from "lucide-react";
-import { Fragment, useCallback, useState } from "react";
+import { Fragment, Suspense, useCallback, useState } from "react";
 import { EditTrackDialog } from "./RenameTrackDialog";
 import { Waveform } from "./Waveform";
 import { Button } from "./ui/button";
 import { useAccountSelector } from "@/components/AccountProvider.tsx";
+import { useSuspenseCoState, useSuspenseAccount } from "jazz-tools/react";
 
-function isPartOfThePlaylist(
-  trackId: string,
-  playlist: Loaded<typeof Playlist, { tracks: true }>,
-) {
+function isPartOfThePlaylist(trackId: string, playlist: PlaylistWithTracks) {
   return Array.from(playlist.tracks.$jazz.refs).some((t) => t.id === trackId);
 }
 
@@ -13253,44 +10616,32 @@ export function MusicTrackRow({
   onClick: (track: MusicTrack) => void;
   index: number;
 }) {
-  const track = useCoState(MusicTrack, trackId);
+  const track = useSuspenseCoState(MusicTrack, trackId);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-
-  const playlists = useAccountWithSelector(MusicaAccount, {
-    resolve: {
-      root: { playlists: { $onError: null, $each: { tracks: true } } },
-    },
-    select: (account) => account?.root.playlists,
-  });
 
   const isActiveTrack = useAccountSelector({
     select: (me) => me.root.activeTrack?.$jazz.id === trackId,
   });
 
   const canEditTrack = useAccountSelector({
-    select: (me) => Boolean(track && me.canWrite(track)),
+    select: (me) => me.canWrite(track),
   });
 
   function handleTrackClick() {
-    if (!track) return;
     onClick(track);
   }
 
   function handleAddToPlaylist(playlist: Playlist) {
-    if (!track) return;
     addTrackToPlaylist(playlist, track);
   }
 
   function handleRemoveFromPlaylist(playlist: Playlist) {
-    if (!track) return;
     removeTrackFromPlaylist(playlist, track);
   }
 
   function deleteTrack() {
-    if (!track) return;
-
     removeTrackFromAllPlaylists(track);
   }
 
@@ -13326,7 +10677,7 @@ export function MusicTrackRow({
           isActiveTrack && "md:opacity-100 opacity-100",
         )}
         onClick={handleTrackClick}
-        aria-label={`${isPlaying ? "Pause" : "Play"} ${track?.title}`}
+        aria-label={`${isPlaying ? "Pause" : "Play"} ${track.title}`}
       >
         {isPlaying ? (
           <Pause height={16} width={16} fill="currentColor" />
@@ -13347,11 +10698,11 @@ export function MusicTrackRow({
         onClick={handleTrackClick}
         className="flex items-center overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer flex-1 min-w-0"
       >
-        {track?.title}
+        {track.title}
       </button>
 
       {/* Waveform that appears on hover */}
-      {track && showWaveform && (
+      {showWaveform && (
         <div className="flex-1 min-w-0 px-2 items-center hidden md:flex">
           <Waveform
             track={track}
@@ -13369,38 +10720,28 @@ export function MusicTrackRow({
               <Button
                 variant="ghost"
                 className="h-8 w-8 p-0"
-                aria-label={`Open ${track?.title} menu`}
+                aria-label={`Open ${track.title} menu`}
               >
                 <span className="sr-only">Open menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={handleEdit}>Edit</DropdownMenuItem>
-              {playlists?.filter(Boolean).map((playlist, playlistIndex) => (
-                <Fragment key={playlistIndex}>
-                  {isPartOfThePlaylist(trackId, playlist) ? (
-                    <DropdownMenuItem
-                      key={`remove-${playlistIndex}`}
-                      onSelect={() => handleRemoveFromPlaylist(playlist)}
-                    >
-                      Remove from {playlist.title}
-                    </DropdownMenuItem>
-                  ) : (
-                    <DropdownMenuItem
-                      key={`add-${playlistIndex}`}
-                      onSelect={() => handleAddToPlaylist(playlist)}
-                    >
-                      Add to {playlist.title}
-                    </DropdownMenuItem>
-                  )}
-                </Fragment>
-              ))}
-            </DropdownMenuContent>
+            <Suspense>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={handleEdit}>Edit</DropdownMenuItem>
+                <PlaylistItems
+                  onRemove={handleRemoveFromPlaylist}
+                  onAdd={handleAddToPlaylist}
+                  isPartOfThePlaylist={(playlist) =>
+                    isPartOfThePlaylist(trackId, playlist)
+                  }
+                />
+              </DropdownMenuContent>
+            </Suspense>
           </DropdownMenu>
         </div>
       )}
-      {track && isEditDialogOpen && (
+      {isEditDialogOpen && (
         <EditTrackDialog
           track={track}
           isOpen={isEditDialogOpen}
@@ -13409,6 +10750,36 @@ export function MusicTrackRow({
         />
       )}
     </li>
+  );
+}
+
+function PlaylistItems(props: {
+  onRemove: (playlist: PlaylistWithTracks) => void;
+  onAdd: (playlist: PlaylistWithTracks) => void;
+  isPartOfThePlaylist: (playlist: PlaylistWithTracks) => boolean;
+}) {
+  const playlists = useSuspenseAccount(MusicaAccountWithPlaylists, {
+    select: (account) => account.root.playlists,
+  });
+
+  const loadedPlaylists = playlists.filter((playlist) => playlist.$isLoaded);
+
+  return (
+    <>
+      {loadedPlaylists.map((playlist, playlistIndex) => (
+        <Fragment key={playlistIndex}>
+          {props.isPartOfThePlaylist(playlist) ? (
+            <DropdownMenuItem onSelect={() => props.onRemove(playlist)}>
+              Remove from {playlist.title}
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onSelect={() => props.onAdd(playlist)}>
+              Add to {playlist.title}
+            </DropdownMenuItem>
+          )}
+        </Fragment>
+      ))}
+    </>
   );
 }
 ```
@@ -13430,22 +10801,24 @@ export function MusicTrackTitleInput({
   const [isEditing, setIsEditing] = useState(false);
   const [localTrackTitle, setLocalTrackTitle] = useState("");
 
+  const trackTitle = track.$isLoaded ? track.title : "";
+
   function handleTitleChange(evt: ChangeEvent<HTMLInputElement>) {
     setLocalTrackTitle(evt.target.value);
   }
 
   function handleFoucsIn() {
     setIsEditing(true);
-    setLocalTrackTitle(track?.title ?? "");
+    setLocalTrackTitle(trackTitle);
   }
 
   function handleFocusOut() {
     setIsEditing(false);
     setLocalTrackTitle("");
-    track && updateMusicTrackTitle(track, localTrackTitle);
+    track.$isLoaded && updateMusicTrackTitle(track, localTrackTitle);
   }
 
-  const inputValue = isEditing ? localTrackTitle : (track?.title ?? "");
+  const inputValue = isEditing ? localTrackTitle : trackTitle;
 
   return (
     <div
@@ -13459,7 +10832,7 @@ export function MusicTrackTitleInput({
         spellCheck="false"
         onFocus={handleFoucsIn}
         onBlur={handleFocusOut}
-        aria-label={`Edit track title: ${track?.title}`}
+        aria-label={`Edit track title: ${trackTitle}`}
       />
       <span className="opacity-0 px-1 w-fit pointer-events-none whitespace-pre">
         {inputValue}
@@ -13488,12 +10861,15 @@ export function PlayerControls({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
   const isPlaying = playState.value === "play";
 
   const activePlaylistTitle = useAccountSelector({
-    select: (me) => me.root.activePlaylist?.title ?? "All tracks",
+    select: (me) =>
+      me.root.activePlaylist?.$isLoaded
+        ? (me.root.activePlaylist.title ?? "All tracks")
+        : "All tracks",
   });
 
   const activeTrack = useCoState(MusicTrack, mediaPlayer.activeTrackId);
 
-  if (!activeTrack) return null;
+  if (!activeTrack.$isLoaded) return null;
 
   const activeTrackTitle = activeTrack.title;
 
@@ -13640,18 +11016,20 @@ export function PlaylistTitleInput({
     setLocalPlaylistTitle(evt.target.value);
   }
 
+  const playlistTitle = playlist.$isLoaded ? playlist.title : "";
+
   function handleFoucsIn() {
     setIsEditing(true);
-    setLocalPlaylistTitle(playlist?.title ?? "");
+    setLocalPlaylistTitle(playlistTitle);
   }
 
   function handleFocusOut() {
     setIsEditing(false);
     setLocalPlaylistTitle("");
-    playlist && updatePlaylistTitle(playlist, localPlaylistTitle);
+    playlist.$isLoaded && updatePlaylistTitle(playlist, localPlaylistTitle);
   }
 
-  const inputValue = isEditing ? localPlaylistTitle : (playlist?.title ?? "");
+  const inputValue = isEditing ? localPlaylistTitle : playlistTitle;
 
   return (
     <input
@@ -13900,12 +11278,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Loaded } from "jazz-tools";
 import { useState } from "react";
 import { ConfirmDialog } from "./ConfirmDialog";
 
 interface EditTrackDialogProps {
-  track: Loaded<typeof MusicTrack>;
+  track: MusicTrack;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onDelete: () => void;
@@ -14015,7 +11392,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useAccountWithSelector } from "jazz-tools/react";
+import { useAccount } from "jazz-tools/react";
 import { Home, Music, Plus, Trash2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import { useState } from "react";
@@ -14025,9 +11402,9 @@ import { CreatePlaylistModal } from "./CreatePlaylistModal";
 export function SidePanel() {
   const { playlistId } = useParams();
   const navigate = useNavigate();
-  const playlists = useAccountWithSelector(MusicaAccount, {
-    resolve: { root: { playlists: { $each: { $onError: null } } } },
-    select: (me) => me?.root.playlists,
+  const playlists = useAccount(MusicaAccount, {
+    resolve: { root: { playlists: { $each: { $onError: "catch" } } } },
+    select: (me) => (me.$isLoaded ? me.root.playlists : undefined),
   });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -14112,7 +11489,7 @@ export function SidePanel() {
                 </SidebarMenuItem>
                 {playlists?.map(
                   (playlist) =>
-                    playlist && (
+                    playlist.$isLoaded && (
                       <SidebarMenuItem key={playlist.$jazz.id}>
                         <SidebarMenuButton
                           onClick={() => handlePlaylistClick(playlist.$jazz.id)}
@@ -14162,25 +11539,22 @@ export function SidePanel() {
 import { MusicTrack, MusicTrackWaveform } from "@/1_schema";
 import { usePlayerCurrentTime } from "@/lib/audio/usePlayerCurrentTime";
 import { cn } from "@/lib/utils";
-import { Loaded } from "jazz-tools";
 import { useCoState } from "jazz-tools/react";
 
 export function Waveform(props: {
-  track: Loaded<typeof MusicTrack>;
+  track: MusicTrack;
   height: number;
   className?: string;
   showProgress?: boolean;
 }) {
   const { track, height } = props;
-  const waveformData = useCoState(
+  const waveform = useCoState(
     MusicTrackWaveform,
     track.$jazz.refs.waveform?.id,
-  )?.data;
-  const duration = track.duration;
-
+  );
   const currentTime = usePlayerCurrentTime();
 
-  if (!waveformData) {
+  if (!waveform.$isLoaded) {
     return (
       <div
         style={{
@@ -14190,6 +11564,8 @@ export function Waveform(props: {
     );
   }
 
+  const duration = track.duration;
+  const waveformData = waveform.data;
   const barCount = waveformData.length;
   const activeBar = props.showProgress
     ? Math.ceil(barCount * (currentTime.value / duration))
@@ -14236,13 +11612,12 @@ import {
   usePlayerCurrentTime,
 } from "@/lib/audio/usePlayerCurrentTime";
 import { cn } from "@/lib/utils";
-import { Loaded } from "jazz-tools";
 import type React from "react";
 
 import { useEffect, useRef } from "react";
 
 type Props = {
-  track: Loaded<typeof MusicTrack>;
+  track: MusicTrack;
   height?: number;
   barColor?: string;
   progressColor?: string;
@@ -17036,14 +14411,14 @@ export function useKeyboardListener(code: string, callback: () => void) {
 import { MusicaAccount, MusicaAccountRoot } from "@/1_schema";
 import { MediaPlayer } from "@/5_useMediaPlayer";
 import { co } from "jazz-tools";
-import { useAccount } from "jazz-tools/react";
+import { useAgent } from "jazz-tools/react";
 import { useEffect, useState } from "react";
 import { uploadMusicTracks } from "../4_actions";
 
 export function usePrepareAppState(mediaPlayer: MediaPlayer) {
   const [isReady, setIsReady] = useState(false);
 
-  const { agent } = useAccount();
+  const agent = useAgent();
 
   useEffect(() => {
     loadInitialData(mediaPlayer).then(() => {
@@ -17058,7 +14433,7 @@ async function loadInitialData(mediaPlayer: MediaPlayer) {
   const me = await MusicaAccount.getMe().$jazz.ensureLoaded({
     resolve: {
       root: {
-        activeTrack: { $onError: null },
+        activeTrack: { $onError: "catch" },
       },
     },
   });
@@ -17066,7 +14441,7 @@ async function loadInitialData(mediaPlayer: MediaPlayer) {
   uploadOnboardingData(me.root);
 
   // Load the active track in the AudioManager
-  if (me.root.activeTrack) {
+  if (me.root.activeTrack?.$isLoaded) {
     mediaPlayer.loadTrack(me.root.activeTrack, false);
   }
 }

@@ -63,7 +63,7 @@ export async function getRegardeAuth({
   const token = generateRegardeToken();
 
   try {
-    if (!loadedRegardeAuthCoMap) {
+    if (!loadedRegardeAuthCoMap.$isLoaded) {
       console.error(
         "[ERROR] No auth target available after ensureLoaded. Ensure RegardeAuth is properly loaded with RegardeAuth: true in resolve option.",
       );

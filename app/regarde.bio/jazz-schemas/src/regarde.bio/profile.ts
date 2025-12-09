@@ -259,7 +259,7 @@ export const RegardeAccount = co
       },
     });
 
-    if (!root) {
+    if (!root.$isLoaded) {
       console.log("Coucou");
       return;
     }

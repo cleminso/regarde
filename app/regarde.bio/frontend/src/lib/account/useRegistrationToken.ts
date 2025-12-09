@@ -14,15 +14,15 @@ export type GetValidKeyFunction = () => GetValidKeyFunctionOutput;
 export function useRegardeAuth() {
   const { account, isAccountReady } = useMyRegardeAccount();
 
-  const regardeAuth = account?.root?.['api.regarde.dev'];
-  const isLoading = account === undefined;
+  const regardeAuth = account && account.$isLoaded ? account.root['api.regarde.dev'] : undefined;
+  const isLoading = account === undefined || (account && !account.$isLoaded);
   const isAccessible = regardeAuth !== null;
 
   // Use SDK hook for core registration key functionality
   const sdkHook = useSDKRegardeAuth(regardeAuth);
 
   const getValidKey = useCallback(async (): GetValidKeyFunctionOutput => {
-    if (!account?.root || !isAccountReady) {
+    if (!account || !account.$isLoaded || !account.root || !isAccountReady) {
       return null;
     }
 

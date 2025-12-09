@@ -3,18 +3,18 @@ packages:
   - packages/*
 
 catalog:
-  "@clerk/clerk-react": ^5.53.3
-  "@hono/node-server": ^1.19.5
-  "@hono/swagger-ui": ^0.5.2
-  "@hono/zod-openapi": ^1.1.4
-  "@types/node": ^22.18.13
-  "@types/react": ~19.2.2
-  "@types/react-dom": ^19.2.2
-  "@vitest/ui": ^4.0.5
+  '@clerk/clerk-react': ^5.53.3
+  '@hono/node-server': ^1.19.5
+  '@hono/swagger-ui': ^0.5.2
+  '@hono/zod-openapi': ^1.1.4
+  '@types/node': ^22.18.13
+  '@types/react': ~19.2.2
+  '@types/react-dom': ^19.2.2
+  '@vitest/ui': ^4.0.15
   dotenv: ^16.6.1
   hono: ^4.10.4
-  jazz-tools: ^0.18.32
-  preact: ^10.27.2
+  jazz-tools: ^0.19.10
+  preact: ^10.28.0
   react: 19.1.1
   react-dom: 19.1.1
   typescript: ^5.9.3
@@ -22,12 +22,12 @@ catalog:
   vite: ^7.1.12
   vite-plugin-dts: 4.5.4
   vite-tsconfig-paths: ^5.1.4
-  vitest: ^4.0.5
+  vitest: ^4.0.15
   zod: ^4.1.12
 
 onlyBuiltDependencies:
-  - "@biomejs/biome"
-  - "@clerk/shared"
-  - "@tailwindcss/oxide"
+  - '@biomejs/biome'
+  - '@clerk/shared'
+  - '@tailwindcss/oxide'
   - esbuild
   - react-native-nitro-modules
