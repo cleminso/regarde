@@ -139,9 +139,9 @@ export const nicknameCommands: ToolConfig[] = [
           Logger.success(`Account found, attempting to grant worker access...`);
 
           // Grant current worker access to the account's root
-          if (account.root) {
+          if (account.$isLoaded && account.root?.$isLoaded) {
             const rootOwner = account.root.$jazz.owner;
-            if (rootOwner && "addMember" in rootOwner) {
+            if (rootOwner && rootOwner.$isLoaded && "addMember" in rootOwner) {
               rootOwner.addMember(admin.worker, "writer");
               Logger.success("Granted worker access to account root");
             } else {

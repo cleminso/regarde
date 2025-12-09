@@ -21,7 +21,11 @@ export async function withAdminService<T>(
     await admin.cleanup();
     return result;
   } catch (error) {
-    await admin.cleanup();
+    try {
+      await admin.cleanup();
+    } catch (cleanupError) {
+      // Ignore cleanup errors to preserve original error
+    }
     throw error;
   }
 }

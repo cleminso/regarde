@@ -20,7 +20,7 @@ import { AuditService } from "./audit.js";
 
 export class HealthService implements HealthServiceInterface {
   constructor(
-    private worker: Loaded<typeof RegistryWorkerAccount>,
+    private worker: RegistryWorkerAccount,
     private nicknameRegistry: NicknameRegistry,
     private reverseNicknameRegistry: ReverseNicknameRegistry,
     private reservedNicknames: ReservedNicknamesRegistry,
@@ -190,62 +190,78 @@ export class HealthService implements HealthServiceInterface {
           },
         });
 
-        if (!account) {
+        if (!account.$isLoaded) {
           report.profileStatus = "not_found";
           report.issues.push(
             `Account "${targetAccountId}" not found or not accessible`,
           );
-        } else if (!account.profile) {
+        } else if (!account.profile?.$isLoaded) {
           report.profileStatus = "missing";
           report.issues.push(`Account "${targetAccountId}" has no profile`);
         } else {
           const profileData = await RegardeProfile.load(
             account.profile["regarde.bio"],
-            {
-              resolve: {
-                userHandle: true,
-              },
-            },
           );
 
-          if (!profileData) {
+          if (!profileData.$isLoaded) {
             report.profileStatus = "missing";
             report.issues.push(
               `Account "${targetAccountId}" has no profile data`,
             );
           } else {
-            const userHandle = profileData.userHandle;
+            // Load the SDK data to access userHandle
+            const sdkData = await account.$jazz.ensureLoaded({
+              resolve: {
+                root: {
+                  "regarde-sdk": {
+                    userHandle: true,
+                  },
+                },
+              },
+            });
 
-            if (!userHandle) {
+            if (!sdkData.root?.$isLoaded || !sdkData.root["regarde-sdk"]?.$isLoaded) {
               report.profileStatus = "missing";
               report.issues.push(
-                `Account "${targetAccountId}" has no userHandle data`,
+                `Account "${targetAccountId}" has no SDK data`,
               );
               report.recommendations.push(
-                `Create userHandle data for account`,
+                `Create SDK data for account`,
               );
             } else {
-              const isActive = userHandle.isActive;
-              const storedNickname = userHandle.nickname;
+              const userHandle = sdkData.root["regarde-sdk"].userHandle;
 
-              if (!isActive) {
-                report.profileStatus = "inactive";
+              if (!userHandle?.$isLoaded) {
+                report.profileStatus = "missing";
                 report.issues.push(
-                  `UserHandle is inactive (isActive: false)`,
+                  `Account "${targetAccountId}" has no userHandle data`,
                 );
                 report.recommendations.push(
-                  `Activate userHandle and sync with registry`,
+                  `Create userHandle data for account`,
                 );
-              }
+              } else {
+                const isActive = userHandle.isActive;
+                const storedNickname = userHandle.nickname;
 
-              if (storedNickname !== targetNickname) {
-                report.profileStatus = "mismatch";
-                report.issues.push(
-                  `UserHandle shows "${storedNickname}", but registry shows "${targetNickname}"`,
-                );
-                report.recommendations.push(
-                  `Sync userHandle with registry data`,
-                );
+                if (!isActive) {
+                  report.profileStatus = "inactive";
+                  report.issues.push(
+                    `UserHandle is inactive (isActive: false)`,
+                  );
+                  report.recommendations.push(
+                    `Activate userHandle and sync with registry`,
+                  );
+                }
+
+                if (storedNickname !== targetNickname) {
+                  report.profileStatus = "mismatch";
+                  report.issues.push(
+                    `UserHandle shows "${storedNickname}", but registry shows "${targetNickname}"`,
+                  );
+                  report.recommendations.push(
+                    `Sync userHandle with registry data`,
+                  );
+                }
               }
             }
           }

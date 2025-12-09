@@ -68,7 +68,7 @@ export class ReservationBackupService
     for (const [nickname, reservation] of Object.entries(
       this.reservedNicknames,
     )) {
-      if (reservation) {
+      if (reservation && reservation.$isLoaded) {
         reservedNicknamesData[nickname] = {
           reservedBy: reservation.reservedBy,
           reservedAt: reservation.reservedAt,

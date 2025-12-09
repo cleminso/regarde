@@ -33,8 +33,8 @@ import {
 } from "../types/services.js";
 
 export class AdminService {
-  private worker: any;
-  private loadedWorker!: Loaded<typeof RegistryWorkerAccount>;
+  private worker!: RegistryWorkerAccount;
+  private loadedWorker!: RegistryWorkerAccount;
 
   private auditService!: AuditService;
   private nicknameService!: NicknameService;
@@ -85,29 +85,33 @@ export class AdminService {
         },
       });
 
-      if (!this.loadedWorker.root) {
-        throw new Error("Worker account root is not available");
+      if (!this.loadedWorker.$isLoaded) {
+        throw new Error("Failed to load worker account");
       }
 
       const { root } = this.loadedWorker;
 
-      if (!root.registry) {
+      if (!root.$isLoaded) {
+        throw new Error("Worker account root is not available");
+      }
+
+      if (!root.registry?.$isLoaded) {
         throw new Error("Nickname registry is not available");
       }
-      if (!root.reverseRegistry) {
+      if (!root.reverseRegistry?.$isLoaded) {
         throw new Error("Reverse nickname registry is not available");
       }
-      if (!root.auditLog) {
+      if (!root.auditLog?.$isLoaded) {
         throw new Error("Audit log is not available");
       }
-      if (!root.reservedNicknames) {
+      if (!root.reservedNicknames?.$isLoaded) {
         throw new Error("Reserved nicknames registry is not available");
       }
 
       this.initializeServices();
 
       Logger.success("Registries and audit log loaded successfully");
-      Logger.debug(`Initial audit log length: ${root.auditLog.length}`);
+      Logger.debug(`Initial audit log length: ${root.auditLog?.length || 0}`);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
@@ -118,24 +122,23 @@ export class AdminService {
 
   private initializeServices(): void {
     const { root } = this.loadedWorker;
-    if (!root) {
+    if (!root?.$isLoaded) {
       throw new Error("Cannot initialize services: root is not available");
     }
 
     if (
-      !root.auditLog ||
-      !root.registry ||
-      !root.reverseRegistry ||
-      !root.reservedNicknames
+      !root.auditLog?.$isLoaded ||
+      !root.registry?.$isLoaded ||
+      !root.reverseRegistry?.$isLoaded ||
+      !root.reservedNicknames?.$isLoaded
     ) {
       throw new Error("Required root properties are not loaded");
     }
 
-    const registry = root.registry as NicknameRegistry;
-    const reverseRegistry = root.reverseRegistry as ReverseNicknameRegistry;
-    const auditLog = root.auditLog as unknown as RegistryAuditLog;
-    const reservedNicknames =
-      root.reservedNicknames as ReservedNicknamesRegistry;
+    const registry = root.registry!;
+    const reverseRegistry = root.reverseRegistry!;
+    const auditLog = root.auditLog!;
+    const reservedNicknames = root.reservedNicknames!;
 
     this.auditService = new AuditService(this.loadedWorker, auditLog);
 
@@ -335,7 +338,7 @@ export class AdminService {
 
   async clearAuditLog(): Promise<void> {
     const { root } = this.loadedWorker;
-    if (!root?.auditLog) return;
+    if (!root?.$isLoaded || !root.auditLog?.$isLoaded) return;
 
     while (root.auditLog.length > 0) {
       root.auditLog.$jazz.pop();
@@ -354,9 +357,9 @@ export class AdminService {
 
     try {
       const { root } = this.loadedWorker;
-      const workerOnline = !!root;
+      const workerOnline = !!root?.$isLoaded;
 
-      const syncServerConnected = !!(root?.registry && root?.reverseRegistry);
+      const syncServerConnected = !!(root?.$isLoaded && root?.registry?.$isLoaded && root?.reverseRegistry?.$isLoaded);
 
       const responseTimeMs = Date.now() - startTime;
 
@@ -386,7 +389,7 @@ export class AdminService {
 
     for (let i = 0; i < operations; i++) {
       const { root } = this.loadedWorker;
-      if (root?.registry) {
+      if (root?.$isLoaded && root?.registry?.$isLoaded) {
         Object.keys(root.registry).length;
       }
     }
@@ -462,16 +465,16 @@ export class AdminService {
     const fixedIssues: string[] = [];
     const { root } = this.loadedWorker;
 
-    if (!root) {
+    if (!root?.$isLoaded) {
       throw new Error("Worker root is not available");
     }
 
-    if (!root.registry || !root.reverseRegistry) {
+    if (!root.registry?.$isLoaded || !root.reverseRegistry?.$isLoaded) {
       throw new Error("Registries are not available");
     }
 
-    const registry = root.registry as NicknameRegistry;
-    const reverseRegistry = root.reverseRegistry as ReverseNicknameRegistry;
+    const registry = root.registry!;
+    const reverseRegistry = root.reverseRegistry!;
 
     if (verbose) {
       Logger.info("Validating registry integrity...");
@@ -528,7 +531,7 @@ export class AdminService {
     }>;
   }> {
     const { root } = this.loadedWorker;
-    if (!root) {
+    if (!root?.$isLoaded) {
       throw new Error("Worker root is not available");
     }
 
@@ -536,7 +539,7 @@ export class AdminService {
     const reverseDuplicates: Array<{ accountId: string; nicknames: string[] }> =
       [];
 
-    if (root.registry) {
+    if (root.registry?.$isLoaded) {
       const nicknameGroups = new Map<string, string[]>();
       for (const [nickname, accountId] of Object.entries(root.registry)) {
         if (!nicknameGroups.has(nickname)) {
@@ -552,7 +555,7 @@ export class AdminService {
       });
     }
 
-    if (root.reverseRegistry) {
+    if (root.reverseRegistry?.$isLoaded) {
       const accountGroups = new Map<string, string[]>();
       for (const [accountId, nickname] of Object.entries(
         root.reverseRegistry,
