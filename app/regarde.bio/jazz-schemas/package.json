@@ -7,18 +7,19 @@
   },
   "version": "0.1.0",
   "description": "Shared Jazz schemas for regarde application",
-  "main": "dist/index.js",
+  "main": "dist/jazz-schemas.cjs.js",
   "type": "module",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "import": "./dist/jazz-schemas.es.js",
+      "require": "./dist/jazz-schemas.cjs.js"
     },
     "./regarde.bio": {
       "types": "./dist/regarde.bio/index.d.ts",
-      "import": "./dist/regarde.bio/index.js"
+      "import": "./dist/regarde.bio/index.es.js",
+      "require": "./dist/regarde.bio/index.cjs.js"
     }
   },
   "scripts": {

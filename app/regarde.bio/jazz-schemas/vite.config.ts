@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
-
 import dts from "vite-plugin-dts";
+import { resolve } from "path";
 
 export default defineConfig({
   plugins: [
@@ -11,9 +11,17 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: "src/index.ts",
+      entry: {
+        index: resolve(__dirname, "src/index.ts"),
+        "regarde.bio/index": resolve(__dirname, "src/regarde.bio/index.ts"),
+      },
       name: "jazz-schemas",
-      fileName: (format) => `jazz-schemas.${format}.js`,
+      fileName: (format, entryName) => {
+        if (entryName === "index") {
+          return `jazz-schemas.${format}.js`;
+        }
+        return `${entryName}.${format}.js`;
+      },
       formats: ["es", "cjs"],
     },
     sourcemap: true,

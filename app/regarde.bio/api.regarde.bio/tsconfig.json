@@ -10,9 +10,11 @@
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "baseUrl": "src/",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["src/*"],
+      "@regarde-dev/jazz-schemas": ["../../jazz-schemas/src/index.ts"],
+      "@regarde-dev/jazz-schemas/regarde.bio": ["../../jazz-schemas/src/regarde.bio/index.ts"]
     }
   },
   "include": ["src/**/*.ts"],
