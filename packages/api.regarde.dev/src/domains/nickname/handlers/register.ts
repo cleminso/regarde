@@ -93,7 +93,7 @@ export const registerHandler = (
       }
 
       const reservation = reservedNicknames[nickname];
-      if (reservation) {
+      if (reservation.$isLoaded) {
         console.log(
           `Nickname "${nickname}" is reserved (category: ${reservation.category}, reserved by: ${reservation.reservedBy}).`,
         );
@@ -158,4 +158,3 @@ export const registerHandler = (
     }
   };
 };
-

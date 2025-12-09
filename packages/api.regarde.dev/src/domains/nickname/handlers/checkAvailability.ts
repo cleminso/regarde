@@ -37,7 +37,7 @@ export const checkAvailabilityHandler = (
         response.takenBy = existingAccountForNickname;
       }
 
-      if (reservation) {
+      if (reservation.$isLoaded) {
         response.reserved = true;
         response.reservationCategory = reservation.category;
         response.reservationReason = reservation.reason;
@@ -50,4 +50,3 @@ export const checkAvailabilityHandler = (
     }
   };
 };
-

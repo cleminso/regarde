@@ -118,13 +118,19 @@ async function main() {
       },
     });
 
-    if (loadedWorker?.root?.reservedNicknames) {
-      await (
-        loadedWorker.root.reservedNicknames as ReservedNicknamesRegistry
-      ).$jazz.ensureLoaded({
-        resolve: {},
-      });
-      console.log("Reserved nicknames registry fully loaded");
+    // Check if loadedWorker and its root are loaded before accessing
+    if (
+      loadedWorker &&
+      loadedWorker.$isLoaded &&
+      loadedWorker.root &&
+      loadedWorker.root.$isLoaded
+    ) {
+      if (
+        loadedWorker.root?.reservedNicknames &&
+        loadedWorker.root.reservedNicknames.$isLoaded
+      ) {
+        console.log("Reserved nicknames registry fully loaded");
+      }
     }
   } catch (loadError) {
     console.error("Failed to load worker data:", loadError);
@@ -132,14 +138,36 @@ async function main() {
     process.exit(1);
   }
 
-  const nicknameRegistry: NicknameRegistry | undefined = loadedWorker?.root
-    ?.registry as NicknameRegistry | undefined;
-  const reverseNicknameRegistry = loadedWorker?.root?.reverseRegistry as
-    | ReverseNicknameRegistry
-    | undefined;
-  const reservedNicknames = loadedWorker?.root?.reservedNicknames as
-    | ReservedNicknamesRegistry
-    | undefined;
+  // Safely extract references with loading checks
+  const nicknameRegistry: NicknameRegistry | undefined =
+    loadedWorker &&
+    loadedWorker.$isLoaded &&
+    loadedWorker.root &&
+    loadedWorker.root.$isLoaded &&
+    loadedWorker.root.registry &&
+    loadedWorker.root.registry.$isLoaded
+      ? loadedWorker.root.registry
+      : undefined;
+
+  const reverseNicknameRegistry =
+    loadedWorker &&
+    loadedWorker.$isLoaded &&
+    loadedWorker.root &&
+    loadedWorker.root.$isLoaded &&
+    loadedWorker.root.reverseRegistry &&
+    loadedWorker.root.reverseRegistry.$isLoaded
+      ? loadedWorker.root.reverseRegistry
+      : undefined;
+
+  const reservedNicknames =
+    loadedWorker &&
+    loadedWorker.$isLoaded &&
+    loadedWorker.root &&
+    loadedWorker.root.$isLoaded &&
+    loadedWorker.root.reservedNicknames &&
+    loadedWorker.root.reservedNicknames.$isLoaded
+      ? loadedWorker.root.reservedNicknames
+      : undefined;
 
   if (!nicknameRegistry || !reverseNicknameRegistry) {
     console.error(
@@ -183,8 +211,7 @@ async function main() {
       ? [
           {
             url: "https://api.regarde.dev",
-            description:
-              "Production Server - Authentication (api.regarde.dev)",
+            description: "Production Server - Authentication (api.regarde.dev)",
           },
         ]
       : [

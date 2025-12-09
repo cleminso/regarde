@@ -26,27 +26,27 @@ export async function verifyRegardeAuth(
         resolve: true,
       });
 
-      await regardeAuth?.$jazz.ensureLoaded({
-        resolve: true,
-      });
+      // Check if loaded successfully
+      if (!regardeAuth || !regardeAuth.$isLoaded) {
+        console.log(`No registration token found or not loaded`);
+        return {
+          isValid: false,
+          error:
+            "No registration token found - user must create registration token first",
+        };
+      }
 
-      if (regardeAuth?.$jazz.owner.getRoleOf(jazzAccountId) !== "admin")
+      // Check ownership
+      const owner = regardeAuth.$jazz.owner;
+      if (owner.$isLoaded && owner.getRoleOf(jazzAccountId) !== "admin") {
         // TODO: Important! Must check who created the coValue instead of whether it's an admin or not
         throw new Error("User does not own the CoValue");
+      }
     } catch (loadError: any) {
       console.error(`Failed to load account ${jazzAccountId}:`, loadError);
       return {
         isValid: false,
         error: "regardeAuth does not exist or is not accessible",
-      };
-    }
-
-    if (!regardeAuth) {
-      console.log(`No registration token found`);
-      return {
-        isValid: false,
-        error:
-          "No registration token found - user must create registration token first",
       };
     }
 
@@ -71,4 +71,3 @@ export async function verifyRegardeAuth(
     return { isValid: false, error: `Verification failed: ${error.message}` };
   }
 }
-

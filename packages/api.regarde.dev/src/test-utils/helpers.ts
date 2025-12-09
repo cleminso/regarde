@@ -35,7 +35,7 @@ export function createMockContext() {
       };
     },
     text: (text: string, status?: number) => {
-      responseData.$jazz.set("text", text);
+      responseData.text = text;
       if (status) responseStatus.value = status;
       return Promise.resolve();
     },
