@@ -268,8 +268,11 @@ export const RegardeAccount = co
 
     // First initialization for older accounts
     if (
-      (root["regarde.bio"] && root["regarde.bio"].version === 0) ||
-      !root["regarde-sdk"] ||
+      (root["regarde.bio"] &&
+        root["regarde.bio"].$isLoaded &&
+        root["regarde.bio"].version === 0) ||
+      root["regarde-sdk"] === undefined ||
+      !root["regarde-sdk"].$isLoaded ||
       root["regarde-sdk"].version < 1
     ) {
       const userGroup = Group.create({
@@ -286,6 +289,7 @@ export const RegardeAccount = co
 
       const regardeSdk = await initRegardeSchema(account);
 
+      // Safely set on loaded CoMap
       root.$jazz.set("regarde.bio", regardeProfile);
       root.$jazz.set("regarde-sdk", regardeSdk);
 

@@ -7,13 +7,25 @@ import { BaseHookProps } from './types';
 type UseProjectProps = BaseHookProps;
 export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
   const ensureProjectsList = (): Loaded<typeof ListOfProjects> | undefined => {
-    if (!profile.projects) {
-      const profileOwner = profile.$jazz.owner;
-      const newProjectsList = ListOfProjects.create([], { owner: profileOwner }); // store the created list in a variable
-      profile.$jazz.set("projects", newProjectsList); // set it on the profile
-      return newProjectsList; // return the variable
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return undefined;
     }
-    return profile.projects;
+
+    if (profile.projects?.$isLoaded) {
+      return profile.projects;
+    }
+
+    // Create new list if it doesn't exist
+    const profileOwner = profile.$jazz.owner;
+    if (!profileOwner?.$isLoaded) {
+      logger.error('Cannot create projects list: profile owner is not loaded');
+      return undefined;
+    }
+
+    const newProjectsList = ListOfProjects.create([], { owner: profileOwner });
+    profile.$jazz.set("projects", newProjectsList);
+    return newProjectsList;
   };
 
   const addProject = async (projectData: {
@@ -27,9 +39,9 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
     if (!projectsList) return undefined;
 
     const listOwner = projectsList.$jazz.owner;
-    if (!listOwner) {
+    if (!listOwner?.$isLoaded) {
       logger.error(
-        'Cannot create a new project instance: projectsList.$jazz.owner is undefined.',
+        'Cannot create a new project instance: projectsList.$jazz.owner is not loaded.',
       );
       return undefined;
     }
@@ -58,7 +70,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
       description?: string;
     },
   ) => {
-    if (!projectToUpdate) {
+    if (!projectToUpdate.$isLoaded) {
       logger.error('Project instance not provided for update.');
       return;
     }
@@ -108,13 +120,17 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
   };
 
   const deleteProject = async (projectId: string) => {
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return;
+    }
     const projectsList = profile.projects;
-    if (!projectsList) {
-      logger.warn('No projects list to delete from.');
+    if (!projectsList?.$isLoaded) {
+      logger.warn('No projects list to delete from or not loaded.');
       return;
     }
     const projectIndex = projectsList.findIndex(
-      (p: any) => p && p.$jazz.id === projectId,
+      (p: any) => p && p.$isLoaded && p.$jazz.id === projectId,
     );
 
     if (projectIndex !== -1) {

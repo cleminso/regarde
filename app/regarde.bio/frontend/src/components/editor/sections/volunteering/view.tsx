@@ -49,8 +49,8 @@ export function VolunteeringView({
   };
 
   const confirmDelete = () => {
-    if (deleteConfirmation.volunteering?.id) {
-      deleteVolunteering(deleteConfirmation.volunteering.id);
+    if (deleteConfirmation.volunteering?.$isLoaded) {
+      deleteVolunteering(deleteConfirmation.volunteering.$jazz.id);
     }
     setDeleteConfirmation({ isOpen: false, volunteering: null });
   };
@@ -74,7 +74,7 @@ export function VolunteeringView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <SectionHeader
           title="Volunteering"
           description="Share your volunteer work and community involvement."
@@ -103,7 +103,7 @@ export function VolunteeringView({
               )
               .map((volunteeringItem) => (
                 <VolunteeringCard
-                  key={volunteeringItem.id}
+                  key={volunteeringItem.$jazz.id}
                   volunteering={volunteeringItem}
                   onEdit={onEditVolunteering}
                   onDelete={handleDeleteVolunteering}
@@ -113,7 +113,7 @@ export function VolunteeringView({
         )}
       </div>
 
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

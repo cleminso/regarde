@@ -10,9 +10,10 @@ type EducationsProps = {
 };
 
 export function Educations({ profile }: EducationsProps) {
-  const educations = profile.education?.filter(
-    (edu: any): edu is Loaded<typeof Education> => edu !== null,
-  );
+  const educations = profile.education?.$isLoaded
+    ? profile.education.filter(
+    (edu: any): edu is Loaded<typeof Education> => edu?.$isLoaded === true,
+  ): [] ;
 
   if (!educations || educations.length === 0) {
     return null;
@@ -39,7 +40,7 @@ export function Educations({ profile }: EducationsProps) {
             const institutionLink = getValidUrl(education.url);
 
             return (
-              <div key={education.id} className="flex flex-col pb-4 gap-3">
+              <div key={education.$jazz.id} className="flex flex-col pb-4 gap-3">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-sans text-muted-foreground">
@@ -62,7 +63,7 @@ export function Educations({ profile }: EducationsProps) {
                             className="min-w-0 flex items-center gap-1 max-w-full"
                           >
                             <span className="truncate">{displayTitle}</span>
-                            <ArrowUpRight className="h-4 w-4 flex-shrink-0" />
+                            <ArrowUpRight className="h-4 w-4 shrink-0" />
                           </a>
                         </Button>
                       ) : (
@@ -77,7 +78,7 @@ export function Educations({ profile }: EducationsProps) {
                       )}
                     </div>
                     {education.description && (
-                      <p className="text-sm text-muted-foreground whitespace-pre-line break-words pr-1">
+                      <p className="text-sm text-muted-foreground whitespace-pre-line wrap-break-words pr-1">
                         {education.description}
                       </p>
                     )}

@@ -38,9 +38,11 @@ const SOCIAL_PLATFORMS = {
 } as const;
 
 export const buildSocialLinks = (socialLinks: any) => {
+  if (!socialLinks?.$isLoaded) return [];
+
   return Object.entries(SOCIAL_PLATFORMS)
     .map(([key, config]) => {
-      const value = socialLinks?.[key];
+      const value = socialLinks[key];
       if (!value) return null;
 
       const href = config.buildUrl(value);

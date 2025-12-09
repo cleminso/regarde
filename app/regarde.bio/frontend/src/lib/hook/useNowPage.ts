@@ -6,8 +6,16 @@ import { BaseHookProps } from './types';
 type UseNowPageProps = BaseHookProps;
 
 export function useNowPage({ profile, triggerSyncIndicator }: UseNowPageProps) {
+  if (!profile.$isLoaded) {
+    return {
+      nowPage: undefined,
+      hasNowPage: false,
+      updateNowPage: async () => {},
+    };
+  }
+
   const nowPage = profile.nowPage;
-  const hasNowPage = Boolean(nowPage);
+  const hasNowPage = Boolean(nowPage && nowPage.$isLoaded);
 
   const updateNowPage = useCallback(
     async (data: {
@@ -16,9 +24,9 @@ export function useNowPage({ profile, triggerSyncIndicator }: UseNowPageProps) {
       description: string;
     }) => {
       const profileOwner = profile.$jazz.owner;
-      if (!profileOwner) return;
+      if (!profileOwner?.$isLoaded) return;
 
-      if (!profile.nowPage) {
+      if (!profile.nowPage || !profile.nowPage.$isLoaded) {
         profile.$jazz.set("nowPage", NowPage.create(
           {
             title: data.title,

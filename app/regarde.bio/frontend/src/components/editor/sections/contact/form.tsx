@@ -36,7 +36,7 @@ export function ContactEdit({
               id={field.id}
               icon={field.icon}
               prefix={field.prefix}
-              value={profile.socialLinks?.[field.id] || ''}
+              value={profile.socialLinks?.$isLoaded ? profile.socialLinks[field.id] || '' : ''}
               onChange={(value) => updateSocialLink(field.id, value)}
               placeholder={field.placeholder}
             />

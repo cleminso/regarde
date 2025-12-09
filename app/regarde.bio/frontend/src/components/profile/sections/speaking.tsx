@@ -10,9 +10,9 @@ type SpeakingsProps = {
 };
 
 export function Speakings({ profile }: SpeakingsProps) {
-  const speakings = profile.speaking?.filter(
-    (speaking: any): speaking is Loaded<typeof Speaking> => speaking !== null,
-  );
+  const speakings = profile.speaking?.$isLoaded ?profile.speaking.filter(
+    (speaking: any): speaking is Loaded<typeof Speaking> => speaking?.$isLoaded === true,
+  ): [] ;
 
   if (!speakings || speakings.length === 0) {
     return null;
@@ -40,7 +40,7 @@ export function Speakings({ profile }: SpeakingsProps) {
                 : String(speaking.year);
 
             return (
-              <div key={speaking.id} className="flex flex-col pb-4 gap-3">
+              <div key={speaking.$jazz.id} className="flex flex-col pb-4 gap-3">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-sans text-muted-foreground">
@@ -63,7 +63,7 @@ export function Speakings({ profile }: SpeakingsProps) {
                             className="min-w-0 flex items-center gap-1 max-w-full"
                           >
                             <span className="truncate">{displayTitle}</span>
-                            <ArrowUpRight className="h-4 w-4 flex-shrink-0" />
+                            <ArrowUpRight className="h-4 w-4 shrink-0" />
                           </a>
                         </Button>
                       ) : (
@@ -79,13 +79,13 @@ export function Speakings({ profile }: SpeakingsProps) {
                     </div>
                     {speaking.location && (
                       <div className="mb-1">
-                        <span className="text-sm text-muted-foreground break-words">
+                        <span className="text-sm text-muted-foreground wrap-break-words">
                           {speaking.location}
                         </span>
                       </div>
                     )}
                     {speaking.description && (
-                      <p className="text-sm text-muted-foreground whitespace-pre-line break-words pr-1">
+                      <p className="text-sm text-muted-foreground whitespace-pre-line wrap-break-words pr-1">
                         {speaking.description}
                       </p>
                     )}

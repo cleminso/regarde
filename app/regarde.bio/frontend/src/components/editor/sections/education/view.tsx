@@ -44,8 +44,8 @@ export function EducationView({
   };
 
   const confirmDelete = () => {
-    if (deleteConfirmation.education?.id) {
-      deleteEducation(deleteConfirmation.education.id);
+    if (deleteConfirmation.education?.$isLoaded) {
+      deleteEducation(deleteConfirmation.education.$jazz.id);
     }
     setDeleteConfirmation({ isOpen: false, education: null });
   };
@@ -64,7 +64,7 @@ export function EducationView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <SectionHeader
           title="Education"
           description="Showcase your academic background and achievements."
@@ -85,10 +85,10 @@ export function EducationView({
         {education && education.length > 0 && (
           <div className="space-y-6 pb-4">
             {education
-              .filter((edu): edu is Loaded<typeof Education> => edu !== null)
+              .filter((edu): edu is Loaded<typeof Education> => edu?.$isLoaded === true)
               .map((edu) => (
                 <EducationCard
-                  key={edu.id}
+                  key={edu.$jazz.id}
                   education={edu}
                   onEdit={onEditEducation}
                   onDelete={handleDeleteEducation}
@@ -98,7 +98,7 @@ export function EducationView({
         )}
       </div>
 
-      <div className="flex-shrink-0y">
+      <div className="shrink-0y">
         <EditorFooter
           primaryAction={{
             text: 'Done',

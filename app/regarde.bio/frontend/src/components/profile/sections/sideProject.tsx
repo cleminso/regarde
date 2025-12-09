@@ -10,10 +10,12 @@ type SideProjectsProps = {
 };
 
 export function SideProjects({ profile }: SideProjectsProps) {
-  const sideProjects = profile.sideProject?.filter(
-    (sideProject: any): sideProject is Loaded<typeof SideProject> =>
-      sideProject !== null,
-  );
+  const sideProjects = profile.sideProject?.$isLoaded 
+    ? profile.sideProject.filter(
+        (sideProject: any): sideProject is Loaded<typeof SideProject> =>
+          sideProject?.$isLoaded === true,
+      )
+    : [];
 
   if (!sideProjects || sideProjects.length === 0) {
     return null;
@@ -36,7 +38,7 @@ export function SideProjects({ profile }: SideProjectsProps) {
             const sideProjectLink = getValidUrl(sideProject.url);
 
             return (
-              <div key={sideProject.id} className="flex flex-col pb-4 gap-3">
+              <div key={sideProject.$jazz.id} className="flex flex-col pb-4 gap-3">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-sans text-muted-foreground">
@@ -59,7 +61,7 @@ export function SideProjects({ profile }: SideProjectsProps) {
                             className="min-w-0 flex items-center gap-1 max-w-full"
                           >
                             <span className="truncate">{displayTitle}</span>
-                            <ArrowUpRight className="h-4 w-4 flex-shrink-0" />
+                            <ArrowUpRight className="h-4 w-4 shrink-0" />
                           </a>
                         </Button>
                       ) : (
@@ -74,7 +76,7 @@ export function SideProjects({ profile }: SideProjectsProps) {
                       )}
                     </div>
                     {sideProject.description && (
-                      <p className="text-sm text-muted-foreground whitespace-pre-line break-words pr-1">
+                      <p className="text-sm text-muted-foreground whitespace-pre-line wrap-break-words pr-1">
                         {sideProject.description}
                       </p>
                     )}

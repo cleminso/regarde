@@ -5,7 +5,7 @@ import { createNicknameUrl } from '../../lib/utils/utils';
 
 export function ProtectedRoute() {
   const { nickname } = useParams();
-  const { account, regardeProfile, isAuthenticated } = useMyRegardeAccount();
+  const { account, isAuthenticated, userNickname } = useMyRegardeAccount();
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
@@ -19,7 +19,7 @@ export function ProtectedRoute() {
     return <Navigate to="/" replace />;
   }
 
-  const profileNickname = regardeProfile?.userHandle?.nickname;
+  const profileNickname = userNickname;
 
   if (!profileNickname) {
     return <Navigate to="/" replace />;

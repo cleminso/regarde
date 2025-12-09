@@ -28,7 +28,7 @@ export function EditorFooter({
         'lg:flex lg:justify-end lg:items-center lg:gap-2 p-4 lg:p-0 lg:pt-4 lg:border-t lg:border-border',
         'fixed lg:static bottom-16 left-0 right-0 z-30 lg:z-auto',
         'flex justify-between items-center gap-2  bg-card border-t border-border',
-        'flex-shrink-0',
+        'shrink-0',
         className,
       )}
     >

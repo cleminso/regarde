@@ -44,8 +44,8 @@ export function WritingView({
   };
 
   const confirmDelete = () => {
-    if (deleteConfirmation.writing?.id) {
-      deleteWriting(deleteConfirmation.writing.id);
+    if (deleteConfirmation.writing?.$isLoaded) {
+      deleteWriting(deleteConfirmation.writing.$jazz.id);
     }
     setDeleteConfirmation({ isOpen: false, writing: null });
   };
@@ -64,7 +64,7 @@ export function WritingView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <SectionHeader
           title="Writing"
           description="Share your published articles, papers, and other."
@@ -87,11 +87,11 @@ export function WritingView({
             {writing
               .filter(
                 (writingItem): writingItem is Loaded<typeof Writing> =>
-                  writingItem !== null,
+                  writingItem?.$isLoaded === true,
               )
               .map((writingItem) => (
                 <WritingCard
-                  key={writingItem.id}
+                  key={writingItem.$jazz.id}
                   writing={writingItem}
                   onEdit={onEditWriting}
                   onDelete={handleDeleteWriting}
@@ -101,7 +101,7 @@ export function WritingView({
         )}
       </div>
 
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

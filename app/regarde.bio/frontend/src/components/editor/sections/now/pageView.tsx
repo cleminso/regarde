@@ -24,9 +24,9 @@ export function NowPageView({
     triggerSyncIndicator,
   });
 
-  const [title, setTitle] = useState(nowPage?.title || '');
-  const [location, setLocation] = useState(nowPage?.location || '');
-  const [description, setDescription] = useState(nowPage?.description || '');
+  const [title, setTitle] = useState(nowPage && nowPage.$isLoaded ? nowPage.title || '' : '');
+  const [location, setLocation] = useState(nowPage && nowPage.$isLoaded ? nowPage.location || '' : '');
+  const [description, setDescription] = useState(nowPage && nowPage.$isLoaded ? nowPage.description || '' : '');
 
   const handleSave = () => {
     if (description.trim()) {

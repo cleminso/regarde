@@ -44,8 +44,8 @@ export function AwardView({
   };
 
   const confirmDelete = () => {
-    if (deleteConfirmation.award?.id) {
-      deleteAward(deleteConfirmation.award.id);
+    if (deleteConfirmation.award?.$isLoaded) {
+      deleteAward(deleteConfirmation.award.$jazz.id);
     }
     setDeleteConfirmation({ isOpen: false, award: null });
   };
@@ -59,12 +59,12 @@ export function AwardView({
   };
 
   const getAwardDisplayName = (award: Loaded<typeof Award>) => {
-    return award.title || 'Untitled Award';
+    return award.$isLoaded ? award.title || 'Untitled Award' : 'Untitled Award';
   };
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <SectionHeader
           title="Awards"
           description="Highlight your achievements and recognitions."
@@ -85,10 +85,10 @@ export function AwardView({
         {awards && awards.length > 0 && (
           <div className="space-y-6 pb-4">
             {awards
-              .filter((award): award is Loaded<typeof Award> => award !== null)
+              .filter((award): award is Loaded<typeof Award> => award?.$isLoaded === true)
               .map((award) => (
                 <AwardCard
-                  key={award.id}
+                  key={award.$jazz.id}
                   award={award}
                   onEdit={onEditAward}
                   onDelete={handleDeleteAward}
@@ -98,7 +98,7 @@ export function AwardView({
         )}
       </div>
 
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

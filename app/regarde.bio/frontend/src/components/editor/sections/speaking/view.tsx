@@ -44,8 +44,8 @@ export function SpeakingView({
   };
 
   const confirmDelete = () => {
-    if (deleteConfirmation.speaking?.id) {
-      deleteSpeaking(deleteConfirmation.speaking.id);
+    if (deleteConfirmation.speaking?.$isLoaded) {
+      deleteSpeaking(deleteConfirmation.speaking.$jazz.id);
     }
     setDeleteConfirmation({ isOpen: false, speaking: null });
   };
@@ -64,7 +64,7 @@ export function SpeakingView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <SectionHeader
           title="Speaking"
           description="Share your speaking engagements and presentations."
@@ -87,11 +87,11 @@ export function SpeakingView({
             {speaking
               .filter(
                 (speakingItem): speakingItem is Loaded<typeof Speaking> =>
-                  speakingItem !== null,
+                  speakingItem?.$isLoaded === true,
               )
               .map((speakingItem) => (
                 <SpeakingCard
-                  key={speakingItem.id}
+                  key={speakingItem.$jazz.id}
                   speaking={speakingItem}
                   onEdit={onEditSpeaking}
                   onDelete={handleDeleteSpeaking}
@@ -101,7 +101,7 @@ export function SpeakingView({
         )}
       </div>
 
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

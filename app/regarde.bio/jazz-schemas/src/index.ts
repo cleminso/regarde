@@ -1,1 +1,1 @@
-export * from "./regarde.bio/profile.js";
+export * from "./regarde.bio/index.js";

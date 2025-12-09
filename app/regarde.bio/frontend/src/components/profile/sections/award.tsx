@@ -10,9 +10,10 @@ type AwardsProps = {
 };
 
 export function Awards({ profile }: AwardsProps) {
-  const awards = profile.award?.filter(
-    (award: any): award is Loaded<typeof Award> => award !== null,
-  );
+  const awards = profile.award?.$isLoaded
+    ?  profile.award.filter(
+    (award: any): award is Loaded<typeof Award> => award?.$isLoaded === true,
+  ) : [] ;
 
   if (!awards || awards.length === 0) {
     return null;
@@ -33,7 +34,7 @@ export function Awards({ profile }: AwardsProps) {
             const awardLink = getValidUrl(award.url);
 
             return (
-              <div key={award.id} className="flex flex-col pb-4 gap-3">
+              <div key={award.$jazz.id} className="flex flex-col pb-4 gap-3">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-sans text-muted-foreground">
@@ -56,7 +57,7 @@ export function Awards({ profile }: AwardsProps) {
                             className="min-w-0 flex items-center gap-1 max-w-full"
                           >
                             <span className="truncate">{displayTitle}</span>
-                            <ArrowUpRight className="h-4 w-4 flex-shrink-0" />
+                            <ArrowUpRight className="h-4 w-4 shrink-0" />
                           </a>
                         </Button>
                       ) : (
@@ -71,7 +72,7 @@ export function Awards({ profile }: AwardsProps) {
                       )}
                     </div>
                     {award.description && (
-                      <p className="text-sm text-muted-foreground whitespace-pre-line break-words pr-1">
+                      <p className="text-sm text-muted-foreground whitespace-pre-line wrap-break-words pr-1">
                         {award.description}
                       </p>
                     )}

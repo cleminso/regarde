@@ -27,7 +27,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
         return;
       }
 
-      if (!profile) {
+      if (!profile.$isLoaded) {
         setUpdateError('Profile not available. Please refresh and try again.');
         return;
       }
@@ -36,8 +36,14 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
       setUpdateError(null);
 
       try {
+        const owner = profile.$jazz.owner;
+        if (!owner || !owner.$isLoaded) {
+          setUpdateError('Profile not ready. Please refresh and try again.');
+          return;
+        }
+
         const imageDefinition = await createImage(file, {
-          owner: profile.$jazz.owner,
+          owner,
           maxSize: 1024,
           placeholder: 'blur',
           progressive: true,
@@ -84,7 +90,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
   }, []);
 
   const handleRemoveAvatar = useCallback(async () => {
-    if (!profile) {
+    if (!profile.$isLoaded) {
       setUpdateError('Profile not available. Please refresh and try again.');
       return;
     }
@@ -105,7 +111,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
 
   const updateName = useCallback(
     async (name: string) => {
-      if (!profile) {
+      if (!profile.$isLoaded) {
         setUpdateError('Profile not available. Please refresh and try again.');
         return;
       }
@@ -129,7 +135,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
 
   const updateBio = useCallback(
     async (bio: string) => {
-      if (!profile) {
+      if (!profile.$isLoaded) {
         setUpdateError('Profile not available. Please refresh and try again.');
         return;
       }
@@ -206,6 +212,6 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
         clerkOnboarding.isAccountReady && !clerkOnboarding.isProcessing,
     },
 
-    canPerformUpdates: Boolean(profile) && !isUpdating,
+    canPerformUpdates: Boolean(profile && profile.$isLoaded) && !isUpdating,
   };
 }

@@ -44,8 +44,8 @@ export function ProjectView({
   };
 
   const confirmDelete = () => {
-    if (deleteConfirmation.project?.id) {
-      deleteProject(deleteConfirmation.project.id);
+    if (deleteConfirmation.project?.$isLoaded) {
+      deleteProject(deleteConfirmation.project.$jazz.id);
     }
     setDeleteConfirmation({ isOpen: false, project: null });
   };
@@ -64,7 +64,7 @@ export function ProjectView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <SectionHeader
           title="Projects"
           description="Showcase your projects and contributions."
@@ -87,11 +87,11 @@ export function ProjectView({
             {projects
               .filter(
                 (project): project is Loaded<typeof Project> =>
-                  project !== null,
+                  project?.$isLoaded === true,
               )
               .map((project) => (
                 <ProjectCard
-                  key={project.id}
+                  key={project.$jazz.id}
                   project={project}
                   onEdit={onEditProject}
                   onDelete={handleDeleteProject}
@@ -101,7 +101,7 @@ export function ProjectView({
         )}
       </div>
 
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

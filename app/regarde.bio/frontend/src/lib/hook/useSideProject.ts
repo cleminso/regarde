@@ -13,15 +13,25 @@ export function useSideProject({
   const ensureSideProjectList = ():
     | Loaded<typeof ListOfSideProject>
     | undefined => {
-    if (!profile.sideProject) {
-      const profileOwner = profile.$jazz.owner;
-      const newSideProjectList = ListOfSideProject.create([], {
-        owner: profileOwner,
-      });
-      profile.$jazz.set("sideProject", newSideProjectList);
-      return newSideProjectList;
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return undefined;
     }
-    return profile.sideProject;
+
+    if (profile.sideProject?.$isLoaded) {
+      return profile.sideProject;
+    }
+
+    // Create new list if it doesn't exist
+    const profileOwner = profile.$jazz.owner;
+    if (!profileOwner?.$isLoaded) {
+      logger.error('Cannot create side project list: profile owner is not loaded');
+      return undefined;
+    }
+
+    const newSideProjectList = ListOfSideProject.create([], { owner: profileOwner });
+    profile.$jazz.set("sideProject", newSideProjectList);
+    return newSideProjectList;
   };
 
   const addSideProject = async (sideProjectData: {
@@ -35,6 +45,10 @@ export function useSideProject({
     if (!sideProjectList) return undefined;
 
     const listOwner = sideProjectList.$jazz.owner;
+    if (!listOwner?.$isLoaded) {
+      logger.error('Cannot create side project: list owner is not loaded');
+      return undefined;
+    }
 
     const newSideProject = SideProject.create(
       {
@@ -111,13 +125,17 @@ export function useSideProject({
   };
 
   const deleteSideProject = async (sideProjectId: string) => {
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return;
+    }
     const sideProjectList = profile.sideProject;
-    if (!sideProjectList) {
-      logger.warn('No side projects list to delete from.');
+    if (!sideProjectList?.$isLoaded) {
+      logger.warn('No side projects list to delete from or not loaded.');
       return;
     }
     const sideProjectIndex = sideProjectList.findIndex(
-      (s: any) => s && s.$jazz.id === sideProjectId,
+      (s: any) => s && s.$isLoaded && s.$jazz.id === sideProjectId,
     );
 
     if (sideProjectIndex !== -1) {

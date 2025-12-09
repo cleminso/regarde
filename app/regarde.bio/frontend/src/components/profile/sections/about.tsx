@@ -10,9 +10,11 @@ type AboutProps = {
 export function About({ profile }: AboutProps) {
   const hasContent =
     profile.bio ||
-    profile.socialLinks?.github ||
-    profile.socialLinks?.twitter ||
-    profile.socialLinks?.website;
+    (profile.socialLinks?.$isLoaded && (
+      profile.socialLinks.github ||
+      profile.socialLinks.twitter ||
+      profile.socialLinks.website
+    ));
 
   if (!hasContent) {
     return null;
@@ -23,7 +25,7 @@ export function About({ profile }: AboutProps) {
       <section className="w-full max-w-[580px] mx-auto flex flex-col gap-4 mb-6">
         {profile.bio && (
           <div>
-            <p className="text-sm text-muted-foreground whitespace-pre-line break-words">
+            <p className="text-sm text-muted-foreground whitespace-pre-line wrap-break-words">
               {profile.bio}
             </p>
           </div>

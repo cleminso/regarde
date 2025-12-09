@@ -13,15 +13,25 @@ export function useVolunteering({
   const ensureVolunteeringList = ():
     | Loaded<typeof ListOfVolunteering>
     | undefined => {
-    if (!profile.volunteering) {
-      const profileOwner = profile.$jazz.owner;
-      const newVolunteeringList = ListOfVolunteering.create([], {
-        owner: profileOwner,
-      });
-      profile.$jazz.set("volunteering", newVolunteeringList);
-      return newVolunteeringList;
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return undefined;
     }
-    return profile.volunteering;
+
+    if (profile.volunteering?.$isLoaded) {
+      return profile.volunteering;
+    }
+
+    // Create new list if it doesn't exist
+    const profileOwner = profile.$jazz.owner;
+    if (!profileOwner?.$isLoaded) {
+      logger.error('Cannot create volunteering list: profile owner is not loaded');
+      return undefined;
+    }
+
+    const newVolunteeringList = ListOfVolunteering.create([], { owner: profileOwner });
+    profile.$jazz.set("volunteering", newVolunteeringList);
+    return newVolunteeringList;
   };
 
   const addVolunteering = async (volunteeringData: {
@@ -37,6 +47,10 @@ export function useVolunteering({
     if (!volunteeringList) return undefined;
 
     const listOwner = volunteeringList.$jazz.owner;
+    if (!listOwner?.$isLoaded) {
+      logger.error('Cannot create volunteering: list owner is not loaded');
+      return undefined;
+    }
 
     const newVolunteering = Volunteering.create(
       {
@@ -67,7 +81,7 @@ export function useVolunteering({
       to?: string;
     },
   ) => {
-    if (!volunteeringToUpdate) {
+    if (!volunteeringToUpdate.$isLoaded) {
       logger.error('Volunteering instance not provided for update.');
       return;
     }
@@ -132,13 +146,17 @@ export function useVolunteering({
   };
 
   const deleteVolunteering = async (volunteeringId: string) => {
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return;
+    }
     const volunteeringList = profile.volunteering;
-    if (!volunteeringList) {
-      logger.warn('No volunteering list to delete from.');
+    if (!volunteeringList?.$isLoaded) {
+      logger.warn('No volunteering list to delete from or not loaded.');
       return;
     }
     const volunteeringIndex = volunteeringList.findIndex(
-      (v: any) => v && v.$jazz.id === volunteeringId,
+      (v: any) => v && v.$isLoaded && v.$jazz.id === volunteeringId,
     );
 
     if (volunteeringIndex !== -1) {

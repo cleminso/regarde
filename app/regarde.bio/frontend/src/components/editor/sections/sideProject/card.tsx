@@ -44,7 +44,7 @@ export function SideProjectCard({
                   className="min-w-0 flex items-center gap-1 max-w-full"
                 >
                   <span className="truncate">{displayTitle}</span>
-                  <ArrowUpRight className="h-4 w-4 flex-shrink-0 group-hover:opacity-100" />
+                  <ArrowUpRight className="h-4 w-4 shrink-0 group-hover:opacity-100" />
                 </a>
               </Button>
             ) : (

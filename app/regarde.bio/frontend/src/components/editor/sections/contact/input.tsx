@@ -29,7 +29,7 @@ export function ContactInput({
   return (
     <div className="flex items-center border border-input rounded-md overflow-hidden bg-background">
       <div className="flex items-center px-3 py-3 bg-muted border-r border-border">
-        <div className="w-4 h-4 mr-2 flex-shrink-0 text-muted-foreground">
+        <div className="w-4 h-4 mr-2 shrink-0 text-muted-foreground">
           {icon}
         </div>
         <span className="text-sm text-muted-foreground">{prefix}</span>

@@ -26,7 +26,7 @@ export function SectionHeader({
         className,
       )}
     >
-      <div className="flex-grow">
+      <div className="grow">
         <h3 className="hidden lg:block text-lg font-medium text-foreground">
           {title}
         </h3>
@@ -37,7 +37,7 @@ export function SectionHeader({
       </div>
 
       {hasAction && (
-        <div className="lg:ml-4 lg:flex-shrink-0">
+        <div className="lg:ml-4 lg:shrink-0">
           <Button
             variant="view"
             size="sm"

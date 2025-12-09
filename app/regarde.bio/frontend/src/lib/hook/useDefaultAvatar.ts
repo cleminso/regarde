@@ -6,6 +6,7 @@ import { generateDefaultAvatar } from '../utils/utils';
 
 export function useDefaultAvatar(
   profile: Loaded<typeof RegardeProfile>,
+  nickname?: string,
   size: number = 92,
 ) {
   return useMemo(() => {
@@ -13,7 +14,7 @@ export function useDefaultAvatar(
       return profile.avatarImage;
     }
 
-    if (profile.avatarImage?.original) {
+    if (profile.avatarImage && profile.avatarImage.$isLoaded && profile.avatarImage.original && profile.avatarImage.original.$isLoaded) {
       try {
         const blob = profile.avatarImage.original.toBlob();
         if (blob) {
@@ -25,7 +26,7 @@ export function useDefaultAvatar(
     }
 
     // Fall back to generated avatar
-    if (profile.userHandle) {
+    if (nickname) {
       const borderRadius =
         size === 92
           ? 16
@@ -35,9 +36,9 @@ export function useDefaultAvatar(
               ? 16
               : Math.max(4, Math.round(size * 0.17));
 
-      return generateDefaultAvatar(profile.userHandle.nickname, borderRadius);
+      return generateDefaultAvatar(nickname, borderRadius);
     }
 
     return null;
-  }, [profile.avatarImage, profile.userHandle, size]);
+  }, [profile.avatarImage, nickname, size]);
 }

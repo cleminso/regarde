@@ -10,7 +10,7 @@ type NowPageProps = {
 export function NowPage({ profile }: NowPageProps) {
   const nowPage = profile.nowPage;
 
-  if (!nowPage || !nowPage.description) {
+  if (!nowPage?.$isLoaded || !nowPage.description) {
     return (
       <div className="@container">
         <section className="w-full max-w-[580px] mx-auto flex flex-col gap-6 mb-10">

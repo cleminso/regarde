@@ -14,7 +14,7 @@ export type GetValidKeyFunction = () => GetValidKeyFunctionOutput;
 export function useRegardeAuth() {
   const { account, isAccountReady } = useMyRegardeAccount();
 
-  const regardeAuth = account && account.$isLoaded ? account.root['api.regarde.dev'] : undefined;
+  const regardeAuth = account && account.$isLoaded ? account.root['regarde-sdk'] : undefined;
   const isLoading = account === undefined || (account && !account.$isLoaded);
   const isAccessible = regardeAuth !== null;
 

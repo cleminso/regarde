@@ -53,15 +53,17 @@ function AvatarFallback({
 
 function ProfileAvatar({
   profile,
+  nickname,
   className,
   size = 96,
   ...props
 }: {
   profile: Loaded<typeof RegardeProfile>;
+  nickname?: string;
   className?: string;
   size?: number;
 } & React.ComponentProps<typeof AvatarPrimitive.Root>) {
-  const avatarSrc = useDefaultAvatar(profile, size);
+  const avatarSrc = useDefaultAvatar(profile, nickname, size);
 
   const avatarClasses = cn(
     // ALWAYS apply rounded-xl for ProfileAvatar, regardless of size
@@ -81,17 +83,20 @@ function ProfileAvatar({
     className,
   );
 
+  // Use nickname for display if provided, otherwise fall back to profile name
+  const displayName = nickname || profile.name;
+
   return (
     <AvatarPrimitive.Root className={avatarClasses} {...props}>
       {avatarSrc && (
         <AvatarImage
           src={avatarSrc}
-          alt={`${profile.name || profile.userHandle}'s avatar`}
+          alt={`${displayName}'s avatar`}
           className="aspect-square size-full rounded-xl"
         />
       )}
       <AvatarFallback className="bg-muted flex size-full items-center justify-center rounded-xl">
-        {profile?.userHandle?.nickname.substring(0, 2).toUpperCase() || 'NA'}
+        {displayName?.substring(0, 2).toUpperCase() || 'NA'}
       </AvatarFallback>
     </AvatarPrimitive.Root>
   );

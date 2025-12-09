@@ -8,15 +8,25 @@ type UseWorkExpProps = BaseHookProps;
 
 export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
   const ensureWorkExpList = (): Loaded<typeof ListOfWorkExp> | undefined => {
-    if (!profile.workExp) {
-      const profileOwner = profile.$jazz.owner;
-      const newWorkExpList = ListOfWorkExp.create([], {
-        owner: profileOwner,
-      });
-      profile.$jazz.set("workExp", newWorkExpList);
-      return newWorkExpList;
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return undefined;
     }
-    return profile.workExp;
+
+    if (profile.workExp?.$isLoaded) {
+      return profile.workExp;
+    }
+
+    // Create new list if it doesn't exist
+    const profileOwner = profile.$jazz.owner;
+    if (!profileOwner?.$isLoaded) {
+      logger.error('Cannot create work experience list: profile owner is not loaded');
+      return undefined;
+    }
+
+    const newWorkExpList = ListOfWorkExp.create([], { owner: profileOwner });
+    profile.$jazz.set("workExp", newWorkExpList);
+    return newWorkExpList;
   };
 
   const addWorkExp = async (workExpData: {
@@ -32,23 +42,30 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
     if (!workExpList) return undefined;
 
     const listOwner = workExpList.$jazz.owner;
+    if (!listOwner || !listOwner.$isLoaded) {
+      logger.error('Cannot create work experience: list owner is not loaded');
+      return undefined;
+    }
 
-    const newWorkExp = WorkExp.create(
-      {
-        title: workExpData.title || 'Work Experience',
-        company: workExpData.company,
-        location: workExpData.location,
-        url: workExpData.url,
-        description: workExpData.description,
-        from: workExpData.from,
-        to: workExpData.to,
-      },
-      { owner: listOwner },
-    );
-    workExpList.$jazz.push(newWorkExp);
-    await triggerSyncIndicator(profile);
-    return newWorkExp;
-  };
+
+if (!listOwner?.$isLoaded) return undefined;
+
+const newWorkExp = WorkExp.create(
+  {
+    title: workExpData.title || 'Work Experience',
+    company: workExpData.company,
+    location: workExpData.location,
+    url: workExpData.url,
+    description: workExpData.description,
+    from: workExpData.from,
+    to: workExpData.to,
+  },
+  { owner: listOwner },
+);
+workExpList.$jazz.push(newWorkExp);
+await triggerSyncIndicator(profile);
+return newWorkExp;
+};
 
   const updateWorkExp = async (
     workExpToUpdate: Loaded<typeof WorkExp>,
@@ -62,7 +79,7 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
       to?: string;
     },
   ) => {
-    if (!workExpToUpdate) {
+    if (!workExpToUpdate.$isLoaded) {
       logger.error('Work experience instance not provided for update.');
       return;
     }
@@ -127,13 +144,17 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
   };
 
   const deleteWorkExp = async (workExpId: string) => {
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return;
+    }
     const workExpList = profile.workExp;
-    if (!workExpList) {
-      logger.warn('No work experiences list to delete from.');
+    if (!workExpList?.$isLoaded) {
+      logger.warn('No work experiences list to delete from or not loaded.');
       return;
     }
     const workExpIndex = workExpList.findIndex(
-      (w: any) => w && w.$jazz.id === workExpId,
+      (w: any) => w && w.$isLoaded && w.$jazz.id === workExpId,
     );
 
     if (workExpIndex !== -1) {

@@ -11,13 +11,25 @@ export function useSpeaking({
   triggerSyncIndicator,
 }: UseSpeakingProps) {
   const ensureSpeakingList = (): Loaded<typeof ListOfSpeaking> | undefined => {
-    if (!profile.speaking) {
-      const profileOwner = profile.$jazz.owner;
-      const newSpeakingList = ListOfSpeaking.create([], { owner: profileOwner });
-      profile.$jazz.set("speaking", newSpeakingList);
-      return newSpeakingList;
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return undefined;
     }
-    return profile.speaking;
+
+    if (profile.speaking?.$isLoaded) {
+      return profile.speaking;
+    }
+
+    // Create new list if it doesn't exist
+    const profileOwner = profile.$jazz.owner;
+    if (!profileOwner?.$isLoaded) {
+      logger.error('Cannot create speaking list: profile owner is not loaded');
+      return undefined;
+    }
+
+    const newSpeakingList = ListOfSpeaking.create([], { owner: profileOwner });
+    profile.$jazz.set("speaking", newSpeakingList);
+    return newSpeakingList;
   };
 
   const addSpeaking = async (speakingData: {
@@ -32,6 +44,10 @@ export function useSpeaking({
     if (!speakingList) return undefined;
 
     const listOwner = speakingList.$jazz.owner;
+    if (!listOwner?.$isLoaded) {
+      logger.error('Cannot create speaking: list owner is not loaded');
+      return undefined;
+    }
 
     const newSpeaking = Speaking.create(
       {
@@ -60,7 +76,7 @@ export function useSpeaking({
       description?: string;
     },
   ) => {
-    if (!speakingToUpdate) {
+    if (!speakingToUpdate.$isLoaded) {
       logger.error('Speaking instance not provided for update.');
       return;
     }
@@ -117,13 +133,17 @@ export function useSpeaking({
   };
 
   const deleteSpeaking = async (speakingId: string) => {
-    const speakingList = profile.speaking;
-    if (!speakingList) {
-      logger.warn('No speaking list to delete from.');
-      return;
-    }
+  if (!profile.$isLoaded) {
+    logger.error('Profile is not loaded');
+    return;
+  }
+  const speakingList = profile.speaking;
+  if (!speakingList?.$isLoaded) {
+    logger.warn('No speaking list to delete from or not loaded.');
+    return;
+  }
     const speakingIndex = speakingList.findIndex(
-      (s: any) => s && s.$jazz.id === speakingId,
+      (s: any) => s && s.$isLoaded && s.$jazz.id === speakingId,
     );
 
     if (speakingIndex !== -1) {

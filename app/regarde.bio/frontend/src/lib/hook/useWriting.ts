@@ -8,13 +8,25 @@ type UseWritingProps = BaseHookProps;
 
 export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
   const ensureWritingList = (): Loaded<typeof ListOfWriting> | undefined => {
-    if (!profile.writing) {
-      const profileOwner = profile.$jazz.owner;
-      const newWritingList = ListOfWriting.create([], { owner: profileOwner });
-      profile.$jazz.set("writing", newWritingList);
-      return newWritingList;
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return undefined;
     }
-    return profile.writing;
+
+    if (profile.writing?.$isLoaded) {
+      return profile.writing;
+    }
+
+    // Create new list if it doesn't exist
+    const profileOwner = profile.$jazz.owner;
+    if (!profileOwner?.$isLoaded) {
+      logger.error('Cannot create writing list: profile owner is not loaded');
+      return undefined;
+    }
+
+    const newWritingList = ListOfWriting.create([], { owner: profileOwner });
+    profile.$jazz.set("writing", newWritingList);
+    return newWritingList;
   };
 
   const addWriting = async (writingData: {
@@ -25,20 +37,21 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
     description?: string;
   }): Promise<Loaded<typeof Writing> | undefined> => {
     const writingList = ensureWritingList();
-    if (!writingList) return undefined;
+    if (!writingList?.$isLoaded) return undefined;
 
     const listOwner = writingList.$jazz.owner;
+    if (!listOwner?.$isLoaded) {
+      logger.error('Cannot create writing: list owner is not loaded');
+      return undefined;
+    }
 
-    const newWriting = Writing.create(
-      {
-        title: writingData.title,
-        year: writingData.year,
-        publisher: writingData.publisher,
-        url: writingData.url,
-        description: writingData.description,
-      },
-      { owner: listOwner },
-    );
+    const newWriting = Writing.create({
+      title: writingData.title,
+      year: writingData.year,
+      publisher: writingData.publisher,
+      url: writingData.url,
+      description: writingData.description,
+    }, { owner: listOwner });
     writingList.$jazz.push(newWriting);
     await triggerSyncIndicator(profile);
     return newWriting;
@@ -54,7 +67,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
       description?: string;
     },
   ) => {
-    if (!writingToUpdate) {
+    if (!writingToUpdate.$isLoaded) {
       logger.error('Writing instance not provided for update.');
       return;
     }
@@ -104,13 +117,17 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
   };
 
   const deleteWriting = async (writingId: string) => {
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return;
+    }
     const writingList = profile.writing;
-    if (!writingList) {
-      logger.warn('No writing list to delete from.');
+    if (!writingList?.$isLoaded) {
+      logger.warn('No writing list to delete from or not loaded.');
       return;
     }
     const writingIndex = writingList.findIndex(
-      (w: any) => w && w.$jazz.id === writingId,
+      (w: any) => w && w.$isLoaded && w.$jazz.id === writingId,
     );
 
     if (writingIndex !== -1) {

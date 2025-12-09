@@ -43,7 +43,7 @@ import {
 import { editorSections, SectionType } from './shared/index.ts';
 
 export function ProfileEditor() {
-  const { profile, accountId, isLoading, syncState, triggerSyncIndicator } =
+  const { profile, accountId, userNickname, isLoading, syncState, triggerSyncIndicator } =
     useEditProfile();
   const [activeSection, setActiveSection] = useState<SectionType>(
     editorSections.general,
@@ -106,8 +106,8 @@ export function ProfileEditor() {
   const navigate = useNavigate();
 
   const handleCloseEditor = () => {
-    if (profile?.userHandle?.nickname) {
-      navigate(createNicknameUrl(profile.userHandle.nickname));
+    if (userNickname) {
+      navigate(createNicknameUrl(userNickname));
     } else {
       navigate('/profile');
     }

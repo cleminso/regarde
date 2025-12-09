@@ -10,9 +10,11 @@ type ProjectsProps = {
 };
 
 export function Projects({ profile }: ProjectsProps) {
-  const projects = profile.projects?.filter(
-    (project: any): project is Loaded<typeof Project> => project !== null,
-  );
+  const projects = profile.projects?.$isLoaded 
+    ? profile.projects.filter(
+        (project: any): project is Loaded<typeof Project> => project?.$isLoaded === true,
+      )
+    : [];
 
   if (!projects || projects.length === 0) {
     return null;
@@ -36,7 +38,7 @@ export function Projects({ profile }: ProjectsProps) {
             const projectLink = getValidUrl(project.link);
 
             return (
-              <div key={project.id} className="flex flex-col pb-4 gap-3">
+              <div key={project.$jazz.id} className="flex flex-col pb-4 gap-3">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-sans text-muted-foreground">
@@ -59,7 +61,7 @@ export function Projects({ profile }: ProjectsProps) {
                             className="min-w-0 flex items-center gap-1 max-w-full"
                           >
                             <span className="truncate">{displayTitle}</span>
-                            <ArrowUpRight className="h-4 w-4 flex-shrink-0" />
+                            <ArrowUpRight className="h-4 w-4 shrink-0" />
                           </a>
                         </Button>
                       ) : (
@@ -74,7 +76,7 @@ export function Projects({ profile }: ProjectsProps) {
                       )}
                     </div>
                     {project.description && (
-                      <p className="text-sm text-muted-foreground whitespace-pre-line break-words pr-1">
+                      <p className="text-sm text-muted-foreground whitespace-pre-line wrap-break-words pr-1">
                         {project.description}
                       </p>
                     )}

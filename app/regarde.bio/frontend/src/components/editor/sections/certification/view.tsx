@@ -53,8 +53,8 @@ export function CertificationView({
   };
 
   const confirmDelete = () => {
-    if (deleteConfirmation.certification?.id) {
-      deleteCertification(deleteConfirmation.certification.id);
+    if (deleteConfirmation.certification?.$isLoaded) {
+      deleteCertification(deleteConfirmation.certification.$jazz.id);
     }
     setDeleteConfirmation({ isOpen: false, certification: null });
   };
@@ -77,7 +77,7 @@ export function CertificationView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <SectionHeader
           title="Certifications"
           description="Showcase your professional certifications and credentials."
@@ -102,11 +102,11 @@ export function CertificationView({
                 (
                   certification,
                 ): certification is Loaded<typeof Certification> =>
-                  certification !== null,
+                  certification?.$isLoaded === true,
               )
               .map((certification) => (
                 <CertificationCard
-                  key={certification.id}
+                  key={certification.$jazz.id}
                   certification={certification}
                   onEdit={onEditCertification}
                   onDelete={handleDeleteCertification}
@@ -116,7 +116,7 @@ export function CertificationView({
         )}
       </div>
 
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

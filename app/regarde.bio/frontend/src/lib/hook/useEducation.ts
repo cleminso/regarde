@@ -13,15 +13,25 @@ export function useEducation({
   const ensureEducationList = ():
     | Loaded<typeof ListOfEducation>
     | undefined => {
-    if (!profile.education) {
-      const profileOwner = profile.$jazz.owner;
-      const newEducationList = ListOfEducation.create([], {
-        owner: profileOwner,
-      });
-      profile.$jazz.set("education", newEducationList);
-      return newEducationList;
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return undefined;
     }
-    return profile.education;
+
+    if (profile.education?.$isLoaded) {
+      return profile.education;
+    }
+
+    // Create new list if it doesn't exist
+    const profileOwner = profile.$jazz.owner;
+    if (!profileOwner?.$isLoaded) {
+      logger.error('Cannot create education list: profile owner is not loaded');
+      return undefined;
+    }
+
+    const newEducationList = ListOfEducation.create([], { owner: profileOwner });
+    profile.$jazz.set("education", newEducationList);
+    return newEducationList;
   };
 
   const addEducation = (educationData: {
@@ -37,6 +47,10 @@ export function useEducation({
     if (!educationList) return undefined;
 
     const listOwner = educationList.$jazz.owner;
+    if (!listOwner?.$isLoaded) {
+      logger.error('Cannot create education: list owner is not loaded');
+      return undefined;
+    }
 
     const newEducation = Education.create(
       {
@@ -67,7 +81,7 @@ export function useEducation({
       description?: string;
     },
   ) => {
-    if (!educationToUpdate) {
+    if (!educationToUpdate.$isLoaded) {
       logger.error('Education instance not provided for update.');
       return;
     }
@@ -132,13 +146,17 @@ export function useEducation({
   };
 
   const deleteEducation = (educationId: string) => {
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return;
+    }
     const educationList = profile.education;
-    if (!educationList) {
-      logger.warn('No education list to delete from.');
+    if (!educationList?.$isLoaded) {
+      logger.warn('No education list to delete from or not loaded.');
       return;
     }
     const educationIndex = educationList.findIndex(
-      (e: any) => e && e.$jazz.id === educationId,
+      (e: any) => e && e.$isLoaded && e.$jazz.id === educationId,
     );
 
     if (educationIndex !== -1) {

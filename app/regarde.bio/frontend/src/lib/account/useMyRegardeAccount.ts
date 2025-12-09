@@ -23,23 +23,34 @@ export function useMyRegardeAccount() {
             nowPage: true,
             avatarImage: { original: true },
           },
-          "regarde-sdk": true
+          "regarde-sdk": {
+            userHandle: true
+          }
         },
       },
-      select: (account) => account.$isLoaded ? account : account.$jazz.loadingState === "loading" ? undefined : null
     } : {}
   );
   const logOut = useLogOut();
 
-  const regardeProfile = account && account.$isLoaded ? account.root['regarde.bio'] : undefined;
-  const regardeAuth = account && account.$isLoaded ? account.root['regarde-sdk'] : undefined;
+  const regardeProfile = account && account.$isLoaded && account.root['regarde.bio']?.$isLoaded 
+    ? account.root['regarde.bio'] 
+    : undefined;
+  const regardeAuth = account && account.$isLoaded && account.root['regarde-sdk']?.$isLoaded 
+    ? account.root['regarde-sdk'] 
+    : undefined;
+
+  // Extract nickname from regardeAuth, handling the MaybeLoaded type
+  const userNickname = regardeAuth && regardeAuth.userHandle?.$isLoaded
+    ? regardeAuth.userHandle.nickname
+    : undefined;
 
   return {
     account,
     regardeProfile,
     regardeAuth,
+    userNickname,
     isAuthenticated,
     logOut,
-    isAccountReady: !!(account && account.$isLoaded) && !!regardeProfile,
+    isAccountReady: !!(account && account.$isLoaded && regardeProfile),
   };
 }

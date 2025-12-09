@@ -47,8 +47,8 @@ export function SideProjectView({
   };
 
   const confirmDelete = () => {
-    if (deleteConfirmation.sideProject?.id) {
-      deleteSideProject(deleteConfirmation.sideProject.id);
+    if (deleteConfirmation.sideProject?.$isLoaded) {
+      deleteSideProject(deleteConfirmation.sideProject.$jazz.id);
     }
     setDeleteConfirmation({ isOpen: false, sideProject: null });
   };
@@ -69,7 +69,7 @@ export function SideProjectView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <SectionHeader
           title="Side Projects"
           description="Showcase your personal projects and experiments."
@@ -92,11 +92,11 @@ export function SideProjectView({
             {sideProjects
               .filter(
                 (sideProject): sideProject is Loaded<typeof SideProject> =>
-                  sideProject !== null,
+                  sideProject?.$isLoaded === true,
               )
               .map((sideProject) => (
                 <SideProjectCard
-                  key={sideProject.id}
+                  key={sideProject.$jazz.id}
                   sideProject={sideProject}
                   onEdit={onEditSideProject}
                   onDelete={handleDeleteSideProject}
@@ -106,7 +106,7 @@ export function SideProjectView({
         )}
       </div>
 
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

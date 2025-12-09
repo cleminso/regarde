@@ -16,15 +16,16 @@ import { createNicknameUrl } from '#/lib/utils/utils';
 
 type ProfileHeaderProps = {
   profile: Loaded<typeof RegardeProfile>;
+  nickname?: string;
 };
 
-export function ProfileHeader({ profile }: ProfileHeaderProps) {
+export function ProfileHeader({ profile, nickname }: ProfileHeaderProps) {
   const navigate = useNavigate();
   const isAuthenticated = useIsAuthenticated();
 
   const handleEditClick = () => {
-    if (profile.userHandle?.nickname) {
-      navigate(createNicknameUrl(profile.userHandle.nickname, '/edit'));
+    if (nickname) {
+      navigate(createNicknameUrl(nickname, '/edit'));
     }
   };
 
@@ -34,12 +35,12 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
         className="mx-auto flex flex-row items-start gap-4 mb-10 sm:px-0"
         style={{ maxWidth: '580px' }}
       >
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <div className="block sm:hidden">
-            <ProfileAvatar profile={profile} size={72} />
+            <ProfileAvatar profile={profile} nickname={nickname} size={72} />
           </div>
           <div className="hidden sm:block">
-            <ProfileAvatar profile={profile} size={92} />
+            <ProfileAvatar profile={profile} nickname={nickname} size={92} />
           </div>
         </div>
 
@@ -47,7 +48,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
           <div className="flex flex-col gap-1">
             <h2 className="text-lg font">{profile.name}</h2>
             <p className="text-sm text-foreground">
-              @{profile.userHandle?.nickname || 'nickname-not-set'}
+              @{nickname || 'nickname-not-set'}
             </p>
           </div>
         </div>

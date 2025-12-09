@@ -23,7 +23,7 @@ export function ProfileView() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const { account, regardeProfile } = useMyRegardeAccount();
+  const { account, regardeProfile, userNickname } = useMyRegardeAccount();
 
   useEffect(() => {
     if (!nickname) {
@@ -32,7 +32,7 @@ export function ProfileView() {
       return;
     }
 
-    if (regardeProfile?.userHandle?.nickname === nickname) {
+    if (userNickname === nickname) {
       setOtherUserProfile(null);
       setIsLoading(false);
       return;
@@ -76,7 +76,7 @@ export function ProfileView() {
   }
 
   if (error) {
-    const isAuthenticated = !!regardeProfile?.userHandle?.nickname;
+    const isAuthenticated = !!userNickname;
     const showReturnButton = isAuthenticated;
 
     return (
@@ -91,7 +91,7 @@ export function ProfileView() {
             <div className="space-y-2">
               <Button
                 onClick={() =>
-                  navigate(`/${regardeProfile.userHandle!.nickname}`)
+                  navigate(`/${userNickname}`)
                 }
                 variant="default"
                 className="font-mono"
@@ -114,7 +114,7 @@ export function ProfileView() {
     );
   }
 
-  if (regardeProfile?.userHandle?.nickname === nickname) {
+  if (userNickname === nickname) {
     if (account === undefined) {
       return (
         <div className="flex w-full justify-center items-center min-h-screen">
@@ -123,7 +123,7 @@ export function ProfileView() {
       );
     }
 
-    if (account === null || !account.$isLoaded || !regardeProfile) {
+    if (account === null || !account.$isLoaded || !regardeProfile?.$isLoaded) {
       return (
         <div className="flex w-full justify-center items-center min-h-screen">
           <p>Profile not accessible</p>
@@ -131,11 +131,11 @@ export function ProfileView() {
       );
     }
 
-    return <ProfileContent profile={regardeProfile} />;
+    return <ProfileContent profile={regardeProfile} nickname={nickname} />;
   }
 
   if (otherUserProfile) {
-    return <ProfileContent profile={otherUserProfile} />;
+    return <ProfileContent profile={otherUserProfile} nickname={nickname} />;
   }
 
   return (
@@ -145,10 +145,10 @@ export function ProfileView() {
   );
 }
 
-function ProfileContent({ profile }: { profile: LoadedProfile }) {
+function ProfileContent({ profile, nickname }: { profile: LoadedProfile; nickname?: string }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { nickname } = useParams();
+  const { nickname: urlNickname } = useParams();
 
   const pathSegments = location.pathname.split('/');
   const currentPath = pathSegments[pathSegments.length - 1];
@@ -158,15 +158,15 @@ function ProfileContent({ profile }: { profile: LoadedProfile }) {
     if (tab.id === 'now') {
       return {
         ...tab,
-        enabled: Boolean(profile.nowPage?.description),
+        enabled: Boolean(profile.nowPage?.$isLoaded && profile.nowPage.description),
       };
     }
     return tab;
   });
 
   const handleTabChange = (tab: TabId) => {
-    if (nickname) {
-      navigate(`/${nickname}/${tab}`);
+    if (urlNickname) {
+      navigate(`/${urlNickname}/${tab}`);
     }
   };
 
@@ -182,14 +182,13 @@ function ProfileContent({ profile }: { profile: LoadedProfile }) {
     }
   };
 
-  // Dynamic title based on profile nickname
-  const profileNickname = profile.userHandle?.nickname;
-  const pageTitle = profileNickname ? `${profileNickname}` : 'regarde.bio';
+  // For public profiles, use the nickname from URL params
+  const pageTitle = `${nickname || 'regarde.bio'}`;
 
   return (
     <main className="w-full">
       <title>{pageTitle}</title>
-      <ProfileHeader profile={profile} />
+      <ProfileHeader profile={profile} nickname={urlNickname} />
 
       <ScrollArea className="w-full max-w-full sm:max-w-[580px] mx-auto sm:px-0" viewportClassName="overflow-x-hidden">
         <ProfileTabs

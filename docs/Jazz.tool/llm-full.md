@@ -10876,7 +10876,7 @@ export function PlayerControls({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
   return (
     <footer className="flex flex-wrap sm:flex-nowrap items-center justify-between pt-4 p-2 sm:p-4 gap-4 sm:gap-4 bg-white border-t border-gray-200 absolute bottom-0 left-0 right-0 w-full z-50">
       {/* Player Controls - Always on top */}
-      <div className="flex justify-center items-center space-x-1 sm:space-x-2 flex-shrink-0 w-full sm:w-auto order-1 sm:order-none">
+      <div className="flex justify-center items-center space-x-1 sm:space-x-2 shrink-0 w-full sm:w-auto order-1 sm:order-none">
         <div className="flex items-center space-x-2">
           <Button
             variant="ghost"
@@ -10917,7 +10917,7 @@ export function PlayerControls({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
       />
 
       {/* Track Info - Below waveform on mobile, on the right on desktop */}
-      <div className="flex flex-col gap-1 min-w-fit sm:flex-shrink-0 text-center w-full sm:text-right items-center sm:items-end sm:w-auto order-0 sm:order-none">
+      <div className="flex flex-col gap-1 min-w-fit sm:shrink-0 text-center w-full sm:text-right items-center sm:items-end sm:w-auto order-0 sm:order-none">
         <h4 className="font-medium text-blue-800 text-base sm:text-base truncate max-w-80 sm:max-w-80">
           {activeTrackTitle}
         </h4>

@@ -44,8 +44,8 @@ export function WorkExpView({
   };
 
   const confirmDelete = () => {
-    if (deleteConfirmation.workExp?.id) {
-      deleteWorkExp(deleteConfirmation.workExp.id);
+    if (deleteConfirmation.workExp?.$isLoaded) {
+      deleteWorkExp(deleteConfirmation.workExp.$jazz.id);
     }
     setDeleteConfirmation({ isOpen: false, workExp: null });
   };
@@ -66,7 +66,7 @@ export function WorkExpView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <SectionHeader
           title="Work Experience"
           description="Detail your roles and responsibilities."
@@ -89,11 +89,11 @@ export function WorkExpView({
             {workExperiences
               .filter(
                 (workExp): workExp is Loaded<typeof WorkExp> =>
-                  workExp !== null,
+                  workExp?.$isLoaded === true,
               )
               .map((workExp) => (
                 <WorkExpCard
-                  key={workExp.id}
+                  key={workExp.$jazz.id}
                   workExp={workExp}
                   onEdit={onEditWorkExp}
                   onDelete={handleDeleteWorkExp}
@@ -103,7 +103,7 @@ export function WorkExpView({
         )}
       </div>
 
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <EditorFooter
           primaryAction={{
             text: 'Done',

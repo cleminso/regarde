@@ -13,14 +13,25 @@ export function useCertification({
   const ensureCertificationList = ():
     | Loaded<typeof ListOfCertification>
     | undefined => {
-    if (!profile.certification) {
-      const newCertificationList = ListOfCertification.create([], {
-        owner: profile.$jazz.owner,
-      });
-      profile.$jazz.set("certification", newCertificationList);
-      return newCertificationList;
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return undefined;
     }
-    return profile.certification;
+
+    if (profile.certification?.$isLoaded) {
+      return profile.certification;
+    }
+
+    // Create new list if it doesn't exist
+    const owner = profile.$jazz.owner;
+    if (!owner?.$isLoaded) {
+      logger.error('Cannot create certification list: profile owner is not loaded');
+      return undefined;
+    }
+
+    const newCertificationList = ListOfCertification.create([], { owner });
+    profile.$jazz.set("certification", newCertificationList);
+    return newCertificationList;
   };
 
   const addCertification = async (certificationData: {
@@ -35,9 +46,9 @@ export function useCertification({
     if (!certificationList) return undefined;
 
     const listOwner = certificationList.$jazz.owner;
-    if (!listOwner) {
+    if (!listOwner?.$isLoaded) {
       logger.error(
-        'Cannot create a new certification instance: certificationList.$jazz.owner is undefined.',
+        'Cannot create a new certification instance: certificationList.$jazz.owner is not loaded.',
       );
       return undefined;
     }
@@ -69,7 +80,7 @@ export function useCertification({
       description?: string;
     },
   ) => {
-    if (!certificationToUpdate) {
+    if (!certificationToUpdate.$isLoaded) {
       logger.error('Certification instance not provided for update.');
       return;
     }
@@ -127,9 +138,13 @@ export function useCertification({
   };
 
   const deleteCertification = async (certificationId: string) => {
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return;
+    }
     const certificationList = profile.certification;
-    if (!certificationList) {
-      logger.warn('No certification list to delete from.');
+    if (!certificationList?.$isLoaded) {
+      logger.warn('No certification list to delete from or not loaded.');
       return;
     }
     const certificationIndex = certificationList.findIndex(

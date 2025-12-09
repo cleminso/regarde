@@ -8,12 +8,27 @@ type UseAwardProps = BaseHookProps;
 
 export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
   const ensureAwardsList = (): Loaded<typeof ListOfAward> | undefined => {
-    if (!profile.award) {
-      const newAwardsList = ListOfAward.create([], { owner: profile.$jazz.owner });
-      profile.$jazz.set("award", newAwardsList);
-      return newAwardsList;
+    // Handle MaybeLoaded profile
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return undefined;
     }
-    return profile.award;
+
+    // Check if award list exists and is loaded
+    if (profile.award?.$isLoaded) {
+      return profile.award;
+    }
+
+    // Create new list if it doesn't exist
+    const owner = profile.$jazz.owner;
+    if (!owner?.$isLoaded) {
+      logger.error('Cannot create award list: profile owner is not loaded');
+      return undefined;
+    }
+
+    const newAwardsList = ListOfAward.create([], { owner });
+    profile.$jazz.set("award", newAwardsList);
+    return newAwardsList;
   };
 
   const addAward = async (awardData: {
@@ -24,12 +39,12 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
     description?: string;
   }): Promise<Loaded<typeof Award> | undefined> => {
     const awardsList = ensureAwardsList();
-    if (!awardsList) return undefined;
+    if (!awardsList?.$isLoaded) return undefined;
 
     const listOwner = awardsList.$jazz.owner;
-    if (!listOwner) {
+    if (!listOwner?.$isLoaded) {
       logger.error(
-        'Cannot create a new award instance: awardsList.$jazz.owner is undefined.',
+        'Cannot create a new award instance: awardsList.$jazz.owner is not loaded.',
       );
       return undefined;
     }
@@ -58,7 +73,7 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
       description?: string;
     },
   ) => {
-    if (!awardToUpdate) {
+    if (!awardToUpdate.$isLoaded) {
       logger.error('Award instance not provided for update.');
       return;
     }
@@ -107,11 +122,13 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
 
   const deleteAward = async (awardId: string) => {
     const awardsList = profile.award;
-    if (!awardsList) {
-      logger.warn('No award list to delete from.');
+    if (!awardsList?.$isLoaded) {
+      logger.warn('No award list to delete from or not loaded.');
       return;
     }
-    const awardIndex = awardsList.findIndex((a: any) => a && a.$jazz.id === awardId);
+    const awardIndex = awardsList.findIndex(
+      (a: any) => a && a.$isLoaded && a.$jazz.id === awardId,
+    );
 
     if (awardIndex !== -1) {
       awardsList.$jazz.splice(awardIndex, 1);

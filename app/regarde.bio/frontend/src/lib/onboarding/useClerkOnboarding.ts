@@ -30,7 +30,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
   const navigate = useNavigate();
   const clerk = useClerk();
 
-  const { regardeProfile, account, isAuthenticated } = useMyRegardeAccount();
+  const { account, isAuthenticated, regardeAuth, userNickname } = useMyRegardeAccount();
 
   const { getValidKey, isAccountReady } = useRegardeAuth();
 
@@ -46,8 +46,11 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
   const [validationError, setValidationError] = useState('');
 
   // Single source of truth for current nickname
-  const currentNickname = regardeProfile?.userHandle?.nickname || '';
-  const isNicknameActive = regardeProfile?.userHandle?.isActive || false;
+  const currentNickname = userNickname || '';
+  // We need to check regardeAuth to get isActive since userNickname is just the string
+  const isNicknameActive = regardeAuth && regardeAuth.$isLoaded && regardeAuth.userHandle && regardeAuth.userHandle.$isLoaded
+    ? regardeAuth.userHandle.isActive
+    : false;
 
   // Validation logic
   const checkAvailability = useCallback(
@@ -280,17 +283,18 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
     async (nickname: string) => {
       if (
         !nickname ||
-        nickname === currentNickname ||
-        isProcessing ||
-        registrationInProgress.current
-      )
-        return;
-      if (!regardeProfile?.userHandle) {
-        setError(
-          'Onboarding data not available. Please refresh and try again.',
-        );
-        return;
-      }
+
+          nickname === currentNickname ||
+          isProcessing ||
+          registrationInProgress.current
+        )
+          return;
+        if (!regardeAuth || !regardeAuth.$isLoaded) {
+          setError(
+            'Regarde auth not available. Please refresh and try again.',
+          );
+          return;
+        }
 
       setIsProcessing(true);
       setError(null);
@@ -328,7 +332,6 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
     },
     [
       account?.$jazz.id,
-      regardeProfile?.userHandle?.$jazz.id,
       currentNickname,
       isProcessing,
       getValidKey,
@@ -362,11 +365,11 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
 
     // Status
     isAuthenticated,
-    isAccountReady: Boolean(account?.profile && isAccountReady),
+    isAccountReady,
     hasExistingNickname: Boolean(currentNickname && isNicknameActive),
 
     // Account info
     accountId: account?.$jazz.id,
-    profile: account?.profile,
+    profile: account && account.$isLoaded ? account.profile : undefined,
   };
 }
