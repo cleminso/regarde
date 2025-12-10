@@ -1,4 +1,5 @@
 import { co, z } from "jazz-tools";
+import { ListOfPaymentEvents, PaymentEvent } from "../../payments";
 /**
  * # Registry Module - Nickname and App Management
  *
@@ -98,7 +99,6 @@ export type RegistryAuditLog = co.loaded<typeof RegistryAuditLog>;
 /**
  * Represents an application controlled by the app owner
  *
- * - id - Unique identifier for the application
  * - name - Human-readable application name
  * - description - Application description and purpose
  * - ownerAccountId - Jazz Account ID of the app owner
@@ -107,19 +107,19 @@ export type RegistryAuditLog = co.loaded<typeof RegistryAuditLog>;
  * - isEnabled - Can this app accept payments?
  * - createdAt - Unix timestamp when app was registered
  * - metadata - Additional app configuration data
- * - lastPaymentAt - When last successful payment received
+ * - payments - When last successful payment received
  */
 export const App = co.map({
-  id: z.string(),
   name: z.string(),
   description: z.string(),
   ownerAccountId: z.string(),
   paymentProvider: z.enum(["lemonsqueezy", "stripe"]),
-  providerAppId: z.string(),
-  isEnabled: z.boolean(),
+  // providerAppId: z.string(), verify if needed but we made it via metadat from webhook
+  isEnabled: z.boolean(), // default false
   createdAt: z.number(),
   metadata: co.record(z.string(), z.string()),
-  lastPaymentAt: z.number(),
+  payments: co.feed(PaymentEvent),
+  paymentsByUser: co.record(z.string(), ListOfPaymentEvents),
 });
 
 /**
@@ -132,20 +132,13 @@ export const App = co.map({
  * - createdAt - When Regarde created this metadata record
  */
 export const RegistryAppMetadata = co.map({
-  appId: z.string(),
+  app: App,
   isVerified: z.boolean().default(true),
   hasAccess: z.boolean(),
   webhookConfigured: z.boolean().default(false),
   createdAt: z.number(),
+  version: z.number().default(1),
 });
-
-/**
- * CoMap for RegistryAppMetadata items
- */
-export const RegistryAppMetadataRecord = co.record(
-  z.string(),
-  RegistryAppMetadata,
-);
 
 /**
  * Registry of all applications and their metadata
@@ -156,9 +149,18 @@ export const RegistryAppMetadataRecord = co.record(
  * - version - Schema version for migration tracking
  */
 export const AppRegistry = co.map({
-  apps: co.optional(co.record(z.string(), App)),
-  metadata: co.optional(RegistryAppMetadataRecord),
-  registeredAt: z.number(),
+  // All apps for 1 user
+  appsByUser: co.record(
+    // User JazzAccountId
+    z.string(),
+    co.list(RegistryAppMetadata),
+  ),
+  // All apps in registry, 1 per AppId
+  apps: co.record(
+    // appId: z.string(),
+    z.string(),
+    RegistryAppMetadata,
+  ),
   version: z.number().default(1),
 });
 

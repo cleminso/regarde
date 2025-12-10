@@ -57,39 +57,22 @@ account.root["api.regarde.dev"] → RegardeAuth (24hr tokens)
  * Container for all payment data in user's Jazz account
  */
 export const PaymentManager = co.map({
-  mySubscriptions: co.list(z.string(), MySubscription), // here z.string() is the `App` CoValue.id
-  paymentHistory: co.list(PaymentEvent),
-});
-
-/**
- * Subscription information for a specific app in a user's account
- */
-export const MySubscription = co.map({
-  appId: z.string(), // Reference to App CoValue.id
-  subscriptionId: z.string(),
-  status: z.enum(["active", "cancelled", "expired"]),
-  createdAt: z.number(),
-  updatedAt: z.number(),
-  nextBillingDate: z.number(),
-  paymentProvider: z.enum(["lemonsqueezy", "stripe"]),
-  providerSubscriptionId: z.string(),
+  allMyPayments: ListOfPaymentEvents,
+  paymentHistoryByApp: co.record(z.string(), ListOfPaymentEvents),
+  version: z.number().default(1),
 });
 
 /**
  * Individual payment event record
  */
 export const PaymentEvent = co.map({
-  timestamp: z.number(),
-  appId: z.string(),
-  userJazzAccountId: z.string(),
-  subscriptionId: z.string(),
   amount: z.string(),
-  currency: z.string(),
-  status: z.enum(["payment_success"]),
-  providerPaymentId: z.string(),
-  invoiceUrl: z.optional(z.string()),
-  fullResponse: z.string(),
-});
+  currency: z.string().default("USD"),
+  timestamp: z.number(),
+  paymentStatus: z.enum(["pending", "completed", "failed", "cancelled"]),
+  app: App,
+  userAccount: Account,
+  metadata: co.record(z.string(), z.string()),
 ```
 
 ### 2. Registry Schema Extensions (packages/sdk/src/registry/schemas/registry.ts)
@@ -103,7 +86,7 @@ export const RegistryWorkerAccountRoot = co.map({
   reverseRegistry: ReverseNicknameRegistryCoRecord,
   auditLog: RegistryAuditLog,
   reservedNicknames: ReservedNicknamesRegistry,
-  apps: AppRegistry, // New app registry
+  apps: AppRegistry,
 });
 
 /**
@@ -116,11 +99,14 @@ export const AppRegistry = co.record(z.string(), App);
  */
 export const App = co.map({
   name: z.string(),
-  ownerJazzAccountId: z.string(),
+  description: z.string(),
+  ownerAccountId: z.string(),
   paymentProvider: z.enum(["lemonsqueezy", "stripe"]),
-  providerAppId: z.string(),
+  isEnabled: z.boolean(), // default false
   createdAt: z.number(),
-  payments: co.list(PaymentEvent), // All payments for this app
+  metadata: co.record(z.string(), z.string()),
+  payments: co.feed(PaymentEvent),
+  paymentsByUser: co.record(z.string(), ListOfPaymentEvents),
 });
 ```
 
@@ -168,33 +154,6 @@ SDK developers will integrate the end user account flow as they want in their ap
      // webhook response data
    }, workerGroup);
 4. Worker updates user's PaymentManager:
-   const userAccount = await RegardeAccount.load("co_y");
-   const paymentManager = userAccount.root["regarde-sdk"].payments;
-
-   // Search for existing subscription and ensure it's loaded
-   const existingSubscriptionIndex = paymentManager.mySubscriptions.findIndex(
-     sub => sub.appId === appId
-   );
-
-   if (existingSubscriptionIndex >= 0) {
-     // Update existing subscription
-     const subscription = await paymentManager.mySubscriptions[existingSubscriptionIndex].ensureLoaded();
-     subscription.$jazz.set("status", "active");
-     subscription.$jazz.set("updatedAt", Date.now());
-   } else {
-     // Add new subscription to list
-     const newSubscription = MySubscription.create({
-       appId: appId,
-       status: "active",
-       // other subscription data
-     }, paymentGroup);
-     paymentManager.mySubscriptions.$jazz.push(newSubscription);
-   }
-
-   paymentManager.paymentHistory.$jazz.push(paymentEvent);
-
-   // Grant read access to user
-   paymentEvent.$jazz.owner.addMember(userAccount, "reader");
 5. Worker updates App in Registry:
    const registryApp = RegistryWorkerAccount.root.apps[appId];
    registryApp.payments.$jazz.push(paymentEvent);
@@ -216,16 +175,6 @@ const userAccount = await RegardeAccount.load(userJazzAccountId);
 const paymentManager = userAccount.root["regarde-sdk"].payments;
 const mySubscriptions = paymentManager.mySubscriptions;
 const myPaymentHistory = paymentManager.paymentHistory;
-
-// Helper function to check if user is subscribed
-function isUserSubscribed(
-  subscriptions: MySubscription[],
-  appId: string,
-): boolean {
-  return subscriptions.some(
-    (sub) => sub.appId === appId && sub.status === "active",
-  );
-}
 ```
 
 ## Implementation Plan
@@ -267,27 +216,9 @@ packages/sdk/src/payments/
 
 ```typescript
 // packages/sdk/src/react/useRegardePayments.ts
-export function useMySubscriptions() {
+export function usePaymentManager() {
   const sdk = useMyRegardeAccount().sdk;
   return sdk?.payments?.mySubscriptions;
-}
-
-export function usePaymentHistory() {
-  const sdk = useMyRegardeAccount().sdk;
-  return sdk?.payments?.paymentHistory;
-}
-
-export function useIsSubscribed(appId: string) {
-  const subscriptions = useMySubscriptions();
-  return (
-    subscriptions?.some(
-      (sub) => sub.appId === appId && sub.status === "active",
-    ) || false
-  );
-}
-
-export function useAppPayments(appId: string) {
-  // Load app payments from registry
 }
 ```
 
