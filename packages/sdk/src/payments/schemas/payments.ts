@@ -1,5 +1,4 @@
 import { Account, co, z } from "jazz-tools";
-import { App } from "../../registry/schemas/registry";
 
 /**
  * # PaymentEvent - Individual Payment Transaction Record
@@ -19,7 +18,7 @@ import { App } from "../../registry/schemas/registry";
  * - currency - Currency code for the payment
  * - timestamp - Unix timestamp when payment occurred
  * - paymentStatus - Current status of the payment event
- * - app - Reference to the App CoValue
+ * - app - App ID string (reference)
  * - userAccount - Jazz Account ID of the user who made the payment
  */
 export const PaymentEvent = co.map({
@@ -27,10 +26,13 @@ export const PaymentEvent = co.map({
   currency: z.string().default("USD"),
   timestamp: z.number(),
   paymentStatus: z.enum(["pending", "completed", "failed", "cancelled"]),
-  app: App,
-  userAccount: Account,
+  get app() {
+    return App;
+  },
+  userAccount: z.string(), // Changed from Account to z.string() (Account ID) for simplicity/cycle breaking
   metadata: co.record(z.string(), z.string()), // json string everything then let sdk suer to fetch
 });
+export type PaymentEvent = co.loaded<typeof PaymentEvent>;
 
 /**
  * # ListOfPaymentEvents - Collection of Payment Records
@@ -48,6 +50,7 @@ export const PaymentEvent = co.map({
  * - End User: View their own payment transactions
  */
 export const ListOfPaymentEvents = co.feed(PaymentEvent);
+export type ListOfPaymentEvents = co.loaded<typeof ListOfPaymentEvents>;
 
 /**
  * # PaymentManager - User Payment Data Container
@@ -79,6 +82,21 @@ export const PaymentManager = co.map({
 
 export type PaymentManagerLoaded = co.loaded<typeof PaymentManager>;
 export type PaymentEventLoaded = co.loaded<typeof PaymentEvent>;
+
+export const App = co.map({
+  name: z.string(),
+  description: z.string(),
+  ownerAccountId: z.string(),
+  paymentProvider: z.enum(["lemonsqueezy", "stripe"]),
+  // providerAppId: z.string(), verify if needed but we made it via metadat from webhook
+  isEnabled: z.boolean(), // default false
+  createdAt: z.number(),
+  metadata: co.record(z.string(), z.string()),
+  webhookSecret: z.string(),
+  payments: co.feed(PaymentEvent),
+  paymentsByUser: co.record(z.string(), ListOfPaymentEvents),
+});
+export type App = co.loaded<typeof App>;
 
 /**
  * # Type Definitions

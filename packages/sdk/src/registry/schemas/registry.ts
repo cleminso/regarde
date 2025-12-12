@@ -1,5 +1,5 @@
 import { co, z } from "jazz-tools";
-import { ListOfPaymentEvents, PaymentEvent } from "../../payments";
+import { App } from "../../payments";
 /**
  * # Registry Module - Nickname and App Management
  *
@@ -107,20 +107,9 @@ export type RegistryAuditLog = co.loaded<typeof RegistryAuditLog>;
  * - isEnabled - Can this app accept payments?
  * - createdAt - Unix timestamp when app was registered
  * - metadata - Additional app configuration data
+ * - webhookSecret -
  * - payments - When last successful payment received
  */
-export const App = co.map({
-  name: z.string(),
-  description: z.string(),
-  ownerAccountId: z.string(),
-  paymentProvider: z.enum(["lemonsqueezy", "stripe"]),
-  // providerAppId: z.string(), verify if needed but we made it via metadat from webhook
-  isEnabled: z.boolean(), // default false
-  createdAt: z.number(),
-  metadata: co.record(z.string(), z.string()),
-  payments: co.feed(PaymentEvent),
-  paymentsByUser: co.record(z.string(), ListOfPaymentEvents),
-});
 
 /**
  * Registry-controlled metadata for an application
@@ -139,6 +128,22 @@ export const RegistryAppMetadata = co.map({
   createdAt: z.number(),
   version: z.number().default(1),
 });
+export type RegistryAppMetadata = co.loaded<typeof RegistryAppMetadata>;
+
+/**
+ * Collection of all apps in the registry
+ */
+export const AppsRecord = co.record(z.string(), RegistryAppMetadata);
+export type AppsRecord = co.loaded<typeof AppsRecord>;
+
+/**
+ * Collection of apps grouped by user
+ */
+export const AppsByUserRecord = co.record(
+  z.string(),
+  co.list(RegistryAppMetadata),
+);
+export type AppsByUserRecord = co.loaded<typeof AppsByUserRecord>;
 
 /**
  * Registry of all applications and their metadata
@@ -150,19 +155,14 @@ export const RegistryAppMetadata = co.map({
  */
 export const AppRegistry = co.map({
   // All apps for 1 user
-  appsByUser: co.record(
-    // User JazzAccountId
-    z.string(),
-    co.list(RegistryAppMetadata),
-  ),
+  appsByUser: AppsByUserRecord,
   // All apps in registry, 1 per AppId
-  apps: co.record(
-    // appId: z.string(),
-    z.string(),
-    RegistryAppMetadata,
-  ),
+  apps: AppsRecord,
+  metadata: co.record(z.string(), z.string()),
+  registeredAt: z.number(),
   version: z.number().default(1),
 });
+export type AppRegistry = co.loaded<typeof AppRegistry>;
 
 /**
  * Root schema containing all registry components
@@ -216,7 +216,8 @@ export const RegistryWorkerAccount = co
           auditLog: RegistryAuditLog.create([]),
           reservedNicknames: ReservedNicknamesRegistry.create({}),
           apps: AppRegistry.create({
-            apps: {},
+            appsByUser: AppsByUserRecord.create({}),
+            apps: AppsRecord.create({}),
             metadata: {},
             registeredAt: Date.now(),
             version: 1,
@@ -263,7 +264,8 @@ export const RegistryWorkerAccount = co
 
       if (loadedAccount.root.apps === undefined) {
         const newAppsRegistry = AppRegistry.create({
-          apps: {},
+          appsByUser: AppsByUserRecord.create({}),
+          apps: AppsRecord.create({}),
           metadata: {},
           registeredAt: Date.now(),
           version: 1,
@@ -283,7 +285,8 @@ export const RegistryWorkerAccount = co
           auditLog: RegistryAuditLog.create([]),
           reservedNicknames: ReservedNicknamesRegistry.create({}),
           apps: AppRegistry.create({
-            apps: {},
+            appsByUser: AppsByUserRecord.create({}),
+            apps: AppsRecord.create({}),
             metadata: {},
             registeredAt: Date.now(),
             version: 1,
@@ -323,7 +326,8 @@ export const RegistryWorkerAccount = co
         }
         if (account.root.apps === undefined) {
           const newAppsRegistry = AppRegistry.create({
-            apps: {},
+            appsByUser: AppsByUserRecord.create({}),
+            apps: AppsRecord.create({}),
             metadata: {},
             registeredAt: Date.now(),
             version: 1,

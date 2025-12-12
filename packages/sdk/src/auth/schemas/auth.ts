@@ -1,7 +1,6 @@
 import { Account, co, CoValueClass, Group, Loaded, z } from "jazz-tools";
 import { UserHandle } from "../../regarde-users";
-import { PaymentManager } from "../../payments/schemas";
-import { App } from "../../registry/schemas/registry";
+import { App, ListOfPaymentEvents, PaymentManager } from "../../payments/schemas";
 
 /**
  * # RegardeAuth - Provides temporary authentication tokens for API requests
@@ -11,7 +10,7 @@ import { App } from "../../registry/schemas/registry";
  * - Stored in account.root["api.regarde.dev"]
  *
  * ## Flow
- * 1. SDK generates token via useRegardeAuth hook
+ * 1. SDK generates token via RegardeAuth hook
  * 2. Client sends token to server in headers: X-Regarde-Token, X-Regarde-Token-Id
  * 3. Worker loads RegardeAuth CoMap using token ID (has write permission)
  * 4. Worker verifies user owns token (no session storage needed)
@@ -88,7 +87,7 @@ export const initRegardeSchema = async (
 
   return RegardeSDK.create(
     {
-      userHandle: UserHandle.create(
+      myUserHandle: UserHandle.create(
         {
           nickname: "not-yet",
           registeredAt: 0,
@@ -108,8 +107,13 @@ export const initRegardeSchema = async (
           owner: userGroup,
         },
       ),
-      payments: PaymentManager.create(
+      myApps: co.list(App).create([], { owner: userGroup }),
+      myPayments: PaymentManager.create(
         {
+          allMyPayments: ListOfPaymentEvents.create([], { owner: userGroup }),
+          paymentHistoryByApp: co
+            .record(z.string(), ListOfPaymentEvents)
+            .create({}, { owner: userGroup }),
           version: 1,
         },
         {

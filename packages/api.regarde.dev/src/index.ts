@@ -9,8 +9,11 @@ import { startWorker } from "jazz-tools/worker";
 
 import {
   NicknameRegistryCoRecord,
+  AppRegistry,
   type NicknameRegistry,
   RegistryWorkerAccount,
+  AppsRecord,
+  AppsByUserRecord,
   ReservedNicknamesRegistry,
   ReverseNicknameRegistryCoRecord,
   type ReverseNicknameRegistry,
@@ -30,6 +33,8 @@ import {
   checkAvailabilityHandler,
   lookupHandler,
 } from "#/domains/nickname";
+import { registerAppRoute } from "./routes/registerApp.js";
+import { registerAppHandler } from "#/domains/app/handlers/register";
 
 const PORT = process.env.PORT || 3000;
 const JAZZ_SYNC_SERVER_URL =
@@ -107,6 +112,7 @@ async function main() {
   console.log(`Worker started with Account ID: ${worker.$jazz.id}`);
 
   let loadedWorker: Loaded<typeof RegistryWorkerAccount>;
+  console.log("Starting worker loading sequence...");
   try {
     loadedWorker = await worker.$jazz.ensureLoaded({
       resolve: {
@@ -114,6 +120,7 @@ async function main() {
           registry: true,
           reverseRegistry: true,
           reservedNicknames: true,
+          // TODO: apps will be loaded separately via appRegistry
         },
       },
     });
@@ -125,6 +132,14 @@ async function main() {
       loadedWorker.root &&
       loadedWorker.root.$isLoaded
     ) {
+      // Ensure the apps field exists (no migration needed now)
+      if (loadedWorker.root.apps && loadedWorker.root.apps.$isLoaded) {
+        const appRegistry = loadedWorker.root.apps;
+        // Deep load the apps and appsByUser records
+        console.log("Deep loading AppRegistry components...");
+        await appRegistry.$jazz.ensureLoaded({ apps: true, appsByUser: true });
+      }
+
       if (
         loadedWorker.root?.reservedNicknames &&
         loadedWorker.root.reservedNicknames.$isLoaded
@@ -169,6 +184,16 @@ async function main() {
       ? loadedWorker.root.reservedNicknames
       : undefined;
 
+  const appRegistry =
+    loadedWorker &&
+    loadedWorker.$isLoaded &&
+    loadedWorker.root &&
+    loadedWorker.root.$isLoaded &&
+    loadedWorker.root.apps &&
+    loadedWorker.root.apps.$isLoaded
+      ? loadedWorker.root.apps
+      : undefined;
+
   if (!nicknameRegistry || !reverseNicknameRegistry) {
     console.error(
       "Critical: NicknameRegistry or ReverseNicknameRegistry CoRecord not found in worker's account root. Migration might have failed.",
@@ -183,6 +208,13 @@ async function main() {
     process.exit(1);
   }
 
+  if (!appRegistry) {
+    console.error(
+      "Critical: AppRegistry CoRecord not found in worker's account root. Migration might have failed.",
+    );
+    process.exit(1);
+  }
+
   console.log(
     `NicknameRegistry CoRecord loaded. ID: ${nicknameRegistry.$jazz.id}`,
   );
@@ -192,6 +224,7 @@ async function main() {
   console.log(
     `ReservedNicknames CoRecord loaded. ID: ${reservedNicknames.$jazz.id}`,
   );
+  console.log(`AppRegistry CoRecord loaded. ID: ${appRegistry.$jazz.id}`);
 
   const app = new OpenAPIHono();
 
@@ -268,10 +301,24 @@ async function main() {
     }
   };
 
+  const safeRegisterAppHandler = async (c: any) => {
+    try {
+      return await registerAppHandler(
+        appRegistry.apps as AppsRecord,
+        appRegistry.appsByUser as AppsByUserRecord,
+        worker,
+      )(c);
+    } catch (error) {
+      console.error("Error in registerAppHandler:", error);
+      return c.json({ error: "Internal server error" }, 500);
+    }
+  };
+
   app.openapi(verifyRoute, safeVerifyHandler);
   app.openapi(checkAvailabilityRoute, safeCheckAvailabilityHandler);
   app.openapi(registerRoute, safeRegisterHandler);
   app.openapi(lookupRoute, safeLookupHandler);
+  app.openapi(registerAppRoute, safeRegisterAppHandler);
 
   // Register non-OpenAPI specific routes BEFORE catch-all
   app.get("/health", (c) => {
