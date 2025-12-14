@@ -1,4 +1,4 @@
-import { Account, co, z } from "jazz-tools";
+import { co, z } from "jazz-tools";
 
 /**
  * # PaymentEvent - Individual Payment Transaction Record
