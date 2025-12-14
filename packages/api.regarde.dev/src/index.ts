@@ -35,6 +35,8 @@ import {
 } from "#/domains/nickname";
 import { registerAppRoute } from "./routes/registerApp.js";
 import { registerAppHandler } from "#/domains/app/handlers/register";
+import { webhookLemonSqueezyRoute } from "./routes/webhooks.js";
+import { lemonSqueezyWebhookHandler } from "#/domains/payments/handlers/lemonsqueezy";
 
 const PORT = process.env.PORT || 3000;
 const JAZZ_SYNC_SERVER_URL =
@@ -135,9 +137,12 @@ async function main() {
       // Ensure the apps field exists (no migration needed now)
       if (loadedWorker.root.apps && loadedWorker.root.apps.$isLoaded) {
         const appRegistry = loadedWorker.root.apps;
-        // Deep load the apps and appsByUser records
-        console.log("Deep loading AppRegistry components...");
-        await appRegistry.$jazz.ensureLoaded({ apps: true, appsByUser: true });
+        if (loadedWorker.root.apps && loadedWorker.root.apps.$isLoaded) {
+          const appRegistry = loadedWorker.root.apps;
+          // Deep load the apps and appsByUser records
+          console.log("Deep loading AppRegistry components...");
+          await (appRegistry as any).$jazz.ensureLoaded({ apps: true, appsByUser: true });
+        }
       }
 
       if (
@@ -156,41 +161,41 @@ async function main() {
   // Safely extract references with loading checks
   const nicknameRegistry: NicknameRegistry | undefined =
     loadedWorker &&
-    loadedWorker.$isLoaded &&
-    loadedWorker.root &&
-    loadedWorker.root.$isLoaded &&
-    loadedWorker.root.registry &&
-    loadedWorker.root.registry.$isLoaded
+      loadedWorker.$isLoaded &&
+      loadedWorker.root &&
+      loadedWorker.root.$isLoaded &&
+      loadedWorker.root.registry &&
+      loadedWorker.root.registry.$isLoaded
       ? loadedWorker.root.registry
       : undefined;
 
   const reverseNicknameRegistry =
     loadedWorker &&
-    loadedWorker.$isLoaded &&
-    loadedWorker.root &&
-    loadedWorker.root.$isLoaded &&
-    loadedWorker.root.reverseRegistry &&
-    loadedWorker.root.reverseRegistry.$isLoaded
+      loadedWorker.$isLoaded &&
+      loadedWorker.root &&
+      loadedWorker.root.$isLoaded &&
+      loadedWorker.root.reverseRegistry &&
+      loadedWorker.root.reverseRegistry.$isLoaded
       ? loadedWorker.root.reverseRegistry
       : undefined;
 
   const reservedNicknames =
     loadedWorker &&
-    loadedWorker.$isLoaded &&
-    loadedWorker.root &&
-    loadedWorker.root.$isLoaded &&
-    loadedWorker.root.reservedNicknames &&
-    loadedWorker.root.reservedNicknames.$isLoaded
+      loadedWorker.$isLoaded &&
+      loadedWorker.root &&
+      loadedWorker.root.$isLoaded &&
+      loadedWorker.root.reservedNicknames &&
+      loadedWorker.root.reservedNicknames.$isLoaded
       ? loadedWorker.root.reservedNicknames
       : undefined;
 
   const appRegistry =
     loadedWorker &&
-    loadedWorker.$isLoaded &&
-    loadedWorker.root &&
-    loadedWorker.root.$isLoaded &&
-    loadedWorker.root.apps &&
-    loadedWorker.root.apps.$isLoaded
+      loadedWorker.$isLoaded &&
+      loadedWorker.root &&
+      loadedWorker.root.$isLoaded &&
+      loadedWorker.root.apps &&
+      loadedWorker.root.apps.$isLoaded
       ? loadedWorker.root.apps
       : undefined;
 
@@ -242,17 +247,17 @@ async function main() {
     },
     servers: IS_PRODUCTION_LIKE
       ? [
-          {
-            url: "https://api.regarde.dev",
-            description: "Production Server - Authentication (api.regarde.dev)",
-          },
-        ]
+        {
+          url: "https://api.regarde.dev",
+          description: "Production Server - Authentication (api.regarde.dev)",
+        },
+      ]
       : [
-          {
-            url: PUBLIC_BASE_URL,
-            description: "Local Development Server",
-          },
-        ],
+        {
+          url: PUBLIC_BASE_URL,
+          description: "Local Development Server",
+        },
+      ],
   });
 
   app.get("/ui", swaggerUI({ url: `${PUBLIC_BASE_URL}/doc` }));
@@ -314,11 +319,24 @@ async function main() {
     }
   };
 
+  const safeLemonSqueezyWebhookHandler = async (c: any) => {
+    try {
+      return await lemonSqueezyWebhookHandler(
+        appRegistry.apps as AppsRecord,
+        worker
+      )(c);
+    } catch (error) {
+      console.error("Error in lemonSqueezyWebhookHandler:", error);
+      return c.json({ error: "Internal server error" }, 500);
+    }
+  };
+
   app.openapi(verifyRoute, safeVerifyHandler);
   app.openapi(checkAvailabilityRoute, safeCheckAvailabilityHandler);
   app.openapi(registerRoute, safeRegisterHandler);
   app.openapi(lookupRoute, safeLookupHandler);
   app.openapi(registerAppRoute, safeRegisterAppHandler);
+  app.openapi(webhookLemonSqueezyRoute, safeLemonSqueezyWebhookHandler);
 
   // Register non-OpenAPI specific routes BEFORE catch-all
   app.get("/health", (c) => {

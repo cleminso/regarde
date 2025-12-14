@@ -19,6 +19,7 @@ export default defineConfig({
         verify: resolve(__dirname, "src/verify-token/index.ts"),
         "regarde-users": resolve(__dirname, "src/regarde-users/index.ts"),
         registry: resolve(__dirname, "src/registry/index.ts"),
+        payments: resolve(__dirname, "src/payments/index.ts"),
       },
       formats: ["es", "cjs"],
     },

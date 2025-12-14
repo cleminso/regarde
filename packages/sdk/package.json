@@ -79,6 +79,11 @@
       "types": "./dist/registry/index.d.ts",
       "import": "./dist/registry.js",
       "require": "./dist/registry.cjs"
+    },
+    "./payments": {
+      "types": "./dist/payments/index.d.ts",
+      "import": "./dist/payments.js",
+      "require": "./dist/payments.cjs"
     }
   },
   "files": [
