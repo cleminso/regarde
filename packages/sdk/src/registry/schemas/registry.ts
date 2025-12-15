@@ -133,8 +133,8 @@ export type RegistryAppMetadata = co.loaded<typeof RegistryAppMetadata>;
 /**
  * Collection of all apps in the registry
  */
-export const AppsRecord = co.record(z.string(), RegistryAppMetadata);
-export type AppsRecord = co.loaded<typeof AppsRecord>;
+export const AllRegistryAppsSchema = co.record(z.string(), RegistryAppMetadata);
+export type TAllRegistryAppsSchema = co.loaded<typeof AllRegistryAppsSchema>;
 
 /**
  * Collection of apps grouped by user
@@ -157,7 +157,7 @@ export const AppRegistry = co.map({
   // All apps for 1 user
   appsByUser: AppsByUserRecord,
   // All apps in registry, 1 per AppId
-  apps: AppsRecord,
+  apps: AllRegistryAppsSchema,
   metadata: co.record(z.string(), z.string()),
   registeredAt: z.number(),
   version: z.number().default(1),
@@ -217,7 +217,7 @@ export const RegistryWorkerAccount = co
           reservedNicknames: ReservedNicknamesRegistry.create({}),
           apps: AppRegistry.create({
             appsByUser: AppsByUserRecord.create({}),
-            apps: AppsRecord.create({}),
+            apps: AllRegistryAppsSchema.create({}),
             metadata: {},
             registeredAt: Date.now(),
             version: 1,
@@ -265,7 +265,7 @@ export const RegistryWorkerAccount = co
       if (loadedAccount.root.apps === undefined) {
         const newAppsRegistry = AppRegistry.create({
           appsByUser: AppsByUserRecord.create({}),
-          apps: AppsRecord.create({}),
+          apps: AllRegistryAppsSchema.create({}),
           metadata: {},
           registeredAt: Date.now(),
           version: 1,
@@ -286,7 +286,7 @@ export const RegistryWorkerAccount = co
           reservedNicknames: ReservedNicknamesRegistry.create({}),
           apps: AppRegistry.create({
             appsByUser: AppsByUserRecord.create({}),
-            apps: AppsRecord.create({}),
+            apps: AllRegistryAppsSchema.create({}),
             metadata: {},
             registeredAt: Date.now(),
             version: 1,
@@ -327,7 +327,7 @@ export const RegistryWorkerAccount = co
         if (account.root.apps === undefined) {
           const newAppsRegistry = AppRegistry.create({
             appsByUser: AppsByUserRecord.create({}),
-            apps: AppsRecord.create({}),
+            apps: AllRegistryAppsSchema.create({}),
             metadata: {},
             registeredAt: Date.now(),
             version: 1,

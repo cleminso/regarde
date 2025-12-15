@@ -7,14 +7,14 @@ export {
   ReservedNicknamesRegistry,
   RegistryAuditEntryCoMap,
   type RegistryAuditEntry,
-  AppsRecord,
+  AllRegistryAppsSchema,
   AppsByUserRecord,
   RegistryAuditLog,
   RegistryWorkerAccountRoot,
   RegistryWorkerAccount,
   AppRegistry,
   RegistryAppMetadata,
+  type TAllRegistryAppsSchema,
 } from "./schemas/registry";
 
 export { App, PaymentEvent, ListOfPaymentEvents } from "../payments";
-

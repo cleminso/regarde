@@ -12,7 +12,8 @@ import {
   AppRegistry,
   type NicknameRegistry,
   RegistryWorkerAccount,
-  AppsRecord,
+  AllRegistryAppsSchema,
+  type TAllRegistryAppsSchema,
   AppsByUserRecord,
   ReservedNicknamesRegistry,
   ReverseNicknameRegistryCoRecord,
@@ -141,7 +142,10 @@ async function main() {
           const appRegistry = loadedWorker.root.apps;
           // Deep load the apps and appsByUser records
           console.log("Deep loading AppRegistry components...");
-          await (appRegistry as any).$jazz.ensureLoaded({ apps: true, appsByUser: true });
+          await (appRegistry as any).$jazz.ensureLoaded({
+            apps: true,
+            appsByUser: true,
+          });
         }
       }
 
@@ -161,41 +165,41 @@ async function main() {
   // Safely extract references with loading checks
   const nicknameRegistry: NicknameRegistry | undefined =
     loadedWorker &&
-      loadedWorker.$isLoaded &&
-      loadedWorker.root &&
-      loadedWorker.root.$isLoaded &&
-      loadedWorker.root.registry &&
-      loadedWorker.root.registry.$isLoaded
+    loadedWorker.$isLoaded &&
+    loadedWorker.root &&
+    loadedWorker.root.$isLoaded &&
+    loadedWorker.root.registry &&
+    loadedWorker.root.registry.$isLoaded
       ? loadedWorker.root.registry
       : undefined;
 
   const reverseNicknameRegistry =
     loadedWorker &&
-      loadedWorker.$isLoaded &&
-      loadedWorker.root &&
-      loadedWorker.root.$isLoaded &&
-      loadedWorker.root.reverseRegistry &&
-      loadedWorker.root.reverseRegistry.$isLoaded
+    loadedWorker.$isLoaded &&
+    loadedWorker.root &&
+    loadedWorker.root.$isLoaded &&
+    loadedWorker.root.reverseRegistry &&
+    loadedWorker.root.reverseRegistry.$isLoaded
       ? loadedWorker.root.reverseRegistry
       : undefined;
 
   const reservedNicknames =
     loadedWorker &&
-      loadedWorker.$isLoaded &&
-      loadedWorker.root &&
-      loadedWorker.root.$isLoaded &&
-      loadedWorker.root.reservedNicknames &&
-      loadedWorker.root.reservedNicknames.$isLoaded
+    loadedWorker.$isLoaded &&
+    loadedWorker.root &&
+    loadedWorker.root.$isLoaded &&
+    loadedWorker.root.reservedNicknames &&
+    loadedWorker.root.reservedNicknames.$isLoaded
       ? loadedWorker.root.reservedNicknames
       : undefined;
 
   const appRegistry =
     loadedWorker &&
-      loadedWorker.$isLoaded &&
-      loadedWorker.root &&
-      loadedWorker.root.$isLoaded &&
-      loadedWorker.root.apps &&
-      loadedWorker.root.apps.$isLoaded
+    loadedWorker.$isLoaded &&
+    loadedWorker.root &&
+    loadedWorker.root.$isLoaded &&
+    loadedWorker.root.apps &&
+    loadedWorker.root.apps.$isLoaded
       ? loadedWorker.root.apps
       : undefined;
 
@@ -247,17 +251,17 @@ async function main() {
     },
     servers: IS_PRODUCTION_LIKE
       ? [
-        {
-          url: "https://api.regarde.dev",
-          description: "Production Server - Authentication (api.regarde.dev)",
-        },
-      ]
+          {
+            url: "https://api.regarde.dev",
+            description: "Production Server - Authentication (api.regarde.dev)",
+          },
+        ]
       : [
-        {
-          url: PUBLIC_BASE_URL,
-          description: "Local Development Server",
-        },
-      ],
+          {
+            url: PUBLIC_BASE_URL,
+            description: "Local Development Server",
+          },
+        ],
   });
 
   app.get("/ui", swaggerUI({ url: `${PUBLIC_BASE_URL}/doc` }));
@@ -309,7 +313,7 @@ async function main() {
   const safeRegisterAppHandler = async (c: any) => {
     try {
       return await registerAppHandler(
-        appRegistry.apps as AppsRecord,
+        appRegistry.apps,
         appRegistry.appsByUser as AppsByUserRecord,
         worker,
       )(c);
@@ -322,8 +326,8 @@ async function main() {
   const safeLemonSqueezyWebhookHandler = async (c: any) => {
     try {
       return await lemonSqueezyWebhookHandler(
-        appRegistry.apps as AppsRecord,
-        worker
+        appRegistry.apps as TAllRegistryAppsSchema,
+        worker,
       )(c);
     } catch (error) {
       console.error("Error in lemonSqueezyWebhookHandler:", error);
