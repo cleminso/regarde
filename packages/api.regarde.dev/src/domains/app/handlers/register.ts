@@ -1,7 +1,7 @@
 import {
   App,
   RegistryWorkerAccount,
-  AppsRecord,
+  type TAllRegistryAppsSchema,
   AppsByUserRecord,
   RegistryAppMetadata,
 } from "@regarde-dev/sdk/registry";
@@ -9,7 +9,7 @@ import { Loaded, co } from "jazz-tools";
 import { randomBytes } from "crypto";
 
 export const registerAppHandler = (
-  appsRecord: AppsRecord,
+  appsRecord: TAllRegistryAppsSchema,
   appsByUserRecord: AppsByUserRecord,
   worker: Loaded<typeof RegistryWorkerAccount>,
 ) => {
@@ -42,37 +42,39 @@ export const registerAppHandler = (
       if (!appId) throw new Error("Failed to resolve App ID");
 
       // Use direct assignment as appsRecord is a CoMap proxy
-      (appsRecord as any)[appId] = RegistryAppMetadata.create(
-        {
-          app: newApp,
-          isVerified: true,
-          hasAccess: false,
-          webhookConfigured: false,
-          createdAt: Date.now(),
-          version: 1,
-        },
-        worker,
+      appsRecord.$jazz.set(
+        appId,
+        RegistryAppMetadata.create(
+          {
+            app: newApp,
+            isVerified: true,
+            hasAccess: false,
+            webhookConfigured: false,
+            createdAt: Date.now(),
+            version: 1,
+          },
+          worker,
+        ),
       );
 
       if (!appsByUserRecord[ownerAccountId]) {
-        // loaded from index.ts, so we can directly check and set
         const newList = co
           .list(RegistryAppMetadata)
           .create([], { owner: worker });
-        (appsByUserRecord as any)[ownerAccountId] = newList;
+        appsByUserRecord.$jazz.set(ownerAccountId, newList);
       }
 
 
       // Push to the list
+      await appsByUserRecord.$jazz.ensureLoaded({
+        resolve: {
+          [ownerAccountId]: {},
+        },
+      });
       const userAppsList = appsByUserRecord[ownerAccountId];
-      if (userAppsList) {
-        // Ensured loaded via native Jazz method.
-        // Using 'as any' because the current MaybeLoaded type definition
-        // does not expose $jazz on the unloaded union branch, even though the proxy handles it.
-        // Casting to CoList results in 'never' return type from ensureLoaded due to type inference issues.
-        const loadedList = await (userAppsList as any).$jazz.ensureLoaded();
 
-        loadedList.$jazz.push(
+      if (userAppsList && userAppsList.$isLoaded) {
+        userAppsList.$jazz.push(
           RegistryAppMetadata.create(
             {
               app: newApp,

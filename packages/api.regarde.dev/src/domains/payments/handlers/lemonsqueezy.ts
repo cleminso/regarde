@@ -27,12 +27,12 @@ export const LemonSqueezyPayloadSchema = z.object({
     id: z.string(),
     attributes: z.object({
       order_number: z.number(),
-      user_email: z.string().email(),
+      user_email: z.email(),
       total: z.number(), // Amount in smallest unit (e.g., cents)
       currency: z.string(),
       status: z.enum(["paid", "pending", "failed", "refunded"]),
-      created_at: z.string().datetime(),
-      updated_at: z.string().datetime(),
+      created_at: z.iso.datetime(),
+      updated_at: z.iso.datetime(),
       first_order_item: z.object({
         product_name: z.string(),
         variant_name: z.string().optional(),
@@ -41,7 +41,7 @@ export const LemonSqueezyPayloadSchema = z.object({
       }),
       urls: z
         .object({
-          receipt: z.string().url().optional(),
+          receipt: z.url().optional(),
         })
         .optional(),
     }),
@@ -141,22 +141,23 @@ export const lemonSqueezyWebhookHandler = (
 
       // 1. Get the App
       const appMetadata = appsRecord[appId] as RegistryAppMetadata | undefined;
-      if (!appMetadata) {
+      if (!appMetadata?.$isLoaded) {
         return c.json({ error: "App not found" }, 404);
       }
 
       // Ensure Metadata is loaded
       // We explicitly cast to access the methods available on the loaded proxy
-      const loadedMetadata = await (appMetadata as any).$jazz.ensureLoaded({
-        app: true,
+      const { app } = await (appMetadata as any).$jazz.ensureLoaded({
+        resolve: {
+          app: {
+            payments: true,
+          },
+        },
       });
-      if (!loadedMetadata || !loadedMetadata.app) {
+
+      if (!app || !app.$isLoaded) {
         return c.json({ error: "App data unavailable" }, 500);
       }
-
-      const app = (await loadedMetadata.app.$jazz.ensureLoaded({
-        payments: true,
-      })) as App;
 
       // 2. Verify Signature
       const secret = app.webhookSecret;
@@ -206,7 +207,7 @@ export const lemonSqueezyWebhookHandler = (
       );
 
       // 5. Append to App payments
-      app.payments?.$jazz.push(event);
+      app.payments.$jazz.push(event);
 
       return c.json({ received: true }, 200);
     } catch (error: any) {
