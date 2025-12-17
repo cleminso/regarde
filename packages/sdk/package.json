@@ -84,6 +84,11 @@
       "types": "./dist/payments/index.d.ts",
       "import": "./dist/payments.js",
       "require": "./dist/payments.cjs"
+    },
+    "./init": {
+      "types": "./dist/init/index.d.ts",
+      "import": "./dist/init.js",
+      "require": "./dist/init.cjs"
     }
   },
   "files": [
