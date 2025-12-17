@@ -20,6 +20,39 @@ export const registerAppHandler = (
       // Generate Webhook Secret
       const webhookSecret = randomBytes(20).toString("hex");
 
+      // Load the user's account with their RegardeSDK
+      const ownerAccount = await co.account().load(ownerAccountId, {
+        loadAs: worker,
+        resolve: { root: { ["regarde-sdk"]: true } },
+      });
+
+      // Check if account loaded successfully
+      if (!ownerAccount.$isLoaded) {
+        return c.json(
+          {
+            error: "Failed to load your account. Please try again later.",
+          },
+          500,
+        );
+      }
+
+      // Get their RegardeSDK
+      const regardeSDK = ownerAccount.root["regarde-sdk"];
+
+      if (!regardeSDK?.$isLoaded) {
+        return c.json(
+          {
+            error:
+              "Your account is not properly initialized. Please initialize your account first.",
+          },
+          400,
+        );
+      }
+
+      // Get their personal group that owns their RegardeSDK
+      const userGroup = regardeSDK.$jazz.owner;
+
+      // Create the App with the proper owner
       const newApp = App.create(
         {
           name,
@@ -33,7 +66,7 @@ export const registerAppHandler = (
           payments: [],
           paymentsByUser: {},
         },
-        worker,
+        { owner: userGroup },
       );
 
       // Access ID via $jazz object as .id direct access defaults to undefined on strict proxied creation
@@ -53,7 +86,7 @@ export const registerAppHandler = (
             createdAt: Date.now(),
             version: 1,
           },
-          worker,
+          { owner: worker },
         ),
       );
 
@@ -63,7 +96,6 @@ export const registerAppHandler = (
           .create([], { owner: worker });
         appsByUserRecord.$jazz.set(ownerAccountId, newList);
       }
-
 
       // Push to the list
       await appsByUserRecord.$jazz.ensureLoaded({

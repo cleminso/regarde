@@ -8,16 +8,8 @@ import { swaggerUI } from "@hono/swagger-ui";
 import { startWorker } from "jazz-tools/worker";
 
 import {
-  NicknameRegistryCoRecord,
-  AppRegistry,
-  type NicknameRegistry,
   RegistryWorkerAccount,
-  AllRegistryAppsSchema,
-  type TAllRegistryAppsSchema,
-  AppsByUserRecord,
-  ReservedNicknamesRegistry,
-  ReverseNicknameRegistryCoRecord,
-  type ReverseNicknameRegistry,
+  NicknameRegistry,
 } from "@regarde-dev/sdk/registry";
 
 import { rateLimit } from "./middleware/rateLimit.js";
@@ -167,41 +159,41 @@ async function main() {
   // Safely extract references with loading checks
   const nicknameRegistry: NicknameRegistry | undefined =
     loadedWorker &&
-      loadedWorker.$isLoaded &&
-      loadedWorker.root &&
-      loadedWorker.root.$isLoaded &&
-      loadedWorker.root.registry &&
-      loadedWorker.root.registry.$isLoaded
+    loadedWorker.$isLoaded &&
+    loadedWorker.root &&
+    loadedWorker.root.$isLoaded &&
+    loadedWorker.root.registry &&
+    loadedWorker.root.registry.$isLoaded
       ? loadedWorker.root.registry
       : undefined;
 
   const reverseNicknameRegistry =
     loadedWorker &&
-      loadedWorker.$isLoaded &&
-      loadedWorker.root &&
-      loadedWorker.root.$isLoaded &&
-      loadedWorker.root.reverseRegistry &&
-      loadedWorker.root.reverseRegistry.$isLoaded
+    loadedWorker.$isLoaded &&
+    loadedWorker.root &&
+    loadedWorker.root.$isLoaded &&
+    loadedWorker.root.reverseRegistry &&
+    loadedWorker.root.reverseRegistry.$isLoaded
       ? loadedWorker.root.reverseRegistry
       : undefined;
 
   const reservedNicknames =
     loadedWorker &&
-      loadedWorker.$isLoaded &&
-      loadedWorker.root &&
-      loadedWorker.root.$isLoaded &&
-      loadedWorker.root.reservedNicknames &&
-      loadedWorker.root.reservedNicknames.$isLoaded
+    loadedWorker.$isLoaded &&
+    loadedWorker.root &&
+    loadedWorker.root.$isLoaded &&
+    loadedWorker.root.reservedNicknames &&
+    loadedWorker.root.reservedNicknames.$isLoaded
       ? loadedWorker.root.reservedNicknames
       : undefined;
 
   const appRegistry =
     loadedWorker &&
-      loadedWorker.$isLoaded &&
-      loadedWorker.root &&
-      loadedWorker.root.$isLoaded &&
-      loadedWorker.root.apps &&
-      loadedWorker.root.apps.$isLoaded
+    loadedWorker.$isLoaded &&
+    loadedWorker.root &&
+    loadedWorker.root.$isLoaded &&
+    loadedWorker.root.apps &&
+    loadedWorker.root.apps.$isLoaded
       ? loadedWorker.root.apps
       : undefined;
 
@@ -253,17 +245,17 @@ async function main() {
     },
     servers: IS_PRODUCTION_LIKE
       ? [
-        {
-          url: "https://api.regarde.dev",
-          description: "Production Server - Authentication (api.regarde.dev)",
-        },
-      ]
+          {
+            url: "https://api.regarde.dev",
+            description: "Production Server - Authentication (api.regarde.dev)",
+          },
+        ]
       : [
-        {
-          url: PUBLIC_BASE_URL,
-          description: "Local Development Server",
-        },
-      ],
+          {
+            url: PUBLIC_BASE_URL,
+            description: "Local Development Server",
+          },
+        ],
   });
 
   app.get("/ui", swaggerUI({ url: `${PUBLIC_BASE_URL}/doc` }));
@@ -333,10 +325,7 @@ async function main() {
       if (!appRegistry.apps.$isLoaded) {
         throw new Error("App registry not fully loaded");
       }
-      return await lemonSqueezyWebhookHandler(
-        appRegistry.apps,
-        worker,
-      )(c);
+      return await lemonSqueezyWebhookHandler(appRegistry.apps, worker)(c);
     } catch (error) {
       console.error("Error in lemonSqueezyWebhookHandler:", error);
       return c.json({ error: "Internal server error" }, 500);

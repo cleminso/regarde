@@ -187,4 +187,67 @@ console.error(
 - **Client data access**: Use `useMyRegardeAccount()` as single source of truth for user data
 - **Variable naming**: `account` for RegardeAccount, `RegardeProfile` for RegardeProfile, `worker` for RegistryWorkerAccount, `RegardeAuth` for RegardeAuth
 
+### Permission Structure Rules
+
+#### User Data vs Registry Data Ownership
+
+**User Data Ownership Pattern:**
+
+- User-owned CoValues (App, PaymentEvent, ListOfPaymentEvents) MUST be owned by the user's personal group
+- Access user group via: `userAccount.root["regarde-sdk"].$jazz.owner`
+- Load user accounts with `{ loadAs: worker }` when accessing from worker context
+- Never fall back to worker ownership for user data
+
+**Registry Data Ownership Pattern:**
+
+- Registry-owned CoValues (RegistryAppMetadata, registry lists) MUST be owned by the worker
+- Registry data manages metadata, not the actual user CoValues
+- References vs ownership: RegistryAppMetadata contains reference to App, but doesn't own it
+
+#### Implementation Checklist
+
+**Creating User CoValues:**
+[ ] Load user account: `co.account().load(id, { loadAs: worker, resolve: { root: { ["regarde-sdk"]: true } } })`
+[ ] Get user group: `account.root["regarde-sdk"].$jazz.owner`
+[ ] Create with user group: `CoValue.create({...}, { owner: userGroup })`
+[ ] Verify account loaded before accessing properties
+[ ] Return proper error if account/RegardeSDK not initialized
+
+**Creating Registry CoValues:**
+[ ] Direct use: `RegistryCoValue.create({...}, { owner: worker })`
+[ ] Used for registry metadata, not user data
+[ ] Allows registry to search and manage metadata efficiently
+
+#### Permission Flow
+
+1. User personal group owns user's RegardeSDK and all their data
+2. Worker is added to user's group with "writer" role in initRegardeSchema
+3. Worker accesses user data through group membership, not ownership
+4. account.root["regarde-sdk"] is a reference, not ownership
+
+**Error Handling:**
+
+- 400: Required fields missing or account not initialized
+- 404: User account not found
+- 500: Account loading failure
+
+**Key Pattern:**
+
+```typescript
+// User data creation pattern
+const userAccount = await co.account().load(userId, {
+  loadAs: worker,
+  resolve: { root: { ["regarde-sdk"]: true } },
+});
+const userGroup = userAccount.root["regarde-sdk"].$jazz.owner;
+const userCoValue = UserCoValue.create(data, userGroup);
+```
+
+**Registry data creation pattern:**
+
+```typescript
+// Registry data creation pattern
+const registryCoValue = RegistryCoValue.create(data, worker);
+```
+
 For UI development and Tailwind CSS rules, refer to [INTERFACE-GUIDELINES.md](./INTERFACE-GUIDELINES.md)

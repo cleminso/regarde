@@ -121,7 +121,9 @@ export type RegistryAuditLog = co.loaded<typeof RegistryAuditLog>;
  * - createdAt - When Regarde created this metadata record
  */
 export const RegistryAppMetadata = co.map({
-  app: App,
+  get app() {
+    return App;
+  },
   isVerified: z.boolean().default(true),
   hasAccess: z.boolean(),
   webhookConfigured: z.boolean().default(false),

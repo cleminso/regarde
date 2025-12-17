@@ -1,34 +1,38 @@
 import { z } from "zod";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import {
-  type TAllRegistryAppsSchema,
+  AppRegistry,
   RegistryWorkerAccount,
   RegistryAppMetadata,
 } from "@regarde-dev/sdk/registry";
-import { App, PaymentEvent } from "@regarde-dev/sdk/payments";
-import { Group, Loaded } from "jazz-tools";
+import { PaymentEvent, ListOfPaymentEvents } from "@regarde-dev/sdk/payments";
+import { Loaded, co } from "jazz-tools";
+
+type AppsRecord = AppRegistry["apps"];
 
 // ----------------------------------------------------------------------
-// 1. Source Schema (Lemon Squeezy Webhook Payload)
+// 1. Source Schemas (Lemon Squeezy Webhook Payload)
 // ----------------------------------------------------------------------
+
+const MetaSchema = z.object({
+  event_name: z.string(),
+  custom_data: z.record(z.string(), z.any()).optional(),
+  test_mode: z.boolean().optional(),
+});
 
 /**
- * Zod schema for Lemon Squeezy "order_created" event.
- * Based on the "Golden Sample" payload.
+ * Schema for "Order" events (one-time purchases)
+ * Events: order_created, order_refunded, etc.
  */
-export const LemonSqueezyPayloadSchema = z.object({
-  meta: z.object({
-    event_name: z.string(),
-    custom_data: z.record(z.string(), z.any()).optional(),
-    test_mode: z.boolean().optional(),
-  }),
+const OrderSchema = z.object({
+  meta: MetaSchema,
   data: z.object({
     type: z.literal("orders"),
     id: z.string(),
     attributes: z.object({
       order_number: z.number(),
       user_email: z.email(),
-      total: z.number(), // Amount in smallest unit (e.g., cents)
+      total: z.number(),
       currency: z.string(),
       status: z.enum(["paid", "pending", "failed", "refunded"]),
       created_at: z.iso.datetime(),
@@ -48,16 +52,73 @@ export const LemonSqueezyPayloadSchema = z.object({
   }),
 });
 
+/**
+ * Schema for "Subscription" events (state changes)
+ * Events: subscription_created, subscription_cancelled, subscription_updated, etc.
+ */
+const SubscriptionSchema = z.object({
+  meta: MetaSchema,
+  data: z.object({
+    type: z.literal("subscriptions"),
+    id: z.string(),
+    attributes: z.object({
+      user_email: z.email(),
+      status: z.string(), // active, past_due, unpaid, cancelled, expired, etc.
+      created_at: z.iso.datetime(),
+      updated_at: z.iso.datetime(),
+      product_name: z.string(),
+      variant_name: z.string().optional(),
+      product_id: z.number(),
+      variant_id: z.number(),
+      urls: z
+        .object({
+          update_payment_method: z.url().optional(),
+        })
+        .optional(),
+    }),
+  }),
+});
+
+/**
+ * Schema for "Subscription Invoice" events (recurring payments)
+ * Events: subscription_payment_success, subscription_payment_failed, subscription_payment_recovered
+ */
+const SubscriptionInvoiceSchema = z.object({
+  meta: MetaSchema,
+  data: z.object({
+    type: z.literal("subscription-invoices"),
+    id: z.string(),
+    attributes: z.object({
+      user_email: z.email(),
+      total: z.number(),
+      currency: z.string(),
+      status: z.string(), // paid, void, pending, refund
+      created_at: z.iso.datetime(),
+      updated_at: z.iso.datetime(),
+      billing_reason: z.string(), // initial, renewal, update
+      urls: z
+        .object({
+          invoice_url: z.url().optional(),
+        })
+        .optional(),
+    }),
+  }),
+});
+
+// Discriminated Union via 'type' inside 'data' would be better if Zod supported deep discrimination easily,
+// but for now, we just union them. Zod will try each.
+export const LemonSqueezyPayloadSchema = z.union([
+  OrderSchema,
+  SubscriptionSchema,
+  SubscriptionInvoiceSchema,
+]);
+
 export type LemonSqueezyPayload = z.infer<typeof LemonSqueezyPayloadSchema>;
 
 // ----------------------------------------------------------------------
 // 2. Verification Utility
 // ----------------------------------------------------------------------
 
-/**
- * Verifies the X-Signature header from Lemon Squeezy.
- * @returns true if valid, false otherwise.
- */
 export const verifyLemonSqueezySignature = (
   secret: string,
   body: string,
@@ -98,29 +159,79 @@ export interface StandardPaymentCommand {
 export const standardizeLemonSqueezy = (
   payload: LemonSqueezyPayload,
 ): StandardPaymentCommand => {
-  const { attributes, id } = payload.data;
+  const { event_name, test_mode } = payload.meta;
 
-  // Map Status
   let status: StandardPaymentCommand["status"] = "pending";
-  if (attributes.status === "paid") status = "completed";
-  if (attributes.status === "failed") status = "failed";
-  if (attributes.status === "refunded") status = "cancelled";
+  let amount = "0";
+  let currency = "USD";
+  let productName = "Unknown Product";
+  let providerEventId = payload.data.id;
+  let email = "";
+  let metadata: Record<string, string> = {
+    eventName: event_name,
+    testMode: test_mode ? "true" : "false",
+  };
+  let timestamp = Date.now();
+
+  // 1. ORDERS
+  if (payload.data.type === "orders") {
+    const attrs = payload.data.attributes;
+    email = attrs.user_email;
+    amount = attrs.total.toString();
+    currency = attrs.currency;
+    timestamp = new Date(attrs.created_at).getTime();
+    productName = attrs.first_order_item.product_name;
+
+    metadata.orderNumber = attrs.order_number.toString();
+    if (attrs.urls?.receipt) metadata.receiptUrl = attrs.urls.receipt;
+
+    if (attrs.status === "paid") status = "completed";
+    if (attrs.status === "failed") status = "failed";
+    if (attrs.status === "refunded") status = "cancelled";
+  }
+
+  // 2. SUBSCRIPTIONS (State Changes)
+  else if (payload.data.type === "subscriptions") {
+    const attrs = payload.data.attributes;
+    email = attrs.user_email;
+    amount = "0";
+    currency = "USD";
+    timestamp = new Date(attrs.created_at).getTime();
+    productName = attrs.product_name;
+
+    if (attrs.status === "active")
+      status = "completed"; // Active sub = access granted
+    else if (attrs.status === "cancelled") status = "cancelled";
+    else if (attrs.status === "expired") status = "cancelled";
+    else if (attrs.status === "past_due") status = "failed";
+    else status = "pending";
+  }
+
+  // 3. SUBSCRIPTION INVOICES (Recurring Payments)
+  else if (payload.data.type === "subscription-invoices") {
+    const attrs = payload.data.attributes;
+    email = attrs.user_email;
+    amount = attrs.total.toString();
+    currency = attrs.currency;
+    timestamp = new Date(attrs.created_at).getTime();
+    productName = "Subscription Renewal";
+    metadata.billingReason = attrs.billing_reason;
+
+    if (attrs.status === "paid") status = "completed";
+    if (attrs.status === "void") status = "cancelled";
+    if (attrs.status === "refund") status = "cancelled";
+  }
 
   return {
     provider: "lemonsqueezy",
-    providerEventId: id,
-    email: attributes.user_email,
-    amount: attributes.total.toString(),
-    currency: attributes.currency,
+    providerEventId,
+    email,
+    amount,
+    currency,
     status,
-    timestamp: new Date(attributes.created_at).getTime(),
-    productName: attributes.first_order_item.product_name,
-    metadata: {
-      orderNumber: attributes.order_number.toString(),
-      receiptUrl: attributes.urls?.receipt || "",
-      variant: attributes.first_order_item.variant_name || "",
-      testMode: payload.meta.test_mode ? "true" : "false",
-    },
+    timestamp,
+    productName,
+    metadata,
   };
 };
 
@@ -129,37 +240,38 @@ export const standardizeLemonSqueezy = (
 // ----------------------------------------------------------------------
 
 export const lemonSqueezyWebhookHandler = (
-  appsRecord: TAllRegistryAppsSchema,
+  appsRecord: AppsRecord,
   worker: Loaded<typeof RegistryWorkerAccount>,
 ) => {
   return async (c: any) => {
     try {
-      const appId = c.req.param("appId");
+      const appId = c.req.param("appId") as string;
       if (!appId) {
         return c.json({ error: "Missing App ID" }, 400);
       }
 
-      // 1. Get the App
-      const appMetadata = appsRecord[appId] as RegistryAppMetadata | undefined;
-      if (!appMetadata?.$isLoaded) {
+      // 1. Get the App Metadata
+      const appMetadata = (appsRecord as any)[appId] as
+        | RegistryAppMetadata
+        | undefined;
+      if (!appMetadata) {
         return c.json({ error: "App not found" }, 404);
       }
 
-      // Ensure Metadata is loaded
-      // We explicitly cast to access the methods available on the loaded proxy
-      const { app } = await (appMetadata as any).$jazz.ensureLoaded({
-        resolve: {
-          app: {
-            payments: true,
-          },
-        },
+      // 2. Load App with payments + paymentsByUser
+      const loadedMetadata = await (appMetadata as any).$jazz.ensureLoaded({
+        app: true,
       });
-
-      if (!app || !app.$isLoaded) {
+      if (!loadedMetadata || !loadedMetadata.app) {
         return c.json({ error: "App data unavailable" }, 500);
       }
 
-      // 2. Verify Signature
+      const app = await loadedMetadata.app.$jazz.ensureLoaded({
+        payments: true,
+        paymentsByUser: true,
+      });
+
+      // 3. Verify Signature
       const secret = app.webhookSecret;
       const signature = c.req.header("x-signature") || null;
       const rawBody = await c.req.text();
@@ -168,30 +280,66 @@ export const lemonSqueezyWebhookHandler = (
         return c.json({ error: "Invalid Signature" }, 401);
       }
 
-      // 3. Parse & Standardize
+      // 4. Parse & Standardize
       const json = JSON.parse(rawBody);
       const parsed = LemonSqueezyPayloadSchema.parse(json);
       const command = standardizeLemonSqueezy(parsed);
 
-      console.log(`[Webhook] Received payment for App ${appId}:`, command);
+      console.log(
+        `[Webhook] Received ${parsed.meta.event_name} for App ${appId}:`,
+        command,
+      );
 
-      // 4. Provisioning (Create PaymentEvent)
-      let userAccountId = parsed.meta.custom_data?.user_id; // Check if it's string
+      // 5. Provisioning
+      let userAccountId = parsed.meta.custom_data?.user_id;
       if (typeof userAccountId !== "string") userAccountId = undefined;
 
       if (!userAccountId) {
-        console.warn(
-          "[Webhook] Warning: No user_id in custom_data. Using 'unverified_user'.",
+        return c.json(
+          { error: "User account ID is required in custom_data.user_id" },
+          400,
         );
-        userAccountId = "unverified_user";
       }
 
-      const group = Group.create({
-        owner: worker,
-      });
-      // TODO: Account.load() for theses
-      group.addMember(app.ownerAccountId, "reader");
-      group.addMember(userAccountId, "reader");
+      // Get user's group to properly own PaymentEvent
+      let userGroup;
+
+      try {
+        // Load the user's account with their RegardeSDK to get their group
+        const userAccount = await co.account().load(userAccountId, {
+          loadAs: worker,
+          resolve: { root: { ["regarde-sdk"]: true } },
+        });
+
+        // Check if account loaded successfully
+        if (!userAccount.$isLoaded) {
+          return c.json(
+            { error: "Failed to load your account. Please try again later." },
+            500,
+          );
+        }
+
+        const regardeSDK = userAccount.root["regarde-sdk"];
+        if (!regardeSDK?.$isLoaded) {
+          return c.json(
+            {
+              error:
+                "Your account is not properly initialized. Please initialize your account first.",
+            },
+            400,
+          );
+        }
+
+        userGroup = regardeSDK.$jazz.owner;
+      } catch (error) {
+        console.error(
+          `[ERROR] Failed to load user account: ${error}. Fix by: (1)Checking user account exists, (2)Verifying RegardeSDK is initialized`,
+        );
+        return c.json(
+          { error: "Failed to process payment event. User account not found." },
+          404,
+        );
+      }
 
       const event = PaymentEvent.create(
         {
@@ -203,11 +351,26 @@ export const lemonSqueezyWebhookHandler = (
           app: app,
           metadata: command.metadata as any,
         },
-        { owner: group },
+        { owner: userGroup },
       );
 
-      // 5. Append to App payments
-      app.payments.$jazz.push(event);
+      // 6. Append to Global List
+      app.payments?.push(event);
+
+      // 7. Append to Index (paymentsByUser)
+      if (!app.paymentsByUser) {
+        console.warn("[Webhook] Warning: app.paymentsByUser is undefined.");
+      } else {
+        if (!app.paymentsByUser[userAccountId]) {
+          // Create new list for this user if missing
+          const newList = ListOfPaymentEvents.create([], {
+            owner: userGroup,
+          });
+          app.paymentsByUser[userAccountId] = newList;
+        }
+        app.paymentsByUser[userAccountId]?.push(event);
+        console.log(`[Webhook] Indexed payment for user ${userAccountId}`);
+      }
 
       return c.json({ received: true }, 200);
     } catch (error: any) {
