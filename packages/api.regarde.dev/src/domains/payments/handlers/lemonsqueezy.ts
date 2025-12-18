@@ -258,7 +258,7 @@ export const lemonSqueezyWebhookHandler = (
         return c.json({ error: "App not found" }, 404);
       }
 
-      // 2. Load App with payments + paymentsByUser
+      // 2. Load App with payments
       const loadedMetadata = await (appMetadata as any).$jazz.ensureLoaded({
         app: true,
       });
@@ -268,7 +268,6 @@ export const lemonSqueezyWebhookHandler = (
 
       const app = await loadedMetadata.app.$jazz.ensureLoaded({
         payments: true,
-        paymentsByUser: true,
       });
 
       // 3. Verify Signature
@@ -341,6 +340,17 @@ export const lemonSqueezyWebhookHandler = (
         );
       }
 
+      const registryProfileWorkerGroup = await co
+        .group()
+        .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", {
+          loadAs: worker,
+        });
+
+      if (!registryProfileWorkerGroup.$isLoaded) {
+        return c.json({ error: "Failed to load registry group" }, 500);
+      }
+
+      // PaymentEvent owned by worker group for security - prevents users from modifying payment status
       const event = PaymentEvent.create(
         {
           amount: command.amount,
@@ -348,29 +358,25 @@ export const lemonSqueezyWebhookHandler = (
           timestamp: command.timestamp,
           paymentStatus: command.status,
           userAccount: userAccountId,
-          app: app,
+          app: app.$jazz.id,
           metadata: command.metadata as any,
         },
-        { owner: userGroup },
+        { owner: registryProfileWorkerGroup },
       );
 
-      // 6. Append to Global List
-      app.payments?.push(event);
+      // 6. Append to Global Payments Feed (single source of truth)
+      app.payments.$jazz.push(event);
 
-      // 7. Append to Index (paymentsByUser)
+      // 7. Add reference to paymentsByUser index (not a copy)
       if (!app.paymentsByUser) {
         console.warn("[Webhook] Warning: app.paymentsByUser is undefined.");
       } else {
-        if (!app.paymentsByUser[userAccountId]) {
-          // Create new list for this user if missing
-          const newList = ListOfPaymentEvents.create([], {
-            owner: userGroup,
-          });
-          app.paymentsByUser[userAccountId] = newList;
-        }
-        app.paymentsByUser[userAccountId]?.push(event);
+        // Store reference to the PaymentEvent (not a new copy)
+        app.paymentsByUser.$jazz.set(userAccountId, event);
         console.log(`[Webhook] Indexed payment for user ${userAccountId}`);
       }
+
+      console.log(`[Webhook] Payment processed for App ${app.$jazz.id}`);
 
       return c.json({ received: true }, 200);
     } catch (error: any) {

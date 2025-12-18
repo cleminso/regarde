@@ -74,26 +74,36 @@ export const registerAppHandler = (
 
       if (!appId) throw new Error("Failed to resolve App ID");
 
-      // Use direct assignment as appsRecord is a CoMap proxy
+      const registryProfileWorkerGroup = await co
+        .group()
+        .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", {
+          loadAs: worker,
+        });
+
+      if (!registryProfileWorkerGroup.$isLoaded) {
+        return c.json({ error: "Failed to load registry group" }, 500);
+      }
+
+      // Direct assignment as appsRecord is a CoMap proxy
       appsRecord.$jazz.set(
         appId,
         RegistryAppMetadata.create(
           {
-            app: newApp,
+            app: appId,
             isVerified: true,
             hasAccess: false,
             webhookConfigured: false,
             createdAt: Date.now(),
             version: 1,
           },
-          { owner: worker },
+          { owner: registryProfileWorkerGroup },
         ),
       );
 
       if (!appsByUserRecord[ownerAccountId]) {
         const newList = co
           .list(RegistryAppMetadata)
-          .create([], { owner: worker });
+          .create([], { owner: registryProfileWorkerGroup });
         appsByUserRecord.$jazz.set(ownerAccountId, newList);
       }
 
@@ -109,14 +119,14 @@ export const registerAppHandler = (
         userAppsList.$jazz.push(
           RegistryAppMetadata.create(
             {
-              app: newApp,
+              app: appId,
               isVerified: true,
               hasAccess: false,
               webhookConfigured: false,
               createdAt: Date.now(),
               version: 1,
             },
-            worker,
+            { owner: registryProfileWorkerGroup },
           ),
         );
       }
