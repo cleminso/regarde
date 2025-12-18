@@ -255,18 +255,19 @@ export const lemonSqueezyWebhookHandler = (
         | RegistryAppMetadata
         | undefined;
       if (!appMetadata) {
+        console.log(`[Webhook] App not found: ${appId}`);
         return c.json({ error: "App not found" }, 404);
       }
 
       // 2. Load App with payments
-      const loadedMetadata = await (appMetadata as any).$jazz.ensureLoaded({
-        app: true,
-      });
-      if (!loadedMetadata || !loadedMetadata.app) {
+      const app = await (appMetadata as any).$jazz
+        .resolve({ app: true })
+        .then((m: any) => m.app);
+      if (!app) {
         return c.json({ error: "App data unavailable" }, 500);
       }
 
-      const app = await loadedMetadata.app.$jazz.ensureLoaded({
+      await app.$jazz.ensureLoaded({
         payments: true,
       });
 
@@ -289,7 +290,7 @@ export const lemonSqueezyWebhookHandler = (
         command,
       );
 
-      // 5. Provisioning
+      // 5. Get User Account ID
       let userAccountId = parsed.meta.custom_data?.user_id;
       if (typeof userAccountId !== "string") userAccountId = undefined;
 
@@ -300,57 +301,32 @@ export const lemonSqueezyWebhookHandler = (
         );
       }
 
-      // Get user's group to properly own PaymentEvent
-      let userGroup;
-
-      try {
-        // Load the user's account with their RegardeSDK to get their group
-        const userAccount = await co.account().load(userAccountId, {
-          loadAs: worker,
-          resolve: { root: { ["regarde-sdk"]: true } },
-        });
-
-        // Check if account loaded successfully
-        if (!userAccount.$isLoaded) {
-          return c.json(
-            { error: "Failed to load your account. Please try again later." },
-            500,
-          );
-        }
-
-        const regardeSDK = userAccount.root["regarde-sdk"];
-        if (!regardeSDK?.$isLoaded) {
-          return c.json(
-            {
-              error:
-                "Your account is not properly initialized. Please initialize your account first.",
-            },
-            400,
-          );
-        }
-
-        userGroup = regardeSDK.$jazz.owner;
-      } catch (error) {
-        console.error(
-          `[ERROR] Failed to load user account: ${error}. Fix by: (1)Checking user account exists, (2)Verifying RegardeSDK is initialized`,
-        );
-        return c.json(
-          { error: "Failed to process payment event. User account not found." },
-          404,
-        );
-      }
-
       const registryProfileWorkerGroup = await co
         .group()
-        .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", {
-          loadAs: worker,
-        });
+        .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", { loadAs: worker });
 
       if (!registryProfileWorkerGroup.$isLoaded) {
         return c.json({ error: "Failed to load registry group" }, 500);
       }
 
-      // PaymentEvent owned by worker group for security - prevents users from modifying payment status
+      // 6. Check for duplicate events (same providerEventId)
+      const payments = (app as any).payments;
+      if (payments && payments.$isLoaded && payments.length > 0) {
+        const duplicate = Array.from(payments.all).find(
+          (payment: any) =>
+            payment.$isLoaded &&
+            payment.metadata.providerEventId === command.providerEventId,
+        );
+
+        if (duplicate) {
+          console.log(
+            `[Webhook] Duplicate event detected: ${command.providerEventId}`,
+          );
+          return c.json({ received: true, duplicate: true }, 200);
+        }
+      }
+
+      // 7. Create PaymentEvent owned by worker for security
       const event = PaymentEvent.create(
         {
           amount: command.amount,
@@ -358,16 +334,19 @@ export const lemonSqueezyWebhookHandler = (
           timestamp: command.timestamp,
           paymentStatus: command.status,
           userAccount: userAccountId,
-          app: app.$jazz.id,
-          metadata: command.metadata as any,
+          app, // App reference already resolved
+          metadata: {
+            ...command.metadata,
+            providerEventId: command.providerEventId,
+          } as any,
         },
         { owner: registryProfileWorkerGroup },
       );
 
-      // 6. Append to Global Payments Feed (single source of truth)
+      // 8. Append to Global Payments Feed (single source of truth)
       app.payments.$jazz.push(event);
 
-      // 7. Add reference to paymentsByUser index (not a copy)
+      // 9. Add reference to paymentsByUser index (not a copy)
       if (!app.paymentsByUser) {
         console.warn("[Webhook] Warning: app.paymentsByUser is undefined.");
       } else {
@@ -380,7 +359,10 @@ export const lemonSqueezyWebhookHandler = (
 
       return c.json({ received: true }, 200);
     } catch (error: any) {
-      console.error("[Webhook] Error processing:", error);
+      console.error(
+        "[ERROR] Failed to process payment event. Fix by: (1) Checking webhook signature validity, (2) Verifying user account exists, (3) Confirming app configuration",
+        error,
+      );
       return c.json({ error: error.message || "Internal Server Error" }, 500);
     }
   };
