@@ -16,9 +16,17 @@ It also provides auth, orgs & teams, real-time multiplayer, edit histories, perm
 
 ## Quickstart
 
-**Want to learn the basics?** Check out our [quickstart guide](/docs/quickstart) for a step-by-step guide to building a simple app with Jazz.
+### Show me
 
-**Just want to get started?** You can use [create-jazz-app](/docs/tooling-and-resources/create-jazz-app) to create a new Jazz project from one of our starter templates or example apps:
+[Check out our tiny To Do list example](/docs#a-minimal-jazz-app) to see what Jazz can do in a nutshell.
+
+### Help me understand
+
+Follow our [quickstart guide](/docs/quickstart) for a more detailed guide on building a simple app with Jazz.
+
+### Just want to get started?
+
+You can use [create-jazz-app](/docs/tooling-and-resources/create-jazz-app) to create a new Jazz project from one of our starter templates or example apps:
 
 ```sh
   npx create-jazz-app@latest --api-key you@example.com
@@ -35,26 +43,230 @@ Requires at least Node.js v20\. See our [Troubleshooting Guide](/docs/troublesho
 
 1. **Define your data** with CoValues schemas
 2. **Connect to storage infrastructure** (Jazz Cloud or self-hosted)
-3. **Create and edit CoValues** like normal objects
+3. **Create and edit CoValues** locally
 4. **Get automatic sync and persistence** across all devices and users
 
 Your UI updates instantly on every change, everywhere. It's like having reactive local state that happens to be shared with the world.
 
-## Ready to see Jazz in action?
+## A Minimal Jazz App
+
+Here, we'll scratch the surface of what you can do with Jazz. We'll build a quick and easy To Do list app — easy to use, easy to build, and easy to make comparisons with!
+
+This is the end result: we're showing it here running in two iframes, updating in real-time through the Jazz Cloud.
+
+Try adding items on the left and watch them appear instantly on the right!
+
+**Info: Using Jazz Cloud**
+
+These two iframes are syncing through the Jazz Cloud. You can use the toggle in the top right to switch between 'online' and 'offline' on each client, and see how with Jazz, you can keep working even when you're offline.
+
+### Imports
+
+Start by importing Jazz into your app.
+
+```ts
+import { co, z } from "jazz-tools";
+import { JazzBrowserContextManager } from "jazz-tools/browser";
+```
+
+### Schema
+
+Then, define what your data looks like using [Collaborative Values](/docs/core-concepts/covalues/overview) — the building blocks that make Jazz apps work.
+
+```ts
+const ToDo = co.map({ title: z.string(), completed: z.boolean() });
+const ToDoList = co.list(ToDo);
+```
+
+### Context
+
+Next, [give your app some context](/docs/project-setup#give-your-app-context) and tell Jazz your sync strategy — use the Jazz Cloud to get started quickly. We'll also create our to do list and get its ID here to use later.
+
+```ts
+await new JazzBrowserContextManager().createContext({
+  sync: {
+    peer: "wss://cloud.jazz.tools?key=minimal-vanilla-example",
+    when: "always",
+  },
+});
+
+const newList = ToDoList.create([{ title: "Learn Jazz", completed: false }]);
+const listId = newList.$jazz.id;
+```
+
+### Build your UI
+
+Now, build a basic UI skeleton for your app.
+
+```ts
+const app = document.querySelector("#app")!;
+const id = Object.assign(document.createElement("small"), {
+  innerText: `List ID: ${listId}`,
+});
+const listContainer = document.createElement("div");
+app.append(listContainer, id);
+```
+
+### Display Items
+
+Display your items and add logic to mark them as done...
+
+```ts
+function toDoItemElement(todo: co.loaded<typeof ToDo>) {
+  const label = document.createElement("label");
+  const checkbox = Object.assign(document.createElement("input"), {
+    type: "checkbox",
+    checked: todo.completed,
+    onclick: () => todo.$jazz.set("completed", checkbox.checked),
+  });
+  label.append(checkbox, todo.title);
+  return label;
+}
+```
+
+### Add New Items
+
+...and add new items to the list using an input and a button.
+
+```ts
+function newToDoFormElement(list: co.loaded<typeof ToDoList>) {
+  const form = Object.assign(document.createElement("form"), {
+    onsubmit: (e: Event) => {
+      e.preventDefault();
+      list.$jazz.push({ title: input.value, completed: false });
+    },
+  });
+  const input = Object.assign(document.createElement("input"), {
+    placeholder: "New task",
+  });
+  const btn = Object.assign(document.createElement("button"), {
+    innerText: "Add",
+  });
+  form.append(input, btn);
+  return form;
+}
+```
+
+### Subscribe to Changes
+
+Now for the magic: listen to changes coming from [**anyone, anywhere**](/docs/permissions-and-sharing/overview), and update your UI in real time.
+
+```ts
+const unsubscribe = ToDoList.subscribe(
+  listId,
+  { resolve: { $each: true } },
+  (toDoList) => {
+    const addForm = newToDoFormElement(toDoList);
+    listContainer.replaceChildren(
+      ...toDoList.map((todo) => {
+        return toDoItemElement(todo);
+      }),
+      addForm,
+    );
+  },
+);
+```
+
+### Simple Routing
+
+Lastly, we'll add a tiny bit of routing logic to be able to share the list by URL: if there's an `id` search parameter, that'll be the list we'll subscribe to later. If we don't have an `id`, we'll [create a new ToDo list](/docs/core-concepts/covalues/colists#creating-colists). We'll replace the section where we created the `ToDoList` above.
+
+```ts
+//[!code --:2]
+const newList = ToDoList.create([{ title: "Learn Jazz", completed: false }]);
+const listId = newList.$jazz.id;
+
+// [!code ++:8]
+const listId = new URLSearchParams(window.location.search).get("id");
+
+if (!listId) {
+  const newList = ToDoList.create([{ title: "Learn Jazz", completed: false }]);
+  await newList.$jazz.waitForSync();
+  window.location.search = `?id=${newList.$jazz.id}`;
+  throw new Error("Redirecting...");
+}
+```
+
+### All Together
+
+Put it all together for a simple Jazz app in less than 100 lines of code.
+
+```ts
+import { co, z } from "jazz-tools";
+import { JazzBrowserContextManager } from "jazz-tools/browser";
+
+const ToDo = co.map({ title: z.string(), completed: z.boolean() });
+const ToDoList = co.list(ToDo);
+
+await new JazzBrowserContextManager().createContext({
+  sync: {
+    peer: "wss://cloud.jazz.tools?key=minimal-vanilla-example",
+    when: "always",
+  },
+});
+
+const listId = new URLSearchParams(window.location.search).get("id");
+
+if (!listId) {
+  const newList = ToDoList.create([{ title: "Learn Jazz", completed: false }]);
+  await newList.$jazz.waitForSync();
+  window.location.search = `?id=${newList.$jazz.id}`;
+  throw new Error("Redirecting...");
+}
+
+const app = document.querySelector("#app")!;
+const id = Object.assign(document.createElement("small"), {
+  innerText: `List ID: ${listId}`,
+});
+const listContainer = document.createElement("div");
+app.append(listContainer, id);
+
+function toDoItemElement(todo: co.loaded<typeof ToDo>) {
+  const label = document.createElement("label");
+  const checkbox = Object.assign(document.createElement("input"), {
+    type: "checkbox",
+    checked: todo.completed,
+    onclick: () => todo.$jazz.set("completed", checkbox.checked),
+  });
+  label.append(checkbox, todo.title);
+  return label;
+}
+
+function newToDoFormElement(list: co.loaded<typeof ToDoList>) {
+  const form = Object.assign(document.createElement("form"), {
+    onsubmit: (e: Event) => {
+      e.preventDefault();
+      list.$jazz.push({ title: input.value, completed: false });
+    },
+  });
+  const input = Object.assign(document.createElement("input"), {
+    placeholder: "New task",
+  });
+  const btn = Object.assign(document.createElement("button"), {
+    innerText: "Add",
+  });
+  form.append(input, btn);
+  return form;
+}
+
+const unsubscribe = ToDoList.subscribe(
+  listId,
+  { resolve: { $each: true } },
+  (toDoList) => {
+    const addForm = newToDoFormElement(toDoList);
+    listContainer.replaceChildren(
+      ...toDoList.map((todo) => {
+        return toDoItemElement(todo);
+      }),
+      addForm,
+    );
+  },
+);
+```
+
+## Want to see more?
 
 Have a look at our [example apps](/examples) for inspiration and to see what's possible with Jazz. From real-time chat and collaborative editors to file sharing and social features — these are just the beginning of what you can build.
-
-## Core concepts
-
-Learn how to structure your data using [collaborative values](/docs/core-concepts/covalues/overview) — the building blocks that make Jazz apps work.
-
-## Sync and storage
-
-Sync and persist your data by setting up [sync and storage infrastructure](/docs/core-concepts/sync-and-storage) using Jazz Cloud, or host it yourself.
-
-## Going deeper
-
-Get better results with AI by [importing the Jazz docs](/docs/tooling-and-resources/ai-tools) into your context window.
 
 If you have any questions or need assistance, please don't hesitate to reach out to us on [Discord](https://discord.gg/utDMjHYg42). We'd love to help you get started.
 
@@ -582,12 +794,6 @@ We're always happy to help! If you're stuck, reachout via [Discord](https://disc
 ### 0.18.0 - New `$jazz` field in CoValues
 
 ### 0.17.0 - New image APIs
-
-### 0.16.0 - Cleaner separation between Zod and CoValue schemas
-
-### 0.15.0 - Everything inside `jazz-tools`
-
-### 0.14.0 - Zod-based schemas
 
 ## Core Concepts
 
@@ -3803,6 +4009,26 @@ const unsubscribe = myTask.$jazz.subscribe((updatedTask) => {
 unsubscribe();
 ```
 
+### Error handling for manual subscriptions
+
+You can also pass `onUnauthorized` and `onUnavailable` handlers as options to your subscription which will run reactively whenever the CoValue you're subscribing to is unavailable, or you do not have the appropriate permissions to read it.
+
+```ts
+const unsubscribe = Task.subscribe(
+  taskId,
+  {
+    onUnauthorized: (err) => console.error(err),
+    onUnavailable: (err) => console.error(err),
+  },
+  (updatedTask) => {
+    console.log("Updated task:", updatedTask);
+  },
+);
+
+// Always clean up when finished
+unsubscribe();
+```
+
 ## Selectors \[!framework=react,react-native,react-native-expo\]
 
 Sometimes, you only need to react to changes in specific parts of a CoValue. In those cases, you can provide a `select` function to specify what data you are interested in, and an optional `equalityFn` option to control re-renders.
@@ -5295,6 +5521,73 @@ if (alice.$isLoaded) {
 }
 ```
 
+## Defining permissions at the schema level
+
+You can define permissions at the schema level by using the `withPermissions` method on any CoValue schema. Whenever you create a new CoValue using the schema (i.e., with the `.create()` method), the permissions will be applied automatically.
+
+```ts
+const Dog = co
+  .map({
+    name: z.string(),
+  })
+  .withPermissions({
+    onInlineCreate: "sameAsContainer",
+  });
+const Person = co
+  .map({
+    pet: Dog,
+  })
+  .withPermissions({
+    default: () => Group.create().makePublic(),
+  });
+
+// All Person CoValues will be public, and each Dog CoValue will share the same owner
+// as the Person that references it.
+const person = Person.create({
+  pet: {
+    name: "Rex",
+  },
+});
+```
+
+`withPermissions` supports several options that let you customize how permissions are applied when creating or composing CoValues.
+
+#### `default`
+
+`default` defines a group to be used when calling `.create()` without an explicit owner.
+
+#### `onInlineCreate`
+
+`onInlineCreate` allows you to choose the behaviour when a CoValue is [created inline](/docs/permissions-and-sharing/cascading-permissions#ownership-on-inline-covalue-creation)
+
+This configuration **is not applied** when using `.create()` for nested CoValues. In that case, `default` is used.
+
+`onInlineCreate` supports the following options:
+
+- `"extendsContainer"` \- create a new group that includes the container CoValue's owner as a member, inheriting all permissions from the container. This is the default if no `onInlineCreate` option is provided.
+- `"sameAsContainer"` \- reuse the same owner as the container CoValue
+- `"newGroup"` \- create a new group for inline CoValues, with the active account as admin
+- `{ extendsContainer: "reader" }` \- similar to `“extendsContainer”`, but allows overriding the role of the container’s owner in the new group
+- `groupConfigurationCallback` \- create a new group and configure it as needed
+
+#### `onCreate`
+
+`onCreate` is a callback that runs every time a CoValue is created. It can be used to configure the CoValue's owner. It runs both when creating CoValues with `.create()` and when creating inline CoValues.
+
+### Configuring permissions globally
+
+You can configure the default permissions for all CoValue schemas by using `setDefaultSchemaPermissions`.
+
+This is useful if you want to modify inline CoValue creation to [always re-use the container CoValue's owner](/docs/reference/performance#minimise-group-extensions).
+
+```ts
+import { setDefaultSchemaPermissions } from "jazz-tools";
+
+setDefaultSchemaPermissions({
+  onInlineCreate: "sameAsContainer",
+});
+```
+
 ### Quickstart
 
 # Add Collaboration to your App
@@ -5695,7 +5988,7 @@ import { createInviteLink } from "jazz-tools/react";
 const inviteLink = createInviteLink(organization, "writer"); // or reader, admin, writeOnly
 ```
 
-It generates a URL that looks like `.../invite/[CoValue ID]/[inviteSecret]`
+It generates a URL that looks like `.../#/invite/[CoValue ID]/[inviteSecret]`
 
 In your app, you need to handle this route, and let the user accept the invitation, as done [here](https://github.com/garden-co/jazz/tree/main/examples/todo/src/2%5Fmain.tsx).
 
@@ -5866,7 +6159,7 @@ containingGroup.addMember(addedGroup);
 // than the inherited reader role.
 ```
 
-When adding a group to another group, only admin, writer and reader roles are inherited:
+When adding a group to another group, only admin, manager, writer and reader roles are inherited:
 
 ```ts
 const addedGroup = Group.create();
@@ -5932,7 +6225,7 @@ containingGroup.addMember(addedGroup);
 console.log(containingGroup.getParentGroups()); // [addedGroup]
 ```
 
-## Ownership on implicit CoValue creation
+## Ownership on inline CoValue creation
 
 When creating CoValues that contain other CoValues (or updating references to CoValues) using plain JSON objects, Jazz not only creates the necessary CoValues automatically but it will also manage their group ownership.
 
@@ -6035,27 +6328,19 @@ This creates a hierarchy where:
 
 Jazz provides built-in version control through branching and merging, allowing multiple users to work on the same resource in isolation and merge their changes when they are ready.
 
-This enables the design of new editing workflows where users (or agents!) can create branches, make changes, and merge them back to the main version.
+You can use this to design new editing workflows where users (or agents!) can create branches, make changes, and merge them back to the main version.
 
-**Info:**
+**Info: Important**
 
-**Important:** Version control is currently unstable and we may ship breaking changes in patch releases.
+Version control is currently unstable and we may ship breaking changes in patch releases.
 
 ## Working with branches
 
 ### Creating Branches
 
-To create a branch, use the `unstable_branch` option when loading a CoValue:
-
-```ts
-const branch = await Project.load(projectId, {
-  unstable_branch: { name: "feature-branch" },
-});
-```
-
 You can also create a branch via the `useCoState` hook:
 
-```ts
+```tsx
 const branch = useCoState(Project, projectId, {
   unstable_branch: { name: "feature-branch" },
 });
@@ -6083,7 +6368,7 @@ function EditProject({
   projectId: ID<typeof Project>;
   currentBranchName: string;
 }) {
-  const project = useCoState(Project, projectId, {
+  const project = useSuspenseCoState(Project, projectId, {
     resolve: {
       tasks: { $each: true },
     },
@@ -6109,7 +6394,33 @@ function EditProject({
     task && task.$jazz.set("title", e.target.value);
   };
 
-  return <form onSubmit={handleSave}>{/* Edit form fields */}</form>;
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <form onSubmit={handleSave}>
+        <label>
+          Project Title
+          <input
+            value={project.title}
+            onChange={(evt) =>
+              project.$jazz.set("title", evt.currentTarget.value)
+            }
+          />
+        </label>
+        {project.tasks.map((task, i) => {
+          return (
+            <input
+              key={task.$jazz.id}
+              value={task.title}
+              onChange={(evt) =>
+                task.$jazz.set("title", evt.currentTarget.value)
+              }
+            />
+          );
+        })}
+      </form>
+      ;
+    </Suspense>
+  );
 }
 ```
 
@@ -8278,6 +8589,16 @@ const subItem = SubItem.create({ subSubItem: subSubItem });
 const fasterItem = Item.create({ subItem: subItem });
 ```
 
+You can also configure Jazz to reuse the container CoValue's owner when creating nested CoValues:
+
+```ts
+import { setDefaultSchemaPermissions } from "jazz-tools";
+
+setDefaultSchemaPermissions({
+  onInlineCreate: "sameAsContainer",
+});
+```
+
 ## Choose simple datatypes where possible
 
 CoValues will always be slightly slower to load than their primitive counterparts. For most cases, this is negligible.
@@ -8828,7 +9149,11 @@ if (account?.profile?.$isLoaded) {
 ### 1_schema.ts
 
 ```ts
-import { co, Group, z } from "jazz-tools";
+import { co, z, setDefaultSchemaPermissions } from "jazz-tools";
+
+setDefaultSchemaPermissions({
+  onInlineCreate: "sameAsContainer",
+});
 
 /** Walkthrough: Defining the data model with CoJSON
  *
@@ -8883,34 +9208,40 @@ export type PlaylistWithTracks = co.loaded<typeof PlaylistWithTracks>;
 
 /** The account root is an app-specific per-user private `CoMap`
  *  where you can store top-level objects for that user */
-export const MusicaAccountRoot = co.map({
-  // The root playlist works as container for the tracks that
-  // the user has uploaded
-  rootPlaylist: Playlist,
-  // Here we store the list of playlists that the user has created
-  // or that has been invited to
-  playlists: co.list(Playlist),
-  // We store the active track and playlist as coValue here
-  // so when the user reloads the page can see the last played
-  // track and playlist
-  // You can also add the position in time if you want make it possible
-  // to resume the song
-  activeTrack: co.optional(MusicTrack),
-  activePlaylist: Playlist,
+export const MusicaAccountRoot = co
+  .map({
+    // The root playlist works as container for the tracks that
+    // the user has uploaded
+    rootPlaylist: Playlist,
+    // Here we store the list of playlists that the user has created
+    // or that has been invited to
+    playlists: co.list(Playlist),
+    // We store the active track and playlist as coValue here
+    // so when the user reloads the page can see the last played
+    // track and playlist
+    // You can also add the position in time if you want make it possible
+    // to resume the song
+    activeTrack: co.optional(MusicTrack),
+    activePlaylist: Playlist,
 
-  exampleDataLoaded: z.optional(z.boolean()),
-  accountSetupCompleted: z.optional(z.boolean()),
-});
+    exampleDataLoaded: z.optional(z.boolean()),
+    accountSetupCompleted: z.optional(z.boolean()),
+  })
+  .withPermissions({ onInlineCreate: "newGroup" })
+  .resolved({
+    activeTrack: { $onError: "catch" },
+    activePlaylist: { $onError: "catch" },
+  });
 export type MusicaAccountRoot = co.loaded<typeof MusicaAccountRoot>;
 
 export const MusicaAccountProfile = co
   .profile({
     avatar: co.optional(co.image()),
   })
-  .withMigration((profile) => {
-    if (profile.$jazz.owner.getRoleOf("everyone") !== "reader") {
-      profile.$jazz.owner.addMember("everyone", "reader");
-    }
+  .withPermissions({
+    onCreate(group) {
+      group.addMember("everyone", "reader");
+    },
   });
 export type MusicaAccountProfile = co.loaded<typeof MusicaAccountProfile>;
 
@@ -8941,16 +9272,14 @@ export const MusicaAccount = co
     }
 
     if (!account.$jazz.has("profile")) {
-      account.$jazz.set(
-        "profile",
-        MusicaAccountProfile.create(
-          {
-            name: "",
-          },
-          Group.create().makePublic(),
-        ),
-      );
+      account.$jazz.set("profile", {
+        name: "",
+      });
     }
+  })
+  .resolved({
+    profile: true,
+    root: MusicaAccountRoot.resolveQuery,
   });
 export type MusicaAccount = co.loaded<typeof MusicaAccount>;
 
@@ -8961,7 +9290,9 @@ export const MusicaAccountWithPlaylists = MusicaAccount.resolved({
     },
   },
 });
-
+export type MusicaAccountWithPlaylists = co.loaded<
+  typeof MusicaAccountWithPlaylists
+>;
 /** Walkthrough: Continue with ./2_main.tsx */
 ```
 
@@ -8978,19 +9309,16 @@ import { HomePage } from "./3_HomePage";
 import { useMediaPlayer } from "./5_useMediaPlayer";
 import { InvitePage } from "./6_InvitePage";
 import { WelcomeScreen } from "./components/WelcomeScreen";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import "./index.css";
 
 import { MusicaAccount } from "@/1_schema";
 import { apiKey } from "@/apiKey.ts";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { JazzReactProvider } from "jazz-tools/react";
+import { JazzReactProvider, useSuspenseAccount } from "jazz-tools/react";
 import { onAnonymousAccountDiscarded } from "./4_actions";
 import { KeyboardListener } from "./components/PlayerControls";
-import { usePrepareAppState } from "./lib/usePrepareAppState";
-import {
-  AccountProvider,
-  useAccountSelector,
-} from "@/components/AccountProvider.tsx";
+import { useSetupAppState } from "./lib/useSetupAppState";
 
 /**
  * Walkthrough: The top-level provider `<JazzReactProvider/>`
@@ -9007,11 +9335,11 @@ function AppContent({
 }: {
   mediaPlayer: ReturnType<typeof useMediaPlayer>;
 }) {
-  const showWelcomeScreen = useAccountSelector({
-    select: (me) => !me.$isLoaded || !me.root.accountSetupCompleted,
+  const showWelcomeScreen = useSuspenseAccount(MusicaAccount, {
+    select: (me) => !me.root.accountSetupCompleted,
   });
 
-  const isReady = usePrepareAppState(mediaPlayer);
+  const isReady = useSetupAppState(mediaPlayer);
 
   // Show welcome screen if account setup is not completed
   if (showWelcomeScreen) {
@@ -9021,11 +9349,19 @@ function AppContent({
   const router = createHashRouter([
     {
       path: "/",
-      element: <HomePage mediaPlayer={mediaPlayer} />,
+      element: (
+        <ErrorBoundary>
+          <HomePage mediaPlayer={mediaPlayer} />
+        </ErrorBoundary>
+      ),
     },
     {
       path: "/playlist/:playlistId",
-      element: <HomePage mediaPlayer={mediaPlayer} />,
+      element: (
+        <ErrorBoundary>
+          <HomePage mediaPlayer={mediaPlayer} />
+        </ErrorBoundary>
+      ),
     },
     {
       path: "/invite/*",
@@ -9073,9 +9409,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       onAnonymousAccountDiscarded={onAnonymousAccountDiscarded}
     >
       <SidebarProvider>
-        <AccountProvider>
-          <Main />
-        </AccountProvider>
+        <Main />
         <JazzInspector />
       </SidebarProvider>
     </JazzReactProvider>
@@ -9087,7 +9421,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 
 ```tsx
 import { useParams } from "react-router";
-import { PlaylistWithTracks } from "./1_schema";
+import { MusicaAccount, PlaylistWithTracks } from "./1_schema";
 import { uploadMusicTracks } from "./4_actions";
 import { MediaPlayer } from "./5_useMediaPlayer";
 import { FileUploadButton } from "./components/FileUploadButton";
@@ -9096,30 +9430,32 @@ import { PlayerControls } from "./components/PlayerControls";
 import { EditPlaylistModal } from "./components/EditPlaylistModal";
 import { PlaylistMembers } from "./components/PlaylistMembers";
 import { MemberAccessModal } from "./components/MemberAccessModal";
+import { AddTracksDialog } from "./components/AddTracksDialog";
+import { PlaylistEmptyState } from "./components/PlaylistEmptyState";
 import { SidePanel } from "./components/SidePanel";
 import { Button } from "./components/ui/button";
 import { SidebarInset, SidebarTrigger } from "./components/ui/sidebar";
 import { usePlayState } from "./lib/audio/usePlayState";
 import { useState } from "react";
-import { useAccountSelector } from "@/components/AccountProvider.tsx";
-import { useSuspenseCoState } from "jazz-tools/react-core";
+import { useSuspenseAccount, useSuspenseCoState } from "jazz-tools/react-core";
 
 export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
   const playState = usePlayState();
   const isPlaying = playState.value === "play";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
+  const [isAddTracksModalOpen, setIsAddTracksModalOpen] = useState(false);
 
   async function handleFileLoad(files: FileList) {
     /**
      * Follow this function definition to see how we update
      * values in Jazz and manage files!
      */
-    await uploadMusicTracks(files);
+    await uploadMusicTracks(playlist, files);
   }
 
   const params = useParams<{ playlistId: string }>();
-  const playlistId = useAccountSelector({
+  const playlistId = useSuspenseAccount(MusicaAccount, {
     select: (me) => params.playlistId ?? me.root.$jazz.refs.rootPlaylist.id,
   });
 
@@ -9127,12 +9463,16 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
 
   const membersIds = playlist.$jazz.owner.members.map((member) => member.id);
   const isRootPlaylist = !params.playlistId;
-  const canEdit = useAccountSelector({
-    select: (me) => Boolean(playlist && me.canWrite(playlist)),
+  const canEdit = useSuspenseAccount(MusicaAccount, {
+    select: (me) => me.canWrite(playlist),
   });
-  const isActivePlaylist = useAccountSelector({
-    select: (me) =>
-      me.$isLoaded && playlistId === me.root.activePlaylist?.$jazz.id,
+
+  const canManage = useSuspenseAccount(MusicaAccount, {
+    select: (me) => me.canManage(playlist),
+  });
+
+  const isActivePlaylist = useSuspenseAccount(MusicaAccount, {
+    select: (me) => playlistId === me.root.activePlaylist?.$jazz.id,
   });
 
   const handlePlaylistShareClick = () => {
@@ -9156,54 +9496,74 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
             ) : (
               <div className="flex items-center space-x-4">
                 <h1 className="text-2xl font-bold text-blue-800">
-                  {playlist?.title}
+                  {playlist.title}
                 </h1>
-                {membersIds && playlist && (
-                  <PlaylistMembers
-                    memberIds={membersIds}
-                    onClick={() => setIsMembersModalOpen(true)}
-                  />
-                )}
+                <PlaylistMembers
+                  memberIds={membersIds}
+                  onClick={() => setIsMembersModalOpen(true)}
+                />
               </div>
             )}
             <div className="flex items-center space-x-4">
-              {isRootPlaylist && (
+              {isRootPlaylist ? (
                 <>
                   <FileUploadButton onFileLoad={handleFileLoad}>
                     Add file
                   </FileUploadButton>
                 </>
-              )}
-              {!isRootPlaylist && canEdit && (
-                <>
-                  <Button onClick={handleEditClick} variant="outline">
-                    Edit
-                  </Button>
-                  <Button onClick={handlePlaylistShareClick}>Share</Button>
-                </>
+              ) : (
+                canEdit && (
+                  <>
+                    {canEdit && (
+                      <Button
+                        onClick={() => setIsAddTracksModalOpen(true)}
+                        variant="outline"
+                      >
+                        Add tracks from library
+                      </Button>
+                    )}
+                    {canEdit && (
+                      <Button onClick={handleEditClick} variant="outline">
+                        Edit
+                      </Button>
+                    )}
+                    {canManage && (
+                      <Button onClick={handlePlaylistShareClick}>Share</Button>
+                    )}
+                  </>
+                )
               )}
             </div>
           </div>
-          <ul className="flex flex-col max-w-full sm:gap-1">
-            {playlist?.tracks?.map(
-              (track, index) =>
-                track && (
-                  <MusicTrackRow
-                    trackId={track.$jazz.id}
-                    key={track.$jazz.id}
-                    index={index}
-                    isPlaying={
-                      mediaPlayer.activeTrackId === track.$jazz.id &&
-                      isActivePlaylist &&
-                      isPlaying
-                    }
-                    onClick={() => {
-                      mediaPlayer.setActiveTrack(track, playlist);
-                    }}
-                  />
-                ),
-            )}
-          </ul>
+          {playlist.tracks.length > 0 ? (
+            <ul className="flex flex-col max-w-full sm:gap-1">
+              {playlist.tracks.map(
+                (track, index) =>
+                  track && (
+                    <MusicTrackRow
+                      trackId={track.$jazz.id}
+                      key={track.$jazz.id}
+                      index={index}
+                      isPlaying={
+                        mediaPlayer.activeTrackId === track.$jazz.id &&
+                        isActivePlaylist &&
+                        isPlaying
+                      }
+                      onClick={() => {
+                        mediaPlayer.setActiveTrack(track, playlist);
+                      }}
+                    />
+                  ),
+              )}
+            </ul>
+          ) : (
+            !isRootPlaylist && (
+              <PlaylistEmptyState
+                canEdit={canEdit}
+                onAddTracks={() => setIsAddTracksModalOpen(true)}
+              />
+            )
+          )}
         </main>
         <PlayerControls mediaPlayer={mediaPlayer} />
       </div>
@@ -9216,13 +9576,18 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
       />
 
       {/* Members Management Modal */}
-      {playlist && (
-        <MemberAccessModal
-          isOpen={isMembersModalOpen}
-          onOpenChange={setIsMembersModalOpen}
-          playlist={playlist}
-        />
-      )}
+      <MemberAccessModal
+        isOpen={isMembersModalOpen}
+        onOpenChange={setIsMembersModalOpen}
+        playlist={playlist}
+      />
+
+      {/* Add Tracks from Root Modal */}
+      <AddTracksDialog
+        isOpen={isAddTracksModalOpen}
+        onOpenChange={setIsAddTracksModalOpen}
+        playlist={playlist}
+      />
     </SidebarInset>
   );
 }
@@ -9238,6 +9603,7 @@ import {
   MusicaAccount,
   Playlist,
   PlaylistWithTracks,
+  MusicaAccountWithPlaylists,
 } from "./1_schema";
 
 /**
@@ -9253,58 +9619,51 @@ import {
  * Jazz is very unopinionated in this sense and you can adopt the
  * pattern that best fits your app.
  */
-
-export async function uploadMusicTracks(
-  files: Iterable<File>,
+export async function createMusicTrackFromFile(
+  file: File,
   isExampleTrack: boolean = false,
 ) {
-  const { root } = await MusicaAccount.getMe().$jazz.ensureLoaded({
-    resolve: {
-      root: {
-        rootPlaylist: {
-          tracks: true,
-        },
-      },
+  // The ownership object defines the user that owns the created coValues
+  // We are creating a group for each CoValue in order to be able to share them via Playlist
+  const group = Group.create();
+
+  const data = await getAudioFileData(file);
+
+  // We transform the file blob into a FileStream
+  // making it a collaborative value that is encrypted, easy
+  // to share across devices and users and available offline!
+  const fileStream = await MusicTrack.shape.file.createFromBlob(file, group);
+
+  const track = MusicTrack.create(
+    {
+      file: fileStream,
+      duration: data.duration,
+      waveform: { data: data.waveform },
+      title: file.name,
+      isExampleTrack,
     },
-  });
+    group,
+  );
 
+  return track;
+}
+
+export async function uploadMusicTracks(
+  playlist: PlaylistWithTracks,
+  files: Iterable<File>,
+) {
   for (const file of files) {
-    // The ownership object defines the user that owns the created coValues
-    // We are creating a group for each CoValue in order to be able to share them via Playlist
-    const group = Group.create();
-
-    const data = await getAudioFileData(file);
-
-    // We transform the file blob into a FileStream
-    // making it a collaborative value that is encrypted, easy
-    // to share across devices and users and available offline!
-    const fileStream = await MusicTrack.shape.file.createFromBlob(file, group);
-
-    const track = MusicTrack.create(
-      {
-        file: fileStream,
-        duration: data.duration,
-        waveform: { data: data.waveform },
-        title: file.name,
-        isExampleTrack,
-      },
-      group,
-    );
+    const track = await createMusicTrackFromFile(file);
 
     // We create a new music track and add it to the root playlist
-    root.rootPlaylist.tracks.$jazz.push(track);
+    playlist.tracks.$jazz.push(track);
   }
 }
 
-export async function createNewPlaylist(title: string = "New Playlist") {
-  const { root } = await MusicaAccount.getMe().$jazz.ensureLoaded({
-    resolve: {
-      root: {
-        playlists: true,
-      },
-    },
-  });
-
+export async function createNewPlaylist(
+  me: MusicaAccountWithPlaylists,
+  title: string = "New Playlist",
+) {
   const playlist = Playlist.create({
     title,
     tracks: [],
@@ -9312,43 +9671,37 @@ export async function createNewPlaylist(title: string = "New Playlist") {
 
   // We associate the new playlist to the
   // user by pushing it into the playlists CoList
-  root.playlists.$jazz.push(playlist);
+  me.root.playlists.$jazz.push(playlist);
 
   return playlist;
 }
 
 export async function addTrackToPlaylist(
-  playlist: Playlist,
+  playlist: PlaylistWithTracks,
   track: MusicTrack,
 ) {
-  const { tracks } = await playlist.$jazz.ensureLoaded({
-    resolve: PlaylistWithTracks.resolveQuery,
-  });
-
-  const isPartOfThePlaylist = tracks.some((t) => t.$jazz.id === track.$jazz.id);
+  const isPartOfThePlaylist = playlist.tracks.some(
+    (t) => t.$jazz.id === track.$jazz.id,
+  );
   if (isPartOfThePlaylist) return;
 
   track.$jazz.owner.addMember(playlist.$jazz.owner);
-  tracks.$jazz.push(track);
+  playlist.tracks.$jazz.push(track);
 }
 
 export async function removeTrackFromPlaylist(
-  playlist: Playlist,
+  playlist: PlaylistWithTracks,
   track: MusicTrack,
 ) {
-  const { tracks } = await playlist.$jazz.ensureLoaded({
-    resolve: {
-      tracks: { $each: true },
-    },
-  });
-
-  const isPartOfThePlaylist = tracks.some((t) => t.$jazz.id === track.$jazz.id);
+  const isPartOfThePlaylist = playlist.tracks.some(
+    (t) => t.$jazz.id === track.$jazz.id,
+  );
 
   if (!isPartOfThePlaylist) return;
 
   // We remove the track before removing the access
   // because the removeMember might remove our own access
-  tracks.$jazz.remove((t) => t.$jazz.id === track.$jazz.id);
+  playlist.tracks.$jazz.remove((t) => t.$jazz.id === track.$jazz.id);
 
   track.$jazz.owner.removeMember(playlist.$jazz.owner);
 }
@@ -9360,6 +9713,7 @@ export async function removeTrackFromAllPlaylists(track: MusicTrack) {
         playlists: {
           $each: {
             $onError: "catch",
+            ...PlaylistWithTracks.resolveQuery,
           },
         },
       },
@@ -9368,8 +9722,7 @@ export async function removeTrackFromAllPlaylists(track: MusicTrack) {
 
   const playlists = root.playlists;
 
-  // @ts-expect-error - https://github.com/microsoft/TypeScript/issues/62621
-  for (const playlist of playlists) {
+  for (const playlist of playlists.values()) {
     if (!playlist.$isLoaded) continue;
 
     removeTrackFromPlaylist(playlist, track);
@@ -9399,7 +9752,7 @@ export async function updateActivePlaylist(playlist?: Playlist) {
 export async function updateActiveTrack(track: MusicTrack) {
   const { root } = await MusicaAccount.getMe().$jazz.ensureLoaded({
     resolve: {
-      root: {},
+      root: true,
     },
   });
 
@@ -9413,11 +9766,7 @@ export async function onAnonymousAccountDiscarded(
     await anonymousAccount.$jazz.ensureLoaded({
       resolve: {
         root: {
-          rootPlaylist: {
-            tracks: {
-              $each: true,
-            },
-          },
+          rootPlaylist: PlaylistWithTracks.resolveQuery,
         },
       },
     });
@@ -9425,15 +9774,12 @@ export async function onAnonymousAccountDiscarded(
   const me = await MusicaAccount.getMe().$jazz.ensureLoaded({
     resolve: {
       root: {
-        rootPlaylist: {
-          tracks: true,
-        },
+        rootPlaylist: PlaylistWithTracks.resolveQuery,
       },
     },
   });
 
-  // @ts-expect-error - https://github.com/microsoft/TypeScript/issues/62621
-  for (const track of anonymousAccountRoot.rootPlaylist.tracks) {
+  for (const track of anonymousAccountRoot.rootPlaylist.tracks.values()) {
     if (track.isExampleTrack) continue;
 
     const trackGroup = track.$jazz.owner;
@@ -9448,6 +9794,9 @@ export async function deletePlaylist(playlistId: string) {
     resolve: {
       root: {
         playlists: true,
+        activePlaylist: { $onError: "catch" },
+        rootPlaylist: PlaylistWithTracks.resolveQuery,
+        activeTrack: { $onError: "catch" },
       },
     },
   });
@@ -9456,20 +9805,32 @@ export async function deletePlaylist(playlistId: string) {
   if (index > -1) {
     root.playlists?.$jazz.splice(index, 1);
   }
+
+  if (root.activePlaylist?.$jazz.id === playlistId) {
+    root.$jazz.set("activePlaylist", root.rootPlaylist);
+
+    if (
+      !root.rootPlaylist.tracks.some(
+        (t) => t.$jazz.id === root.activeTrack?.$jazz.id,
+      )
+    ) {
+      root.$jazz.set("activeTrack", undefined);
+    }
+  }
 }
 ```
 
 ### 5_useMediaPlayer.ts
 
 ```ts
-import { MusicTrack, Playlist } from "@/1_schema";
+import { MusicaAccount, MusicTrack, Playlist } from "@/1_schema";
 import { usePlayMedia } from "@/lib/audio/usePlayMedia";
 import { usePlayState } from "@/lib/audio/usePlayState";
 import { useRef, useState } from "react";
 import { updateActivePlaylist, updateActiveTrack } from "./4_actions";
 import { useAudioManager } from "./lib/audio/AudioManager";
 import { getNextTrack, getPrevTrack } from "./lib/getters";
-import { useAccountSelector } from "@/components/AccountProvider.tsx";
+import { useSuspenseAccount } from "jazz-tools/react-core";
 
 export function useMediaPlayer() {
   const audioManager = useAudioManager();
@@ -9478,8 +9839,8 @@ export function useMediaPlayer() {
 
   const [loading, setLoading] = useState<string | null>(null);
 
-  const activeTrackId = useAccountSelector({
-    select: (me) => me.root.$jazz.refs.activeTrack?.id,
+  const activeTrackId = useSuspenseAccount(MusicaAccount, {
+    select: (me) => me.root.activeTrack?.$jazz.id,
   });
   // Reference used to avoid out-of-order track loads
   const lastLoadedTrackId = useRef<string | null>(null);
@@ -9562,15 +9923,13 @@ export type MediaPlayer = ReturnType<typeof useMediaPlayer>;
 ### 6_InvitePage.tsx
 
 ```tsx
-import { useAcceptInvite, useIsAuthenticated } from "jazz-tools/react";
+import { useAcceptInvite } from "jazz-tools/react";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { MusicaAccount, Playlist } from "./1_schema";
 
 export function InvitePage() {
   const navigate = useNavigate();
-
-  const isAuthenticated = useIsAuthenticated();
 
   useAcceptInvite({
     invitedObjectSchema: Playlist,
@@ -9605,11 +9964,7 @@ export function InvitePage() {
     ),
   });
 
-  return isAuthenticated ? (
-    <p>Accepting invite....</p>
-  ) : (
-    <p>Please sign in to accept the invite.</p>
-  );
+  return <p>Accepting invite....</p>;
 }
 ```
 
@@ -9620,26 +9975,184 @@ export const apiKey =
   import.meta.env.VITE_JAZZ_API_KEY ?? "music-player-example-jazz@garden.co";
 ```
 
-### components/AccountProvider.tsx
+### components/AddTracksDialog.tsx
 
 ```tsx
-import { MusicaAccount, PlaylistWithTracks } from "@/1_schema.ts";
-import { createAccountSubscriptionContext } from "jazz-tools/react-core";
+import { MusicaAccount, PlaylistWithTracks } from "@/1_schema";
+import { addTrackToPlaylist } from "@/4_actions";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useSuspenseAccount, useSuspenseCoState } from "jazz-tools/react-core";
+import { useState, useMemo } from "react";
 
-export const { Provider: AccountProvider, useSelector: useAccountSelector } =
-  createAccountSubscriptionContext(MusicaAccount, {
-    root: {
-      rootPlaylist: PlaylistWithTracks.resolveQuery,
-      playlists: {
-        $each: {
-          $onError: "catch",
-        },
-      },
-      activeTrack: { $onError: "catch" },
-      activePlaylist: { $onError: "catch" },
-    },
-    profile: true,
+interface AddTracksDialogProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  playlist: PlaylistWithTracks;
+}
+
+export function AddTracksDialog({
+  isOpen,
+  onOpenChange,
+  playlist,
+}: AddTracksDialogProps) {
+  const rootPlaylistId = useSuspenseAccount(MusicaAccount, {
+    select: (me) => me.root.$jazz.refs.rootPlaylist.id,
   });
+
+  const rootPlaylistTracks = useSuspenseCoState(
+    PlaylistWithTracks,
+    rootPlaylistId,
+    {
+      select: (rootPlaylist) => rootPlaylist.tracks,
+    },
+  );
+
+  // Filter tracks that are not already in the current playlist
+  const availableTracks = useMemo(() => {
+    const currentPlaylistTrackIds = new Set(
+      playlist.tracks.map((track) => track.$jazz.id),
+    );
+
+    return rootPlaylistTracks.filter(
+      (track) => !currentPlaylistTrackIds.has(track.$jazz.id),
+    );
+  }, [rootPlaylistTracks, playlist.tracks]);
+
+  const [selectedTrackIds, setSelectedTrackIds] = useState(new Set<string>());
+  const [isAdding, setIsAdding] = useState(false);
+
+  function handleTrackToggle(trackId: string) {
+    setSelectedTrackIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(trackId)) {
+        next.delete(trackId);
+      } else {
+        next.add(trackId);
+      }
+      return next;
+    });
+  }
+
+  function handleSelectAll() {
+    if (selectedTrackIds.size === availableTracks.length) {
+      setSelectedTrackIds(new Set());
+    } else {
+      setSelectedTrackIds(
+        new Set(availableTracks.map((track) => track.$jazz.id)),
+      );
+    }
+  }
+
+  async function handleAddTracks() {
+    if (selectedTrackIds.size === 0) return;
+
+    setIsAdding(true);
+    try {
+      for (const trackId of selectedTrackIds) {
+        const track = availableTracks.find((t) => t.$jazz.id === trackId);
+        if (track) {
+          await addTrackToPlaylist(playlist, track);
+        }
+      }
+      setSelectedTrackIds(new Set());
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Failed to add tracks:", error);
+    } finally {
+      setIsAdding(false);
+    }
+  }
+
+  function handleCancel() {
+    setSelectedTrackIds(new Set());
+    onOpenChange(false);
+  }
+
+  function handleOpenChange(open: boolean) {
+    setSelectedTrackIds(new Set());
+    onOpenChange(open);
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>Add Tracks from Library</DialogTitle>
+          <DialogDescription>
+            Select tracks from your library to add to this playlist.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex-1 overflow-y-auto min-h-0">
+          {availableTracks.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              All tracks are already in this playlist.
+            </div>
+          ) : (
+            <>
+              <div className="mb-4 flex items-center justify-between">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSelectAll}
+                  className="text-sm"
+                >
+                  {selectedTrackIds.size === availableTracks.length
+                    ? "Deselect All"
+                    : "Select All"}
+                </Button>
+                <span className="text-sm text-gray-600">
+                  {selectedTrackIds.size} of {availableTracks.length} selected
+                </span>
+              </div>
+              <ul className="space-y-1">
+                {availableTracks.map((track) => (
+                  <li
+                    key={track.$jazz.id}
+                    className="flex items-center gap-3 p-2 rounded hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleTrackToggle(track.$jazz.id)}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedTrackIds.has(track.$jazz.id)}
+                      onChange={() => handleTrackToggle(track.$jazz.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <span className="flex-1 text-sm">{track.title}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={handleCancel} disabled={isAdding}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddTracks}
+            disabled={selectedTrackIds.size === 0 || isAdding}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            {isAdding
+              ? "Adding..."
+              : `Add ${selectedTrackIds.size > 0 ? `${selectedTrackIds.size} ` : ""}Track${selectedTrackIds.size !== 1 ? "s" : ""}`}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 ```
 
 ### components/AuthButton.tsx
@@ -9695,9 +10208,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { usePasskeyAuth } from "jazz-tools/react";
+import { usePasskeyAuth, useSuspenseAccount } from "jazz-tools/react";
 import { useState } from "react";
-import { useAccountSelector } from "@/components/AccountProvider.tsx";
+import { MusicaAccount, PlaylistWithTracks } from "@/1_schema";
 
 interface AuthModalProps {
   open: boolean;
@@ -9707,7 +10220,7 @@ interface AuthModalProps {
 export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [isSignUp, setIsSignUp] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const profileName = useAccountSelector({
+  const profileName = useSuspenseAccount(MusicaAccount, {
     select: (me) => me.profile.name,
   });
 
@@ -9745,7 +10258,12 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     }
   };
 
-  const shouldShowTransferRootPlaylist = useAccountSelector({
+  const shouldShowTransferRootPlaylist = useSuspenseAccount(MusicaAccount, {
+    resolve: {
+      root: {
+        rootPlaylist: PlaylistWithTracks.resolveQuery,
+      },
+    },
     select: (me) =>
       !isSignUp &&
       me.root.rootPlaylist.tracks.some((track) => !track.isExampleTrack),
@@ -9870,6 +10388,16 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import { MusicaAccountWithPlaylists } from "@/1_schema";
+import { useSuspenseAccount } from "jazz-tools/react";
 
 interface CreatePlaylistModalProps {
   isOpen: boolean;
@@ -9889,12 +10417,16 @@ export function CreatePlaylistModal({
     setPlaylistTitle(evt.target.value);
   }
 
+  const me = useSuspenseAccount(MusicaAccountWithPlaylists, {
+    equalityFn: (a, b) => a.$jazz.id === b.$jazz.id,
+  });
+
   async function handleCreate() {
     if (!playlistTitle.trim()) return;
 
     setIsCreating(true);
     try {
-      const playlist = await createNewPlaylist(playlistTitle.trim());
+      const playlist = await createNewPlaylist(me, playlistTitle.trim());
       setPlaylistTitle("");
       onPlaylistCreated(playlist.$jazz.id);
       onClose();
@@ -9918,17 +10450,19 @@ export function CreatePlaylistModal({
     }
   }
 
-  if (!isOpen) return null;
+  function handleOpenChange(open: boolean) {
+    if (!open) {
+      handleCancel();
+    }
+  }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Create New Playlist
-          </h2>
-          <p className="text-sm text-gray-600">Give your new playlist a name</p>
-        </div>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create New Playlist</DialogTitle>
+          <DialogDescription>Give your new playlist a name</DialogDescription>
+        </DialogHeader>
 
         <div className="space-y-4">
           <div>
@@ -9948,27 +10482,26 @@ export function CreatePlaylistModal({
               autoFocus
             />
           </div>
-
-          <div className="flex justify-end space-x-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={handleCancel}
-              className="px-4 py-2"
-              disabled={isCreating}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCreate}
-              disabled={!playlistTitle.trim() || isCreating}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
-            >
-              {isCreating ? "Creating..." : "Create Playlist"}
-            </Button>
-          </div>
         </div>
-      </div>
-    </div>
+
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={handleCancel}
+            disabled={isCreating}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCreate}
+            disabled={!playlistTitle.trim() || isCreating}
+            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+          >
+            {isCreating ? "Creating..." : "Create Playlist"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 ```
@@ -10079,6 +10612,102 @@ export function EditPlaylistModal({
       </div>
     </div>
   );
+}
+```
+
+### components/ErrorBoundary.tsx
+
+```tsx
+import React from "react";
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  isAuthorizationError?: boolean;
+  error?: Error;
+}
+
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  fallback?: (error: Error) => React.ReactNode;
+}
+
+export class ErrorBoundary extends React.Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    if (error.message.includes("Jazz Authorization Error")) {
+      return { hasError: true, isAuthorizationError: true, error };
+    }
+
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    console.error("Error caught by boundary:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError && this.state.error) {
+      if (this.props.fallback) {
+        return this.props.fallback(this.state.error);
+      }
+
+      if (this.state.isAuthorizationError) {
+        return (
+          <div className="flex min-h-screen items-center justify-center p-8">
+            <div className="max-w-2xl space-y-4">
+              <h1 className="text-2xl font-semibold text-red-600">
+                You are not authorized to access this page
+              </h1>
+              <button
+                onClick={() => {
+                  window.location.href = "/";
+                }}
+                className="mt-4 rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
+              >
+                Go to home page
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex min-h-screen items-center justify-center p-8">
+          <div className="max-w-2xl space-y-4">
+            <h1 className="text-2xl font-semibold text-red-600">
+              Something went wrong
+            </h1>
+            <p className="text-muted-foreground">
+              {this.state.error.message || "An unexpected error occurred"}
+            </p>
+            {process.env.NODE_ENV === "development" && (
+              <pre className="mt-4 overflow-auto rounded-md bg-muted p-4 text-sm">
+                {this.state.error.stack}
+              </pre>
+            )}
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: undefined });
+                window.location.reload();
+              }}
+              className="mt-4 rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
+            >
+              Reload page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
 }
 ```
 
@@ -10576,8 +11205,8 @@ export function MemberAccessModal(props: MemberAccessModalProps) {
 
 ```tsx
 import {
+  MusicaAccount,
   MusicTrack,
-  Playlist,
   PlaylistWithTracks,
   MusicaAccountWithPlaylists,
 } from "@/1_schema";
@@ -10598,7 +11227,6 @@ import { Fragment, Suspense, useCallback, useState } from "react";
 import { EditTrackDialog } from "./RenameTrackDialog";
 import { Waveform } from "./Waveform";
 import { Button } from "./ui/button";
-import { useAccountSelector } from "@/components/AccountProvider.tsx";
 import { useSuspenseCoState, useSuspenseAccount } from "jazz-tools/react";
 
 function isPartOfThePlaylist(trackId: string, playlist: PlaylistWithTracks) {
@@ -10621,11 +11249,11 @@ export function MusicTrackRow({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const isActiveTrack = useAccountSelector({
+  const isActiveTrack = useSuspenseAccount(MusicaAccount, {
     select: (me) => me.root.activeTrack?.$jazz.id === trackId,
   });
 
-  const canEditTrack = useAccountSelector({
+  const canEditTrack = useSuspenseAccount(MusicaAccount, {
     select: (me) => me.canWrite(track),
   });
 
@@ -10633,11 +11261,11 @@ export function MusicTrackRow({
     onClick(track);
   }
 
-  function handleAddToPlaylist(playlist: Playlist) {
+  function handleAddToPlaylist(playlist: PlaylistWithTracks) {
     addTrackToPlaylist(playlist, track);
   }
 
-  function handleRemoveFromPlaylist(playlist: Playlist) {
+  function handleRemoveFromPlaylist(playlist: PlaylistWithTracks) {
     removeTrackFromPlaylist(playlist, track);
   }
 
@@ -10845,22 +11473,21 @@ export function MusicTrackTitleInput({
 ### components/PlayerControls.tsx
 
 ```tsx
-import { MusicTrack } from "@/1_schema";
+import { MusicaAccount, MusicTrack } from "@/1_schema";
 import { MediaPlayer } from "@/5_useMediaPlayer";
 import { useMediaEndListener } from "@/lib/audio/useMediaEndListener";
 import { usePlayState } from "@/lib/audio/usePlayState";
 import { useKeyboardListener } from "@/lib/useKeyboardListener";
-import { useCoState } from "jazz-tools/react";
+import { useCoState, useSuspenseAccount } from "jazz-tools/react";
 import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
 import WaveformCanvas from "./WaveformCanvas";
 import { Button } from "./ui/button";
-import { useAccountSelector } from "@/components/AccountProvider.tsx";
 
 export function PlayerControls({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
   const playState = usePlayState();
   const isPlaying = playState.value === "play";
 
-  const activePlaylistTitle = useAccountSelector({
+  const activePlaylistTitle = useSuspenseAccount(MusicaAccount, {
     select: (me) =>
       me.root.activePlaylist?.$isLoaded
         ? (me.root.activePlaylist.title ?? "All tracks")
@@ -10876,7 +11503,7 @@ export function PlayerControls({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
   return (
     <footer className="flex flex-wrap sm:flex-nowrap items-center justify-between pt-4 p-2 sm:p-4 gap-4 sm:gap-4 bg-white border-t border-gray-200 absolute bottom-0 left-0 right-0 w-full z-50">
       {/* Player Controls - Always on top */}
-      <div className="flex justify-center items-center space-x-1 sm:space-x-2 shrink-0 w-full sm:w-auto order-1 sm:order-none">
+      <div className="flex justify-center items-center space-x-1 sm:space-x-2 flex-shrink-0 w-full sm:w-auto order-1 sm:order-none">
         <div className="flex items-center space-x-2">
           <Button
             variant="ghost"
@@ -10917,7 +11544,7 @@ export function PlayerControls({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
       />
 
       {/* Track Info - Below waveform on mobile, on the right on desktop */}
-      <div className="flex flex-col gap-1 min-w-fit sm:shrink-0 text-center w-full sm:text-right items-center sm:items-end sm:w-auto order-0 sm:order-none">
+      <div className="flex flex-col gap-1 min-w-fit sm:flex-shrink-0 text-center w-full sm:text-right items-center sm:items-end sm:w-auto order-0 sm:order-none">
         <h4 className="font-medium text-blue-800 text-base sm:text-base truncate max-w-80 sm:max-w-80">
           {activeTrackTitle}
         </h4>
@@ -10944,6 +11571,43 @@ export function KeyboardListener({
   });
 
   return null;
+}
+```
+
+### components/PlaylistEmptyState.tsx
+
+```tsx
+import { Button } from "./ui/button";
+
+interface PlaylistEmptyStateProps {
+  canEdit: boolean;
+  onAddTracks: () => void;
+}
+
+export function PlaylistEmptyState({
+  canEdit,
+  onAddTracks,
+}: PlaylistEmptyStateProps) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+      <div className="max-w-md">
+        <h2 className="text-xl font-semibold text-gray-800 mb-2">
+          This playlist is empty
+        </h2>
+        <p className="text-gray-600 mb-6">
+          Add tracks from your library to get started.
+        </p>
+        {canEdit && (
+          <Button
+            onClick={onAddTracks}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Add tracks
+          </Button>
+        )}
+      </div>
+    </div>
+  );
 }
 ```
 
@@ -11051,14 +11715,14 @@ export function PlaylistTitleInput({
 
 ```tsx
 import React, { useState, useRef } from "react";
-import { Image } from "jazz-tools/react";
+import { Image, useSuspenseAccount } from "jazz-tools/react";
 import { createImage } from "jazz-tools/media";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 import { Group } from "jazz-tools";
-import { useAccountSelector } from "@/components/AccountProvider.tsx";
+import { MusicaAccount } from "@/1_schema";
 
 interface ProfileFormProps {
   onSubmit?: (data: { username: string; avatar?: any }) => void;
@@ -11066,7 +11730,6 @@ interface ProfileFormProps {
   showHeader?: boolean;
   headerTitle?: string;
   headerDescription?: string;
-  initialUsername?: string;
   onCancel?: () => void;
   showCancelButton?: boolean;
   cancelButtonText?: string;
@@ -11079,19 +11742,16 @@ export function ProfileForm({
   showHeader = false,
   headerTitle = "Profile Settings",
   headerDescription = "Update your profile information",
-  initialUsername = "",
   onCancel,
   showCancelButton = false,
   cancelButtonText = "Cancel",
   className = "",
 }: ProfileFormProps) {
-  const profile = useAccountSelector({
+  const profile = useSuspenseAccount(MusicaAccount, {
     select: (me) => me.profile,
   });
 
-  const [username, setUsername] = useState(
-    initialUsername || profile?.name || "",
-  );
+  const [username, setUsername] = useState(profile.name);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -11887,28 +12547,24 @@ export default function WaveformCanvas({
 ### components/WelcomeScreen.tsx
 
 ```tsx
-import { usePasskeyAuth } from "jazz-tools/react";
+import { usePasskeyAuth, useSuspenseAccount } from "jazz-tools/react";
 import { ProfileForm } from "./ProfileForm";
 import { Button } from "./ui/button";
-import { useAccountSelector } from "@/components/AccountProvider.tsx";
+import { MusicaAccount } from "@/1_schema";
 
 export function WelcomeScreen() {
   const auth = usePasskeyAuth({
     appName: "Jazz Music Player",
   });
 
-  const { handleCompleteSetup } = useAccountSelector({
+  const { handleCompleteSetup } = useSuspenseAccount(MusicaAccount, {
     select: (me) => ({
       id: me.root.$jazz.id,
       handleCompleteSetup: () => {
         me.root.$jazz.set("accountSetupCompleted", true);
       },
     }),
-    equalityFn: (a, b) => a.id === b.id,
-  });
-
-  const initialUsername = useAccountSelector({
-    select: (me) => me.profile.name,
+    equalityFn: (a, b) => a.id === b.id, // Update only on account change
   });
 
   if (!handleCompleteSetup) return null;
@@ -11928,7 +12584,6 @@ export function WelcomeScreen() {
             showHeader={true}
             headerTitle="Welcome to Music Player! 🎵"
             headerDescription="Let's set up your profile to get started"
-            initialUsername={initialUsername}
           />
         </div>
         <div className="lg:hidden pt-4 flex justify-end items-center w-full gap-2">
@@ -14336,25 +14991,31 @@ export function subscribeToPlayerCurrentTime(
 ### lib/getters.ts
 
 ```ts
-import { MusicaAccount } from "../1_schema";
+import { MusicaAccount, PlaylistWithTracks } from "../1_schema";
 
-export async function getNextTrack() {
-  const me = await MusicaAccount.getMe().$jazz.ensureLoaded({
+async function getCurrentIndexAndTracks() {
+  const { root } = await MusicaAccount.getMe().$jazz.ensureLoaded({
     resolve: {
       root: {
-        activePlaylist: {
-          tracks: true,
-        },
+        activeTrack: { $onError: "catch" },
+        activePlaylist: PlaylistWithTracks.resolveQuery,
       },
     },
   });
 
-  const tracks = me.root.activePlaylist.tracks;
-  const activeTrack = me.root.$jazz.refs.activeTrack;
+  const tracks = root.activePlaylist.tracks;
+  const activeTrack = root.activeTrack;
 
-  const currentIndex = tracks.findIndex(
-    (item) => item?.$jazz.id === activeTrack?.id,
-  );
+  return {
+    currentIndex: tracks.findIndex(
+      (item) => item.$jazz.id === activeTrack?.$jazz.id,
+    ),
+    tracks: root.activePlaylist.tracks,
+  };
+}
+
+export async function getNextTrack() {
+  const { currentIndex, tracks } = await getCurrentIndexAndTracks();
 
   const nextIndex = (currentIndex + 1) % tracks.length;
 
@@ -14362,22 +15023,7 @@ export async function getNextTrack() {
 }
 
 export async function getPrevTrack() {
-  const me = await MusicaAccount.getMe().$jazz.ensureLoaded({
-    resolve: {
-      root: {
-        activePlaylist: {
-          tracks: true,
-        },
-      },
-    },
-  });
-
-  const tracks = me.root.activePlaylist.tracks;
-  const activeTrack = me.root.$jazz.refs.activeTrack;
-
-  const currentIndex = tracks.findIndex(
-    (item) => item?.$jazz.id === activeTrack?.id,
-  );
+  const { currentIndex, tracks } = await getCurrentIndexAndTracks();
 
   const previousIndex = (currentIndex - 1 + tracks.length) % tracks.length;
   return tracks[previousIndex];
@@ -14405,23 +15051,23 @@ export function useKeyboardListener(code: string, callback: () => void) {
 }
 ```
 
-### lib/usePrepareAppState.ts
+### lib/useSetupAppState.ts
 
 ```ts
-import { MusicaAccount, MusicaAccountRoot } from "@/1_schema";
+import { MusicaAccount } from "@/1_schema";
 import { MediaPlayer } from "@/5_useMediaPlayer";
-import { co } from "jazz-tools";
 import { useAgent } from "jazz-tools/react";
 import { useEffect, useState } from "react";
-import { uploadMusicTracks } from "../4_actions";
+import { createMusicTrackFromFile, updateActiveTrack } from "../4_actions";
 
-export function usePrepareAppState(mediaPlayer: MediaPlayer) {
+export function useSetupAppState(mediaPlayer: MediaPlayer) {
   const [isReady, setIsReady] = useState(false);
 
+  // We want this effect to run every time the account changes
   const agent = useAgent();
 
   useEffect(() => {
-    loadInitialData(mediaPlayer).then(() => {
+    setupAppState(mediaPlayer).then(() => {
       setIsReady(true);
     });
   }, [agent]);
@@ -14429,8 +15075,8 @@ export function usePrepareAppState(mediaPlayer: MediaPlayer) {
   return isReady;
 }
 
-async function loadInitialData(mediaPlayer: MediaPlayer) {
-  const me = await MusicaAccount.getMe().$jazz.ensureLoaded({
+async function setupAppState(mediaPlayer: MediaPlayer) {
+  const { root } = await MusicaAccount.getMe().$jazz.ensureLoaded({
     resolve: {
       root: {
         activeTrack: { $onError: "catch" },
@@ -14438,24 +15084,40 @@ async function loadInitialData(mediaPlayer: MediaPlayer) {
     },
   });
 
-  uploadOnboardingData(me.root);
-
-  // Load the active track in the AudioManager
-  if (me.root.activeTrack?.$isLoaded) {
-    mediaPlayer.loadTrack(me.root.activeTrack, false);
+  if (root.activeTrack?.$isLoaded) {
+    // Load the active track in the AudioManager
+    mediaPlayer.loadTrack(root.activeTrack, false);
+    return;
   }
-}
 
-async function uploadOnboardingData(root: co.loaded<typeof MusicaAccountRoot>) {
-  if (root.exampleDataLoaded) return;
+  const { rootPlaylist } = await root.$jazz.ensureLoaded({
+    resolve: {
+      rootPlaylist: {
+        tracks: true,
+      },
+    },
+  });
 
+  if (root.exampleDataLoaded) {
+    return;
+  }
+
+  // We first set the exampleDataLoaded to true to avoid race conditions
   root.$jazz.set("exampleDataLoaded", true);
 
   try {
     const trackFile = await (await fetch("/example.mp3")).blob();
 
-    await uploadMusicTracks([new File([trackFile], "Example song")], true);
+    const track = await createMusicTrackFromFile(
+      new File([trackFile], "Example song"),
+      true,
+    );
+    rootPlaylist.tracks.$jazz.push(track);
+
+    updateActiveTrack(track);
+    mediaPlayer.loadTrack(track, false);
   } catch (error) {
+    // If the track fails to load, we set the exampleDataLoaded to false to retry on the next load
     root.$jazz.set("exampleDataLoaded", false);
     throw error;
   }

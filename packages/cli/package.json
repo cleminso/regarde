@@ -1,31 +1,31 @@
 {
-    "name": "@regarde-dev/cli",
-    "version": "1.0.0",
-    "description": "CLI for Regarde Registry",
-    "main": "index.js",
-    "bin": {
-        "regarde": "./bin/regarde.js"
-    },
-    "type": "module",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "keywords": [
-        "regarde",
-        "cli"
-    ],
-    "author": "",
-    "license": "ISC",
-    "dependencies": {
-        "commander": "^13.0.0",
-        "inquirer": "^12.0.0",
-        "chalk": "^5.0.0",
-        "ora": "^8.0.0",
-        "node-fetch": "^3.0.0",
-        "dotenv": "^16.0.0",
-        "@regarde-dev/sdk": "workspace:*"
-    },
-    "devDependencies": {
-        "@types/node": "^20.0.0"
-    }
+  "name": "@regarde-dev/cli",
+  "version": "1.0.0",
+  "description": "CLI for Regarde User",
+  "main": "index.js",
+  "bin": {
+    "regarde": "./bin/regarde.js"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "regarde",
+    "cli"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^13.0.0",
+    "inquirer": "^12.0.0",
+    "chalk": "^5.0.0",
+    "ora": "^8.0.0",
+    "node-fetch": "^3.0.0",
+    "dotenv": "^16.0.0",
+    "@regarde-dev/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
 }

@@ -31,6 +31,8 @@ A modern, type-safe command line argument parser with built-in MCP (Model Contex
   - [Hierarchical CLIs (Sub-Commands)](#hierarchical-clis-sub-commands)
     - [MCP Exposure Control](#mcp-exposure-control)
   - [Flag Inheritance (`inheritParentFlags`)](#flag-inheritance-inheritparentflags)
+  - [Dynamic Flags (`dynamicRegister`)](#dynamic-flags-dynamicregister)
+
 - [MCP & Claude Desktop Integration](#mcp--claude-desktop-integration)
   - [Output Schema Support](#output-schema-support)
     - [Basic Usage](#basic-usage)
@@ -74,6 +76,8 @@ A modern, type-safe command line argument parser with built-in MCP (Model Contex
   - [Typical Errors](#typical-errors)
 - [System Flags & Configuration](#system-flags--configuration)
 - [Changelog](#changelog)
+  - [v2.8.2](#v282)
+  - [v2.8.1](#v281)
   - [v2.7.2](#v272)
   - [v2.7.0](#v270)
   - [v2.6.0](#v260)
@@ -90,6 +94,7 @@ A modern, type-safe command line argument parser with built-in MCP (Model Contex
   - [v1.3.0](#v130)
   - [v1.2.0](#v120)
   - [v1.1.0](#v110)
+
 - [Backlog](#backlog)
   - [(known) Bugs / DX improvement points](#known-bugs--dx-improvement-points)
 
@@ -991,6 +996,49 @@ const childParser = new ArgParser({ inheritParentFlags: true }).addFlags([
 parentParser.addSubCommand({ name: "deploy", parser: childParser });
 ```
 
+### Dynamic Flags (`dynamicRegister`)
+
+Register flags at runtime from another flag's value (e.g., load a manifest and add flags programmatically). This works in normal runs and when showing `--help`.
+
+- Two-phase parsing: loader flags run first, can register more flags, then parsing continues with the full set
+- Help preload: when `--help` is present, dynamic loaders run to show complete help (no command handlers execute)
+- Cleanup: dynamic flags are removed between parses (no accumulation)
+- Async-friendly: loaders can be async (e.g., `fs.readFile`)
+
+```ts
+import { readFile } from "node:fs/promises";
+import { ArgParser } from "@alcyone-labs/arg-parser";
+
+const cli = new ArgParser().addFlags([
+  {
+    name: "manifest",
+    options: ["-w", "--manifest"],
+    type: "string",
+    description: "Path to manifest.json that defines extra flags",
+    dynamicRegister: async ({ value, registerFlags }) => {
+      const json = JSON.parse(await readFile(value, "utf8"));
+      if (Array.isArray(json.flags)) {
+        // Each entry should be a valid IFlag
+        registerFlags(json.flags);
+      }
+    },
+  },
+]);
+
+// Examples:
+// my-cli -w manifest.json --help     → help includes dynamic flags
+// my-cli -w manifest.json --foo bar  → dynamic flag "--foo" parsed/validated normally
+```
+
+Notes:
+
+- Inherited behavior works normally: if loader lives on a parent parser and children use `inheritParentFlags`, dynamic flags will be visible to children
+- For heavy loaders, implement app-level caching inside your `dynamicRegister` (e.g., memoize by absolute path + mtime); library-level caching may be added later
+
+parentParser.addSubCommand({ name: "deploy", parser: childParser });
+
+````
+
 ---
 
 ## MCP & Claude Desktop Integration
@@ -1045,7 +1093,7 @@ import { z } from "zod";
 
 // CLI usage (outputSchema ignored): mycli process-file --path /my/file.txt
 // MCP usage (outputSchema provides structure): mycli --s-mcp-serve
-```
+````
 
 #### Predefined Schema Patterns
 
@@ -2086,6 +2134,21 @@ ArgParser includes built-in `--s-*` flags for development, debugging, and config
 ---
 
 ## Changelog
+
+### v2.8.2
+
+- UX: Help shows example values via `valueHint` for non-boolean flags; repeatable flags display 'Multiple values allowed (repeat flag)' with example; examples use `valueHint` when present.
+- Types: Added `IFlag.valueHint?: string`; accepted by `zodFlagSchema`; included in processed flags; supported in manifest-driven dynamic flags.
+- Examples: `examples/core/dynamic-flags-demo.ts` updated to demonstrate `valueHint` for `--url`.
+
+### v2.8.1
+
+- Feature: Dynamic flags via `IFlag.dynamicRegister(ctx)` to register additional flags at runtime (e.g., from a manifest file)
+- Help: `--help` preloads dynamic flags without executing handlers; help output includes both static and dynamic flags
+- Flow: Two-phase parsing (load dynamic flags → re-parse with full flag set)
+- Cleanup: Dynamically registered flags are reset between parses to avoid accumulation
+- Types: Exported `DynamicRegisterContext` and `DynamicRegisterFn`
+- Internal: `FlagManager.removeFlag(name)` to support cleanup
 
 ### v2.7.2
 
