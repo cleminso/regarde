@@ -29,6 +29,8 @@
  * @example
  * const token = generateRegardeToken();
  * console.log(`Generated token: ${token.substring(0, 8)}...`);
+ *
+ * TODO: Replace with crypto.subtle-based random generation
  */
 export function generateRegardeToken(): string {
   const chars =

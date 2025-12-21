@@ -1,10 +1,7 @@
 import { z } from "zod";
 
 export const RegisterAppRequestSchema = z.object({
-  name: z.string().min(1).max(100),
-  paymentProvider: z.enum(["lemonsqueezy", "stripe"]),
-  ownerAccountId: z.string(), // We will validate this against Jazz later or assume trust if token is valid?
-  // We might want to validate that ownerAccountId matches the authenticated user if we had user auth
+  appId: z.string().min(1), // The ID of the app created by the client
 });
 
 export const RegisterAppResponseSchema = z.object({

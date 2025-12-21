@@ -1,0 +1,119 @@
+import { co, Loaded, z } from "jazz-tools";
+import { ensureRegardeSDKLoaded, RegardeSDK } from "@regarde-dev/sdk/auth";
+import { getStoredCredentials } from "./auth.js";
+
+/**
+ * CLI authentication utilities for loading and managing RegardeSDK
+ *
+ * Provides common authentication patterns for CLI commands to:
+ * - Load user credentials with automatic repair
+ * - Ensure RegardeSDK is properly initialized
+ * - Handle authentication token validation and refresh
+ * - Provide consistent error handling across CLI tools
+ */
+
+/**
+ * Loads authenticated RegardeSDK for CLI operations
+ *
+ * This is the primary function for CLI commands that need authenticated access
+ * to user data. It handles credential loading, account access, and automatic
+ * error recovery with user-friendly messages.
+ *
+ * @returns Freshly loaded RegardeSDK with valid authentication
+ * @throws Error if cannot authenticate or repair automatically
+ */
+export async function loadAuthenticatedRegardeSDK() {
+  // Step 1: Load stored credentials
+  const credsStr = await getStoredCredentials();
+  if (!credsStr) {
+    throw new Error("Not logged in. Please run 'regarde login' first.");
+  }
+
+  // Step 2: Parse credentials
+  let creds;
+  try {
+    creds = JSON.parse(credsStr);
+  } catch (e) {
+    throw new Error("Invalid credentials format. Please re-login.");
+  }
+
+  const { accountID, secret } = creds;
+  if (!accountID || !secret) {
+    throw new Error("Incomplete credentials. Please re-login.");
+  }
+
+  // Step 3: Load RegardeSDK with automatic initialization and repair
+  try {
+    const regardeSDK = await ensureRegardeSDKLoaded(accountID);
+    return regardeSDK;
+  } catch (error: any) {
+    // Provide user-friendly error messages for common issues
+    if (error.message.includes("not logged in")) {
+      throw new Error("Please run 'regarde login' first to authenticate.");
+    }
+
+    if (
+      error.message.includes("network") ||
+      error.message.includes("connection")
+    ) {
+      throw new Error(
+        "Network connectivity issue. Please check your internet connection and try again.",
+      );
+    }
+
+    if (
+      error.message.includes("permission") ||
+      error.message.includes("access")
+    ) {
+      throw new Error(
+        "Account access issue. Please re-login to refresh your session.",
+      );
+    }
+
+    // Re-throw original error for other cases
+    throw error;
+  }
+}
+
+/**
+ * Validates that authentication is still valid
+ *
+ * Checks if current authentication token is still valid for API requests.
+ * This should be called before making authenticated API calls.
+ *
+ * @param regardeSDK - Loaded RegardeSDK to validate
+ * @returns true if authentication is valid, false otherwise
+ */
+export function isAuthenticationValid(regardeSDK: co.loaded<any>): boolean {
+  if (!regardeSDK || !regardeSDK.$isLoaded) {
+    return false;
+  }
+
+  if (!regardeSDK.auth?.$isLoaded) {
+    return false;
+  }
+
+  // Check token expiry
+  return Date.now() <= regardeSDK.auth.expiresAt;
+}
+
+/**
+ * Gets current authentication headers for API requests
+ *
+ * Extracts the current authentication token and ID for use in API request headers.
+ * Call this function to get the headers needed for authenticated API calls.
+ *
+ * @param regardeSDK - Loaded RegardeSDK with valid authentication
+ * @returns Headers object with X-Regarde-Token and X-Regarde-Token-Id
+ * @throws Error if authentication is not valid
+ */
+export function getAuthenticationHeaders(regardeSDK: co.loaded<any>) {
+  if (!isAuthenticationValid(regardeSDK)) {
+    throw new Error("Authentication not valid. Please re-login.");
+  }
+
+  return {
+    "X-Regarde-Token": regardeSDK.auth.token,
+    "X-Regarde-Token-Id": regardeSDK.auth.$jazz.id,
+  };
+}

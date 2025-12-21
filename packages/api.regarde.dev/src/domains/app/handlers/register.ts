@@ -1,12 +1,13 @@
 import {
-  App,
   RegistryWorkerAccount,
   type TAllRegistryAppsSchema,
   AppsByUserRecord,
   RegistryAppMetadata,
 } from "@regarde-dev/sdk/registry";
+import { App } from "@regarde-dev/sdk/payments";
 import { Loaded, co } from "jazz-tools";
 import { randomBytes } from "crypto";
+import { verifyRegardeAuth } from "#/domains/auth/handlers/verify";
 
 export const registerAppHandler = (
   appsRecord: TAllRegistryAppsSchema,
@@ -15,30 +16,81 @@ export const registerAppHandler = (
 ) => {
   return async (c: any) => {
     try {
-      const { name, paymentProvider, ownerAccountId } = await c.req.json();
+      // Extract authentication headers
+      const regardeAuth = c.req.header("X-Regarde-Token");
+      const regardeAuthId = c.req.header("X-Regarde-Token-Id");
 
-      // Generate Webhook Secret
-      const webhookSecret = randomBytes(20).toString("hex");
+      if (!regardeAuth || !regardeAuthId) {
+        console.log(
+          "[ERROR] Missing authentication headers for register-app endpoint",
+        );
+        return c.json({ error: "Missing authentication headers" }, 401);
+      }
 
-      // Load the user's account with their RegardeSDK
-      const ownerAccount = await co.account().load(ownerAccountId, {
+      // Parse the request body
+      const { appId } = await c.req.json();
+      if (!appId) {
+        return c.json({ error: "appId is required" }, 400);
+      }
+
+      // Check if the app exists in the registry record
+      if (!appsRecord[appId]) {
+        return c.json({ error: "App not found in registry" }, 404);
+      }
+
+      // Get the app metadata
+      const appMetadata = appsRecord[appId];
+      if (!appMetadata || !appMetadata.$isLoaded) {
+        return c.json({ error: "App metadata not loaded" }, 500);
+      }
+
+      // Load the app using the Jazz resolve pattern
+      const resolved = await appMetadata.$jazz.ensureLoaded({
+        resolve: {
+          app: true,
+        },
+      });
+      const app = resolved.app;
+      if (!app || !app.$isLoaded) {
+        return c.json({ error: "Failed to load app details" }, 500);
+      }
+
+      const ownerAccountId = app.ownerAccountId;
+      const paymentProvider = app.paymentProvider;
+
+      // Verify the authentication token before processing
+      console.log(`[AUTH] Verifying token for account: ${ownerAccountId}`);
+      const verificationResult = await verifyRegardeAuth(
+        ownerAccountId,
+        regardeAuth,
+        regardeAuthId,
+      );
+
+      if (!verificationResult.isValid) {
+        console.log(
+          `[ERROR] Authentication failed for AccountID "${ownerAccountId}": ${verificationResult.error}`,
+        );
+        return c.json(
+          { error: `Authentication failed: ${verificationResult.error}` },
+          403,
+        );
+      }
+
+      console.log(
+        `[AUTH] Authentication successful for AccountID "${ownerAccountId}"`,
+      );
+
+      // Load the user's account to verify the app is in their myApps list
+      const userAccount = await co.account().load(ownerAccountId, {
         loadAs: worker,
         resolve: { root: { ["regarde-sdk"]: true } },
       });
 
-      // Check if account loaded successfully
-      if (!ownerAccount.$isLoaded) {
-        return c.json(
-          {
-            error: "Failed to load your account. Please try again later.",
-          },
-          500,
-        );
+      if (!userAccount.$isLoaded) {
+        return c.json({ error: "Failed to load user account" }, 500);
       }
 
-      // Get their RegardeSDK
-      const regardeSDK = ownerAccount.root["regarde-sdk"];
-
+      const regardeSDK = userAccount.root["regarde-sdk"];
       if (!regardeSDK?.$isLoaded) {
         return c.json(
           {
@@ -49,31 +101,34 @@ export const registerAppHandler = (
         );
       }
 
-      // Get their personal group that owns their RegardeSDK
-      const userGroup = regardeSDK.$jazz.owner;
+      // Verify the app is in the user's myApps list
+      await regardeSDK.$jazz.ensureLoaded({ myApps: true });
+      const myApps = regardeSDK.myApps;
+      if (!myApps?.$isLoaded) {
+        return c.json({ error: "Apps list not loaded" }, 400);
+      }
 
-      // Create the App with the proper owner
-      const newApp = App.create(
-        {
-          name,
-          description: "",
-          ownerAccountId,
-          paymentProvider,
-          isEnabled: false,
-          createdAt: Date.now(),
-          metadata: {},
-          webhookSecret,
-          payments: [],
-          paymentsByUser: {},
-        },
-        { owner: userGroup },
+      // Verify the app is in the user's myApps list
+      // Convert and filter the user apps
+      const userApps = Array.from(myApps) as App[];
+      const loadedApps = userApps.filter(
+        (userApp) => userApp && userApp.$isLoaded,
       );
+      const appIsInList = loadedApps.some(
+        (userApp) => userApp.$jazz.id === appId,
+      );
+      if (!appIsInList) {
+        return c.json({ error: "App not in user's apps list" }, 403);
+      }
 
-      // Access ID via $jazz object as .id direct access defaults to undefined on strict proxied creation
-      const appId = newApp.$jazz.id;
+      // Generate webhook secret
+      const webhookSecret = randomBytes(20).toString("hex");
 
-      if (!appId) throw new Error("Failed to resolve App ID");
+      // Update the app with the webhook secret (worker has access via group membership)
+      app.$jazz.set("webhookSecret", webhookSecret);
+      await app.$jazz.waitForSync();
 
+      // Load the registry worker group
       const registryProfileWorkerGroup = await co
         .group()
         .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", {
@@ -84,7 +139,7 @@ export const registerAppHandler = (
         return c.json({ error: "Failed to load registry group" }, 500);
       }
 
-      // Direct assignment as appsRecord is a CoMap proxy
+      // Create registry metadata for the app
       appsRecord.$jazz.set(
         appId,
         RegistryAppMetadata.create(
@@ -100,6 +155,7 @@ export const registerAppHandler = (
         ),
       );
 
+      // Add app to user's apps list in the registry
       if (!appsByUserRecord[ownerAccountId]) {
         const newList = co
           .list(RegistryAppMetadata)
@@ -107,7 +163,6 @@ export const registerAppHandler = (
         appsByUserRecord.$jazz.set(ownerAccountId, newList);
       }
 
-      // Push to the list
       await appsByUserRecord.$jazz.ensureLoaded({
         resolve: {
           [ownerAccountId]: {},

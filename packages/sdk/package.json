@@ -89,6 +89,11 @@
       "types": "./dist/init/index.d.ts",
       "import": "./dist/init.js",
       "require": "./dist/init.cjs"
+    },
+    "./app": {
+      "types": "./dist/app/index.d.ts",
+      "import": "./dist/app.js",
+      "require": "./dist/app.cjs"
     }
   },
   "files": [
