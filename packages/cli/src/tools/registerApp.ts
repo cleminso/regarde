@@ -40,7 +40,7 @@ export const registerAppTool: ToolConfig = {
     console.log(chalk.blue("Validating authentication..."));
 
     try {
-      // Use shared authentication utility - handles all credential loading and regardeSDK initialization
+      // Use stored credentials from previous login
       const regardeSDK = await loadAuthenticatedRegardeSDK();
 
       console.log(chalk.green("✓ Authentication valid"));
@@ -87,10 +87,6 @@ export const registerAppTool: ToolConfig = {
       }
 
       const data = await response.json();
-
-      console.log(chalk.green("App registered successfully!"));
-      console.log(chalk.blue("Webhook URL:"), data.webhookUrl);
-      console.log(chalk.blue("App ID:"), data.appId);
 
       return { success: true, data };
     } catch (error: any) {

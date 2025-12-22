@@ -121,12 +121,16 @@ export const registerAppHandler = (
         return c.json({ error: "App not in user's apps list" }, 403);
       }
 
-      // Generate webhook secret
-      const webhookSecret = randomBytes(20).toString("hex");
-
-      // Update the app with the webhook secret (worker has access via group membership)
-      app.$jazz.set("webhookSecret", webhookSecret);
-      await app.$jazz.waitForSync();
+      // Check if webhook secret already exists, only generate if missing
+      let webhookSecret;
+      if (!app.webhookSecret) {
+        webhookSecret = randomBytes(20).toString("hex");
+        // Update the app with the webhook secret (worker has access via group membership)
+        app.$jazz.set("webhookSecret", webhookSecret);
+        await app.$jazz.waitForSync();
+      } else {
+        webhookSecret = app.webhookSecret;
+      }
 
       // Load the registry worker group
       const registryProfileWorkerGroup = await co

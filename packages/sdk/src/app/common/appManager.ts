@@ -3,19 +3,6 @@ import { App } from "../../payments/schemas/payments";
 import { RegardeSDK } from "../../auth/schemas/auth";
 
 /**
- * Generates a random hex string for webhook secret
- * Browser-compatible alternative to crypto.randomBytes
- */
-function generateWebhookSecret(length: number = 20): string {
-  const chars = "0123456789abcdef";
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-}
-
-/**
  * Creates a new App and adds it to the user's myApps list in RegardeSDK
  *
  * This function provides a client-side way to create an app without needing to go through the API.
@@ -36,9 +23,6 @@ export const createApp = async (
   // Get the user's personal group that owns their RegardeSDK
   const userGroup = regardeSDK.$jazz.owner;
 
-  // Generate webhook secret
-  const webhookSecret = generateWebhookSecret(20);
-
   // Create the new App with the user's group as owner
   const newApp = App.create(
     {
@@ -49,7 +33,7 @@ export const createApp = async (
       isEnabled: false,
       createdAt: Date.now(),
       metadata: {},
-      webhookSecret,
+      webhookSecret: "",
       payments: [],
       paymentsByUser: {},
     },

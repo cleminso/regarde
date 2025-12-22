@@ -2,15 +2,47 @@ import { type IFlag, ToolConfig, SimpleChalk } from "@alcyone-labs/arg-parser";
 import inquirer from "inquirer";
 import { createPassphraseAuth } from "../auth.js";
 import { startWorker } from "jazz-tools/worker";
-import { Account, co } from "jazz-tools";
+import { Account } from "jazz-tools";
 import { ensureRegardeSDKLoaded } from "@regarde-dev/sdk/auth";
+import { authStorage } from "../utils/storage.js";
+import { getStoredCredentials } from "../auth.js";
 
 export const loginTool: ToolConfig = {
   name: "login",
   description: "Login to Regarde using your passphrase",
   flags: [],
   handler: async () => {
-    // Ask for passphrase
+    const existingCreds = await getStoredCredentials();
+
+    if (existingCreds) {
+      // Auto-login with stored credentials
+      const creds = JSON.parse(existingCreds);
+      console.log(SimpleChalk.blue("Using stored credentials..."));
+
+      try {
+        createPassphraseAuth(creds.passphrase);
+        const { worker } = await startWorker({
+          AccountSchema: Account,
+          syncServer: "wss://cloud.jazz.tools",
+        });
+
+        console.log(
+          SimpleChalk.green(`✓ Auto-authenticated as ${worker.$jazz.id}`),
+        );
+        console.log(SimpleChalk.green("✓ Credentials valid - no login needed"));
+        process.exit(0);
+      } catch (error: any) {
+        console.log(
+          SimpleChalk.yellow("Stored credentials expired. Please re-login."),
+        );
+      }
+    }
+
+    // First-time login flow
+    console.log(
+      SimpleChalk.blue("No stored credentials found. Please login..."),
+    );
+
     const { passphrase } = await inquirer.prompt([
       {
         type: "password",
@@ -25,12 +57,11 @@ export const loginTool: ToolConfig = {
     console.log(SimpleChalk.blue("Authenticating..."));
 
     try {
-      const auth = createPassphraseAuth(passphrase);
+      createPassphraseAuth(passphrase);
 
-      // Start worker with Jazz authentication
+      // Start worker - Jazz will use the authStorage that was set up in createPassphraseAuth
       const { worker } = await startWorker({
         AccountSchema: Account,
-        auth,
         syncServer: "wss://cloud.jazz.tools",
       });
 
@@ -42,7 +73,7 @@ export const loginTool: ToolConfig = {
       console.log(
         SimpleChalk.blue("Initializing RegardeSDK and generating token..."),
       );
-      const regardeSDK = await ensureRegardeSDKLoaded(worker.$jazz.id);
+      await ensureRegardeSDKLoaded(worker.$jazz.id);
 
       console.log(
         SimpleChalk.green("✓ Token generated and stored successfully"),
@@ -50,6 +81,16 @@ export const loginTool: ToolConfig = {
       console.log(SimpleChalk.blue("Token expires in 24 hours"));
       console.log("Credentials stored in RegardeSDK CoMap");
 
+      // Store credentials for future CLI commands (including passphrase for authStorage)
+      const credentials = {
+        regarde: {
+          jazzAccountId: worker.$jazz.id,
+          passphrase: passphrase, // Store for future auth
+        },
+      };
+      await authStorage.set(JSON.stringify(credentials));
+
+      console.log(SimpleChalk.green("✓ Login credentials saved locally"));
       process.exit(0);
     } catch (error: any) {
       console.error(SimpleChalk.red("Login failed:"), error.message);

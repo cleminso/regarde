@@ -175,6 +175,7 @@ console.error(
   - `account.profile["regarde.bio"]` = string ID reference to RegardeProfile CoMap
   - `account.root["api.regarde.dev"]` = private RegardeAuth CoMap (24-hour expiry)
 - **Registration token authentication (acts as 2FA)**:
+  - Always call `generateRegardeToken` before API call to get a fresh and valid token to forward to API header `x-Regarde-Token`
   - User generates token via `useRegardeAuth()` (stored in `account.root["api.regarde.dev"]`)
   - User sends token + token CoMap ID in headers (`X-Regarde-Token`, `X-Regarde-Token-Id`)
   - Worker loads RegardeAuth CoMap and verifies user owns it

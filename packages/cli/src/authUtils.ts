@@ -1,6 +1,8 @@
 import { co, Loaded, z } from "jazz-tools";
 import { ensureRegardeSDKLoaded, RegardeSDK } from "@regarde-dev/sdk/auth";
 import { getStoredCredentials } from "./auth.js";
+import { createPassphraseAuth } from "./auth.js";
+import { Account } from "jazz-tools";
 
 /**
  * CLI authentication utilities for loading and managing RegardeSDK
@@ -15,9 +17,8 @@ import { getStoredCredentials } from "./auth.js";
 /**
  * Loads authenticated RegardeSDK for CLI operations
  *
- * This is the primary function for CLI commands that need authenticated access
- * to user data. It handles credential loading, account access, and automatic
- * error recovery with user-friendly messages.
+ * This function uses stored credentials from previous login to avoid
+ * prompting for passphrase every time.
  *
  * @returns Freshly loaded RegardeSDK with valid authentication
  * @throws Error if cannot authenticate or repair automatically
@@ -37,14 +38,23 @@ export async function loadAuthenticatedRegardeSDK() {
     throw new Error("Invalid credentials format. Please re-login.");
   }
 
-  const { accountID, secret } = creds;
-  if (!accountID || !secret) {
+  const { accountID, passphrase } = creds;
+  if (!accountID || !passphrase) {
     throw new Error("Incomplete credentials. Please re-login.");
   }
 
-  // Step 3: Load RegardeSDK with automatic initialization and repair
+  // Step 3: Re-create auth from stored passphrase and start worker session
+  const auth = createPassphraseAuth(passphrase);
+  
+  // Step 4: Start worker with stored credentials
+  const { worker } = await (await import("jazz-tools/worker")).startWorker({
+    AccountSchema: Account,
+    syncServer: "wss://cloud.jazz.tools",
+  });
+
+  // Step 5: Load RegardeSDK with automatic initialization and repair
   try {
-    const regardeSDK = await ensureRegardeSDKLoaded(accountID);
+    const regardeSDK = await ensureRegardeSDKLoaded(worker.$jazz.id);
     return regardeSDK;
   } catch (error: any) {
     // Provide user-friendly error messages for common issues
