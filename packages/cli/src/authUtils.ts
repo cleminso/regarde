@@ -1,7 +1,6 @@
 import { co, Loaded, z } from "jazz-tools";
 import { ensureRegardeSDKLoaded, RegardeSDK } from "@regarde-dev/sdk/auth";
 import { getStoredCredentials } from "./auth.js";
-import { createPassphraseAuth } from "./auth.js";
 import { Account } from "jazz-tools";
 
 /**
@@ -18,7 +17,7 @@ import { Account } from "jazz-tools";
  * Loads authenticated RegardeSDK for CLI operations
  *
  * This function uses stored credentials from previous login to avoid
- * prompting for passphrase every time.
+ * prompting for credentials every time.
  *
  * @returns Freshly loaded RegardeSDK with valid authentication
  * @throws Error if cannot authenticate or repair automatically
@@ -38,21 +37,22 @@ export async function loadAuthenticatedRegardeSDK() {
     throw new Error("Invalid credentials format. Please re-login.");
   }
 
-  const { accountID, passphrase } = creds;
-  if (!accountID || !passphrase) {
+  const { accountID, accountSecret } = creds;
+  if (!accountID || !accountSecret) {
     throw new Error("Incomplete credentials. Please re-login.");
   }
 
-  // Step 3: Re-create auth from stored passphrase and start worker session
-  const auth = createPassphraseAuth(passphrase);
-  
-  // Step 4: Start worker with stored credentials
-  const { worker } = await (await import("jazz-tools/worker")).startWorker({
+  // Step 3: Start worker with stored credentials
+  const workerOptions = {
     AccountSchema: Account,
     syncServer: "wss://cloud.jazz.tools",
-  });
+    accountID: creds.accountID,
+    accountSecret: creds.accountSecret,
+  };
 
-  // Step 5: Load RegardeSDK with automatic initialization and repair
+  const { worker } = await (await import("jazz-tools/worker")).startWorker(workerOptions);
+
+  // Step 4: Load RegardeSDK with automatic initialization and repair
   try {
     const regardeSDK = await ensureRegardeSDKLoaded(worker.$jazz.id);
     return regardeSDK;

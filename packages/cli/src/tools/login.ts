@@ -1,33 +1,33 @@
 import { type IFlag, ToolConfig, SimpleChalk } from "@alcyone-labs/arg-parser";
 import inquirer from "inquirer";
-import { createPassphraseAuth } from "../auth.js";
+import { getStoredCredentials } from "../auth.js";
 import { startWorker } from "jazz-tools/worker";
 import { Account } from "jazz-tools";
 import { ensureRegardeSDKLoaded } from "@regarde-dev/sdk/auth";
 import { authStorage } from "../utils/storage.js";
-import { getStoredCredentials } from "../auth.js";
 
 export const loginTool: ToolConfig = {
   name: "login",
-  description: "Login to Regarde using your passphrase",
+  description: "Login to Regarde using your Jazz Account ID and Account Secret",
   flags: [],
   handler: async () => {
     const existingCreds = await getStoredCredentials();
 
-    if (existingCreds) {
-      // Auto-login with stored credentials
-      const creds = JSON.parse(existingCreds);
-      console.log(SimpleChalk.blue("Using stored credentials..."));
+     if (existingCreds) {
+       // Auto-login with stored credentials
+       const creds = JSON.parse(existingCreds);
+       console.log(SimpleChalk.blue("Using stored credentials..."));
 
-      try {
-        createPassphraseAuth(creds.passphrase);
-        const { worker } = await startWorker({
-          AccountSchema: Account,
-          syncServer: "wss://cloud.jazz.tools",
-        });
+        try {
+          const { worker } = await startWorker({
+            AccountSchema: Account,
+            syncServer: "wss://cloud.jazz.tools",
+            accountID: creds.accountID,
+            accountSecret: creds.accountSecret,
+          });
 
         console.log(
-          SimpleChalk.green(`✓ Auto-authenticated as ${worker.$jazz.id}`),
+          SimpleChalk.green(`✓ Auto-authenticated as ${creds.accountID}`),
         );
         console.log(SimpleChalk.green("✓ Credentials valid - no login needed"));
         process.exit(0);
@@ -38,42 +38,74 @@ export const loginTool: ToolConfig = {
       }
     }
 
-    // First-time login flow
+    // First-time login flow - get accountID and accountSecret
     console.log(
       SimpleChalk.blue("No stored credentials found. Please login..."),
     );
+    console.log(
+      SimpleChalk.blue("For existing Jazz accounts, Account Secret is required."),
+    );
 
-    const { passphrase } = await inquirer.prompt([
+    // Step 1: Get Jazz Account ID
+    const { jazzAccountId } = await inquirer.prompt([
       {
-        type: "password",
-        name: "passphrase",
-        message: "Enter your passphrase:",
+        type: "input",
+        name: "jazzAccountId",
+        message: "Enter your Jazz Account ID:",
         validate: (input) =>
-          input.trim().split(" ").length >= 12 ||
-          "Passphrase must be at least 12 words",
+          input.trim().length > 0 || "Account ID is required",
       },
     ]);
 
-    console.log(SimpleChalk.blue("Authenticating..."));
+    // Step 2: Get Account Secret (primary method for existing accounts)
+    const { accountSecret } = await inquirer.prompt([
+      {
+        type: "password",
+        name: "accountSecret",
+        message: "Enter your Jazz Account Secret:",
+        validate: (input) =>
+          input.trim().length > 0 || "Account Secret is required",
+      },
+    ]);
+
+    const finalAccountSecret = accountSecret.trim();
+    console.log(SimpleChalk.blue("Using provided account secret"));
 
     try {
-      createPassphraseAuth(passphrase);
-
-      // Start worker - Jazz will use the authStorage that was set up in createPassphraseAuth
-      const { worker } = await startWorker({
+      // Start worker with both accountID and accountSecret
+      console.log(SimpleChalk.blue("Starting Jazz worker..."));
+      const workerOptions = {
         AccountSchema: Account,
         syncServer: "wss://cloud.jazz.tools",
-      });
+        accountID: jazzAccountId,
+        accountSecret: finalAccountSecret,
+      };
+      console.log(SimpleChalk.blue("Worker options:"), JSON.stringify(workerOptions, null, 2));
+
+      try {
+        const { worker } = await startWorker(workerOptions);
+        console.log(SimpleChalk.green("✓ Jazz worker started successfully"));
+        console.log(SimpleChalk.green(`✓ Authenticated as ${jazzAccountId}`));
+      } catch (workerError) {
+        console.error(SimpleChalk.red("Worker start failed:"), workerError.message);
+        
+        if (workerError.message.includes("accountSecret")) {
+          console.error(SimpleChalk.yellow("Unable to authenticate with provided credentials."));
+          console.error(SimpleChalk.yellow("Please verify your credentials and try again."));
+        }
+        
+        throw workerError;
+      }
 
       console.log(
-        SimpleChalk.green(`Successfully authenticated as ${worker.$jazz.id}`),
+        SimpleChalk.green(`Successfully authenticated as ${jazzAccountId}`),
       );
 
       // Use shared authentication utility to initialize RegardeSDK
       console.log(
         SimpleChalk.blue("Initializing RegardeSDK and generating token..."),
       );
-      await ensureRegardeSDKLoaded(worker.$jazz.id);
+      await ensureRegardeSDKLoaded(jazzAccountId);
 
       console.log(
         SimpleChalk.green("✓ Token generated and stored successfully"),
@@ -81,14 +113,12 @@ export const loginTool: ToolConfig = {
       console.log(SimpleChalk.blue("Token expires in 24 hours"));
       console.log("Credentials stored in RegardeSDK CoMap");
 
-      // Store credentials for future CLI commands (including passphrase for authStorage)
-      const credentials = {
-        regarde: {
-          jazzAccountId: worker.$jazz.id,
-          passphrase: passphrase, // Store for future auth
-        },
+      // Store credentials for future CLI commands
+      const storedCredentials = {
+        accountID: jazzAccountId,
+        accountSecret: finalAccountSecret, // Store the working accountSecret
       };
-      await authStorage.set(JSON.stringify(credentials));
+      await authStorage.set(JSON.stringify(storedCredentials));
 
       console.log(SimpleChalk.green("✓ Login credentials saved locally"));
       process.exit(0);

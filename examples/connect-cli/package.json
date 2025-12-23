@@ -1,0 +1,27 @@
+{
+  "name": "connect-cli-example",
+  "version": "1.0.0",
+  "description": "Example CLI package testing Regarde SDK integration",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx index.ts",
+    "build": "tsc",
+    "test": "tsx --test"
+  },
+  "dependencies": {
+    "@regarde-dev/cli": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "keywords": [
+    "regarde",
+    "cli",
+    "example",
+    "testing"
+  ],
+  "license": "MIT"
+}

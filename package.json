@@ -11,5 +11,14 @@
   "dependencies": {
     "jazz-tools": "catalog:",
     "preact": "catalog:"
+  },
+  "scripts": {
+    "dev": "pnpm -r dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "test:run": "pnpm --filter \"*.test.ts\" test:run",
+    "cli": "tsx packages/cli/src/index.ts",
+    "format-and-lint": "prettier . --check && eslint . --ext .ts,.tsx,.js,.jsx ",
+    "format-and-lint:fix": "prettier . --write && eslint . --ext .ts,.tsx,.js,.jsx --fix"
   }
 }

@@ -21,6 +21,7 @@ export default defineConfig({
         registry: resolve(__dirname, "src/registry/index.ts"),
         payments: resolve(__dirname, "src/payments/index.ts"),
         init: resolve(__dirname, "src/init/index.ts"),
+        app: resolve(__dirname, "src/app/index.ts"),
       },
       formats: ["es", "cjs"],
     },
