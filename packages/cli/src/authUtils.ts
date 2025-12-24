@@ -54,7 +54,7 @@ export async function loadAuthenticatedRegardeSDK() {
 
   // Step 4: Load RegardeSDK with automatic initialization and repair
   try {
-    const regardeSDK = await ensureRegardeSDKLoaded(worker.$jazz.id);
+    const regardeSDK = await ensureRegardeSDKLoaded(worker);
     return regardeSDK;
   } catch (error: any) {
     // Provide user-friendly error messages for common issues

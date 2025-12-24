@@ -59,5 +59,5 @@ export const RegardeSDK = co.map({
   myApps: co.list(App),
   myPayments: PaymentManager,
   myUserHandle: UserHandle,
-  version: z.number().default(0),
+  version: z.number(),
 });

@@ -23,7 +23,7 @@ import { co, z } from "jazz-tools";
  */
 export const PaymentEvent = co.map({
   amount: z.string(),
-  currency: z.string().default("USD"),
+  currency: z.string(),
   timestamp: z.number(),
   paymentStatus: z.enum(["pending", "completed", "failed", "cancelled"]),
   get app() {
@@ -77,7 +77,7 @@ export type ListOfPaymentEvents = co.loaded<typeof ListOfPaymentEvents>;
 export const PaymentManager = co.map({
   allMyPayments: ListOfPaymentEvents,
   paymentHistoryByApp: co.record(z.string(), ListOfPaymentEvents),
-  version: z.number().default(1),
+  version: z.number(),
 });
 
 export type PaymentManagerLoaded = co.loaded<typeof PaymentManager>;

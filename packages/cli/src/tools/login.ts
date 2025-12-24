@@ -2,14 +2,15 @@ import { type IFlag, ToolConfig, SimpleChalk } from "@alcyone-labs/arg-parser";
 import inquirer from "inquirer";
 import { getStoredCredentials } from "../auth.js";
 import { startWorker } from "jazz-tools/worker";
-import { Account } from "jazz-tools";
 import { ensureRegardeSDKLoaded } from "@regarde-dev/sdk/auth";
+import { RegardeAccount } from "@regarde-dev/sdk/auth";
 import { authStorage } from "../utils/storage.js";
-import { 
-  generateCredentialsFromPassphrase, 
-  validatePassphrase, 
-  hasMinimumWords 
+import {
+  generateCredentialsFromPassphrase,
+  validatePassphrase,
+  hasMinimumWords,
 } from "../utils/passphraseAuth.js";
+import { co } from "jazz-tools";
 
 export const loginTool: ToolConfig = {
   name: "login",
@@ -25,7 +26,7 @@ export const loginTool: ToolConfig = {
 
       try {
         const { worker } = await startWorker({
-          AccountSchema: Account,
+          AccountSchema: RegardeAccount,
           syncServer: "wss://cloud.jazz.tools",
           accountID: creds.accountID,
           accountSecret: creds.accountSecret,
@@ -59,9 +60,6 @@ export const loginTool: ToolConfig = {
       },
     ]);
 
-    // Show confirmation of account ID being used
-    console.log(SimpleChalk.blue(`Using account ID: ${jazzAccountId}`));
-
     // Step 2: Get Passphrase
     const { passphrase } = await inquirer.prompt([
       {
@@ -86,12 +84,14 @@ export const loginTool: ToolConfig = {
 
     try {
       // Step 3: Generate credentials from passphrase
-      const credentials = await generateCredentialsFromPassphrase(passphrase.trim());
-      
+      const credentials = await generateCredentialsFromPassphrase(
+        passphrase.trim(),
+      );
+
       // Step 4: Test credentials with Jazz worker
       console.log(SimpleChalk.blue("Verifying credentials..."));
       const workerOptions = {
-        AccountSchema: Account,
+        AccountSchema: RegardeAccount,
         syncServer: "wss://cloud.jazz.tools",
         accountID: jazzAccountId,
         accountSecret: credentials.accountSecret,
@@ -100,47 +100,67 @@ export const loginTool: ToolConfig = {
       try {
         const { worker } = await startWorker(workerOptions);
         console.log(SimpleChalk.green("✓ Jazz worker started successfully"));
-      } catch (workerError) {
-        console.error(SimpleChalk.red("Worker start failed:"), workerError.message);
-        
-        if (workerError.message.includes("accountSecret")) {
-          console.error(SimpleChalk.yellow("Authentication failed. Please verify your account ID and passphrase."));
-        } else {
-          console.error(SimpleChalk.yellow("Network error. Please check your connection and try again."));
+
+        // Step 5: Initialize RegardeSDK within the worker context
+        console.log(
+          SimpleChalk.blue("Initializing RegardeSDK and generating token..."),
+        );
+
+        // Wait for worker to be fully loaded before proceeding
+        const loadedWorker = await worker.$jazz.ensureLoaded({
+          resolve: { root: true },
+        });
+
+        if (!worker.$isLoaded) {
+          throw new Error("BUG");
         }
-        
+
+        // Now call ensureRegardeSDKLoaded with the worker's account
+        await ensureRegardeSDKLoaded(worker as any);
+
+        console.log(
+          SimpleChalk.green("✓ Token generated and stored successfully"),
+        );
+        console.log(SimpleChalk.blue("Token expires in 24 hours"));
+
+        // Step 6: Store credentials for future CLI commands
+        const storedCredentials = {
+          accountID: jazzAccountId,
+          accountSecret: credentials.accountSecret,
+          passphrase: passphrase.trim(),
+          authMethod: "passphrase",
+        };
+        await authStorage.set(JSON.stringify(storedCredentials));
+
+        console.log(SimpleChalk.green("✓ Login credentials saved locally"));
+        process.exit(0);
+      } catch (workerError) {
+        console.error(
+          SimpleChalk.red("Worker start failed:"),
+          workerError.message,
+        );
+
+        if (workerError.message.includes("accountSecret")) {
+          console.error(
+            SimpleChalk.yellow(
+              "Authentication failed. Please verify your account ID and passphrase.",
+            ),
+          );
+        } else {
+          console.error(
+            SimpleChalk.yellow(
+              "Network error. Please check your connection and try again.",
+            ),
+          );
+        }
+
         throw workerError;
       }
-
-      console.log(
-        SimpleChalk.green(`Successfully authenticated as ${jazzAccountId}`),
-      );
-
-      // Step 5: Initialize RegardeSDK
-      console.log(
-        SimpleChalk.blue("Initializing RegardeSDK and generating token..."),
-      );
-      await ensureRegardeSDKLoaded(jazzAccountId);
-
-      console.log(
-        SimpleChalk.green("✓ Token generated and stored successfully"),
-      );
-      console.log(SimpleChalk.blue("Token expires in 24 hours"));
-
-      // Step 6: Store credentials for future CLI commands
-      const storedCredentials = {
-        accountID: jazzAccountId,
-        accountSecret: credentials.accountSecret,
-        passphrase: passphrase.trim(),
-        authMethod: "passphrase",
-      };
-      await authStorage.set(JSON.stringify(storedCredentials));
-
-      console.log(SimpleChalk.green("✓ Login credentials saved locally"));
-      process.exit(0);
     } catch (error: any) {
       console.error(SimpleChalk.red("Login failed:"), error.message);
-      console.error(SimpleChalk.yellow("Please verify your credentials and try again."));
+      console.error(
+        SimpleChalk.yellow("Please verify your credentials and try again."),
+      );
       return { success: false, error: error.message };
     }
   },
