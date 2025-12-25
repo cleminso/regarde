@@ -116,6 +116,7 @@ export const loginTool: ToolConfig = {
         }
 
         // Now call ensureRegardeSDKLoaded with the worker's account
+        // TODO: Investigate how to premove this as any that TS is happy
         await ensureRegardeSDKLoaded(worker as any);
 
         console.log(

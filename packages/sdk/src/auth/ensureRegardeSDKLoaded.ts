@@ -2,10 +2,7 @@ import { co } from "jazz-tools";
 import { RegardeSDK } from "../auth/schemas/auth";
 import { initRegardeSchema } from "../init/initRegardeSchema";
 import { getRegardeAuth } from "../auth/refreshAuthToken";
-import {
-  RegardeAccount,
-  type RegardeAccountType,
-} from "../auth/schemas/regarde-account";
+import { RegardeAccount } from "../auth/schemas/regarde-account";
 /**
  * Ensures RegardeSDK is loaded with proper initialization and authentication
  *
@@ -19,16 +16,12 @@ import {
 export async function ensureRegardeSDKLoaded(
   account: co.loaded<typeof RegardeAccount>,
 ): Promise<co.loaded<typeof RegardeSDK>> {
-  console.log("[DEBUG] Loading RegardeSDK for account:", account.$jazz.id);
-
   // Validate account is loaded
   if (!account || !account.$isLoaded) {
     throw new Error(
       "Account must be loaded before calling ensureRegardeSDKLoaded",
     );
   }
-
-  console.log("[DEBUG] Account is loaded and valid");
 
   try {
     // Step 1: Load account with explicit root resolution so TypeScript knows the structure
@@ -41,13 +34,13 @@ export async function ensureRegardeSDKLoaded(
     });
 
     // Now TypeScript knows root["regarde-sdk"] exists and has proper typing
-    const regardeSDK = root["regarde-sdk"] as
-      | co.loaded<typeof RegardeSDK>
-      | undefined;
+    const regardeSDK = root["regarde-sdk"];
 
     // Step 2: Check if RegardeSDK needs initialization
     if (!regardeSDK || !regardeSDK.$isLoaded) {
-      console.log("[INFO] RegardeSDK not found or incomplete. Initializing...");
+      console.info(
+        "[INFO] RegardeSDK not found or incomplete. Initializing...",
+      );
 
       // Ensure account root is loaded properly with resolution
       const { root } = await account.$jazz.ensureLoaded({
@@ -59,52 +52,62 @@ export async function ensureRegardeSDKLoaded(
       });
 
       if (!root.$isLoaded) {
-        console.log("Coucou");
+        throw new Error("Account root not loaded");
       }
 
       // Initialize the RegardeSDK schema
       const regardeSDK = await initRegardeSchema(account);
-
-      // CRITICAL: Set the RegardeSDK in the account root so it persists
-      console.log("[DEBUG] Setting RegardeSDK in account root...");
       root.$jazz.set("regarde-sdk", regardeSDK);
-
-      // Wait for sync to ensure the CoMap is properly saved to the network
-      console.log("[DEBUG] Ensuring RegardeSDK syncs to network...");
+      await regardeSDK.$jazz.waitForSync();
       await account.$jazz.waitForSync();
 
-      console.log(
+      console.info(
         "[SUCCESS] RegardeSDK initialized, set in account root, and synced",
       );
       return regardeSDK;
     }
 
     // Step 3: Validate RegardeSDK integrity
+    // Explicitly load auth to ensure it's hydrated before checking
+    await regardeSDK.$jazz.ensureLoaded({
+      resolve: {
+        auth: true,
+      },
+    });
+
+    // Now verify auth is properly loaded
     if (!regardeSDK.auth?.$isLoaded) {
       throw new Error("RegardeSDK auth not properly loaded");
     }
-    // Check required auth fields exist
-    if (!regardeSDK.auth.token || !regardeSDK.auth.expiresAt) {
+
+    if (
+      !regardeSDK.auth.$jazz.has("token") ||
+      !regardeSDK.auth.$jazz.has("expiresAt")
+    ) {
       throw new Error("RegardeSDK auth missing required fields");
+    }
+
+    // Guard against empty string token
+    if (!regardeSDK.auth.token.trim()) {
+      throw new Error("RegardeSDK auth token is empty");
     }
 
     // Step 4: Check and refresh authentication token
     const isExpired = Date.now() > regardeSDK.auth.expiresAt;
     if (isExpired) {
-      console.log("[INFO] Authentication token expired, refreshing...");
+      console.info("[INFO] Authentication token expired, refreshing...");
       const newToken = await getRegardeAuth({
         loadedRegardeAuthCoMap: regardeSDK.auth,
       });
       if (!newToken) {
         throw new Error("Failed to refresh authentication token");
       }
-      console.log("[SUCCESS] Authentication token refreshed");
     }
 
-    console.log("[DEBUG] RegardeSDK is loaded with valid authentication");
+    await regardeSDK.auth.$jazz.waitForSync();
+
     return regardeSDK;
   } catch (error: any) {
-    console.error("[ERROR] Failed to ensure RegardeSDK loaded:", error.message);
-    throw error;
+    throw new Error("Failed to ensure RegardeSDK loaded");
   }
 }

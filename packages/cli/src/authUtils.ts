@@ -1,7 +1,11 @@
-import { co, Loaded, z } from "jazz-tools";
-import { ensureRegardeSDKLoaded, RegardeSDK } from "@regarde-dev/sdk/auth";
+import { co } from "jazz-tools";
+import {
+  ensureRegardeSDKLoaded,
+  RegardeAccount,
+  RegardeSDK,
+} from "@regarde-dev/sdk/auth";
 import { getStoredCredentials } from "./auth.js";
-import { Account } from "jazz-tools";
+import { startWorker } from "jazz-tools/worker";
 
 /**
  * CLI authentication utilities for loading and managing RegardeSDK
@@ -30,9 +34,13 @@ export async function loadAuthenticatedRegardeSDK() {
   }
 
   // Step 2: Parse credentials
-  let creds;
+  let creds: { accountID: string; accountSecret: string };
   try {
-    creds = JSON.parse(credsStr);
+    const parsed = JSON.parse(credsStr);
+    creds = {
+      accountID: String(parsed.accountID || ""),
+      accountSecret: String(parsed.accountSecret || ""),
+    };
   } catch (e) {
     throw new Error("Invalid credentials format. Please re-login.");
   }
@@ -44,18 +52,27 @@ export async function loadAuthenticatedRegardeSDK() {
 
   // Step 3: Start worker with stored credentials
   const workerOptions = {
-    AccountSchema: Account,
+    AccountSchema: RegardeAccount,
     syncServer: "wss://cloud.jazz.tools",
     accountID: creds.accountID,
     accountSecret: creds.accountSecret,
   };
 
-  const { worker } = await (await import("jazz-tools/worker")).startWorker(workerOptions);
+  const { worker } = await startWorker(workerOptions);
 
   // Step 4: Load RegardeSDK with automatic initialization and repair
   try {
-    const regardeSDK = await ensureRegardeSDKLoaded(worker);
-    return regardeSDK;
+    // Load RegardeAccount with proper resolve for auth field
+    const regardeAccount = await RegardeAccount.load(creds.accountID, {
+      loadAs: worker as any,
+      resolve: {
+        root: {
+          "regarde-sdk": {
+            auth: true,
+          },
+        },
+      },
+    });
   } catch (error: any) {
     // Provide user-friendly error messages for common issues
     if (error.message.includes("not logged in")) {
@@ -94,7 +111,9 @@ export async function loadAuthenticatedRegardeSDK() {
  * @param regardeSDK - Loaded RegardeSDK to validate
  * @returns true if authentication is valid, false otherwise
  */
-export function isAuthenticationValid(regardeSDK: co.loaded<any>): boolean {
+export function isAuthenticationValid(
+  regardeSDK: co.loaded<typeof RegardeSDK>,
+): boolean {
   if (!regardeSDK || !regardeSDK.$isLoaded) {
     return false;
   }
@@ -117,9 +136,15 @@ export function isAuthenticationValid(regardeSDK: co.loaded<any>): boolean {
  * @returns Headers object with X-Regarde-Token and X-Regarde-Token-Id
  * @throws Error if authentication is not valid
  */
-export function getAuthenticationHeaders(regardeSDK: co.loaded<any>) {
+export function getAuthenticationHeaders(
+  regardeSDK: co.loaded<typeof RegardeSDK>,
+) {
   if (!isAuthenticationValid(regardeSDK)) {
     throw new Error("Authentication not valid. Please re-login.");
+  }
+
+  if (!regardeSDK.auth.$isLoaded) {
+    throw new Error("Authentication not properly loaded");
   }
 
   return {

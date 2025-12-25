@@ -159,7 +159,9 @@ console.error(
 
 ### Jazz Architecture Rules
 
-- **Authentication**: Jazz-tools retrieves credentials stored in Clerk via Clerk APIs
+- **Authentication**:
+  - CLI authentication: Passphrase-based auth via `generateCredentialsFromPassphrase()`
+  - Worker authentication: Each service uses its specific Account schema type
 - **RegardeAccount** schema (user's complete account):
   - When a user authenticates and you need their complete account context
   - When a user edits their own profile and you need to verify ownership
@@ -170,10 +172,11 @@ console.error(
   - When displaying a user's name, bio, projects, or other public information
   - When a user is editing their profile fields (already have account context)
   - When the worker serves public profile data to anyone
-- **Namespace structure**:
-  - `account.root["regarde.bio"]` = pre-loaded RegardeProfile (use this)
-  - `account.profile["regarde.bio"]` = string ID reference to RegardeProfile CoMap
-  - `account.root["api.regarde.dev"]` = private RegardeAuth CoMap (24-hour expiry)
+- **Sync Safety Rules**
+  - Write-Wait-Use: After any CoMap write operation, call `coMap.$jazz.waitForSync()` before reading/returning
+  - Reference Chain Sync: For nested operations, sync leaf nodes first, then their containers
+  - Create-Set-Sync: `create()` → `set()` → `waitForSync(specific)` → `waitForSync(container)` → safe return
+  - Race Condition Detection: Any pattern of "create → set → return" or "modify → read" must have sync in between
 - **Registration token authentication (acts as 2FA)**:
   - Always call `generateRegardeToken` before API call to get a fresh and valid token to forward to API header `x-Regarde-Token`
   - User generates token via `useRegardeAuth()` (stored in `account.root["api.regarde.dev"]`)

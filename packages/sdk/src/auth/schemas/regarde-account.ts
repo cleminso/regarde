@@ -1,7 +1,6 @@
 import { co, Group, z } from "jazz-tools";
 import { RegardeSDK } from "./auth";
 import { initRegardeSchema } from "../../init";
-
 /**
  * # RegardeAccount - Jazz Account with RegardeSDK support
  *
@@ -14,82 +13,67 @@ import { initRegardeSchema } from "../../init";
  * - Use RegardeAccount instead of generic Account in worker and ensureRegardeSDKLoaded
  * - Jazz will now know the structure of account.root["regarde-sdk"]
  */
-
-// Simple root schema with just regarde-sdk (unlike profile.ts which has regarde.bio too)
 export const RegardeRoot = co.map({
   "regarde-sdk": RegardeSDK,
 });
 
-// Account schema that knows about regarde-sdk in root
 export const RegardeAccount = co
   .account({
     profile: co.profile(),
     root: RegardeRoot,
   })
   .withMigration(async (account) => {
-    console.log("[DEBUG] RegardeAccount migration started");
-
     // Initialize profile if it doesn't exist
     if (!account.$jazz.has("profile")) {
-      console.log("[INFO] Initializing RegardeAccount profile");
+      console.info("[INFO] Initializing RegardeAccount profile");
       const publicGroup = Group.create({
         owner: account,
       });
       publicGroup.makePublic();
-
       account.$jazz.set(
         "profile",
         co.profile().create({ name: "Regarde CLI User" }, publicGroup),
       );
     }
-
     // Initialize root if it doesn't exist
     if (!account.$jazz.has("root")) {
-      console.log("[INFO] Initializing RegardeAccount root");
-
+      console.info("[INFO] Initializing RegardeAccount root");
       // Initialize RegardeSDK with proper ownership
       const regardeSdk = await initRegardeSchema(account);
-
       // Set root with regarde-sdk
       account.$jazz.set("root", {
         "regarde-sdk": regardeSdk,
       });
-
-      console.log("[SUCCESS] RegardeAccount root initialized with RegardeSDK");
+      console.info("[SUCCESS] RegardeAccount root initialized with RegardeSDK");
     }
-
     // Ensure everything syncs
     await account.$jazz.waitForAllCoValuesSync();
-
-    // Load and verify
     const { root } = await account.$jazz.ensureLoaded({
       resolve: {
-        root: {
-          "regarde-sdk": true,
-        },
+        root: true,
       },
     });
-
     if (!root.$isLoaded) {
       throw new Error("Failed to load RegardeAccount root");
     }
-
     // Handle migration for accounts that have root but incomplete regarde-sdk
-    if (
-      !root["regarde-sdk"] ||
-      !root["regarde-sdk"].$isLoaded ||
-      root["regarde-sdk"].version < 2
-    ) {
-      console.log("[INFO] Migrating incomplete RegardeSDK");
-
+    // Use the proper Jazz pattern: check with .has() then access
+    if (!root.$jazz.has("regarde-sdk")) {
+      console.info("[INFO] Creating missing RegardeSDK");
       const regardeSdk = await initRegardeSchema(account);
       root.$jazz.set("regarde-sdk", regardeSdk);
-
       await account.$jazz.waitForSync();
-      console.log("[SUCCESS] RegardeSDK migration completed");
+    } else {
+      // RegardeSDK exists, check if it needs update
+      const regardeSDK = root["regarde-sdk"];
+      if (regardeSDK && regardeSDK.$isLoaded && regardeSDK.version < 2) {
+        console.info("[INFO] Migrating incomplete RegardeSDK");
+        const regardeSdk = await initRegardeSchema(account);
+        root.$jazz.set("regarde-sdk", regardeSdk);
+        await account.$jazz.waitForSync();
+      }
     }
-
-    console.log("[SUCCESS] RegardeAccount migration completed");
+    console.info("[SUCCESS] RegardeSDK migration completed");
+    console.info("[SUCCESS] RegardeAccount migration completed");
   });
-
-export type RegardeAccountType = co.loaded<typeof RegardeAccount>;
+export type TRegardeAccount = co.loaded<typeof RegardeAccount>;
