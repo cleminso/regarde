@@ -8,9 +8,14 @@ export default defineConfig({
     dts({
       include: ["src/**/*"],
       exclude: ["**/*.test.ts", "**/*.spec.ts"],
+      outDir: "dist",
+      entryRoot: "src",
+      tsconfigPath: "./tsconfig.json",
     }),
   ],
   build: {
+    minify: false,
+    sourcemap: true,
     lib: {
       entry: {
         react: resolve(__dirname, "src/react/index.ts"),
@@ -25,18 +30,9 @@ export default defineConfig({
       },
       formats: ["es", "cjs"],
     },
-    sourcemap: true,
     rollupOptions: {
       treeshake: true,
       external: ["react", "preact", "jazz-tools", "zod"],
-      output: {
-        globals: {
-          react: "React",
-          preact: "Preact",
-          "jazz-tools": "JazzTools",
-          zod: "Zod",
-        },
-      },
     },
   },
 });

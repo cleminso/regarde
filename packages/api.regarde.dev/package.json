@@ -10,11 +10,11 @@
     "directory": "packages/api.regarde.dev"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && vite build",
     "start": "node dist/index.js",
     "debug": "pnpm build && node --inspect dist/index.js",
     "start:bun": "bun src/index.ts",
-    "dev": "bun --watch src/index.ts",
+    "dev": "vite build --watch",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run"
@@ -41,6 +41,8 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "nodemon": "^3.1.10",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-tsconfig-paths": "catalog:"
   }
 }

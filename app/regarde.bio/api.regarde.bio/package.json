@@ -11,12 +11,11 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build:schema": "pnpm --filter jazz-schemas build",
-    "build": "pnpm clean && pnpm run build:schema && tsc",
-    "start": "pnpm build && node dist/index.js",
+    "build": "pnpm clean && vite build",
+    "start": "node dist/index.js",
     "debug": "pnpm build && node --inspect dist/index.js",
-    "start:bun": "pnpm build:schema && bun src/index.ts",
-    "dev": "bun --watch src/index.ts",
+    "start:bun": "bun src/index.ts",
+    "dev": "vite build --watch",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run"
@@ -41,6 +40,8 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "nodemon": "^3.1.10",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:"
   }
 }

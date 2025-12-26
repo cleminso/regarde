@@ -23,10 +23,8 @@
     }
   },
   "scripts": {
-    "build:tsc": "pnpm clean && tsc",
-    "build:vite": "pnpm clean && vite build",
-    "build": "pnpm build:vite",
-    "dev": "tsc --watch",
+    "build": "pnpm clean && vite build",
+    "dev": "vite build --watch",
     "clean": "rm -rf dist",
     "test": "vitest",
     "test:ui": "vitest --ui",

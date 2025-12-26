@@ -3,19 +3,9 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import viteTsConfigPaths from 'vite-tsconfig-paths';
-import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
-  plugins: [
-    viteTsConfigPaths(), 
-    react(), 
-    tailwindcss(),
-    visualizer({
-      filename: 'dist/stats.html',
-      open: true,
-      gzipSize: true,
-    })
-  ],
+  plugins: [viteTsConfigPaths(), react(), tailwindcss()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -25,12 +15,31 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router'],
-          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-slot', '@radix-ui/react-avatar', '@radix-ui/react-alert-dialog', '@radix-ui/react-label', '@radix-ui/react-tooltip'],
-          'vendor-clerk': ['@clerk/clerk-react'],
-          'vendor-jazz': ['jazz-tools'],
-          'vendor-utils': ['clsx', 'tailwind-merge', 'class-variance-authority', 'lucide-react'],
+        manualChunks(id) {
+          if (
+            id.includes('react') ||
+            id.includes('react-dom') ||
+            id.includes('react-router')
+          ) {
+            return 'vendor-react';
+          }
+          if (id.includes('@radix-ui')) {
+            return 'vendor-ui';
+          }
+          if (id.includes('@clerk')) {
+            return 'vendor-clerk';
+          }
+          if (id.includes('jazz-tools')) {
+            return 'vendor-jazz';
+          }
+          if (
+            id.includes('clsx') ||
+            id.includes('tailwind-merge') ||
+            id.includes('class-variance-authority') ||
+            id.includes('lucide-react')
+          ) {
+            return 'vendor-utils';
+          }
         },
       },
     },

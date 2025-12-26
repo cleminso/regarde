@@ -9,7 +9,7 @@
     "directory": "packages/sdk"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "rm -rf dist && vite build",
     "dev": "vite build --watch",
     "test": "vitest",
     "test:run": "vitest run"

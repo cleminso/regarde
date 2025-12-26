@@ -1,4 +1,5 @@
 {
+  "references": [{ "path": "./tsconfig.node.json" }],
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
@@ -14,5 +15,5 @@
     "rootDir": "./src"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "vite.config.ts"]
 }

@@ -39,9 +39,202 @@ vitest path/to/test.test.ts         # Run single test file
 
 ```bash
 pnpm --filter <package> build       # Build specific package
-pnpm --filter @regarde-dev/regarde.bio format-and-lint       # Check code style
-pnpm --filter @regarde-dev/regarde.bio format-and-lint:fix   # Auto-fix code style
+pnpm format-and-lint                # Check code style (Prettier + Oxlint)
+pnpm format-and-lint:fix            # Auto-fix code style
 ```
+
+## Tool Stack & Best Practices
+
+### Core Tools
+
+- **Vite 8**: Build tool and dev server (uses Rolldown bundler under the hood)
+- **Oxlint**: Fast Rust-based linter (replaces ESLint)
+- **Vitest**: Test runner (Vite-native)
+- **Prettier**: Code formatter
+- **TypeScript**: Type checking via Vite/Vitest
+
+### Tool Usage Guidelines
+
+#### Vite 8 + Rolldown
+
+Vite 8 with Rolldown provides fast builds. All packages should use Vite for building:
+
+```bash
+# Library builds (SDK, schemas)
+pnpm --filter @regarde-dev/sdk build        # Vite build with multiple entry points
+pnpm --filter @regarde-dev/jazz-schemas build
+
+# Application builds (frontend, APIs)
+pnpm --filter @regarde-dev/frontend build
+pnpm --filter @regarde-dev/api.regarde.bio build
+```
+
+**Vite config patterns:**
+
+- Libraries: Use `build.lib` format with `formats: ["es", "cjs"]`
+- Node.js APIs: Target `node22`, external dependencies
+- Frontend: SPA mode with manual chunks for vendors
+- CI/Node services: Use `vite build --watch` instead of `bun --watch`
+
+#### Oxlint (Linting)
+
+Oxlint provides instant feedback (10-100x faster than ESLint). Run before commits:
+
+```bash
+# Check all packages
+pnpm format-and-lint
+
+# Fix auto-fixable issues
+pnpm format-and-lint:fix
+
+# Run oxlint directly for specific files
+oxlint packages/sdk/src --ext .ts
+```
+
+**Oxlint rules (configured in .oxlintrc.json):**
+
+- `correctness`: Errors for bugs logic errors
+- `suspicious`: Warnings for potential bugs
+- `pedantic`, `style`, `restriction`: Off (use Prettier)
+
+#### Vitest (Testing)
+
+Vitest is Vite-native and fast. Use for business logic testing:
+
+```bash
+# Watch mode during development
+pnpm test --watch
+
+# Run once (CI)
+pnpm test:run
+
+# Run with UI
+pnpm --filter <package> test:ui
+
+# Run specific test file
+vitest path/to/test.test.ts
+```
+
+#### Development Services
+
+**Use Vite watch mode instead of Bun/Tsx:**
+
+```bash
+# Good - Vite watch (fast rebuilds, type-checks)
+pnpm --filter @regarde-dev/api.regarde.bio dev
+pnpm --filter @regarde-dev/api.regarde.bio build --watch
+
+# Avoid - Bun watch (slower, non-standard)
+bun --watch src/index.ts
+
+# Avoid - Tsx (no Vite integration, slower)
+tsx src/index.ts
+```
+
+**CLI execution:**
+
+```bash
+# Use Node for built CLI (fast, no rebuilds)
+node packages/cli/dist/index.mjs
+
+# Use Vite watch for development
+pnpm --filter @regarde-dev/cli dev
+```
+
+### Package Build Patterns
+
+#### Library Packages (SDK, schemas, admin CLI)
+
+```typescript
+import { defineConfig } from "vite";
+import dts from "vite-plugin-dts";
+import { resolve } from "path";
+
+export default defineConfig({
+  plugins: [
+    dts({
+      include: ["src/**/*"],
+      exclude: ["**/*.test.ts", "**/*.spec.ts"],
+      outDir: "dist",
+      entryRoot: "src",
+    }),
+  ],
+  build: {
+    minify: false,
+    sourcemap: true,
+    lib: {
+      entry: resolve(__dirname, "src/index.ts"),
+      formats: ["es", "cjs"],
+      fileName: "index",
+    },
+    rollupOptions: {
+      external: ["jazz-tools", "zod"], // Don't bundle dependencies
+    },
+  },
+});
+```
+
+#### Node.js API Packages
+
+```typescript
+export default defineConfig({
+  build: {
+    minify: false,
+    sourcemap: true,
+    target: "node22",
+    lib: {
+      entry: resolve(__dirname, "src/index.ts"),
+      formats: ["es"],
+      fileName: "index",
+    },
+    rollupOptions: {
+      external: ["hono", "jazz-tools", "zod", ...builtinModules],
+    },
+  },
+});
+```
+
+#### Frontend Applications
+
+```typescript
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("react") || id.includes("react-dom")) {
+            return "vendor-react";
+          }
+          if (id.includes("@radix-ui")) {
+            return "vendor-ui";
+          }
+        },
+      },
+    },
+  },
+});
+```
+
+### Performance Tips
+
+1. **Use Vite watch mode** instead of Bun watch for faster rebuilds
+2. **Enable Rolldown** in Vite config for 2-5x build speedup
+3. **Run oxlint before commits** - instant feedback
+4. **Test with Vitest in watch mode** during development
+5. **Parallel builds**: Use `pnpm -r build` for all packages
+6. **Minimize external dependencies** in builds (use `external` in rollupOptions)
+
+### Migration Checklist
+
+When adding new packages or tools:
+
+- [ ] Build with Vite (not tsup/tsdown/esbuild)
+- [ ] Lint with Oxlint (not ESLint)
+- [ ] Test with Vitest (not Jest)
+- [ ] Format with Prettier
+- [ ] Use Vite watch for development (not Bun/Tsx)
+- [ ] Add build script to package.json scripts
 
 ## Directory Structure
 

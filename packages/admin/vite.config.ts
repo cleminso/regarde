@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
-import dts from "vite-plugin-dts";
 import { resolve } from "path";
+import { builtinModules } from "node:module";
+import dts from "vite-plugin-dts";
 
 export default defineConfig({
   plugins: [
@@ -15,27 +16,25 @@ export default defineConfig({
   build: {
     minify: false,
     sourcemap: true,
-    lib: {
-      entry: {
-        index: resolve(__dirname, "src/index.ts"),
-        "regarde.bio/index": resolve(__dirname, "src/regarde.bio/index.ts"),
-      },
-      fileName: (format, entryName) => {
-        if (entryName === "index") {
-          return `jazz-schemas.${format}.js`;
-        }
-        return `${entryName}.${format}.js`;
-      },
-      formats: ["es", "cjs"],
-    },
+    target: "node22",
+    ssr: true,
     rollupOptions: {
+      input: resolve(__dirname, "src/cli.ts"),
+      output: {
+        entryFileNames: "index.mjs",
+        format: "es",
+      },
       treeshake: true,
       external: [
+        "@alcyone-labs/arg-parser",
         "jazz-tools",
-        "@regarde-dev/sdk",
         "zod",
+        "dotenv",
         "ulidx",
-        "@hono/zod-openapi",
+        "@regarde-dev/jazz-schemas",
+        "@regarde-dev/jazz-schemas/regarde.bio",
+        "@regarde-dev/sdk",
+        ...builtinModules,
       ],
     },
   },

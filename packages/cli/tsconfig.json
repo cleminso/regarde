@@ -1,5 +1,6 @@
 {
   "$schema": "https://www.schemastore.org/tsconfig",
+  "references": [{ "path": "./tsconfig.node.json" }],
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
@@ -8,7 +9,7 @@
     "moduleResolution": "Bundler",
     "target": "ES2022",
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
+    "esModuleInterop": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*"]
 }

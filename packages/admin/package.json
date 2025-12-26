@@ -5,7 +5,7 @@
   "main": "dist/cli.js",
   "type": "module",
   "bin": {
-    "profile-admin": "dist/cli.js"
+    "profile-admin": "dist/index.mjs"
   },
   "repository": {
     "type": "git",
@@ -14,10 +14,9 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build:schema": "pnpm --filter @regarde-dev/sdk build && pnpm --filter jazz-schemas build",
-    "build": "pnpm clean && pnpm run build:schema && tsc",
-    "dev": "pnpm build:schema && bun --watch src/cli.ts",
-    "cli": "pnpm build:schema && bun src/cli.ts"
+    "build": "pnpm clean && vite build",
+    "dev": "vite build --watch",
+    "cli": "node dist/index.mjs"
   },
   "keywords": [
     "jazz",
@@ -36,6 +35,8 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:"
   }
 }

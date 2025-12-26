@@ -1,11 +1,17 @@
 {
   "devDependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@testing-library/user-event": "^14.6.1",
     "@vitest/ui": "catalog:",
+    "esbuild": "^0.27.2",
     "happy-dom": "^20.0.11",
-    "jsdom": "^27.3.0",
+    "jsdom": "^27.4.0",
+    "oxlint": "^1.35.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "rolldown": "1.0.0-beta.57",
     "vitest": "catalog:"
   },
   "dependencies": {
@@ -15,11 +21,14 @@
   },
   "scripts": {
     "dev": "pnpm -r dev",
-    "build": "pnpm -r build",
+    "build:sdk": "pnpm --filter \"@regarde-dev/sdk\" build",
+    "build:packages": "pnpm --filter \"./packages/*\" --filter \"!@regarde-dev/sdk\" --filter \"@regarde-dev/jazz-schemas\" build",
+    "build:apps": "pnpm --filter \"./app/regarde.bio/*\" --filter \"!@regarde-dev/jazz-schemas\" build",
+    "build": "pnpm build:sdk && pnpm build:packages && pnpm build:apps",
     "test": "pnpm -r test",
     "test:run": "pnpm --filter \"*.test.ts\" test:run",
-    "cli": "tsx packages/cli/src/index.ts",
-    "format-and-lint": "prettier . --check && eslint . --ext .ts,.tsx,.js,.jsx ",
-    "format-and-lint:fix": "prettier . --write && eslint . --ext .ts,.tsx,.js,.jsx --fix"
+    "cli": "node packages/cli/dist/index.mjs",
+    "format-and-lint": "prettier . --check && oxlint .",
+    "format-and-lint:fix": "prettier . --write && oxlint . --fix"
   }
 }
