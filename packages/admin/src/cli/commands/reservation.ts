@@ -148,12 +148,16 @@ export const reservationCommands: ToolConfig[] = [
           Logger.warning(`Nickname "${ctx.args.nickname}" is RESERVED`);
           console.log(`  Category: ${result.reservation.category}`);
           console.log(`  Reserved by: ${result.reservation.reservedBy}`);
-          console.log(`  Reserved at: ${new Date(result.reservation.reservedAt).toLocaleString()}`);
+          console.log(
+            `  Reserved at: ${new Date(result.reservation.reservedAt).toLocaleString()}`,
+          );
           if (result.reservation.reason) {
             console.log(`  Reason: ${result.reservation.reason}`);
           }
         } else {
-          Logger.success(`Nickname "${ctx.args.nickname}" is available (not reserved)`);
+          Logger.success(
+            `Nickname "${ctx.args.nickname}" is available (not reserved)`,
+          );
         }
 
         return result;
@@ -170,10 +174,10 @@ function getTimeAgo(date: Date): string {
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffMins < 60) {
-    return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+    return `${diffMins} minute${diffMins !== 1 ? "s" : ""} ago`;
   } else if (diffHours < 24) {
-    return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
   } else {
-    return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+    return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
   }
 }

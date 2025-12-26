@@ -91,7 +91,9 @@ export class BackupService implements BackupServiceInterface {
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to read backup file: ${errorMessage}`);
+      throw new Error(`Failed to read backup file: ${errorMessage}`, {
+        cause: error,
+      });
     }
 
     if (!backupData.registry || !backupData.reverseRegistry) {

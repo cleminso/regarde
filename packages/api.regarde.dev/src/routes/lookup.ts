@@ -53,4 +53,3 @@ export const lookupRoute = createRoute({
   description:
     "Public endpoint to resolve a nickname to its associated Jazz Account ID. No authentication required.",
 });
-

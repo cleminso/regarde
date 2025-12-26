@@ -25,12 +25,16 @@ export function useSideProject({
     // Create new list if it doesn't exist
     const profileOwner = profile.$jazz.owner;
     if (!profileOwner?.$isLoaded) {
-      logger.error('Cannot create side project list: profile owner is not loaded');
+      logger.error(
+        'Cannot create side project list: profile owner is not loaded',
+      );
       return undefined;
     }
 
-    const newSideProjectList = ListOfSideProject.create([], { owner: profileOwner });
-    profile.$jazz.set("sideProject", newSideProjectList);
+    const newSideProjectList = ListOfSideProject.create([], {
+      owner: profileOwner,
+    });
+    profile.$jazz.set('sideProject', newSideProjectList);
     return newSideProjectList;
   };
 
@@ -86,7 +90,7 @@ export function useSideProject({
       sideProjectData.title !== undefined &&
       sideProjectToUpdate.title !== sideProjectData.title
     ) {
-      sideProjectToUpdate.$jazz.set("title", sideProjectData.title);
+      sideProjectToUpdate.$jazz.set('title', sideProjectData.title);
       changed = true;
     }
 
@@ -94,27 +98,30 @@ export function useSideProject({
       sideProjectData.year !== undefined &&
       sideProjectToUpdate.year !== sideProjectData.year
     ) {
-      sideProjectToUpdate.$jazz.set("year", sideProjectData.year);
+      sideProjectToUpdate.$jazz.set('year', sideProjectData.year);
       changed = true;
     }
 
     if (sideProjectData.hasOwnProperty('client')) {
       if (sideProjectToUpdate.client !== sideProjectData.client) {
-        sideProjectToUpdate.$jazz.set("client", sideProjectData.client);
+        sideProjectToUpdate.$jazz.set('client', sideProjectData.client);
         changed = true;
       }
     }
 
     if (sideProjectData.hasOwnProperty('url')) {
       if (sideProjectToUpdate.url !== sideProjectData.url) {
-        sideProjectToUpdate.$jazz.set("url", sideProjectData.url);
+        sideProjectToUpdate.$jazz.set('url', sideProjectData.url);
         changed = true;
       }
     }
 
     if (sideProjectData.hasOwnProperty('description')) {
       if (sideProjectToUpdate.description !== sideProjectData.description) {
-        sideProjectToUpdate.$jazz.set("description", sideProjectData.description);
+        sideProjectToUpdate.$jazz.set(
+          'description',
+          sideProjectData.description,
+        );
         changed = true;
       }
     }

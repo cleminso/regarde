@@ -25,12 +25,16 @@ export function useVolunteering({
     // Create new list if it doesn't exist
     const profileOwner = profile.$jazz.owner;
     if (!profileOwner?.$isLoaded) {
-      logger.error('Cannot create volunteering list: profile owner is not loaded');
+      logger.error(
+        'Cannot create volunteering list: profile owner is not loaded',
+      );
       return undefined;
     }
 
-    const newVolunteeringList = ListOfVolunteering.create([], { owner: profileOwner });
-    profile.$jazz.set("volunteering", newVolunteeringList);
+    const newVolunteeringList = ListOfVolunteering.create([], {
+      owner: profileOwner,
+    });
+    profile.$jazz.set('volunteering', newVolunteeringList);
     return newVolunteeringList;
   };
 
@@ -92,7 +96,7 @@ export function useVolunteering({
       volunteeringData.from !== undefined &&
       volunteeringToUpdate.from !== volunteeringData.from
     ) {
-      volunteeringToUpdate.$jazz.set("from", volunteeringData.from);
+      volunteeringToUpdate.$jazz.set('from', volunteeringData.from);
       changed = true;
     }
 
@@ -100,7 +104,7 @@ export function useVolunteering({
       volunteeringData.title !== undefined &&
       volunteeringToUpdate.title !== volunteeringData.title
     ) {
-      volunteeringToUpdate.$jazz.set("title", volunteeringData.title);
+      volunteeringToUpdate.$jazz.set('title', volunteeringData.title);
       changed = true;
     }
 
@@ -108,34 +112,40 @@ export function useVolunteering({
       volunteeringData.organization !== undefined &&
       volunteeringToUpdate.organization !== volunteeringData.organization
     ) {
-      volunteeringToUpdate.$jazz.set("organization", volunteeringData.organization);
+      volunteeringToUpdate.$jazz.set(
+        'organization',
+        volunteeringData.organization,
+      );
       changed = true;
     }
 
     if (volunteeringData.hasOwnProperty('to')) {
       if (volunteeringToUpdate.to !== volunteeringData.to) {
-        volunteeringToUpdate.$jazz.set("to", volunteeringData.to);
+        volunteeringToUpdate.$jazz.set('to', volunteeringData.to);
         changed = true;
       }
     }
 
     if (volunteeringData.hasOwnProperty('location')) {
       if (volunteeringToUpdate.location !== volunteeringData.location) {
-        volunteeringToUpdate.$jazz.set("location", volunteeringData.location);
+        volunteeringToUpdate.$jazz.set('location', volunteeringData.location);
         changed = true;
       }
     }
 
     if (volunteeringData.hasOwnProperty('url')) {
       if (volunteeringToUpdate.url !== volunteeringData.url) {
-        volunteeringToUpdate.$jazz.set("url", volunteeringData.url);
+        volunteeringToUpdate.$jazz.set('url', volunteeringData.url);
         changed = true;
       }
     }
 
     if (volunteeringData.hasOwnProperty('description')) {
       if (volunteeringToUpdate.description !== volunteeringData.description) {
-        volunteeringToUpdate.$jazz.set("description", volunteeringData.description);
+        volunteeringToUpdate.$jazz.set(
+          'description',
+          volunteeringData.description,
+        );
         changed = true;
       }
     }

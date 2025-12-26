@@ -59,7 +59,7 @@ export function SpeakingEdit({
   const handleSaveAndClose = () => {
     if (!title.trim()) {
       const shouldContinue = confirm(
-        "Adding a talk title helps visitors understand your speaking topic. Would you like to save anyway?"
+        'Adding a talk title helps visitors understand your speaking topic. Would you like to save anyway?',
       );
       if (!shouldContinue) return;
     }
@@ -82,8 +82,8 @@ export function SpeakingEdit({
   };
 
   return (
-    <div className="flex flex-col h-full lg:h-full">
-      <div className="flex-1 lg:flex-1 mobile-form-bottom lg:pb-0">
+    <div className="flex h-full flex-col lg:h-full">
+      <div className="mobile-form-bottom flex-1 lg:flex-1 lg:pb-0">
         <SectionHeader
           title="Speaking"
           description="Share your speaking engagements and presentations."
@@ -91,9 +91,9 @@ export function SpeakingEdit({
 
         <div className="space-y-6">
           <section>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   Title<sup>*</sup>
                 </label>
                 <Input
@@ -105,8 +105,8 @@ export function SpeakingEdit({
                 />
               </div>
 
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   Year
                 </label>
                 <SelectorDate
@@ -125,9 +125,9 @@ export function SpeakingEdit({
           </section>
 
           <section>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   Event
                 </label>
                 <Input
@@ -139,8 +139,8 @@ export function SpeakingEdit({
                 />
               </div>
 
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   Location
                 </label>
                 <Input
@@ -155,8 +155,8 @@ export function SpeakingEdit({
           </section>
 
           <section>
-            <div className="flex flex-col gap-2 w-full">
-              <label className="text-sm font-sans block text-foreground">
+            <div className="flex w-full flex-col gap-2">
+              <label className="text-foreground block font-sans text-sm">
                 URL
               </label>
               <Input
@@ -170,8 +170,8 @@ export function SpeakingEdit({
           </section>
 
           <section>
-            <div className="flex flex-col gap-2 w-full">
-              <label className="text-sm font-sans block text-foreground">
+            <div className="flex w-full flex-col gap-2">
+              <label className="text-foreground block font-sans text-sm">
                 Description
               </label>
               <Textarea

@@ -2,7 +2,7 @@
  * Global test setup for api.regarde.dev testing
  */
 
-import { beforeEach } from 'vitest';
+import { beforeEach } from "vitest";
 
 // Global test configuration
 beforeEach(() => {

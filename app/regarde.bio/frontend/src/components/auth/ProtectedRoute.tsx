@@ -15,7 +15,11 @@ export function ProtectedRoute() {
     return <div>Loading account...</div>;
   }
 
-  if (account === null || !account.$isLoaded || !account.root?.['regarde.bio']) {
+  if (
+    account === null ||
+    !account.$isLoaded ||
+    !account.root?.['regarde.bio']
+  ) {
     return <Navigate to="/" replace />;
   }
 

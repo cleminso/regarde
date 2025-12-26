@@ -1,31 +1,5 @@
-import { blake3 } from "@noble/hashes/blake3.js";
-import { base58 } from "@scure/base";
 import { wordlist } from "@scure/bip39/wordlists/english.js";
-import {
-  validateMnemonic,
-  generateMnemonic,
-  mnemonicToEntropy,
-} from "@scure/bip39";
-// import {
-//   PassphraseAuth,
-//   createJazzContext,
-//   AuthSecretStorage,
-//   MockSessionProvider,
-// } from "jazz-tools";
-// import { NapiCrypto } from "jazz-tools/napi";
-
-// const crypto = await NapiCrypto.create();
-// const authSecretStorage = new AuthSecretStorage();
-// const sessionProvider = new MockSessionProvider();
-// const syncServer = `wss://cloud.jazz.tools/?key=`;
-
-// const context = createJazzContext({
-//   crypto,
-//   authSecretStorage,
-//   peers: [],
-//   sessionProvider,
-// });
-
+import { validateMnemonic, generateMnemonic } from "@scure/bip39";
 export interface PassphraseCredentials {
   accountID: string;
   accountSecret: string;

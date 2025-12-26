@@ -23,10 +23,10 @@ export function EducationCard({
   const dateRange = formatDateRange(education.from, education.to);
 
   return (
-    <div className="flex flex-col border-b border-border pb-4 gap-4">
+    <div className="border-border flex flex-col gap-4 border-b pb-4">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">{dateRange}</span>
+          <span className="text-muted-foreground text-sm">{dateRange}</span>
         </div>
         <div className="flex flex-col gap-1">
           <div>
@@ -35,13 +35,13 @@ export function EducationCard({
                 variant="link-title"
                 size="title"
                 asChild
-                className="inline-flex items-center group -mx-1 justify-start overflow-hidden"
+                className="group -mx-1 inline-flex items-center justify-start overflow-hidden"
               >
                 <a
                   href={education.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="min-w-0 flex items-center gap-1 max-w-full"
+                  className="flex max-w-full min-w-0 items-center gap-1"
                 >
                   <span className="truncate">{displayTitle}</span>
                   <ArrowUpRight className="h-4 w-4 shrink-0 group-hover:opacity-100" />
@@ -52,19 +52,19 @@ export function EducationCard({
                 variant="link-title"
                 size="title"
                 disabled
-                className="cursor-default justify-start overflow-hidden -mx-1"
+                className="-mx-1 cursor-default justify-start overflow-hidden"
               >
                 <span className="truncate">{displayTitle}</span>
               </Button>
             )}
           </div>
           {education.location && (
-            <div className="text-sm text-muted-foreground">
+            <div className="text-muted-foreground text-sm">
               {education.location}
             </div>
           )}
           {education.description && (
-            <p className="text-sm text-muted-foreground whitespace-pre-line">
+            <p className="text-muted-foreground text-sm whitespace-pre-line">
               {education.description}
             </p>
           )}

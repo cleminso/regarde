@@ -10,7 +10,7 @@ type WorkExperiencesProps = {
 };
 
 export function WorkExperiences({ profile }: WorkExperiencesProps) {
-  const workExperiences = profile.workExp?.$isLoaded 
+  const workExperiences = profile.workExp?.$isLoaded
     ? profile.workExp.filter(
         (exp): exp is Loaded<typeof WorkExp> => exp.$isLoaded === true,
       )
@@ -22,9 +22,9 @@ export function WorkExperiences({ profile }: WorkExperiencesProps) {
 
   return (
     <div className="@container">
-      <section className="w-full max-w-[580px] mx-auto flex flex-col gap-4  mb-6">
+      <section className="mx-auto mb-6 flex w-full max-w-[580px] flex-col gap-4">
         <div className="flex items-center gap-4">
-          <h3 className="bg-secondary w-full px-2 py-1 text-md font-sans whitespace-nowrap flex items-center justify-start min-h-[2rem]">
+          <h3 className="bg-secondary text-md flex min-h-[2rem] w-full items-center justify-start px-2 py-1 font-sans whitespace-nowrap">
             WORK EXPERIENCE
           </h3>
         </div>
@@ -41,10 +41,10 @@ export function WorkExperiences({ profile }: WorkExperiencesProps) {
             const companyLink = getValidUrl(workExp.url);
 
             return (
-              <div key={workExp.$jazz.id} className="flex flex-col pb-4 gap-3">
+              <div key={workExp.$jazz.id} className="flex flex-col gap-3 pb-4">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-sans text-muted-foreground">
+                    <span className="text-muted-foreground font-sans text-sm">
                       {dateRange}
                     </span>
                   </div>
@@ -55,13 +55,13 @@ export function WorkExperiences({ profile }: WorkExperiencesProps) {
                           variant="link-title"
                           asChild
                           size="title"
-                          className="inline-flex items-center group -mx-1 justify-start overflow-hidden"
+                          className="group -mx-1 inline-flex items-center justify-start overflow-hidden"
                         >
                           <a
                             href={companyLink}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="min-w-0 flex items-center gap-1 max-w-full"
+                            className="flex max-w-full min-w-0 items-center gap-1"
                           >
                             <span className="truncate">{displayTitle}</span>
                             <ArrowUpRight className="h-4 w-4 shrink-0" />
@@ -72,7 +72,7 @@ export function WorkExperiences({ profile }: WorkExperiencesProps) {
                           variant="link-title"
                           disabled
                           size="title"
-                          className="justify-start overflow-hidden -mx-1 max-w-full"
+                          className="-mx-1 max-w-full justify-start overflow-hidden"
                         >
                           <span className="truncate">{displayTitle}</span>
                         </Button>
@@ -80,13 +80,13 @@ export function WorkExperiences({ profile }: WorkExperiencesProps) {
                     </div>
                     {workExp.location && (
                       <div className="mb-2">
-                        <span className="text-sm text-muted-foreground wrap-break-words">
+                        <span className="text-muted-foreground wrap-break-words text-sm">
                           {workExp.location}
                         </span>
                       </div>
                     )}
                     {workExp.description && (
-                      <p className="text-sm text-muted-foreground whitespace-pre-line wrap-break-words pr-1">
+                      <p className="text-muted-foreground wrap-break-words pr-1 text-sm whitespace-pre-line">
                         {workExp.description}
                       </p>
                     )}

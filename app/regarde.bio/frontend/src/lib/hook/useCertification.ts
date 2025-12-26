@@ -25,12 +25,14 @@ export function useCertification({
     // Create new list if it doesn't exist
     const owner = profile.$jazz.owner;
     if (!owner?.$isLoaded) {
-      logger.error('Cannot create certification list: profile owner is not loaded');
+      logger.error(
+        'Cannot create certification list: profile owner is not loaded',
+      );
       return undefined;
     }
 
     const newCertificationList = ListOfCertification.create([], { owner });
-    profile.$jazz.set("certification", newCertificationList);
+    profile.$jazz.set('certification', newCertificationList);
     return newCertificationList;
   };
 
@@ -91,7 +93,7 @@ export function useCertification({
       certificationData.name !== undefined &&
       certificationToUpdate.name !== certificationData.name
     ) {
-      certificationToUpdate.$jazz.set("name",certificationData.name);
+      certificationToUpdate.$jazz.set('name', certificationData.name);
       changed = true;
     }
 
@@ -99,7 +101,10 @@ export function useCertification({
       certificationData.organization !== undefined &&
       certificationToUpdate.organization !== certificationData.organization
     ) {
-      certificationToUpdate.$jazz.set("organization", certificationData.organization);
+      certificationToUpdate.$jazz.set(
+        'organization',
+        certificationData.organization,
+      );
       changed = true;
     }
 
@@ -107,27 +112,30 @@ export function useCertification({
       certificationData.issued !== undefined &&
       certificationToUpdate.issued !== certificationData.issued
     ) {
-      certificationToUpdate.$jazz.set("issued", certificationData.issued);
+      certificationToUpdate.$jazz.set('issued', certificationData.issued);
       changed = true;
     }
 
     if (certificationData.hasOwnProperty('expire')) {
       if (certificationToUpdate.expire !== certificationData.expire) {
-        certificationToUpdate.$jazz.set("expire", certificationData.expire);
+        certificationToUpdate.$jazz.set('expire', certificationData.expire);
         changed = true;
       }
     }
 
     if (certificationData.hasOwnProperty('url')) {
       if (certificationToUpdate.url !== certificationData.url) {
-        certificationToUpdate.$jazz.set("url", certificationData.url);
+        certificationToUpdate.$jazz.set('url', certificationData.url);
         changed = true;
       }
     }
 
     if (certificationData.hasOwnProperty('description')) {
       if (certificationToUpdate.description !== certificationData.description) {
-        certificationToUpdate.$jazz.set("description", certificationData.description);
+        certificationToUpdate.$jazz.set(
+          'description',
+          certificationData.description,
+        );
         changed = true;
       }
     }

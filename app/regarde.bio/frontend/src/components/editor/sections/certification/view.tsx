@@ -6,8 +6,8 @@ import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useCertification } from '#/lib/hook/useCertification';
 import {
   Certification,
-  RegardeProfile,
   ListOfCertification,
+  RegardeProfile,
 } from '#/lib/schema';
 import { EditorFooter } from '../../index';
 import { SectionHeader } from '../../layout/header';
@@ -76,7 +76,7 @@ export function CertificationView({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       <div className="shrink-0">
         <SectionHeader
           title="Certifications"
@@ -86,7 +86,7 @@ export function CertificationView({
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 overflow-x-hidden overflow-y-auto">
         {(!certifications || certifications.length === 0) && (
           <div className="flex flex-col items-center py-20">
             <Button variant="ghost" size="sm" onClick={onAddCertification}>

@@ -22,7 +22,7 @@ export interface ShortcutHandler {
  */
 export function matchesShortcut(
   event: KeyboardEvent | React.KeyboardEvent,
-  shortcut: KeyboardShortcut
+  shortcut: KeyboardShortcut,
 ): boolean {
   return (
     event.key === shortcut.key &&
@@ -57,10 +57,9 @@ export function createKeyboardHandler(handlers: ShortcutHandler[]) {
  * Hook for managing keyboard shortcuts
  */
 export function useKeyboardShortcuts(handlers: ShortcutHandler[]) {
-  const handleKeyDown = useCallback(
-    createKeyboardHandler(handlers),
-    [handlers]
-  );
+  const handleKeyDown = useCallback(createKeyboardHandler(handlers), [
+    handlers,
+  ]);
 
   return handleKeyDown;
 }
@@ -81,13 +80,13 @@ export const COMMON_SHORTCUTS = {
  */
 export function formatShortcut(shortcut: KeyboardShortcut): string {
   const parts: string[] = [];
-  
+
   if (shortcut.metaKey) parts.push('Cmd');
   if (shortcut.ctrlKey) parts.push('Ctrl');
   if (shortcut.altKey) parts.push('Alt');
   if (shortcut.shiftKey) parts.push('Shift');
-  
+
   parts.push(shortcut.key === ' ' ? 'Space' : shortcut.key);
-  
+
   return parts.join('+');
 }

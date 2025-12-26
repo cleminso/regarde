@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useProject } from '#/lib/hook/useProject';
-import { RegardeProfile, Project } from '#/lib/schema';
+import { Project, RegardeProfile } from '#/lib/schema';
 import { getValidUrl } from '#/lib/utils/utils';
 import { Input, Textarea } from '../../../ui/index';
 import { EditorFooter } from '../../layout/footer';
@@ -55,7 +55,7 @@ export function ProjectEdit({
   const handleSaveAndClose = () => {
     if (!title.trim()) {
       const shouldContinue = confirm(
-        "Adding a project title helps visitors understand what you built. Would you like to save anyway?"
+        'Adding a project title helps visitors understand what you built. Would you like to save anyway?',
       );
       if (!shouldContinue) return;
     }
@@ -77,8 +77,8 @@ export function ProjectEdit({
   };
 
   return (
-    <div className="flex flex-col h-full lg:h-full">
-      <div className="flex-1 lg:flex-1 mobile-form-bottom lg:pb-0">
+    <div className="flex h-full flex-col lg:h-full">
+      <div className="mobile-form-bottom flex-1 lg:flex-1 lg:pb-0">
         <SectionHeader
           title="Project"
           description="Showcase your project and contribution."
@@ -86,9 +86,9 @@ export function ProjectEdit({
 
         <div className="space-y-6">
           <section>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   Title<sup>*</sup>
                 </label>
                 <Input
@@ -100,8 +100,8 @@ export function ProjectEdit({
                 />
               </div>
 
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   Year
                 </label>
                 <SelectorDate
@@ -121,9 +121,9 @@ export function ProjectEdit({
           </section>
 
           <section>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   Company or client
                 </label>
                 <Input
@@ -135,8 +135,8 @@ export function ProjectEdit({
                 />
               </div>
 
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   Link to project
                 </label>
                 <Input
@@ -150,9 +150,9 @@ export function ProjectEdit({
             </div>
           </section>
 
-          <section className="flex flex-col flex-1">
-            <div className="flex flex-col gap-2 w-full h-full">
-              <label className="text-sm font-sans block text-foreground">
+          <section className="flex flex-1 flex-col">
+            <div className="flex h-full w-full flex-col gap-2">
+              <label className="text-foreground block font-sans text-sm">
                 Description
               </label>
               <Textarea
@@ -160,7 +160,7 @@ export function ProjectEdit({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Add some details"
-                className="flex-1 min-h-[270px] resize-none"
+                className="min-h-[270px] flex-1 resize-none"
               />
             </div>
           </section>

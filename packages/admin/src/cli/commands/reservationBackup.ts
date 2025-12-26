@@ -37,7 +37,9 @@ export const reservationBackupCommands: ToolConfig[] = [
 
         if (result.success) {
           Logger.success("Reservation restore completed successfully!");
-          console.log(`  • Restored ${result.restored.reservations} reservations`);
+          console.log(
+            `  • Restored ${result.restored.reservations} reservations`,
+          );
         } else {
           Logger.error("Reservation restore operation failed.");
         }
@@ -60,7 +62,9 @@ export const reservationBackupCommands: ToolConfig[] = [
           return result;
         }
 
-        Logger.info(`Found ${result.backups.length} reservation backup file(s):`);
+        Logger.info(
+          `Found ${result.backups.length} reservation backup file(s):`,
+        );
         console.log("=".repeat(80));
 
         result.backups.forEach((backup: any, index: number) => {
@@ -93,7 +97,9 @@ export const reservationBackupCommands: ToolConfig[] = [
       return withAdminService(async (admin) => {
         const daysToKeep = ctx.args.daysToKeep || 30;
 
-        Logger.info(`Cleaning reservation backup files older than ${daysToKeep} days...`);
+        Logger.info(
+          `Cleaning reservation backup files older than ${daysToKeep} days...`,
+        );
 
         const result = await admin.cleanOldReservationBackups(daysToKeep);
 

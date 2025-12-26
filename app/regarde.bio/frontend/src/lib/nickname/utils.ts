@@ -1,14 +1,14 @@
+// Validates nickname format according to business rules
+// Separate from availability checking for better separation of concerns
+
+import { UserHandle } from '@regarde-dev/sdk/regarde-users';
+
 // Determines if a nickname should be treated as a placeholder/empty
 // Used to decide between "new registration" vs "update existing" flows
 
 export function isPlaceholderNickname(nickname: string | undefined): boolean {
   return !nickname || nickname.trim() === '' || nickname === 'your-nickname';
 }
-
-// Validates nickname format according to business rules
-// Separate from availability checking for better separation of concerns
-
-import { UserHandle } from "@regarde-dev/sdk/regarde-users";
 
 export function isValidNicknameFormat(nickname: string): boolean {
   try {
@@ -24,6 +24,6 @@ export function getNicknameValidationError(nickname: string): string | null {
     UserHandle.shape.nickname.parse(nickname);
     return null;
   } catch (error: any) {
-    return error.message || "Invalid nickname format";
+    return error.message || 'Invalid nickname format';
   }
 }

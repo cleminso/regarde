@@ -31,7 +31,7 @@ export function ProfileTabs({
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={cn(
-              'font-mono text-md text-foreground duration-200',
+              'text-md text-foreground font-mono duration-200',
               'hover:text-foreground',
               activeTab === tab.id
                 ? 'text-foreground'

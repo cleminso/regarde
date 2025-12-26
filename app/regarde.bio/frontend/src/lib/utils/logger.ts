@@ -15,5 +15,5 @@ export const logger = {
   },
   success: (message: string, ...args: any[]) => {
     console.log(`[SUCCESS] ${message}`, ...args);
-  }
+  },
 };

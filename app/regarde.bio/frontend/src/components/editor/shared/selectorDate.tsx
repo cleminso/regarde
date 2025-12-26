@@ -35,7 +35,7 @@ export function SelectorDate({
       <Button
         variant="outline"
         size="lg"
-        className={cn('w-full bg-background justify-start', buttonClassName)}
+        className={cn('bg-background w-full justify-start', buttonClassName)}
         aria-hidden="true"
         tabIndex={-1}
       >
@@ -46,7 +46,7 @@ export function SelectorDate({
         value={value}
         onChange={onChange}
         className={cn(
-          'absolute inset-0 w-full h-full opacity-0 cursor-pointer',
+          'absolute inset-0 h-full w-full cursor-pointer opacity-0',
           selectClassName,
         )}
       >

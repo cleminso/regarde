@@ -27,12 +27,12 @@ export function ContactInput({
   };
 
   return (
-    <div className="flex items-center border border-input rounded-md overflow-hidden bg-background">
-      <div className="flex items-center px-3 py-3 bg-muted border-r border-border">
-        <div className="w-4 h-4 mr-2 shrink-0 text-muted-foreground">
+    <div className="border-input bg-background flex items-center overflow-hidden rounded-md border">
+      <div className="bg-muted border-border flex items-center border-r px-3 py-3">
+        <div className="text-muted-foreground mr-2 h-4 w-4 shrink-0">
           {icon}
         </div>
-        <span className="text-sm text-muted-foreground">{prefix}</span>
+        <span className="text-muted-foreground text-sm">{prefix}</span>
       </div>
       <Input
         type="text"
@@ -43,7 +43,7 @@ export function ContactInput({
         }
         onFocus={handleFocus}
         placeholder={placeholder}
-        className="border-0 bg-transparent flex-1"
+        className="flex-1 border-0 bg-transparent"
       />
     </div>
   );

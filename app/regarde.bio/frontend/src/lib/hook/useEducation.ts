@@ -29,8 +29,10 @@ export function useEducation({
       return undefined;
     }
 
-    const newEducationList = ListOfEducation.create([], { owner: profileOwner });
-    profile.$jazz.set("education", newEducationList);
+    const newEducationList = ListOfEducation.create([], {
+      owner: profileOwner,
+    });
+    profile.$jazz.set('education', newEducationList);
     return newEducationList;
   };
 
@@ -92,7 +94,7 @@ export function useEducation({
       educationData.from !== undefined &&
       educationToUpdate.from !== educationData.from
     ) {
-      educationToUpdate.$jazz.set("from", educationData.from);
+      educationToUpdate.$jazz.set('from', educationData.from);
       changed = true;
     }
 
@@ -100,7 +102,7 @@ export function useEducation({
       educationData.degree !== undefined &&
       educationToUpdate.degree !== educationData.degree
     ) {
-      educationToUpdate.$jazz.set("degree", educationData.degree);
+      educationToUpdate.$jazz.set('degree', educationData.degree);
       changed = true;
     }
 
@@ -108,34 +110,34 @@ export function useEducation({
       educationData.institution !== undefined &&
       educationToUpdate.institution !== educationData.institution
     ) {
-      educationToUpdate.$jazz.set("institution", educationData.institution);
+      educationToUpdate.$jazz.set('institution', educationData.institution);
       changed = true;
     }
 
     if (educationData.hasOwnProperty('to')) {
       if (educationToUpdate.to !== educationData.to) {
-        educationToUpdate.$jazz.set("to", educationData.to);
+        educationToUpdate.$jazz.set('to', educationData.to);
         changed = true;
       }
     }
 
     if (educationData.hasOwnProperty('location')) {
       if (educationToUpdate.location !== educationData.location) {
-        educationToUpdate.$jazz.set("location", educationData.location);
+        educationToUpdate.$jazz.set('location', educationData.location);
         changed = true;
       }
     }
 
     if (educationData.hasOwnProperty('url')) {
       if (educationToUpdate.url !== educationData.url) {
-        educationToUpdate.$jazz.set("url", educationData.url);
+        educationToUpdate.$jazz.set('url', educationData.url);
         changed = true;
       }
     }
 
     if (educationData.hasOwnProperty('description')) {
       if (educationToUpdate.description !== educationData.description) {
-        educationToUpdate.$jazz.set("description", educationData.description);
+        educationToUpdate.$jazz.set('description', educationData.description);
         changed = true;
       }
     }

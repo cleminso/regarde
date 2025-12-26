@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useAward } from '#/lib/hook/useAward.ts';
-import { Award, RegardeProfile, ListOfAward } from '#/lib/schema';
+import { Award, ListOfAward, RegardeProfile } from '#/lib/schema';
 import { EditorFooter } from '../../index';
 import { SectionHeader } from './../../layout/header';
 import { AwardCard } from './card';
@@ -63,7 +63,7 @@ export function AwardView({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       <div className="shrink-0">
         <SectionHeader
           title="Awards"
@@ -73,7 +73,7 @@ export function AwardView({
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 overflow-x-hidden overflow-y-auto">
         {(!awards || awards.length === 0) && (
           <div className="flex flex-col items-center py-20">
             <Button variant="ghost" size="sm" onClick={onAddAward}>
@@ -85,7 +85,10 @@ export function AwardView({
         {awards && awards.length > 0 && (
           <div className="space-y-6 pb-4">
             {awards
-              .filter((award): award is Loaded<typeof Award> => award?.$isLoaded === true)
+              .filter(
+                (award): award is Loaded<typeof Award> =>
+                  award?.$isLoaded === true,
+              )
               .map((award) => (
                 <AwardCard
                   key={award.$jazz.id}

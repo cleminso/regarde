@@ -6,4 +6,3 @@ export const VerifyResponseSchema = z.object({
 });
 
 export type VerifyResponse = z.infer<typeof VerifyResponseSchema>;
-

@@ -108,6 +108,6 @@ export async function ensureRegardeSDKLoaded(
 
     return regardeSDK;
   } catch (error: any) {
-    throw new Error("Failed to ensure RegardeSDK loaded");
+    throw new Error("Failed to ensure RegardeSDK loaded", { cause: error });
   }
 }

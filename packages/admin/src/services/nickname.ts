@@ -37,7 +37,9 @@ export class NicknameService implements NicknameServiceInterface {
     if (this.reservedNicknames[nickname] && !allowReserved) {
       const reservation = this.reservedNicknames[nickname];
       if (!reservation || !reservation.$isLoaded) {
-        throw new Error(`Nickname "${nickname}" reservation data not available`);
+        throw new Error(
+          `Nickname "${nickname}" reservation data not available`,
+        );
       }
       const category = reservation?.category || "unknown";
       const reservedBy = reservation?.reservedBy || "unknown";
@@ -55,7 +57,9 @@ export class NicknameService implements NicknameServiceInterface {
     if (this.reservedNicknames[nickname] && allowReserved) {
       const reservation = this.reservedNicknames[nickname];
       if (!reservation || !reservation.$isLoaded) {
-        throw new Error(`Nickname "${nickname}" reservation data not available`);
+        throw new Error(
+          `Nickname "${nickname}" reservation data not available`,
+        );
       }
       const entryReason = reservation?.reason;
       const entryCategory = reservation?.category;

@@ -43,7 +43,7 @@ export function LandingNicknameForm() {
 
   if (!onboarding.isAuthenticated || !onboarding.hasExistingNickname) {
     return (
-      <div className="w-full max-w-lg mx-auto">
+      <div className="mx-auto w-full max-w-lg">
         <NicknameInput
           value={nickname}
           onChange={setNickname}

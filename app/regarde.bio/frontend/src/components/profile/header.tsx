@@ -32,7 +32,7 @@ export function ProfileHeader({ profile, nickname }: ProfileHeaderProps) {
   return (
     <div className="@container">
       <section
-        className="mx-auto flex flex-row items-start gap-4 mb-10 sm:px-0"
+        className="mx-auto mb-10 flex flex-row items-start gap-4 sm:px-0"
         style={{ maxWidth: '580px' }}
       >
         <div className="shrink-0">
@@ -44,22 +44,22 @@ export function ProfileHeader({ profile, nickname }: ProfileHeaderProps) {
           </div>
         </div>
 
-        <div className="flex flex-row w-full gap-3">
+        <div className="flex w-full flex-row gap-3">
           <div className="flex flex-col gap-1">
-            <h2 className="text-lg font">{profile.name}</h2>
-            <p className="text-sm text-foreground">
+            <h2 className="font text-lg">{profile.name}</h2>
+            <p className="text-foreground text-sm">
               @{nickname || 'nickname-not-set'}
             </p>
           </div>
         </div>
 
-        <div className="flex flex-col h-full">
-          <div className="flex justify-end my-2">
+        <div className="flex h-full flex-col">
+          <div className="my-2 flex justify-end">
             {isAuthenticated && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="w-8 h-8 p-0">
-                    <MoreHorizontalIcon className="w-4 h-4" />
+                  <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+                    <MoreHorizontalIcon className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent

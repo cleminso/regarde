@@ -58,7 +58,7 @@ export function CertificationEdit({
   const handleSaveAndClose = () => {
     if (!name.trim()) {
       const shouldContinue = confirm(
-        "Adding the certification name helps visitors understand your credentials. Would you like to save anyway?"
+        'Adding the certification name helps visitors understand your credentials. Would you like to save anyway?',
       );
       if (!shouldContinue) return;
     }
@@ -81,8 +81,8 @@ export function CertificationEdit({
   };
 
   return (
-    <div className="flex flex-col h-full lg:h-full">
-      <div className="flex-1 lg:flex-1 mobile-form-bottom lg:pb-0">
+    <div className="flex h-full flex-col lg:h-full">
+      <div className="mobile-form-bottom flex-1 lg:flex-1 lg:pb-0">
         <SectionHeader
           title="Certification"
           description="Add professional certifications."
@@ -90,9 +90,9 @@ export function CertificationEdit({
 
         <div className="space-y-6">
           <section>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   Name<sup>*</sup>
                 </label>
                 <Input
@@ -104,8 +104,8 @@ export function CertificationEdit({
                 />
               </div>
 
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   Organization
                 </label>
                 <Input
@@ -120,9 +120,9 @@ export function CertificationEdit({
           </section>
 
           <section>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   Issued
                 </label>
                 <SelectorDate
@@ -138,8 +138,8 @@ export function CertificationEdit({
                 />
               </div>
 
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   Expires
                 </label>
                 <SelectorDate
@@ -154,8 +154,8 @@ export function CertificationEdit({
           </section>
 
           <section>
-            <div className="flex flex-col gap-2 w-full">
-              <label className="text-sm font-sans block text-foreground">
+            <div className="flex w-full flex-col gap-2">
+              <label className="text-foreground block font-sans text-sm">
                 URL
               </label>
               <Input
@@ -168,10 +168,9 @@ export function CertificationEdit({
             </div>
           </section>
 
-
           <section>
-            <div className="flex flex-col gap-2 w-full">
-              <label className="text-sm font-sans block text-foreground">
+            <div className="flex w-full flex-col gap-2">
+              <label className="text-foreground block font-sans text-sm">
                 Description
               </label>
               <Textarea

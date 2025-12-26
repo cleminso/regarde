@@ -1,5 +1,5 @@
 import { Loaded } from 'jazz-tools';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useGeneral } from '#/lib/hook/useGeneral';
@@ -72,8 +72,8 @@ export function GeneralEdit({
   };
 
   return (
-    <div className="flex flex-col h-full lg:h-full">
-      <div className="flex-1 lg:flex-1 mobile-form-bottom lg:pb-0">
+    <div className="flex h-full flex-col lg:h-full">
+      <div className="mobile-form-bottom flex-1 lg:flex-1 lg:pb-0">
         <SectionHeader
           title="General"
           description="Share some details about yourself."
@@ -116,7 +116,7 @@ export function GeneralEdit({
             />
           </section>
           <section>
-            <label className="text-sm font-sans block text-foreground">
+            <label className="text-foreground block font-sans text-sm">
               Display Name<sup>*</sup>
             </label>
             <Input
@@ -127,13 +127,13 @@ export function GeneralEdit({
               onFocus={handleDisplayNameFocus}
               onBlur={handleDisplayNameBlur}
               placeholder="Your name"
-              className="mt-2 mobile-button"
+              className="mobile-button mt-2"
             />
           </section>
 
           <section>
             <div className="flex items-center justify-between">
-              <label className="text-sm font-sans block text-foreground">
+              <label className="text-foreground block font-sans text-sm">
                 Bio
               </label>
               <span

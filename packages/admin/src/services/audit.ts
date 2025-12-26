@@ -72,10 +72,12 @@ export class AuditService implements AuditServiceInterface {
         `Retrieving audit history, limit: ${limit}, total entries: ${this.auditLog.length}`,
       );
 
-      const entries = [...this.auditLog].filter(e => e !== null) as unknown as RegistryAuditEntry[];
+      const entries = [...this.auditLog].filter(
+        (e) => e !== null,
+      ) as unknown as RegistryAuditEntry[];
 
       const sortedEntries = entries
-        .sort((a, b) => b.timestamp - a.timestamp)
+        .toSorted((a, b) => b.timestamp - a.timestamp)
         .slice(0, limit);
 
       Logger.debug(`Retrieved ${sortedEntries.length} audit entries`);
@@ -92,10 +94,13 @@ export class AuditService implements AuditServiceInterface {
     try {
       Logger.debug(`Searching audit history for account: ${accountId}`);
 
-      const entries = [...this.auditLog]
-        .filter(e => e !== null && e.$isLoaded && e.jazzAccountId === accountId) as unknown as RegistryAuditEntry[];
+      const entries = [...this.auditLog].filter(
+        (e) => e !== null && e.$isLoaded && e.jazzAccountId === accountId,
+      ) as unknown as RegistryAuditEntry[];
 
-      const sortedEntries = entries.sort((a, b) => b.timestamp - a.timestamp);
+      const sortedEntries = entries.toSorted(
+        (a, b) => b.timestamp - a.timestamp,
+      );
       Logger.debug(
         `Found ${sortedEntries.length} audit entries for account: ${accountId}`,
       );
@@ -110,10 +115,16 @@ export class AuditService implements AuditServiceInterface {
 
   async getHistoryForNickname(nickname: string): Promise<RegistryAuditEntry[]> {
     try {
-      const entries = [...this.auditLog]
-        .filter(e => e !== null && e.$isLoaded && (e.oldNickname === nickname || e.newNickname === nickname)) as unknown as RegistryAuditEntry[];
+      const entries = [...this.auditLog].filter(
+        (e) =>
+          e !== null &&
+          e.$isLoaded &&
+          (e.oldNickname === nickname || e.newNickname === nickname),
+      ) as unknown as RegistryAuditEntry[];
 
-      const sortedEntries = entries.sort((a, b) => b.timestamp - a.timestamp);
+      const sortedEntries = entries.toSorted(
+        (a, b) => b.timestamp - a.timestamp,
+      );
       Logger.debug(
         `Found ${sortedEntries.length} audit entries for nickname: ${nickname}`,
       );
@@ -131,11 +142,12 @@ export class AuditService implements AuditServiceInterface {
     limit: number = 50,
   ): Promise<RegistryAuditEntry[]> {
     try {
-      const entries = [...this.auditLog]
-        .filter(e => e !== null && e.$isLoaded && e.source === source) as unknown as RegistryAuditEntry[];
+      const entries = [...this.auditLog].filter(
+        (e) => e !== null && e.$isLoaded && e.source === source,
+      ) as unknown as RegistryAuditEntry[];
 
       const sortedEntries = entries
-        .sort((a, b) => b.timestamp - a.timestamp)
+        .toSorted((a, b) => b.timestamp - a.timestamp)
         .slice(0, limit);
 
       Logger.debug(

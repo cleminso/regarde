@@ -7,11 +7,11 @@ import { useMyRegardeAccount } from '#/lib/account/useMyRegardeAccount';
 import { fetchUserDetailsByNickname } from '#/lib/api/base';
 import { RegardeProfile } from '#/lib/schema';
 import { logger } from '#/lib/utils/logger';
+import { ScrollArea } from '../ui/scroll-area';
 import { ProfileHeader } from './header';
 import { AboutPage } from './paths/about';
 import { NowPage } from './paths/now';
 import { DEFAULT_TABS, ProfileTabs, TabId } from './tabs';
-import { ScrollArea } from '../ui/scroll-area';
 
 type LoadedProfile = co.loaded<typeof RegardeProfile>;
 
@@ -68,7 +68,7 @@ export function ProfileView() {
 
   if (isLoading) {
     return (
-      <div className="flex w-full justify-center items-center min-h-screen">
+      <div className="flex min-h-screen w-full items-center justify-center">
         <title>Loading...</title>
         <p>Loading profile...</p>
       </div>
@@ -80,19 +80,17 @@ export function ProfileView() {
     const showReturnButton = isAuthenticated;
 
     return (
-      <div className="flex w-full justify-center items-center bg-background">
+      <div className="bg-background flex w-full items-center justify-center">
         <title>Profile Not Found</title>
-        <div className="text-center space-y-6 mx-auto p-8">
+        <div className="mx-auto space-y-6 p-8 text-center">
           <div className="space-y-2">
-            <h1 className="text-2xl font-semibold text-foreground">Oops!</h1>
+            <h1 className="text-foreground text-2xl font-semibold">Oops!</h1>
             <p className="text-muted-foreground">{error}</p>
           </div>
           {showReturnButton && (
             <div className="space-y-2">
               <Button
-                onClick={() =>
-                  navigate(`/${userNickname}`)
-                }
+                onClick={() => navigate(`/${userNickname}`)}
                 variant="default"
                 className="font-mono"
               >
@@ -117,7 +115,7 @@ export function ProfileView() {
   if (userNickname === nickname) {
     if (account === undefined) {
       return (
-        <div className="flex w-full justify-center items-center min-h-screen">
+        <div className="flex min-h-screen w-full items-center justify-center">
           <p>Loading...</p>
         </div>
       );
@@ -125,7 +123,7 @@ export function ProfileView() {
 
     if (account === null || !account.$isLoaded || !regardeProfile?.$isLoaded) {
       return (
-        <div className="flex w-full justify-center items-center min-h-screen">
+        <div className="flex min-h-screen w-full items-center justify-center">
           <p>Profile not accessible</p>
         </div>
       );
@@ -139,13 +137,19 @@ export function ProfileView() {
   }
 
   return (
-    <div className="flex w-full justify-center items-center min-h-screen">
+    <div className="flex min-h-screen w-full items-center justify-center">
       <p>This nickname does not seem to exist... :(</p>
     </div>
   );
 }
 
-function ProfileContent({ profile, nickname }: { profile: LoadedProfile; nickname?: string }) {
+function ProfileContent({
+  profile,
+  nickname,
+}: {
+  profile: LoadedProfile;
+  nickname?: string;
+}) {
   const location = useLocation();
   const navigate = useNavigate();
   const { nickname: urlNickname } = useParams();
@@ -158,7 +162,9 @@ function ProfileContent({ profile, nickname }: { profile: LoadedProfile; nicknam
     if (tab.id === 'now') {
       return {
         ...tab,
-        enabled: Boolean(profile.nowPage?.$isLoaded && profile.nowPage.description),
+        enabled: Boolean(
+          profile.nowPage?.$isLoaded && profile.nowPage.description,
+        ),
       };
     }
     return tab;
@@ -190,13 +196,15 @@ function ProfileContent({ profile, nickname }: { profile: LoadedProfile; nicknam
       <title>{pageTitle}</title>
       <ProfileHeader profile={profile} nickname={urlNickname} />
 
-      <ScrollArea className="w-full max-w-full sm:max-w-[580px] mx-auto sm:px-0" viewportClassName="overflow-x-hidden">
+      <ScrollArea
+        className="mx-auto w-full max-w-full sm:max-w-[580px] sm:px-0"
+        viewportClassName="overflow-x-hidden"
+      >
         <ProfileTabs
           activeTab={activeTab}
           onTabChange={handleTabChange}
           availableTabs={availableTabs}
-          className="mb-4 sm:mb-6 overflow-x-hidden"
-
+          className="mb-4 overflow-x-hidden sm:mb-6"
         />
         {renderTabContent()}
       </ScrollArea>

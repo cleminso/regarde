@@ -30,7 +30,8 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
   const navigate = useNavigate();
   const clerk = useClerk();
 
-  const { account, isAuthenticated, regardeAuth, userNickname } = useMyRegardeAccount();
+  const { account, isAuthenticated, regardeAuth, userNickname } =
+    useMyRegardeAccount();
 
   const { getValidKey, isAccountReady } = useRegardeAuth();
 
@@ -48,9 +49,13 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
   // Single source of truth for current nickname
   const currentNickname = userNickname || '';
   // We need to check regardeAuth to get isActive since userNickname is just the string
-  const isNicknameActive = regardeAuth && regardeAuth.$isLoaded && regardeAuth.userHandle && regardeAuth.userHandle.$isLoaded
-    ? regardeAuth.userHandle.isActive
-    : false;
+  const isNicknameActive =
+    regardeAuth &&
+    regardeAuth.$isLoaded &&
+    regardeAuth.userHandle &&
+    regardeAuth.userHandle.$isLoaded
+      ? regardeAuth.userHandle.isActive
+      : false;
 
   // Validation logic
   const checkAvailability = useCallback(
@@ -133,7 +138,8 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
 
       try {
         // Check availability before registering
-        const availabilityResult = await checkNicknameAvailability(pendingNickname);
+        const availabilityResult =
+          await checkNicknameAvailability(pendingNickname);
 
         if (!availabilityResult.available) {
           if (availabilityResult.reserved) {
@@ -283,18 +289,15 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
     async (nickname: string) => {
       if (
         !nickname ||
-
-          nickname === currentNickname ||
-          isProcessing ||
-          registrationInProgress.current
-        )
-          return;
-        if (!regardeAuth || !regardeAuth.$isLoaded) {
-          setError(
-            'Regarde auth not available. Please refresh and try again.',
-          );
-          return;
-        }
+        nickname === currentNickname ||
+        isProcessing ||
+        registrationInProgress.current
+      )
+        return;
+      if (!regardeAuth || !regardeAuth.$isLoaded) {
+        setError('Regarde auth not available. Please refresh and try again.');
+        return;
+      }
 
       setIsProcessing(true);
       setError(null);
@@ -330,12 +333,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
         setIsProcessing(false);
       }
     },
-    [
-      account?.$jazz.id,
-      currentNickname,
-      isProcessing,
-      getValidKey,
-    ],
+    [account?.$jazz.id, currentNickname, isProcessing, getValidKey],
   );
 
   // View profile

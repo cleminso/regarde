@@ -25,9 +25,9 @@ export function EditorFooter({
   return (
     <div
       className={cn(
-        'lg:flex lg:justify-end lg:items-center lg:gap-2 p-4 lg:p-0 lg:pt-4 lg:border-t lg:border-border',
-        'fixed lg:static bottom-16 left-0 right-0 z-30 lg:z-auto',
-        'flex justify-between items-center gap-2  bg-card border-t border-border',
+        'lg:border-border p-4 lg:flex lg:items-center lg:justify-end lg:gap-2 lg:border-t lg:p-0 lg:pt-4',
+        'fixed right-0 bottom-16 left-0 z-30 lg:static lg:z-auto',
+        'bg-card border-border flex items-center justify-between gap-2 border-t',
         'shrink-0',
         className,
       )}

@@ -25,7 +25,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
     }
 
     const newWritingList = ListOfWriting.create([], { owner: profileOwner });
-    profile.$jazz.set("writing", newWritingList);
+    profile.$jazz.set('writing', newWritingList);
     return newWritingList;
   };
 
@@ -45,13 +45,16 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
       return undefined;
     }
 
-    const newWriting = Writing.create({
-      title: writingData.title,
-      year: writingData.year,
-      publisher: writingData.publisher,
-      url: writingData.url,
-      description: writingData.description,
-    }, { owner: listOwner });
+    const newWriting = Writing.create(
+      {
+        title: writingData.title,
+        year: writingData.year,
+        publisher: writingData.publisher,
+        url: writingData.url,
+        description: writingData.description,
+      },
+      { owner: listOwner },
+    );
     writingList.$jazz.push(newWriting);
     await triggerSyncIndicator(profile);
     return newWriting;
@@ -78,7 +81,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
       writingData.title !== undefined &&
       writingToUpdate.title !== writingData.title
     ) {
-      writingToUpdate.$jazz.set("title", writingData.title);
+      writingToUpdate.$jazz.set('title', writingData.title);
       changed = true;
     }
 
@@ -86,27 +89,27 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
       writingData.year !== undefined &&
       writingToUpdate.year !== writingData.year
     ) {
-      writingToUpdate.$jazz.set("year", writingData.year);
+      writingToUpdate.$jazz.set('year', writingData.year);
       changed = true;
     }
 
     if (writingData.hasOwnProperty('publisher')) {
       if (writingToUpdate.publisher !== writingData.publisher) {
-        writingToUpdate.$jazz.set("publisher", writingData.publisher);
+        writingToUpdate.$jazz.set('publisher', writingData.publisher);
         changed = true;
       }
     }
 
     if (writingData.hasOwnProperty('url')) {
       if (writingToUpdate.url !== writingData.url) {
-        writingToUpdate.$jazz.set("url", writingData.url);
+        writingToUpdate.$jazz.set('url', writingData.url);
         changed = true;
       }
     }
 
     if (writingData.hasOwnProperty('description')) {
       if (writingToUpdate.description !== writingData.description) {
-        writingToUpdate.$jazz.set("description", writingData.description);
+        writingToUpdate.$jazz.set('description', writingData.description);
         changed = true;
       }
     }

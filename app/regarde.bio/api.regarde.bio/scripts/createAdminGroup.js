@@ -36,7 +36,9 @@ async function createAdminGroup() {
         (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
     });
     worker = workerResult.worker;
-    console.log(`[SUCCESS] Worker connected with Account ID: ${worker.$jazz.id}`);
+    console.log(
+      `[SUCCESS] Worker connected with Account ID: ${worker.$jazz.id}`,
+    );
   } catch (error) {
     console.error("[ERROR] Failed to start Jazz worker:", error);
     process.exit(1);

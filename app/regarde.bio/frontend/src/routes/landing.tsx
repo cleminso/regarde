@@ -45,8 +45,8 @@ export function LandingPage() {
   ) {
     return (
       <BaseLayout isLandingPage={true}>
-        <div className="flex flex-col items-center text-center gap-6 py-12">
-          <Loader2 className="animate-spin mx-auto mb-4" size={32} />
+        <div className="flex flex-col items-center gap-6 py-12 text-center">
+          <Loader2 className="mx-auto mb-4 animate-spin" size={32} />
           <p>Loading your profile...</p>
         </div>
       </BaseLayout>
@@ -55,8 +55,8 @@ export function LandingPage() {
 
   return (
     <BaseLayout isLandingPage={true}>
-      <div className="flex flex-col items-center text-center gap-3 py-12">
-        <h1 className="text-2xl font-medium text-foreground mb-8">
+      <div className="flex flex-col items-center gap-3 py-12 text-center">
+        <h1 className="text-foreground mb-8 text-2xl font-medium">
           The only online profile you will ever need. Build one, use it
           everywhere.
         </h1>

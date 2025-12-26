@@ -14,7 +14,12 @@ export function useDefaultAvatar(
       return profile.avatarImage;
     }
 
-    if (profile.avatarImage && profile.avatarImage.$isLoaded && profile.avatarImage.original && profile.avatarImage.original.$isLoaded) {
+    if (
+      profile.avatarImage &&
+      profile.avatarImage.$isLoaded &&
+      profile.avatarImage.original &&
+      profile.avatarImage.original.$isLoaded
+    ) {
       try {
         const blob = profile.avatarImage.original.toBlob();
         if (blob) {

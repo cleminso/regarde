@@ -64,5 +64,3 @@ export const verifyRoute = createRoute({
     - error: string (optional) - Error message if validation failed
   `,
 });
-
-

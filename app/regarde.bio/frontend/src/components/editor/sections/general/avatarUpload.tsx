@@ -41,7 +41,7 @@ export function AvatarUpload({
           onDrop={onDrop}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
-          className="w-[92px] h-[92px] flex justify-center text-sm text-center cursor-pointer transition-colors overflow-hidden"
+          className="flex h-[92px] w-[92px] cursor-pointer justify-center overflow-hidden text-center text-sm transition-colors"
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
@@ -56,15 +56,15 @@ export function AvatarUpload({
           <ProfileAvatar
             profile={profile}
             size={92}
-            className="w-full h-full"
+            className="h-full w-full"
           />
         </div>
       </div>
-      <div className="h-full flex flex-col justify-end gap-1">
+      <div className="flex h-full flex-col justify-end gap-1">
         <button
           type="button"
           onClick={onAvatarClick}
-          className="text-sm text-muted-foreground hover:text-primary cursor-pointer"
+          className="text-muted-foreground hover:text-primary cursor-pointer text-sm"
           aria-label="Upload new avatar"
         >
           Upload
@@ -73,7 +73,7 @@ export function AvatarUpload({
           <button
             type="button"
             onClick={onRemoveAvatar}
-            className="text-sm text-muted-foreground hover:text-destructive cursor-pointer"
+            className="text-muted-foreground hover:text-destructive cursor-pointer text-sm"
             aria-label="Remove current avatar"
           >
             Remove

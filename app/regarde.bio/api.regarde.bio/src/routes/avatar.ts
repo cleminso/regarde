@@ -52,9 +52,8 @@ export const avatarHandler = () => {
       }
 
       // Load profile data to get avatar
-      const { RegardeAccount, RegardeProfile } = await import(
-        "@regarde-dev/jazz-schemas"
-      );
+      const { RegardeAccount, RegardeProfile } =
+        await import("@regarde-dev/jazz-schemas");
 
       const jazzUserAccount = await RegardeAccount.load(accountId, {
         resolve: { profile: { "regarde.bio": true } },

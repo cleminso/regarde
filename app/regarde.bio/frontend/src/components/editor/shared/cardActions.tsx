@@ -13,13 +13,13 @@ export function EditorCardActions<T>({
   onDelete,
 }: EditorCardActionsProps<T>) {
   return (
-    <div className="flex flex-row -mx-1">
+    <div className="-mx-1 flex flex-row">
       <Button
         variant="ghost"
         size="sm"
         onClick={() => onEdit(item)}
         className={cn(
-          'hover:text-foreground hover:bg-transparent hover:underline underline-offset-4 pl-1',
+          'hover:text-foreground pl-1 underline-offset-4 hover:bg-transparent hover:underline',
         )}
       >
         Edit
@@ -29,7 +29,7 @@ export function EditorCardActions<T>({
         size="sm"
         onClick={() => onDelete(item)}
         className={cn(
-          'hover:text-destructive hover:bg-transparent hover:underline underline-offset-4',
+          'hover:text-destructive underline-offset-4 hover:bg-transparent hover:underline',
         )}
       >
         Delete

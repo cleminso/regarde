@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import { TriggerSyncIndicator } from '#/lib/hook/types.ts';
 import { useSpeaking } from '#/lib/hook/useSpeaking.ts';
-import { RegardeProfile, ListOfSpeaking, Speaking } from '#/lib/schema';
+import { ListOfSpeaking, RegardeProfile, Speaking } from '#/lib/schema';
 import { EditorFooter } from '../../index';
 import { SectionHeader } from './../../layout/header';
 import { SpeakingCard } from './card';
@@ -63,7 +63,7 @@ export function SpeakingView({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       <div className="shrink-0">
         <SectionHeader
           title="Speaking"
@@ -73,7 +73,7 @@ export function SpeakingView({
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 overflow-x-hidden overflow-y-auto">
         {(!speaking || speaking.length === 0) && (
           <div className="flex flex-col items-center py-20">
             <Button variant="ghost" size="sm" onClick={onAddSpeaking}>

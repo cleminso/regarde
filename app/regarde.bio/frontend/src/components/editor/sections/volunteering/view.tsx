@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useVolunteering } from '#/lib/hook/useVolunteering';
-import { RegardeProfile, ListOfVolunteering, Volunteering } from '#/lib/schema';
+import { ListOfVolunteering, RegardeProfile, Volunteering } from '#/lib/schema';
 import { EditorFooter } from '../../index';
 import { SectionHeader } from '../../layout/header';
 import { VolunteeringCard } from './card';
@@ -73,7 +73,7 @@ export function VolunteeringView({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       <div className="shrink-0">
         <SectionHeader
           title="Volunteering"
@@ -83,7 +83,7 @@ export function VolunteeringView({
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 overflow-x-hidden overflow-y-auto">
         {(!volunteering || volunteering.length === 0) && (
           <div className="flex flex-col items-center py-20">
             <Button variant="ghost" size="sm" onClick={onAddVolunteering}>

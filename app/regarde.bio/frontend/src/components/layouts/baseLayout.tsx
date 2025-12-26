@@ -6,15 +6,17 @@ interface BaseLayoutProps {
   isLandingPage?: boolean;
 }
 
-export function BaseLayout({ 
-  children, 
-  showHeader = true, 
-  isLandingPage = false 
+export function BaseLayout({
+  children,
+  showHeader = true,
+  isLandingPage = false,
 }: BaseLayoutProps) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       {showHeader && <LandingHeader />}
-      <main className={`${isLandingPage ? 'container mt-12' : 'container-full'} ${showHeader ? 'py-6' : ''}`}>
+      <main
+        className={`${isLandingPage ? 'container mt-12' : 'container-full'} ${showHeader ? 'py-6' : ''}`}
+      >
         {children}
       </main>
     </div>

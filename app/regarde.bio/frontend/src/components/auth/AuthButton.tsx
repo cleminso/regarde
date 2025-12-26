@@ -48,7 +48,7 @@ export function AuthButton() {
         <Button
           variant="ghost"
           size="sm"
-          className="touch-hitbox text-xs sm:text-sm px-2 sm:px-3"
+          className="touch-hitbox px-2 text-xs sm:px-3 sm:text-sm"
           onClick={() => {
             setAuthMode('login');
             setShowAuthModal(true);
@@ -60,7 +60,7 @@ export function AuthButton() {
         <Button
           variant="ghost"
           size="sm"
-          className="touch-hitbox text-xs sm:text-sm px-2 sm:px-3"
+          className="touch-hitbox px-2 text-xs sm:px-3 sm:text-sm"
           onClick={() => {
             setAuthMode('register');
             setShowAuthModal(true);

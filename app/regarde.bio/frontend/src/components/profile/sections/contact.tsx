@@ -16,7 +16,7 @@ export function Contact({ profile }: ContactProps) {
   }
 
   return (
-    <div className="flex gap-2 flex-wrap -mx-1">
+    <div className="-mx-1 flex flex-wrap gap-2">
       {socialLinks.map((link) => (
         <Button
           key={link.key}

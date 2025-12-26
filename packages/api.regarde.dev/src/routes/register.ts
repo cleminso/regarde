@@ -106,5 +106,3 @@ export const registerRoute = createRoute({
     - Account must own the oldNickname to perform swap/delete operations
   `,
 });
-
-

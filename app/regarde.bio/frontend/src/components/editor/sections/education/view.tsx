@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useEducation } from '#/lib/hook/useEducation.ts';
-import { Education, RegardeProfile, ListOfEducation } from '#/lib/schema';
+import { Education, ListOfEducation, RegardeProfile } from '#/lib/schema';
 import { EditorFooter } from '../../index';
 import { SectionHeader } from './../../layout/header';
 import { EducationCard } from './card';
@@ -63,7 +63,7 @@ export function EducationView({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       <div className="shrink-0">
         <SectionHeader
           title="Education"
@@ -73,7 +73,7 @@ export function EducationView({
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 overflow-x-hidden overflow-y-auto">
         {(!education || education.length === 0) && (
           <div className="flex flex-col items-center py-20">
             <Button variant="ghost" size="sm" onClick={onAddEducation}>
@@ -85,7 +85,10 @@ export function EducationView({
         {education && education.length > 0 && (
           <div className="space-y-6 pb-4">
             {education
-              .filter((edu): edu is Loaded<typeof Education> => edu?.$isLoaded === true)
+              .filter(
+                (edu): edu is Loaded<typeof Education> =>
+                  edu?.$isLoaded === true,
+              )
               .map((edu) => (
                 <EducationCard
                   key={edu.$jazz.id}

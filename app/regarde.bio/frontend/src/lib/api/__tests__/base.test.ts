@@ -8,7 +8,8 @@
  * 3. Handle critical access control decisions
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import { validateNicknameOwnership } from '../base';
 
 // Test data helpers for maintainability
@@ -31,7 +32,11 @@ describe('validateNicknameOwnership - Essential Business Logic Only', () => {
   it('should return valid when account owns the requested nickname', () => {
     const userDetails = createUserDetails();
 
-    const result = validateNicknameOwnership(userDetails, TEST_ACCOUNT_ID, TEST_NICKNAME);
+    const result = validateNicknameOwnership(
+      userDetails,
+      TEST_ACCOUNT_ID,
+      TEST_NICKNAME,
+    );
 
     expect(result).toEqual({
       isValid: true,
@@ -44,7 +49,11 @@ describe('validateNicknameOwnership - Essential Business Logic Only', () => {
       nickname: OTHER_NICKNAME, // Account owns 'otheruser' but requesting 'testuser'
     });
 
-    const result = validateNicknameOwnership(userDetails, TEST_ACCOUNT_ID, TEST_NICKNAME);
+    const result = validateNicknameOwnership(
+      userDetails,
+      TEST_ACCOUNT_ID,
+      TEST_NICKNAME,
+    );
 
     expect(result).toEqual({
       isValid: false,
@@ -58,7 +67,11 @@ describe('validateNicknameOwnership - Essential Business Logic Only', () => {
       jazzAccountId: OTHER_ACCOUNT_ID, // Different account owns this nickname
     });
 
-    const result = validateNicknameOwnership(userDetails, TEST_ACCOUNT_ID, TEST_NICKNAME);
+    const result = validateNicknameOwnership(
+      userDetails,
+      TEST_ACCOUNT_ID,
+      TEST_NICKNAME,
+    );
 
     expect(result).toEqual({
       isValid: false,
@@ -72,7 +85,11 @@ describe('validateNicknameOwnership - Essential Business Logic Only', () => {
       exists: false, // exists is false but account still owns the nickname
     });
 
-    const result = validateNicknameOwnership(userDetails, TEST_ACCOUNT_ID, TEST_NICKNAME);
+    const result = validateNicknameOwnership(
+      userDetails,
+      TEST_ACCOUNT_ID,
+      TEST_NICKNAME,
+    );
 
     // Should return valid because ownership check comes first in the business logic
     expect(result).toEqual({

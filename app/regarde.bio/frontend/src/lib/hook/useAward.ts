@@ -27,7 +27,7 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
     }
 
     const newAwardsList = ListOfAward.create([], { owner });
-    profile.$jazz.set("award", newAwardsList);
+    profile.$jazz.set('award', newAwardsList);
     return newAwardsList;
   };
 
@@ -84,12 +84,12 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
       awardData.title !== undefined &&
       awardToUpdate.title !== awardData.title
     ) {
-      awardToUpdate.$jazz.set("title", awardData.title);
+      awardToUpdate.$jazz.set('title', awardData.title);
       changed = true;
     }
 
     if (awardData.year !== undefined && awardToUpdate.year !== awardData.year) {
-      awardToUpdate.$jazz.set("year", awardData.year);
+      awardToUpdate.$jazz.set('year', awardData.year);
       changed = true;
     }
 
@@ -97,20 +97,20 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
       awardData.presenter !== undefined &&
       awardToUpdate.presenter !== awardData.presenter
     ) {
-      awardToUpdate.$jazz.set("presenter", awardData.presenter);
+      awardToUpdate.$jazz.set('presenter', awardData.presenter);
       changed = true;
     }
 
     if (awardData.hasOwnProperty('url')) {
       if (awardToUpdate.url !== awardData.url) {
-        awardToUpdate.$jazz.set("url", awardData.url);
+        awardToUpdate.$jazz.set('url', awardData.url);
         changed = true;
       }
     }
 
     if (awardData.hasOwnProperty('description')) {
       if (awardToUpdate.description !== awardData.description) {
-        awardToUpdate.$jazz.set("description", awardData.description);
+        awardToUpdate.$jazz.set('description', awardData.description);
         changed = true;
       }
     }

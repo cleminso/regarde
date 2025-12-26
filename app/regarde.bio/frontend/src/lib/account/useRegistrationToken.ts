@@ -1,6 +1,5 @@
-import { useCallback } from 'react';
-
 import { useRegardeAuth as useSDKRegardeAuth } from '@regarde-dev/sdk/react';
+import { useCallback } from 'react';
 
 import { useMyRegardeAccount } from './useMyRegardeAccount';
 
@@ -14,7 +13,8 @@ export type GetValidKeyFunction = () => GetValidKeyFunctionOutput;
 export function useRegardeAuth() {
   const { account, isAccountReady } = useMyRegardeAccount();
 
-  const regardeAuth = account && account.$isLoaded ? account.root['regarde-sdk'] : undefined;
+  const regardeAuth =
+    account && account.$isLoaded ? account.root['regarde-sdk'] : undefined;
   const isLoading = account === undefined || (account && !account.$isLoaded);
   const isAccessible = regardeAuth !== null;
 

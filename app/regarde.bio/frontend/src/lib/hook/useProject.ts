@@ -24,7 +24,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
     }
 
     const newProjectsList = ListOfProjects.create([], { owner: profileOwner });
-    profile.$jazz.set("projects", newProjectsList);
+    profile.$jazz.set('projects', newProjectsList);
     return newProjectsList;
   };
 
@@ -81,7 +81,7 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
       projectData.title !== undefined &&
       projectToUpdate.title !== projectData.title
     ) {
-      projectToUpdate.$jazz.set("title", projectData.title);
+      projectToUpdate.$jazz.set('title', projectData.title);
       changed = true;
     }
 
@@ -89,27 +89,27 @@ export function useProject({ profile, triggerSyncIndicator }: UseProjectProps) {
       projectData.year !== undefined &&
       projectToUpdate.year !== projectData.year
     ) {
-      projectToUpdate.$jazz.set("year", projectData.year);
+      projectToUpdate.$jazz.set('year', projectData.year);
       changed = true;
     }
 
     if (projectData.hasOwnProperty('client')) {
       if (projectToUpdate.client !== projectData.client) {
-        projectToUpdate.$jazz.set("client", projectData.client);
+        projectToUpdate.$jazz.set('client', projectData.client);
         changed = true;
       }
     }
 
     if (projectData.hasOwnProperty('link')) {
       if (projectToUpdate.link !== projectData.link) {
-        projectToUpdate.$jazz.set("link", projectData.link);
+        projectToUpdate.$jazz.set('link', projectData.link);
         changed = true;
       }
     }
 
     if (projectData.hasOwnProperty('description')) {
       if (projectToUpdate.description !== projectData.description) {
-        projectToUpdate.$jazz.set("description", projectData.description);
+        projectToUpdate.$jazz.set('description', projectData.description);
         changed = true;
       }
     }

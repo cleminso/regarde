@@ -52,4 +52,3 @@ export const verifyHandler = (worker: Loaded<typeof RegistryWorkerAccount>) => {
     }
   };
 };
-

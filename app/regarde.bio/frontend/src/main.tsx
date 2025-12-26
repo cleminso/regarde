@@ -43,14 +43,18 @@ createRoot(document.getElementById('root')!).render(
         >
           <JazzProvider>
             <JazzInspector position="bottom left" />
-            <Suspense fallback={
-              <div className="flex items-center justify-center min-h-screen bg-background">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                  <p className="text-sm text-muted-foreground font-mono">Loading...</p>
+            <Suspense
+              fallback={
+                <div className="bg-background flex min-h-screen items-center justify-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2"></div>
+                    <p className="text-muted-foreground font-mono text-sm">
+                      Loading...
+                    </p>
+                  </div>
                 </div>
-              </div>
-            }>
+              }
+            >
               <Routes>
                 <Route path="/" element={<routes.LandingPage />} />
 
@@ -61,7 +65,10 @@ createRoot(document.getElementById('root')!).render(
                 </Route>
 
                 <Route element={<ProtectedRoute />}>
-                  <Route path="/:nickname/edit" element={<routes.EditorPage />} />
+                  <Route
+                    path="/:nickname/edit"
+                    element={<routes.EditorPage />}
+                  />
                 </Route>
 
                 <Route path="*" element={<routes.NotFoundPage />} />

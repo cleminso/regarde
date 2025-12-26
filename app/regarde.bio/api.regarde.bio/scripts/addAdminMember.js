@@ -53,7 +53,9 @@ async function addAdminMember() {
         (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
     });
     worker = workerResult.worker;
-    console.log(`[SUCCESS] Worker connected with Account ID: ${worker.$jazz.id}`);
+    console.log(
+      `[SUCCESS] Worker connected with Account ID: ${worker.$jazz.id}`,
+    );
   } catch (error) {
     console.error("[ERROR] Failed to start Jazz worker:", error);
     process.exit(1);
@@ -65,7 +67,9 @@ async function addAdminMember() {
     const adminGroup = await Group.load(ADMIN_GROUP_ID, worker);
 
     if (!adminGroup) {
-      console.error(`[ERROR] Failed to load admin group with ID: ${ADMIN_GROUP_ID}`);
+      console.error(
+        `[ERROR] Failed to load admin group with ID: ${ADMIN_GROUP_ID}`,
+      );
       process.exit(1);
     }
 
@@ -76,7 +80,9 @@ async function addAdminMember() {
     const adminAccount = await Account.load(ADMIN_ACCOUNT_ID, worker);
 
     if (!adminAccount) {
-      console.error(`[ERROR] Failed to load account with ID: ${ADMIN_ACCOUNT_ID}`);
+      console.error(
+        `[ERROR] Failed to load account with ID: ${ADMIN_ACCOUNT_ID}`,
+      );
       console.log(
         "[INFO] Make sure the account ID is correct and the account exists",
       );
@@ -100,7 +106,9 @@ async function addAdminMember() {
     // Verify the member was added
     const role = adminGroup.getRoleOf(ADMIN_ACCOUNT_ID);
     if (role) {
-      console.log(`[SUCCESS] Verification: Account has role "${role}" in the group`);
+      console.log(
+        `[SUCCESS] Verification: Account has role "${role}" in the group`,
+      );
     } else {
       console.warn("[WARN] Could not verify member role");
     }

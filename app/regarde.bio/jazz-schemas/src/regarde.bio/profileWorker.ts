@@ -26,4 +26,3 @@ export const ProfileWorkerAccount = co.account({
 });
 
 export type ProfileWorkerAccount = co.loaded<typeof ProfileWorkerAccount>;
-

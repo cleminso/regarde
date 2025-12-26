@@ -145,7 +145,9 @@ export function CustomAuthModal({
         onClose();
         resetForm();
       } else if (result.status === 'missing_requirements') {
-        const isTestMode = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY?.includes('test');
+        const isTestMode = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY?.includes(
+          'test',
+        );
 
         if (isTestMode) {
           if (nicknameContext) {
@@ -177,11 +179,11 @@ export function CustomAuthModal({
   if (!signInLoaded || !signUpLoaded) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[480px] bg-card border-border">
+        <DialogContent className="bg-card border-border sm:max-w-[480px]">
           <div className="flex items-center justify-center p-6">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-2 text-muted-foreground font-mono">Loading...</p>
+              <div className="border-primary mx-auto h-8 w-8 animate-spin rounded-full border-b-2"></div>
+              <p className="text-muted-foreground mt-2 font-mono">Loading...</p>
             </div>
           </div>
         </DialogContent>
@@ -191,9 +193,9 @@ export function CustomAuthModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[480px] h-[400px] bg-card border-border">
+      <DialogContent className="bg-card border-border h-[400px] sm:max-w-[480px]">
         <DialogHeader className="text-center">
-          <DialogTitle className="text-xl font-mono text-foreground">
+          <DialogTitle className="text-foreground font-mono text-xl">
             {pendingVerification
               ? 'Verify your email'
               : initialMode === 'login'
@@ -221,7 +223,7 @@ export function CustomAuthModal({
 
         <div className="space-y-6">
           {error && (
-            <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-md font-mono">
+            <div className="text-destructive-foreground bg-destructive/10 border-destructive/20 rounded-md border p-3 font-mono text-sm">
               {error}
             </div>
           )}
@@ -244,7 +246,7 @@ export function CustomAuthModal({
 
               <Button
                 type="submit"
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-mono"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 w-full font-mono"
                 disabled={!verificationCode || isLoading}
               >
                 {isLoading ? 'Verifying...' : 'Verify Email'}
@@ -254,7 +256,7 @@ export function CustomAuthModal({
                 type="button"
                 variant="ghost"
                 onClick={() => setPendingVerification(false)}
-                className="w-full font-mono text-foreground"
+                className="text-foreground w-full font-mono"
               >
                 Back to register
               </Button>
@@ -309,7 +311,7 @@ export function CustomAuthModal({
                 <Button
                   type="submit"
                   variant="default"
-                  className="w-full text-foreground font-mono h-11"
+                  className="text-foreground h-11 w-full font-mono"
                   disabled={!email || !password || isLoading}
                 >
                   {isLoading
@@ -329,7 +331,7 @@ export function CustomAuthModal({
                   </span>
                   <button
                     onClick={switchMode}
-                    className="text-foreground hover:underline hover:underline-offset-2 font-mono "
+                    className="text-foreground font-mono hover:underline hover:underline-offset-2"
                   >
                     {initialMode === 'login' ? 'register' : 'Log In'}
                   </button>

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useProject } from '#/lib/hook/useProject.ts';
-import { RegardeProfile, ListOfProjects, Project } from '#/lib/schema';
+import { ListOfProjects, Project, RegardeProfile } from '#/lib/schema';
 import { EditorFooter } from '../../index';
 import { SectionHeader } from './../../layout/header';
 import { ProjectCard } from './card';
@@ -63,7 +63,7 @@ export function ProjectView({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       <div className="shrink-0">
         <SectionHeader
           title="Projects"
@@ -73,7 +73,7 @@ export function ProjectView({
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 overflow-x-hidden overflow-y-auto">
         {(!projects || projects.length === 0) && (
           <div className="flex flex-col items-center py-20">
             <Button variant="ghost" size="sm" onClick={onAddProject}>

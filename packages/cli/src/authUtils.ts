@@ -38,7 +38,9 @@ export async function loadAuthenticatedRegardeSDK() {
       accountSecret: String(parsed.accountSecret || ""),
     };
   } catch (e) {
-    throw new Error("Invalid credentials format. Please re-login.");
+    throw new Error("Invalid credentials format. Please re-login.", {
+      cause: e,
+    });
   }
 
   const { accountID, accountSecret } = creds;
@@ -72,7 +74,9 @@ export async function loadAuthenticatedRegardeSDK() {
   } catch (error: any) {
     // Provide user-friendly error messages for common issues
     if (error.message.includes("not logged in")) {
-      throw new Error("Please run 'regarde login' first to authenticate.");
+      throw new Error("Please run 'regarde login' first to authenticate.", {
+        cause: error,
+      });
     }
 
     if (
@@ -81,6 +85,7 @@ export async function loadAuthenticatedRegardeSDK() {
     ) {
       throw new Error(
         "Network connectivity issue. Please check your internet connection and try again.",
+        { cause: error },
       );
     }
 
@@ -90,6 +95,7 @@ export async function loadAuthenticatedRegardeSDK() {
     ) {
       throw new Error(
         "Account access issue. Please re-login to refresh your session.",
+        { cause: error },
       );
     }
 

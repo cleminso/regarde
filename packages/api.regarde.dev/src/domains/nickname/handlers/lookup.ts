@@ -29,4 +29,3 @@ export const lookupHandler = (nicknameRegistry: NicknameRegistry) => {
     }
   };
 };
-

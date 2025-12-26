@@ -28,7 +28,7 @@ export function useSpeaking({
     }
 
     const newSpeakingList = ListOfSpeaking.create([], { owner: profileOwner });
-    profile.$jazz.set("speaking", newSpeakingList);
+    profile.$jazz.set('speaking', newSpeakingList);
     return newSpeakingList;
   };
 
@@ -87,42 +87,42 @@ export function useSpeaking({
       speakingData.title !== undefined &&
       speakingToUpdate.title !== speakingData.title
     ) {
-      speakingToUpdate.$jazz.set("title", speakingData.title);
+      speakingToUpdate.$jazz.set('title', speakingData.title);
       changed = true;
     }
 
     if (
       speakingData.year !== undefined &&
-      speakingToUpdate.$jazz.set("year", speakingData.year)
+      speakingToUpdate.$jazz.set('year', speakingData.year)
     ) {
-      speakingToUpdate.$jazz.set("year", speakingData.year);
+      speakingToUpdate.$jazz.set('year', speakingData.year);
       changed = true;
     }
 
     if (speakingData.hasOwnProperty('event')) {
       if (speakingToUpdate.event !== speakingData.event) {
-        speakingToUpdate.$jazz.set("event", speakingData.event);
+        speakingToUpdate.$jazz.set('event', speakingData.event);
         changed = true;
       }
     }
 
     if (speakingData.hasOwnProperty('location')) {
       if (speakingToUpdate.location !== speakingData.location) {
-        speakingToUpdate.$jazz.set("location", speakingData.location);
+        speakingToUpdate.$jazz.set('location', speakingData.location);
         changed = true;
       }
     }
 
     if (speakingData.hasOwnProperty('url')) {
       if (speakingToUpdate.url !== speakingData.url) {
-        speakingToUpdate.$jazz.set("url", speakingData.url);
+        speakingToUpdate.$jazz.set('url', speakingData.url);
         changed = true;
       }
     }
 
     if (speakingData.hasOwnProperty('description')) {
       if (speakingToUpdate.description !== speakingData.description) {
-        speakingToUpdate.$jazz.set("description", speakingData.description);
+        speakingToUpdate.$jazz.set('description', speakingData.description);
         changed = true;
       }
     }
@@ -133,15 +133,15 @@ export function useSpeaking({
   };
 
   const deleteSpeaking = async (speakingId: string) => {
-  if (!profile.$isLoaded) {
-    logger.error('Profile is not loaded');
-    return;
-  }
-  const speakingList = profile.speaking;
-  if (!speakingList?.$isLoaded) {
-    logger.warn('No speaking list to delete from or not loaded.');
-    return;
-  }
+    if (!profile.$isLoaded) {
+      logger.error('Profile is not loaded');
+      return;
+    }
+    const speakingList = profile.speaking;
+    if (!speakingList?.$isLoaded) {
+      logger.warn('No speaking list to delete from or not loaded.');
+      return;
+    }
     const speakingIndex = speakingList.findIndex(
       (s: any) => s && s.$isLoaded && s.$jazz.id === speakingId,
     );

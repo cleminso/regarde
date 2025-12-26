@@ -214,22 +214,23 @@ export class HealthService implements HealthServiceInterface {
               resolve: {
                 root: {
                   "regarde-sdk": {
-                    userHandle: true,
+                    myUserHandle: true,
                   },
                 },
               },
             });
 
-            if (!sdkData.root?.$isLoaded || !sdkData.root["regarde-sdk"]?.$isLoaded) {
+            if (
+              !sdkData.root?.$isLoaded ||
+              !sdkData.root["regarde-sdk"]?.$isLoaded
+            ) {
               report.profileStatus = "missing";
               report.issues.push(
                 `Account "${targetAccountId}" has no SDK data`,
               );
-              report.recommendations.push(
-                `Create SDK data for account`,
-              );
+              report.recommendations.push(`Create SDK data for account`);
             } else {
-              const userHandle = sdkData.root["regarde-sdk"].userHandle;
+              const userHandle = sdkData.root["regarde-sdk"].myUserHandle;
 
               if (!userHandle?.$isLoaded) {
                 report.profileStatus = "missing";

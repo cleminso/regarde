@@ -3,9 +3,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import {
-  createMockCheckAvailabilityRequest,
-} from "#/test-utils/index.js";
+import { createMockCheckAvailabilityRequest } from "#/test-utils/index.js";
 
 // Simple business logic functions to test availability checking
 function validateNickname(nickname: string) {
@@ -68,7 +66,10 @@ describe("Nickname Availability Logic - Business Rules", () => {
     // Test availability checking logic
     const existingNicknames = ["taken", "reserved"];
 
-    const availableResult = checkNicknameAvailability("newuser", existingNicknames);
+    const availableResult = checkNicknameAvailability(
+      "newuser",
+      existingNicknames,
+    );
     expect(availableResult.available).toBe(true);
 
     const takenResult = checkNicknameAvailability("taken", existingNicknames);
@@ -80,7 +81,11 @@ describe("Nickname Availability Logic - Business Rules", () => {
     // Test case handling business logic
     const existingNicknames = ["taken"];
 
-    expect(checkNicknameAvailability("TAKEN", existingNicknames).available).toBe(false);
-    expect(checkNicknameAvailability("TaKeN", existingNicknames).available).toBe(false);
+    expect(
+      checkNicknameAvailability("TAKEN", existingNicknames).available,
+    ).toBe(false);
+    expect(
+      checkNicknameAvailability("TaKeN", existingNicknames).available,
+    ).toBe(false);
   });
 });

@@ -23,6 +23,7 @@ pnpm dev
 api.regarde.bio uses a `ProfileWorkerAccount` to load user profiles (RegardeAccount and RegardeProfile). This is separate from the `RegistryWorkerAccount` used by api.regarde.dev.
 
 **Why separate workers?**
+
 - **Security**: api.regarde.bio doesn't need write access to nickname registries
 - **Separation of concerns**: Each service has its own worker with appropriate permissions
 - **Independence**: Services can be deployed/scaled independently
@@ -49,6 +50,7 @@ Save these credentials securely!
 ```
 
 **Important:**
+
 - The Account ID is public and identifies the worker
 - The Account Secret is private and must be kept secure (never commit to git)
 - Both are needed to run the worker
@@ -148,4 +150,3 @@ After setting up the worker account:
 1. Test profile loading by accessing a user profile via api.regarde.bio
 2. Verify that nickname lookups work through the api.regarde.dev API
 3. Monitor logs for any permission or access issues
-

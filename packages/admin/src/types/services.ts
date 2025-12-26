@@ -60,9 +60,18 @@ export interface ReservationDetails {
 }
 
 export interface NicknameServiceInterface {
-  addNickname(nickname: string, accountId: string, allowReserved?: boolean): Promise<{ success: boolean }>;
-  updateNickname(nickname: string, newAccountId: string): Promise<{ success: boolean; oldAccountId?: string }>;
-  removeNickname(nickname: string): Promise<{ success: boolean; removedAccountId?: string }>;
+  addNickname(
+    nickname: string,
+    accountId: string,
+    allowReserved?: boolean,
+  ): Promise<{ success: boolean }>;
+  updateNickname(
+    nickname: string,
+    newAccountId: string,
+  ): Promise<{ success: boolean; oldAccountId?: string }>;
+  removeNickname(
+    nickname: string,
+  ): Promise<{ success: boolean; removedAccountId?: string }>;
   validateNickname(nickname: string): void;
   validateAccountId(accountId: string): void;
 }
@@ -71,7 +80,7 @@ export interface NicknameServiceInterface {
 export interface ReservationResult {
   success: boolean;
   nickname: string;
-  previousState?: 'available' | 'taken' | 'reserved';
+  previousState?: "available" | "taken" | "reserved";
   reservation?: ReservationDetails;
   warnings?: string[];
   metadata?: {
@@ -89,36 +98,62 @@ export interface ReservationListResult {
 export interface ReservationStatusResult {
   isReserved: boolean;
   reservation?: ReservationDetails;
-  state: 'available' | 'taken' | 'reserved';
+  state: "available" | "taken" | "reserved";
   warnings?: string[];
 }
 
 export interface ReservationServiceInterface {
-  reserveNickname(nickname: string, category?: "admin" | "brand" | "system" | "offensive" | "custom", reason?: string): Promise<ReservationResult>;
+  reserveNickname(
+    nickname: string,
+    category?: "admin" | "brand" | "system" | "offensive" | "custom",
+    reason?: string,
+  ): Promise<ReservationResult>;
   unreserveNickname(nickname: string): Promise<ReservationResult>;
-  listReservedNicknames(category?: "admin" | "brand" | "system" | "offensive" | "custom"): Promise<ReservationListResult>;
+  listReservedNicknames(
+    category?: "admin" | "brand" | "system" | "offensive" | "custom",
+  ): Promise<ReservationListResult>;
   checkReservationStatus(nickname: string): Promise<ReservationStatusResult>;
   isReserved(nickname: string): Promise<boolean>;
 }
 
 export interface BackupServiceInterface {
   downloadRegistries(): Promise<string>;
-  restoreFromBackup(backupFile: string): Promise<{ success: boolean; restored: { nicknames: number; accounts: number } }>;
-  deleteAll(): Promise<{ success: boolean; backupFile: string; deleted: { nicknames: number; accounts: number } }>;
+  restoreFromBackup(backupFile: string): Promise<{
+    success: boolean;
+    restored: { nicknames: number; accounts: number };
+  }>;
+  deleteAll(): Promise<{
+    success: boolean;
+    backupFile: string;
+    deleted: { nicknames: number; accounts: number };
+  }>;
   listBackups(): Promise<{ backups: BackupInfo[] }>;
-  cleanOldBackups(daysToKeep?: number): Promise<{ success: boolean; deletedFiles: string[]; deletedCount: number }>;
+  cleanOldBackups(daysToKeep?: number): Promise<{
+    success: boolean;
+    deletedFiles: string[];
+    deletedCount: number;
+  }>;
 }
 
 export interface ReservationBackupServiceInterface {
   backupReservations(): Promise<string>;
-  restoreReservations(backupFile: string): Promise<{ success: boolean; restored: { reservations: number } }>;
+  restoreReservations(
+    backupFile: string,
+  ): Promise<{ success: boolean; restored: { reservations: number } }>;
   listReservationBackups(): Promise<{ backups: ReservationBackupInfo[] }>;
-  cleanOldReservationBackups(daysToKeep?: number): Promise<{ success: boolean; deletedFiles: string[]; deletedCount: number }>;
+  cleanOldReservationBackups(daysToKeep?: number): Promise<{
+    success: boolean;
+    deletedFiles: string[];
+    deletedCount: number;
+  }>;
 }
 
 export interface HealthServiceInterface {
   healthCheck(): Promise<HealthReport>;
-  checkNicknameHealth(nickname?: string, accountId?: string): Promise<NicknameHealthReport>;
+  checkNicknameHealth(
+    nickname?: string,
+    accountId?: string,
+  ): Promise<NicknameHealthReport>;
   fixNickname(nickname?: string, accountId?: string): Promise<FixResult>;
 }
 
@@ -130,12 +165,13 @@ export interface AuditServiceInterface {
     source?: "admin-cli" | "user-app" | "worker",
     action?: "add" | "update" | "remove" | "reserve" | "unreserve",
     reservationReason?: string,
-    reservationCategory?: "admin" | "brand" | "system" | "offensive" | "custom"
+    reservationCategory?: "admin" | "brand" | "system" | "offensive" | "custom",
   ): Promise<void>;
   getChangeHistory(limit?: number): Promise<RegistryAuditEntry[]>;
   getHistoryForAccount(accountId: string): Promise<RegistryAuditEntry[]>;
   getHistoryForNickname(nickname: string): Promise<RegistryAuditEntry[]>;
-  getHistoryBySource(source: "admin-cli" | "user-app" | "worker", limit?: number): Promise<RegistryAuditEntry[]>;
+  getHistoryBySource(
+    source: "admin-cli" | "user-app" | "worker",
+    limit?: number,
+  ): Promise<RegistryAuditEntry[]>;
 }
-
-

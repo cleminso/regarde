@@ -1,9 +1,9 @@
+import { Loaded } from 'jazz-tools';
 import { useCallback, useState } from 'react';
 
 import { logger } from '#/lib/utils/logger';
-import { TriggerSyncIndicator } from './types';
 import { RegardeProfile } from '../schema';
-import { Loaded } from 'jazz-tools';
+import { TriggerSyncIndicator } from './types';
 
 export function useSyncState() {
   const [syncState, setSyncState] = useState<'saved' | 'syncing' | 'error'>(
@@ -23,7 +23,7 @@ export function useSyncState() {
 
       try {
         // Use Jazz's waitForSync with appropriate timeout
-          await regardeProfile.$jazz.waitForSync({ timeout: 5000 });
+        await regardeProfile.$jazz.waitForSync({ timeout: 5000 });
         setSyncState('saved');
       } catch (error) {
         logger.error('Profile sync failed:', error);

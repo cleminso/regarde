@@ -14,4 +14,3 @@ export const LookupResponseSchema = z.object({
 
 export type LookupRequest = z.infer<typeof LookupRequestSchema>;
 export type LookupResponse = z.infer<typeof LookupResponseSchema>;
-

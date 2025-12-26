@@ -12,7 +12,7 @@ console.log("Available commands:", Object.keys(testCommand));
 // Simulate CLI usage
 console.log("\n📋 Testing commands:");
 console.log("1. regarde login");
-console.log("2. regarde whoami"); 
+console.log("2. regarde whoami");
 console.log("3. regarde register-app");
 
 export { testCommand };

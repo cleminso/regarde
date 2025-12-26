@@ -1,12 +1,11 @@
 import {
-  registerNickname as sdkRegisterNickname,
   checkNicknameAvailability as sdkCheckNicknameAvailability,
+  registerNickname as sdkRegisterNickname,
+  type CheckAvailabilityResponse,
 } from '@regarde-dev/sdk/regarde-users';
-import type { CheckAvailabilityResponse } from '@regarde-dev/sdk/regarde-users';
 
-
-import { API_BASE_URL, AUTH_BASE_URL } from '../config/apiKey';
 import { GetValidKeyFunction } from '../account/useRegistrationToken';
+import { API_BASE_URL, AUTH_BASE_URL } from '../config/apiKey';
 
 export interface RegisterRequest {
   nickname: string;
@@ -49,7 +48,9 @@ export async function checkNicknameAvailability(
   } catch (error) {
     // Handle 503 errors specifically
     if (error instanceof Error && error.message.includes('503')) {
-      throw new Error('Service is initializing, please try again in a moment');
+      throw new Error('Service is initializing, please try again in a moment', {
+        cause: error,
+      });
     }
     throw error;
   }

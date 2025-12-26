@@ -11,4 +11,3 @@ export {
   type LookupRequest,
   type LookupResponse,
 } from "./lookup";
-

@@ -24,9 +24,15 @@ export function NowPageView({
     triggerSyncIndicator,
   });
 
-  const [title, setTitle] = useState(nowPage && nowPage.$isLoaded ? nowPage.title || '' : '');
-  const [location, setLocation] = useState(nowPage && nowPage.$isLoaded ? nowPage.location || '' : '');
-  const [description, setDescription] = useState(nowPage && nowPage.$isLoaded ? nowPage.description || '' : '');
+  const [title, setTitle] = useState(
+    nowPage && nowPage.$isLoaded ? nowPage.title || '' : '',
+  );
+  const [location, setLocation] = useState(
+    nowPage && nowPage.$isLoaded ? nowPage.location || '' : '',
+  );
+  const [description, setDescription] = useState(
+    nowPage && nowPage.$isLoaded ? nowPage.description || '' : '',
+  );
 
   const handleSave = () => {
     if (description.trim()) {
@@ -44,8 +50,8 @@ export function NowPageView({
   };
 
   return (
-    <div className="flex flex-col h-full lg:h-full">
-      <div className="flex-1 lg:flex-1 mobile-form-bottom lg:pb-0">
+    <div className="flex h-full flex-col lg:h-full">
+      <div className="mobile-form-bottom flex-1 lg:flex-1 lg:pb-0">
         <SectionHeader
           title="Now"
           description={
@@ -74,8 +80,8 @@ export function NowPageView({
 
         <div className="space-y-6">
           <section>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex flex-col gap-2 w-full">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="flex w-full flex-col gap-2">
                 <Label htmlFor="now-title">Title</Label>
                 <Input
                   type="text"
@@ -86,7 +92,7 @@ export function NowPageView({
                 />
               </div>
 
-              <div className="flex flex-col gap-2 w-full">
+              <div className="flex w-full flex-col gap-2">
                 <Label htmlFor="now-location">Location</Label>
                 <Input
                   type="text"
@@ -100,8 +106,8 @@ export function NowPageView({
           </section>
 
           <section>
-            <div className="flex flex-col gap-2 w-full h-full">
-              <label className="text-sm font-sans block text-foreground">
+            <div className="flex h-full w-full flex-col gap-2">
+              <label className="text-foreground block font-sans text-sm">
                 Description<sup>*</sup>
               </label>
               <Textarea

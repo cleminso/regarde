@@ -261,7 +261,7 @@ export function NicknameInput({
       {label && (
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-sans block text-foreground">
+            <label className="text-foreground block font-sans text-sm">
               {label.text}
               {label.required && <sup>*</sup>}
             </label>
@@ -273,17 +273,17 @@ export function NicknameInput({
       )}
 
       <div className="space-y-2 sm:space-y-0">
-        <div className="text-sm text-muted-foreground font-mono sm:hidden">
+        <div className="text-muted-foreground font-mono text-sm sm:hidden">
           regarde.bio/
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-transparent border border-input rounded-md overflow-hidden w-full">
+        <div className="border-input flex w-full flex-col items-stretch overflow-hidden rounded-md border bg-transparent sm:flex-row sm:items-center">
           {/* Domain prefix - show inline on desktop */}
-          <div className="hidden sm:flex items-center px-3 py-3 bg-secondary border-r border-border">
-            <span className="text-sm text-foreground">regarde.bio/</span>
+          <div className="bg-secondary border-border hidden items-center border-r px-3 py-3 sm:flex">
+            <span className="text-foreground text-sm">regarde.bio/</span>
           </div>
 
-          <div className="flex items-center flex-1">
+          <div className="flex flex-1 items-center">
             <Input
               type="text"
               value={value}
@@ -292,14 +292,14 @@ export function NicknameInput({
               onBlur={handleInputBlur}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              className="border-0 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1 px-3 py-3"
+              className="flex-1 border-0 bg-transparent px-3 py-3 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
               disabled={isInputDisabled}
               aria-describedby={
                 errorDisplay.position === 'below' ? 'nickname-error' : undefined
               }
             />
 
-            <div className="flex items-center px-3 py-1 justify-end min-w-[80px] sm:min-w-[100px]">
+            <div className="flex min-w-[80px] items-center justify-end px-3 py-1 sm:min-w-[100px]">
               {renderButton()}
             </div>
           </div>

@@ -7,7 +7,7 @@ import { UserHandle } from "@regarde-dev/sdk/regarde-users";
 export class ValidationError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'ValidationError';
+    this.name = "ValidationError";
   }
 }
 
@@ -38,7 +38,7 @@ export function validateReservationCategory(category: string): void {
   const validCategories = ["admin", "brand", "system", "offensive", "custom"];
   if (!validCategories.includes(category)) {
     throw new ValidationError(
-      `Invalid reservation category. Must be one of: ${validCategories.join(", ")}`
+      `Invalid reservation category. Must be one of: ${validCategories.join(", ")}`,
     );
   }
 }
@@ -52,6 +52,8 @@ export function validateReservationReason(reason?: string): void {
   }
 
   if (reason && reason.length > 200) {
-    throw new ValidationError("Reservation reason must be no more than 200 characters");
+    throw new ValidationError(
+      "Reservation reason must be no more than 200 characters",
+    );
   }
 }

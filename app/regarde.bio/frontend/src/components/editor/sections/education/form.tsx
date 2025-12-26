@@ -61,7 +61,7 @@ export function EducationEdit({
   const handleSaveAndClose = () => {
     if (!degree.trim()) {
       const shouldContinue = confirm(
-        "Adding your degree helps visitors understand your educational background. Would you like to save anyway?"
+        'Adding your degree helps visitors understand your educational background. Would you like to save anyway?',
       );
       if (!shouldContinue) return;
     }
@@ -85,8 +85,8 @@ export function EducationEdit({
   };
 
   return (
-    <div className="flex flex-col h-full lg:h-full">
-      <div className="flex-1 lg:flex-1 mobile-form-bottom lg:pb-0">
+    <div className="flex h-full flex-col lg:h-full">
+      <div className="mobile-form-bottom flex-1 lg:flex-1 lg:pb-0">
         <SectionHeader
           title="Education"
           description="Showcase your academic background and achievements."
@@ -94,9 +94,9 @@ export function EducationEdit({
 
         <div className="space-y-6">
           <section>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   Degree<sup>*</sup>
                 </label>
                 <Input
@@ -108,8 +108,8 @@ export function EducationEdit({
                 />
               </div>
 
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   Institution
                 </label>
                 <Input
@@ -124,9 +124,9 @@ export function EducationEdit({
           </section>
 
           <section>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   From
                 </label>
                 <SelectorDate
@@ -142,8 +142,8 @@ export function EducationEdit({
                 />
               </div>
 
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   To
                 </label>
                 <SelectorDate
@@ -158,9 +158,9 @@ export function EducationEdit({
           </section>
 
           <section>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   Location
                 </label>
                 <Input
@@ -172,8 +172,8 @@ export function EducationEdit({
                 />
               </div>
 
-              <div className="flex flex-col gap-2 w-full">
-                <label className="text-sm font-sans block text-foreground">
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-foreground block font-sans text-sm">
                   URL
                 </label>
                 <Input
@@ -187,10 +187,9 @@ export function EducationEdit({
             </div>
           </section>
 
-
           <section>
-            <div className="flex flex-col gap-2 w-full">
-              <label className="text-sm font-sans block text-foreground">
+            <div className="flex w-full flex-col gap-2">
+              <label className="text-foreground block font-sans text-sm">
                 Description
               </label>
               <Textarea

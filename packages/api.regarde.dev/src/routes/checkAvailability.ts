@@ -56,6 +56,3 @@ export const checkAvailabilityRoute = createRoute({
   description:
     "Check if a nickname is available for registration without making any changes to the registry",
 });
-
-
-

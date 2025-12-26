@@ -1,5 +1,8 @@
 import { createRoute } from "@hono/zod-openapi";
-import { RegardeAccount, RegardeProfile } from "@regarde-dev/jazz-schemas/regarde.bio";
+import {
+  RegardeAccount,
+  RegardeProfile,
+} from "@regarde-dev/jazz-schemas/regarde.bio";
 import { z } from "zod";
 
 export const profilePageRoute = createRoute({

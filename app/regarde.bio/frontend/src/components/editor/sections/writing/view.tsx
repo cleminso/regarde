@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useWriting } from '#/lib/hook/useWriting.ts';
-import { RegardeProfile, ListOfWriting, Writing } from '#/lib/schema';
+import { ListOfWriting, RegardeProfile, Writing } from '#/lib/schema';
 import { EditorFooter } from '../../index';
 import { SectionHeader } from './../../layout/header';
 import { WritingCard } from './card';
@@ -63,7 +63,7 @@ export function WritingView({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       <div className="shrink-0">
         <SectionHeader
           title="Writing"
@@ -73,7 +73,7 @@ export function WritingView({
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 overflow-x-hidden overflow-y-auto">
         {(!writing || writing.length === 0) && (
           <div className="flex flex-col items-center py-20">
             <Button variant="ghost" size="sm" onClick={onAddWriting}>

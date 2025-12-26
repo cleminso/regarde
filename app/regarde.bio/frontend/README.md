@@ -5,6 +5,7 @@ A minimal starter template for building apps with **[Jazz](https://jazz.tools)**
 ## Creating an app
 
 Create a new Jazz app.
+
 ```bash
 npx create-jazz-app@latest
 ```
@@ -33,7 +34,7 @@ Open [http://localhost:5173](http://localhost:5173) with your browser to see the
 
 ## Learning Jazz
 
-You can start by playing with the form, adding a new field in [./src/schema.ts](./src/schema.ts), 
+You can start by playing with the form, adding a new field in [./src/schema.ts](./src/schema.ts),
 and seeing how easy it is to structure your data, and perform basic operations.
 
 To learn more, check out the [full tutorial](https://jazz.tools/docs/react/guide).
@@ -41,7 +42,6 @@ To learn more, check out the [full tutorial](https://jazz.tools/docs/react/guide
 ## Questions / problems / feedback
 
 If you have feedback, let us know on [Discord](https://discord.gg/utDMjHYg42) or open an issue or PR to fix something that seems wrong.
-
 
 ## Configuration: sync server
 

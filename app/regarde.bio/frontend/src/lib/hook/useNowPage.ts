@@ -27,20 +27,23 @@ export function useNowPage({ profile, triggerSyncIndicator }: UseNowPageProps) {
       if (!profileOwner?.$isLoaded) return;
 
       if (!profile.nowPage || !profile.nowPage.$isLoaded) {
-        profile.$jazz.set("nowPage", NowPage.create(
-          {
-            title: data.title,
-            location: data.location,
-            description: data.description,
-            lastUpdated: Date.now(),
-          },
-          { owner: profileOwner },
-        ));
+        profile.$jazz.set(
+          'nowPage',
+          NowPage.create(
+            {
+              title: data.title,
+              location: data.location,
+              description: data.description,
+              lastUpdated: Date.now(),
+            },
+            { owner: profileOwner },
+          ),
+        );
       } else {
-        profile.nowPage.$jazz.set("title", data.title);
-        profile.nowPage.$jazz.set("location", data.location);
-        profile.nowPage.$jazz.set("description", data.description);
-        profile.nowPage.$jazz.set("lastUpdated", Date.now());
+        profile.nowPage.$jazz.set('title', data.title);
+        profile.nowPage.$jazz.set('location', data.location);
+        profile.nowPage.$jazz.set('description', data.description);
+        profile.nowPage.$jazz.set('lastUpdated', Date.now());
       }
 
       await triggerSyncIndicator(profile);

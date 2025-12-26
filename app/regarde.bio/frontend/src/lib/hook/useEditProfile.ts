@@ -2,7 +2,13 @@ import { useMyRegardeAccount } from '../account/useMyRegardeAccount';
 import { useSyncState } from './useSyncState';
 
 export function useEditProfile() {
-  const { account, regardeProfile, regardeAuth, userNickname, isAuthenticated } = useMyRegardeAccount();
+  const {
+    account,
+    regardeProfile,
+    regardeAuth,
+    userNickname,
+    isAuthenticated,
+  } = useMyRegardeAccount();
   const { syncState, triggerSyncIndicator } = useSyncState();
 
   const isLoading = account === undefined;

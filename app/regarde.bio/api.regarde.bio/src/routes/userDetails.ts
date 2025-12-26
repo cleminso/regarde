@@ -141,9 +141,7 @@ export const userDetailsHandler = () => {
               process.env.AUTH_SERVICE_URL || "https://api.regarde.dev";
             const lookupUrl = `${authServiceUrl}/lookup/${encodeURIComponent(queryNickname)}`;
 
-            console.log(
-              `Calling api.regarde.dev lookup API: ${lookupUrl}`,
-            );
+            console.log(`Calling api.regarde.dev lookup API: ${lookupUrl}`);
 
             const lookupResponse = await fetch(lookupUrl);
 

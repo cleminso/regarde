@@ -18,9 +18,9 @@ export function ThemeToggle() {
       className="touch-hitbox"
     >
       {theme === 'dark' ? (
-        <Moon className="h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 bg-none" />
+        <Moon className="h-[1.2rem] w-[1.2rem] scale-0 rotate-90 bg-none transition-all dark:scale-100 dark:rotate-0" />
       ) : (
-        <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+        <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
       )}
       <span className="sr-only">Toggle theme (current: {theme})</span>
     </Button>

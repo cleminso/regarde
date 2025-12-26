@@ -3,12 +3,14 @@
 ## UI Development Principles
 
 ### Design System Alignment
+
 - Follow the [interfaces.rauno.me](https://interfaces.rauno.me) patterns for component design
 - Use semantic HTML elements first, style with Tailwind classes second
 - Implement mobile-first responsive design
 - Ensure accessibility remains high priority (ARIA labels, keyboard navigation)
 
 ### Component Architecture
+
 - Build components as composable pieces
 - Prefer utility-first CSS over custom CSS
 - Use Tailwind's component approach for repeated patterns

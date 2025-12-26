@@ -41,9 +41,7 @@ interface ReservationBackupData {
   };
 }
 
-export class ReservationBackupService
-  implements ReservationBackupServiceInterface
-{
+export class ReservationBackupService implements ReservationBackupServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
     private reservedNicknames: ReservedNicknamesRegistry,
@@ -107,7 +105,9 @@ export class ReservationBackupService
       const fileContent = readFileSync(backupFile, "utf-8");
       backupData = JSON.parse(fileContent);
     } catch (error) {
-      throw new Error(`Failed to parse backup file: ${error}`);
+      throw new Error(`Failed to parse backup file: ${error}`, {
+        cause: error,
+      });
     }
 
     if (!backupData.reservedNicknames || !backupData.metadata) {

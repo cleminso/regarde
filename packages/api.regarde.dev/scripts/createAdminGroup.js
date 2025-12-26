@@ -12,7 +12,7 @@ async function createAdminGroup() {
   // Validate environment variables
   if (!process.env.JAZZ_WORKER_ACCOUNT || !process.env.JAZZ_WORKER_SECRET) {
     console.error(
-      "❌ Error: JAZZ_WORKER_ACCOUNT and JAZZ_WORKER_SECRET environment variables must be set."
+      "❌ Error: JAZZ_WORKER_ACCOUNT and JAZZ_WORKER_SECRET environment variables must be set.",
     );
     process.exit(1);
   }
@@ -41,26 +41,27 @@ async function createAdminGroup() {
     // Create the admin group with worker as owner
     console.log("🔧 Creating admin group...");
     const adminGroup = Group.create({ owner: worker });
-    
+
     // Add admin permissions for specific accounts
     // TODO: Replace with actual admin account IDs
     // adminGroup.addMember("co_admin_account_1", "admin");
     // adminGroup.addMember("co_admin_account_2", "admin");
-    
+
     console.log("✅ Admin group created successfully!");
     console.log("📋 Group Details:");
     console.log(`   Group ID: ${adminGroup.id}`);
     console.log(`   Owner: ${worker.id}`);
-    
+
     console.log("\n🎯 COPY THIS GROUP ID:");
     console.log(`${adminGroup.id}`);
-    
+
     console.log("\n📝 Next steps:");
     console.log("1. Copy the Group ID above");
     console.log("2. Update packages/jazz-schemas/src/profile.ts");
-    console.log("3. Replace the empty string in jazzProfileAdminGroupID with this ID");
+    console.log(
+      "3. Replace the empty string in jazzProfileAdminGroupID with this ID",
+    );
     console.log("4. Add admin members to the group as needed");
-    
   } catch (error) {
     console.error("❌ Failed to create admin group:", error);
     process.exit(1);

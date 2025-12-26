@@ -32,7 +32,7 @@ function SidebarButton({ isActive, onClick, children }: SidebarButtonProps) {
       onClick={onClick}
       size="md"
       className={cn(
-        'w-full justify-start px-4 lg:px-6 text-sm font-medium',
+        'w-full justify-start px-4 text-sm font-medium lg:px-6',
         isActive
           ? 'bg-secondary text-foreground border-border hover:bg-secondary hover:text-foreground cursor-pointer'
           : 'text-foreground hover:bg-secondary hover:text-foreground cursor-pointer',
@@ -72,27 +72,27 @@ export function EditorSidebar({
 
   return (
     <>
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-sidebar border-t border-sidebar-border">
+      <div className="bg-sidebar border-sidebar-border fixed right-0 bottom-0 left-0 z-40 border-t lg:hidden">
         <Drawer open={open} onOpenChange={setOpen}>
           <DrawerTrigger asChild>
-            <button className="w-full p-4 flex items-center justify-between hover:bg-sidebar-accent transition-colors">
+            <button className="hover:bg-sidebar-accent flex w-full items-center justify-between p-4 transition-colors">
               <div className="flex flex-col items-start">
-                <span className="text-xs text-muted-foreground">Section</span>
-                <span className="text-sm font-medium text-foreground">
+                <span className="text-muted-foreground text-xs">Section</span>
+                <span className="text-foreground text-sm font-medium">
                   {sections.find((s) => s.key === activeSection)?.name ||
                     'Profile'}
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <SyncStateBadge syncState={syncState} />
-                <ChevronUpIcon className="h-5 w-5 text-muted-foreground" />
+                <ChevronUpIcon className="text-muted-foreground h-5 w-5" />
               </div>
             </button>
           </DrawerTrigger>
 
           <DrawerContent>
             <DrawerHeader>
-              <DrawerTitle className="font-mono text-foreground">
+              <DrawerTitle className="text-foreground font-mono">
                 Profile Sections
               </DrawerTitle>
             </DrawerHeader>
@@ -112,9 +112,9 @@ export function EditorSidebar({
         </Drawer>
       </div>
 
-      <div className="hidden lg:flex lg:w-[25%] flex-col bg-sidebar pt-6 border-r border-sidebar-border">
+      <div className="bg-sidebar border-sidebar-border hidden flex-col border-r pt-6 lg:flex lg:w-[25%]">
         <div className="flex items-center justify-between px-6 pb-3">
-          <h2 className="text-lg font-sans">Profile</h2>
+          <h2 className="font-sans text-lg">Profile</h2>
           <SyncStateBadge syncState={syncState} />
         </div>
 

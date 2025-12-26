@@ -13,18 +13,18 @@ export function NowPage({ profile }: NowPageProps) {
   if (!nowPage?.$isLoaded || !nowPage.description) {
     return (
       <div className="@container">
-        <section className="w-full max-w-[580px] mx-auto flex flex-col gap-6 mb-10">
-          <div className="text-center py-20">
-            <p className="text-sm text-foreground">
+        <section className="mx-auto mb-10 flex w-full max-w-[580px] flex-col gap-6">
+          <div className="py-20 text-center">
+            <p className="text-foreground text-sm">
               This person hasn't shared what they're doing now.
             </p>
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="text-muted-foreground mt-2 text-xs">
               Learn more about{' '}
               <a
                 href="https://nownownow.com/about"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground underline hover:text-foreground hover:underline"
+                className="text-muted-foreground hover:text-foreground underline hover:underline"
               >
                 now page
               </a>
@@ -37,13 +37,13 @@ export function NowPage({ profile }: NowPageProps) {
 
   return (
     <div className="@container">
-      <section className="w-full max-w-[580px] mx-auto flex flex-col gap-6 mb-10">
+      <section className="mx-auto mb-10 flex w-full max-w-[580px] flex-col gap-6">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-medium text-foreground">
+          <h2 className="text-foreground text-lg font-medium">
             {nowPage.title || "What I'm doing now"}
           </h2>
           {nowPage.location && (
-            <div className="flex items-center gap-1 text-sm text-foreground">
+            <div className="text-foreground flex items-center gap-1 text-sm">
               <span>at</span>
               <span>{nowPage.location}</span>
             </div>
@@ -51,25 +51,25 @@ export function NowPage({ profile }: NowPageProps) {
         </div>
 
         <div className="prose prose-sm max-w-none">
-          <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
+          <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
             {nowPage.description}
           </p>
         </div>
 
-        <div className="pt-4 border-t border-border flex justify-between items-center">
-          <p className="text-xs text-muted-foreground">
+        <div className="border-border flex items-center justify-between border-t pt-4">
+          <p className="text-muted-foreground text-xs">
             Learn more about{' '}
             <a
               href="https://nownownow.com/about"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-muted-foreground underline underline-offset-3 hover:text-foreground hover:underline"
+              className="text-muted-foreground hover:text-foreground underline underline-offset-3 hover:underline"
             >
               now page
             </a>
             .
           </p>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-muted-foreground text-xs">
             Updated {formatTimestamp(nowPage.lastUpdated)}
           </span>
         </div>

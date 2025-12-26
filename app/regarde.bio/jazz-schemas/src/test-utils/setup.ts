@@ -3,7 +3,7 @@
  * This file is automatically run before all tests via vitest.config.ts
  */
 
-import { beforeEach } from 'vitest';
+import { beforeEach } from "vitest";
 
 // Global test configuration
 beforeEach(() => {

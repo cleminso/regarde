@@ -34,7 +34,11 @@ function validateRegistrationRequest(request: any) {
   };
 }
 
-function validateRegardeAuth(token: string, validToken: string, expiresAt: number) {
+function validateRegardeAuth(
+  token: string,
+  validToken: string,
+  expiresAt: number,
+) {
   if (token !== validToken) {
     return {
       isValid: false,
@@ -136,7 +140,11 @@ describe("Nickname Registration Logic - Business Rules", () => {
     const futureExpiry = Date.now() + 3600000;
 
     // Valid token
-    const validResult = validateRegardeAuth(validToken, validToken, futureExpiry);
+    const validResult = validateRegardeAuth(
+      validToken,
+      validToken,
+      futureExpiry,
+    );
     expect(validResult.isValid).toBe(true);
 
     // Invalid token
@@ -150,7 +158,11 @@ describe("Nickname Registration Logic - Business Rules", () => {
 
     // Expired token
     const pastExpiry = Date.now() - 3600000;
-    const expiredResult = validateRegardeAuth(validToken, validToken, pastExpiry);
+    const expiredResult = validateRegardeAuth(
+      validToken,
+      validToken,
+      pastExpiry,
+    );
     expect(expiredResult.isValid).toBe(false);
     expect(expiredResult.reason).toBe("Registration token has expired");
   });

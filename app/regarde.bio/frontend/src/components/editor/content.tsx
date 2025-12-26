@@ -43,8 +43,14 @@ import {
 import { editorSections, SectionType } from './shared/index.ts';
 
 export function ProfileEditor() {
-  const { profile, accountId, userNickname, isLoading, syncState, triggerSyncIndicator } =
-    useEditProfile();
+  const {
+    profile,
+    accountId,
+    userNickname,
+    isLoading,
+    syncState,
+    triggerSyncIndicator,
+  } = useEditProfile();
   const [activeSection, setActiveSection] = useState<SectionType>(
     editorSections.general,
   );
@@ -231,8 +237,8 @@ export function ProfileEditor() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-4 min-h-[600px]">
-        <div className="w-[840px] h-[600px] flex items-center justify-center p-6 border-0 shadow-none bg-card text-card-foreground rounded-xl"></div>
+      <div className="flex min-h-[600px] items-center justify-center p-4">
+        <div className="bg-card text-card-foreground flex h-[600px] w-[840px] items-center justify-center rounded-xl border-0 p-6 shadow-none"></div>
       </div>
     );
   }
@@ -247,7 +253,7 @@ export function ProfileEditor() {
         />
       }
       mainContent={
-        <div className="flex-1 lg:w-[75%] bg-card flex flex-col lg:px-6 py-4 lg:py-6">
+        <div className="bg-card flex flex-1 flex-col py-4 lg:w-[75%] lg:px-6 lg:py-6">
           <>
             {activeSection === editorSections.general && (
               <GeneralEdit

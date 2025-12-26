@@ -58,7 +58,7 @@ export const mockJazzHooks = {
 // Custom render function with Router context
 function customRender(
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
+  options?: Omit<RenderOptions, 'wrapper'>,
 ) {
   const Wrapper = ({ children }: { children: React.ReactNode }) => (
     <BrowserRouter>{children}</BrowserRouter>

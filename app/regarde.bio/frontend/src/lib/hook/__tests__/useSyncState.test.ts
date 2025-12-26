@@ -2,12 +2,12 @@
  * Focused tests for sync state management - testing core business logic only
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 // Core business logic for sync state transitions
 function calculateSyncStateTransition(
   currentState: 'saved' | 'syncing' | 'error',
-  action: 'start' | 'success' | 'error'
+  action: 'start' | 'success' | 'error',
 ) {
   switch (action) {
     case 'start':

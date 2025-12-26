@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button, DestructiveConfirmationDialog } from '#/components/ui';
 import { TriggerSyncIndicator } from '#/lib/hook/types';
 import { useSideProject } from '#/lib/hook/useSideProject.ts';
-import { RegardeProfile, ListOfSideProject, SideProject } from '#/lib/schema';
+import { ListOfSideProject, RegardeProfile, SideProject } from '#/lib/schema';
 import { EditorFooter } from '../../index';
 import { SectionHeader } from './../../layout/header';
 import { SideProjectCard } from './card';
@@ -68,7 +68,7 @@ export function SideProjectView({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       <div className="shrink-0">
         <SectionHeader
           title="Side Projects"
@@ -78,7 +78,7 @@ export function SideProjectView({
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 overflow-x-hidden overflow-y-auto">
         {(!sideProjects || sideProjects.length === 0) && (
           <div className="flex flex-col items-center py-20">
             <Button variant="ghost" size="sm" onClick={onAddSideProject}>

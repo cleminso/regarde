@@ -20,12 +20,14 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
     // Create new list if it doesn't exist
     const profileOwner = profile.$jazz.owner;
     if (!profileOwner?.$isLoaded) {
-      logger.error('Cannot create work experience list: profile owner is not loaded');
+      logger.error(
+        'Cannot create work experience list: profile owner is not loaded',
+      );
       return undefined;
     }
 
     const newWorkExpList = ListOfWorkExp.create([], { owner: profileOwner });
-    profile.$jazz.set("workExp", newWorkExpList);
+    profile.$jazz.set('workExp', newWorkExpList);
     return newWorkExpList;
   };
 
@@ -47,25 +49,24 @@ export function useWorkExp({ profile, triggerSyncIndicator }: UseWorkExpProps) {
       return undefined;
     }
 
+    if (!listOwner?.$isLoaded) return undefined;
 
-if (!listOwner?.$isLoaded) return undefined;
-
-const newWorkExp = WorkExp.create(
-  {
-    title: workExpData.title || 'Work Experience',
-    company: workExpData.company,
-    location: workExpData.location,
-    url: workExpData.url,
-    description: workExpData.description,
-    from: workExpData.from,
-    to: workExpData.to,
-  },
-  { owner: listOwner },
-);
-workExpList.$jazz.push(newWorkExp);
-await triggerSyncIndicator(profile);
-return newWorkExp;
-};
+    const newWorkExp = WorkExp.create(
+      {
+        title: workExpData.title || 'Work Experience',
+        company: workExpData.company,
+        location: workExpData.location,
+        url: workExpData.url,
+        description: workExpData.description,
+        from: workExpData.from,
+        to: workExpData.to,
+      },
+      { owner: listOwner },
+    );
+    workExpList.$jazz.push(newWorkExp);
+    await triggerSyncIndicator(profile);
+    return newWorkExp;
+  };
 
   const updateWorkExp = async (
     workExpToUpdate: Loaded<typeof WorkExp>,
@@ -90,7 +91,7 @@ return newWorkExp;
       workExpData.from !== undefined &&
       workExpToUpdate.from !== workExpData.from
     ) {
-      workExpToUpdate.$jazz.set("from", workExpData.from);
+      workExpToUpdate.$jazz.set('from', workExpData.from);
       changed = true;
     }
 
@@ -98,7 +99,10 @@ return newWorkExp;
       workExpData.title !== undefined &&
       workExpToUpdate.title !== workExpData.title
     ) {
-      workExpToUpdate.$jazz.set("title", workExpData.title || 'Work Experience');
+      workExpToUpdate.$jazz.set(
+        'title',
+        workExpData.title || 'Work Experience',
+      );
       changed = true;
     }
 
@@ -106,34 +110,34 @@ return newWorkExp;
       workExpData.company !== undefined &&
       workExpToUpdate.company !== workExpData.company
     ) {
-      workExpToUpdate.$jazz.set("company", workExpData.company);
+      workExpToUpdate.$jazz.set('company', workExpData.company);
       changed = true;
     }
 
     if (workExpData.hasOwnProperty('to')) {
       if (workExpToUpdate.to !== workExpData.to) {
-        workExpToUpdate.$jazz.set("to", workExpData.to);
+        workExpToUpdate.$jazz.set('to', workExpData.to);
         changed = true;
       }
     }
 
     if (workExpData.hasOwnProperty('location')) {
       if (workExpToUpdate.location !== workExpData.location) {
-        workExpToUpdate.$jazz.set("location", workExpData.location);
+        workExpToUpdate.$jazz.set('location', workExpData.location);
         changed = true;
       }
     }
 
     if (workExpData.hasOwnProperty('url')) {
       if (workExpToUpdate.url !== workExpData.url) {
-        workExpToUpdate.$jazz.set("url", workExpData.url);
+        workExpToUpdate.$jazz.set('url', workExpData.url);
         changed = true;
       }
     }
 
     if (workExpData.hasOwnProperty('description')) {
       if (workExpToUpdate.description !== workExpData.description) {
-        workExpToUpdate.$jazz.set("description", workExpData.description);
+        workExpToUpdate.$jazz.set('description', workExpData.description);
         changed = true;
       }
     }

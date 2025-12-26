@@ -1,4 +1,5 @@
 import { SocialLinks } from '@regarde-dev/jazz-schemas/regarde.bio';
+
 import { logger } from '../utils/logger';
 import { BaseHookProps } from './types';
 
@@ -22,12 +23,15 @@ export function useContact({ profile, triggerSyncIndicator }: UseContactProps) {
       return undefined;
     }
 
-    const newSocialLinks = SocialLinks.create({
-      github: undefined,
-      twitter: undefined,
-      website: undefined,
-    }, { owner });
-    profile.$jazz.set("socialLinks", newSocialLinks);
+    const newSocialLinks = SocialLinks.create(
+      {
+        github: undefined,
+        twitter: undefined,
+        website: undefined,
+      },
+      { owner },
+    );
+    profile.$jazz.set('socialLinks', newSocialLinks);
     return newSocialLinks;
   };
 
@@ -50,7 +54,7 @@ export function useContact({ profile, triggerSyncIndicator }: UseContactProps) {
         profile.socialLinks.twitter === null &&
         profile.socialLinks.website === null
       ) {
-        profile.$jazz.set("socialLinks", undefined);
+        profile.$jazz.set('socialLinks', undefined);
       }
 
       await triggerSyncIndicator(profile);

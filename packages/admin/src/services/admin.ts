@@ -68,7 +68,9 @@ export class AdminService {
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to start Jazz worker: ${errorMessage}`);
+      throw new Error(`Failed to start Jazz worker: ${errorMessage}`, {
+        cause: error,
+      });
     }
 
     Logger.success(`Connected with Account ID: ${this.worker.$jazz.id}`);
@@ -359,7 +361,11 @@ export class AdminService {
       const { root } = this.loadedWorker;
       const workerOnline = !!root?.$isLoaded;
 
-      const syncServerConnected = !!(root?.$isLoaded && root?.registry?.$isLoaded && root?.reverseRegistry?.$isLoaded);
+      const syncServerConnected = !!(
+        root?.$isLoaded &&
+        root?.registry?.$isLoaded &&
+        root?.reverseRegistry?.$isLoaded
+      );
 
       const responseTimeMs = Date.now() - startTime;
 

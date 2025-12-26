@@ -1,6 +1,7 @@
 # Agent Guidelines
 
 ## Commands
+
 - `pnpm build` - Build TypeScript
 - `pnpm test` - Run tests (watch mode)
 - `pnpm test:run` - Run tests once
@@ -9,12 +10,14 @@
 - `pnpm start` - Production build and start
 
 ### Running Single Tests
+
 ```bash
 pnpm test src/domains/nickname/__tests__/register.test.ts
 pnpm test -t "nickname registration"
 ```
 
 ## Code Style
+
 - **Imports**: Use ES modules, import Node.js packages with `node:` prefix, use `#/` alias for internal imports
 - **Types**: Strict TypeScript, Zod schemas for validation, export types from schemas
 - **Naming**: camelCase for variables/functions, PascalCase for types, kebab-case for files
@@ -23,6 +26,7 @@ pnpm test -t "nickname registration"
 - **Testing**: Vitest for unit tests, test files in `src/domains/{domain}/__tests__/` folders, setup in `src/test-utils/`
 
 ## Architecture
+
 - **Domain-Driven Design**: Business logic organized in `src/domains/{domain}/` (nickname, auth, etc.)
 - **Thin Routing Layer**: Routes in `src/routes/` only wire handlers to HTTP endpoints
 - **Domain Structure**: Each domain has `handlers/`, `schemas/`, and `__tests__/` subdirectories

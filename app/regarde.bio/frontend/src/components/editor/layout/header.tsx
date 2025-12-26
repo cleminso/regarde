@@ -21,18 +21,18 @@ export function SectionHeader({
   return (
     <div
       className={cn(
-        'mb-6 border-b border-border pb-4',
-        'flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4',
+        'border-border mb-6 border-b pb-4',
+        'flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between',
         className,
       )}
     >
       <div className="grow">
-        <h3 className="hidden lg:block text-lg font-medium text-foreground">
+        <h3 className="text-foreground hidden text-lg font-medium lg:block">
           {title}
         </h3>
 
         {description && (
-          <p className="text-sm text-muted-foreground lg:mt-1">{description}</p>
+          <p className="text-muted-foreground text-sm lg:mt-1">{description}</p>
         )}
       </div>
 

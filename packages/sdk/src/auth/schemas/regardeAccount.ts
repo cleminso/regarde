@@ -1,4 +1,4 @@
-import { Account, co, Group, z } from "jazz-tools";
+import { co, Group } from "jazz-tools";
 import { RegardeSDK } from "./auth";
 import { initRegardeSchema } from "../../init";
 /**

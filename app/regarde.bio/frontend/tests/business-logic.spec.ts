@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 function generateTestUser() {
   const timestamp = Date.now();
@@ -24,7 +24,6 @@ class TestLogger {
 }
 
 test.describe('Business Logic Tests', () => {
-
   test.beforeEach(async ({ page }) => {
     // Ensure clean state for each test
     await page.context().clearCookies();
@@ -38,7 +37,9 @@ test.describe('Business Logic Tests', () => {
     // Step 1: Visit landing page
     TestLogger.step(1, 'Navigate to landing page');
     await page.goto('/');
-    await expect(page.locator('input[type="text"]').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('input[type="text"]').first()).toBeVisible({
+      timeout: 10000,
+    });
     TestLogger.success('Landing page loaded');
 
     // Step 2: Test nickname validation
@@ -47,12 +48,16 @@ test.describe('Business Logic Tests', () => {
     await nicknameInput.fill(user.nickname);
 
     // Wait for availability check to complete
-    await expect(page.getByRole('button', { name: 'Register' })).toBeEnabled({ timeout: 10000 });
+    await expect(page.getByRole('button', { name: 'Register' })).toBeEnabled({
+      timeout: 10000,
+    });
     TestLogger.success('Nickname entered and validated');
 
     // Step 3: Verify register button is enabled
     TestLogger.step(3, 'Verify register button is enabled');
-    const registerButton = page.getByRole('button', { name: 'Register nickname (Cmd+Enter)' });
+    const registerButton = page.getByRole('button', {
+      name: 'Register nickname (Cmd+Enter)',
+    });
     await expect(registerButton).toBeEnabled();
     TestLogger.success('Register button is enabled');
 
@@ -60,21 +65,29 @@ test.describe('Business Logic Tests', () => {
     TestLogger.step(4, 'Click register button to open auth modal');
     await registerButton.click();
     await expect(page.getByRole('dialog')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByRole('heading', { name: 'Create your account' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Create your account' }),
+    ).toBeVisible();
     TestLogger.success('Auth modal opened');
 
     // Step 5: Verify auth modal content
     TestLogger.step(5, 'Verify auth modal content');
-    await expect(page.getByRole('textbox', { name: 'Email address' })).toBeVisible();
+    await expect(
+      page.getByRole('textbox', { name: 'Email address' }),
+    ).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'Password' })).toBeVisible();
     TestLogger.success('Auth modal displays correctly');
 
-    TestLogger.success(`Landing page and nickname validation working correctly!`);
+    TestLogger.success(
+      `Landing page and nickname validation working correctly!`,
+    );
   });
 
   test('Pre-authenticated User Registration Flow', async ({ page }) => {
     const testNickname = `biz${Date.now()}`;
-    TestLogger.info(`Testing business logic with pre-authenticated user for nickname: ${testNickname}`);
+    TestLogger.info(
+      `Testing business logic with pre-authenticated user for nickname: ${testNickname}`,
+    );
 
     // Step 1: Sign in with existing test user first
     TestLogger.step(1, 'Signing in with test user credentials');
@@ -84,8 +97,8 @@ test.describe('Business Logic Tests', () => {
     await expect(page.getByRole('dialog')).toBeVisible();
 
     const testEmail = process.env.E2E_CLERK_USER_EMAIL || 'clem2inso@gmail.com';
-    const testPassword = process.env.E2E_CLERK_USER_PASSWORD || 'TestPassword123!';
-
+    const testPassword =
+      process.env.E2E_CLERK_USER_PASSWORD || 'TestPassword123!';
 
     await page.getByRole('textbox', { name: 'Email address' }).fill(testEmail);
     await page.keyboard.press('Enter');
@@ -103,9 +116,11 @@ test.describe('Business Logic Tests', () => {
 
     if (currentUrl.includes('/edit') || currentUrl.includes('/about')) {
       // User already has a nickname - test the existing profile functionality
-      TestLogger.info('User already has a nickname, testing existing profile functionality');
+      TestLogger.info(
+        'User already has a nickname, testing existing profile functionality',
+      );
 
-      const urlMatch = currentUrl.match(/\/([^\/]+)\/(edit|about)/);
+      const urlMatch = currentUrl.match(/\/([^/]+)\/(edit|about)/);
       const existingNickname = urlMatch ? urlMatch[1] : null;
 
       if (existingNickname) {
@@ -116,7 +131,9 @@ test.describe('Business Logic Tests', () => {
 
         if (currentUrl.includes('/about')) {
           TestLogger.success(`User redirected to profile page: ${currentUrl}`);
-          TestLogger.success('One-nickname policy working correctly - user cannot register another nickname');
+          TestLogger.success(
+            'One-nickname policy working correctly - user cannot register another nickname',
+          );
 
           // Optionally verify the about page content
           await page.waitForTimeout(1000);
@@ -144,7 +161,9 @@ test.describe('Business Logic Tests', () => {
           }
         } else if (currentUrl.includes('/edit')) {
           TestLogger.success(`User redirected to edit page: ${currentUrl}`);
-          TestLogger.success('One-nickname policy working correctly - user cannot register another nickname');
+          TestLogger.success(
+            'One-nickname policy working correctly - user cannot register another nickname',
+          );
 
           // Verify edit page elements
           await page.waitForTimeout(1000);
@@ -173,7 +192,9 @@ test.describe('Business Logic Tests', () => {
           }
         }
 
-        TestLogger.success(`Business logic test completed successfully with existing nickname: ${existingNickname}!`);
+        TestLogger.success(
+          `Business logic test completed successfully with existing nickname: ${existingNickname}!`,
+        );
         return;
       }
     }
@@ -184,25 +205,34 @@ test.describe('Business Logic Tests', () => {
     const nicknameInput = page.locator('input[type="text"]').first();
     await nicknameInput.fill(testNickname);
 
-    await expect(page.getByRole('button', { name: 'Register' })).toBeEnabled({ timeout: 10000 });
+    await expect(page.getByRole('button', { name: 'Register' })).toBeEnabled({
+      timeout: 10000,
+    });
     TestLogger.success('Nickname validation completed');
 
     // Step 4: Register nickname
     TestLogger.step(4, 'Registering new nickname');
-    const registerButton = page.getByRole('button', { name: 'Register nickname (Cmd+Enter)' });
+    const registerButton = page.getByRole('button', {
+      name: 'Register nickname (Cmd+Enter)',
+    });
     await registerButton.click();
 
     // Step 5: Verify redirect to profile editor
     TestLogger.step(5, 'Verifying redirect to profile editor');
-    await expect(page).toHaveURL(new RegExp(`/${testNickname}/edit`), { timeout: 10000 });
+    await expect(page).toHaveURL(new RegExp(`/${testNickname}/edit`), {
+      timeout: 10000,
+    });
     TestLogger.success(`Successfully redirected to /${testNickname}/edit`);
 
     // Step 6: Verify profile editor loads correctly
     TestLogger.step(6, 'Verifying profile editor functionality');
-    await expect(page.getByText('Edit Profile')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Edit Profile')).toBeVisible({
+      timeout: 10000,
+    });
     TestLogger.success('Profile editor loaded successfully');
 
-    TestLogger.success(`Business logic test completed successfully for ${testNickname}!`);
+    TestLogger.success(
+      `Business logic test completed successfully for ${testNickname}!`,
+    );
   });
-
 });
