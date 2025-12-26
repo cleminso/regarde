@@ -1,9 +1,5 @@
 import { co } from "jazz-tools";
-import {
-  ensureRegardeSDKLoaded,
-  RegardeAccount,
-  RegardeSDK,
-} from "@regarde-dev/sdk/auth";
+import { RegardeAccount, RegardeSDK } from "@regarde-dev/sdk/auth";
 import { getStoredCredentials } from "./auth.js";
 import { startWorker } from "jazz-tools/worker";
 
@@ -63,8 +59,8 @@ export async function loadAuthenticatedRegardeSDK() {
   // Step 4: Load RegardeSDK with automatic initialization and repair
   try {
     // Load RegardeAccount with proper resolve for auth field
-    const regardeAccount = await RegardeAccount.load(creds.accountID, {
-      loadAs: worker as any,
+    await RegardeAccount.load(creds.accountID, {
+      loadAs: worker,
       resolve: {
         root: {
           "regarde-sdk": {

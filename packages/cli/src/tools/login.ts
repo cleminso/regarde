@@ -5,12 +5,18 @@ import { startWorker } from "jazz-tools/worker";
 import { ensureRegardeSDKLoaded } from "@regarde-dev/sdk/auth";
 import { RegardeAccount } from "@regarde-dev/sdk/auth";
 import { authStorage } from "../utils/storage.js";
-import {
-  generateCredentialsFromPassphrase,
-  validatePassphrase,
-  hasMinimumWords,
-} from "../utils/passphraseAuth.js";
-import { co } from "jazz-tools";
+import { hasMinimumWords } from "../utils/passphraseAuth.js";
+
+// import { wordlist } from "@scure/bip39/wordlists/english.js";
+// import { generateMnemonic } from "@scure/bip39";
+import { mnemonicToEntropy, validateMnemonic } from "@scure/bip39";
+
+import { NapiCrypto } from "jazz-tools/napi";
+
+import { wordlist } from "@scure/bip39/wordlists/english.js";
+import z from "zod";
+
+const crypto = await NapiCrypto.create();
 
 export const loginTool: ToolConfig = {
   name: "login",
@@ -21,11 +27,19 @@ export const loginTool: ToolConfig = {
 
     if (existingCreds) {
       // Auto-login with stored credentials
-      const creds = JSON.parse(existingCreds);
+
+      const schema = z.object({
+        accountID: z.string(),
+        accountSecret: z.string(),
+        passphrase: z.string(),
+        authMethod: z.string(),
+      });
+
+      const creds = schema.parse(JSON.parse(existingCreds));
       console.log(SimpleChalk.blue("Using stored credentials..."));
 
       try {
-        const { worker } = await startWorker({
+        await startWorker({
           AccountSchema: RegardeAccount,
           syncServer: "wss://cloud.jazz.tools",
           accountID: creds.accountID,
@@ -38,9 +52,7 @@ export const loginTool: ToolConfig = {
         console.log(SimpleChalk.green("✓ Credentials valid - no login needed"));
         process.exit(0);
       } catch (error: any) {
-        console.log(
-          SimpleChalk.yellow("Stored credentials expired. Please re-login."),
-        );
+        console.error(error);
       }
     }
 
@@ -56,23 +68,29 @@ export const loginTool: ToolConfig = {
         name: "jazzAccountId",
         message: "Enter your Jazz Account ID:",
         validate: (input) =>
+          // TODO: Use `isAccountId` to verify
           input.trim().length > 0 || "Account ID is required",
       },
     ]);
 
     // Step 2: Get Passphrase
-    const { passphrase } = await inquirer.prompt([
+    let { passphrase } = await inquirer.prompt([
       {
-        type: "password",
+        type: "input",
         name: "passphrase",
         message: "Enter your passphrase (12+ words):",
         validate: (input) => {
           const trimmedInput = input.trim();
+          const words = trimmedInput.split(" ");
           if (!trimmedInput) return "Passphrase is required";
           if (!hasMinimumWords(trimmedInput)) {
             return "Passphrase must be at least 12 words";
           }
-          if (!validatePassphrase(trimmedInput)) {
+          if (words.length > 24) {
+            return "Passphrase must be at most 24 words";
+          }
+
+          if (!validateMnemonic(trimmedInput, wordlist)) {
             return "Invalid passphrase format. Check spelling and spacing.";
           }
           return true;
@@ -80,21 +98,24 @@ export const loginTool: ToolConfig = {
       },
     ]);
 
+    passphrase = passphrase.trim();
+
     console.log(SimpleChalk.blue("Generating credentials from passphrase..."));
 
     try {
+      console.log(SimpleChalk.green(`Starting...`));
+      const seed = mnemonicToEntropy(passphrase, wordlist);
+
       // Step 3: Generate credentials from passphrase
-      const credentials = await generateCredentialsFromPassphrase(
-        passphrase.trim(),
-      );
+      const accountSecret = crypto.agentSecretFromSecretSeed(seed);
 
       // Step 4: Test credentials with Jazz worker
       console.log(SimpleChalk.blue("Verifying credentials..."));
       const workerOptions = {
         AccountSchema: RegardeAccount,
-        syncServer: "wss://cloud.jazz.tools",
+        syncServer: "wss://cloud.jazz.tools?apiKey=clem2inso@gmail.com",
         accountID: jazzAccountId,
-        accountSecret: credentials.accountSecret,
+        accountSecret,
       };
 
       try {
@@ -107,7 +128,7 @@ export const loginTool: ToolConfig = {
         );
 
         // Wait for worker to be fully loaded before proceeding
-        const loadedWorker = await worker.$jazz.ensureLoaded({
+        await worker.$jazz.ensureLoaded({
           resolve: { root: true },
         });
 
@@ -127,10 +148,11 @@ export const loginTool: ToolConfig = {
         // Step 6: Store credentials for future CLI commands
         const storedCredentials = {
           accountID: jazzAccountId,
-          accountSecret: credentials.accountSecret,
-          passphrase: passphrase.trim(),
+          accountSecret,
+          passphrase,
           authMethod: "passphrase",
         };
+
         await authStorage.set(JSON.stringify(storedCredentials));
 
         console.log(SimpleChalk.green("✓ Login credentials saved locally"));

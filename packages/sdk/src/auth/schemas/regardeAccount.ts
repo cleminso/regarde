@@ -1,4 +1,4 @@
-import { co, Group, z } from "jazz-tools";
+import { Account, co, Group, z } from "jazz-tools";
 import { RegardeSDK } from "./auth";
 import { initRegardeSchema } from "../../init";
 /**
@@ -46,6 +46,7 @@ export const RegardeAccount = co
       });
       console.info("[SUCCESS] RegardeAccount root initialized with RegardeSDK");
     }
+
     // Ensure everything syncs
     await account.$jazz.waitForAllCoValuesSync();
     const { root } = await account.$jazz.ensureLoaded({
@@ -56,24 +57,34 @@ export const RegardeAccount = co
     if (!root.$isLoaded) {
       throw new Error("Failed to load RegardeAccount root");
     }
+
     // Handle migration for accounts that have root but incomplete regarde-sdk
     // Use the proper Jazz pattern: check with .has() then access
     if (!root.$jazz.has("regarde-sdk")) {
       console.info("[INFO] Creating missing RegardeSDK");
-      const regardeSdk = await initRegardeSchema(account);
-      root.$jazz.set("regarde-sdk", regardeSdk);
+      const regardeSDK = await initRegardeSchema(account);
+      root.$jazz.set("regarde-sdk", regardeSDK);
       await account.$jazz.waitForSync();
     } else {
+      let regardeSDK = root["regarde-sdk"] as co.loaded<typeof RegardeSDK>;
+
       // RegardeSDK exists, check if it needs update
-      const regardeSDK = root["regarde-sdk"];
       if (regardeSDK && regardeSDK.$isLoaded && regardeSDK.version < 2) {
         console.info("[INFO] Migrating incomplete RegardeSDK");
-        const regardeSdk = await initRegardeSchema(account);
-        root.$jazz.set("regarde-sdk", regardeSdk);
+        regardeSDK = await initRegardeSchema(account);
+        root.$jazz.set("regarde-sdk", regardeSDK);
         await account.$jazz.waitForSync();
       }
     }
-    console.info("[SUCCESS] RegardeSDK migration completed");
-    console.info("[SUCCESS] RegardeAccount migration completed");
+
+    console.info(
+      `[SUCCESS] RegardeSDK migration completed: `,
+      // @ts-ignore
+      account.root["regarde-sdk"].$jazz.id,
+    );
+    console.info(
+      `[SUCCESS] RegardeAccount migration completed:`,
+      account.$jazz.id,
+    );
   });
 export type TRegardeAccount = co.loaded<typeof RegardeAccount>;

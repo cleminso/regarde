@@ -1,5 +1,5 @@
 export * from "./schemas/auth";
-export * from "./schemas/regarde-account";
+export * from "./schemas/regardeAccount";
 export * from "./register";
 export * from "./generateToken";
 export * from "./refreshAuthToken";

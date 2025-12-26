@@ -3,6 +3,7 @@ import { ArgParser } from "@alcyone-labs/arg-parser";
 import { loginTool } from "./tools/login.js";
 import { registerAppTool } from "./tools/registerApp.js";
 import "dotenv/config";
+import { signupTool } from "./tools/signup.js";
 
 const cli = new ArgParser({
   appName: "Regarde CLI",
@@ -11,6 +12,7 @@ const cli = new ArgParser({
 });
 
 cli.addTool(loginTool);
+cli.addTool(signupTool);
 cli.addTool(registerAppTool);
 
 async function main() {

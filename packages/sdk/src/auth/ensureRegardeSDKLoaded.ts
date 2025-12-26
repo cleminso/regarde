@@ -2,7 +2,7 @@ import { co } from "jazz-tools";
 import { RegardeSDK } from "../auth/schemas/auth";
 import { initRegardeSchema } from "../init/initRegardeSchema";
 import { getRegardeAuth } from "../auth/refreshAuthToken";
-import { RegardeAccount } from "../auth/schemas/regarde-account";
+import { RegardeAccount } from "../auth/schemas/regardeAccount";
 /**
  * Ensures RegardeSDK is loaded with proper initialization and authentication
  *
