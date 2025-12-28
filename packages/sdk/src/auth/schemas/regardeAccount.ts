@@ -10,7 +10,7 @@ import { initRegardeSchema } from "../../init";
  * - Provides migration to initialize RegardeSDK for existing accounts
  *
  * ## Usage in CLI
- * - Use RegardeAccount instead of generic Account in worker and ensureRegardeSDKLoaded
+ * - Use RegardeAccount instead of generic Account in worker and initRegardeSchema
  * - Jazz will now know the structure of account.root["regarde-sdk"]
  */
 export const RegardeRoot = co.map({
@@ -38,8 +38,10 @@ export const RegardeAccount = co
     // Initialize root if it doesn't exist
     if (!account.$jazz.has("root")) {
       console.info("[INFO] Initializing RegardeAccount root");
-      // Initialize RegardeSDK with proper ownership
-      const regardeSdk = await initRegardeSchema(account);
+      const regardeSdk = await initRegardeSchema(account, {
+        skipRefreshToken: true,
+        skipSetInRoot: true,
+      });
       // Set root with regarde-sdk
       account.$jazz.set("root", {
         "regarde-sdk": regardeSdk,
@@ -62,16 +64,21 @@ export const RegardeAccount = co
     // Use the proper Jazz pattern: check with .has() then access
     if (!root.$jazz.has("regarde-sdk")) {
       console.info("[INFO] Creating missing RegardeSDK");
-      const regardeSDK = await initRegardeSchema(account);
+      const regardeSDK = await initRegardeSchema(account, {
+        skipRefreshToken: true,
+        skipSetInRoot: true,
+      });
       root.$jazz.set("regarde-sdk", regardeSDK);
       await account.$jazz.waitForSync();
     } else {
       let regardeSDK = root["regarde-sdk"] as co.loaded<typeof RegardeSDK>;
 
-      // RegardeSDK exists, check if it needs update
       if (regardeSDK && regardeSDK.$isLoaded && regardeSDK.version < 2) {
         console.info("[INFO] Migrating incomplete RegardeSDK");
-        regardeSDK = await initRegardeSchema(account);
+        regardeSDK = await initRegardeSchema(account, {
+          skipRefreshToken: true,
+          skipSetInRoot: true,
+        });
         root.$jazz.set("regarde-sdk", regardeSDK);
         await account.$jazz.waitForSync();
       }

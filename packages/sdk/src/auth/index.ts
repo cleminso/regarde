@@ -4,4 +4,3 @@ export * from "./register";
 export * from "./generateToken";
 export * from "./refreshAuthToken";
 export * from "./tokenUtils";
-export * from "./ensureRegardeSDKLoaded";

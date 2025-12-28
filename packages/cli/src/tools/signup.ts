@@ -3,12 +3,11 @@ import { startWorker } from "jazz-tools/worker";
 import {
   createJazzContextForNewAccount,
   MockSessionProvider,
-  AuthSecretStorage,
 } from "jazz-tools";
 
 import { createWebSocketPeer } from "cojson-transport-ws";
 
-import { ensureRegardeSDKLoaded } from "@regarde-dev/sdk/auth";
+import { initRegardeSchema } from "@regarde-dev/sdk/init";
 import { RegardeAccount } from "@regarde-dev/sdk/auth";
 import { authStorage } from "../utils/storage.js";
 
@@ -88,9 +87,7 @@ export const signupTool: ToolConfig = {
           throw new Error("BUG");
         }
 
-        // Now call ensureRegardeSDKLoaded with the worker's account
-        // TODO: Investigate how to premove this as any that TS is happy
-        await ensureRegardeSDKLoaded(worker);
+        await initRegardeSchema(worker);
 
         console.log(
           SimpleChalk.green("✓ Token generated and stored successfully"),

@@ -238,7 +238,10 @@ export const RegardeAccount = co
     }
 
     if (!account.$jazz.has("root")) {
-      const regardeSdk = await initRegardeSchema(account);
+      const regardeSdk = await initRegardeSchema(account, {
+        skipRefreshToken: true,
+        skipSetInRoot: true,
+      });
 
       account.$jazz.set("root", {
         "regarde-sdk": regardeSdk,
@@ -288,7 +291,10 @@ export const RegardeAccount = co
         userGroup,
       );
 
-      const regardeSdk = await initRegardeSchema(account);
+      const regardeSdk = await initRegardeSchema(account, {
+        skipRefreshToken: true,
+        skipSetInRoot: true,
+      });
 
       // Safely set on loaded CoMap
       root.$jazz.set("regarde.bio", regardeProfile);

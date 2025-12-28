@@ -1,8 +1,8 @@
-import { type IFlag, ToolConfig, SimpleChalk } from "@alcyone-labs/arg-parser";
+import { ToolConfig, SimpleChalk } from "@alcyone-labs/arg-parser";
 import inquirer from "inquirer";
 import { getStoredCredentials } from "../auth.js";
 import { startWorker } from "jazz-tools/worker";
-import { ensureRegardeSDKLoaded } from "@regarde-dev/sdk/auth";
+import { initRegardeSchema } from "@regarde-dev/sdk/init";
 import { RegardeAccount } from "@regarde-dev/sdk/auth";
 import { authStorage } from "../utils/storage.js";
 import { hasMinimumWords } from "../utils/passphraseAuth.js";
@@ -136,9 +136,7 @@ export const loginTool: ToolConfig = {
           throw new Error("BUG");
         }
 
-        // Now call ensureRegardeSDKLoaded with the worker's account
-        // TODO: Investigate how to premove this as any that TS is happy
-        await ensureRegardeSDKLoaded(worker as any);
+        await initRegardeSchema(worker);
 
         console.log(
           SimpleChalk.green("✓ Token generated and stored successfully"),
