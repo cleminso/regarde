@@ -5,7 +5,7 @@ import {
   RegistryWorkerAccount,
   RegistryAppMetadata,
 } from "@regarde-dev/sdk/registry";
-import { PaymentEvent, ListOfPaymentEvents } from "@regarde-dev/sdk/payments";
+import { PaymentEvent } from "@regarde-dev/sdk/payments";
 import { Loaded, co } from "jazz-tools";
 
 type AppsRecord = AppRegistry["apps"];
@@ -113,7 +113,7 @@ export const LemonSqueezyPayloadSchema = z.union([
   SubscriptionInvoiceSchema,
 ]);
 
-export type LemonSqueezyPayload = z.infer<typeof LemonSqueezyPayloadSchema>;
+export type TLemonSqueezyPayload = z.infer<typeof LemonSqueezyPayloadSchema>;
 
 // ----------------------------------------------------------------------
 // 2. Verification Utility
@@ -157,7 +157,7 @@ export interface StandardPaymentCommand {
 }
 
 export const standardizeLemonSqueezy = (
-  payload: LemonSqueezyPayload,
+  payload: TLemonSqueezyPayload,
 ): StandardPaymentCommand => {
   const { event_name, test_mode } = payload.meta;
 

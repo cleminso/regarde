@@ -66,16 +66,16 @@ export const UserHandle = co
 /**
  * Type alias for a loaded UserHandle instance
  */
-export type UserHandleLoaded = co.loaded<typeof UserHandle>;
+export type TUserHandleLoaded = co.loaded<typeof UserHandle>;
 
 /**
  * Sets nickname on UserHandle after successful registry verification
  *
- * @param nicknameData - The loaded UserHandle that will receive the nickname
+ * @param nicknameData - The loaded UserHandle that will receive nickname
  * @param registeredNickname - The verified nickname from registry
  */
 export function setNicknameFromRegistry(
-  nicknameData: UserHandleLoaded,
+  nicknameData: TUserHandleLoaded,
   registeredNickname: string,
 ): void {
   nicknameData.$jazz.set("nickname", registeredNickname);
@@ -88,7 +88,7 @@ export function setNicknameFromRegistry(
  *
  * @param nicknameData - The UserHandle to deactivate (nickname preserved in registry)
  */
-export function deactivate(nicknameData: UserHandleLoaded): void {
+export function deactivate(nicknameData: TUserHandleLoaded): void {
   nicknameData.$jazz.set("isActive", false);
   nicknameData.$jazz.set("lastModified", Date.now());
 }

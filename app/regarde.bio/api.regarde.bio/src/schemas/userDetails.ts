@@ -410,5 +410,5 @@ export const UserDetailsResponseSchema = z
     "Complete user details response including account info, nickname status, and public profile data",
   );
 
-export type UserDetailsRequest = z.infer<typeof UserDetailsRequestSchema>;
-export type UserDetailsResponse = z.infer<typeof UserDetailsResponseSchema>;
+export type TUserDetailsRequest = z.infer<typeof UserDetailsRequestSchema>;
+export type TUserDetailsResponse = z.infer<typeof UserDetailsResponseSchema>;

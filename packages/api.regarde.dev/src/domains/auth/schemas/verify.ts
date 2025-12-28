@@ -5,4 +5,4 @@ export const VerifyResponseSchema = z.object({
   error: z.string().optional(),
 });
 
-export type VerifyResponse = z.infer<typeof VerifyResponseSchema>;
+export type TVerifyResponse = z.infer<typeof VerifyResponseSchema>;

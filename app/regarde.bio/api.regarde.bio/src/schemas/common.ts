@@ -8,4 +8,4 @@ export const ErrorResponseSchema = z
   })
   .openapi("ErrorResponse");
 
-export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
+export type TErrorResponse = z.infer<typeof ErrorResponseSchema>;

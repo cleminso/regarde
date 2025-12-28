@@ -49,9 +49,9 @@ export const RegisterResponseSchema = z.object({
 /**
  * TypeScript type for validated registration request parameters
  */
-export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;
+export type TRegisterRequest = z.infer<typeof RegisterRequestSchema>;
 
 /**
  * TypeScript type for registration response from server
  */
-export type RegisterResponse = z.infer<typeof RegisterResponseSchema>;
+export type TRegisterResponse = z.infer<typeof RegisterResponseSchema>;

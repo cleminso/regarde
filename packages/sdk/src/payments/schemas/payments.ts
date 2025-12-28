@@ -32,7 +32,7 @@ export const PaymentEvent = co.map({
   userAccount: z.string(), // Changed from Account to z.string() (Account ID) for simplicity/cycle breaking
   metadata: co.record(z.string(), z.string()), // json string everything then let sdk suer to fetch
 });
-export type PaymentEvent = co.loaded<typeof PaymentEvent>;
+export type TPaymentEvent = co.loaded<typeof PaymentEvent>;
 
 /**
  * # ListOfPaymentEvents - Collection of Payment Records
@@ -50,7 +50,7 @@ export type PaymentEvent = co.loaded<typeof PaymentEvent>;
  * - End User: View their own payment transactions
  */
 export const ListOfPaymentEvents = co.feed(PaymentEvent);
-export type ListOfPaymentEvents = co.loaded<typeof ListOfPaymentEvents>;
+export type TListOfPaymentEvents = co.loaded<typeof ListOfPaymentEvents>;
 
 /**
  * # PaymentManager - User Payment Data Container
@@ -80,8 +80,8 @@ export const PaymentManager = co.map({
   version: z.number(),
 });
 
-export type PaymentManagerLoaded = co.loaded<typeof PaymentManager>;
-export type PaymentEventLoaded = co.loaded<typeof PaymentEvent>;
+export type TPaymentManagerLoaded = co.loaded<typeof PaymentManager>;
+export type TPaymentEventLoaded = co.loaded<typeof PaymentEvent>;
 
 export const App = co.map({
   name: z.string(),
@@ -96,7 +96,7 @@ export const App = co.map({
   payments: co.feed(PaymentEvent), // Single source of truth for all payments
   paymentsByUser: co.record(z.string(), ListOfPaymentEvents),
 });
-export type App = co.loaded<typeof App>;
+export type TApp = co.loaded<typeof App>;
 
 /**
  * # Type Definitions

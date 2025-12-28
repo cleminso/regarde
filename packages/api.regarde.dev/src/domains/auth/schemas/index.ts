@@ -1,1 +1,1 @@
-export { VerifyResponseSchema, type VerifyResponse } from "./verify";
+export { VerifyResponseSchema, type TVerifyResponse } from "./verify";

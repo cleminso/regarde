@@ -2,12 +2,12 @@ export { registerNickname, checkNicknameAvailability } from "./nicknameApi";
 export type {
   RegisterNicknameParams,
   CheckAvailabilityParams,
-  CheckAvailabilityResponse,
+  TCheckAvailabilityResponse,
   RegisterNicknameResponse,
 } from "./types";
 export {
   UserHandle,
-  type UserHandleLoaded,
+  type TUserHandleLoaded,
   setNicknameFromRegistry,
   deactivate,
 } from "./userHandle";

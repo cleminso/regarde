@@ -16,9 +16,9 @@ export const CheckAvailabilityResponseSchema = z.object({
   reservationReason: z.string().optional(),
 });
 
-export type CheckAvailabilityRequest = z.infer<
+export type TCheckAvailabilityRequest = z.infer<
   typeof CheckAvailabilityRequestSchema
 >;
-export type CheckAvailabilityResponse = z.infer<
+export type TCheckAvailabilityResponse = z.infer<
   typeof CheckAvailabilityResponseSchema
 >;

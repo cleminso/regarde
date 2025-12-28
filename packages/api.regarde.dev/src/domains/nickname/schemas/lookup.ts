@@ -12,5 +12,5 @@ export const LookupResponseSchema = z.object({
   accountId: z.string(),
 });
 
-export type LookupRequest = z.infer<typeof LookupRequestSchema>;
-export type LookupResponse = z.infer<typeof LookupResponseSchema>;
+export type TLookupRequest = z.infer<typeof LookupRequestSchema>;
+export type TLookupResponse = z.infer<typeof LookupResponseSchema>;

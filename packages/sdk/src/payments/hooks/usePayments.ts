@@ -1,4 +1,4 @@
-import { App, PaymentEvent } from "../schemas";
+import { TApp, TPaymentEvent } from "../schemas";
 import { Account } from "jazz-tools";
 
 /**
@@ -9,9 +9,9 @@ import { Account } from "jazz-tools";
  * @returns List of payments or undefined if loading/not found.
  */
 export const usePaymentHistory = (
-  app: App | undefined | null,
+  app: TApp | undefined | null,
   me: Account | undefined | null,
-): PaymentEvent[] | undefined => {
+): TPaymentEvent[] | undefined => {
   if (!app || !me) return undefined;
 
   const userId = (me as any).id || (me as any)._id;
@@ -26,7 +26,7 @@ export const usePaymentHistory = (
   return userFeed
     ? Array.from(userFeed.all)
         .map((entry) => entry.value)
-        .filter((payment): payment is PaymentEvent => payment?.$isLoaded)
+        .filter((payment): payment is TPaymentEvent => payment?.$isLoaded)
     : undefined;
 };
 
@@ -38,7 +38,7 @@ export const usePaymentHistory = (
  * @returns boolean
  */
 export const useSubscription = (
-  app: App | undefined | null,
+  app: TApp | undefined | null,
   me: Account | undefined | null,
 ) => {
   const payments = usePaymentHistory(app, me);

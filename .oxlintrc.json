@@ -6,5 +6,19 @@
     "pedantic": "off",
     "style": "off",
     "restriction": "off"
+  },
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "typeAlias",
+        "format": ["PascalCase"],
+        "custom": {
+          "regex": "^T",
+          "match": true
+        }
+      }
+    ]
   }
 }

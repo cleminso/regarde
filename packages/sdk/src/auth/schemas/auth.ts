@@ -41,7 +41,7 @@ export const RegardeAuth = co
     }
   });
 
-export type RegardeAuthLoaded = co.loaded<typeof RegardeAuth>;
+export type TRegardeAuthLoaded = co.loaded<typeof RegardeAuth>;
 
 /**
  * Container schema for all Regarde SDK components

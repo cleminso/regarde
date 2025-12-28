@@ -23,7 +23,7 @@ import { App } from "../../payments";
  * Forward mapping from nicknames to Jazz Account IDs
  */
 export const NicknameRegistryCoRecord = co.record(z.string(), z.string());
-export type NicknameRegistry = co.loaded<typeof NicknameRegistryCoRecord>;
+export type TNicknameRegistry = co.loaded<typeof NicknameRegistryCoRecord>;
 
 /**
  * Reverse mapping from Jazz Account IDs to nicknames
@@ -32,7 +32,7 @@ export const ReverseNicknameRegistryCoRecord = co.record(
   z.string(),
   z.string(),
 );
-export type ReverseNicknameRegistry = co.loaded<
+export type TReverseNicknameRegistry = co.loaded<
   typeof ReverseNicknameRegistryCoRecord
 >;
 
@@ -50,13 +50,13 @@ export const ReservationEntry = co.map({
   reason: z.optional(z.string()),
   category: z.enum(["admin", "brand", "system", "offensive", "custom"]),
 });
-export type ReservationEntry = co.loaded<typeof ReservationEntry>;
+export type TReservationEntry = co.loaded<typeof ReservationEntry>;
 
 export const ReservedNicknamesRegistry = co.record(
   z.string(),
   ReservationEntry,
 );
-export type ReservedNicknamesRegistry = co.loaded<
+export type TReservedNicknamesRegistry = co.loaded<
   typeof ReservedNicknamesRegistry
 >;
 
@@ -88,13 +88,13 @@ export const RegistryAuditEntryCoMap = co.map({
     z.enum(["admin", "brand", "system", "offensive", "custom"]),
   ),
 });
-export type RegistryAuditEntry = co.loaded<typeof RegistryAuditEntryCoMap>;
+export type TRegistryAuditEntry = co.loaded<typeof RegistryAuditEntryCoMap>;
 
 /**
  * Sequential list of all registry audit entries
  */
 export const RegistryAuditLog = co.list(RegistryAuditEntryCoMap);
-export type RegistryAuditLog = co.loaded<typeof RegistryAuditLog>;
+export type TRegistryAuditLog = co.loaded<typeof RegistryAuditLog>;
 
 /**
  * Represents an application controlled by the app owner
@@ -130,7 +130,7 @@ export const RegistryAppMetadata = co.map({
   createdAt: z.number(),
   version: z.number().default(1),
 });
-export type RegistryAppMetadata = co.loaded<typeof RegistryAppMetadata>;
+export type TRegistryAppMetadata = co.loaded<typeof RegistryAppMetadata>;
 
 /**
  * Collection of all apps in the registry
@@ -145,7 +145,7 @@ export const AppsByUserRecord = co.record(
   z.string(),
   co.list(RegistryAppMetadata),
 );
-export type AppsByUserRecord = co.loaded<typeof AppsByUserRecord>;
+export type TAppsByUserRecord = co.loaded<typeof AppsByUserRecord>;
 
 /**
  * Registry of all applications and their metadata
@@ -164,7 +164,7 @@ export const AppRegistry = co.map({
   registeredAt: z.number(),
   version: z.number().default(1),
 });
-export type AppRegistry = co.loaded<typeof AppRegistry>;
+export type TAppRegistry = co.loaded<typeof AppRegistry>;
 
 /**
  * Root schema containing all registry components
@@ -182,7 +182,7 @@ export const RegistryWorkerAccountRoot = co.map({
   reservedNicknames: ReservedNicknamesRegistry,
   apps: AppRegistry,
 });
-export type RegistryWorkerAccountRoot = co.loaded<
+export type TRegistryWorkerAccountRoot = co.loaded<
   typeof RegistryWorkerAccountRoot
 >;
 
@@ -341,4 +341,4 @@ export const RegistryWorkerAccount = co
     }
   });
 
-export type RegistryWorkerAccount = co.loaded<typeof RegistryWorkerAccount>;
+export type TRegistryWorkerAccount = co.loaded<typeof RegistryWorkerAccount>;

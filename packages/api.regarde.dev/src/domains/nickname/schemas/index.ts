@@ -1,13 +1,13 @@
 export {
   CheckAvailabilityRequestSchema,
   CheckAvailabilityResponseSchema,
-  type CheckAvailabilityRequest,
-  type CheckAvailabilityResponse,
+  type TCheckAvailabilityRequest,
+  type TCheckAvailabilityResponse,
 } from "./checkAvailability";
 export { RegisterRequestSchema } from "./register";
 export {
   LookupRequestSchema,
   LookupResponseSchema,
-  type LookupRequest,
-  type LookupResponse,
+  type TLookupRequest,
+  type TLookupResponse,
 } from "./lookup";
