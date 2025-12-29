@@ -1,2 +1,2 @@
-export * from "./initRegardeSchema";
+export * from "./initRegardeSDK";
 export * from "./addRegardePermissions";

@@ -2,7 +2,7 @@ import { ToolConfig, SimpleChalk } from "@alcyone-labs/arg-parser";
 import inquirer from "inquirer";
 import { getStoredCredentials } from "../auth.js";
 import { startWorker } from "jazz-tools/worker";
-import { initRegardeSchema } from "@regarde-dev/sdk/init";
+import { initRegardeSDK } from "@regarde-dev/sdk/init";
 import { RegardeAccount } from "@regarde-dev/sdk/auth";
 import { authStorage } from "../utils/storage.js";
 import { hasMinimumWords } from "../utils/passphraseAuth.js";
@@ -136,7 +136,7 @@ export const loginTool: ToolConfig = {
           throw new Error("BUG");
         }
 
-        await initRegardeSchema(worker);
+        await initRegardeSDK(worker);
 
         console.log(
           SimpleChalk.green("✓ Token generated and stored successfully"),

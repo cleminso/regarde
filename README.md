@@ -148,7 +148,7 @@ The detailed `RegardeProfile` schema with all fields (SocialLinks, Project, Work
 - Provides `useRegardeAuth()` hook for token generation
 - Manages UserHandle registration and validation
 - Handles token refresh and validation
-- **Permission Management:** `packages/sdk/src/auth/schemas/auth.ts:44-94` - `initRegardeSchema()` adds worker permissions via group membership
+- **Permission Management:** `packages/sdk/src/auth/schemas/auth.ts:44-94` - `initRegardeSDK()` adds worker permissions via group membership
 - **Worker Access:** `packages/sdk/src/auth/schemas/auth.ts:96-124` - `addRegardePermissions()` grants worker write access to user data
 
 ### API (api.regarde.dev)

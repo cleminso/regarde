@@ -256,11 +256,70 @@ regarde.dev/
 ### Code Readability
 
 - Prefer maximally readable code over writing comments
+- Avoid double-negative semantics
 - Use descriptive variable and function names that explain intent
 - Extract complex logic into well-named functions
 - Only add comments for non-obvious business rules or external constraints
 - Refactor unclear code rather than documenting it
 - Keep JSDoc updated after changes
+
+#### Explicit Boolean Naming Pattern
+
+**Golden Rule:** "Want → Build → Check Wrong"
+
+##### Three-Step Pattern
+
+1. **WANT** - Name the positive condition you desire
+2. **BUILD** - Use explicit comparisons (`!== null`, `=== true`)
+3. **CHECK WRONG** - Check for negative with `=== false`
+
+##### Examples
+
+```typescript
+// Anti-pattern: Direct negation with implicit truthiness
+if (!account || !account.$isLoaded) {
+  throw new Error("Account must be loaded");
+}
+
+// Pattern: Explicit boolean naming
+const accountValid = account !== null && account.$isLoaded === true;
+if (accountValid === false) {
+  throw new Error("Account must be loaded");
+}
+
+// Anti-pattern: Compound OR of negatives
+if (!hasToken || !hasExpiresAt) {
+  throw new Error("missing fields");
+}
+
+// Pattern: Single negation with named boolean
+const hasToken = regardeSDK.auth.$jazz.has("token") === true;
+const hasExpiresAt = regardeSDK.auth.$jazz.has("expiresAt") === true;
+const bothFieldsPresent = hasToken && hasExpiresAt;
+if (bothFieldsPresent === false) {
+  throw new Error("missing fields");
+}
+
+// Anti-pattern: Nested access with negation
+if (!regardeSDK.auth?.$isLoaded) {
+  throw new Error("auth not loaded");
+}
+
+// Pattern: Extract then check
+const auth = regardeSDK.auth;
+const authLoaded = auth !== null && auth.$isLoaded === true;
+if (authLoaded === false) {
+  throw new Error("auth not loaded");
+}
+```
+
+##### Recognition Checklist
+
+- [ ] Variable name describes WHAT you want to be true (`accountValid`, `sdkExists`, `authLoaded`)
+- [ ] Use `!== null` instead of `!` for null/undefined checks
+- [ ] Use `=== true` instead of relying on implicit truthiness
+- [ ] Use `=== false` instead of `!` when checking negative condition
+- [ ] Extract complex conditions to named booleans before checking
 
 ### Imports (Prettier enforced)
 
@@ -418,7 +477,7 @@ console.error(
 #### Permission Flow
 
 1. User personal group owns user's RegardeSDK and all their data
-2. Worker is added to user's group with "writer" role in initRegardeSchema
+2. Worker is added to user's group with "writer" role in initRegardeSDK
 3. Worker accesses user data through group membership, not ownership
 4. account.root["regarde-sdk"] is a reference, not ownership
 

@@ -244,7 +244,7 @@ export function usePaymentManager() {
 
 ```typescript
 // packages/sdk/src/auth/schemas/auth.ts
-export const initRegardeSchema = async (account: Account) => {
+export const initRegardeSDK = async (account: Account) => {
   // ... existing code ...
   return RegardeSDK.create({
     // ... existing fields ...

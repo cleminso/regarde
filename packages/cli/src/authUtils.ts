@@ -2,7 +2,7 @@ import { co } from "jazz-tools";
 import { RegardeAccount, RegardeSDK } from "@regarde-dev/sdk/auth";
 import { getStoredCredentials } from "./auth.js";
 import { startWorker } from "jazz-tools/worker";
-import { initRegardeSchema } from "@regarde-dev/sdk/init";
+import { initRegardeSDK } from "@regarde-dev/sdk/init";
 
 export async function loadAuthenticatedRegardeSDK() {
   const credsStr = await getStoredCredentials();
@@ -41,7 +41,7 @@ export async function loadAuthenticatedRegardeSDK() {
     resolve: { root: true },
   });
 
-  const regardeSDK = await initRegardeSchema(worker);
+  const regardeSDK = await initRegardeSDK(worker);
 
   return regardeSDK;
 }

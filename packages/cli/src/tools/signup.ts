@@ -7,7 +7,7 @@ import {
 
 import { createWebSocketPeer } from "cojson-transport-ws";
 
-import { initRegardeSchema } from "@regarde-dev/sdk/init";
+import { initRegardeSDK } from "@regarde-dev/sdk/init";
 import { RegardeAccount } from "@regarde-dev/sdk/auth";
 import { authStorage } from "../utils/storage.js";
 
@@ -87,7 +87,7 @@ export const signupTool: ToolConfig = {
           throw new Error("BUG");
         }
 
-        await initRegardeSchema(worker);
+        await initRegardeSDK(worker);
 
         console.log(
           SimpleChalk.green("✓ Token generated and stored successfully"),

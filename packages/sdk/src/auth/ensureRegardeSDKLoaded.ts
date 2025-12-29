@@ -1,6 +1,6 @@
 import { co } from "jazz-tools";
 import { RegardeSDK } from "../auth/schemas/auth";
-import { initRegardeSchema } from "../init/initRegardeSchema";
+import { initRegardeSDK } from "../init/initRegardeSDK";
 import { getRegardeAuth } from "../auth/refreshAuthToken";
 import { RegardeAccount } from "../auth/schemas/regardeAccount";
 /**
@@ -56,7 +56,7 @@ export async function ensureRegardeSDKLoaded(
       }
 
       // Initialize the RegardeSDK schema
-      const regardeSDK = await initRegardeSchema(account);
+      const regardeSDK = await initRegardeSDK(account);
       root.$jazz.set("regarde-sdk", regardeSDK);
       await regardeSDK.$jazz.waitForSync();
       await account.$jazz.waitForSync();

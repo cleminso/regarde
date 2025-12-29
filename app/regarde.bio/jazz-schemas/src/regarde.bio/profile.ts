@@ -1,6 +1,6 @@
 import { co, Group, Loaded, z } from "jazz-tools";
 import { RegardeSDK } from "@regarde-dev/sdk/auth";
-import { initRegardeSchema } from "@regarde-dev/sdk/init";
+import { initRegardeSDK } from "@regarde-dev/sdk/init";
 
 export const SocialLinks = co.map({
   github: z.optional(z.string()),
@@ -238,10 +238,7 @@ export const RegardeAccount = co
     }
 
     if (!account.$jazz.has("root")) {
-      const regardeSdk = await initRegardeSchema(account, {
-        skipRefreshToken: true,
-        skipSetInRoot: true,
-      });
+      const regardeSdk = await initRegardeSDK(account, "create");
 
       account.$jazz.set("root", {
         "regarde-sdk": regardeSdk,
@@ -291,10 +288,7 @@ export const RegardeAccount = co
         userGroup,
       );
 
-      const regardeSdk = await initRegardeSchema(account, {
-        skipRefreshToken: true,
-        skipSetInRoot: true,
-      });
+      const regardeSdk = await initRegardeSDK(account, "create");
 
       // Safely set on loaded CoMap
       root.$jazz.set("regarde.bio", regardeProfile);

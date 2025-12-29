@@ -3,7 +3,7 @@ import { co, CoValueClass, Loaded } from "jazz-tools";
 /**
  * Ensures that the Regarde Worker has the correct permissions (writer role) on a given CoValue.
  *
- * This is a "repair" utility. Under normal circumstances, `initRegardeSchema` creates data
+ * This is a "repair" utility. Under normal circumstances, `initRegardeSDK` creates data
  * with the correct group permissions pre-configured. Use this function if you need to
  * retroactive grant access to data that was created without the shared group.
  *
