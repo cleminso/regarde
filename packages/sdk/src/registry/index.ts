@@ -1,12 +1,12 @@
 export {
   NicknameRegistryCoRecord,
-  type NicknameRegistry,
+  type TNicknameRegistry,
   ReverseNicknameRegistryCoRecord,
-  type ReverseNicknameRegistry,
+  type TReverseNicknameRegistry,
   ReservationEntry,
   ReservedNicknamesRegistry,
   RegistryAuditEntryCoMap,
-  type RegistryAuditEntry,
+  type TRegistryAuditEntry,
   AllRegistryAppsSchema,
   AppsByUserRecord,
   RegistryAuditLog,
@@ -15,6 +15,7 @@ export {
   AppRegistry,
   RegistryAppMetadata,
   type TAllRegistryAppsSchema,
+  type TAppsByUserRecord,
 } from "./schemas/registry";
 
 export { App, PaymentEvent, ListOfPaymentEvents } from "../payments";
