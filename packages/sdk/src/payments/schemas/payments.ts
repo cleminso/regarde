@@ -52,37 +52,6 @@ export type TPaymentEvent = co.loaded<typeof PaymentEvent>;
 export const ListOfPaymentEvents = co.feed(PaymentEvent);
 export type TListOfPaymentEvents = co.loaded<typeof ListOfPaymentEvents>;
 
-/**
- * # PaymentManager - User Payment Data Container
- *
- * ## Purpose
- * - Root container for all payment-related data for a user
- * - Organized access point for subscription and payment history
- * - Enables schema migration and versioning
- *
- * ## Who creates this: Regarde SDK
- * - Automatically initialized when user account is created
- * - Stored in user's RegardeSDK payments field
- *
- * ## Who accesses this:
- * - SDK User: Access through hooks (useMySubscriptions, usePaymentHistory)
- * - End User: Access through SDK-provided UI components
- * - Regarde Worker: Updates subscription status via webhooks
- *
- * ## Fields
- * - mySubscriptions - List of user's current and past subscriptions
- * - paymentHistory - Complete payment transaction history
- * - version - Schema version for migration tracking
- */
-export const PaymentManager = co.map({
-  allMyPayments: ListOfPaymentEvents,
-  paymentHistoryByApp: co.record(z.string(), ListOfPaymentEvents),
-  version: z.number(),
-});
-
-export type TPaymentManagerLoaded = co.loaded<typeof PaymentManager>;
-export type TPaymentEventLoaded = co.loaded<typeof PaymentEvent>;
-
 export const App = co.map({
   name: z.string(),
   description: z.string(),

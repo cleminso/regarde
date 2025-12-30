@@ -1,6 +1,6 @@
 import { co, z } from "jazz-tools";
 import { UserHandle } from "../../regarde-users";
-import { App, PaymentManager } from "../../payments/schemas";
+import { App, ListOfPaymentEvents } from "../../payments/schemas";
 
 /**
  * # RegardeAuth - Provides temporary authentication tokens for API requests
@@ -57,7 +57,10 @@ export type TRegardeAuthLoaded = co.loaded<typeof RegardeAuth>;
 export const RegardeSDK = co.map({
   auth: RegardeAuth,
   myApps: co.list(App),
-  myPayments: PaymentManager,
+  myPayments: co.map({
+    all: ListOfPaymentEvents,
+    byApp: co.record(z.string(), ListOfPaymentEvents),
+  }),
   myUserHandle: UserHandle,
   version: z.number(),
 });

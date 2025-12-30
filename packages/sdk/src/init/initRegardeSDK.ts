@@ -1,7 +1,7 @@
 import { co, Group } from "jazz-tools";
 import { RegardeSDK, RegardeAuth } from "../auth/schemas/auth";
 import { UserHandle } from "../regarde-users";
-import { PaymentManager, ListOfPaymentEvents, App } from "../payments/schemas";
+import { ListOfPaymentEvents, App } from "../payments/schemas";
 import { getRegardeAuth } from "../auth/refreshAuthToken";
 import { RegardeAccount } from "../auth/schemas/regardeAccount";
 import { z } from "zod";
@@ -85,20 +85,12 @@ export const initRegardeSDK = async (
             },
           ),
           myApps: co.list(App).create([], { owner: userGroup }),
-          myPayments: PaymentManager.create(
-            {
-              allMyPayments: ListOfPaymentEvents.create([], {
-                owner: userGroup,
-              }),
-              paymentHistoryByApp: co
-                .record(z.string(), ListOfPaymentEvents)
-                .create({}, { owner: userGroup }),
-              version: 1,
-            },
-            {
-              owner: userGroup,
-            },
-          ),
+          myPayments: {
+            all: ListOfPaymentEvents.create([], { owner: userGroup }),
+            byApp: co
+              .record(z.string(), ListOfPaymentEvents)
+              .create({}, { owner: userGroup }),
+          },
           version: 2,
         },
         {
@@ -161,20 +153,12 @@ export const initRegardeSDK = async (
             },
           ),
           myApps: co.list(App).create([], { owner: userGroup }),
-          myPayments: PaymentManager.create(
-            {
-              allMyPayments: ListOfPaymentEvents.create([], {
-                owner: userGroup,
-              }),
-              paymentHistoryByApp: co
-                .record(z.string(), ListOfPaymentEvents)
-                .create({}, { owner: userGroup }),
-              version: 1,
-            },
-            {
-              owner: userGroup,
-            },
-          ),
+          myPayments: {
+            all: ListOfPaymentEvents.create([], { owner: userGroup }),
+            byApp: co
+              .record(z.string(), ListOfPaymentEvents)
+              .create({}, { owner: userGroup }),
+          },
           version: 2,
         },
         {

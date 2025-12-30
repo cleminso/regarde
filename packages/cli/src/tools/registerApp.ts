@@ -1,7 +1,4 @@
-import {
-  type ToolConfig,
-  SimpleChalk as chalk,
-} from "@alcyone-labs/arg-parser";
+import { type ToolConfig, SimpleChalk } from "@alcyone-labs/arg-parser";
 import fetch from "node-fetch";
 import {
   loadAuthenticatedRegardeSDK,
@@ -37,27 +34,27 @@ export const registerAppTool: ToolConfig = {
     },
   ],
   handler: async (ctx) => {
-    console.log(chalk.blue("Validating authentication..."));
+    console.log(SimpleChalk.blue("Validating authentication..."));
 
     try {
       // Use stored credentials from previous login
       const regardeSDK = await loadAuthenticatedRegardeSDK();
 
-      console.log(chalk.green("✓ Authentication valid"));
+      console.log(SimpleChalk.green("✓ Authentication valid"));
 
       // Get authentication headers for API request
       const authHeaders = getAuthenticationHeaders(regardeSDK);
 
       // Create the app client-side first
-      console.log(chalk.blue("Creating app..."));
+      console.log(SimpleChalk.blue("Creating app..."));
       const app = await createApp(regardeSDK, {
         name: ctx.args.name,
         description: "",
         paymentProvider: ctx.args.paymentProvider,
       });
 
-      console.log(chalk.green("✓ App created successfully"));
-      console.log(chalk.blue("Registering app via API..."));
+      console.log(SimpleChalk.green("✓ App created successfully"));
+      console.log(SimpleChalk.blue("Registering app via API..."));
 
       // Register the existing app with the API
       const payload = {
@@ -74,12 +71,14 @@ export const registerAppTool: ToolConfig = {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
+      const responseOk = response.ok === true;
+      if (responseOk === false) {
         const errorText = await response.text();
 
-        // Handle authentication errors specifically
         if (response.status === 401 || response.status === 403) {
-          console.error(chalk.red("Authentication failed. Please re-login."));
+          console.error(
+            SimpleChalk.red("Authentication failed. Please re-login."),
+          );
           return { success: false, error: "Authentication failed" };
         }
 
@@ -90,15 +89,16 @@ export const registerAppTool: ToolConfig = {
 
       return { success: true, data };
     } catch (error: any) {
-      console.error(chalk.red("Failed to register app:"), error.message);
+      console.error(SimpleChalk.red("Failed to register app:"), error.message);
 
-      // Provide helpful error messages for common issues
-      if (
+      const authRelatedError =
         error.message.includes("Authentication") ||
-        error.message.includes("Not logged in")
-      ) {
+        error.message.includes("Not logged in");
+      if (authRelatedError === true) {
         console.error(
-          chalk.yellow("Try running 'regarde login' to refresh your session."),
+          SimpleChalk.yellow(
+            "Try running 'regarde login' to refresh your session.",
+          ),
         );
       }
 

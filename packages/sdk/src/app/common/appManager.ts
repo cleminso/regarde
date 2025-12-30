@@ -1,17 +1,7 @@
-import { co, Loaded } from "jazz-tools";
-import { App } from "../../payments/schemas/payments";
+import { Loaded } from "jazz-tools";
+import { App, type TApp } from "../../payments/schemas/payments";
 import { RegardeSDK } from "../../auth/schemas/auth";
 
-/**
- * Creates a new App and adds it to the user's myApps list in RegardeSDK
- *
- * This function provides a client-side way to create an app without needing to go through the API.
- * The app is created with the user's own group as the owner and added to their myApps list.
- *
- * @param regardeSDK The user's loaded RegardeSDK instance
- * @param appData The data for the new app (name, description, paymentProvider)
- * @returns The newly created App instance
- */
 export const createApp = async (
   regardeSDK: Loaded<typeof RegardeSDK>,
   appData: {
@@ -19,16 +9,21 @@ export const createApp = async (
     description?: string;
     paymentProvider: "lemonsqueezy" | "stripe";
   },
-): Promise<App> => {
-  // Get the user's personal group that owns their RegardeSDK
-  const userGroup = regardeSDK.$jazz.owner;
+): Promise<TApp> => {
+  const myApps = regardeSDK.myApps;
+  const myAppsLoaded = myApps !== null && myApps.$isLoaded === true;
+  if (myAppsLoaded === false) {
+    throw new Error("RegardeSDK.myApps is not loaded");
+  }
 
-  // Create the new App with the user's group as owner
+  const userGroup = regardeSDK.$jazz.owner;
+  const ownerAccountId = userGroup.$jazz.id;
+
   const newApp = App.create(
     {
       name: appData.name,
       description: appData.description || "",
-      ownerAccountId: regardeSDK.$jazz.owner.$jazz.id,
+      ownerAccountId,
       paymentProvider: appData.paymentProvider,
       isEnabled: false,
       createdAt: Date.now(),
@@ -40,54 +35,31 @@ export const createApp = async (
     { owner: userGroup },
   );
 
-  // Add the new app to the user's myApps list
-  if (regardeSDK.myApps && regardeSDK.myApps.$isLoaded) {
-    regardeSDK.myApps.$jazz.push(newApp);
-  } else {
-    throw new Error("RegardeSDK.myApps is not loaded");
-  }
+  await newApp.$jazz.waitForSync();
+
+  myApps.$jazz.push(newApp);
+  await regardeSDK.$jazz.waitForSync();
 
   return newApp;
 };
 
-/**
- * Gets all apps from the user's myApps list in RegardeSDK
- *
- * This function provides a client-side way to retrieve all the user's apps
- * from their local RegardeSDK without needing to query the registry.
- *
- * @param regardeSDK The user's loaded RegardeSDK instance
- * @returns Array of the user's apps
- */
 export const getMyApps = async (
   regardeSDK: Loaded<typeof RegardeSDK>,
-): Promise<App[]> => {
-  if (!regardeSDK.myApps || !regardeSDK.myApps.$isLoaded) {
+): Promise<TApp[]> => {
+  const myApps = regardeSDK.myApps;
+  const myAppsValid = myApps !== null && myApps.$isLoaded === true;
+
+  if (myAppsValid === false) {
     return [];
   }
 
-  // Wait for myApps to be fully loaded
-  await regardeSDK.myApps.$jazz.ensureLoaded({
-    resolve: {},
-  });
+  await myApps.$jazz.ensureLoaded({ resolve: { $each: true } });
 
-  // Convert the list to an array and filter for loaded apps
-  return Array.from(regardeSDK.myApps).filter(
-    (app): app is App => app?.$isLoaded,
+  return Array.from(myApps).filter(
+    (app): app is TApp => app !== null && app.$isLoaded === true,
   );
 };
 
-/**
- * Finds an app by ID from the user's myApps list
- *
- * @param regardeSDK The user's loaded RegardeSDK instance
- * @param appId The ID of the app to find
- * @returns The app with the matching ID or undefined if not found
- */
-export const findMyApp = async (
-  regardeSDK: Loaded<typeof RegardeSDK>,
-  appId: string,
-): Promise<App | undefined> => {
-  const myApps = await getMyApps(regardeSDK);
-  return myApps.find((app) => app.$jazz.id === appId);
-};
+// To find my app no need new fucntions
+// const myApps = await getMyApps(regardeSDK);
+// const app = myApps.find(a => a.$jazz.id === appId);

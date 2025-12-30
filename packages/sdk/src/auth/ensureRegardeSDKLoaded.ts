@@ -1,3 +1,4 @@
+// DEPRECATED
 import { co } from "jazz-tools";
 import { RegardeSDK } from "../auth/schemas/auth";
 import { initRegardeSDK } from "../init/initRegardeSDK";
