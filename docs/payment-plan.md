@@ -119,7 +119,7 @@ SDK developers will integrate the end user account flow as they want in their ap
 ### 2. App Registration Flow
 
 ```typescript
-// CLI command: pnpx regarde register-app --name "My app" --providerName "lemon-squeezy" --ownerJazzAccountId "co_z"
+// CLI command: pnpx regarde register-app --name "My app" --providerName "lemon-squeezy"
 
 // Implementation steps:
 1. SDK user calls API to api.regarde.dev/register-app

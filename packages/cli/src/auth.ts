@@ -1,8 +1,4 @@
-import {
-  saveCredentials,
-  loadCredentials,
-  clearCredentials,
-} from "./utils/storage.js";
+import { loadCredentials, clearCredentials } from "./utils/storage.js";
 
 /**
  * Gets stored credentials from local storage

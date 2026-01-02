@@ -4,77 +4,65 @@ import {
   type TAppsByUserRecord,
   RegistryAppMetadata,
 } from "@regarde-dev/sdk/registry";
-import { App, type TApp } from "@regarde-dev/sdk/payments";
-import { RegardeAccount, type TRegardeAccount } from "@regarde-dev/sdk/auth";
+import { type TApp, App } from "@regarde-dev/sdk/payments";
+import { RegardeAccount } from "@regarde-dev/sdk/auth";
 import { Loaded, co } from "jazz-tools";
 import { randomBytes } from "node:crypto";
 import { verifyRegardeAuth } from "#/domains/auth/handlers/verify";
-
-type HonoContext = {
-  req: {
-    header: (name: string) => string | undefined;
-    json: () => Promise<{ appId: string }>;
-  };
-  json: (data: unknown, status?: number) => Response;
-};
 
 export const registerAppHandler = (
   appsRecord: TAllRegistryAppsSchema,
   appsByUserRecord: TAppsByUserRecord,
   worker: Loaded<typeof RegistryWorkerAccount>,
 ) => {
-  return async (c: HonoContext) => {
+  return async (c: any) => {
     try {
       const regardeAuth = c.req.header("X-Regarde-Token");
       const regardeAuthId = c.req.header("X-Regarde-Token-Id");
 
-      const hasToken = regardeAuth !== undefined;
-      const hasTokenId = regardeAuthId !== undefined;
-      const bothHeadersPresent = hasToken && hasTokenId;
-
-      if (bothHeadersPresent === false) {
-        console.log(
-          "[ERROR] Missing authentication headers for register-app endpoint",
-        );
-        return c.json({ error: "Missing authentication headers" }, 401);
+      if (!regardeAuth) {
+        console.log("[ERROR] Missing registration token header");
+        return c.json({ error: "Missing registration token header" }, 401);
       }
 
       const { appId } = await c.req.json();
 
-      if (!appsRecord[appId]) {
-        return c.json({ error: "App not found in registry" }, 404);
-      }
+      console.log(`[INFO] Processing registration for appId: ${appId}`);
 
-      const appMetadata = appsRecord[appId];
-      if (appMetadata === undefined || appMetadata.$isLoaded === false) {
-        return c.json({ error: "App not found in registry" }, 404);
-      }
+      console.log("[INFO] Loading app by ID to extract ownership");
 
-      const resolved = await appMetadata.$jazz.ensureLoaded({
-        resolve: {
-          app: true,
-        },
+      // Load the App directly using the provided appId
+      const app = await App.load(appId, {
+        loadAs: worker,
+        resolve: true,
       });
-      const app = resolved.app;
-      const $appIsLoaded = app !== undefined && app.$isLoaded === true;
 
-      if ($appIsLoaded === false) {
-        return c.json({ error: "Failed to load app details" }, 500);
+      const appLoaded = app !== null && app.$isLoaded === true;
+      if (appLoaded === false) {
+        return c.json({ error: "App not found or not accessible" }, 404);
       }
 
-      const ownerAccountId = app.ownerAccountId;
-      const paymentProvider = app.paymentProvider;
+      console.log("[INFO] App loaded successfully");
 
-      console.log(`[AUTH] Verifying token for account: ${ownerAccountId}`);
+      // Extract jazzAccountId from the App's owner context
+      const appOwnerGroup = app.$jazz.owner as any;
+      const jazzAccountId = appOwnerGroup.$jazz.owner.$jazz.id;
+
+      console.log(
+        `[INFO] Extracted jazzAccountId: ${jazzAccountId} from App ownership`,
+      );
+
+      // Verify authentication using the extracted jazzAccountId
       const verificationResult = await verifyRegardeAuth(
-        ownerAccountId,
-        regardeAuth as string,
-        regardeAuthId as string,
+        jazzAccountId,
+        regardeAuth,
+        regardeAuthId,
+        worker,
       );
 
       if (verificationResult.isValid === false) {
         console.log(
-          `[ERROR] Authentication failed for AccountID "${ownerAccountId}": ${verificationResult.error}`,
+          `[ERROR] Authentication failed: ${verificationResult.error}`,
         );
         return c.json(
           { error: `Authentication failed: ${verificationResult.error}` },
@@ -83,25 +71,31 @@ export const registerAppHandler = (
       }
 
       console.log(
-        `[AUTH] Authentication successful for AccountID "${ownerAccountId}"`,
+        "[INFO] Authentication verified - proceeding with registration",
       );
 
-      const userAccount = await RegardeAccount.load(ownerAccountId, {
+      // Load the user's RegardeAccount to validate App ownership
+      const userAccount = await RegardeAccount.load(jazzAccountId, {
         loadAs: worker,
         resolve: { root: true },
       });
 
-      const userAccountValid = userAccount.$isLoaded === true;
-
-      if (userAccountValid === false) {
-        return c.json({ error: "Failed to load user account" }, 500);
+      const userAccountLoaded =
+        userAccount !== null && userAccount.$isLoaded === true;
+      if (userAccountLoaded === false) {
+        return c.json(
+          { error: "User account not found or not accessible" },
+          404,
+        );
       }
 
-      const regardeSDK = userAccount.root["regarde-sdk"];
-      const regardeSDKValid =
-        regardeSDK !== undefined && regardeSDK.$isLoaded === true;
+      console.log("[INFO] User account loaded successfully");
 
-      if (regardeSDKValid === false) {
+      // Verify user's RegardeSDK is properly initialized
+      const userRegardeSDK = userAccount.root["regarde-sdk"];
+      const userRegardeSDKValid =
+        userRegardeSDK !== undefined && userRegardeSDK.$isLoaded === true;
+      if (userRegardeSDKValid === false) {
         return c.json(
           {
             error:
@@ -111,40 +105,47 @@ export const registerAppHandler = (
         );
       }
 
-      const myApps = regardeSDK.myApps;
-      if (myApps === undefined) {
-        return c.json({ error: "Apps list not found" }, 400);
+      // Load user's apps list to verify this App is properly stored there
+      const userMyApps = userRegardeSDK.myApps;
+      if (userMyApps === undefined) {
+        return c.json({ error: "Apps list not found in user account" }, 400);
       }
-      if (myApps.$isLoaded === false) {
-        await regardeSDK.$jazz.ensureLoaded({ resolve: { myApps: true } });
-        const loadedMyApps = regardeSDK.myApps;
-        if (loadedMyApps === undefined || loadedMyApps.$isLoaded === false) {
-          return c.json({ error: "Failed to load apps list" }, 500);
-        }
-        const userApps = Array.from(loadedMyApps) as (TApp | undefined)[];
-        const loadedApps = userApps.filter(
-          (userApp): userApp is TApp =>
-            userApp !== undefined && userApp.$isLoaded === true,
-        );
-        const appIsInList = loadedApps.some(
-          (userApp) => userApp.$jazz.id === appId,
-        );
-        if (appIsInList === false) {
-          return c.json({ error: "App not in user's apps list" }, 403);
-        }
-      } else {
-        const userApps = Array.from(myApps) as (TApp | undefined)[];
-        const loadedApps = userApps.filter(
-          (userApp): userApp is TApp =>
-            userApp !== undefined && userApp.$isLoaded === true,
-        );
-        const appIsInList = loadedApps.some(
-          (userApp) => userApp.$jazz.id === appId,
-        );
-        if (appIsInList === false) {
-          return c.json({ error: "App not in user's apps list" }, 403);
-        }
+      if (userMyApps.$isLoaded === false) {
+        await userRegardeSDK.$jazz.ensureLoaded({ resolve: { myApps: true } });
       }
+
+      const loadedUserMyApps = userRegardeSDK.myApps;
+      if (
+        loadedUserMyApps === undefined ||
+        loadedUserMyApps.$isLoaded === false
+      ) {
+        return c.json({ error: "Failed to load user's apps list" }, 500);
+      }
+
+      // Verify the App exists in user's RegardeSDK.myApps
+      const allUserApps = Array.from(loadedUserMyApps) as (TApp | undefined)[];
+      const userLoadedApps = allUserApps.filter(
+        (userApp): userApp is TApp =>
+          userApp !== undefined && userApp.$isLoaded === true,
+      );
+
+      const appBelongsToUser = userLoadedApps.some(
+        (userApp) => userApp.$jazz.id === appId,
+      );
+
+      if (appBelongsToUser === false) {
+        return c.json(
+          {
+            error:
+              "App exists but is not properly linked to your account. Please ensure the App was created through the proper SDK flow.",
+          },
+          403,
+        );
+      }
+
+      console.log(
+        "[INFO] App ownership verified - App properly linked to user account",
+      );
 
       let webhookSecret: string;
 
@@ -156,13 +157,20 @@ export const registerAppHandler = (
         webhookSecret = app.webhookSecret;
       }
 
-      const webhookUrl = `https://api.regarde.dev/webhooks/${paymentProvider}/${appId}`;
+      const webhookUrl = `https://api.regarde.dev/webhooks/${app.paymentProvider}/${appId}`;
 
-      const existingAppRegistration = appsRecord[appId];
-      if (
-        existingAppRegistration !== undefined &&
-        existingAppRegistration.$isLoaded === true
-      ) {
+      const existingUserAppsList = appsByUserRecord[jazzAccountId];
+      const alreadyRegistered =
+        existingUserAppsList !== undefined &&
+        existingUserAppsList.$isLoaded === true &&
+        existingUserAppsList.some(
+          (entry) =>
+            entry?.$isLoaded === true &&
+            entry.app?.$isLoaded === true &&
+            (entry.app.$jazz.id === appId || entry.app.name === app.name),
+        );
+
+      if (alreadyRegistered === true) {
         return c.json(
           {
             message: "App already registered",
@@ -196,33 +204,21 @@ export const registerAppHandler = (
       appsRecord.$jazz.set(appId, metadata);
       await appsRecord.$jazz.waitForSync();
 
-      if (!appsByUserRecord[ownerAccountId]) {
+      if (!appsByUserRecord[jazzAccountId]) {
         appsByUserRecord.$jazz.set(
-          ownerAccountId,
+          jazzAccountId,
           co.list(RegistryAppMetadata).create([], registryOwner),
         );
         await appsByUserRecord.$jazz.waitForSync();
       }
 
-      const userAppsList = appsByUserRecord[ownerAccountId];
+      const userAppsList = appsByUserRecord[jazzAccountId];
 
       const userAppsListValid =
         userAppsList !== undefined && userAppsList.$isLoaded === true;
 
       if (userAppsListValid === true) {
-        userAppsList.$jazz.push(
-          RegistryAppMetadata.create(
-            {
-              app: app,
-              isVerified: true,
-              hasAccess: false,
-              webhookConfigured: false,
-              createdAt: Date.now(),
-              version: 1,
-            },
-            registryOwner,
-          ),
-        );
+        userAppsList.$jazz.push(metadata);
         await appsByUserRecord.$jazz.waitForSync();
       }
 

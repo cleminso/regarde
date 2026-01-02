@@ -9,7 +9,7 @@ import { startWorker } from "jazz-tools/worker";
 
 import {
   RegistryWorkerAccount,
-  NicknameRegistry,
+  TNicknameRegistry,
 } from "@regarde-dev/sdk/registry";
 
 import { rateLimit } from "./middleware/rateLimit.js";
@@ -157,7 +157,7 @@ async function main() {
   }
 
   // Safely extract references with loading checks
-  const nicknameRegistry: NicknameRegistry | undefined =
+  const nicknameRegistry: TNicknameRegistry | undefined =
     loadedWorker &&
     loadedWorker.$isLoaded &&
     loadedWorker.root &&

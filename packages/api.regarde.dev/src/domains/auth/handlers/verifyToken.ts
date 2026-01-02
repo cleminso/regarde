@@ -39,6 +39,7 @@ export const verifyHandler = (worker: Loaded<typeof RegistryWorkerAccount>) => {
         jazzAccountId,
         regardeAuth,
         regardeAuthId,
+        worker,
       );
 
       console.log(

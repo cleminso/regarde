@@ -1,4 +1,6 @@
 import { RegardeAuth } from "@regarde-dev/sdk/auth";
+import { co, Loaded } from "jazz-tools";
+import { RegistryWorkerAccount } from "@regarde-dev/sdk/registry";
 
 export interface VerificationResult {
   isValid: boolean;
@@ -9,6 +11,7 @@ export async function verifyRegardeAuth(
   jazzAccountId: string,
   providedRegardeAuth: string,
   regardeAuthCoValueId: string,
+  worker: Loaded<typeof RegistryWorkerAccount>,
 ): Promise<VerificationResult> {
   try {
     if (!jazzAccountId || !providedRegardeAuth) {
@@ -36,10 +39,19 @@ export async function verifyRegardeAuth(
         };
       }
 
-      // Check ownership
-      const owner = regardeAuth.$jazz.owner;
-      if (owner.$isLoaded && owner.getRoleOf(jazzAccountId) !== "admin") {
-        // TODO: Important! Must check who created the coValue instead of whether it's an admin or not
+      // Load user account to verify permissions on RegardeAuth CoValue
+      const userAccount = await co.account().load(jazzAccountId, {
+        loadAs: worker,
+      });
+
+      const userAccountLoaded = userAccount.$isLoaded === true;
+      if (userAccountLoaded === false) {
+        throw new Error("User account not found");
+      }
+
+      // Verify user has admin permissions on RegardeAuth CoValue
+      const userCanAdminRegardeAuth = userAccount.canAdmin(regardeAuth);
+      if (userCanAdminRegardeAuth === false) {
         throw new Error("User does not own the CoValue");
       }
     } catch (loadError: any) {

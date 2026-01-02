@@ -42,9 +42,10 @@ export const registerHandler = (
       );
 
       const verificationResult = await verifyRegardeAuth(
-        jazzAccountID,
+        jazzAccountId,
         regardeAuth,
         regardeAuthId,
+        worker,
       );
       if (!verificationResult.isValid) {
         console.log(

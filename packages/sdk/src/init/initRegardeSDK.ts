@@ -58,6 +58,7 @@ export const initRegardeSDK = async (
         owner: account,
       });
 
+      userGroup.addMember(account, "admin");
       userGroup.addMember(regardeProfileWorkerGroup as Group, "writer");
 
       await userGroup.$jazz.waitForSync();
@@ -126,6 +127,7 @@ export const initRegardeSDK = async (
         owner: account,
       });
 
+      userGroup.addMember(account, "admin");
       userGroup.addMember(regardeProfileWorkerGroup as Group, "writer");
 
       await userGroup.$jazz.waitForSync();
