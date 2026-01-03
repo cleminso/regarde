@@ -58,37 +58,14 @@ export const registerAppTool: ToolConfig = {
       console.log(SimpleChalk.green("✓ App created successfully"));
       console.log(SimpleChalk.blue("Registering app via API..."));
 
-      // Get the jazzAccountId from the RegardeSDK
-      console.log(
-        "[DEBUG] RegardeSDK owner structure:",
-        regardeSDK.$jazz.owner,
-      );
-      console.log(
-        "[DEBUG] RegardeSDK owner type:",
-        typeof regardeSDK.$jazz.owner,
-      );
-      console.log(
-        "[DEBUG] RegardeSDK owner.$jazz:",
-        regardeSDK.$jazz.owner.$jazz,
-      );
-      console.log(
-        "[DEBUG] RegardeSDK owner.$jazz.id:",
-        regardeSDK.$jazz.owner.$jazz.id,
-      );
-
-      // Use the accountID from the authenticated credentials - this is the proper RegardeAccount ID
-      const jazzAccountId = accountID;
-      console.log("[DEBUG] Using account ID from credentials:", jazzAccountId);
-
       // Register the existing app with the API
       const payload = {
         appId: app.$jazz.id,
-        jazzAccountId,
+        jazzAccountId: accountID,
       };
 
-      console.log("[DEBUG] Payload:", payload);
-
       // Include authentication headers in API request
+      console.log("[DEBUG] Starting fetch request...");
       const response = await fetch("http://localhost:3000/register-app", {
         method: "POST",
         headers: {
@@ -98,9 +75,14 @@ export const registerAppTool: ToolConfig = {
         body: JSON.stringify(payload),
       });
 
+      console.log("[DEBUG] Response status:", response.status);
+      console.log("[DEBUG] Response ok:", response.ok);
+
       const responseOk = response.ok === true;
       if (responseOk === false) {
+        console.log("[DEBUG] Response was not ok, reading error text...");
         const errorText = await response.text();
+        console.log("[DEBUG] Error text:", errorText);
 
         if (response.status === 401 || response.status === 403) {
           console.error(
@@ -112,9 +94,15 @@ export const registerAppTool: ToolConfig = {
         throw new Error(`API Error ${response.status}: ${errorText}`);
       }
 
+      console.log("[DEBUG] Response was ok, parsing JSON...");
       const data = await response.json();
 
-      return { success: true, data };
+      console.log("[DEBUG] Parsed data:", data);
+      console.log(SimpleChalk.green("✓ App registered successfully"));
+
+      const result = { success: true, data };
+      console.log("[DEBUG] Returning result:", result);
+      return result;
     } catch (error: any) {
       console.error(SimpleChalk.red("Failed to register app:"), error.message);
 

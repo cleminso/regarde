@@ -124,11 +124,11 @@ export const RegistryAppMetadata = co.map({
   get app() {
     return App;
   },
-  isVerified: z.boolean().default(true),
+  isVerified: z.boolean(),
   hasAccess: z.boolean(),
-  webhookConfigured: z.boolean().default(false),
+  webhookConfigured: z.boolean(),
   createdAt: z.number(),
-  version: z.number().default(1),
+  version: z.number(),
 });
 export type TRegistryAppMetadata = co.loaded<typeof RegistryAppMetadata>;
 
@@ -162,7 +162,7 @@ export const AppRegistry = co.map({
   apps: AllRegistryAppsSchema,
   metadata: co.record(z.string(), z.string()),
   registeredAt: z.number(),
-  version: z.number().default(1),
+  version: z.number(),
 });
 export type TAppRegistry = co.loaded<typeof AppRegistry>;
 

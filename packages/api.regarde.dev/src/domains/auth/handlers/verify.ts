@@ -49,7 +49,6 @@ export async function verifyRegardeAuth(
         throw new Error("User account not found");
       }
 
-
       // Verify user has admin permissions on RegardeAuth CoValue
       // create a small test to isolate account via admin worker
       const userCanAdminRegardeAuth = userAccount.canAdmin(regardeAuth);

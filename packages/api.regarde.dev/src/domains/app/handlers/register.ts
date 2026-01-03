@@ -4,8 +4,7 @@ import {
   type TAppsByUserRecord,
   RegistryAppMetadata,
 } from "@regarde-dev/sdk/registry";
-import { type TApp, App } from "@regarde-dev/sdk/payments";
-import { RegardeAccount, RegardeAuth } from "@regarde-dev/sdk/auth";
+import { App } from "@regarde-dev/sdk/payments";
 import { Loaded, co } from "jazz-tools";
 import { randomBytes } from "node:crypto";
 import { verifyRegardeAuth } from "#/domains/auth/handlers/verify";
@@ -52,34 +51,20 @@ export const registerAppHandler = (
         return c.json({ error: "App not found or not accessible" }, 404);
       }
 
-      // Use the shared userAccount from verification
-      const userAccount = verificationResult.userAccount;
-
-      // Load the RegardeAuth CoMap to verify permissions
-      const regardeAuthCoMap = await RegardeAuth.load(regardeAuthId, {
+      // Load userAccount directly using jazzAccountId from request
+      const userAccount = await co.account().load(jazzAccountId, {
         loadAs: worker,
       });
 
-      if (!regardeAuthCoMap || !regardeAuthCoMap.$isLoaded) {
-        return c.json(
-          { error: "RegardeAuth not found or not accessible" },
-          404,
-        );
-      }
-
-      // Verify user has admin write permissions on RegardeAuth
-      if (!userAccount.canAdmin(regardeAuthCoMap)) {
-        return c.json(
-          {
-            error:
-              "Permission denied: User does not have admin access to RegardeAuth",
-          },
-          403,
-        );
+      const userAccountLoaded =
+        userAccount !== null && userAccount.$isLoaded === true;
+      if (userAccountLoaded === false) {
+        return c.json({ error: "User account not found" }, 404);
       }
 
       // Verify user has admin write permissions on the App
-      if (!userAccount.canAdmin(app)) {
+      const userCanAdminApp = userAccount.canAdmin(app);
+      if (userCanAdminApp === false) {
         return c.json(
           {
             error:
@@ -168,14 +153,23 @@ export const registerAppHandler = (
         await appsByUserRecord.$jazz.waitForSync();
       }
 
-      return c.json(
-        {
-          appId,
-          webhookUrl,
-          webhookSecret,
-        },
-        200,
-      );
+      console.log("Creating JSON response with data:", {
+        appId,
+        webhookUrl,
+        webhookSecret,
+      });
+
+      const responseData = {
+        appId,
+        webhookUrl,
+        webhookSecret,
+      };
+
+      console.log("About to call c.json()");
+
+      const response = c.json(responseData, 200);
+      console.log("Response created:", response);
+      return response;
     } catch (error: unknown) {
       console.error("Register App Error:", error);
       const errorMessage =
