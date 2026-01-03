@@ -4,7 +4,10 @@ import { getStoredCredentials } from "./auth.js";
 import { startWorker } from "jazz-tools/worker";
 import { initRegardeSDK } from "@regarde-dev/sdk/init";
 
-export async function loadAuthenticatedRegardeSDK() {
+export async function loadAuthenticatedRegardeSDK(): Promise<{
+  regardeSDK: co.loaded<typeof RegardeSDK>;
+  accountID: string;
+}> {
   const credsStr = await getStoredCredentials();
   if (!credsStr) {
     throw new Error("Not logged in. Please run 'regarde login' first.");
@@ -23,15 +26,15 @@ export async function loadAuthenticatedRegardeSDK() {
     });
   }
 
-  const { accountID, accountSecret } = creds;
-  if (!accountID || !accountSecret) {
+  const { accountID: credsAccountID, accountSecret } = creds;
+  if (!credsAccountID || !accountSecret) {
     throw new Error("Incomplete credentials. Please re-login.");
   }
 
   const workerOptions = {
     AccountSchema: RegardeAccount,
     syncServer: "wss://cloud.jazz.tools",
-    accountID: creds.accountID,
+    accountID: credsAccountID,
     accountSecret: creds.accountSecret,
   };
 
@@ -43,7 +46,7 @@ export async function loadAuthenticatedRegardeSDK() {
 
   const regardeSDK = await initRegardeSDK(worker);
 
-  return regardeSDK;
+  return { regardeSDK, accountID: credsAccountID };
 }
 
 export function isAuthenticationValid(

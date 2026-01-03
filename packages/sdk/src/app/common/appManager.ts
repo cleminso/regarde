@@ -10,6 +10,12 @@ export const createApp = async (
     paymentProvider: "lemonsqueezy" | "stripe";
   },
 ): Promise<TApp> => {
+  await regardeSDK.$jazz.ensureLoaded({
+    resolve: {
+      myApps: true,
+    },
+  });
+
   const myApps = regardeSDK.myApps;
   const myAppsLoaded = myApps !== null && myApps.$isLoaded === true;
   if (myAppsLoaded === false) {

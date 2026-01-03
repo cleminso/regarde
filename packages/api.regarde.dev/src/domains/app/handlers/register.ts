@@ -5,7 +5,7 @@ import {
   RegistryAppMetadata,
 } from "@regarde-dev/sdk/registry";
 import { type TApp, App } from "@regarde-dev/sdk/payments";
-import { RegardeAccount } from "@regarde-dev/sdk/auth";
+import { RegardeAccount, RegardeAuth } from "@regarde-dev/sdk/auth";
 import { Loaded, co } from "jazz-tools";
 import { randomBytes } from "node:crypto";
 import { verifyRegardeAuth } from "#/domains/auth/handlers/verify";
@@ -21,17 +21,27 @@ export const registerAppHandler = (
       const regardeAuthId = c.req.header("X-Regarde-Token-Id");
 
       if (!regardeAuth) {
-        console.log("[ERROR] Missing registration token header");
         return c.json({ error: "Missing registration token header" }, 401);
       }
 
-      const { appId } = await c.req.json();
+      const { appId, jazzAccountId } = await c.req.json();
 
-      console.log(`[INFO] Processing registration for appId: ${appId}`);
+      // Verify authentication using the provided jazzAccountId
+      const verificationResult = await verifyRegardeAuth(
+        jazzAccountId,
+        regardeAuth,
+        regardeAuthId,
+        worker,
+      );
 
-      console.log("[INFO] Loading app by ID to extract ownership");
+      if (verificationResult.isValid === false) {
+        return c.json(
+          { error: `Authentication failed: ${verificationResult.error}` },
+          403,
+        );
+      }
 
-      // Load the App directly using the provided appId
+      // Load the App to verify user has admin write permissions
       const app = await App.load(appId, {
         loadAs: worker,
         resolve: true,
@@ -42,110 +52,51 @@ export const registerAppHandler = (
         return c.json({ error: "App not found or not accessible" }, 404);
       }
 
-      console.log("[INFO] App loaded successfully");
+      // Use the shared userAccount from verification
+      const userAccount = verificationResult.userAccount;
 
-      // Extract jazzAccountId from the App's owner context
-      const appOwnerGroup = app.$jazz.owner as any;
-      const jazzAccountId = appOwnerGroup.$jazz.owner.$jazz.id;
-
-      console.log(
-        `[INFO] Extracted jazzAccountId: ${jazzAccountId} from App ownership`,
-      );
-
-      // Verify authentication using the extracted jazzAccountId
-      const verificationResult = await verifyRegardeAuth(
-        jazzAccountId,
-        regardeAuth,
-        regardeAuthId,
-        worker,
-      );
-
-      if (verificationResult.isValid === false) {
-        console.log(
-          `[ERROR] Authentication failed: ${verificationResult.error}`,
-        );
-        return c.json(
-          { error: `Authentication failed: ${verificationResult.error}` },
-          403,
-        );
-      }
-
-      console.log(
-        "[INFO] Authentication verified - proceeding with registration",
-      );
-
-      // Load the user's RegardeAccount to validate App ownership
-      const userAccount = await RegardeAccount.load(jazzAccountId, {
+      // Load the RegardeAuth CoMap to verify permissions
+      const regardeAuthCoMap = await RegardeAuth.load(regardeAuthId, {
         loadAs: worker,
-        resolve: { root: true },
       });
 
-      const userAccountLoaded =
-        userAccount !== null && userAccount.$isLoaded === true;
-      if (userAccountLoaded === false) {
+      if (!regardeAuthCoMap || !regardeAuthCoMap.$isLoaded) {
         return c.json(
-          { error: "User account not found or not accessible" },
+          { error: "RegardeAuth not found or not accessible" },
           404,
         );
       }
 
-      console.log("[INFO] User account loaded successfully");
-
-      // Verify user's RegardeSDK is properly initialized
-      const userRegardeSDK = userAccount.root["regarde-sdk"];
-      const userRegardeSDKValid =
-        userRegardeSDK !== undefined && userRegardeSDK.$isLoaded === true;
-      if (userRegardeSDKValid === false) {
+      // Verify user has admin write permissions on RegardeAuth
+      if (!userAccount.canAdmin(regardeAuthCoMap)) {
         return c.json(
           {
             error:
-              "Your account is not properly initialized. Please initialize your account first.",
-          },
-          400,
-        );
-      }
-
-      // Load user's apps list to verify this App is properly stored there
-      const userMyApps = userRegardeSDK.myApps;
-      if (userMyApps === undefined) {
-        return c.json({ error: "Apps list not found in user account" }, 400);
-      }
-      if (userMyApps.$isLoaded === false) {
-        await userRegardeSDK.$jazz.ensureLoaded({ resolve: { myApps: true } });
-      }
-
-      const loadedUserMyApps = userRegardeSDK.myApps;
-      if (
-        loadedUserMyApps === undefined ||
-        loadedUserMyApps.$isLoaded === false
-      ) {
-        return c.json({ error: "Failed to load user's apps list" }, 500);
-      }
-
-      // Verify the App exists in user's RegardeSDK.myApps
-      const allUserApps = Array.from(loadedUserMyApps) as (TApp | undefined)[];
-      const userLoadedApps = allUserApps.filter(
-        (userApp): userApp is TApp =>
-          userApp !== undefined && userApp.$isLoaded === true,
-      );
-
-      const appBelongsToUser = userLoadedApps.some(
-        (userApp) => userApp.$jazz.id === appId,
-      );
-
-      if (appBelongsToUser === false) {
-        return c.json(
-          {
-            error:
-              "App exists but is not properly linked to your account. Please ensure the App was created through the proper SDK flow.",
+              "Permission denied: User does not have admin access to RegardeAuth",
           },
           403,
         );
       }
 
-      console.log(
-        "[INFO] App ownership verified - App properly linked to user account",
-      );
+      // Verify user has admin write permissions on the App
+      if (!userAccount.canAdmin(app)) {
+        return c.json(
+          {
+            error:
+              "Permission denied: User does not have admin access to the App",
+          },
+          403,
+        );
+      }
+
+      // Load the registry owner group (worker is added as "writer" in initRegardeSDK)
+      const registryProfileWorkerGroup = await co
+        .group()
+        .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", { loadAs: worker });
+
+      if (!registryProfileWorkerGroup.$isLoaded) {
+        return c.json({ error: "Failed to load registry owner group" }, 500);
+      }
 
       let webhookSecret: string;
 
@@ -182,12 +133,7 @@ export const registerAppHandler = (
         );
       }
 
-      const registryOwner = worker.$jazz.owner;
-      const registryOwnerValid = registryOwner !== undefined;
-
-      if (registryOwnerValid === false) {
-        return c.json({ error: "Failed to load registry owner group" }, 500);
-      }
+      console.log("Registration completed successfully, returning response");
 
       const metadata = RegistryAppMetadata.create(
         {
@@ -198,7 +144,7 @@ export const registerAppHandler = (
           createdAt: Date.now(),
           version: 1,
         },
-        registryOwner,
+        registryProfileWorkerGroup,
       );
 
       appsRecord.$jazz.set(appId, metadata);
@@ -207,7 +153,7 @@ export const registerAppHandler = (
       if (!appsByUserRecord[jazzAccountId]) {
         appsByUserRecord.$jazz.set(
           jazzAccountId,
-          co.list(RegistryAppMetadata).create([], registryOwner),
+          co.list(RegistryAppMetadata).create([], registryProfileWorkerGroup),
         );
         await appsByUserRecord.$jazz.waitForSync();
       }

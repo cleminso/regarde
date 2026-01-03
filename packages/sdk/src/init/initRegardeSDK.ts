@@ -182,6 +182,9 @@ export const initRegardeSDK = async (
     await regardeSDK.$jazz.ensureLoaded({
       resolve: {
         auth: true,
+        myApps: true,
+        myUserHandle: true,
+        myPayments: true,
       },
     });
 

@@ -5,6 +5,8 @@ import {
   getAuthenticationHeaders,
 } from "../authUtils.js";
 import { createApp } from "@regarde-dev/sdk/app";
+import { co } from "jazz-tools";
+import { type TRegardeAccount } from "@regarde-dev/sdk/auth";
 
 export const registerAppTool: ToolConfig = {
   name: "register-app",
@@ -38,7 +40,7 @@ export const registerAppTool: ToolConfig = {
 
     try {
       // Use stored credentials from previous login
-      const regardeSDK = await loadAuthenticatedRegardeSDK();
+      const { regardeSDK, accountID } = await loadAuthenticatedRegardeSDK();
 
       console.log(SimpleChalk.green("✓ Authentication valid"));
 
@@ -56,13 +58,38 @@ export const registerAppTool: ToolConfig = {
       console.log(SimpleChalk.green("✓ App created successfully"));
       console.log(SimpleChalk.blue("Registering app via API..."));
 
+      // Get the jazzAccountId from the RegardeSDK
+      console.log(
+        "[DEBUG] RegardeSDK owner structure:",
+        regardeSDK.$jazz.owner,
+      );
+      console.log(
+        "[DEBUG] RegardeSDK owner type:",
+        typeof regardeSDK.$jazz.owner,
+      );
+      console.log(
+        "[DEBUG] RegardeSDK owner.$jazz:",
+        regardeSDK.$jazz.owner.$jazz,
+      );
+      console.log(
+        "[DEBUG] RegardeSDK owner.$jazz.id:",
+        regardeSDK.$jazz.owner.$jazz.id,
+      );
+
+      // Use the accountID from the authenticated credentials - this is the proper RegardeAccount ID
+      const jazzAccountId = accountID;
+      console.log("[DEBUG] Using account ID from credentials:", jazzAccountId);
+
       // Register the existing app with the API
       const payload = {
         appId: app.$jazz.id,
+        jazzAccountId,
       };
 
+      console.log("[DEBUG] Payload:", payload);
+
       // Include authentication headers in API request
-      const response = await fetch("https://api.regarde.dev/register-app", {
+      const response = await fetch("http://localhost:3000/register-app", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
