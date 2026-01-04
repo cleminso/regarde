@@ -19,7 +19,9 @@ export const registerAppHandler = (
       const regardeAuth = c.req.header("X-Regarde-Token");
       const regardeAuthId = c.req.header("X-Regarde-Token-Id");
 
-      if (!regardeAuth) {
+      const regardeAuthHeaderExists =
+        regardeAuth !== null && regardeAuth !== undefined;
+      if (regardeAuthHeaderExists === false) {
         return c.json({ error: "Missing registration token header" }, 401);
       }
 
@@ -33,7 +35,8 @@ export const registerAppHandler = (
         worker,
       );
 
-      if (verificationResult.isValid === false) {
+      const authenticationValid = verificationResult.isValid === true;
+      if (authenticationValid === false) {
         return c.json(
           { error: `Authentication failed: ${verificationResult.error}` },
           403,
@@ -79,13 +82,16 @@ export const registerAppHandler = (
         .group()
         .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", { loadAs: worker });
 
-      if (!registryProfileWorkerGroup.$isLoaded) {
+      const registryGroupLoaded = registryProfileWorkerGroup.$isLoaded === true;
+      if (registryGroupLoaded === false) {
         return c.json({ error: "Failed to load registry owner group" }, 500);
       }
 
       let webhookSecret: string;
 
-      if (!app.webhookSecret) {
+      const webhookSecretExists =
+        app.webhookSecret !== null && app.webhookSecret !== undefined;
+      if (webhookSecretExists === false) {
         webhookSecret = randomBytes(20).toString("hex");
         app.$jazz.set("webhookSecret", webhookSecret);
         await app.$jazz.waitForSync();
@@ -95,30 +101,7 @@ export const registerAppHandler = (
 
       const webhookUrl = `https://api.regarde.dev/webhooks/${app.paymentProvider}/${appId}`;
 
-      const existingUserAppsList = appsByUserRecord[jazzAccountId];
-      const alreadyRegistered =
-        existingUserAppsList !== undefined &&
-        existingUserAppsList.$isLoaded === true &&
-        existingUserAppsList.some(
-          (entry) =>
-            entry?.$isLoaded === true &&
-            entry.app?.$isLoaded === true &&
-            (entry.app.$jazz.id === appId || entry.app.name === app.name),
-        );
-
-      if (alreadyRegistered === true) {
-        return c.json(
-          {
-            message: "App already registered",
-            appId,
-            webhookUrl,
-            webhookSecret,
-          },
-          200,
-        );
-      }
-
-      console.log("Registration completed successfully, returning response");
+      console.log("Registration completed successfully, adding to registry");
 
       const metadata = RegistryAppMetadata.create(
         {
@@ -135,7 +118,10 @@ export const registerAppHandler = (
       appsRecord.$jazz.set(appId, metadata);
       await appsRecord.$jazz.waitForSync();
 
-      if (!appsByUserRecord[jazzAccountId]) {
+      const userAppsListExists =
+        appsByUserRecord[jazzAccountId] !== null &&
+        appsByUserRecord[jazzAccountId] !== undefined;
+      if (userAppsListExists === false) {
         appsByUserRecord.$jazz.set(
           jazzAccountId,
           co.list(RegistryAppMetadata).create([], registryProfileWorkerGroup),

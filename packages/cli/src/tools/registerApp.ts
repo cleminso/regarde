@@ -5,8 +5,13 @@ import {
   getAuthenticationHeaders,
 } from "../authUtils.js";
 import { createApp } from "@regarde-dev/sdk/app";
-import { co } from "jazz-tools";
-import { type TRegardeAccount } from "@regarde-dev/sdk/auth";
+
+interface RegisterAppResponse {
+  appId?: string;
+  webhookUrl?: string;
+  webhookSecret?: string;
+  message?: string;
+}
 
 export const registerAppTool: ToolConfig = {
   name: "register-app",
@@ -65,7 +70,6 @@ export const registerAppTool: ToolConfig = {
       };
 
       // Include authentication headers in API request
-      console.log("[DEBUG] Starting fetch request...");
       const response = await fetch("http://localhost:3000/register-app", {
         method: "POST",
         headers: {
@@ -75,14 +79,9 @@ export const registerAppTool: ToolConfig = {
         body: JSON.stringify(payload),
       });
 
-      console.log("[DEBUG] Response status:", response.status);
-      console.log("[DEBUG] Response ok:", response.ok);
-
-      const responseOk = response.ok === true;
-      if (responseOk === false) {
-        console.log("[DEBUG] Response was not ok, reading error text...");
+      const responseSuccessful = response.ok === true;
+      if (responseSuccessful === false) {
         const errorText = await response.text();
-        console.log("[DEBUG] Error text:", errorText);
 
         if (response.status === 401 || response.status === 403) {
           console.error(
@@ -94,21 +93,40 @@ export const registerAppTool: ToolConfig = {
         throw new Error(`API Error ${response.status}: ${errorText}`);
       }
 
-      console.log("[DEBUG] Response was ok, parsing JSON...");
-      const data = await response.json();
+      const data: RegisterAppResponse = await response.json();
 
-      console.log("[DEBUG] Parsed data:", data);
-      console.log(SimpleChalk.green("✓ App registered successfully"));
+      // Validate response structure
+      const responseDataValid =
+        data.appId !== null &&
+        data.webhookUrl !== null &&
+        data.webhookSecret !== null;
+      if (responseDataValid === false) {
+        throw new Error("Invalid API response format");
+      }
+
+      // Display successful registration details to user
+      console.log(SimpleChalk.green("✓ App registered successfully!"));
+      console.log(SimpleChalk.blue("Registration Details:"));
+      console.log(`  • App ID: ${data.appId}`);
+      console.log(`  • Webhook URL: ${data.webhookUrl}`);
+      console.log(`  • Webhook Secret: ${data.webhookSecret}`);
+
+      console.log(
+        SimpleChalk.green("App is now available for payment subscriptions"),
+      );
 
       const result = { success: true, data };
-      console.log("[DEBUG] Returning result:", result);
+
+      // Force process exit for clean termination
+      setTimeout(() => process.exit(0), 100);
+
       return result;
     } catch (error: any) {
       console.error(SimpleChalk.red("Failed to register app:"), error.message);
 
       const authRelatedError =
-        error.message.includes("Authentication") ||
-        error.message.includes("Not logged in");
+        error.message.includes("Authentication") === true ||
+        error.message.includes("Not logged in") === true;
       if (authRelatedError === true) {
         console.error(
           SimpleChalk.yellow(
@@ -116,6 +134,9 @@ export const registerAppTool: ToolConfig = {
           ),
         );
       }
+
+      // Force process exit on error
+      setTimeout(() => process.exit(1), 100);
 
       return { success: false, error: error.message };
     }
