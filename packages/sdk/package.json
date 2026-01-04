@@ -1,5 +1,5 @@
 {
-  "name": "@regarde-dev/sdk",
+  "name": "@regarde-dev/core",
   "version": "1.0.0",
   "description": "Regarde SDK for React and Preact with registration token logic",
   "type": "module",
@@ -52,50 +52,20 @@
     "vitest": "catalog:"
   },
   "exports": {
-    "./auth": {
-      "types": "./dist/auth/index.d.ts",
-      "import": "./dist/auth.js",
-      "require": "./dist/auth.cjs"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./react": {
-      "types": "./dist/react/index.d.ts",
+      "types": "./dist/react.d.ts",
       "import": "./dist/react.js",
       "require": "./dist/react.cjs"
     },
     "./preact": {
-      "types": "./dist/preact/index.d.ts",
+      "types": "./dist/preact.d.ts",
       "import": "./dist/preact.js",
       "require": "./dist/preact.cjs"
-    },
-    "./verify": {
-      "types": "./dist/verify/index.d.ts",
-      "import": "./dist/verify.js",
-      "require": "./dist/verify.cjs"
-    },
-    "./regarde-users": {
-      "types": "./dist/regarde-users/index.d.ts",
-      "import": "./dist/regarde-users.js",
-      "require": "./dist/regarde-users.cjs"
-    },
-    "./registry": {
-      "types": "./dist/registry/index.d.ts",
-      "import": "./dist/registry.js",
-      "require": "./dist/registry.cjs"
-    },
-    "./payments": {
-      "types": "./dist/payments/index.d.ts",
-      "import": "./dist/payments.js",
-      "require": "./dist/payments.cjs"
-    },
-    "./init": {
-      "types": "./dist/init/index.d.ts",
-      "import": "./dist/init.js",
-      "require": "./dist/init.cjs"
-    },
-    "./app": {
-      "types": "./dist/app/index.d.ts",
-      "import": "./dist/app.js",
-      "require": "./dist/app.cjs"
     }
   },
   "files": [

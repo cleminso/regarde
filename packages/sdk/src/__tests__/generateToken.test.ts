@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateRegardeToken } from "../auth/generateToken";
+import { generateRegardeToken } from "#managers/auth";
 
 describe("generateRegardeToken", () => {
   it("should generate a key with correct length", () => {

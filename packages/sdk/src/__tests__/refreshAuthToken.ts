@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getRegardeAuth } from "../auth/refreshAuthToken";
-import { TOKEN_LIFETIME_SECONDS } from "../auth/tokenUtils";
+import { getRegardeAuth } from "#managers/auth";
+import { TOKEN_LIFETIME_SECONDS } from "#managers/auth";
 
 describe("getRegardeAuth", () => {
   beforeEach(() => {
