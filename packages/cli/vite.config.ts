@@ -36,7 +36,7 @@ export default defineConfig({
         "node-fetch",
         "dotenv",
         "cojson-transport-ws",
-        "@regarde-dev/sdk",
+        "@regarde-dev/core",
         ...builtinModules,
       ],
     },

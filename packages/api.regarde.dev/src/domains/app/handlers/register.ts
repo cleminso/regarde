@@ -3,8 +3,8 @@ import {
   type TAllRegistryAppsSchema,
   type TAppsByUserRecord,
   RegistryAppMetadata,
-} from "@regarde-dev/sdk/registry";
-import { App } from "@regarde-dev/sdk/payments";
+  App,
+} from "@regarde-dev/core";
 import { Loaded, co } from "jazz-tools";
 import { randomBytes } from "node:crypto";
 import { verifyRegardeAuth } from "#/domains/auth/handlers/verify";

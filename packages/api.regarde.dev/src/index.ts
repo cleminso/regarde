@@ -7,10 +7,7 @@ import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { startWorker } from "jazz-tools/worker";
 
-import {
-  RegistryWorkerAccount,
-  TNicknameRegistry,
-} from "@regarde-dev/sdk/registry";
+import { RegistryWorkerAccount, TNicknameRegistry } from "@regarde-dev/core";
 
 import { rateLimit } from "./middleware/rateLimit.js";
 

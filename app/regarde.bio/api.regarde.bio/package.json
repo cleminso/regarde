@@ -31,7 +31,7 @@
     "@hono/swagger-ui": "catalog:",
     "@hono/zod-openapi": "catalog:",
     "@regarde-dev/jazz-schemas": "workspace:*",
-    "@regarde-dev/sdk": "workspace:*",
+    "@regarde-dev/core": "workspace:*",
     "dotenv": "catalog:",
     "hono": "catalog:",
     "jazz-tools": "catalog:",

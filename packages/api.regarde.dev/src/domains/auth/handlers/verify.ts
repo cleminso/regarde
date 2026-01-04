@@ -1,6 +1,5 @@
-import { RegardeAuth } from "@regarde-dev/sdk/auth";
+import { RegardeAuth, RegistryWorkerAccount } from "@regarde-dev/core";
 import { co, Loaded } from "jazz-tools";
-import { RegistryWorkerAccount } from "@regarde-dev/sdk/registry";
 
 export interface VerificationResult {
   isValid: boolean;

@@ -6,7 +6,7 @@
 import { setupJazzTestSync, createJazzTestAccount } from "jazz-tools/testing";
 import { Account, Group } from "jazz-tools";
 import { RegardeAccount } from "../regarde.bio";
-import { UserHandle } from "@regarde-dev/sdk/regarde-users";
+import { UserHandle } from "@regarde-dev/core";
 
 /**
  * Sets up Jazz testing environment with sync server

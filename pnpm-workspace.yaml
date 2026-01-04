@@ -12,16 +12,17 @@ catalog:
   "@types/react": ~19.2.7
   "@types/react-dom": ^19.2.3
   "@vitest/ui": ^4.0.16
+  cojson-core-rn: ^0.19.17
   dotenv: ^17.2.3
   hono: ^4.11.3
   jazz-tools: ^0.19.17
   preact: ^10.28.1
+  prettier: ^3.7.4
   react: 19.1.1
   react-dom: 19.1.1
   typescript: ^5.9.3
   ulidx: ^2.4.1
-  prettier: ^3.7.4
-  vite: ^8.0.0-beta.5
+  vite: 8.0.0-beta.5
   vite-plugin-dts: ^4.5.4
   vite-tsconfig-paths: ^6.0.3
   vitest: ^4.0.16

@@ -2,7 +2,7 @@ import {
   checkNicknameAvailability as sdkCheckNicknameAvailability,
   registerNickname as sdkRegisterNickname,
   type CheckAvailabilityResponse,
-} from '@regarde-dev/sdk/regarde-users';
+} from '@regarde-dev/core';
 
 import { GetValidKeyFunction } from '../account/useRegistrationToken';
 import { API_BASE_URL, AUTH_BASE_URL } from '../config/apiKey';

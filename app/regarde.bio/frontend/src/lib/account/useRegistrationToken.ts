@@ -1,4 +1,4 @@
-import { useRegardeAuth as useSDKRegardeAuth } from '@regarde-dev/sdk/react';
+import { useRegardeAuth as useSDKRegardeAuth } from '@regarde-dev/core/react';
 import { useCallback } from 'react';
 
 import { useMyRegardeAccount } from './useMyRegardeAccount';

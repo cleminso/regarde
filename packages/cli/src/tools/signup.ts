@@ -7,8 +7,7 @@ import {
 
 import { createWebSocketPeer } from "cojson-transport-ws";
 
-import { initRegardeSDK } from "@regarde-dev/sdk/init";
-import { RegardeAccount } from "@regarde-dev/sdk/auth";
+import { initRegardeSDK, RegardeAccount } from "@regarde-dev/core";
 import { authStorage } from "../utils/storage.js";
 
 import { wordlist } from "@scure/bip39/wordlists/english.js";

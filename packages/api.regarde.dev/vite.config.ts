@@ -25,7 +25,7 @@ export default defineConfig({
         "jazz-tools",
         "zod",
         "dotenv",
-        "@regarde-dev/sdk",
+        "@regarde-dev/core",
         ...builtinModules,
       ],
     },

@@ -1,6 +1,5 @@
 import { co, Group, Loaded, z } from "jazz-tools";
-import { RegardeSDK } from "@regarde-dev/sdk/auth";
-import { initRegardeSDK } from "@regarde-dev/sdk/init";
+import { RegardeSDK, initRegardeSDK } from "@regarde-dev/core";
 
 export const SocialLinks = co.map({
   github: z.optional(z.string()),

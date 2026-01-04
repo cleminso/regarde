@@ -1,4 +1,4 @@
-import { UserHandle } from "@regarde-dev/sdk/regarde-users";
+import { UserHandle } from "@regarde-dev/core";
 
 /**
  * Validation utilities for nicknames and account IDs

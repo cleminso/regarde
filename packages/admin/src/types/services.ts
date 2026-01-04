@@ -1,4 +1,4 @@
-import { RegistryAuditEntry } from "@regarde-dev/sdk/registry";
+import { RegistryAuditEntry } from "@regarde-dev/core";
 
 export interface HealthReport {
   status: "healthy" | "warning" | "error";

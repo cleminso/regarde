@@ -5,7 +5,7 @@ import {
   RegistryAuditEntry,
   RegistryAuditEntryCoMap,
   RegistryAuditLog,
-} from "@regarde-dev/sdk/registry";
+} from "@regarde-dev/core";
 import { AuditServiceInterface } from "../types/services.js";
 import { Logger } from "../utils/logger.js";
 

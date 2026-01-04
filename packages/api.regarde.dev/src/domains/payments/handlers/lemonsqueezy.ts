@@ -1,14 +1,14 @@
 import { z } from "zod";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import {
-  AppRegistry,
+  TAppRegistry,
   RegistryWorkerAccount,
-  RegistryAppMetadata,
-} from "@regarde-dev/sdk/registry";
-import { PaymentEvent } from "@regarde-dev/sdk/payments";
+  TRegistryAppMetadata,
+  PaymentEvent,
+} from "@regarde-dev/core";
 import { Loaded, co } from "jazz-tools";
 
-type AppsRecord = AppRegistry["apps"];
+type AppsRecord = TAppRegistry["apps"];
 
 // ----------------------------------------------------------------------
 // 1. Source Schemas (Lemon Squeezy Webhook Payload)
@@ -252,7 +252,7 @@ export const lemonSqueezyWebhookHandler = (
 
       // 1. Get the App Metadata
       const appMetadata = (appsRecord as any)[appId] as
-        | RegistryAppMetadata
+        | TRegistryAppMetadata
         | undefined;
       if (!appMetadata) {
         console.log(`[Webhook] App not found: ${appId}`);

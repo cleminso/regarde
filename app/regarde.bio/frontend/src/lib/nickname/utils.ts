@@ -1,7 +1,7 @@
 // Validates nickname format according to business rules
 // Separate from availability checking for better separation of concerns
 
-import { UserHandle } from '@regarde-dev/sdk/regarde-users';
+import { UserHandle } from '@regarde-dev/core';
 
 // Determines if a nickname should be treated as a placeholder/empty
 // Used to decide between "new registration" vs "update existing" flows

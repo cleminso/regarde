@@ -1,11 +1,11 @@
 import type {
-  NicknameRegistry,
-  ReservedNicknamesRegistry,
-} from "@regarde-dev/sdk/registry";
+  TNicknameRegistry,
+  TReservedNicknamesRegistry,
+} from "@regarde-dev/core";
 
 export const checkAvailabilityHandler = (
-  nicknameRegistry: NicknameRegistry,
-  reservedNicknames: ReservedNicknamesRegistry,
+  nicknameRegistry: TNicknameRegistry,
+  reservedNicknames: TReservedNicknamesRegistry,
 ) => {
   return async (c: any) => {
     try {

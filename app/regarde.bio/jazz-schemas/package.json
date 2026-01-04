@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@hono/zod-openapi": "catalog:",
-    "@regarde-dev/sdk": "workspace:*",
+    "@regarde-dev/core": "workspace:*",
     "jazz-tools": "catalog:",
     "ulidx": "catalog:",
     "zod": "catalog:"

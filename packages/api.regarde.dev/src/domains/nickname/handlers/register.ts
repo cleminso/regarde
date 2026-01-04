@@ -1,28 +1,28 @@
 import { verifyRegardeAuth } from "#/domains/auth/handlers/verify";
 import type {
-  NicknameRegistry,
-  ReverseNicknameRegistry,
-  ReservedNicknamesRegistry,
+  TNicknameRegistry,
+  TReverseNicknameRegistry,
+  TReservedNicknamesRegistry,
   RegistryWorkerAccount,
-} from "@regarde-dev/sdk/registry";
+} from "@regarde-dev/core";
 import type { Loaded } from "jazz-tools";
 
 export const registerHandler = (
-  nicknameRegistry: NicknameRegistry,
-  reverseNicknameRegistry: ReverseNicknameRegistry,
+  nicknameRegistry: TNicknameRegistry,
+  reverseNicknameRegistry: TReverseNicknameRegistry,
   worker: Loaded<typeof RegistryWorkerAccount>,
-  reservedNicknames: ReservedNicknamesRegistry,
+  reservedNicknames: TReservedNicknamesRegistry,
 ) => {
   return async (c: any) => {
     try {
-      const { nickname, jazzAccountID, oldNickname } = c.req.valid("json");
+      const { nickname, jazzAccountId, oldNickname } = c.req.valid("json");
 
       const regardeAuth = c.req.header("X-Regarde-Token");
       const regardeAuthId = c.req.header("X-Regarde-Token-Id");
 
       if (!regardeAuth) {
         console.log(
-          `Missing registration token header for AccountID "${jazzAccountID}"`,
+          `Missing registration token header for AccountID "${jazzAccountId}"`,
         );
         return c.json({ error: "Missing registration token header" }, 401);
       }
@@ -38,7 +38,7 @@ export const registerHandler = (
       }
 
       console.log(
-        `Received registration request: nickname="${nickname}", AccountID="${jazzAccountID}"`,
+        `Received registration request: nickname="${nickname}", AccountID="${jazzAccountId}"`,
       );
 
       const verificationResult = await verifyRegardeAuth(
@@ -49,7 +49,7 @@ export const registerHandler = (
       );
       if (!verificationResult.isValid) {
         console.log(
-          `Authentication failed for AccountID "${jazzAccountID}": ${verificationResult.error}`,
+          `Authentication failed for AccountID "${jazzAccountId}": ${verificationResult.error}`,
         );
         return c.json(
           { error: `Authentication failed: ${verificationResult.error}` },
@@ -57,16 +57,16 @@ export const registerHandler = (
         );
       }
 
-      console.log(`Authentication successful for AccountID "${jazzAccountID}"`);
+      console.log(`Authentication successful for AccountID "${jazzAccountId}"`);
 
-      const currentNicknameForAccount = reverseNicknameRegistry[jazzAccountID];
+      const currentNicknameForAccount = reverseNicknameRegistry[jazzAccountId];
       const existingAccountForNickname = nicknameRegistry[nickname];
       const existingAccountForOldNickname = nicknameRegistry[oldNickname];
 
       if (!nickname && oldNickname) {
         if (currentNicknameForAccount !== oldNickname) {
           console.log(
-            `Account "${jazzAccountID}" does not own nickname "${oldNickname}". Current: "${currentNicknameForAccount}"`,
+            `Account "${jazzAccountId}" does not own nickname "${oldNickname}". Current: "${currentNicknameForAccount}"`,
           );
           return c.json(
             { error: "Account does not own the nickname to delete" },
@@ -75,9 +75,9 @@ export const registerHandler = (
         }
 
         nicknameRegistry.$jazz.delete(oldNickname);
-        reverseNicknameRegistry.$jazz.delete(jazzAccountID);
+        reverseNicknameRegistry.$jazz.delete(jazzAccountId);
         console.log(
-          `Nickname "${oldNickname}" and reverse entry for AccountID "${jazzAccountID}" deleted.`,
+          `Nickname "${oldNickname}" and reverse entry for AccountID "${jazzAccountId}" deleted.`,
         );
 
         return c.body(null, 204);
@@ -85,7 +85,7 @@ export const registerHandler = (
 
       if (
         existingAccountForNickname &&
-        existingAccountForNickname !== jazzAccountID
+        existingAccountForNickname !== jazzAccountId
       ) {
         console.log(
           `Nickname "${nickname}" is already taken by AccountID: ${existingAccountForNickname}.`,
@@ -109,9 +109,9 @@ export const registerHandler = (
       }
 
       if (oldNickname) {
-        if (existingAccountForOldNickname !== jazzAccountID) {
+        if (existingAccountForOldNickname !== jazzAccountId) {
           console.log(
-            `Account "${jazzAccountID}" does not own oldNickname "${oldNickname}" for swap. Current: "${currentNicknameForAccount}"`,
+            `Account "${jazzAccountId}" does not own oldNickname "${oldNickname}" for swap. Current: "${currentNicknameForAccount}"`,
           );
           return c.json(
             {
@@ -124,7 +124,7 @@ export const registerHandler = (
 
         if (oldNickname === nickname) {
           console.log(
-            `Swap request where oldNickname "${oldNickname}" is same as new nickname "${nickname}" for AccountID "${jazzAccountID}". No-op.`,
+            `Swap request where oldNickname "${oldNickname}" is same as new nickname "${nickname}" for AccountID "${jazzAccountId}". No-op.`,
           );
 
           return c.body(null, 204);
@@ -135,7 +135,7 @@ export const registerHandler = (
       } else {
         if (currentNicknameForAccount) {
           console.log(
-            `AccountID "${jazzAccountID}" already has a nickname "${currentNicknameForAccount}". Cannot register a new one without specifying oldNickname for swap.`,
+            `AccountID "${jazzAccountId}" already has a nickname "${currentNicknameForAccount}". Cannot register a new one without specifying oldNickname for swap.`,
           );
           return c.json(
             {
@@ -146,10 +146,10 @@ export const registerHandler = (
         }
       }
 
-      nicknameRegistry.$jazz.set(nickname, jazzAccountID);
-      reverseNicknameRegistry.$jazz.set(jazzAccountID, nickname);
+      nicknameRegistry.$jazz.set(nickname, jazzAccountId);
+      reverseNicknameRegistry.$jazz.set(jazzAccountId, nickname);
       console.log(
-        `Nickname "${nickname}" registered/swapped for AccountID: ${jazzAccountID}.`,
+        `Nickname "${nickname}" registered/swapped for AccountID: ${jazzAccountId}.`,
       );
 
       return c.body(null, 204);

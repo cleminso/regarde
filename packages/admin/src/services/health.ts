@@ -5,7 +5,7 @@ import {
   ReverseNicknameRegistry,
   ReservedNicknamesRegistry,
   RegistryAuditLog,
-} from "@regarde-dev/sdk/registry";
+} from "@regarde-dev/core";
 import {
   RegardeAccount,
   RegardeProfile,

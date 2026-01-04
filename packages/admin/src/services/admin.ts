@@ -7,7 +7,7 @@ import {
   ReverseNicknameRegistry,
   RegistryAuditLog,
   ReservedNicknamesRegistry,
-} from "@regarde-dev/sdk/registry";
+} from "@regarde-dev/core";
 import { Logger } from "../utils/logger.js";
 
 import { AuditService } from "./audit.js";

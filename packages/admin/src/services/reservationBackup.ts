@@ -3,7 +3,7 @@ import {
   RegistryWorkerAccount,
   ReservedNicknamesRegistry,
   ReservationEntry,
-} from "@regarde-dev/sdk/registry";
+} from "@regarde-dev/core";
 import {
   ReservationBackupServiceInterface,
   ReservationBackupInfo,

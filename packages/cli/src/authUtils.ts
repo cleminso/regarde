@@ -1,8 +1,7 @@
 import { co } from "jazz-tools";
-import { RegardeAccount, RegardeSDK } from "@regarde-dev/sdk/auth";
+import { RegardeAccount, RegardeSDK, initRegardeSDK } from "@regarde-dev/core";
 import { getStoredCredentials } from "./auth.js";
 import { startWorker } from "jazz-tools/worker";
-import { initRegardeSDK } from "@regarde-dev/sdk/init";
 
 export async function loadAuthenticatedRegardeSDK(): Promise<{
   regardeSDK: co.loaded<typeof RegardeSDK>;

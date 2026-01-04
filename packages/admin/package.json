@@ -27,7 +27,7 @@
   "dependencies": {
     "@alcyone-labs/arg-parser": "^2.7.2",
     "@regarde-dev/jazz-schemas": "workspace:*",
-    "@regarde-dev/sdk": "workspace:*",
+    "@regarde-dev/core": "workspace:*",
     "dotenv": "^16.6.1",
     "jazz-tools": "catalog:",
     "ulidx": "catalog:",

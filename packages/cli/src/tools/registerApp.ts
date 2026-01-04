@@ -4,7 +4,7 @@ import {
   loadAuthenticatedRegardeSDK,
   getAuthenticationHeaders,
 } from "../authUtils.js";
-import { createApp } from "@regarde-dev/sdk/app";
+import { createApp } from "@regarde-dev/core";
 
 interface RegisterAppResponse {
   appId?: string;

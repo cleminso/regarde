@@ -2,8 +2,7 @@ import { ToolConfig, SimpleChalk } from "@alcyone-labs/arg-parser";
 import inquirer from "inquirer";
 import { getStoredCredentials } from "../auth.js";
 import { startWorker } from "jazz-tools/worker";
-import { initRegardeSDK } from "@regarde-dev/sdk/init";
-import { RegardeAccount } from "@regarde-dev/sdk/auth";
+import { initRegardeSDK, RegardeAccount } from "@regarde-dev/core";
 import { authStorage } from "../utils/storage.js";
 import { hasMinimumWords } from "../utils/passphraseAuth.js";
 

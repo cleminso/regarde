@@ -32,7 +32,7 @@
     "@hono/node-server": "catalog:",
     "@hono/swagger-ui": "catalog:",
     "@hono/zod-openapi": "catalog:",
-    "@regarde-dev/sdk": "workspace:*",
+    "@regarde-dev/core": "workspace:*",
     "dotenv": "catalog:",
     "hono": "catalog:",
     "jazz-tools": "catalog:",

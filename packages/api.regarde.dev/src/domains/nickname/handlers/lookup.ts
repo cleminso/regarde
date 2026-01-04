@@ -1,6 +1,6 @@
-import type { NicknameRegistry } from "@regarde-dev/sdk/registry";
+import { type TNicknameRegistry } from "@regarde-dev/core";
 
-export const lookupHandler = (nicknameRegistry: NicknameRegistry) => {
+export const lookupHandler = (nicknameRegistry: TNicknameRegistry) => {
   return async (c: any) => {
     try {
       const { nickname } = c.req.valid("param");

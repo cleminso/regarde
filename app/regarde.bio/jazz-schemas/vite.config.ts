@@ -32,7 +32,7 @@ export default defineConfig({
       treeshake: true,
       external: [
         "jazz-tools",
-        "@regarde-dev/sdk",
+        "@regarde-dev/core",
         "zod",
         "ulidx",
         "@hono/zod-openapi",

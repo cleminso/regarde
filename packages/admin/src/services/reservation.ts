@@ -4,7 +4,7 @@ import {
   ReservationEntry,
   NicknameRegistry,
   ReservedNicknamesRegistry,
-} from "@regarde-dev/sdk/registry";
+} from "@regarde-dev/core";
 import {
   ReservationServiceInterface,
   ReservationDetails,
