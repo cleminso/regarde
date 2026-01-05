@@ -26,6 +26,7 @@ export default defineConfig({
     minify: false,
     sourcemap: true,
     lib: {
+      // TODO: Add dts for react / preact files
       entry: {
         index: resolve(__dirname, "src/index.ts"),
         react: resolve(__dirname, "src/frameworks/react/index.ts"),
@@ -35,6 +36,7 @@ export default defineConfig({
     },
     rollupOptions: {
       treeshake: true,
+      // tsconfig: true,
       external: ["react", "preact", "jazz-tools", "zod"],
     },
   },

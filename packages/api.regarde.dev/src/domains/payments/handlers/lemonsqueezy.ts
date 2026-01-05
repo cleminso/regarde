@@ -5,6 +5,8 @@ import {
   RegistryWorkerAccount,
   TRegistryAppMetadata,
   PaymentEvent,
+  TApp,
+  App,
 } from "@regarde-dev/core";
 import { Loaded, co } from "jazz-tools";
 
@@ -260,15 +262,19 @@ export const lemonSqueezyWebhookHandler = (
       }
 
       // 2. Load App with payments
-      const app = await (appMetadata as any).$jazz
+      const app: TApp = await (appMetadata as any).$jazz
         .resolve({ app: true })
         .then((m: any) => m.app);
       if (!app) {
         return c.json({ error: "App data unavailable" }, 500);
       }
 
-      await app.$jazz.ensureLoaded({
-        payments: true,
+      const { payments } = await app.$jazz.ensureLoaded({
+        resolve: {
+          payments: {
+            $each: true,
+          },
+        },
       });
 
       // 3. Verify Signature
@@ -310,19 +316,19 @@ export const lemonSqueezyWebhookHandler = (
       }
 
       // 6. Check for duplicate events (same providerEventId)
-      const payments = (app as any).payments;
-      if (payments && payments.$isLoaded && payments.length > 0) {
-        const duplicate = Array.from(payments.all).find(
-          (payment: any) =>
-            payment.$isLoaded &&
-            payment.metadata.providerEventId === command.providerEventId,
-        );
-
-        if (duplicate) {
-          console.log(
-            `[Webhook] Duplicate event detected: ${command.providerEventId}`,
-          );
-          return c.json({ received: true, duplicate: true }, 200);
+      if (payments !== undefined && payments.$isLoaded) {
+        for (const payment of payments.perAccount[co.account().getMe().$jazz.id]
+          .all) {
+          if (
+            // TODO: specify all metadata based on provider?
+            (payment as unknown as { metadata: { [x: string]: string } })
+              .metadata.providerEventId === command.providerEventId
+          ) {
+            console.log(
+              `[Webhook] Duplicate event detected: ${command.providerEventId}`,
+            );
+            return c.json({ received: true, duplicate: true }, 200);
+          }
         }
       }
 
@@ -334,7 +340,7 @@ export const lemonSqueezyWebhookHandler = (
           timestamp: command.timestamp,
           paymentStatus: command.status,
           userAccount: userAccountId,
-          app, // App reference already resolved
+          app: appId,
           metadata: {
             ...command.metadata,
             providerEventId: command.providerEventId,
@@ -344,7 +350,7 @@ export const lemonSqueezyWebhookHandler = (
       );
 
       // 8. Append to Global Payments Feed (single source of truth)
-      app.payments.$jazz.push(event);
+      payments.$jazz.push(event);
 
       // 9. Add reference to paymentsByUser index (not a copy)
       if (!app.paymentsByUser) {

@@ -5,6 +5,7 @@ import {
   RegistryAppMetadata,
   App,
 } from "@regarde-dev/core";
+
 import { Loaded, co } from "jazz-tools";
 import { randomBytes } from "node:crypto";
 import { verifyRegardeAuth } from "#/domains/auth/handlers/verify";

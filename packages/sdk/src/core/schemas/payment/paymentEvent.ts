@@ -26,11 +26,9 @@ export const PaymentEvent = co.map({
   currency: z.string(),
   timestamp: z.number(),
   paymentStatus: z.enum(["pending", "completed", "failed", "cancelled"]),
-  get app() {
-    return App;
-  },
-  userAccount: z.string(), // Changed from Account to z.string() (Account ID) for simplicity/cycle breaking
-  metadata: co.record(z.string(), z.string()), // json string everything then let sdk suer to fetch
+  app: z.string().describe("App for which the payment was done"),
+  userAccount: z.string(),
+  metadata: co.record(z.string(), z.string()),
 });
 export type TPaymentEvent = co.loaded<typeof PaymentEvent>;
 
@@ -51,32 +49,3 @@ export type TPaymentEvent = co.loaded<typeof PaymentEvent>;
  */
 export const ListOfPaymentEvents = co.feed(PaymentEvent);
 export type TListOfPaymentEvents = co.loaded<typeof ListOfPaymentEvents>;
-
-export const App = co.map({
-  name: z.string(),
-  description: z.string(),
-  ownerAccountId: z.string(),
-  paymentProvider: z.enum(["lemonsqueezy", "stripe"]),
-  // providerAppId: z.string(), verify if needed but we made it via metadat from webhook
-  isEnabled: z.boolean(), // default false
-  createdAt: z.number(),
-  metadata: co.record(z.string(), z.string()),
-  webhookSecret: z.string(),
-  payments: co.feed(PaymentEvent), // Single source of truth for all payments
-  paymentsByUser: co.record(z.string(), ListOfPaymentEvents),
-});
-export type TApp = co.loaded<typeof App>;
-
-/**
- * # Type Definitions
- *
- * ## Who uses these types:
- * - SDK User: Type safety when accessing payment data through hooks
- * - End User: Type safety in React components displaying subscription info
- * - Regarde Worker: Type safety when processing webhook events
- *
- * ## Purpose:
- * - Provides TypeScript type safety for all payment-related operations
- * - Enables IDE autocompletion and compile-time error checking
- * - Documents the structure of payment data for all consumers
- */
