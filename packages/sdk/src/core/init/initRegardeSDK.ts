@@ -1,9 +1,11 @@
-import { co, Group } from "jazz-tools";
-import { RegardeSDK, RegardeAuth, RegardeAccount } from "#schemas/auth";
-import { UserHandle } from "#schemas/user";
-import { ListOfPaymentEvents, App } from "#schemas/payment";
+import { co, z, Group } from "jazz-tools";
+import { RegardeAuth } from "#schemas/regardeAuth";
+import { RegardeAccount } from "#schemas/regardeAccount";
+import { RegardeSDK } from "#schemas/regardeSDK";
+import { UserHandle } from "#schemas/regardeUserHandle";
+import { ListOfPaymentEvents } from "#schemas/paymentEvent";
+import { App } from "#schemas/regardeUserApp";
 import { getRegardeAuth } from "#managers/auth/refreshAuthToken";
-import { z } from "zod";
 
 export type InitRegardeSDKMode = "ensure" | "create";
 

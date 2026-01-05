@@ -1,6 +1,6 @@
 import { Loaded } from "jazz-tools";
-import { RegardeSDK } from "#schemas/auth";
-import { TApp } from "#schemas/payment";
+import { RegardeSDK } from "#schemas/regardeSDK";
+import { TApp } from "#schemas/regardeUserApp";
 import { getMyApps } from "#managers/app/appManager";
 
 export interface AppQueryParams {

@@ -1,7 +1,7 @@
 import { Loaded } from "jazz-tools";
 import { generateRegardeToken } from "#managers/auth/generateToken";
 import { TOKEN_LIFETIME_SECONDS } from "#managers/auth/tokenUtils";
-import { RegardeAuth } from "#schemas/auth";
+import { RegardeAuth } from "#schemas/regardeAuth";
 
 /**
  # Regarde Token - How to get a token?

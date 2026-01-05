@@ -1,4 +1,5 @@
-import { TApp, TPaymentEvent } from "#schemas/payment/paymentEvent";
+import { TPaymentEvent } from "#schemas/paymentEvent";
+import { TApp } from "#schemas/regardeUserApp";
 import { Account } from "jazz-tools";
 
 export interface PaymentQueryParams {

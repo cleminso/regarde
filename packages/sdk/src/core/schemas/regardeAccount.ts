@@ -1,5 +1,5 @@
 import { co, Group } from "jazz-tools";
-import { RegardeSDK } from "#schemas/auth";
+import { RegardeSDK } from "./regardeSDK";
 import { initRegardeSDK } from "#core/init";
 
 export const RegardeRoot = co.map({

@@ -6,7 +6,6 @@ import {
   TRegistryAppMetadata,
   PaymentEvent,
   TApp,
-  App,
 } from "@regarde-dev/core";
 import { Loaded, co } from "jazz-tools";
 

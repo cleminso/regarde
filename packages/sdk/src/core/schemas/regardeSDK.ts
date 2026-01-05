@@ -1,6 +1,7 @@
 import { co, z } from "jazz-tools";
-import { App, ListOfPaymentEvents } from "#schemas/payment";
-import { UserHandle } from "#schemas/user/userHandle";
+import { ListOfPaymentEvents } from "./paymentEvent";
+import { App } from "./regardeUserApp";
+import { UserHandle } from "./regardeUserHandle";
 import { RegardeAuth } from "./regardeAuth";
 
 /**

@@ -1,6 +1,6 @@
 import { Loaded } from "jazz-tools";
-import { App, type TApp } from "#schemas/payment";
-import { RegardeSDK } from "#schemas/auth";
+import { App, type TApp } from "#schemas/regardeUserApp";
+import { RegardeSDK } from "#schemas/regardeSDK";
 
 export interface CreateAppParams {
   name: string;

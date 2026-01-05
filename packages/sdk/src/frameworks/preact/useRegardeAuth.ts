@@ -17,7 +17,7 @@
  */
 import { useCallback, useState } from "preact/hooks";
 import { Loaded } from "jazz-tools";
-import { RegardeAuth } from "#core/schemas/auth";
+import { RegardeAuth } from "#core/schemas/regardeAuth";
 import { getRegardeAuth, isTokenExpired } from "#managers/auth";
 
 /**
