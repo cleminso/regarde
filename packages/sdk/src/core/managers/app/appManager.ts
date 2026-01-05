@@ -46,7 +46,7 @@ export const createApp = async (
   await newApp.$jazz.waitForSync();
 
   myApps.$jazz.push(newApp);
-  await regardeSDK.$jazz.waitForSync();
+  await myApps.$jazz.waitForSync();
 
   return newApp;
 };

@@ -24,7 +24,7 @@ import { RegardeAuth } from "#schemas/regardeAuth";
  potential infinite loops of failed refresh attempts.
  *
  * ## Implementation Details
- * Tokens use JavaScript's Math.random() for generation with time-based expiration for security while keeping client-side refresh to maintain stateless authentication.
+ * Tokens use WebCrypto (crypto.getRandomValues) with time-based expiration for stateless API authentication.
  *
  * ## Migration
  * - Initial version with 16-character random token generation
@@ -58,18 +58,26 @@ import { RegardeAuth } from "#schemas/regardeAuth";
 export async function getRegardeAuth({
   loadedRegardeAuthCoMap,
 }: {
-  loadedRegardeAuthCoMap: Loaded<typeof RegardeAuth>;
+  loadedRegardeAuthCoMap: Loaded<typeof RegardeAuth> | null | undefined;
 }): Promise<string | null> {
+  if (loadedRegardeAuthCoMap === null || loadedRegardeAuthCoMap === undefined) {
+    console.error(
+      "[ERROR] No auth target available. Fix by: (1) Ensuring RegardeAuth CoMap exists in account root, (2) Loading it with resolve: { auth: true }, (3) Passing a loaded CoMap instance to getRegardeAuth",
+    );
+    return null;
+  }
+
+  const authLoaded = loadedRegardeAuthCoMap.$isLoaded === true;
+  if (authLoaded === false) {
+    console.error(
+      "[ERROR] RegardeAuth CoMap is not loaded. Fix by: (1) Loading it with ensureLoaded, (2) Passing a Loaded<RegardeAuth> instance to getRegardeAuth",
+    );
+    return null;
+  }
+
   const token = generateRegardeToken();
 
   try {
-    if (!loadedRegardeAuthCoMap.$isLoaded) {
-      console.error(
-        "[ERROR] No auth target available after ensureLoaded. Ensure RegardeAuth is properly loaded with RegardeAuth: true in resolve option.",
-      );
-      return null;
-    }
-
     loadedRegardeAuthCoMap.$jazz.set("token", token);
     loadedRegardeAuthCoMap.$jazz.set(
       "expiresAt",

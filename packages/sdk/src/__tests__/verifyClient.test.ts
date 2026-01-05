@@ -32,8 +32,8 @@ describe("verifyRegardeAuthViaServer", () => {
       expect.objectContaining({
         method: "POST",
         headers: {
-          "X-Registration-Token": "test-token-123",
-          "X-Registration-Token-Id": "token-id-456",
+          "X-Regarde-Token": "test-token-123",
+          "X-Regarde-Token-Id": "token-id-456",
           "X-Regarde-Account-Id": "account-123",
           "X-API-Token": "test-api-token",
         },
@@ -101,7 +101,8 @@ describe("verifyRegardeAuthViaServer", () => {
 
     expect(result).toEqual({
       isValid: false,
-      error: "Unknown error",
+      error:
+        "Verification failed: Network or parsing error. Check connection and retry.",
     });
   });
 

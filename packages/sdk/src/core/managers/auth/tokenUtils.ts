@@ -22,7 +22,13 @@ export const TOKEN_LIFETIME_SECONDS = 24 * 60 * 60;
  * @param regardeAuth - The RegardeAuth object containing expiresAt timestamp
  * @returns true if token is expired or invalid, false if still valid
  */
-export function isTokenExpired(regardeAuth: any): boolean {
-  if (!regardeAuth?.expiresAt) return true;
-  return Date.now() > regardeAuth.expiresAt;
+export function isTokenExpired(
+  regardeAuth: { expiresAt?: number | null } | null | undefined,
+): boolean {
+  const expiresAt = regardeAuth?.expiresAt ?? null;
+  const expiresAtValid =
+    typeof expiresAt === "number" && Number.isFinite(expiresAt);
+  if (expiresAtValid === false) return true;
+
+  return Date.now() > expiresAt;
 }

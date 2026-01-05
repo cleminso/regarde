@@ -6,6 +6,7 @@ import { UserHandle } from "#schemas/regardeUserHandle";
 import { ListOfPaymentEvents } from "#schemas/paymentEvent";
 import { App } from "#schemas/regardeUserApp";
 import { getRegardeAuth } from "#managers/auth/refreshAuthToken";
+import { generateRegardeToken } from "#managers/auth/generateToken";
 
 export type InitRegardeSDKMode = "ensure" | "create";
 
@@ -79,7 +80,7 @@ export const initRegardeSDK = async (
           ),
           auth: RegardeAuth.create(
             {
-              token: "not-valid-yet-" + Math.random(),
+              token: generateRegardeToken(),
               expiresAt: 0,
             },
             {
@@ -148,7 +149,7 @@ export const initRegardeSDK = async (
           ),
           auth: RegardeAuth.create(
             {
-              token: "not-valid-yet-" + Math.random(),
+              token: generateRegardeToken(),
               expiresAt: 0,
             },
             {
@@ -222,7 +223,7 @@ export const initRegardeSDK = async (
     }
 
     return regardeSDK;
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw new Error("Failed to init RegardeSDK", { cause: error });
   }
 };

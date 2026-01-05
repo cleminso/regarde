@@ -1,4 +1,5 @@
 import { co, z } from "jazz-tools";
+import { generateRegardeToken } from "#managers/auth/generateToken";
 
 /**
  * # RegardeAuth - Provides temporary authentication tokens for API requests
@@ -31,7 +32,7 @@ export const RegardeAuth = co
   })
   .withMigration((regardeAuth) => {
     if (!regardeAuth.$jazz.has("token")) {
-      regardeAuth.$jazz.set("token", "not-valid-" + Math.random());
+      regardeAuth.$jazz.set("token", generateRegardeToken());
     }
 
     if (!regardeAuth.$jazz.has("expiresAt")) {

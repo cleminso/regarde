@@ -3,7 +3,7 @@
  *
  * ## Purpose
  * - Generates random authentication tokens for temporary API access
- * - Creates unique tokens using JavaScript's Math.random() function
+ * - Creates unique tokens using WebCrypto (crypto.getRandomValues)
  *
  * ## Flow
  * 1. Function called when new token is needed
@@ -13,9 +13,6 @@
  * ## Migration
  * - Initial token generation implementation
  * - Uses alphanumeric and special characters for uniqueness
- *
- * Note: This implementation uses basic JavaScript randomization and is not
- * cryptographically secure. Tokens expire after 24 hours to limit exposure.
  */
 /**
  * Generates a random token for authentication
@@ -30,14 +27,37 @@
  * const token = generateRegardeToken();
  * console.log(`Generated token: ${token.substring(0, 8)}...`);
  *
- * TODO: Replace with crypto.subtle-based random generation
  */
 export function generateRegardeToken(): string {
   const chars =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*"[]{}';
-  let result = "";
-  for (let i = 0; i < 16; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+
+  const getRandomValues = globalThis.crypto?.getRandomValues?.bind(
+    globalThis.crypto,
+  );
+  const cryptoAvailable = typeof getRandomValues === "function";
+  if (cryptoAvailable === false) {
+    throw new Error(
+      "[ERROR] WebCrypto getRandomValues() is not available. Fix by: (1) Running in a secure browser context (https), (2) Using Node.js v20+ which provides globalThis.crypto",
+    );
   }
-  return result;
+
+  const tokenLength = 16;
+  const charsLength = chars.length;
+  const maxUnbiasedByte = Math.floor(256 / charsLength) * charsLength;
+
+  let token = "";
+  const randomBytes = new Uint8Array(tokenLength * 2);
+
+  while (token.length < tokenLength) {
+    getRandomValues(randomBytes);
+
+    for (const byte of randomBytes) {
+      if (byte >= maxUnbiasedByte) continue;
+      token += chars[byte % charsLength];
+      if (token.length === tokenLength) break;
+    }
+  }
+
+  return token;
 }

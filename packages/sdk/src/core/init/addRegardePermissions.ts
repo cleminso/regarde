@@ -9,8 +9,13 @@ import { co, CoValueClass, Loaded } from "jazz-tools";
  *
  * @param coValue - The loaded CoValue to check and repair permissions for.
  */
-export const addRegardePermissions = (coValue: Loaded<CoValueClass>) => {
-  if (!coValue.$jazz.owner?.$isLoaded) {
+export const addRegardePermissions = async (
+  coValue: Loaded<CoValueClass>,
+): Promise<void> => {
+  const owner = coValue.$jazz.owner;
+  const ownerLoaded =
+    owner !== null && owner !== undefined && owner.$isLoaded === true;
+  if (ownerLoaded === false) {
     console.error(
       `[ERROR] No owner found for coValue ${coValue.$jazz.id}. Fix by: (1) Checking if CoValue.create() was called with proper owner parameter, (2) Verifying account initialization sequence in your application`,
     );
@@ -21,25 +26,28 @@ export const addRegardePermissions = (coValue: Loaded<CoValueClass>) => {
     });
   }
 
-  if (!coValue.$jazz.owner?.getRoleOf("co_zoppoxWWJaHYKPgSgUkuCCXQX21")) {
-    console.log("[INFO] Adding worker account to coValue", coValue.$jazz.id);
-
-    co.group()
-      .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", {})
-      .then((regardeProfileWorkerGroup) => {
-        if (!regardeProfileWorkerGroup.$isLoaded) {
-          console.error(
-            "[ERROR] Failed to add worker to coValue. Fix by: (1) Checking if Regarde environment is initialized, (2) Verifying network connection to Jazz network, (3) Confirming worker account accessibility",
-          );
-          return;
-        }
-
-        coValue.$jazz.owner?.addMember(regardeProfileWorkerGroup, "writer");
-
-        console.log(
-          "[SUCCESS] Regarde.dev Account added to UserHandle",
-          coValue.$jazz.id,
-        );
-      });
+  const workerRole = owner.getRoleOf("co_zoppoxWWJaHYKPgSgUkuCCXQX21");
+  const workerAlreadyMember = workerRole !== null && workerRole !== undefined;
+  if (workerAlreadyMember === true) {
+    return;
   }
+
+  console.log("[INFO] Adding worker account to coValue", coValue.$jazz.id);
+
+  const regardeProfileWorkerGroup = await co
+    .group()
+    .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", {});
+
+  const workerGroupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
+  if (workerGroupLoaded === false) {
+    console.error(
+      "[ERROR] Failed to add worker to coValue. Fix by: (1) Checking if Regarde environment is initialized, (2) Verifying network connection to Jazz network, (3) Confirming worker account accessibility",
+    );
+    return;
+  }
+
+  owner.addMember(regardeProfileWorkerGroup, "writer");
+  await owner.$jazz.waitForSync();
+
+  console.log("[SUCCESS] Regarde worker added to coValue", coValue.$jazz.id);
 };

@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { Loaded } from "jazz-tools";
 import { getRegardeAuth } from "#managers/auth";
 import { TOKEN_LIFETIME_SECONDS } from "#managers/auth";
+import { RegardeAuth } from "#schemas/regardeAuth";
 
 describe("getRegardeAuth", () => {
   beforeEach(() => {
@@ -12,11 +14,12 @@ describe("getRegardeAuth", () => {
     const mockWaitForSync = vi.fn().mockResolvedValue(undefined);
 
     const mockCoMap = {
+      $isLoaded: true,
       $jazz: {
         set: mockSet,
         waitForSync: mockWaitForSync,
       },
-    } as any;
+    } as unknown as Loaded<typeof RegardeAuth>;
 
     const result = await getRegardeAuth({ loadedRegardeAuthCoMap: mockCoMap });
 
@@ -36,11 +39,12 @@ describe("getRegardeAuth", () => {
     const mockWaitForSync = vi.fn().mockResolvedValue(undefined);
 
     const mockCoMap = {
+      $isLoaded: true,
       $jazz: {
         set: mockSet,
         waitForSync: mockWaitForSync,
       },
-    } as any;
+    } as unknown as Loaded<typeof RegardeAuth>;
 
     const beforeCall = Date.now();
     await getRegardeAuth({ loadedRegardeAuthCoMap: mockCoMap });
@@ -61,14 +65,14 @@ describe("getRegardeAuth", () => {
 
   it("should return null if CoMap is null", async () => {
     const result = await getRegardeAuth({
-      loadedRegardeAuthCoMap: null as any,
+      loadedRegardeAuthCoMap: null,
     });
     expect(result).toBeNull();
   });
 
   it("should return null if CoMap is undefined", async () => {
     const result = await getRegardeAuth({
-      loadedRegardeAuthCoMap: undefined as any,
+      loadedRegardeAuthCoMap: undefined,
     });
     expect(result).toBeNull();
   });
@@ -82,18 +86,20 @@ describe("getRegardeAuth", () => {
     });
 
     const mockCoMap = {
+      $isLoaded: true,
       $jazz: {
         set: mockSet,
         waitForSync: vi.fn(),
       },
-    } as any;
+    } as unknown as Loaded<typeof RegardeAuth>;
 
     const result = await getRegardeAuth({ loadedRegardeAuthCoMap: mockCoMap });
 
     expect(result).toBeNull();
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Failed to store registration token:",
+      "[ERROR] Failed to store authentication token:",
       expect.any(Error),
+      ". Verify Jazz network connection and account permissions.",
     );
 
     consoleErrorSpy.mockRestore();
@@ -107,18 +113,20 @@ describe("getRegardeAuth", () => {
     const mockWaitForSync = vi.fn().mockRejectedValue(new Error("Sync failed"));
 
     const mockCoMap = {
+      $isLoaded: true,
       $jazz: {
         set: mockSet,
         waitForSync: mockWaitForSync,
       },
-    } as any;
+    } as unknown as Loaded<typeof RegardeAuth>;
 
     const result = await getRegardeAuth({ loadedRegardeAuthCoMap: mockCoMap });
 
     expect(result).toBeNull();
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Failed to store registration key:",
+      "[ERROR] Failed to store authentication token:",
       expect.any(Error),
+      ". Verify Jazz network connection and account permissions.",
     );
 
     consoleErrorSpy.mockRestore();
