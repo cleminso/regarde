@@ -1,14 +1,13 @@
 import { Loaded } from "jazz-tools";
 import {
   RegistryWorkerAccount,
-  ReservedNicknamesRegistry,
   ReservationEntry,
+  type TReservedNicknamesRegistry,
 } from "@regarde-dev/core";
 import {
   ReservationBackupServiceInterface,
   ReservationBackupInfo,
 } from "../types/services.js";
-import { AuditService } from "./audit.js";
 import { Logger } from "../utils/logger.js";
 import {
   writeFileSync,
@@ -44,8 +43,7 @@ interface ReservationBackupData {
 export class ReservationBackupService implements ReservationBackupServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
-    private reservedNicknames: ReservedNicknamesRegistry,
-    private auditService: AuditService,
+    private reservedNicknames: TReservedNicknamesRegistry,
   ) {}
 
   async backupReservations(): Promise<string> {
@@ -60,7 +58,8 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
     const filename = `reservation-backup-${timestamp}.json`;
     const filepath = join(RESERVATION_BACKUP_DIR, filename);
 
-    const reservedNicknamesData: Record<string, any> = {};
+    const reservedNicknamesData: ReservationBackupData["reservedNicknames"] =
+      {};
     let totalReservations = 0;
 
     for (const [nickname, reservation] of Object.entries(
@@ -155,6 +154,8 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
       }
     }
 
+    await this.reservedNicknames.$jazz.waitForSync();
+
     Logger.success(`Restored ${restoredCount} reservations`);
     return { success: true, restored: { reservations: restoredCount } };
   }
@@ -247,7 +248,7 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
   private async confirmRestore(): Promise<boolean> {
     const rl = createInterface({
       input: process.stdin,
-      output: process.stdout,
+      output: process.stderr,
     });
 
     return new Promise((resolve) => {

@@ -1,3 +1,5 @@
+import type { AdminService } from "../services/admin.js";
+
 export class CLIError extends Error {
   constructor(
     message: string,
@@ -10,7 +12,7 @@ export class CLIError extends Error {
 
 // TODO: Move out to a properly named file, this is not a "types" but a tool factory
 export async function withAdminService<T>(
-  operation: (admin: any) => Promise<T>,
+  operation: (admin: AdminService) => Promise<T>,
 ): Promise<T> {
   const { AdminService } = await import("../services/admin.js");
   const admin = new AdminService();
@@ -23,7 +25,7 @@ export async function withAdminService<T>(
   } catch (error) {
     try {
       await admin.cleanup();
-    } catch (cleanupError) {
+    } catch {
       // Ignore cleanup errors to preserve original error
     }
     throw error;

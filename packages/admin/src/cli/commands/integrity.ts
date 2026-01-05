@@ -24,24 +24,28 @@ export const integrityCommands: ToolConfig[] = [
     ],
     handler: async (ctx) => {
       return withAdminService(async (admin) => {
-        const result = await admin.validateDataIntegrity(ctx.args.fix || false);
+        const result = await admin.validateDataIntegrity(
+          ctx.args.fix || false,
+          ctx.args.verbose || false,
+        );
 
         Logger.info("Data Integrity Validation");
         console.log("=".repeat(50));
 
         if (result.isValid) {
           Logger.success("All data integrity checks passed!");
-        } else {
-          Logger.warning(`Found ${result.issues.length} integrity issue(s):`);
+          return result;
+        }
 
-          result.issues.forEach((issue: any, index: number) => {
-            console.log(`  ${index + 1}. ${issue.type}: ${issue.description}`);
-            if (ctx.args.verbose && issue.details) {
-              console.log(`     Details: ${issue.details}`);
-            }
-            if (issue.fixed) {
-              console.log(`Fixed automatically`);
-            }
+        Logger.warning(`Found ${result.issues.length} integrity issue(s):`);
+        result.issues.forEach((issue, index: number) => {
+          console.log(`  ${index + 1}. ${issue}`);
+        });
+
+        if (ctx.args.fix && result.fixedIssues.length > 0) {
+          console.log("\nFixed:");
+          result.fixedIssues.forEach((fixedIssue, index: number) => {
+            console.log(`  ${index + 1}. ${fixedIssue}`);
           });
         }
 
@@ -54,7 +58,7 @@ export const integrityCommands: ToolConfig[] = [
     name: "check-duplicates",
     description: "Check for duplicate nickname registrations",
     flags: [],
-    handler: async (ctx) => {
+    handler: async () => {
       return withAdminService(async (admin) => {
         const result = await admin.checkDuplicates();
 

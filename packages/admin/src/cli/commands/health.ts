@@ -7,7 +7,7 @@ export const healthCommands: ToolConfig[] = [
     name: "health",
     description: "Check registry integrity and health",
     flags: [],
-    handler: async (ctx) => {
+    handler: async () => {
       return withAdminService(async (admin) => {
         const healthReport = await admin.healthCheck();
 
@@ -75,6 +75,8 @@ export const healthCommands: ToolConfig[] = [
           ctx.args.accountId,
         );
 
+        const loadedWorker = admin.getLoadedWorker();
+
         Logger.info("Nickname Health Check");
         console.log("=".repeat(40));
 
@@ -89,13 +91,11 @@ export const healthCommands: ToolConfig[] = [
         console.log("Status Checks:");
 
         const registryValue = healthReport.nickname
-          ? admin.loadedWorker.root?.registry?.[healthReport.nickname] ||
-            "Not found"
+          ? loadedWorker.root?.registry?.[healthReport.nickname] || "Not found"
           : "N/A";
         const reverseValue = healthReport.accountId
-          ? admin.loadedWorker.root?.reverseRegistry?.[
-              healthReport.accountId
-            ] || "Not found"
+          ? loadedWorker.root?.reverseRegistry?.[healthReport.accountId] ||
+            "Not found"
           : "N/A";
 
         console.log(
@@ -134,7 +134,7 @@ export const healthCommands: ToolConfig[] = [
     name: "check-connectivity",
     description: "Test Jazz worker connectivity and sync status",
     flags: [],
-    handler: async (ctx) => {
+    handler: async () => {
       return withAdminService(async (admin) => {
         const result = await admin.checkConnectivity();
 
@@ -153,7 +153,7 @@ export const healthCommands: ToolConfig[] = [
 
         if (!result.workerOnline || !result.syncServerConnected) {
           Logger.error("Connectivity issues detected!");
-          process.exit(1);
+          throw new Error("Connectivity issues detected");
         }
 
         return result;

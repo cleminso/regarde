@@ -7,9 +7,11 @@ A modern, type-safe command line argument parser with built-in MCP (Model Contex
 - [Features Overview](#features-overview)
 - [Installation](#installation)
 - [Quick Start: The Unified `addTool` API](#quick-start-the-unified-addtool-api)
-  - [MCP Tool Name Constraints](#mcp-tool-name-constraints)
+- [Working Directory Management for Monorepos](#working-directory-management)
+- [MCP Tool Name Constraints](#mcp-tool-name-constraints)
 - [How to Run It](#how-to-run-it)
   - [Setting Up System-Wide CLI Access](#setting-up-system-wide-cli-access)
+- [OpenTUI: Reactive Rich Terminal Interfaces](#opentui-reactive-rich-terminal-interfaces)
 - [Parsing Command-Line Arguments](#parsing-command-line-arguments)
   - [Automatic Argument Detection](#automatic-argument-detection)
   - [Cannonical Usage Pattern](#cannonical-usage-pattern)
@@ -32,6 +34,7 @@ A modern, type-safe command line argument parser with built-in MCP (Model Contex
     - [MCP Exposure Control](#mcp-exposure-control)
   - [Flag Inheritance (`inheritParentFlags`)](#flag-inheritance-inheritparentflags)
   - [Dynamic Flags (`dynamicRegister`)](#dynamic-flags-dynamicregister)
+  - [Automatic Help Display](#automatic-help-display)
 
 - [MCP & Claude Desktop Integration](#mcp--claude-desktop-integration)
   - [Output Schema Support](#output-schema-support)
@@ -76,6 +79,12 @@ A modern, type-safe command line argument parser with built-in MCP (Model Contex
   - [Typical Errors](#typical-errors)
 - [System Flags & Configuration](#system-flags--configuration)
 - [Changelog](#changelog)
+  - [v2.12.0](#v2120)
+  - [v2.11.0](#v2110)
+  - [v2.10.3](#v2103)
+  - [v2.10.2](#v2102)
+  - [v2.10.1](#v2101)
+  - [v2.10.0](#v2100)
   - [v2.8.2](#v282)
   - [v2.8.1](#v281)
   - [v2.7.2](#v272)
@@ -109,10 +118,109 @@ A modern, type-safe command line argument parser with built-in MCP (Model Contex
 - **DXT Package Generation**: Generate complete, ready-to-install Claude Desktop Extension (`.dxt`) packages with the `--s-build-dxt` command and `--s-with-node-modules` for platform-dependent builds.
 - **Hierarchical Sub-commands**: Create complex, nested sub-command structures (e.g., `git commit`, `docker container ls`) with flag inheritance.
 - **Configuration Management**: Easily load (`--s-with-env`) and save (`--s-save-to-env`) configurations from/to `.env`, `.json`, `.yaml`, and `.toml` files.
-- **Automatic Help & Error Handling**: Context-aware help text and user-friendly error messages are generated automatically.
-- **Debugging Tools**: Built-in system flags like `--s-debug` and `--s-debug-print` for easy troubleshooting.
+- **OpenTUI Framework** ⭐: A standardized, event-driven TUI engine with mouse support, multi-layer navigation, and reactive themes (Dark, Ocean, Monokai).
 
 ---
+
+## OpenTUI: Reactive Rich Terminal Interfaces
+
+ArgParser includes **OpenTUI v2**, a reactive TUI framework built on SolidJS for building rich terminal applications with minimal boilerplate.
+
+> 📖 **Full Documentation**: [docs/TUI.md](./docs/TUI.md)
+
+- **Standardized Navigation**: `Enter` / `Right` to dive into details, `Esc` / `Left` to go back.
+- **Reactive Theming**: Cycle through built-in themes (`Default`, `Ocean`, `Monokai`) or create your own.
+- **Mouse & Scroll Performance**: Built-in SGR mouse reporting support with smooth scrolling and high-performance rendering.
+- **New Components**: `Label` (Text), `Button` (Interactive), `Card` (Container), `Toast` (Notification).
+- **Component Based**: Reusable `List`, `ScrollArea`, `Input`, and `SplitLayout` components.
+- **TuiProvider**: Unified provider handling mouse, resize, cleanup, themes, and shortcuts
+- **Virtual Scrolling**: Efficient list rendering with `VirtualList`
+- **Theme System**: 6 built-in themes + `Theme.from().extend()` for custom themes
+- **Slot-based Layouts**: `MasterDetail` with customizable panels
+- **Keyboard + Mouse**: Built-in navigation with useKeyboard and mouse wheel
+
+### Quick Start
+
+```tsx
+import { createSignal } from "solid-js";
+import {
+  cleanupTerminal,
+  createVirtualListController,
+  MasterDetail,
+  TuiProvider,
+  useTheme,
+  useTui,
+  VirtualList,
+} from "@alcyone-labs/arg-parser/tui";
+import { render, useKeyboard } from "@opentui/solid";
+
+const DATA = [{ id: "1", name: "Item 1" } /* ... */];
+
+function App() {
+  const { viewportHeight, exit } = useTui();
+  const { current: theme, cycle } = useTheme();
+  const [idx, setIdx] = createSignal(0);
+
+  const list = createVirtualListController(
+    () => DATA,
+    idx,
+    setIdx,
+    viewportHeight,
+  );
+
+  useKeyboard((key) => {
+    if (key.name === "q") exit(0);
+    if (key.name === "t") cycle();
+    if (key.name === "down") list.selectNext();
+    if (key.name === "up") list.selectPrevious();
+  });
+
+  return (
+    <MasterDetail
+      header="My App"
+      breadcrumb={["Items", DATA[idx()]!.name]}
+      footer={`↑↓: Navigate | t: Theme (${theme().name}) | q: Quit`}
+      master={
+        <VirtualList
+          items={DATA}
+          selectedIndex={idx()}
+          viewportHeight={viewportHeight()}
+          getLabel={(item) => item.name}
+        />
+      }
+      detail={<text>Selected: {DATA[idx()]!.name}</text>}
+    />
+  );
+}
+
+render(
+  () => (
+    <TuiProvider theme="dark">
+      <App />
+    </TuiProvider>
+  ),
+  { onDestroy: cleanupTerminal },
+);
+```
+
+### Theme Builder
+
+```ts
+import { Theme, THEMES } from "@alcyone-labs/arg-parser/tui";
+
+// Built-in: dark, light, monokai, dracula, nord, solarized
+const custom = Theme.from(THEMES.dark).extend({
+  name: "my-theme",
+  colors: { background: "#1e1e1e", accent: "#ff6b6b" },
+});
+```
+
+### Run Examples
+
+```bash
+bun examples/framework-demo.tsx    # Simplified demo
+bun examples/aquaria-trace-viewer.tsx  # Full-featured demo
+```
 
 ## Installation
 
@@ -521,7 +629,7 @@ cli.addTool({
   description: "Search for items",
   flags: [
     { name: "query", type: "string", mandatory: true },
-    { name: "apiKey", type: "string", env: "API_KEY" }, // For DXT integration
+    { name: "apiKey", type: "string", env: "API_KEY" }, // Universal Env support (also used for DXT)
   ],
   handler: async (ctx) => {
     // No more MCP detection! Use console.log freely.
@@ -571,7 +679,7 @@ interface IFlag {
   enum?: any[]; // An array of allowed values
   validate?: (value: any, parsedArgs?: any) => boolean | string | void; // Custom validation function
   allowMultiple?: boolean; // Allow the flag to be provided multiple times
-  env?: string; // Links the flag to an environment variable for DXT packages, will automatically generate user_config entries in the DXT manifest and fill the flag value to the ENV value if found (process.env)
+  env?: string | string[]; // Maps flag to environment variable(s). Logic: Fallback (Env -> Flag) and Sync (Flag -> Env). Precedence: Flag > Env > Default.
   dxtOptions?: DxtOptions; // Customizes how this flag appears in DXT package user_config
 }
 
@@ -584,6 +692,32 @@ interface DxtOptions {
   max?: number; // Maximum value (for number types)
 }
 ```
+
+### Environment Variable Support
+
+ArgParser provides universal support for environment variables across all commands.
+
+**Features:**
+
+1.  **Automatic Fallback**: If a flag is not provided via CLI, ArgParser looks for configured environment variables.
+2.  **Priority Handling**: `CLI Flag` > `Environment Variable` > `Default Value`.
+3.  **Reverse Sync**: Once a flag value is resolved (whether from CLI or Env), it is automatically written back to `process.env`. This ensures downstream code accessing `process.env` sees the consistent, final value.
+4.  **Array Support**: You can specify multiple env vars for a single flag; the first one found is used.
+
+**Example:**
+
+```typescript
+parser.addFlag({
+  name: "apiKey",
+  type: "string",
+  env: ["MY_APP_API_KEY", "LEGACY_API_KEY"], // First match wins
+  defaultValue: "dev-key",
+});
+```
+
+- If passed `--api-key val`: `apiKey` is "val", and `process.env.MY_APP_API_KEY` becomes "val".
+- If not passed, but `MY_APP_API_KEY` exists: `apiKey` uses the env value.
+- If neither: `apiKey` is "dev-key", and `process.env.MY_APP_API_KEY` is set to "dev-key".
 
 ### DXT Package User Configuration & Path Handling
 
@@ -981,20 +1115,47 @@ parser.addTool({ name: "process", handler: async () => {} }); // ❌ Error: Sub-
 
 ### Flag Inheritance (`inheritParentFlags`)
 
-To share common flags (like `--verbose` or `--config`) across sub-commands, set `inheritParentFlags: true` in the sub-command's parser.
+ArgParser supports flag inheritance for CLI hierarchies. By default, sub-commands do not inherit flags from their parents. You can control this behavior using the `inheritParentFlags` option, using either a boolean (for basic/legacy behavior) or the `FlagInheritance` configuration object (for advanced control).
+
+#### Basic Inheritance (Snapshot)
+
+Set `inheritParentFlags: true` (or `FlagInheritance.DirectParentOnly`) to inherit flags from the _direct parent_ at the moment the sub-command is attached.
+
+> **Note**: This is a snapshot of the parent's flags at the time `.addSubCommand()` is called. If the parent acquires new flags later (e.g., by inheriting from a grandparent), the child will NOT see them unless `FlagInheritance.AllParents` is used.
 
 ```typescript
-const parentParser = new ArgParser().addFlags([
-  { name: "verbose", options: ["-v"], type: "boolean" },
-]);
-
-// This child parser will automatically have the --verbose flag
-const childParser = new ArgParser({ inheritParentFlags: true }).addFlags([
-  { name: "target", options: ["-t"], type: "string" },
-]);
-
-parentParser.addSubCommand({ name: "deploy", parser: childParser });
+// Child inherits current flags from parent
+const childParser = new ArgParser({ inheritParentFlags: true });
 ```
+
+#### Full Chain Inheritance
+
+For complex hierarchies (e.g. `root -> mid -> leaf`), especially when constructing parsers bottom-up, use `FlagInheritance.AllParents`. This ensures that flags propagate down the entire chain, even if the intermediate parent inherits them _after_ the leaf was attached.
+
+```typescript
+import { ArgParser, FlagInheritance } from "@alcyone-labs/arg-parser";
+
+const root = new ArgParser().addFlag({
+  name: "root-flag",
+  options: ["--root"],
+});
+const mid = new ArgParser({ inheritParentFlags: FlagInheritance.AllParents });
+const leaf = new ArgParser({ inheritParentFlags: FlagInheritance.AllParents });
+
+// Even if you link bottom-up:
+mid.addSubCommand({ name: "leaf", parser: leaf });
+root.addSubCommand({ name: "mid", parser: mid });
+
+// 'leaf' will correctly have 'root-flag' thanks to deep propagation
+```
+
+#### Inheritance Options Reference
+
+| Value                              | Legacy Boolean | Behavior                                                    |
+| ---------------------------------- | -------------- | ----------------------------------------------------------- |
+| `FlagInheritance.NONE`             | `false`        | No flags are inherited (Default)                            |
+| `FlagInheritance.DirectParentOnly` | `true`         | Inherits from direct parent only (Snapshot)                 |
+| `FlagInheritance.AllParents`       | N/A            | Inherits from entire ancestor chain (Recursive Propagation) |
 
 ### Dynamic Flags (`dynamicRegister`)
 
@@ -1035,9 +1196,15 @@ Notes:
 - Inherited behavior works normally: if loader lives on a parent parser and children use `inheritParentFlags`, dynamic flags will be visible to children
 - For heavy loaders, implement app-level caching inside your `dynamicRegister` (e.g., memoize by absolute path + mtime); library-level caching may be added later
 
-parentParser.addSubCommand({ name: "deploy", parser: childParser });
+### Automatic Help Display
 
-````
+ArgParser provides features to automatically show help messages when a command is invoked incorrectly or as a "container" command.
+
+- **`ctx.displayHelp()`**: Programmatically trigger help for the current command from within its handler.
+- **`autoHelpHandler`**: A pre-built handler for container commands (e.g., `git remote`) that simply displays the help text.
+- **`triggerAutoHelpIfNoHandler`**: A setting that, when enabled, automatically triggers the help display for any command or sub-command that does not have an explicit handler defined.
+
+For more details, see the [Automatic Help Display Guide](docs/DISPLAY_HELP.md) and the [example demo](examples/auto-help-demo.ts).
 
 ---
 
@@ -1093,7 +1260,7 @@ import { z } from "zod";
 
 // CLI usage (outputSchema ignored): mycli process-file --path /my/file.txt
 // MCP usage (outputSchema provides structure): mycli --s-mcp-serve
-````
+```
 
 #### Predefined Schema Patterns
 
@@ -2022,7 +2189,7 @@ When you run `--s-build-dxt`, ArgParser performs several steps to create a self-
 1.  **Introspection**: It analyzes all tools defined with `.addTool()`.
 2.  **Manifest Generation**: It creates a `manifest.json` file.
     - Tool flags are converted into a JSON Schema for the `input_schema`.
-    - Flags with an `env` property (e.g., `{ name: 'apiKey', env: 'API_KEY' }`) are automatically added to the `user_config` section, prompting the user for the value upon installation and making it available as an environment variable to your tool.
+    - Flags with an `env` property (e.g., `{ name: 'apiKey', env: 'API_KEY' }`) provide universal `process.env` fallback/sync and are automatically added to the `user_config` section of the DXT manifest.
 3.  **Autonomous Build**: It bundles your CLI's source code and its dependencies into a single entry point (e.g., `server.js`) that can run without `node_modules`. This ensures the DXT is portable and reliable. If you have properly setup your node_modules (via `pnpm install --prod --node-linker=hoisted`) and pass `--s-with-node-nodules` to the bundling process, the resulting DXT will include all necessary dependencies, this is useful for projects that require native dependencies or have complex dependency trees.
 4.  **Packaging**: It assembles all necessary files (manifest, server bundle, logo, etc.) into the specified output directory, ready to be used by Claude Desktop or packed with `npx @anthropic-ai/dxt`.
 
@@ -2134,6 +2301,138 @@ ArgParser includes built-in `--s-*` flags for development, debugging, and config
 ---
 
 ## Changelog
+
+### v2.12.0
+
+- Switch back to official @modelcontextprotocol/sdk as it now supports Zod V4, this resolves a security issue from a dependency in MCP SDK @ 1.16.0 branch.
+
+### v2.11.0
+
+Working Directory Management & OpenTUI v2 Framework
+
+#### Working Directory Management (chdir)
+
+A major new capability for monorepo support and complex project structures:
+
+- **`setWorkingDirectory` Flag Property**: Designate any flag's value as the effective working directory. When used, `.env` file loading and relative path operations automatically resolve from this directory.
+- **`rootPath` in Handler Context**: Access the original working directory (where the user ran the command) via `ctx.rootPath`. Perfect for displaying user-friendly paths or resolving user-provided files relative to their PWD.
+- **Smart `.env` Auto-Discovery**: When used with `--s-with-env`, automatically discovers `.env.local`, `.env.dev`, `.env.test`, or `.env` in the effective working directory (priority order).
+- **Protected Validation**: Warnings for invalid paths (nonexistent, not a directory) and multiple workspace flags.
+
+```typescript
+const parser = new ArgParser({
+  appName: "Monorepo CLI",
+  handler: async (ctx) => {
+    console.log("Effective cwd:", process.cwd()); // Changed by --workspace
+    console.log("User's cwd:", ctx.rootPath); // Original location
+  },
+}).addFlag({
+  name: "workspace",
+  options: ["--workspace", "-w"],
+  type: "string",
+  setWorkingDirectory: true, // Makes this flag control the working directory
+});
+```
+
+See [Working Directory Documentation](./docs/WORKING_DIRECTORY.md) for complete examples.
+
+#### OpenTUI v2 - Complete TUI Rewrite
+
+The TUI framework has been completely rewritten using **SolidJS** and **SST's OpenTUI** for a reactive, component-based architecture:
+
+- **Reactive Components**: `TuiProvider`, `VirtualList`, `MasterDetail`, `Breadcrumb` built on SolidJS signals.
+- **Unified Provider**: `TuiProvider` handles mouse wheel reporting, terminal resize, TTY cleanup, and theme/shortcut contexts automatically.
+- **Rich Theme System**: 6 built-in themes (`dark`, `light`, `monokai`, `dracula`, `nord`, `solarized`) with `Theme.from().extend()` for custom themes.
+- **VirtualList**: Efficient virtualized scrolling with `createVirtualListController` for navigation control.
+- **Slot-Based Layouts**: `MasterDetail` component with header, breadcrumb, footer, and customizable panel widths.
+- **Hooks**: `useTui()` for viewport/exit, `useTheme()` for theming, plus mouse and virtual scroll hooks.
+- **TTY Utilities**: Exported `cleanupTerminal`, `enableMouseReporting`, etc. for custom terminal control.
+
+```tsx
+import {
+  MasterDetail,
+  TuiProvider,
+  useTui,
+  VirtualList,
+} from "@alcyone-labs/arg-parser/tui";
+import { render } from "@opentui/solid";
+
+function App() {
+  const { viewportHeight, exit } = useTui();
+  const [idx, setIdx] = createSignal(0);
+
+  return (
+    <MasterDetail
+      header="My App"
+      master={
+        <VirtualList items={DATA} selectedIndex={idx()} onSelect={setIdx} />
+      }
+      detail={<Details item={DATA[idx()]} />}
+    />
+  );
+}
+
+render(() => (
+  <TuiProvider theme="dark" onScroll={(d) => setIdx((i) => i + d)}>
+    <App />
+  </TuiProvider>
+));
+```
+
+See [TUI Documentation](./docs/TUI.md) for complete API reference and examples.
+
+#### Other Improvements
+
+- **Data-Safe Logging**: Integrated `@alcyone-labs/simple-mcp-logger` for STDOUT-safe logging.
+- **Bun Configuration**: Added `bunfig.toml` with OpenTUI preload for native JSX support.
+- **New Examples**: `aquaria-trace-viewer.tsx`, `framework-demo.tsx`, `template-demo.tsx`, `tui-demo-v2.tsx`.
+
+### v2.10.3
+
+**Flag Inheritance Improvements**
+
+- **Full Chain Inheritance**: Introduced `FlagInheritance.AllParents` option to support deep flag propagation. This fixes issues where nested sub-commands (e.g., `root > mid > leaf`) failed to inherit root flags when constructed bottom-up.
+- **Granular Control**: New `FlagInheritance` configuration object provides clear options: `NONE`, `DirectParentOnly` (legacy behavior), and `AllParents`.
+- **Type Safety**: New `TFlagInheritance` type definition for better TypeScript support.
+- **Backward Compatibility**: Kept `inheritParentFlags` for legacy behavior, but now it's just an alias for `FlagInheritance.DirectParentOnly`.
+
+**Auto-Help Features**
+
+- **Programmatic Help**: Added `ctx.displayHelp()` method to command handlers, allowing easy help display from within your logic.
+- **Auto-Trigger**: Added `triggerAutoHelpIfNoHandler` option to automatically show help messages for "container" commands that don't have their own handler.
+- **Helper Function**: Exported `autoHelpHandler` utility for quick setup of help-only commands. This can be passed as `setHandler(autoHelpHandler)` or `handler: autoHelpHandler` depending on your API of choice.
+
+### v2.10.2
+
+**OpenTUI Improvements**
+
+- **Soft Wrapping**: Added `wrapText` (boolean) to `ScrollArea` component. When enabled, text automatically reflows to fit the container width (preventing clipping).
+- **ANSI Preservation**: Soft-wrapping logic is ANSI-aware; color and style states are correctly carried over to wrapped lines.
+
+### v2.10.1
+
+- **Bug Fixes**:
+  - Fixed a crash in `Terminal.moveCursor` when running in certain environments where `node:readline` utilities were inaccessible. Switched to direct ANSI escape codes for cursor positioning.
+
+### v2.10.0 - OpenTUI integration + IFlag "env" property now first-class citizen
+
+#### OpenTUI Integration
+
+- **OpenTUI**: Integrated a complete Terminal User Interface (TUI) framework into the library core.
+- **StackNavigator**: Standardized UX for deep navigation with `Enter`/`Right` to push and `Esc`/`Left` to pop views.
+- **Reactive Themes**: Centralized `ThemeManager` with `Default`, `Ocean` (High-Contrast), and `Monokai` presets.
+- **Scroll Performance**: ANSI-aware left-side scrollbars with automatic height calculation and scroll-state management.
+- **Mouse Integration**: Native SGR mouse reporting for wheel scrolling and hit-detected clicks.
+- **Safety**: Robust TTY restoration and process-level cleanup to prevent terminal lockups on exit or crash.
+- **Components**: Exported `List`, `ScrollArea`, `Input`, and `SplitLayout` under the `UI` namespace.
+
+#### Universal Environment Variable Support
+
+- **Universal `env` Support**: The `env` property is now a core feature available to all commands and tools, not just DXT/MCP contexts.
+- **Resolution Priority**: Implemented strict precedence: **CLI Flag > Environment Variable > Default Value**.
+- **Reverse Sync**: Resolved flag values (from CLI or Env) are now automatically synced back to `process.env`, ensuring downstream code sees the correct configuration.
+- **Flexible Mapping**: Supports both string and array-of-strings for `env` (first match wins).
+- **Automatic Type Conversion**: Environment variables are automatically coerced to the flag's defined type (Number, Boolean, etc.).
 
 ### v2.8.2
 
@@ -2296,7 +2595,7 @@ Make sure to clearly identify if you need to include the node_modules or not. In
 ### v2.0.0
 
 - **Unified Tool Architecture**: Introduced `.addTool()` to define CLI subcommands and MCP tools in a single declaration.
-- **Environment Variables Support**: The `env` property on any IFlag now automatically pull value from the `process.env[${ENV}]` key and generates `user_config` entries in the DXT manifest and fills the flag value to the ENV value if found (process.env).
+- **Universal Environment Variables Support**: The `env` property on any `IFlag` now provides native `process.env` fallback/sync logic for all commands, while maintaining its role in generating `user_config` entries for DXT manifests.
 - **Enhanced DXT Generation**: The `env` property on flags now automatically generates `user_config` entries in the DXT manifest.
 - **Automatic Console Safety**: Console output is automatically and safely redirected in MCP mode to prevent protocol contamination.
 - **Breaking Changes**: The `addMcpSubCommand()` and separate `addSubCommand()` for MCP tools are deprecated in favor of `addTool()` and `--s-mcp-serve`.

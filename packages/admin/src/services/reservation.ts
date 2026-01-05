@@ -2,8 +2,8 @@ import { Loaded } from "jazz-tools";
 import {
   RegistryWorkerAccount,
   ReservationEntry,
-  NicknameRegistry,
-  ReservedNicknamesRegistry,
+  type TNicknameRegistry,
+  type TReservedNicknamesRegistry,
 } from "@regarde-dev/core";
 import {
   ReservationServiceInterface,
@@ -49,8 +49,8 @@ type ReservationCategory =
 export class ReservationService implements ReservationServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
-    private nicknameRegistry: NicknameRegistry,
-    private reservedNicknames: ReservedNicknamesRegistry,
+    private nicknameRegistry: TNicknameRegistry,
+    private reservedNicknames: TReservedNicknamesRegistry,
     private auditService: AuditService,
   ) {}
 
@@ -148,7 +148,11 @@ export class ReservationService implements ReservationServiceInterface {
         category,
       });
 
+      await reservationEntry.$jazz.waitForSync();
+
       this.reservedNicknames.$jazz.set(nickname, reservationEntry);
+
+      await this.reservedNicknames.$jazz.waitForSync();
 
       const reservation: ReservationDetails = {
         nickname,
@@ -224,6 +228,8 @@ export class ReservationService implements ReservationServiceInterface {
       }
 
       this.reservedNicknames.$jazz.delete(nickname);
+
+      await this.reservedNicknames.$jazz.waitForSync();
 
       await this.auditService.logChange(
         this.worker.$jazz.id,

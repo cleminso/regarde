@@ -30,6 +30,8 @@
     "test:run": "pnpm --filter \"*.test.ts\" test:run",
     "cli": "node packages/cli/dist/index.mjs",
     "format-and-lint": "prettier . --check && oxlint .",
-    "format-and-lint:fix": "prettier . --write && oxlint . --fix"
+    "format-and-lint:fix": "prettier . --write && oxlint . --fix",
+    "lint:ci": "oxlint . --deny-warnings",
+    "lint:admin": "oxlint packages/admin"
   }
 }

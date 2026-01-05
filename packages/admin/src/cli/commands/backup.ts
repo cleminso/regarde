@@ -8,13 +8,12 @@ export const backupCommands: ToolConfig[] = [
     description: "Export registries as JSON backup",
     flags: [],
 
-    handler: async (ctx) => {
-      await withAdminService(async (admin) => {
+    handler: async () => {
+      return withAdminService(async (admin) => {
         const backupFile = await admin.downloadRegistries();
         Logger.success(`Registries exported to: ${backupFile}`);
         return { backupFile };
       });
-      process.exit(1);
     },
   },
 
@@ -56,7 +55,7 @@ export const backupCommands: ToolConfig[] = [
     name: "delete-all",
     description: "Delete all registry entries (creates backup first)",
     flags: [],
-    handler: async (ctx) => {
+    handler: async () => {
       return withAdminService(async (admin) => {
         Logger.warning("This will DELETE ALL nickname registrations!");
         Logger.info("A backup will be created automatically before deletion.");
@@ -83,7 +82,7 @@ export const backupCommands: ToolConfig[] = [
     name: "list-backups",
     description: "List all available backup files",
     flags: [],
-    handler: async (ctx) => {
+    handler: async () => {
       return withAdminService(async (admin) => {
         const result = await admin.listBackups();
 

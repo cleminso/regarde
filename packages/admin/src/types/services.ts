@@ -1,4 +1,4 @@
-import { RegistryAuditEntry } from "@regarde-dev/core";
+import type { TRegistryAuditEntry } from "@regarde-dev/core";
 
 export interface HealthReport {
   status: "healthy" | "warning" | "error";
@@ -167,11 +167,11 @@ export interface AuditServiceInterface {
     reservationReason?: string,
     reservationCategory?: "admin" | "brand" | "system" | "offensive" | "custom",
   ): Promise<void>;
-  getChangeHistory(limit?: number): Promise<RegistryAuditEntry[]>;
-  getHistoryForAccount(accountId: string): Promise<RegistryAuditEntry[]>;
-  getHistoryForNickname(nickname: string): Promise<RegistryAuditEntry[]>;
+  getChangeHistory(limit?: number): Promise<TRegistryAuditEntry[]>;
+  getHistoryForAccount(accountId: string): Promise<TRegistryAuditEntry[]>;
+  getHistoryForNickname(nickname: string): Promise<TRegistryAuditEntry[]>;
   getHistoryBySource(
     source: "admin-cli" | "user-app" | "worker",
     limit?: number,
-  ): Promise<RegistryAuditEntry[]>;
+  ): Promise<TRegistryAuditEntry[]>;
 }

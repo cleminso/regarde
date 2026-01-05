@@ -2,11 +2,7 @@ import { startWorker } from "jazz-tools/worker";
 import { Loaded } from "jazz-tools";
 import {
   RegistryWorkerAccount,
-  RegistryAuditEntry,
-  NicknameRegistry,
-  ReverseNicknameRegistry,
-  RegistryAuditLog,
-  ReservedNicknamesRegistry,
+  type TRegistryAuditEntry,
 } from "@regarde-dev/core";
 import { Logger } from "../utils/logger.js";
 
@@ -24,7 +20,9 @@ import {
   BackupServiceInterface,
   ReservationBackupServiceInterface,
   HealthServiceInterface,
-  ReservationDetails,
+  ReservationListResult,
+  ReservationResult,
+  ReservationStatusResult,
   BackupInfo,
   ReservationBackupInfo,
   HealthReport,
@@ -32,9 +30,40 @@ import {
   FixResult,
 } from "../types/services.js";
 
+function buildSyncServerUrl(baseUrl: string, apiKey?: string): string {
+  const base = baseUrl.trim();
+  if (!apiKey) return base;
+
+  try {
+    const url = new URL(base);
+    if (url.searchParams.has("key") === false) {
+      url.searchParams.set("key", apiKey);
+    }
+    return url.toString();
+  } catch {
+    const separator = base.includes("?") ? "&" : "?";
+    return `${base}${separator}key=${encodeURIComponent(apiKey)}`;
+  }
+}
+
+type RegistryWorkerResolve = {
+  root: {
+    registry: true;
+    reverseRegistry: true;
+    auditLog: { $each: true };
+    reservedNicknames: { $each: true };
+  };
+};
+
+type LoadedRegistryWorkerAccount = Loaded<
+  typeof RegistryWorkerAccount,
+  RegistryWorkerResolve
+>;
+
 export class AdminService {
-  private worker!: RegistryWorkerAccount;
-  private loadedWorker!: RegistryWorkerAccount;
+  private worker!: Loaded<typeof RegistryWorkerAccount>;
+  private loadedWorker!: LoadedRegistryWorkerAccount;
+  private shutdownWorker?: () => Promise<void>;
 
   private auditService!: AuditService;
   private nicknameService!: NicknameService;
@@ -58,13 +87,15 @@ export class AdminService {
     }
 
     try {
+      const syncServerUrl = buildSyncServerUrl(syncServer, apiKey);
       const workerResult = await startWorker({
         AccountSchema: RegistryWorkerAccount,
         accountID: accountId,
         accountSecret: accountSecret,
-        syncServer: syncServer + (apiKey ? `?key=${apiKey}` : ""),
+        syncServer: syncServerUrl,
       });
       this.worker = workerResult.worker;
+      this.shutdownWorker = workerResult.shutdownWorker;
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
@@ -157,7 +188,6 @@ export class AdminService {
       reverseRegistry,
       reservedNicknames,
       this.auditService,
-      this.reservationService,
     );
 
     this.backupService = new BackupService(
@@ -170,7 +200,6 @@ export class AdminService {
     this.reservationBackupService = new ReservationBackupService(
       this.loadedWorker,
       reservedNicknames,
-      this.auditService,
     );
 
     this.healthService = new HealthService(
@@ -208,26 +237,23 @@ export class AdminService {
     nickname: string,
     category: "admin" | "brand" | "system" | "offensive" | "custom" = "custom",
     reason?: string,
-  ): Promise<{ success: boolean }> {
+  ): Promise<ReservationResult> {
     return this.reservationService.reserveNickname(nickname, category, reason);
   }
 
-  async unreserveNickname(nickname: string): Promise<{ success: boolean }> {
+  async unreserveNickname(nickname: string): Promise<ReservationResult> {
     return this.reservationService.unreserveNickname(nickname);
   }
 
   async listReservedNicknames(
     category?: "admin" | "brand" | "system" | "offensive" | "custom",
-  ): Promise<{
-    reservations: ReservationDetails[];
-  }> {
+  ): Promise<ReservationListResult> {
     return this.reservationService.listReservedNicknames(category);
   }
 
-  async checkReservationStatus(nickname: string): Promise<{
-    isReserved: boolean;
-    reservation?: ReservationDetails;
-  }> {
+  async checkReservationStatus(
+    nickname: string,
+  ): Promise<ReservationStatusResult> {
     return this.reservationService.checkReservationStatus(nickname);
   }
 
@@ -235,22 +261,26 @@ export class AdminService {
     return this.reservationService.isReserved(nickname);
   }
 
-  async getChangeHistory(limit?: number): Promise<RegistryAuditEntry[]> {
+  async getChangeHistory(limit?: number): Promise<TRegistryAuditEntry[]> {
     return this.auditService.getChangeHistory(limit);
   }
 
-  async getHistoryForAccount(accountId: string): Promise<RegistryAuditEntry[]> {
+  async getHistoryForAccount(
+    accountId: string,
+  ): Promise<TRegistryAuditEntry[]> {
     return this.auditService.getHistoryForAccount(accountId);
   }
 
-  async getHistoryForNickname(nickname: string): Promise<RegistryAuditEntry[]> {
+  async getHistoryForNickname(
+    nickname: string,
+  ): Promise<TRegistryAuditEntry[]> {
     return this.auditService.getHistoryForNickname(nickname);
   }
 
   async getHistoryBySource(
     source: "admin-cli" | "user-app" | "worker",
     limit?: number,
-  ): Promise<RegistryAuditEntry[]> {
+  ): Promise<TRegistryAuditEntry[]> {
     return this.auditService.getHistoryBySource(source, limit);
   }
 
@@ -262,8 +292,73 @@ export class AdminService {
     this.nicknameService.validateAccountId(accountId);
   }
 
+  getWorker(): Loaded<typeof RegistryWorkerAccount> {
+    return this.worker;
+  }
+
+  getLoadedWorker(): LoadedRegistryWorkerAccount {
+    return this.loadedWorker;
+  }
+
+  async getMetrics(): Promise<{
+    totalNicknames: number;
+    totalAccounts: number;
+    reservedNicknames: number;
+    auditLogEntries: number;
+    lastUpdated: number;
+  }> {
+    const { root } = this.loadedWorker;
+    const rootLoaded = root !== undefined && root.$isLoaded === true;
+    if (rootLoaded === false) {
+      throw new Error("Worker root is not available");
+    }
+
+    const registryLoaded =
+      root.registry !== undefined && root.registry.$isLoaded === true;
+    if (registryLoaded === false) {
+      throw new Error("Nickname registry is not available");
+    }
+
+    const reverseRegistryLoaded =
+      root.reverseRegistry !== undefined &&
+      root.reverseRegistry.$isLoaded === true;
+    if (reverseRegistryLoaded === false) {
+      throw new Error("Reverse nickname registry is not available");
+    }
+
+    const reservedNicknamesLoaded =
+      root.reservedNicknames !== undefined &&
+      root.reservedNicknames.$isLoaded === true;
+    if (reservedNicknamesLoaded === false) {
+      throw new Error("Reserved nicknames registry is not available");
+    }
+
+    const auditLogLoaded =
+      root.auditLog !== undefined && root.auditLog.$isLoaded === true;
+    if (auditLogLoaded === false) {
+      throw new Error("Audit log is not available");
+    }
+
+    return {
+      totalNicknames: Object.keys(root.registry).length,
+      totalAccounts: Object.keys(root.reverseRegistry).length,
+      reservedNicknames: Object.keys(root.reservedNicknames).length,
+      auditLogEntries: root.auditLog.length,
+      lastUpdated: Date.now(),
+    };
+  }
+
   async cleanup(): Promise<void> {
-    Logger.status("Cleanup completed");
+    try {
+      await this.shutdownWorker?.();
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      Logger.warning(`Cleanup failed: ${errorMessage}`);
+    } finally {
+      this.shutdownWorker = undefined;
+      Logger.status("Cleanup completed");
+    }
   }
 
   async healthCheck(): Promise<HealthReport> {
@@ -346,6 +441,8 @@ export class AdminService {
       root.auditLog.$jazz.pop();
     }
 
+    await root.auditLog.$jazz.waitForSync();
+
     Logger.info("Audit log cleared");
   }
 
@@ -375,7 +472,7 @@ export class AdminService {
         lastSync: Date.now(),
         responseTimeMs,
       };
-    } catch (error) {
+    } catch {
       return {
         workerOnline: false,
         syncServerConnected: false,
@@ -396,7 +493,7 @@ export class AdminService {
     for (let i = 0; i < operations; i++) {
       const { root } = this.loadedWorker;
       if (root?.$isLoaded && root?.registry?.$isLoaded) {
-        Object.keys(root.registry).length;
+        const _registrySize = Object.keys(root.registry).length;
       }
     }
 
@@ -510,6 +607,13 @@ export class AdminService {
           fixedIssues.push(`Fixed forward registry for ${nickname}`);
         }
       }
+    }
+
+    if (fix && fixedIssues.length > 0) {
+      await Promise.all([
+        registry.$jazz.waitForSync(),
+        reverseRegistry.$jazz.waitForSync(),
+      ]);
     }
 
     if (verbose) {

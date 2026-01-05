@@ -1,18 +1,35 @@
 import { Loaded } from "jazz-tools";
 import { ulid } from "ulidx";
 import {
-  RegistryWorkerAccount,
-  RegistryAuditEntry,
   RegistryAuditEntryCoMap,
-  RegistryAuditLog,
+  RegistryWorkerAccount,
+  type TRegistryAuditEntry,
+  type TRegistryAuditLog,
 } from "@regarde-dev/core";
 import { AuditServiceInterface } from "../types/services.js";
 import { Logger } from "../utils/logger.js";
 
+function isLoadedAuditEntry(entry: unknown): entry is TRegistryAuditEntry {
+  if (typeof entry !== "object" || entry === null) return false;
+  const maybeEntry = entry as Partial<TRegistryAuditEntry> & {
+    $isLoaded?: boolean;
+  };
+
+  return (
+    maybeEntry.$isLoaded === true && typeof maybeEntry.timestamp === "number"
+  );
+}
+
+function sortByTimestampDesc(
+  entries: readonly TRegistryAuditEntry[],
+): TRegistryAuditEntry[] {
+  return [...entries].sort((a, b) => b.timestamp - a.timestamp);
+}
+
 export class AuditService implements AuditServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
-    private auditLog: RegistryAuditLog,
+    private auditLog: TRegistryAuditLog,
   ) {}
 
   async logChange(
@@ -55,7 +72,11 @@ export class AuditService implements AuditServiceInterface {
         reservationCategory: reservationCategory || undefined,
       });
 
+      await entry.$jazz.waitForSync();
+
       this.auditLog.$jazz.push(entry);
+
+      await this.auditLog.$jazz.waitForSync();
       Logger.debug(
         `Audit entry created successfully, total entries: ${this.auditLog.length}`,
       );
@@ -66,19 +87,15 @@ export class AuditService implements AuditServiceInterface {
     }
   }
 
-  async getChangeHistory(limit: number = 20): Promise<RegistryAuditEntry[]> {
+  async getChangeHistory(limit: number = 20): Promise<TRegistryAuditEntry[]> {
     try {
       Logger.debug(
         `Retrieving audit history, limit: ${limit}, total entries: ${this.auditLog.length}`,
       );
 
-      const entries = [...this.auditLog].filter(
-        (e) => e !== null,
-      ) as unknown as RegistryAuditEntry[];
+      const entries = [...this.auditLog].filter(isLoadedAuditEntry);
 
-      const sortedEntries = entries
-        .toSorted((a, b) => b.timestamp - a.timestamp)
-        .slice(0, limit);
+      const sortedEntries = sortByTimestampDesc(entries).slice(0, limit);
 
       Logger.debug(`Retrieved ${sortedEntries.length} audit entries`);
       return sortedEntries;
@@ -90,17 +107,17 @@ export class AuditService implements AuditServiceInterface {
     }
   }
 
-  async getHistoryForAccount(accountId: string): Promise<RegistryAuditEntry[]> {
+  async getHistoryForAccount(
+    accountId: string,
+  ): Promise<TRegistryAuditEntry[]> {
     try {
       Logger.debug(`Searching audit history for account: ${accountId}`);
 
-      const entries = [...this.auditLog].filter(
-        (e) => e !== null && e.$isLoaded && e.jazzAccountId === accountId,
-      ) as unknown as RegistryAuditEntry[];
+      const entries = [...this.auditLog]
+        .filter(isLoadedAuditEntry)
+        .filter((entry) => entry.jazzAccountId === accountId);
 
-      const sortedEntries = entries.toSorted(
-        (a, b) => b.timestamp - a.timestamp,
-      );
+      const sortedEntries = sortByTimestampDesc(entries);
       Logger.debug(
         `Found ${sortedEntries.length} audit entries for account: ${accountId}`,
       );
@@ -113,18 +130,18 @@ export class AuditService implements AuditServiceInterface {
     }
   }
 
-  async getHistoryForNickname(nickname: string): Promise<RegistryAuditEntry[]> {
+  async getHistoryForNickname(
+    nickname: string,
+  ): Promise<TRegistryAuditEntry[]> {
     try {
-      const entries = [...this.auditLog].filter(
-        (e) =>
-          e !== null &&
-          e.$isLoaded &&
-          (e.oldNickname === nickname || e.newNickname === nickname),
-      ) as unknown as RegistryAuditEntry[];
+      const entries = [...this.auditLog]
+        .filter(isLoadedAuditEntry)
+        .filter(
+          (entry) =>
+            entry.oldNickname === nickname || entry.newNickname === nickname,
+        );
 
-      const sortedEntries = entries.toSorted(
-        (a, b) => b.timestamp - a.timestamp,
-      );
+      const sortedEntries = sortByTimestampDesc(entries);
       Logger.debug(
         `Found ${sortedEntries.length} audit entries for nickname: ${nickname}`,
       );
@@ -140,15 +157,13 @@ export class AuditService implements AuditServiceInterface {
   async getHistoryBySource(
     source: "admin-cli" | "user-app" | "worker",
     limit: number = 50,
-  ): Promise<RegistryAuditEntry[]> {
+  ): Promise<TRegistryAuditEntry[]> {
     try {
-      const entries = [...this.auditLog].filter(
-        (e) => e !== null && e.$isLoaded && e.source === source,
-      ) as unknown as RegistryAuditEntry[];
+      const entries = [...this.auditLog]
+        .filter(isLoadedAuditEntry)
+        .filter((entry) => entry.source === source);
 
-      const sortedEntries = entries
-        .toSorted((a, b) => b.timestamp - a.timestamp)
-        .slice(0, limit);
+      const sortedEntries = sortByTimestampDesc(entries).slice(0, limit);
 
       Logger.debug(
         `Found ${sortedEntries.length} audit entries for source: ${source}`,

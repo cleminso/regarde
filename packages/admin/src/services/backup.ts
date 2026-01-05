@@ -1,8 +1,8 @@
 import { Loaded } from "jazz-tools";
 import {
   RegistryWorkerAccount,
-  NicknameRegistry,
-  ReverseNicknameRegistry,
+  type TNicknameRegistry,
+  type TReverseNicknameRegistry,
 } from "@regarde-dev/core";
 import { BackupServiceInterface, BackupInfo } from "../types/services.js";
 import { AuditService } from "./audit.js";
@@ -35,8 +35,8 @@ interface BackupData {
 export class BackupService implements BackupServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
-    private nicknameRegistry: NicknameRegistry,
-    private reverseNicknameRegistry: ReverseNicknameRegistry,
+    private nicknameRegistry: TNicknameRegistry,
+    private reverseNicknameRegistry: TReverseNicknameRegistry,
     private auditService: AuditService,
   ) {}
 
@@ -125,6 +125,11 @@ export class BackupService implements BackupServiceInterface {
       this.reverseNicknameRegistry.$jazz.set(accountId, nickname);
     }
 
+    await Promise.all([
+      this.nicknameRegistry.$jazz.waitForSync(),
+      this.reverseNicknameRegistry.$jazz.waitForSync(),
+    ]);
+
     await this.auditService.logChange(
       this.worker.$jazz.id,
       undefined,
@@ -167,6 +172,11 @@ export class BackupService implements BackupServiceInterface {
       this.reverseNicknameRegistry.$jazz.delete(key);
     }
 
+    await Promise.all([
+      this.nicknameRegistry.$jazz.waitForSync(),
+      this.reverseNicknameRegistry.$jazz.waitForSync(),
+    ]);
+
     await this.auditService.logChange(
       this.worker.$jazz.id,
       undefined,
@@ -185,7 +195,7 @@ export class BackupService implements BackupServiceInterface {
   private async confirmDeletion(): Promise<boolean> {
     const rl = createInterface({
       input: process.stdin,
-      output: process.stdout,
+      output: process.stderr,
     });
 
     return new Promise((resolve) => {

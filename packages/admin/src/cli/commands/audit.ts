@@ -1,7 +1,35 @@
 import { withAdminService } from "../types.js";
 import { type ToolConfig } from "@alcyone-labs/arg-parser";
 import { Logger } from "../../utils/logger.js";
-import { type RegistryAuditEntry } from "@regarde-dev/core";
+import type { TRegistryAuditEntry } from "@regarde-dev/core";
+
+type AuditEntryDto = {
+  monotonicId: string;
+  timestamp: number;
+  jazzAccountId: string;
+  oldNickname?: string;
+  newNickname?: string;
+  changedBy: string;
+  source: string;
+  action: string;
+  reservationReason?: string;
+  reservationCategory?: string;
+};
+
+function serializeAuditEntry(entry: TRegistryAuditEntry): AuditEntryDto {
+  return {
+    monotonicId: entry.monotonicId,
+    timestamp: entry.timestamp,
+    jazzAccountId: entry.jazzAccountId,
+    oldNickname: entry.oldNickname,
+    newNickname: entry.newNickname,
+    changedBy: entry.changedBy,
+    source: entry.source,
+    action: entry.action,
+    reservationReason: entry.reservationReason,
+    reservationCategory: entry.reservationCategory,
+  };
+}
 
 export const auditCommands: ToolConfig[] = [
   {
@@ -25,7 +53,7 @@ export const auditCommands: ToolConfig[] = [
     ],
     handler: async (ctx) => {
       return withAdminService(async (admin) => {
-        let entries: RegistryAuditEntry[];
+        let entries: TRegistryAuditEntry[];
 
         if (ctx.args.source) {
           const validSources = ["admin-cli", "user-app", "worker"];
@@ -42,15 +70,19 @@ export const auditCommands: ToolConfig[] = [
           entries = await admin.getChangeHistory(ctx.args.limit);
         }
 
-        if (entries.length === 0) {
+        const serializedEntries = entries.map(serializeAuditEntry);
+
+        if (serializedEntries.length === 0) {
           Logger.info("No audit entries found.");
-          return { entries };
+          return { entries: serializedEntries };
         }
 
-        Logger.info(`Registry Change History (${entries.length} entries):`);
+        Logger.info(
+          `Registry Change History (${serializedEntries.length} entries):`,
+        );
         console.log("=".repeat(80));
 
-        entries.forEach((entry: RegistryAuditEntry, index: number) => {
+        serializedEntries.forEach((entry: AuditEntryDto, index: number) => {
           const timestamp = new Date(entry.timestamp).toLocaleString();
           const actionColor = getActionColor(entry.action);
 
@@ -76,7 +108,7 @@ export const auditCommands: ToolConfig[] = [
           console.log("");
         });
 
-        return { entries };
+        return { entries: serializedEntries };
       });
     },
   },
@@ -97,15 +129,17 @@ export const auditCommands: ToolConfig[] = [
       return withAdminService(async (admin) => {
         const entries = await admin.getHistoryForAccount(ctx.args.accountId);
 
-        if (entries.length === 0) {
+        const serializedEntries = entries.map(serializeAuditEntry);
+
+        if (serializedEntries.length === 0) {
           Logger.info(`No history found for account ${ctx.args.accountId}.`);
-          return { entries };
+          return { entries: serializedEntries };
         }
 
         Logger.info(`Change History for Account: ${ctx.args.accountId}`);
         console.log("=".repeat(60));
 
-        entries.forEach((entry: RegistryAuditEntry, index: number) => {
+        serializedEntries.forEach((entry: AuditEntryDto, index: number) => {
           const timestamp = new Date(entry.timestamp).toLocaleString();
           const actionColor = getActionColor(entry.action);
 
@@ -130,7 +164,7 @@ export const auditCommands: ToolConfig[] = [
           console.log("");
         });
 
-        return { entries };
+        return { entries: serializedEntries };
       });
     },
   },
@@ -151,15 +185,17 @@ export const auditCommands: ToolConfig[] = [
       return withAdminService(async (admin) => {
         const entries = await admin.getHistoryForNickname(ctx.args.nickname);
 
-        if (entries.length === 0) {
+        const serializedEntries = entries.map(serializeAuditEntry);
+
+        if (serializedEntries.length === 0) {
           Logger.info(`No history found for nickname "${ctx.args.nickname}".`);
-          return { entries };
+          return { entries: serializedEntries };
         }
 
         Logger.info(`Change History for Nickname: "${ctx.args.nickname}"`);
         console.log("=".repeat(60));
 
-        entries.forEach((entry: RegistryAuditEntry, index: number) => {
+        serializedEntries.forEach((entry: AuditEntryDto, index: number) => {
           const timestamp = new Date(entry.timestamp).toLocaleString();
           const actionColor = getActionColor(entry.action);
 
@@ -185,7 +221,7 @@ export const auditCommands: ToolConfig[] = [
           console.log("");
         });
 
-        return { entries };
+        return { entries: serializedEntries };
       });
     },
   },

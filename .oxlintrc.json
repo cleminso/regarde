@@ -1,5 +1,6 @@
 {
-  "plugins": ["typescript", "react", "unicorn"],
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["oxc", "typescript", "react", "unicorn"],
   "categories": {
     "correctness": "error",
     "suspicious": "warn",
@@ -7,7 +8,15 @@
     "style": "off",
     "restriction": "off"
   },
+  "ignorePatterns": [
+    "dist/**",
+    "coverage/**",
+    "packages/admin/*backups/**",
+    "packages/admin/registry-backups/**",
+    "packages/admin/reserveRegistry-backups/**"
+  ],
   "rules": {
+    "unicorn/no-array-sort": "off",
     "react/react-in-jsx-scope": "off",
     "no-unused-vars": "error",
     "@typescript-eslint/naming-convention": [

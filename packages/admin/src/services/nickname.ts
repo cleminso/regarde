@@ -1,23 +1,21 @@
 import { Loaded } from "jazz-tools";
 import {
   RegistryWorkerAccount,
-  NicknameRegistry,
-  ReverseNicknameRegistry,
-  ReservedNicknamesRegistry,
+  type TNicknameRegistry,
+  type TReverseNicknameRegistry,
+  type TReservedNicknamesRegistry,
 } from "@regarde-dev/core";
 import { NicknameServiceInterface } from "../types/services.js";
 import { AuditService } from "./audit.js";
-import { ReservationService } from "./reservation.js";
 import { validateNickname, validateAccountId } from "../utils/validation.js";
 
 export class NicknameService implements NicknameServiceInterface {
   constructor(
     private worker: Loaded<typeof RegistryWorkerAccount>,
-    private nicknameRegistry: NicknameRegistry,
-    private reverseNicknameRegistry: ReverseNicknameRegistry,
-    private reservedNicknames: ReservedNicknamesRegistry,
+    private nicknameRegistry: TNicknameRegistry,
+    private reverseNicknameRegistry: TReverseNicknameRegistry,
+    private reservedNicknames: TReservedNicknamesRegistry,
     private auditService: AuditService,
-    private reservationService: ReservationService,
   ) {}
 
   async addNickname(
@@ -66,6 +64,8 @@ export class NicknameService implements NicknameServiceInterface {
 
       this.reservedNicknames.$jazz.delete(nickname);
 
+      await this.reservedNicknames.$jazz.waitForSync();
+
       await this.auditService.logChange(
         this.worker.$jazz.id,
         undefined,
@@ -79,6 +79,11 @@ export class NicknameService implements NicknameServiceInterface {
 
     this.nicknameRegistry.$jazz.set(nickname, accountId);
     this.reverseNicknameRegistry.$jazz.set(accountId, nickname);
+
+    await Promise.all([
+      this.nicknameRegistry.$jazz.waitForSync(),
+      this.reverseNicknameRegistry.$jazz.waitForSync(),
+    ]);
 
     await this.auditService.logChange(accountId, undefined, nickname);
 
@@ -108,6 +113,11 @@ export class NicknameService implements NicknameServiceInterface {
     this.reverseNicknameRegistry.$jazz.delete(oldAccountId);
     this.reverseNicknameRegistry.$jazz.set(accountId, nickname);
 
+    await Promise.all([
+      this.nicknameRegistry.$jazz.waitForSync(),
+      this.reverseNicknameRegistry.$jazz.waitForSync(),
+    ]);
+
     await this.auditService.logChange(accountId, nickname, nickname);
 
     return { success: true, oldAccountId };
@@ -126,6 +136,11 @@ export class NicknameService implements NicknameServiceInterface {
 
     this.nicknameRegistry.$jazz.delete(nickname);
     this.reverseNicknameRegistry.$jazz.delete(accountId);
+
+    await Promise.all([
+      this.nicknameRegistry.$jazz.waitForSync(),
+      this.reverseNicknameRegistry.$jazz.waitForSync(),
+    ]);
 
     await this.auditService.logChange(accountId, nickname, undefined);
 

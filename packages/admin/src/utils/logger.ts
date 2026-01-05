@@ -1,111 +1,116 @@
-export class Logger {
-  private static colors = {
-    reset: "\x1b[0m",
-    bright: "\x1b[1m",
-    red: "\x1b[31m",
-    green: "\x1b[32m",
-    yellow: "\x1b[33m",
-    blue: "\x1b[34m",
-    cyan: "\x1b[36m",
-    gray: "\x1b[90m",
-  };
+const colors = {
+  reset: "\x1b[0m",
+  bright: "\x1b[1m",
+  red: "\x1b[31m",
+  green: "\x1b[32m",
+  yellow: "\x1b[33m",
+  blue: "\x1b[34m",
+  cyan: "\x1b[36m",
+  gray: "\x1b[90m",
+} as const;
 
-  static success(message: string) {
+function statusOk(label: string, value?: string): string {
+  const displayValue = value ? `: ${value}` : "";
+  return `${colors.green}${colors.bright}[OK]${colors.reset} ${label}${displayValue}`;
+}
+
+function statusError(label: string, value?: string): string {
+  const displayValue = value ? `: ${value}` : "";
+  return `${colors.red}${colors.bright}[ERROR]${colors.reset} ${label}${displayValue}`;
+}
+
+function statusWarning(label: string, value?: string): string {
+  const displayValue = value ? `: ${value}` : "";
+  return `${colors.yellow}${colors.bright}[WARN]${colors.reset} ${label}${displayValue}`;
+}
+
+function statusMissing(label: string, value?: string): string {
+  const displayValue = value ? `: ${value}` : "";
+  return `${colors.red}${colors.bright}[MISSING]${colors.reset} ${label}${displayValue}`;
+}
+
+function statusInactive(label: string, value?: string): string {
+  const displayValue = value ? `: ${value}` : "";
+  return `${colors.gray}${colors.bright}[INACTIVE]${colors.reset} ${label}${displayValue}`;
+}
+
+function statusUnknown(label: string, value?: string): string {
+  const displayValue = value ? `: ${value}` : "";
+  return `${colors.cyan}${colors.bright}[UNKNOWN]${colors.reset} ${label}${displayValue}`;
+}
+
+export const Logger = {
+  success(message: string) {
     console.log(
-      `${this.colors.green}${this.colors.bright}[SUCCESS]${this.colors.reset} ${message}`,
+      `${colors.green}${colors.bright}[SUCCESS]${colors.reset} ${message}`,
     );
-  }
+  },
 
-  static failed(message: string) {
+  failed(message: string) {
     console.log(
-      `${this.colors.red}${this.colors.bright}[FAILED]${this.colors.reset} ${message}`,
+      `${colors.red}${colors.bright}[FAILED]${colors.reset} ${message}`,
     );
-  }
+  },
 
-  static check(message: string) {
+  check(message: string) {
     console.log(
-      `${this.colors.blue}${this.colors.bright}[CHECK]${this.colors.reset} ${message}`,
+      `${colors.blue}${colors.bright}[CHECK]${colors.reset} ${message}`,
     );
-  }
+  },
 
-  static status(message: string) {
+  status(message: string) {
     console.log(
-      `${this.colors.yellow}${this.colors.bright}[STATUS]${this.colors.reset} ${message}`,
+      `${colors.yellow}${colors.bright}[STATUS]${colors.reset} ${message}`,
     );
-  }
+  },
 
-  static info(message: string) {
+  info(message: string) {
     console.log(
-      `${this.colors.cyan}${this.colors.bright}[INFO]${this.colors.reset} ${message}`,
+      `${colors.cyan}${colors.bright}[INFO]${colors.reset} ${message}`,
     );
-  }
+  },
 
-  static error(message: string) {
+  error(message: string) {
     console.error(
-      `${this.colors.red}${this.colors.bright}[ERROR]${this.colors.reset} ${message}`,
+      `${colors.red}${colors.bright}[ERROR]${colors.reset} ${message}`,
     );
-  }
+  },
 
-  static warning(message: string) {
+  warning(message: string) {
     console.log(
-      `${this.colors.yellow}${this.colors.bright}[WARNING]${this.colors.reset} ${message}`,
+      `${colors.yellow}${colors.bright}[WARNING]${colors.reset} ${message}`,
     );
-  }
+  },
 
-  static debug(message: string) {
+  debug(message: string) {
     console.log(
-      `${this.colors.gray}${this.colors.bright}[DEBUG]${this.colors.reset} ${message}`,
+      `${colors.gray}${colors.bright}[DEBUG]${colors.reset} ${message}`,
     );
-  }
+  },
 
-  // Status indication methods for health checks and other status displays
-  static statusOk(label: string, value?: string): string {
-    const displayValue = value ? `: ${value}` : "";
-    return `${this.colors.green}${this.colors.bright}[OK]${this.colors.reset} ${label}${displayValue}`;
-  }
+  statusOk,
+  statusError,
+  statusWarning,
+  statusMissing,
+  statusInactive,
+  statusUnknown,
 
-  static statusError(label: string, value?: string): string {
-    const displayValue = value ? `: ${value}` : "";
-    return `${this.colors.red}${this.colors.bright}[ERROR]${this.colors.reset} ${label}${displayValue}`;
-  }
-
-  static statusWarning(label: string, value?: string): string {
-    const displayValue = value ? `: ${value}` : "";
-    return `${this.colors.yellow}${this.colors.bright}[WARN]${this.colors.reset} ${label}${displayValue}`;
-  }
-
-  static statusMissing(label: string, value?: string): string {
-    const displayValue = value ? `: ${value}` : "";
-    return `${this.colors.red}${this.colors.bright}[MISSING]${this.colors.reset} ${label}${displayValue}`;
-  }
-
-  static statusInactive(label: string, value?: string): string {
-    const displayValue = value ? `: ${value}` : "";
-    return `${this.colors.gray}${this.colors.bright}[INACTIVE]${this.colors.reset} ${label}${displayValue}`;
-  }
-
-  static statusUnknown(label: string, value?: string): string {
-    const displayValue = value ? `: ${value}` : "";
-    return `${this.colors.cyan}${this.colors.bright}[UNKNOWN]${this.colors.reset} ${label}${displayValue}`;
-  }
-
-  // Generic status method that maps status strings to appropriate formatting
-  static formatStatus(status: string, label: string, value?: string): string {
+  formatStatus(status: string, label: string, value?: string): string {
     switch (status.toLowerCase()) {
       case "ok":
-        return this.statusOk(label, value);
+        return statusOk(label, value);
       case "missing":
-        return this.statusMissing(label, value);
+        return statusMissing(label, value);
       case "mismatch":
-        return this.statusWarning(label, value);
+        return statusWarning(label, value);
       case "inactive":
-        return this.statusInactive(label, value);
+        return statusInactive(label, value);
       case "not_found":
-        return this.statusUnknown(label, value);
+        return statusUnknown(label, value);
       case "error":
-        return this.statusError(label, value);
+        return statusError(label, value);
       default:
-        return this.statusUnknown(label, value);
+        return statusUnknown(label, value);
     }
-  }
-}
+  },
+};

@@ -1,10 +1,10 @@
 import { Loaded } from "jazz-tools";
 import {
   RegistryWorkerAccount,
-  NicknameRegistry,
-  ReverseNicknameRegistry,
-  ReservedNicknamesRegistry,
-  RegistryAuditLog,
+  type TNicknameRegistry,
+  type TReverseNicknameRegistry,
+  type TReservedNicknamesRegistry,
+  type TRegistryAuditLog,
 } from "@regarde-dev/core";
 import {
   RegardeAccount,
@@ -20,11 +20,11 @@ import { AuditService } from "./audit.js";
 
 export class HealthService implements HealthServiceInterface {
   constructor(
-    private worker: RegistryWorkerAccount,
-    private nicknameRegistry: NicknameRegistry,
-    private reverseNicknameRegistry: ReverseNicknameRegistry,
-    private reservedNicknames: ReservedNicknamesRegistry,
-    private auditLog: RegistryAuditLog,
+    private worker: Loaded<typeof RegistryWorkerAccount>,
+    private nicknameRegistry: TNicknameRegistry,
+    private reverseNicknameRegistry: TReverseNicknameRegistry,
+    private reservedNicknames: TReservedNicknamesRegistry,
+    private auditLog: TRegistryAuditLog,
     private auditService: AuditService,
   ) {}
 
@@ -181,6 +181,7 @@ export class HealthService implements HealthServiceInterface {
     if (targetAccountId) {
       try {
         const account = await RegardeAccount.load(targetAccountId, {
+          loadAs: this.worker,
           resolve: {
             profile: {
               "regarde.bio": {
@@ -315,6 +316,11 @@ export class HealthService implements HealthServiceInterface {
         `Updated reverse registry: ${targetAccountId} → ${targetNickname}`,
       );
     }
+
+    await Promise.all([
+      this.nicknameRegistry.$jazz.waitForSync(),
+      this.reverseNicknameRegistry.$jazz.waitForSync(),
+    ]);
 
     try {
       await this.auditService.logChange(

@@ -7,7 +7,7 @@ export const reservationBackupCommands: ToolConfig[] = [
     name: "backup-reservations",
     description: "Create a backup of all reserved nicknames",
     flags: [],
-    handler: async (ctx) => {
+    handler: async () => {
       return withAdminService(async (admin) => {
         const backupFile = await admin.backupReservations();
         Logger.success(`Reservation backup created: ${backupFile}`);
@@ -53,7 +53,7 @@ export const reservationBackupCommands: ToolConfig[] = [
     name: "list-reservation-backups",
     description: "List all available reservation backup files",
     flags: [],
-    handler: async (ctx) => {
+    handler: async () => {
       return withAdminService(async (admin) => {
         const result = await admin.listReservationBackups();
 

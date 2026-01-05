@@ -126,14 +126,19 @@ export const nicknameCommands: ToolConfig[] = [
         Logger.info(`Attempting to fix access for account: ${accountId}`);
 
         try {
+          const worker = admin.getWorker();
+
           // Try to load the account with the worker's context
           const account = await RegardeAccount.load(accountId, {
-            loadAs: admin.worker,
+            loadAs: worker,
           });
 
           if (!account) {
             Logger.error(`Account ${accountId} not found or not accessible`);
-            return;
+            return {
+              success: false,
+              error: "Account not found or not accessible",
+            };
           }
 
           Logger.success(`Account found, attempting to grant worker access...`);
@@ -142,12 +147,25 @@ export const nicknameCommands: ToolConfig[] = [
           if (account.$isLoaded && account.root?.$isLoaded) {
             const rootOwner = account.root.$jazz.owner;
             if (rootOwner && rootOwner.$isLoaded && "addMember" in rootOwner) {
-              rootOwner.addMember(admin.worker, "writer");
+              rootOwner.addMember(worker, "writer");
+              await rootOwner.$jazz.waitForSync();
               Logger.success("Granted worker access to account root");
+
+              return { success: true };
             } else {
               Logger.error("Root owner is not a Group, cannot grant access");
+
+              return {
+                success: false,
+                error: "Root owner is not a Group, cannot grant access",
+              };
             }
           }
+
+          return {
+            success: false,
+            error: "Account is not loaded or root is not available",
+          };
         } catch (error: unknown) {
           const errorMessage =
             error instanceof Error ? error.message : String(error);
@@ -158,6 +176,12 @@ export const nicknameCommands: ToolConfig[] = [
           Logger.info(
             "This might indicate the account is on a different sync server or completely inaccessible",
           );
+
+          return {
+            success: false,
+            error: errorMessage,
+            hint: "This might indicate the account is on a different sync server or completely inaccessible",
+          };
         }
       });
     },

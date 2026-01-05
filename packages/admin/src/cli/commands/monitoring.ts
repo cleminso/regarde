@@ -21,7 +21,7 @@ export const monitoringCommands: ToolConfig[] = [
         const format = ctx.args.format || "text";
 
         if (format === "json") {
-          console.log(JSON.stringify(metrics, null, 2));
+          // No-op: JSON output is handled by the CLI wrapper when --format=json is used.
         } else if (format === "prometheus") {
           console.log(
             `# HELP jazz_registry_nicknames Total number of registered nicknames`,
@@ -51,37 +51,6 @@ export const monitoringCommands: ToolConfig[] = [
         }
 
         return metrics;
-      });
-    },
-  },
-
-  {
-    name: "check-connectivity",
-    description: "Test Jazz worker connectivity and sync status",
-    flags: [],
-    handler: async (ctx) => {
-      return withAdminService(async (admin) => {
-        const result = await admin.checkConnectivity();
-
-        Logger.info("Jazz Worker Connectivity Check");
-        console.log("=".repeat(50));
-        console.log(
-          `Worker Status: ${result.workerOnline ? "Online" : "Offline"}`,
-        );
-        console.log(
-          `Sync Server: ${result.syncServerConnected ? "Connected" : "Disconnected"}`,
-        );
-        console.log(
-          `Last Sync: ${result.lastSync ? new Date(result.lastSync).toLocaleString() : "Never"}`,
-        );
-        console.log(`Response Time: ${result.responseTimeMs}ms`);
-
-        if (!result.workerOnline || !result.syncServerConnected) {
-          Logger.error("Connectivity issues detected!");
-          process.exit(1);
-        }
-
-        return result;
       });
     },
   },
