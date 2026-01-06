@@ -91,7 +91,9 @@ export const registerAppHandler = (
       let webhookSecret: string;
 
       const webhookSecretExists =
-        app.webhookSecret !== null && app.webhookSecret !== undefined;
+        app.webhookSecret !== null &&
+        app.webhookSecret !== undefined &&
+        app.webhookSecret !== "";
       if (webhookSecretExists === false) {
         webhookSecret = randomBytes(20).toString("hex");
         app.$jazz.set("webhookSecret", webhookSecret);
