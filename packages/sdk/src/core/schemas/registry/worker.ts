@@ -1,4 +1,5 @@
 import { co } from "jazz-tools";
+import { z } from "zod";
 import { AppRegistry, AppsByUserRecord, AllRegistryAppsSchema } from "./app";
 import { RegistryAuditLog } from "./audit";
 import {
@@ -6,6 +7,13 @@ import {
   ReverseNicknameRegistryCoRecord,
   ReservedNicknamesRegistry,
 } from "./nickname";
+
+/**
+ * Idempotency index for webhook events.
+ * Key format: `${appId}:${provider}:${providerEventId}`
+ * Value: timestamp (ms) when the worker first processed the event.
+ */
+export const ProcessedProviderEvents = co.record(z.string(), z.number());
 
 /**
  * Root schema containing all registry components
@@ -22,6 +30,7 @@ export const RegistryWorkerAccountRoot = co.map({
   auditLog: RegistryAuditLog,
   reservedNicknames: ReservedNicknamesRegistry,
   apps: AppRegistry,
+  processedProviderEvents: ProcessedProviderEvents,
 });
 export type TRegistryWorkerAccountRoot = co.loaded<
   typeof RegistryWorkerAccountRoot
@@ -65,6 +74,7 @@ export const RegistryWorkerAccount = co
             registeredAt: Date.now(),
             version: 1,
           }),
+          processedProviderEvents: ProcessedProviderEvents.create({}),
         });
         loadedAccount.$jazz.set("root", newRoot);
         console.log("Root created after ensureLoaded since it was missing.");
@@ -117,6 +127,15 @@ export const RegistryWorkerAccount = co
         console.log("AppRegistry created in worker account root.");
       }
 
+      if (loadedAccount.root.processedProviderEvents === undefined) {
+        const newProcessedProviderEvents = ProcessedProviderEvents.create({});
+        loadedAccount.root.$jazz.set(
+          "processedProviderEvents",
+          newProcessedProviderEvents,
+        );
+        console.log("ProcessedProviderEvents created in worker account root.");
+      }
+
       console.debug("Root apps done");
     } catch (e) {
       console.log("EnsureLoaded Root failed, fallback", account, e);
@@ -134,6 +153,7 @@ export const RegistryWorkerAccount = co
             registeredAt: Date.now(),
             version: 1,
           }),
+          processedProviderEvents: ProcessedProviderEvents.create({}),
         });
         account.$jazz.set("root", newRoot);
 
@@ -177,6 +197,17 @@ export const RegistryWorkerAccount = co
           });
           account.root.$jazz.set("apps", newAppsRegistry);
           console.log("AppRegistry created in existing root during fallback.");
+        }
+
+        if (account.root.processedProviderEvents === undefined) {
+          const newProcessedProviderEvents = ProcessedProviderEvents.create({});
+          account.root.$jazz.set(
+            "processedProviderEvents",
+            newProcessedProviderEvents,
+          );
+          console.log(
+            "ProcessedProviderEvents created in existing root during fallback.",
+          );
         }
       }
     }

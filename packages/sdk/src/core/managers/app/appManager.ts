@@ -1,4 +1,5 @@
-import { Loaded } from "jazz-tools";
+import { co, z, Loaded } from "jazz-tools";
+import { ListOfPaymentEvents } from "#schemas/paymentEvent";
 import { App, type TApp } from "#schemas/regardeUserApp";
 import { RegardeSDK } from "#schemas/regardeSDK";
 
@@ -37,8 +38,12 @@ export const createApp = async (
       createdAt: Date.now(),
       metadata: {},
       webhookSecret: "",
-      payments: [],
-      paymentsByUser: {},
+      payments: {
+        all: ListOfPaymentEvents.create([], { owner: userGroup }),
+        byUser: co
+          .record(z.string(), ListOfPaymentEvents)
+          .create({}, { owner: userGroup }),
+      },
     },
     { owner: userGroup },
   );

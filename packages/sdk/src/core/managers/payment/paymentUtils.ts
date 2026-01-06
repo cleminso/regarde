@@ -20,9 +20,10 @@ export const usePaymentHistory = (
 ): TPaymentEvent[] | undefined => {
   if (!app || !me) return undefined;
 
-  const userId = me.$jazz.id;
-  const userIdValid = typeof userId === "string" && userId.length > 0;
-  if (userIdValid === false) return undefined;
+  const jazzAccountId = me.$jazz.id;
+  const jazzAccountIdValid =
+    typeof jazzAccountId === "string" && jazzAccountId.length > 0;
+  if (jazzAccountIdValid === false) return undefined;
 
   const payments = app.payments;
   const paymentsExist = payments !== null && payments !== undefined;
@@ -31,17 +32,19 @@ export const usePaymentHistory = (
   const paymentsLoaded = payments.$isLoaded === true;
   if (paymentsLoaded === false) return undefined;
 
-  // CoFeed access: app.payments.perAccount[userId]
-  // Single source of truth - all payments in one feed
-  const userFeed = payments.perAccount[userId];
-  return userFeed
-    ? Array.from(userFeed.all)
-        .map((entry) => entry.value)
-        .filter(
-          (payment): payment is TPaymentEvent =>
-            payment !== null && payment.$isLoaded === true,
-        )
-    : undefined;
+  const byUser = payments.byUser;
+  const byUserLoaded = byUser !== null && byUser.$isLoaded === true;
+  if (byUserLoaded === false) return undefined;
+
+  const userPayments = byUser[jazzAccountId];
+  const userPaymentsLoaded =
+    userPayments !== null && userPayments?.$isLoaded === true;
+  if (userPaymentsLoaded === false) return undefined;
+
+  return Array.from(userPayments).filter(
+    (payment): payment is TPaymentEvent =>
+      payment !== null && payment.$isLoaded === true,
+  );
 };
 
 /**

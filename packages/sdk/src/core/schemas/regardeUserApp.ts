@@ -11,8 +11,10 @@ export const App = co.map({
   createdAt: z.number(),
   metadata: co.record(z.string(), z.string()),
   webhookSecret: z.string(),
-  payments: co.feed(PaymentEvent), // Single source of truth for all payments
-  paymentsByUser: co.record(z.string(), ListOfPaymentEvents),
+  payments: co.map({
+    all: ListOfPaymentEvents,
+    byUser: co.record(z.string(), ListOfPaymentEvents),
+  }),
 });
 export type TApp = co.loaded<typeof App>;
 

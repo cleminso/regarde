@@ -6,6 +6,7 @@ import {
   TRegistryAppMetadata,
   PaymentEvent,
   TApp,
+  ListOfPaymentEvents,
 } from "@regarde-dev/core";
 import { Loaded, co } from "jazz-tools";
 
@@ -271,7 +272,8 @@ export const lemonSqueezyWebhookHandler = (
       const { payments } = await app.$jazz.ensureLoaded({
         resolve: {
           payments: {
-            $each: true,
+            all: { $each: true },
+            byUser: true,
           },
         },
       });
@@ -295,13 +297,13 @@ export const lemonSqueezyWebhookHandler = (
         command,
       );
 
-      // 5. Get User Account ID
-      let userAccountId = parsed.meta.custom_data?.user_id;
-      if (typeof userAccountId !== "string") userAccountId = undefined;
+      // 5. Get Jazz Account ID
+      let jazzAccountId = parsed.meta.custom_data?.user_id;
+      if (typeof jazzAccountId !== "string") jazzAccountId = undefined;
 
-      if (!userAccountId) {
+      if (!jazzAccountId) {
         return c.json(
-          { error: "User account ID is required in custom_data.user_id" },
+          { error: "Jazz account ID is required in custom_data.user_id" },
           400,
         );
       }
@@ -314,22 +316,38 @@ export const lemonSqueezyWebhookHandler = (
         return c.json({ error: "Failed to load registry group" }, 500);
       }
 
-      // 6. Check for duplicate events (same providerEventId)
-      if (payments !== undefined && payments.$isLoaded) {
-        for (const payment of payments.perAccount[co.account().getMe().$jazz.id]
-          .all) {
-          if (
-            // TODO: specify all metadata based on provider?
-            (payment as unknown as { metadata: { [x: string]: string } })
-              .metadata.providerEventId === command.providerEventId
-          ) {
-            console.log(
-              `[Webhook] Duplicate event detected: ${command.providerEventId}`,
-            );
-            return c.json({ received: true, duplicate: true }, 200);
-          }
-        }
+      const workerRoot = await worker.$jazz.ensureLoaded({
+        resolve: {
+          root: {
+            processedProviderEvents: true,
+          },
+        },
+      });
+
+      const processedProviderEvents = workerRoot.root.processedProviderEvents;
+      const processedProviderEventsLoaded =
+        processedProviderEvents !== null &&
+        processedProviderEvents !== undefined &&
+        processedProviderEvents.$isLoaded === true;
+      if (processedProviderEventsLoaded === false) {
+        return c.json(
+          { error: "processedProviderEvents not available on worker root" },
+          500,
+        );
       }
+
+      const processedKey = `${appId}:lemonsqueezy:${command.providerEventId}`;
+      const alreadyProcessed =
+        processedProviderEvents.$jazz.has(processedKey) === true;
+      if (alreadyProcessed === true) {
+        console.log(`[Webhook] Duplicate event detected: ${processedKey}`);
+        return c.json({ received: true, duplicate: true }, 200);
+      }
+
+      processedProviderEvents.$jazz.set(processedKey, Date.now());
+      await processedProviderEvents.$jazz.waitForSync();
+
+      // 6. Duplicate detection is handled via worker.root.processedProviderEvents
 
       // 7. Create PaymentEvent owned by worker for security
       const event = PaymentEvent.create(
@@ -338,7 +356,7 @@ export const lemonSqueezyWebhookHandler = (
           currency: command.currency,
           timestamp: command.timestamp,
           paymentStatus: command.status,
-          userAccount: userAccountId,
+          userAccount: jazzAccountId,
           app: appId,
           metadata: {
             ...command.metadata,
@@ -348,16 +366,39 @@ export const lemonSqueezyWebhookHandler = (
         { owner: registryProfileWorkerGroup },
       );
 
-      // 8. Append to Global Payments Feed (single source of truth)
-      payments.$jazz.push(event);
+      // 8. Append to App payments (all)
+      const allPayments = payments.all;
+      const allPaymentsReady =
+        allPayments !== null && allPayments.$isLoaded === true;
+      if (allPaymentsReady === false) {
+        return c.json({ error: "App payments list not loaded" }, 500);
+      }
 
-      // 9. Add reference to paymentsByUser index (not a copy)
-      if (!app.paymentsByUser) {
-        console.warn("[Webhook] Warning: app.paymentsByUser is undefined.");
+      allPayments.$jazz.push(event);
+      await allPayments.$jazz.waitForSync();
+
+      // 9. Append to App payments (byUser)
+      const byUser = payments.byUser;
+      const byUserReady = byUser !== null && byUser.$isLoaded === true;
+      if (byUserReady === false) {
+        console.warn("[Webhook] Warning: app.payments.byUser is not loaded.");
       } else {
-        // Store reference to the PaymentEvent (not a new copy)
-        app.paymentsByUser.$jazz.set(userAccountId, event);
-        console.log(`[Webhook] Indexed payment for user ${userAccountId}`);
+        const existingUserList = byUser[jazzAccountId] ?? null;
+        const existingUserListLoaded =
+          existingUserList !== null && existingUserList.$isLoaded === true;
+
+        if (existingUserListLoaded === true) {
+          existingUserList.$jazz.push(event);
+          await existingUserList.$jazz.waitForSync();
+          console.log(`[Webhook] Indexed payment for user ${jazzAccountId}`);
+        } else {
+          const newUserList = ListOfPaymentEvents.create([event], {
+            owner: registryProfileWorkerGroup,
+          });
+          byUser.$jazz.set(jazzAccountId, newUserList);
+          await byUser.$jazz.waitForSync();
+          console.log(`[Webhook] Indexed payment for user ${jazzAccountId}`);
+        }
       }
 
       console.log(`[Webhook] Payment processed for App ${app.$jazz.id}`);

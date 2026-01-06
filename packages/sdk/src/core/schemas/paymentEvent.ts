@@ -47,5 +47,5 @@ export type TPaymentEvent = co.loaded<typeof PaymentEvent>;
  * - SDK User: View payment history for their customers
  * - End User: View their own payment transactions
  */
-export const ListOfPaymentEvents = co.feed(PaymentEvent);
+export const ListOfPaymentEvents = co.list(PaymentEvent);
 export type TListOfPaymentEvents = co.loaded<typeof ListOfPaymentEvents>;
