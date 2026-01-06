@@ -3,7 +3,6 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import {
   TAppRegistry,
   RegistryWorkerAccount,
-  TRegistryAppMetadata,
   PaymentEvent,
   TApp,
   ListOfPaymentEvents,
@@ -252,24 +251,15 @@ export const lemonSqueezyWebhookHandler = (
         return c.json({ error: "Missing App ID" }, 400);
       }
 
-      // 1. Get the App Metadata
-      const appMetadata = (appsRecord as any)[appId] as
-        | TRegistryAppMetadata
-        | undefined;
-      if (!appMetadata) {
+      // 1. Get the App (appsRecord is a record of App CoValues)
+      const appRef = (appsRecord as any)[appId] as TApp | undefined;
+      if (!appRef) {
         console.log(`[Webhook] App not found: ${appId}`);
         return c.json({ error: "App not found" }, 404);
       }
 
       // 2. Load App with payments
-      const app: TApp = await (appMetadata as any).$jazz
-        .resolve({ app: true })
-        .then((m: any) => m.app);
-      if (!app) {
-        return c.json({ error: "App data unavailable" }, 500);
-      }
-
-      const { payments } = await app.$jazz.ensureLoaded({
+      const app = await appRef.$jazz.ensureLoaded({
         resolve: {
           payments: {
             all: { $each: true },
@@ -277,6 +267,14 @@ export const lemonSqueezyWebhookHandler = (
           },
         },
       });
+
+      const secretValid =
+        typeof app.webhookSecret === "string" && app.webhookSecret !== "";
+      if (secretValid === false) {
+        return c.json({ error: "App webhookSecret is missing" }, 500);
+      }
+
+      const payments = app.payments;
 
       // 3. Verify Signature
       const secret = app.webhookSecret;
