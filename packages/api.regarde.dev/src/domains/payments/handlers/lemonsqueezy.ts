@@ -6,6 +6,7 @@ import {
   PaymentEvent,
   TApp,
   ListOfPaymentEvents,
+  App,
 } from "@regarde-dev/core";
 import { Loaded, co } from "jazz-tools";
 
@@ -297,13 +298,24 @@ export const lemonSqueezyWebhookHandler = (
       );
       console.log("[Webhook] appsRecord type:", typeof appsRecord);
       console.log("[Webhook] appsRecord keys:", Object.keys(appsRecord));
-      const appRef = (appsRecord as any)[appId] as TApp | undefined;
-      console.log("[Webhook] appRef found:", !!appRef);
-      if (appRef) {
-        console.log("[Webhook] appRef type:", typeof appRef);
-        console.log("[Webhook] appRef.$jazz.id:", appRef.$jazz?.id);
-      }
-      if (!appRef) {
+      const appRefExists = (appsRecord as any)[appId] as TApp | undefined;
+      const appRef = await App.load(appId, {
+        resolve: {
+          payments: {
+            all: { $each: true },
+            byUser: true,
+          },
+        },
+      });
+
+      console.log(
+        "[Webhook] appRef found:",
+        !!appRefExists,
+        appRef.$isLoaded,
+        appRef.$jazz.id,
+      );
+
+      if (!appRef.$jazz.id) {
         console.log(`[Webhook] ERROR - App not found: ${appId}`);
         console.log("[Webhook] Available app IDs:", Object.keys(appsRecord));
         return c.json({ error: "App not found" }, 404);
@@ -311,7 +323,7 @@ export const lemonSqueezyWebhookHandler = (
 
       // 2. Load App with payments
       console.log(`[Webhook] Loading app with payments`);
-      const app = await appRef.$jazz.ensureLoaded({
+      const app = await (appRef as TApp).$jazz.ensureLoaded({
         resolve: {
           payments: {
             all: { $each: true },
