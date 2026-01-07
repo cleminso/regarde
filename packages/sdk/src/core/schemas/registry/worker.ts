@@ -10,10 +10,13 @@ import {
 
 /**
  * Idempotency index for webhook events.
- * Key format: `${appId}:${provider}:${providerEventId}`
- * Value: timestamp (ms) when the worker first processed the event.
+ * Key format: `LS_{providerIdentifier}`
+ * Value: CoValue.id of the PaymentEvent to serve as caching
+ *
+ * Examples:
+ * - LS_89b36d62-4f5c-4353-853f-0c769d0535c8 (LemonSqueezy order/subscription identifier)
  */
-export const ProcessedProviderEvents = co.record(z.string(), z.number());
+export const ProcessedProviderEvents = co.record(z.string(), z.string());
 
 /**
  * Root schema containing all registry components

@@ -1,4 +1,4 @@
-import { co, z, Group } from "jazz-tools";
+import { co, z, Group, CoValue, ID } from "jazz-tools";
 import { RegardeAuth } from "#schemas/regardeAuth";
 import { RegardeAccount } from "#schemas/regardeAccount";
 import { RegardeSDK } from "#schemas/regardeSDK";
@@ -13,6 +13,8 @@ export type InitRegardeSDKMode = "ensure" | "create";
 export const initRegardeSDK = async (
   account: co.loaded<typeof RegardeAccount>,
   mode: InitRegardeSDKMode = "ensure",
+  /** Pass your AppId to initialize the user's payment list */
+  appId: ID<CoValue> | undefined = undefined,
 ): Promise<co.loaded<typeof RegardeSDK>> => {
   const accountValid = account !== null && account.$isLoaded === true;
   if (accountValid === false) {
@@ -20,27 +22,7 @@ export const initRegardeSDK = async (
   }
 
   try {
-    const { root } = await account.$jazz.ensureLoaded({
-      resolve: {
-        root: {
-          "regarde-sdk": true,
-        },
-      },
-    });
-
-    const rootLoaded = root.$isLoaded === true;
-    if (rootLoaded === false) {
-      throw new Error("Account root not loaded");
-    }
-
-    const regardeSDK = root["regarde-sdk"];
-
     if (mode === "create") {
-      const sdkLoaded = regardeSDK !== null && regardeSDK.$isLoaded === true;
-      if (sdkLoaded === true) {
-        return regardeSDK;
-      }
-
       console.info(
         "[INFO] RegardeSDK not found or incomplete. Initializing...",
       );
@@ -60,8 +42,7 @@ export const initRegardeSDK = async (
         owner: account,
       });
 
-      userGroup.addMember(account, "admin");
-      userGroup.addMember(regardeProfileWorkerGroup as Group, "writer");
+      userGroup.addMember(regardeProfileWorkerGroup, "writer");
 
       await userGroup.$jazz.waitForSync();
 
@@ -90,9 +71,14 @@ export const initRegardeSDK = async (
           myApps: co.list(App).create([], { owner: userGroup }),
           myPayments: {
             all: ListOfPaymentEvents.create([], { owner: userGroup }),
-            byApp: co
-              .record(z.string(), ListOfPaymentEvents)
-              .create({}, { owner: userGroup }),
+            byApp: co.record(z.string(), ListOfPaymentEvents).create(
+              appId
+                ? {
+                    [appId]: [],
+                  }
+                : {},
+              { owner: userGroup },
+            ),
           },
           version: 2,
         },
@@ -104,6 +90,21 @@ export const initRegardeSDK = async (
       console.info("[INFO] RegardeSDK created");
       return newSDK;
     }
+
+    const { root } = await account.$jazz.ensureLoaded({
+      resolve: {
+        root: {
+          "regarde-sdk": true,
+        },
+      },
+    });
+
+    const rootLoaded = root.$isLoaded === true;
+    if (rootLoaded === false) {
+      throw new Error("Account root not loaded");
+    }
+
+    const regardeSDK = root["regarde-sdk"];
 
     const sdkValid = regardeSDK !== null && regardeSDK.$isLoaded === true;
     if (sdkValid === false) {

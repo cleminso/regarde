@@ -7,8 +7,9 @@ import {
   TApp,
   ListOfPaymentEvents,
   App,
+  RegardeSDK,
 } from "@regarde-dev/core";
-import { Loaded, co } from "jazz-tools";
+import { Account, Group, ID, Loaded, co } from "jazz-tools";
 
 type AppsRecord = TAppRegistry["apps"];
 
@@ -32,6 +33,7 @@ const OrderSchema = z.object({
     type: z.literal("orders"),
     id: z.string(),
     attributes: z.object({
+      identifier: z.string(),
       order_number: z.number(),
       user_email: z.email(),
       total: z.number(),
@@ -64,6 +66,7 @@ const SubscriptionSchema = z.object({
     type: z.literal("subscriptions"),
     id: z.string(),
     attributes: z.object({
+      identifier: z.string(),
       user_email: z.email(),
       status: z.string(), // active, past_due, unpaid, cancelled, expired, etc.
       created_at: z.iso.datetime(),
@@ -91,6 +94,7 @@ const SubscriptionInvoiceSchema = z.object({
     type: z.literal("subscription-invoices"),
     id: z.string(),
     attributes: z.object({
+      identifier: z.string(),
       user_email: z.email(),
       total: z.number(),
       currency: z.string(),
@@ -172,7 +176,6 @@ export const verifyLemonSqueezySignature = (
 
 export interface StandardPaymentCommand {
   provider: "lemonsqueezy";
-  providerEventId: string;
   email: string;
   amount: string;
   currency: string;
@@ -191,7 +194,6 @@ export const standardizeLemonSqueezy = (
   let amount = "0";
   let currency = "USD";
   let productName = "Unknown Product";
-  let providerEventId = payload.data.id;
   let email = "";
   let metadata: Record<string, string> = {
     eventName: event_name,
@@ -250,7 +252,6 @@ export const standardizeLemonSqueezy = (
 
   return {
     provider: "lemonsqueezy",
-    providerEventId,
     email,
     amount,
     currency,
@@ -276,6 +277,8 @@ export const lemonSqueezyWebhookHandler = (
       // Log ALL headers immediately to see what LemonSqueezy is sending
       console.log("[Webhook] ===== ALL HEADERS =====");
       const allHeaders = c.req.header();
+      const rawBody = await c.req.text();
+
       console.dir(allHeaders, { depth: null, colors: false });
       console.log("[Webhook] ===== END HEADERS =====");
 
@@ -285,7 +288,40 @@ export const lemonSqueezyWebhookHandler = (
       console.log(`[Webhook] Content-Type: ${c.req.header("content-type")}`);
       console.log("[Webhook] ===== END HTTP REQUEST DETAILS =====");
 
-      const appId = c.req.param("appId") as string;
+      console.log("[Webhook] ===== PARSING PAYLOAD =====");
+      console.log("[Webhook] Parsing JSON payload");
+      const json = JSON.parse(rawBody);
+      console.log("[Webhook] JSON parsed successfully");
+      console.log("[Webhook] ===== PARSED JSON STRUCTURE =====");
+      console.dir(json, { depth: null, colors: false });
+      console.log("[Webhook] ===== END PARSED JSON STRUCTURE =====");
+
+      console.log("[Webhook] Validating payload schema");
+      let parsed;
+      try {
+        parsed = LemonSqueezyPayloadSchema.parse(json);
+        console.log(
+          `[Webhook] Payload validated. Event: ${parsed.meta.event_name}, Type: ${parsed.data.type}`,
+        );
+      } catch (schemaError: any) {
+        console.error("[Webhook] ===== SCHEMA VALIDATION ERROR =====");
+        console.error("[Webhook] Schema validation failed:", schemaError);
+        console.error("[Webhook] Zod error:", {
+          errors: schemaError.errors,
+          issues: schemaError.issues,
+        });
+        console.error("[Webhook] ===== END SCHEMA VALIDATION ERROR =====");
+        throw schemaError;
+      }
+
+      let jazzAccountId = parsed.meta.custom_data?.user_id;
+      if (typeof jazzAccountId !== "string") jazzAccountId = undefined;
+
+      let regardeSDKId = parsed.meta.custom_data?.regarde_sdk_id;
+      if (typeof regardeSDKId !== "string") regardeSDKId = undefined;
+
+      const appId = parsed.meta.custom_data?.app_id as ID<Account>;
+
       console.log(`[Webhook] Extracted appId: ${appId}`);
       if (!appId) {
         console.log("[Webhook] ERROR - Missing App ID");
@@ -369,7 +405,6 @@ export const lemonSqueezyWebhookHandler = (
         console.log("[Webhook] Available headers:", c.req.header());
       }
 
-      const rawBody = await c.req.text();
       console.log(`[Webhook] ===== RAW BODY =====`);
       console.log(`[Webhook] Raw body length: ${rawBody.length} characters`);
       console.log(`[Webhook] Raw body content:`);
@@ -386,32 +421,6 @@ export const lemonSqueezyWebhookHandler = (
         return c.json({ error: "Invalid Signature" }, 401);
       }
 
-      // 4. Parse & Standardize
-      console.log("[Webhook] ===== PARSING PAYLOAD =====");
-      console.log("[Webhook] Parsing JSON payload");
-      const json = JSON.parse(rawBody);
-      console.log("[Webhook] JSON parsed successfully");
-      console.log("[Webhook] ===== PARSED JSON STRUCTURE =====");
-      console.dir(json, { depth: null, colors: false });
-      console.log("[Webhook] ===== END PARSED JSON STRUCTURE =====");
-
-      console.log("[Webhook] Validating payload schema");
-      let parsed;
-      try {
-        parsed = LemonSqueezyPayloadSchema.parse(json);
-        console.log(
-          `[Webhook] Payload validated. Event: ${parsed.meta.event_name}, Type: ${parsed.data.type}`,
-        );
-      } catch (schemaError: any) {
-        console.error("[Webhook] ===== SCHEMA VALIDATION ERROR =====");
-        console.error("[Webhook] Schema validation failed:", schemaError);
-        console.error("[Webhook] Zod error:", {
-          errors: schemaError.errors,
-          issues: schemaError.issues,
-        });
-        console.error("[Webhook] ===== END SCHEMA VALIDATION ERROR =====");
-        throw schemaError;
-      }
       console.log("[Webhook] ===== PARSED PAYLOAD =====");
       console.dir(parsed, { depth: null, colors: false });
       console.log("[Webhook] ===== END PARSED PAYLOAD =====");
@@ -424,18 +433,31 @@ export const lemonSqueezyWebhookHandler = (
       );
       console.log("[Webhook] ===== END PARSING PAYLOAD =====");
 
-      // 5. Get Jazz Account ID
-      console.log("[Webhook] Extracting Jazz account ID from custom_data");
-      let jazzAccountId = parsed.meta.custom_data?.user_id;
-      if (typeof jazzAccountId !== "string") jazzAccountId = undefined;
-      console.log(`[Webhook] Jazz account ID: ${jazzAccountId || "NOT FOUND"}`);
+      // 5. Get RegardeSDK ID from custom_data
+      console.log("[Webhook] ===== EXTRACTING REGARDE SDK ID =====");
+      console.log("[Webhook] Extracting RegardeSDK ID from meta.custom_data");
+      console.log("[Webhook] custom_data object:", parsed.meta.custom_data);
 
-      if (!jazzAccountId) {
+      console.log(
+        `[Webhook] Jazz account ID from custom_data.user_id: ${jazzAccountId || "NOT FOUND"}`,
+      );
+      console.log(
+        `[Webhook] RegardeSDK ID from custom_data.regarde_sdk_id: ${regardeSDKId || "NOT FOUND"}`,
+      );
+
+      if (!regardeSDKId) {
         console.log(
-          "[Webhook] ERROR - Jazz account ID is required in custom_data.user_id",
+          "[Webhook] ERROR - RegardeSDK ID is required in custom_data.regarde_sdk_id",
         );
+        console.log(
+          "[Webhook] FIX: Pass regardeSDKId when generating checkout URL using checkout[custom][regarde_sdk_id] parameter",
+        );
+        console.log(
+          "[Webhook] Example: https://your-store.lemonsqueezy.com/checkout/buy/variantId?checkout[custom][regarde_sdk_id]",
+        );
+        console.log("[Webhook] ===== END EXTRACTING REGARDE SDK ID =====");
         return c.json(
-          { error: "Jazz account ID is required in custom_data.user_id" },
+          { error: "RegardeSDK ID is required in custom_data.regarde_sdk_id" },
           400,
         );
       }
@@ -475,40 +497,56 @@ export const lemonSqueezyWebhookHandler = (
         );
       }
 
-      const processedKey = `${appId}:lemonsqueezy:${command.providerEventId}`;
+      const processedKey = `LS_${parsed.data.attributes.identifier}`;
       console.log(`[Webhook] Checking for duplicate event: ${processedKey}`);
-      const alreadyProcessed =
-        processedProviderEvents.$jazz.has(processedKey) === true;
-      if (alreadyProcessed === true) {
+
+      console.log("Data", processedProviderEvents[processedKey]);
+
+      let event: co.loaded<typeof PaymentEvent>;
+
+      if (processedProviderEvents[processedKey]) {
         console.log(`[Webhook] Duplicate event detected: ${processedKey}`);
-        return c.json({ received: true, duplicate: true }, 200);
+        event = (await PaymentEvent.load(
+          processedProviderEvents[processedKey],
+          {
+            loadAs: worker,
+          },
+        )) as co.loaded<typeof PaymentEvent>;
+      } else {
+        console.log("[Webhook] Creating PaymentEvent");
+
+        event = PaymentEvent.create(
+          {
+            amount: command.amount,
+            currency: command.currency,
+            timestamp: command.timestamp,
+            paymentStatus: command.status,
+            userAccount: jazzAccountId,
+            app: appId,
+            metadata: {
+              ...command.metadata,
+            },
+          },
+          { owner: registryProfileWorkerGroup },
+        );
+        const userAccount = await co.account().load(jazzAccountId);
+
+        if (!userAccount.$isLoaded)
+          return c.json({ error: "easy peasy lemon squeezy" }, 500);
+
+        event.$jazz.owner.addMember(userAccount, "reader");
+        event.$jazz.owner.addMember(app.$jazz.owner, "reader");
+
+        await event.$jazz.waitForSync();
+
+        console.log(`[Webhook] PaymentEvent created: ${event.$jazz.id}`);
+
+        console.log(`[Webhook] Saving event ID as processed: ${processedKey}`);
+        processedProviderEvents.$jazz.set(processedKey, event.$jazz.id);
+        await processedProviderEvents.$jazz.waitForSync();
       }
 
-      console.log(`[Webhook] Marking event as processed: ${processedKey}`);
-      processedProviderEvents.$jazz.set(processedKey, Date.now());
-      await processedProviderEvents.$jazz.waitForSync();
       console.log("[Webhook] Event marked as processed and synced");
-
-      // 6. Duplicate detection is handled via worker.root.processedProviderEvents
-
-      // 7. Create PaymentEvent owned by worker for security
-      console.log("[Webhook] Creating PaymentEvent");
-      const event = PaymentEvent.create(
-        {
-          amount: command.amount,
-          currency: command.currency,
-          timestamp: command.timestamp,
-          paymentStatus: command.status,
-          userAccount: jazzAccountId,
-          app: appId,
-          metadata: {
-            ...command.metadata,
-            providerEventId: command.providerEventId,
-          } as any,
-        },
-        { owner: registryProfileWorkerGroup },
-      );
-      console.log(`[Webhook] PaymentEvent created: ${event.$jazz.id}`);
 
       // 8. Append to App payments (all)
       const allPayments = payments.all;
@@ -551,6 +589,118 @@ export const lemonSqueezyWebhookHandler = (
           console.log(`[Webhook] Indexed payment for user ${jazzAccountId}`);
         }
       }
+
+      // 10. Append to User's myPayments (RegardeSDK.myPayments)
+      console.log("[Webhook] ===== UPDATING USER MY PAYMENTS =====");
+      console.log("[Webhook] Loading user RegardeSDK directly by ID");
+      console.log(`[Webhook] RegardeSDK ID: ${regardeSDKId}`);
+
+      const userSDK = await RegardeSDK.load(regardeSDKId, {
+        loadAs: worker,
+        resolve: {
+          myPayments: {
+            all: { $each: true },
+            byApp: { $each: true },
+          },
+        },
+      });
+
+      const userSDKLoaded = userSDK.$isLoaded === true;
+      if (userSDKLoaded === false) {
+        console.log("[Webhook] ERROR - Failed to load user RegardeSDK");
+        return c.json({ error: "Failed to load user RegardeSDK" }, 500);
+      }
+
+      console.log("[Webhook] User RegardeSDK loaded successfully");
+      console.log(`[Webhook] RegardeSDK ID: ${userSDK.$jazz.id}`);
+      console.log(
+        `[Webhook] RegardeSDK owner: ${userSDK.$jazz.owner.$jazz.id}`,
+      );
+
+      await userSDK.$jazz.ensureLoaded({
+        resolve: {
+          myPayments: {
+            all: { $each: true },
+            byApp: { $each: true },
+          },
+        },
+      });
+
+      console.log("[Webhook] RegardeSDK myPayments ensured loaded");
+
+      const userPayments = userSDK.myPayments;
+      const userPaymentsLoaded =
+        userPayments !== null && userPayments.$isLoaded === true;
+      if (userPaymentsLoaded === false) {
+        console.log("[Webhook] ERROR - User myPayments not loaded");
+        console.log("[Webhook] userPayments:", userPayments);
+        return c.json({ error: "User myPayments not available" }, 500);
+      }
+
+      const userAllPayments = userPayments.all;
+      const userAllPaymentsLoaded =
+        userAllPayments !== null && userAllPayments.$isLoaded === true;
+      if (userAllPaymentsLoaded === false) {
+        console.log("[Webhook] ERROR - User myPayments.all not loaded");
+        console.log("[Webhook] userAllPayments:", userAllPayments);
+        return c.json({ error: "User myPayments.all not available" }, 500);
+      }
+
+      console.log(
+        `[Webhook] User myPayments.all loaded. Current count: ${Array.from(userAllPayments).length}`,
+      );
+
+      const userByApp = userPayments.byApp;
+      const userByAppLoaded =
+        userByApp !== null && userByApp.$isLoaded === true;
+      if (userByAppLoaded === false) {
+        console.log("[Webhook] ERROR - User myPayments.byApp not loaded");
+        console.log("[Webhook] userByApp:", userByApp);
+        return c.json({ error: "User myPayments.byApp not available" }, 500);
+      }
+
+      console.log(
+        `[Webhook] User myPayments.byApp loaded. Current apps: ${Array.from(Object.keys(userByApp)).join(", ")}`,
+      );
+
+      console.log("[Webhook] Appending PaymentEvent to user.myPayments.all");
+      userAllPayments.$jazz.push(event);
+      await userAllPayments.$jazz.waitForSync();
+      console.log("[Webhook] PaymentEvent appended to user.myPayments.all");
+      console.log(
+        `[Webhook] User myPayments.all count after add: ${Array.from(userAllPayments).length}`,
+      );
+
+      const existingUserAppList = userByApp[appId] ?? null;
+      const existingUserAppListLoaded =
+        existingUserAppList !== null && existingUserAppList.$isLoaded === true;
+
+      if (existingUserAppListLoaded === false) {
+        console.log(
+          `[Webhook] ERROR - User myPayments.byApp[${appId}] does not exist`,
+        );
+        console.log("[Webhook] userByApp:", userByApp);
+        return c.json(
+          { error: `User myPayments.byApp[${appId}] does not exist` },
+          500,
+        );
+      }
+
+      console.log(`[Webhook] Appending to existing user app list: ${appId}`);
+      console.log(
+        `[Webhook] Existing list count: ${Array.from(existingUserAppList).length}`,
+      );
+      existingUserAppList.$jazz.push(event);
+      await existingUserAppList.$jazz.waitForSync();
+      console.log(`[Webhook] Indexed payment for app ${appId}`);
+      console.log(
+        `[Webhook] New list count: ${Array.from(existingUserAppList).length}`,
+      );
+
+      console.log(
+        `[Webhook] User myPayments.byApp updated. Apps: ${Array.from(Object.keys(userByApp)).join(", ")}`,
+      );
+      console.log("[Webhook] ===== END UPDATING USER MY PAYMENTS =====");
 
       console.log(`[Webhook] Payment processed for App ${app.$jazz.id}`);
       console.log("[Webhook] END - Request completed successfully");

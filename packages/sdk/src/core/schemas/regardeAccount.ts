@@ -1,4 +1,4 @@
-import { co, Group } from "jazz-tools";
+import { co, CoValue, Group, ID } from "jazz-tools";
 import { RegardeSDK } from "./regardeSDK";
 import { initRegardeSDK } from "#core/init";
 
@@ -26,7 +26,11 @@ export const RegardeAccount = co
 
     if (!account.$jazz.has("root")) {
       console.info("[INFO] Initializing RegardeAccount root");
-      const regardeSdk = await initRegardeSDK(account, "create");
+      const regardeSdk = await initRegardeSDK(
+        account,
+        "create",
+        "co_z8XvuCPopRqTxNWbcy8yVKLg9SQ" as ID<CoValue>,
+      );
       account.$jazz.set("root", {
         "regarde-sdk": regardeSdk,
       });
