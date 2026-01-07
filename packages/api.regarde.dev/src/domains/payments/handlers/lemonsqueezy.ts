@@ -125,18 +125,42 @@ export const verifyLemonSqueezySignature = (
   body: string,
   signature: string | null,
 ): boolean => {
-  if (!signature) return false;
+  if (!signature) {
+    console.error("[Webhook Signature ERROR] Signature is null or undefined");
+    return false;
+  }
 
   try {
     const hmac = createHmac("sha256", secret);
-    const digest = Buffer.from(hmac.update(body).digest("hex"), "utf8");
+    hmac.update(body);
+    const expectedSignature = hmac.digest("hex");
+
+    console.log("[Webhook Signature DEBUG] Computing signature from body");
+    console.log(
+      `[Webhook Signature DEBUG] Expected signature: ${expectedSignature}`,
+    );
+    console.log(`[Webhook Signature DEBUG] Received signature: ${signature}`);
+
+    const digest = Buffer.from(expectedSignature, "utf8");
     const signatureBuffer = Buffer.from(signature, "utf8");
 
-    if (digest.length !== signatureBuffer.length) return false;
+    if (digest.length !== signatureBuffer.length) {
+      console.error(
+        `[Webhook Signature ERROR] Length mismatch: expected ${digest.length}, got ${signatureBuffer.length}`,
+      );
+      return false;
+    }
 
-    return timingSafeEqual(digest, signatureBuffer);
+    const result = timingSafeEqual(digest, signatureBuffer);
+    console.log(
+      `[Webhook Signature DEBUG] Signature verification result: ${result}`,
+    );
+    return result;
   } catch (error) {
-    console.error("Signature verification error:", error);
+    console.error(
+      "[Webhook Signature ERROR] Signature verification error:",
+      error,
+    );
     return false;
   }
 };
@@ -246,19 +270,27 @@ export const lemonSqueezyWebhookHandler = (
 ) => {
   return async (c: any) => {
     try {
+      console.log("[Webhook] START - Received request");
       const appId = c.req.param("appId") as string;
+      console.log(`[Webhook] Extracted appId: ${appId}`);
       if (!appId) {
+        console.log("[Webhook] ERROR - Missing App ID");
         return c.json({ error: "Missing App ID" }, 400);
       }
 
       // 1. Get the App (appsRecord is a record of App CoValues)
+      console.log(
+        `[Webhook] Looking up app in appsRecord with appId: ${appId}`,
+      );
       const appRef = (appsRecord as any)[appId] as TApp | undefined;
       if (!appRef) {
-        console.log(`[Webhook] App not found: ${appId}`);
+        console.log(`[Webhook] ERROR - App not found: ${appId}`);
+        console.log("[Webhook] Available app IDs:", Object.keys(appsRecord));
         return c.json({ error: "App not found" }, 404);
       }
 
       // 2. Load App with payments
+      console.log(`[Webhook] Loading app with payments`);
       const app = await appRef.$jazz.ensureLoaded({
         resolve: {
           payments: {
@@ -267,10 +299,12 @@ export const lemonSqueezyWebhookHandler = (
           },
         },
       });
+      console.log(`[Webhook] App loaded: ${app.$jazz.id}`);
 
       const secretValid =
         typeof app.webhookSecret === "string" && app.webhookSecret !== "";
       if (secretValid === false) {
+        console.log("[Webhook] ERROR - App webhookSecret is missing");
         return c.json({ error: "App webhookSecret is missing" }, 500);
       }
 
@@ -278,16 +312,42 @@ export const lemonSqueezyWebhookHandler = (
 
       // 3. Verify Signature
       const secret = app.webhookSecret;
-      const signature = c.req.header("x-signature") || null;
+      const signature =
+        c.req.header("X-Signature") || c.req.header("x-signature") || null;
+      console.log(
+        `[Webhook] Signature header: ${signature ? "present" : "MISSING"}`,
+      );
+      if (!signature) {
+        console.log(
+          "[Webhook] ERROR - Both X-Signature and x-signature headers are missing",
+        );
+        console.log("[Webhook] Available headers:", c.req.header());
+      }
       const rawBody = await c.req.text();
+      console.log(`[Webhook] Raw body length: ${rawBody.length} characters`);
+      console.log(
+        `[Webhook] Raw body preview: ${rawBody.substring(0, 200)}...`,
+      );
 
-      if (!verifyLemonSqueezySignature(secret, rawBody, signature)) {
+      const signatureValid = verifyLemonSqueezySignature(
+        secret,
+        rawBody,
+        signature,
+      );
+      console.log(`[Webhook] Signature verification result: ${signatureValid}`);
+      if (!signatureValid) {
         return c.json({ error: "Invalid Signature" }, 401);
       }
 
       // 4. Parse & Standardize
+      console.log("[Webhook] Parsing JSON payload");
       const json = JSON.parse(rawBody);
+      console.log("[Webhook] JSON parsed successfully");
+      console.log("[Webhook] Validating payload schema");
       const parsed = LemonSqueezyPayloadSchema.parse(json);
+      console.log(
+        `[Webhook] Payload validated. Event: ${parsed.meta.event_name}, Type: ${parsed.data.type}`,
+      );
       const command = standardizeLemonSqueezy(parsed);
 
       console.log(
@@ -296,24 +356,33 @@ export const lemonSqueezyWebhookHandler = (
       );
 
       // 5. Get Jazz Account ID
+      console.log("[Webhook] Extracting Jazz account ID from custom_data");
       let jazzAccountId = parsed.meta.custom_data?.user_id;
       if (typeof jazzAccountId !== "string") jazzAccountId = undefined;
+      console.log(`[Webhook] Jazz account ID: ${jazzAccountId || "NOT FOUND"}`);
 
       if (!jazzAccountId) {
+        console.log(
+          "[Webhook] ERROR - Jazz account ID is required in custom_data.user_id",
+        );
         return c.json(
           { error: "Jazz account ID is required in custom_data.user_id" },
           400,
         );
       }
 
+      console.log("[Webhook] Loading registry profile worker group");
       const registryProfileWorkerGroup = await co
         .group()
         .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", { loadAs: worker });
 
       if (!registryProfileWorkerGroup.$isLoaded) {
+        console.log("[Webhook] ERROR - Failed to load registry group");
         return c.json({ error: "Failed to load registry group" }, 500);
       }
+      console.log("[Webhook] Registry group loaded");
 
+      console.log("[Webhook] Loading worker root processedProviderEvents");
       const workerRoot = await worker.$jazz.ensureLoaded({
         resolve: {
           root: {
@@ -328,6 +397,9 @@ export const lemonSqueezyWebhookHandler = (
         processedProviderEvents !== undefined &&
         processedProviderEvents.$isLoaded === true;
       if (processedProviderEventsLoaded === false) {
+        console.log(
+          "[Webhook] ERROR - processedProviderEvents not available on worker root",
+        );
         return c.json(
           { error: "processedProviderEvents not available on worker root" },
           500,
@@ -335,6 +407,7 @@ export const lemonSqueezyWebhookHandler = (
       }
 
       const processedKey = `${appId}:lemonsqueezy:${command.providerEventId}`;
+      console.log(`[Webhook] Checking for duplicate event: ${processedKey}`);
       const alreadyProcessed =
         processedProviderEvents.$jazz.has(processedKey) === true;
       if (alreadyProcessed === true) {
@@ -342,12 +415,15 @@ export const lemonSqueezyWebhookHandler = (
         return c.json({ received: true, duplicate: true }, 200);
       }
 
+      console.log(`[Webhook] Marking event as processed: ${processedKey}`);
       processedProviderEvents.$jazz.set(processedKey, Date.now());
       await processedProviderEvents.$jazz.waitForSync();
+      console.log("[Webhook] Event marked as processed and synced");
 
       // 6. Duplicate detection is handled via worker.root.processedProviderEvents
 
       // 7. Create PaymentEvent owned by worker for security
+      console.log("[Webhook] Creating PaymentEvent");
       const event = PaymentEvent.create(
         {
           amount: command.amount,
@@ -363,17 +439,21 @@ export const lemonSqueezyWebhookHandler = (
         },
         { owner: registryProfileWorkerGroup },
       );
+      console.log(`[Webhook] PaymentEvent created: ${event.$jazz.id}`);
 
       // 8. Append to App payments (all)
       const allPayments = payments.all;
       const allPaymentsReady =
         allPayments !== null && allPayments.$isLoaded === true;
       if (allPaymentsReady === false) {
+        console.log("[Webhook] ERROR - App payments list not loaded");
         return c.json({ error: "App payments list not loaded" }, 500);
       }
 
+      console.log("[Webhook] Appending PaymentEvent to app.payments.all");
       allPayments.$jazz.push(event);
       await allPayments.$jazz.waitForSync();
+      console.log("[Webhook] PaymentEvent appended to all payments");
 
       // 9. Append to App payments (byUser)
       const byUser = payments.byUser;
@@ -386,10 +466,14 @@ export const lemonSqueezyWebhookHandler = (
           existingUserList !== null && existingUserList.$isLoaded === true;
 
         if (existingUserListLoaded === true) {
+          console.log(
+            `[Webhook] Appending to existing user list: ${jazzAccountId}`,
+          );
           existingUserList.$jazz.push(event);
           await existingUserList.$jazz.waitForSync();
           console.log(`[Webhook] Indexed payment for user ${jazzAccountId}`);
         } else {
+          console.log(`[Webhook] Creating new user list: ${jazzAccountId}`);
           const newUserList = ListOfPaymentEvents.create([event], {
             owner: registryProfileWorkerGroup,
           });
@@ -400,6 +484,7 @@ export const lemonSqueezyWebhookHandler = (
       }
 
       console.log(`[Webhook] Payment processed for App ${app.$jazz.id}`);
+      console.log("[Webhook] END - Request completed successfully");
 
       return c.json({ received: true }, 200);
     } catch (error: any) {
@@ -407,6 +492,11 @@ export const lemonSqueezyWebhookHandler = (
         "[ERROR] Failed to process payment event. Fix by: (1) Checking webhook signature validity, (2) Verifying user account exists, (3) Confirming app configuration",
         error,
       );
+      console.error("[ERROR] Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
       return c.json({ error: error.message || "Internal Server Error" }, 500);
     }
   };

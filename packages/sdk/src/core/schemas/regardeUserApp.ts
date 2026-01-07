@@ -1,5 +1,5 @@
 import { co, z } from "jazz-tools";
-import { PaymentEvent, ListOfPaymentEvents } from "./paymentEvent";
+import { ListOfPaymentEvents } from "./paymentEvent";
 
 export const App = co.map({
   name: z.string(),
