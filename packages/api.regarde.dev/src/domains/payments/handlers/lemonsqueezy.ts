@@ -271,6 +271,19 @@ export const lemonSqueezyWebhookHandler = (
   return async (c: any) => {
     try {
       console.log("[Webhook] START - Received request");
+
+      // Log ALL headers immediately to see what LemonSqueezy is sending
+      console.log("[Webhook] ===== ALL HEADERS =====");
+      const allHeaders = c.req.header();
+      console.dir(allHeaders, { depth: null, colors: false });
+      console.log("[Webhook] ===== END HEADERS =====");
+
+      console.log("[Webhook] ===== HTTP REQUEST DETAILS =====");
+      console.log(`[Webhook] Request method: ${c.req.method}`);
+      console.log(`[Webhook] Request path: ${c.req.path}`);
+      console.log(`[Webhook] Content-Type: ${c.req.header("content-type")}`);
+      console.log("[Webhook] ===== END HTTP REQUEST DETAILS =====");
+
       const appId = c.req.param("appId") as string;
       console.log(`[Webhook] Extracted appId: ${appId}`);
       if (!appId) {
@@ -282,7 +295,14 @@ export const lemonSqueezyWebhookHandler = (
       console.log(
         `[Webhook] Looking up app in appsRecord with appId: ${appId}`,
       );
+      console.log("[Webhook] appsRecord type:", typeof appsRecord);
+      console.log("[Webhook] appsRecord keys:", Object.keys(appsRecord));
       const appRef = (appsRecord as any)[appId] as TApp | undefined;
+      console.log("[Webhook] appRef found:", !!appRef);
+      if (appRef) {
+        console.log("[Webhook] appRef type:", typeof appRef);
+        console.log("[Webhook] appRef.$jazz.id:", appRef.$jazz?.id);
+      }
       if (!appRef) {
         console.log(`[Webhook] ERROR - App not found: ${appId}`);
         console.log("[Webhook] Available app IDs:", Object.keys(appsRecord));
@@ -312,10 +332,23 @@ export const lemonSqueezyWebhookHandler = (
 
       // 3. Verify Signature
       const secret = app.webhookSecret;
-      const signature =
-        c.req.header("X-Signature") || c.req.header("x-signature") || null;
+
+      console.log("[Webhook] ===== SIGNATURE HEADER DETAILS =====");
+      const signatureX = c.req.header("X-Signature");
+      const signaturex = c.req.header("x-signature");
       console.log(
-        `[Webhook] Signature header: ${signature ? "present" : "MISSING"}`,
+        `[Webhook] X-Signature header: ${signatureX ? "PRESENT" : "MISSING"}`,
+      );
+      console.log(
+        `[Webhook] x-signature header: ${signaturex ? "PRESENT" : "MISSING"}`,
+      );
+      if (signatureX) console.log(`[Webhook] X-Signature value: ${signatureX}`);
+      if (signaturex) console.log(`[Webhook] x-signature value: ${signaturex}`);
+      console.log("[Webhook] ===== END SIGNATURE HEADER DETAILS =====");
+
+      const signature = signatureX || signaturex || null;
+      console.log(
+        `[Webhook] Using signature: ${signature ? "present" : "MISSING"}`,
       );
       if (!signature) {
         console.log(
@@ -323,11 +356,13 @@ export const lemonSqueezyWebhookHandler = (
         );
         console.log("[Webhook] Available headers:", c.req.header());
       }
+
       const rawBody = await c.req.text();
+      console.log(`[Webhook] ===== RAW BODY =====`);
       console.log(`[Webhook] Raw body length: ${rawBody.length} characters`);
-      console.log(
-        `[Webhook] Raw body preview: ${rawBody.substring(0, 200)}...`,
-      );
+      console.log(`[Webhook] Raw body content:`);
+      console.log(rawBody);
+      console.log(`[Webhook] ===== END RAW BODY =====`);
 
       const signatureValid = verifyLemonSqueezySignature(
         secret,
@@ -340,20 +375,42 @@ export const lemonSqueezyWebhookHandler = (
       }
 
       // 4. Parse & Standardize
+      console.log("[Webhook] ===== PARSING PAYLOAD =====");
       console.log("[Webhook] Parsing JSON payload");
       const json = JSON.parse(rawBody);
       console.log("[Webhook] JSON parsed successfully");
+      console.log("[Webhook] ===== PARSED JSON STRUCTURE =====");
+      console.dir(json, { depth: null, colors: false });
+      console.log("[Webhook] ===== END PARSED JSON STRUCTURE =====");
+
       console.log("[Webhook] Validating payload schema");
-      const parsed = LemonSqueezyPayloadSchema.parse(json);
-      console.log(
-        `[Webhook] Payload validated. Event: ${parsed.meta.event_name}, Type: ${parsed.data.type}`,
-      );
+      let parsed;
+      try {
+        parsed = LemonSqueezyPayloadSchema.parse(json);
+        console.log(
+          `[Webhook] Payload validated. Event: ${parsed.meta.event_name}, Type: ${parsed.data.type}`,
+        );
+      } catch (schemaError: any) {
+        console.error("[Webhook] ===== SCHEMA VALIDATION ERROR =====");
+        console.error("[Webhook] Schema validation failed:", schemaError);
+        console.error("[Webhook] Zod error:", {
+          errors: schemaError.errors,
+          issues: schemaError.issues,
+        });
+        console.error("[Webhook] ===== END SCHEMA VALIDATION ERROR =====");
+        throw schemaError;
+      }
+      console.log("[Webhook] ===== PARSED PAYLOAD =====");
+      console.dir(parsed, { depth: null, colors: false });
+      console.log("[Webhook] ===== END PARSED PAYLOAD =====");
+
       const command = standardizeLemonSqueezy(parsed);
 
       console.log(
         `[Webhook] Received ${parsed.meta.event_name} for App ${appId}:`,
         command,
       );
+      console.log("[Webhook] ===== END PARSING PAYLOAD =====");
 
       // 5. Get Jazz Account ID
       console.log("[Webhook] Extracting Jazz account ID from custom_data");
