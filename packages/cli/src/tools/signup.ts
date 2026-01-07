@@ -1,7 +1,9 @@
 import { ToolConfig, SimpleChalk } from "@alcyone-labs/arg-parser";
 import { startWorker } from "jazz-tools/worker";
 import {
+  CoValue,
   createJazzContextForNewAccount,
+  ID,
   MockSessionProvider,
 } from "jazz-tools";
 
@@ -37,6 +39,8 @@ export const signupTool: ToolConfig = {
       // Step 3: Generate credentials from passphrase
       const accountSecret = crypto.agentSecretFromSecretSeed(seed);
 
+      console.log("accountSecret", accountSecret);
+
       const peer = createWebSocketPeer({
         id: "upstream",
         websocket: new WebSocket(
@@ -44,6 +48,8 @@ export const signupTool: ToolConfig = {
         ),
         role: "server",
       });
+
+      console.log("peer");
 
       const jazzContext = createJazzContextForNewAccount({
         creationProps: { name: "Regarde user" },
@@ -54,7 +60,11 @@ export const signupTool: ToolConfig = {
         AccountSchema: RegardeAccount,
       });
 
+      console.log("jazzContent");
+
       (await jazzContext).account.$jazz.waitForAllCoValuesSync();
+
+      console.log("all synced");
 
       const accountId = (await jazzContext).account.$jazz.id;
 
@@ -86,7 +96,11 @@ export const signupTool: ToolConfig = {
           throw new Error("BUG");
         }
 
-        await initRegardeSDK(worker);
+        await initRegardeSDK(
+          worker,
+          "ensure",
+          "co_z8XvuCPopRqTxNWbcy8yVKLg9SQ" as ID<CoValue>,
+        );
 
         console.log(
           SimpleChalk.green("✓ Token generated and stored successfully"),
