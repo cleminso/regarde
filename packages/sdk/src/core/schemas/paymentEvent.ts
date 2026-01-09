@@ -23,12 +23,13 @@ import { co, z } from "jazz-tools";
  */
 export const PaymentEvent = co.map({
   amount: z.string(),
-  currency: z.string(),
-  timestamp: z.number(),
-  paymentStatus: z.enum(["pending", "completed", "failed", "cancelled"]),
   app: z.string().describe("App for which the payment was done"),
-  userAccount: z.string(),
+  currency: z.string(),
   metadata: co.record(z.string(), z.string()),
+  prefixedProviderEventUUID: z.string(),
+  paymentStatus: z.enum(["pending", "completed", "failed", "cancelled"]),
+  timestamp: z.number(),
+  userAccount: z.string(),
 });
 export type TPaymentEvent = co.loaded<typeof PaymentEvent>;
 

@@ -257,6 +257,7 @@ regarde.dev/
 
 - Prefer maximally readable code over writing comments
 - Avoid double-negative semantics
+- Check if variables exist before creating new ones
 - Use descriptive variable and function names that explain intent
 - Extract complex logic into well-named functions
 - Only add comments for non-obvious business rules or external constraints

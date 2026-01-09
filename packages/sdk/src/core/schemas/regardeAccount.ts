@@ -26,11 +26,7 @@ export const RegardeAccount = co
 
     if (!account.$jazz.has("root")) {
       console.info("[INFO] Initializing RegardeAccount root");
-      const regardeSdk = await initRegardeSDK(
-        account,
-        "create",
-        "co_z8XvuCPopRqTxNWbcy8yVKLg9SQ" as ID<CoValue>,
-      );
+      const regardeSdk = await initRegardeSDK(account, "create");
       account.$jazz.set("root", {
         "regarde-sdk": regardeSdk,
       });

@@ -1,7 +1,7 @@
-import { co, z, Loaded } from "jazz-tools";
-import { ListOfPaymentEvents } from "#schemas/paymentEvent";
+import { co, z, Loaded, Group } from "jazz-tools";
 import { App, type TApp } from "#schemas/regardeUserApp";
 import { RegardeSDK } from "#schemas/regardeSDK";
+import { RegardeAccount } from "#schemas/regardeAccount";
 
 export interface CreateAppParams {
   name: string;
@@ -11,6 +11,7 @@ export interface CreateAppParams {
 
 export const createApp = async (
   regardeSDK: Loaded<typeof RegardeSDK>,
+  account: co.loaded<typeof RegardeAccount>,
   appData: CreateAppParams,
 ): Promise<TApp> => {
   await regardeSDK.$jazz.ensureLoaded({
@@ -24,9 +25,26 @@ export const createApp = async (
   if (myAppsLoaded === false) {
     throw new Error("RegardeSDK.myApps is not loaded");
   }
+  const regardeProfileWorkerGroup = await co
+    .group()
+    .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", {
+      loadAs: account,
+    });
 
+  const groupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
+  if (groupLoaded === false) {
+    throw new Error("Group not available");
+  }
   const userGroup = regardeSDK.$jazz.owner;
   const ownerAccountId = userGroup.$jazz.id;
+
+  const regardeAdminOtherReadersGroup = Group.create({
+    owner: account,
+  });
+  regardeAdminOtherReadersGroup.addMember(regardeProfileWorkerGroup, "admin");
+  regardeAdminOtherReadersGroup.addMember(account, "reader");
+
+  await regardeAdminOtherReadersGroup.$jazz.waitForSync();
 
   const newApp = App.create(
     {
@@ -38,12 +56,25 @@ export const createApp = async (
       createdAt: Date.now(),
       metadata: {},
       webhookSecret: "",
-      payments: {
-        all: ListOfPaymentEvents.create([], { owner: userGroup }),
-        byUser: co
-          .record(z.string(), ListOfPaymentEvents)
-          .create({}, { owner: userGroup }),
-      },
+      payments: co
+        .map({
+          all: co.record(z.string(), z.string()), // prefixedProviderEventUUID -> PaymentEvent.id
+          byUser: co.record(z.string(), co.record(z.string(), z.string())), // JazzAccount.id -> prefixedProviderEventUUID -> PaymentEvent.id
+        })
+        .create(
+          {
+            all: {},
+            byUser: {},
+          },
+          { owner: regardeAdminOtherReadersGroup },
+        ),
+
+      // payments: {
+      //   all: ListOfPaymentEvents.create([], { owner: userGroup }),
+      //   byUser: co
+      //     .record(z.string(), ListOfPaymentEvents)
+      //     .create({}, { owner: userGroup }),
+      // },
     },
     { owner: userGroup },
   );

@@ -37,6 +37,8 @@ export type {
 } from "./registry/worker";
 
 export { RegardeSDK } from "./regardeSDK";
+export { PaymentSchema } from "./regardeSDK";
+export type { TPaymentSchema } from "./regardeSDK";
 
 export { PaymentEvent, ListOfPaymentEvents } from "./paymentEvent";
 export type { TPaymentEvent, TListOfPaymentEvents } from "./paymentEvent";
@@ -49,6 +51,8 @@ export type { TRegardeAuthLoaded } from "./regardeAuth";
 
 export { App } from "./regardeUserApp";
 export type { TApp } from "./regardeUserApp";
+export { AppPaymentsSchema } from "./regardeUserApp";
+export type { TAppPaymentsSchema } from "./regardeUserApp";
 
 export {
   UserHandle,
