@@ -30,8 +30,8 @@ export const initRegardeSDK = async (
           loadAs: account,
         });
 
-      const groupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
-      if (groupLoaded === false) {
+      const isGroupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
+      if (isGroupLoaded === false) {
         throw new Error("Group not available");
       }
 
@@ -127,8 +127,8 @@ export const initRegardeSDK = async (
           loadAs: account,
         });
 
-      const groupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
-      if (groupLoaded === false) {
+      const isGroupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
+      if (isGroupLoaded === false) {
         console.error(
           "[ERROR] No public group found. Check: (1) Network connectivity, (2) Worker account ID is correct: co_zoppoxWWJaHYKPgSgUkuCCXQX21, (3) Jazz network is accessible from your environment",
         );

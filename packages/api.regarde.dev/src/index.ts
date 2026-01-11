@@ -112,6 +112,7 @@ async function main() {
           registry: true,
           reverseRegistry: true,
           reservedNicknames: true,
+          processedProviderEvents: true,
           // TODO: apps will be loaded separately via appRegistry
         },
       },
@@ -322,7 +323,7 @@ async function main() {
       if (!appRegistry.apps.$isLoaded) {
         throw new Error("App registry not fully loaded");
       }
-      return await lemonSqueezyWebhookHandler(appRegistry.apps, worker)(c);
+      return await lemonSqueezyWebhookHandler(loadedWorker)(c);
     } catch (error) {
       console.error("Error in lemonSqueezyWebhookHandler:", error);
       return c.json({ error: "Internal server error" }, 500);

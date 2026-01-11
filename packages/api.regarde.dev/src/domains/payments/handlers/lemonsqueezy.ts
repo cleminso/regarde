@@ -10,6 +10,7 @@ import {
   TPaymentSchema,
   PaymentSchema,
   AppPaymentsSchema,
+  TRegistryWorkerAccountRoot,
 } from "@regarde-dev/core";
 import { Account, ID, Loaded, co } from "jazz-tools";
 
@@ -268,6 +269,7 @@ export const lemonSqueezyWebhookHandler = (
 ) => {
   return async (c: any) => {
     try {
+      console.log("[WEBHOOK DEBUG] Request received, parsing body...");
       // Capture original state for signature verification by extracting headers, raw body, method, path, content-type
       const rawBody = await c.req.text();
       const json = JSON.parse(rawBody);
@@ -275,6 +277,10 @@ export const lemonSqueezyWebhookHandler = (
       let parsed;
       try {
         parsed = LemonSqueezyPayloadSchema.parse(json);
+        console.log(
+          "[WEBHOOK DEBUG] Schema validated, custom_data:",
+          parsed.meta.custom_data,
+        );
       } catch (schemaError: any) {
         console.error("[Webhook] Schema validation failed:", schemaError);
         throw schemaError;
@@ -288,12 +294,21 @@ export const lemonSqueezyWebhookHandler = (
       if (typeof regardeSDKId !== "string") regardeSDKId = undefined;
 
       const appId = parsed.meta.custom_data?.app_id as ID<Account>;
+      console.log(
+        "[WEBHOOK DEBUG] Extracted IDs - jazzAccountId:",
+        jazzAccountId,
+        "regardeSDKId:",
+        regardeSDKId,
+        "appId:",
+        appId,
+      );
 
       if (!appId) {
         return c.json({ error: "Missing App ID" }, 400);
       }
 
       // Need App configuration so load `App` and ensureLoaded `payments` structures
+      console.log("[WEBHOOK DEBUG] Loading App:", appId);
       const appRef = await App.load(appId, {
         resolve: {
           payments: {
@@ -302,12 +317,14 @@ export const lemonSqueezyWebhookHandler = (
           },
         },
       });
+      console.log("[WEBHOOK DEBUG] App loaded, $jazz.id:", appRef.$jazz.id);
 
       if (!appRef.$jazz.id) {
         return c.json({ error: "App not found" }, 404);
       }
 
       // 2. Load App with payments
+      console.log("[WEBHOOK DEBUG] Calling ensureLoaded on App payments...");
       const app = await (appRef as TApp).$jazz.ensureLoaded({
         resolve: {
           payments: {
@@ -316,6 +333,7 @@ export const lemonSqueezyWebhookHandler = (
           },
         },
       });
+      console.log("[WEBHOOK DEBUG] App payments loaded");
 
       // Ensure request come from Lemon Squeezy
       const secretValid =
@@ -323,8 +341,6 @@ export const lemonSqueezyWebhookHandler = (
       if (secretValid === false) {
         return c.json({ error: "App webhookSecret is missing" }, 500);
       }
-
-      const payments = app.payments;
 
       const secret = app.webhookSecret;
 
@@ -353,24 +369,25 @@ export const lemonSqueezyWebhookHandler = (
       }
 
       // Need group for creating `PaymentEvent` CoValue by sharing ownership for `paymentEvents`
+      console.log("[WEBHOOK DEBUG] Loading registry profile worker group...");
       const registryProfileWorkerGroup = await co
         .group()
         .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", { loadAs: worker });
+      console.log("[WEBHOOK DEBUG] Registry profile worker group loaded");
 
       if (!registryProfileWorkerGroup.$isLoaded) {
         return c.json({ error: "Failed to load registry group" }, 500);
       }
 
-      const workerRoot = await worker.$jazz.ensureLoaded({
-        resolve: {
-          root: {
-            processedProviderEvents: true,
-          },
-        },
-      });
+      console.log(
+        "[WEBHOOK DEBUG] Using pre-loaded processedProviderEvents from worker root",
+      );
+      const workerRoot = worker.root as TRegistryWorkerAccountRoot;
+
+      console.log("[WEBHOOK DEBUG] Worker root ready");
 
       // Need to check for duplicate webhook deliveries  against worker deduplication records of processed event IDs
-      const processedProviderEvents = workerRoot.root.processedProviderEvents;
+      const processedProviderEvents = workerRoot.processedProviderEvents;
       const processedProviderEventsLoaded =
         processedProviderEvents !== null &&
         processedProviderEvents !== undefined &&
@@ -384,17 +401,28 @@ export const lemonSqueezyWebhookHandler = (
 
       // If event is not in records create `PaymentEvent` and set it into records
       const prefixedProviderEventUUID = `LS_${parsed.data.attributes.identifier}`;
+      console.log(
+        "[WEBHOOK DEBUG] Prefixed UUID:",
+        prefixedProviderEventUUID,
+        "Checking if already processed...",
+      );
 
       let event: co.loaded<typeof PaymentEvent>;
 
       if (processedProviderEvents[prefixedProviderEventUUID]) {
+        console.log(
+          "[WEBHOOK DEBUG] Event already processed, loading existing PaymentEvent:",
+          processedProviderEvents[prefixedProviderEventUUID],
+        );
         event = (await PaymentEvent.load(
           processedProviderEvents[prefixedProviderEventUUID],
           {
             loadAs: worker,
           },
         )) as co.loaded<typeof PaymentEvent>;
+        console.log("[WEBHOOK DEBUG] Existing PaymentEvent loaded");
       } else {
+        console.log("[WEBHOOK DEBUG] Creating new PaymentEvent...");
         event = PaymentEvent.create(
           {
             amount: command.amount,
@@ -410,23 +438,31 @@ export const lemonSqueezyWebhookHandler = (
           },
           { owner: registryProfileWorkerGroup },
         );
+        console.log("[WEBHOOK DEBUG] PaymentEvent created:", event.$jazz.id);
+
+        console.log("[WEBHOOK DEBUG] Loading user account:", jazzAccountId);
         const userAccount = await co.account().load(jazzAccountId);
 
         if (!userAccount.$isLoaded)
           return c.json({ error: "easy peasy lemon squeezy" }, 500);
 
+        console.log("[WEBHOOK DEBUG] User account loaded, adding members...");
         event.$jazz.owner.addMember(userAccount, "reader");
         event.$jazz.owner.addMember(app.$jazz.owner, "reader");
 
+        console.log("[WEBHOOK DEBUG] Waiting for PaymentEvent sync...");
         await event.$jazz.waitForSync();
 
+        console.log("[WEBHOOK DEBUG] Setting in processedProviderEvents...");
         processedProviderEvents.$jazz.set(
           prefixedProviderEventUUID,
           event.$jazz.id,
         );
         await processedProviderEvents.$jazz.waitForSync();
+        console.log("[WEBHOOK DEBUG] PaymentEvent processed and synced");
       }
 
+      console.log("[WEBHOOK DEBUG] Loading user RegardeSDK:", regardeSDKId);
       const userSDK = await RegardeSDK.load(regardeSDKId, {
         loadAs: worker,
         resolve: {
@@ -438,11 +474,13 @@ export const lemonSqueezyWebhookHandler = (
       });
 
       const userSDKLoaded = userSDK.$isLoaded === true;
+      console.log("[WEBHOOK DEBUG] RegardeSDK loaded?", userSDKLoaded);
       if (userSDKLoaded === false) {
         return c.json({ error: "Failed to load user RegardeSDK" }, 500);
       }
 
       // User Payments
+      console.log("[WEBHOOK DEBUG] Ensuring myPayments loaded...");
       const { myPayments: userPayments } = await userSDK.$jazz.ensureLoaded({
         resolve: {
           myPayments: {
@@ -451,8 +489,10 @@ export const lemonSqueezyWebhookHandler = (
           },
         },
       });
+      console.log("[WEBHOOK DEBUG] MyPayments loaded");
 
       if (userPayments.all.$jazz.has(prefixedProviderEventUUID) === false) {
+        console.log("[WEBHOOK DEBUG] Setting in userPayments.all");
         userPayments.all.$jazz.set(prefixedProviderEventUUID, event.$jazz.id);
         await userPayments.$jazz.waitForSync();
       }
@@ -462,6 +502,7 @@ export const lemonSqueezyWebhookHandler = (
           prefixedProviderEventUUID,
         ) === false
       ) {
+        console.log("[WEBHOOK DEBUG] Setting in userPayments.byApp");
         userPayments.byApp[app.$jazz.id].$jazz.set(
           prefixedProviderEventUUID,
           event.$jazz.id,
@@ -471,14 +512,17 @@ export const lemonSqueezyWebhookHandler = (
       // End user payments
 
       // App Payments
+      console.log("[WEBHOOK DEBUG] Loading app payments...");
       const appPayments = await app.payments.$jazz.ensureLoaded({
         resolve: {
           all: { $each: true },
           byUser: { $each: true },
         },
       });
+      console.log("[WEBHOOK DEBUG] App payments loaded");
 
       if (appPayments.all.$jazz.has(prefixedProviderEventUUID) === false) {
+        console.log("[WEBHOOK DEBUG] Setting in appPayments.all");
         appPayments.all.$jazz.set(prefixedProviderEventUUID, event.$jazz.id);
         await app.$jazz.waitForSync();
       }
@@ -488,13 +532,17 @@ export const lemonSqueezyWebhookHandler = (
           prefixedProviderEventUUID,
         ) === false
       ) {
+        console.log("[WEBHOOK DEBUG] Setting in appPayments.byUser");
         appPayments.byUser[jazzAccountId].$jazz.set(
           prefixedProviderEventUUID,
           event.$jazz.id,
         );
-        await appPayments.$jazz.waitForSync();
+        await app.$jazz.waitForSync();
       }
 
+      console.log(
+        "[WEBHOOK DEBUG] Webhook processing complete, returning success",
+      );
       return c.json({ received: true }, 200);
     } catch (error: any) {
       console.error(
