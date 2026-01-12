@@ -4,7 +4,8 @@ import {
   loadAuthenticatedRegardeSDK,
   getAuthenticationHeaders,
 } from "../authUtils.js";
-import { createApp } from "@regarde-dev/core";
+import { createApp, RegardeAccount } from "@regarde-dev/core";
+import { co } from "jazz-tools";
 
 interface RegisterAppResponse {
   appId?: string;
@@ -45,7 +46,13 @@ export const registerAppTool: ToolConfig = {
 
     try {
       // Use stored credentials from previous login
-      const { regardeSDK, accountID } = await loadAuthenticatedRegardeSDK();
+      const { regardeSDK, account } = await loadAuthenticatedRegardeSDK();
+      if (!account.$isLoaded)
+        throw new Error("Account not loaded after loadAuthenticatedRegardeSDK");
+      if (!account.root.$isLoaded)
+        throw new Error(
+          "Account root not loaded after loadAuthenticatedRegardeSDK",
+        );
 
       console.log(SimpleChalk.green("✓ Authentication valid"));
 
@@ -54,7 +61,8 @@ export const registerAppTool: ToolConfig = {
 
       // Create the app client-side first
       console.log(SimpleChalk.blue("Creating app..."));
-      const app = await createApp(regardeSDK, {
+
+      const app = await createApp(account, {
         name: ctx.args.name,
         description: "",
         paymentProvider: ctx.args.paymentProvider,
@@ -66,7 +74,7 @@ export const registerAppTool: ToolConfig = {
       // Register the existing app with the API
       const payload = {
         appId: app.$jazz.id,
-        jazzAccountId: accountID,
+        jazzAccountId: account.$jazz.id,
       };
 
       // Include authentication headers in API request

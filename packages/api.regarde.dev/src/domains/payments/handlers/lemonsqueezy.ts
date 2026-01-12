@@ -12,7 +12,7 @@ import {
   AppPaymentsSchema,
   TRegistryWorkerAccountRoot,
 } from "@regarde-dev/core";
-import { Account, ID, Loaded, co } from "jazz-tools";
+import { Account, Group, ID, Loaded, co } from "jazz-tools";
 
 // ----------------------------------------------------------------------
 // 1. Source Schemas (Lemon Squeezy Webhook Payload)
@@ -423,6 +423,19 @@ export const lemonSqueezyWebhookHandler = (
         console.log("[WEBHOOK DEBUG] Existing PaymentEvent loaded");
       } else {
         console.log("[WEBHOOK DEBUG] Creating new PaymentEvent...");
+
+        const userAccount = await co.account().load(jazzAccountId);
+
+        if (!userAccount.$isLoaded)
+          return c.json({ error: "easy peasy lemon squeezy" }, 500);
+
+        // Create with worker being owner
+        const paymentOwnerGroup = Group.create();
+        // Assign registry worker as admin
+        paymentOwnerGroup.addMember(registryProfileWorkerGroup, "admin");
+        paymentOwnerGroup.addMember(userAccount, "reader");
+        paymentOwnerGroup.addMember(app.$jazz.owner, "reader");
+
         event = PaymentEvent.create(
           {
             amount: command.amount,
@@ -436,19 +449,9 @@ export const lemonSqueezyWebhookHandler = (
               ...command.metadata,
             },
           },
-          { owner: registryProfileWorkerGroup },
+          { owner: paymentOwnerGroup },
         );
         console.log("[WEBHOOK DEBUG] PaymentEvent created:", event.$jazz.id);
-
-        console.log("[WEBHOOK DEBUG] Loading user account:", jazzAccountId);
-        const userAccount = await co.account().load(jazzAccountId);
-
-        if (!userAccount.$isLoaded)
-          return c.json({ error: "easy peasy lemon squeezy" }, 500);
-
-        console.log("[WEBHOOK DEBUG] User account loaded, adding members...");
-        event.$jazz.owner.addMember(userAccount, "reader");
-        event.$jazz.owner.addMember(app.$jazz.owner, "reader");
 
         console.log("[WEBHOOK DEBUG] Waiting for PaymentEvent sync...");
         await event.$jazz.waitForSync();
@@ -485,7 +488,7 @@ export const lemonSqueezyWebhookHandler = (
         resolve: {
           myPayments: {
             all: { $each: true },
-            byApp: { $each: true },
+            byApp: true,
           },
         },
       });
@@ -497,7 +500,11 @@ export const lemonSqueezyWebhookHandler = (
         await userPayments.$jazz.waitForSync();
       }
 
-      if (
+      if (userPayments.byApp.$jazz.has(app.$jazz.id) === false) {
+        userPayments.byApp.$jazz.set(app.$jazz.id, {
+          prefixedProviderEventUUID: event.$jazz.id,
+        });
+      } else if (
         userPayments.byApp[app.$jazz.id].$jazz.has(
           prefixedProviderEventUUID,
         ) === false
@@ -516,9 +523,15 @@ export const lemonSqueezyWebhookHandler = (
       const appPayments = await app.payments.$jazz.ensureLoaded({
         resolve: {
           all: { $each: true },
-          byUser: { $each: true },
+          byUser: true,
         },
       });
+      const appPaymentsByUser = await appPayments.byUser.$jazz.ensureLoaded({
+        resolve: {
+          $each: true,
+        },
+      });
+
       console.log("[WEBHOOK DEBUG] App payments loaded");
 
       if (appPayments.all.$jazz.has(prefixedProviderEventUUID) === false) {
@@ -527,13 +540,19 @@ export const lemonSqueezyWebhookHandler = (
         await app.$jazz.waitForSync();
       }
 
-      if (
-        appPayments.byUser[jazzAccountId].$jazz.has(
+      if (appPaymentsByUser.$jazz.has(jazzAccountId) === false) {
+        console.log("[WEBHOOK DEBUG] Setting in appPayments.byUser");
+        appPaymentsByUser.$jazz.set(jazzAccountId, {
+          [prefixedProviderEventUUID]: event.$jazz.id,
+        });
+        await app.$jazz.waitForSync();
+      } else if (
+        appPaymentsByUser[jazzAccountId].$jazz.has(
           prefixedProviderEventUUID,
         ) === false
       ) {
         console.log("[WEBHOOK DEBUG] Setting in appPayments.byUser");
-        appPayments.byUser[jazzAccountId].$jazz.set(
+        appPaymentsByUser[jazzAccountId].$jazz.set(
           prefixedProviderEventUUID,
           event.$jazz.id,
         );

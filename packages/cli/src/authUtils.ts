@@ -5,7 +5,7 @@ import { startWorker } from "jazz-tools/worker";
 
 export async function loadAuthenticatedRegardeSDK(): Promise<{
   regardeSDK: co.loaded<typeof RegardeSDK>;
-  accountID: string;
+  account: co.loaded<typeof RegardeAccount>;
 }> {
   const credsStr = await getStoredCredentials();
   if (!credsStr) {
@@ -40,12 +40,18 @@ export async function loadAuthenticatedRegardeSDK(): Promise<{
   const { worker } = await startWorker(workerOptions);
 
   await worker.$jazz.ensureLoaded({
-    resolve: { root: true },
+    resolve: { profile: true, root: true },
   });
+
+  if (!worker.$isLoaded) throw new Error("Account not loaded");
 
   const regardeSDK = await initRegardeSDK(worker);
 
-  return { regardeSDK, accountID: credsAccountID };
+  if (!regardeSDK.$isLoaded) throw new Error("regardSDK not loaded");
+
+  console.log("account", worker);
+
+  return { regardeSDK, account: worker };
 }
 
 export function isAuthenticationValid(

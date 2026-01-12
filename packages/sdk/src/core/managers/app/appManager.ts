@@ -1,4 +1,4 @@
-import { co, z, Loaded, Group } from "jazz-tools";
+import { co, z, Loaded, Group, Account } from "jazz-tools";
 import { App, type TApp } from "#schemas/regardeUserApp";
 import { RegardeSDK } from "#schemas/regardeSDK";
 import { RegardeAccount } from "#schemas/regardeAccount";
@@ -10,21 +10,34 @@ export interface CreateAppParams {
 }
 
 export const createApp = async (
-  regardeSDK: Loaded<typeof RegardeSDK>,
   account: co.loaded<typeof RegardeAccount>,
   appData: CreateAppParams,
 ): Promise<TApp> => {
-  await regardeSDK.$jazz.ensureLoaded({
+  console.log("createApp");
+
+  const { root: accountRoot } = await account.$jazz.ensureLoaded({
     resolve: {
-      myApps: true,
+      root: {
+        "regarde-sdk": true,
+      },
     },
   });
 
-  const myApps = regardeSDK.myApps;
+  const { myApps } = await accountRoot["regarde-sdk"].$jazz.ensureLoaded({
+    resolve: {
+      myApps: { $each: true },
+    },
+  });
+
+  const { "regarde-sdk": regardeSdk } = accountRoot;
+  console.log("Account", account);
+  console.log("myApps", myApps);
+
   const myAppsLoaded = myApps !== null && myApps.$isLoaded === true;
   if (myAppsLoaded === false) {
     throw new Error("RegardeSDK.myApps is not loaded");
   }
+
   const regardeProfileWorkerGroup = await co
     .group()
     .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", {
@@ -35,8 +48,7 @@ export const createApp = async (
   if (groupLoaded === false) {
     throw new Error("Group not available");
   }
-  const userGroup = regardeSDK.$jazz.owner;
-  const ownerAccountId = userGroup.$jazz.id;
+  const userGroup = regardeSdk.$jazz.owner;
 
   const regardeAdminOtherReadersGroup = Group.create({
     owner: account,
@@ -50,7 +62,7 @@ export const createApp = async (
     {
       name: appData.name,
       description: appData.description || "",
-      ownerAccountId,
+      ownerAccountId: account.$jazz.id,
       paymentProvider: appData.paymentProvider,
       isEnabled: false,
       createdAt: Date.now(),

@@ -96,12 +96,6 @@ export const signupTool: ToolConfig = {
           throw new Error("BUG");
         }
 
-        await initRegardeSDK(
-          worker,
-          "ensure",
-          "co_z8XvuCPopRqTxNWbcy8yVKLg9SQ" as ID<CoValue>,
-        );
-
         console.log(
           SimpleChalk.green("✓ Token generated and stored successfully"),
         );
