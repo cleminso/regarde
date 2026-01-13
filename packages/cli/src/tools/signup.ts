@@ -1,15 +1,13 @@
 import { ToolConfig, SimpleChalk } from "@alcyone-labs/arg-parser";
 import { startWorker } from "jazz-tools/worker";
 import {
-  CoValue,
   createJazzContextForNewAccount,
-  ID,
   MockSessionProvider,
 } from "jazz-tools";
 
 import { createWebSocketPeer } from "cojson-transport-ws";
 
-import { initRegardeSDK, RegardeAccount } from "@regarde-dev/core";
+import { RegardeAccount } from "@regarde-dev/core";
 import { authStorage } from "../utils/storage.js";
 
 import { wordlist } from "@scure/bip39/wordlists/english.js";
@@ -25,21 +23,32 @@ export const signupTool: ToolConfig = {
   description: "Create a new Jazz Account and login",
   flags: [],
   handler: async () => {
-    // First-time login flow - get accountID and passphrase
-    console.log(SimpleChalk.blue("Signing you up brother"));
-    console.log(SimpleChalk.blue("Generating credentials..."));
+    console.log(SimpleChalk.blue("Creating your Regarde account..."));
+
+    console.log(SimpleChalk.blue("Generating your passphrase..."));
 
     const passphrase = generateMnemonic(wordlist, 256);
-    console.debug(SimpleChalk.red(`Passphrase: ${passphrase}`));
+
+    // Display passphrase cleanly
+    console.log();
+    console.log(SimpleChalk.grey("────────────────────────────────────────"));
+    console.log(SimpleChalk.white("  YOUR PASSPHRASE"));
+    console.log();
+    console.log(SimpleChalk.white(`  ${passphrase}`));
+    console.log();
+    console.log(
+      SimpleChalk.red(
+        "  IMPORTANT: Save this passphrase now. You cannot recover it!",
+      ),
+    );
+    console.log(SimpleChalk.grey("────────────────────────────────────────"));
+    console.log();
+
+    const seed = mnemonicToEntropy(passphrase, wordlist);
+    const accountSecret = crypto.agentSecretFromSecretSeed(seed);
 
     try {
-      console.log(SimpleChalk.yellow(`Starting...`));
-      const seed = mnemonicToEntropy(passphrase, wordlist);
-
-      // Step 3: Generate credentials from passphrase
-      const accountSecret = crypto.agentSecretFromSecretSeed(seed);
-
-      console.log("accountSecret", accountSecret);
+      console.log(SimpleChalk.blue("Creating your account..."));
 
       const peer = createWebSocketPeer({
         id: "upstream",
@@ -48,8 +57,6 @@ export const signupTool: ToolConfig = {
         ),
         role: "server",
       });
-
-      console.log("peer");
 
       const jazzContext = createJazzContextForNewAccount({
         creationProps: { name: "Regarde user" },
@@ -60,17 +67,15 @@ export const signupTool: ToolConfig = {
         AccountSchema: RegardeAccount,
       });
 
-      console.log("jazzContent");
-
+      // Wait for all data to sync to cloud
       (await jazzContext).account.$jazz.waitForAllCoValuesSync();
-
-      console.log("all synced");
 
       const accountId = (await jazzContext).account.$jazz.id;
 
-      console.log("AccountID (sync'ed):", accountId);
+      console.log(SimpleChalk.blue(`Your Account ID: ${accountId}`));
+      console.log(SimpleChalk.green("✓ Account created successfully"));
 
-      console.log(SimpleChalk.blue("Verifying credentials..."));
+      // Start worker to verify setup and init SDK
       const workerOptions = {
         AccountSchema: RegardeAccount,
         syncServer: "wss://cloud.jazz.tools?apiKey=clem2inso@gmail.com",
@@ -78,69 +83,39 @@ export const signupTool: ToolConfig = {
         accountSecret,
       };
 
+      const { worker } = await startWorker(workerOptions);
+      await worker.$jazz.ensureLoaded({ resolve: { root: true } });
+
+      // Save credentials locally
+      const storedCredentials = {
+        accountID: accountId,
+        accountSecret,
+        passphrase,
+        authMethod: "passphrase",
+      };
+
       try {
-        const { worker } = await startWorker(workerOptions);
-        console.log(SimpleChalk.green("✓ Jazz worker started successfully"));
-
-        // Step 5: Initialize RegardeSDK within the worker context
-        console.log(
-          SimpleChalk.blue("Initializing RegardeSDK and generating token..."),
-        );
-
-        // Wait for worker to be fully loaded before proceeding
-        await worker.$jazz.ensureLoaded({
-          resolve: { root: true },
-        });
-
-        if (!worker.$isLoaded) {
-          throw new Error("BUG");
-        }
-
-        console.log(
-          SimpleChalk.green("✓ Token generated and stored successfully"),
-        );
-        console.log(SimpleChalk.blue("Token expires in 24 hours"));
-
-        // Step 6: Store credentials for future CLI commands
-        const storedCredentials = {
-          accountID: accountId,
-          accountSecret,
-          passphrase,
-          authMethod: "passphrase",
-        };
-
         await authStorage.set(JSON.stringify(storedCredentials));
-
-        console.log(SimpleChalk.green("✓ Login credentials saved locally"));
-        process.exit(0);
-      } catch (workerError) {
-        console.error(
-          SimpleChalk.red("Worker start failed:"),
-          workerError.message,
+        console.log(
+          SimpleChalk.green(
+            "✓ Login credentials saved locally ~/.local/share/regarde/auth.json",
+          ),
         );
-
-        if (workerError.message.includes("accountSecret")) {
-          console.error(
-            SimpleChalk.yellow(
-              "Authentication failed. Please verify your account ID and passphrase.",
-            ),
-          );
-        } else {
-          console.error(
-            SimpleChalk.yellow(
-              "Network error. Please check your connection and try again.",
-            ),
-          );
-        }
-
-        throw workerError;
+      } catch (storageError: unknown) {
+        console.error("Warning: Credentials not saved");
+        console.error("  You will need to re-login next session");
       }
-    } catch (error: any) {
-      console.error(SimpleChalk.red("Login failed:"), error.message);
-      console.error(
-        SimpleChalk.yellow("Please verify your credentials and try again."),
-      );
-      return { success: false, error: error.message };
+
+      process.exit(0);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
+      console.error(SimpleChalk.red("Account creation failed:"), errorMessage);
+      console.error("  Check your network connection");
+      console.error("  Try running 'regarde signup' again");
+
+      return { success: false, error: errorMessage };
     }
   },
 };

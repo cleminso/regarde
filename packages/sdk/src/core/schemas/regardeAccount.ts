@@ -13,7 +13,6 @@ export const RegardeAccount = co
   })
   .withMigration(async (account) => {
     if (!account.$jazz.has("profile")) {
-      console.info("[INFO] Initializing RegardeAccount profile");
       const publicGroup = Group.create({
         owner: account,
       });
@@ -25,12 +24,14 @@ export const RegardeAccount = co
     }
 
     if (!account.$jazz.has("root")) {
-      console.info("[INFO] Initializing RegardeAccount root");
       const regardeSdk = await initRegardeSDK(account, "create");
       account.$jazz.set("root", {
         "regarde-sdk": regardeSdk,
       });
-      console.info("[SUCCESS] RegardeAccount root initialized with RegardeSDK");
+      console.info(
+        "RegardeAccount root initialized with RegardeSDK:",
+        regardeSdk.$jazz.id,
+      );
     }
 
     await account.$jazz.waitForAllCoValuesSync();
@@ -44,29 +45,22 @@ export const RegardeAccount = co
     }
 
     if (!root.$jazz.has("regarde-sdk")) {
-      console.info("[INFO] Creating missing RegardeSDK");
       const regardeSDK = await initRegardeSDK(account, "create");
       root.$jazz.set("regarde-sdk", regardeSDK);
       await account.$jazz.waitForSync();
+      console.info(
+        "[SUCCESS] RegardeSDK initialized and synced:",
+        regardeSDK.$jazz.id,
+      );
     } else {
       let regardeSDK = root["regarde-sdk"] as co.loaded<typeof RegardeSDK>;
 
       if (regardeSDK && regardeSDK.$isLoaded && regardeSDK.version < 2) {
-        console.info("[INFO] Migrating incomplete RegardeSDK");
         regardeSDK = await initRegardeSDK(account, "create");
         root.$jazz.set("regarde-sdk", regardeSDK);
         await account.$jazz.waitForSync();
+        console.info("[SUCCESS] RegardeSDK migrated:", regardeSDK.$jazz.id);
       }
     }
-
-    console.info(
-      `[SUCCESS] RegardeSDK migration completed: `,
-      // @ts-ignore
-      account.root["regarde-sdk"].$jazz.id,
-    );
-    console.info(
-      `[SUCCESS] RegardeAccount migration completed:`,
-      account.$jazz.id,
-    );
   });
 export type TRegardeAccount = co.loaded<typeof RegardeAccount>;

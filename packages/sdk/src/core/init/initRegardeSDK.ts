@@ -96,7 +96,6 @@ export const initRegardeSDK = async (
         },
       );
 
-      console.info("[INFO] RegardeSDK created");
       return newSDK;
     }
 
@@ -193,10 +192,6 @@ export const initRegardeSDK = async (
       root.$jazz.set("regarde-sdk", newSDK);
       await newSDK.$jazz.waitForSync();
       await account.$jazz.waitForSync();
-
-      console.info(
-        "[SUCCESS] RegardeSDK initialized, set in account root, and synced",
-      );
 
       return newSDK;
     }

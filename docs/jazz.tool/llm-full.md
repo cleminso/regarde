@@ -314,7 +314,9 @@ NEXT_PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
 
 Jazz uses Zod for more simple data types (like strings, numbers, booleans), and its own schemas to create collaborative data structures known as CoValues. CoValues are automatically persisted across your devices and the cloud and synced in real-time. Here we're defining a schema made up of both Zod types and CoValues.
 
-Adding a `root` to the user's account gives us a container that can be used to keep a track of all the data a user might need to use the app. The migration runs when the user logs in, and ensures the account is properly set up before we try to use it.
+Adding a `root` to the user's account gives us a container that can be used to keep a track of all the data a user might need to use the app.
+
+The migration runs when the user logs in, and ensures the account is properly set up before we try to use it.
 
 **File name: app/schema.ts**
 
@@ -345,7 +347,7 @@ export const JazzFestAccount = co
   });
 ```
 
-## Add the Jazz Provider
+## Add the Jazz Provider \[!framework=react,svelte\]
 
 Wrap your app with a provider so components can use Jazz.
 
@@ -3581,632 +3583,6 @@ Schemas that are not directly supported by Jazz such as `z.instanceof` are not r
 
 ### Subscriptions & Deep Loading
 
-# Subscriptions & Deep Loading
-
-Jazz's Collaborative Values (such as [CoMaps](/docs/core-concepts/covalues/comaps) or [CoLists](/docs/core-concepts/covalues/colists)) are reactive. You can subscribe to them to automatically receive updates whenever they change, either locally or remotely.
-
-You can also use subscriptions to load CoValues _deeply_ by resolving nested values. You can specify exactly how much data you want to resolve and handle loading states and errors.
-
-You can load and subscribe to CoValues in one of two ways:
-
-- **shallowly** — all of the primitive fields are available (such as strings, numbers, dates), but the references to other CoValues are not loaded
-- **deeply** — some or all of the referenced CoValues have been loaded
-
-**Info: Tip**
-
-Jazz automatically deduplicates loading. If you subscribe to the same CoValue multiple times in your app, Jazz will only fetch it once. That means you don’t need to deeply load a CoValue _just in case_ a child component might need its data, and you don’t have to worry about tracking every possible field your app needs in a top-level query. Instead, pass the CoValue ID to the child component and subscribe there — Jazz will only load what that component actually needs.
-
-## Subscription Hooks
-
-On your front-end, using a subscription hook is the easiest way to manage your subscriptions. The subscription and related clean-up is handled automatically, and you can use your data like any other piece of state in your app.
-
-### Subscribe to CoValues
-
-The `useCoState` hook allows you to reactively subscribe to CoValues in your React components. It will subscribe to updates when the component mounts and unsubscribe when it unmounts, ensuring your UI stays in sync and avoiding memory leaks.
-
-```tsx
-import { useCoState } from "jazz-tools/react";
-
-function ProjectView({ projectId }: { projectId: string }) {
-  // Subscribe to a project and resolve its tasks
-  const project = useCoState(Project, projectId, {
-    resolve: { tasks: { $each: true } }, // Tell Jazz to load each task in the list
-  });
-
-  if (!project.$isLoaded) {
-    switch (project.$jazz.loadingState) {
-      case "unauthorized":
-        return "Project not accessible";
-      case "unavailable":
-        return "Project not found";
-      case "loading":
-        return "Loading project...";
-    }
-  }
-
-  return (
-    <div>
-      <h1>{project.name}</h1>
-      <ul>
-        {project.tasks.map((task) => (
-          <li key={task.$jazz.id}>{task.title}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-```
-
-**Note:** If you don't need to load a CoValue's references, you can choose to load it _shallowly_ by omitting the resolve query.
-
-### Subscribe to the current user's account
-
-`useAccount` is similar to `useCoState`, but it returns the current user's account. You can use this at the top level of your app to subscribe to the current user's [account profile and root](/docs/core-concepts/schemas/accounts-and-migrations#covalues-as-a-graph-of-data-rooted-in-accounts).
-
-```tsx
-import { useAccount } from "jazz-tools/react";
-import { MyAppAccount } from "./schema";
-
-function ProjectList() {
-  const me = useAccount(MyAppAccount, {
-    resolve: { profile: true },
-  });
-
-  if (!me.$isLoaded) {
-    return "Loading...";
-  }
-
-  return (
-    <div>
-      <h1>{me.profile.name}'s projects</h1>
-    </div>
-  );
-}
-```
-
-### Loading States
-
-When you load or subscribe to a CoValue through a hook (or directly), it can be either:
-
-- **Loaded** → The CoValue has been successfully loaded and all its data is available
-- **Not Loaded** → The CoValue is not yet available
-
-You can use the `$isLoaded` field to check whether a CoValue is loaded. For more detailed information about why a CoValue is not loaded, you can check `$jazz.loadingState`:
-
-- `"loading"` → The CoValue is still being fetched
-- `"unauthorized"` → The current user doesn't have permission to access this CoValue
-- `"unavailable"` → The CoValue couldn't be found or an error (e.g. a network timeout) occurred while loading
-
-See the examples above for practical demonstrations of how to handle these three states in your application.
-
-## Deep Loading
-
-When you're working with related CoValues (like tasks in a project), you often need to load nested references as well as the top-level CoValue.
-
-This is particularly the case when working with [CoMaps](/docs/core-concepts/covalues/comaps) that refer to other CoValues or [CoLists](/docs/core-concepts/covalues/colists) of CoValues. You can use `resolve` queries to tell Jazz what data you need to use.
-
-### Using Resolve Queries
-
-A `resolve` query tells Jazz how deeply to load data for your app to use. We can use `true` to tell Jazz to shallowly load the tasks list here. Note that this does _not_ cause the tasks themselves to load, just the CoList that holds the tasks.
-
-```ts
-const Task = co.map({
-  title: z.string(),
-  description: co.plainText(),
-  get subtasks() {
-    return co.list(Task);
-  },
-});
-
-const Project = co.map({
-  name: z.string(),
-  tasks: co.list(Task),
-});
-
-const project = await Project.load(projectId);
-if (!project.$isLoaded) throw new Error("Project not found or not accessible");
-
-// This will be loaded
-project.name; // string
-
-// This *may not be loaded*, and *may not be accessible*
-project.tasks; // MaybeLoaded<ListOfTasks>
-
-const projectWithTasksShallow = await Project.load(projectId, {
-  resolve: {
-    tasks: true,
-  },
-});
-if (!projectWithTasksShallow.$isLoaded)
-  throw new Error("Project not found or not accessible");
-
-// This list of tasks will be shallowly loaded
-projectWithTasksShallow.tasks; // ListOfTasks
-// We can access the properties of the shallowly loaded list
-projectWithTasksShallow.tasks.length; // number
-// This *may not be loaded*, and *may not be accessible*
-projectWithTasksShallow.tasks[0]; // MaybeLoaded<Task>
-```
-
-We can use an `$each` expression to tell Jazz to load the items in a list.
-
-```ts
-const projectWithTasks = await Project.load(projectId, {
-  resolve: {
-    tasks: {
-      $each: true,
-    },
-  },
-});
-if (!projectWithTasks.$isLoaded)
-  throw new Error("Project not found or not accessible");
-
-// The task will be loaded
-projectWithTasks.tasks[0]; // Task
-// Primitive fields are always loaded
-projectWithTasks.tasks[0].title; // string
-// References on the Task may not be loaded
-projectWithTasks.tasks[0].subtasks; // MaybeLoaded<ListOfTasks>
-// CoTexts are CoValues too
-projectWithTasks.tasks[0].description; // MaybeLoaded<CoPlainText>
-```
-
-We can also build a query that _deeply resolves_ to multiple levels:
-
-```ts
-const projectDeep = await Project.load(projectId, {
-  resolve: {
-    tasks: {
-      $each: {
-        subtasks: {
-          $each: true,
-        },
-        description: true,
-      },
-    },
-  },
-});
-if (!projectDeep.$isLoaded)
-  throw new Error("Project not found or not accessible");
-
-// Primitive fields are always loaded
-projectDeep.tasks[0].subtasks[0].title; // string
-
-// The description will be loaded as well
-projectDeep.tasks[0].description; // CoPlainText
-```
-
-**Warning: Always load data explicitly**
-
-If you access a reference that wasn't included in your `resolve` query, you may find that it is already loaded, potentially because some other part of your app has already loaded it. **You should not rely on this**.
-
-Expecting data to be there which is not explicitly included in your `resolve` query can lead to subtle, hard-to-diagnose bugs. Always include every nested CoValue you need to access in your `resolve` query.
-
-### Where To Use Resolve Queries
-
-The syntax for resolve queries is shared throughout Jazz. As well as using them in `load` and `subscribe` method calls, you can pass a resolve query to a front-end hook.
-
-```tsx
-const projectId = "";
-const projectWithTasksShallow = useCoState(Project, projectId, {
-  resolve: {
-    tasks: true,
-  },
-});
-```
-
-You can also specify resolve queries at the schema level, using the `.resolved()` method. These queries will be used when loading CoValues from that schema (if no resolve query is provided by the user) and in types defined with [co.loaded](/docs/core-concepts/subscription-and-loading#type-safety-with-coloaded).
-
-```ts
-const TaskWithDescription = Task.resolved({
-  description: true,
-});
-const ProjectWithTasks = Project.resolved({
-  tasks: {
-    // Use `.resolveQuery` to get the resolve query from a schema and compose it in other queries
-    $each: TaskWithDescription.resolveQuery,
-  },
-});
-
-// .load() will use the resolve query from the schema
-const project = await ProjectWithTasks.load(projectId);
-if (!project.$isLoaded) throw new Error("Project not found or not accessible");
-// Both the tasks and the descriptions are loaded
-project.tasks[0].description; // CoPlainText
-```
-
-## Loading Errors
-
-A load operation will be successful **only** if all references requested (both optional and required) could be successfully loaded. If any reference cannot be loaded, the entire load operation will return a not-loaded CoValue to avoid potential inconsistencies.
-
-```ts
-// If permissions on description are restricted:
-const task = await Task.load(taskId, {
-  resolve: { description: true },
-});
-task.$isLoaded; // false
-task.$jazz.loadingState; // "unauthorized"
-```
-
-This is also true if **any** element of a list is inaccessible, even if all the others can be loaded.
-
-```ts
-// One task in the list has restricted permissions
-const projectWithUnauthorizedTasks = await Project.load(projectId, {
-  resolve: { tasks: { $each: true } },
-});
-
-project.$isLoaded; // false
-project.$jazz.loadingState; // "unauthorized"
-```
-
-Loading will be successful if all requested references are loaded. Non-requested references may or may not be available.
-
-```ts
-// One task in the list has restricted permissions
-const shallowlyLoadedProjectWithUnauthorizedTasks = await Project.load(
-  projectId,
-  {
-    resolve: true,
-  },
-);
-if (!project.$isLoaded) throw new Error("Project not found or not accessible");
-
-// Assuming the user has permissions on the project, this load will succeed, even if the user cannot load one of the tasks in the list
-project.$isLoaded; // true
-// Tasks may not be loaded since we didn't request them
-project.tasks.$isLoaded; // may be false
-```
-
-### Catching loading errors
-
-We can use `$onError` to handle cases where some data you have requested is inaccessible, similar to a `try...catch` block in your query.
-
-For example, in case of a `project` (which the user can access) with three `task` items:
-
-| Task | User can access task? | User can access task.description? |
-| ---- | --------------------- | --------------------------------- |
-| 0    | ✅                    | ✅                                |
-| 1    | ✅                    | ❌                                |
-| 2    | ❌                    | ❌                                |
-
-#### Scenario 1: Skip Inaccessible List Items
-
-If some of your list items may not be accessible, you can skip loading them by specifying `$onError: 'catch'`. Inaccessible items will be not-loaded CoValues, while accessible items load properly.
-
-```ts
-// Inaccessible tasks will not be loaded, but the project will
-const projectWithInaccessibleSkipped = await Project.load(projectId, {
-  resolve: { tasks: { $each: { $onError: "catch" } } },
-});
-
-if (!project.$isLoaded) {
-  throw new Error("Project not found or not accessible");
-}
-
-if (!project.tasks.$isLoaded) {
-  throw new Error("Task List not found or not accessible");
-}
-
-project.tasks[0].$isLoaded; // true
-project.tasks[1].$isLoaded; // true
-project.tasks[2].$isLoaded; // false (caught by $onError)
-```
-
-#### Scenario 2: Handling Inaccessible Nested References
-
-An `$onError` applies only in the block where it's defined. If you need to handle multiple potential levels of error, you can nest `$onError` handlers.
-
-This load will fail, because the `$onError` is defined only for the `task.description`, not for failures in loading the `task` itself.
-
-```ts
-// Inaccessible tasks will not be loaded, but the project will
-const projectWithNestedInaccessibleSkipped = await Project.load(projectId, {
-  resolve: {
-    tasks: {
-      $each: {
-        description: true,
-        $onError: "catch",
-      },
-    },
-  },
-});
-
-if (!project.$isLoaded) {
-  throw new Error("Project not found or not accessible");
-}
-
-project.tasks[0].$isLoaded; // true
-project.tasks[1].$isLoaded; // true
-project.tasks[2].$isLoaded; // false (caught by $onError)
-```
-
-We can fix this by adding handlers at both levels
-
-```ts
-const projectWithMultipleCatches = await Project.load(projectId, {
-  resolve: {
-    tasks: {
-      $each: {
-        description: { $onError: "catch" }, // catch errors loading task descriptions
-        $onError: "catch", // catch errors loading tasks too
-      },
-    },
-  },
-});
-
-project.$isLoaded; // true
-project.tasks[0].$isLoaded; // true
-project.tasks[0].description.$isLoaded; // true
-project.tasks[1].$isLoaded; // true
-project.tasks[1].description.$isLoaded; // false (caught by the inner handler)
-project.tasks[2].$isLoaded; // false (caught by the outer handler)
-```
-
-## Type safety with co.loaded
-
-You can tell your application how deeply your data is loaded by using the `co.loaded` type.
-
-The `co.loaded` type is especially useful when passing data between components, because it allows TypeScript to check at compile time whether data your application depends is properly loaded. The second argument lets you pass a `resolve` query to specify how deeply your data is loaded.
-
-```tsx
-import { co } from "jazz-tools";
-import { Project } from "./schema";
-
-type ProjectWithTasks = co.loaded<
-  typeof Project,
-  {
-    tasks: {
-      $each: true;
-    };
-  }
->;
-
-// In case the project prop isn't loaded as required, TypeScript will warn
-function TaskList({ project }: { project: ProjectWithTasks }) {
-  // TypeScript knows tasks are loaded, so this is type-safe
-  return (
-    <ul>
-      {project.tasks.map((task) => (
-        <li key={task.$jazz.id}>{task.title}</li>
-      ))}
-    </ul>
-  );
-}
-```
-
-You can pass a `resolve` query of any complexity to `co.loaded`.
-
-## Manual subscriptions
-
-If you have a CoValue's ID, you can subscribe to it anywhere in your code using `CoValue.subscribe()`.
-
-**Note:** Manual subscriptions are best suited for vanilla JavaScript — for example in server-side code or tests. Inside front-end components, we recommend using a subscription hook.
-
-```ts
-// Subscribe by ID
-const unsubscribe = Task.subscribe(taskId, {}, (updatedTask) => {
-  console.log("Updated task:", updatedTask);
-});
-
-// Always clean up when finished
-unsubscribe();
-```
-
-You can also subscribe to an existing CoValue instance using the `$jazz.subscribe` method.
-
-```ts
-const myTask = Task.create({
-  title: "My new task",
-});
-
-// Subscribe using $jazz.subscribe
-const unsubscribe = myTask.$jazz.subscribe((updatedTask) => {
-  console.log("Updated task:", updatedTask);
-});
-
-// Always clean up when finished
-unsubscribe();
-```
-
-### Error handling for manual subscriptions
-
-You can also pass `onUnauthorized` and `onUnavailable` handlers as options to your subscription which will run reactively whenever the CoValue you're subscribing to is unavailable, or you do not have the appropriate permissions to read it.
-
-```ts
-const unsubscribe = Task.subscribe(
-  taskId,
-  {
-    onUnauthorized: (err) => console.error(err),
-    onUnavailable: (err) => console.error(err),
-  },
-  (updatedTask) => {
-    console.log("Updated task:", updatedTask);
-  },
-);
-
-// Always clean up when finished
-unsubscribe();
-```
-
-## Selectors \[!framework=react,react-native,react-native-expo\]
-
-Sometimes, you only need to react to changes in specific parts of a CoValue. In those cases, you can provide a `select` function to specify what data you are interested in, and an optional `equalityFn` option to control re-renders.
-
-- `select`: extract the fields you care about
-- `equalityFn`: (optional) control when data should be considered equal
-
-```tsx
-function ProjectViewWithSelector({ projectId }: { projectId: string }) {
-  // Subscribe to a project
-  const project = useCoState(Project, projectId, {
-    resolve: {
-      tasks: true,
-    },
-    select: (project) => {
-      if (!project.$isLoaded)
-        return {
-          loadingState: project.$jazz.loadingState,
-        };
-      return {
-        name: project.name,
-        taskCount: project.tasks.length,
-        loadingState: project.$jazz.loadingState,
-      };
-    },
-    // Only re-render if the name or the number of tasks change
-    equalityFn: (a, b) => {
-      if (a.loadingState !== "loaded" || b.loadingState !== "loaded")
-        return false;
-
-      return a?.name === b?.name && a?.taskCount === b?.taskCount;
-    },
-  });
-
-  switch (project.loadingState) {
-    case "unauthorized":
-      return "Project not accessible";
-    case "unavailable":
-      return "Project not found";
-    case "loading":
-      return "Loading...";
-  }
-
-  return (
-    <div>
-      <h1>{project.name}</h1>
-      <small>{project.taskCount} task(s)</small>
-    </div>
-  );
-}
-```
-
-By default, the return values of the select function will be compared using `Object.is`, but you can use the `equalityFn` to add your own logic.
-
-You can also use `useAccount` in the same way, to subscribe to only the changes in a user's account you are interested in.
-
-```tsx
-import { useAccount } from "jazz-tools/react";
-
-function ProfileName() {
-  // Only re-renders when the profile name changes
-  const profileName = useAccount(MyAppAccount, {
-    resolve: {
-      profile: true,
-    },
-    select: (account) =>
-      account.$isLoaded ? account.profile.name : "Loading...",
-  });
-
-  return <div>{profileName}</div>;
-}
-```
-
-### Avoiding Expensive Selectors
-
-Selector functions optimise re-renders by only updating React state if the underlying CoValue has changed in a way that you care about.
-
-However, the selector function itself still runs on every CoValue update, even if your `equalityFn` returns `true` and your component does not re-render. Because of this, you should **avoid doing expensive computation inside a selector**.
-
-For expensive operations, use a lightweight selector which only tracks the minimum necessary to identify when the dependencies change, and run the expensive operations separately, wrapped in a `useMemo` hook.
-
-This way, React can [batch state updates efficiently](https://react.dev/learn/queueing-a-series-of-state-updates) and only recompute the expensive memoised operation if the dependencies have changed.
-
-```tsx
-function ProjectViewWithExpensiveOperations({
-  projectId,
-}: {
-  projectId: string;
-}) {
-  const project = useCoState(Project, projectId, {
-    resolve: {
-      tasks: {
-        $each: true,
-      },
-    },
-    select: (project) => {
-      if (!project.$isLoaded)
-        return {
-          loadingState: project.$jazz.loadingState,
-          tasks: [],
-          taskIds: [],
-        };
-      return {
-        name: project.name,
-        tasks: project.tasks,
-        loadingState: project.$jazz.loadingState,
-      };
-    },
-    equalityFn: (a, b) => {
-      if (a.loadingState !== "loaded" || b.loadingState !== "loaded")
-        return false;
-      if (a.name !== b.name) return false;
-      if (a.tasks.length !== b.tasks.length) return false;
-      const aTaskIds = new Set(a.tasks.map((t) => t.$jazz.id));
-      return b.tasks.every((t) => aTaskIds.has(t.$jazz.id));
-    },
-  });
-
-  const tasksAfterExpensiveComputations = useMemo(() => {
-    const sortedTasks = project.tasks.slice(0).sort(someExpensiveSortFunction);
-    const groupedTasks = sortedTasks.reduce(someExpensiveReduceFunction, {});
-    return groupedTasks;
-  }, [project.tasks]);
-
-  switch (project.loadingState) {
-    case "unauthorized":
-      return "Project not accessible";
-    case "unavailable":
-      return "Project not found";
-    case "loading":
-      return "Loading...";
-  }
-
-  return (
-    <div>
-      <h1>{project.name}</h1>
-      <GroupedTaskDisplay tasks={tasksAfterExpensiveComputations} />
-    </div>
-  );
-}
-```
-
-## Ensuring data is loaded
-
-In most cases, you'll have specified the depth of data you need in a `resolve` query when you first load or subscribe to a CoValue. However, sometimes you might have a CoValue instance which is not loaded deeply enough, or you're not sure how deeply loaded it is. In this case, you need to make sure data is loaded before proceeding with an operation. The `$jazz.ensureLoaded` method lets you guarantee that a CoValue and its referenced data are loaded to a specific depth (i.e. with nested references resolved):
-
-```ts
-async function completeAllTasks(projectId: string) {
-  // Load the project
-  const project = await Project.load(projectId, { resolve: true });
-  if (!project.$isLoaded) return;
-
-  // Ensure tasks are deeply loaded
-  const loadedProject = await project.$jazz.ensureLoaded({
-    resolve: {
-      tasks: {
-        $each: true,
-      },
-    },
-  });
-
-  // Now we can safely access and modify tasks
-  loadedProject.tasks.forEach((task, i) => {
-    task.$jazz.set("title", `Task ${i}`);
-  });
-}
-```
-
-This can be useful if you have a shallowly loaded CoValue instance, and would like to load its references deeply.
-
-## Best practices
-
-- Load exactly what you need. Start shallow and add your nested references with care.
-- Always check `$isLoaded` before accessing CoValue data. Use `$jazz.loadingState` for more detailed information.
-- Use `$onError: 'catch'` at each level of your query that can fail to handle inaccessible data gracefully.
-- Use selectors and an `equalityFn` to prevent unnecessary re-renders.
-- Never rely on data being present unless it is requested in your `resolve` query.
-
 ### Sync and storage
 
 # Sync and storage: Jazz Cloud or self-hosted
@@ -4253,7 +3629,7 @@ Jazz Cloud will
 
 - Jazz Cloud is free during the public alpha, with no strict usage limits
 - We plan to keep a free tier, so you'll always be able to get started with zero setup
-- See [Jazz Cloud pricing](/cloud#pricing) for more details
+- See [Jazz Cloud pricing](/pricing) for more details
 
 ## Self-hosting your sync server
 
@@ -4329,7 +3705,7 @@ This guide will show you how you can access your data on multiple devices by sig
 
 **Info:**
 
-If you haven't gone through the [front-end Quickstart](/docs/quickstart), you might find this guide a bit confusing. If you're looking for a quick reference, you might find [this page](/docs/key-features/authentication/overview) or our [Passkey Auth example app](https://github.com/gardencmp/jazz/tree/main/starters/react-passkey-auth) more helpful!
+If you haven't gone through the [front-end Quickstart](/docs/quickstart), you might find this guide a bit confusing, as it continues from there. If you're looking for a quick reference, you might find [this page](/docs/key-features/authentication/overview) or our [Passkey Auth example app](https://github.com/gardencmp/jazz/tree/main/starters/react-passkey-auth) more helpful!
 
 ## Add passkey authentication
 
@@ -5120,8 +4496,6 @@ export const betterAuthClient = createAuthClient({
 });
 ```
 
-Wrap your app with the `AuthProvider`, passing the `betterAuthClient` instance:
-
 ```ts
 "use client";
 
@@ -5141,7 +4515,7 @@ export function App() {
 
 **Warning: Important**
 
-The AuthProvider component uses the `better-auth/client` package, not `better-auth/react`. To verify the authentication state in your app, see [Authentication states](#authentication-states).
+The AuthProvider component uses the `better-auth/client` package. To verify the authentication state in your app, see [Authentication states](#authentication-states).
 
 ## Authentication methods
 
@@ -5209,7 +4583,7 @@ export const authWithHooks = betterAuth({
 
 # Jazz database adapter for Better Auth
 
-The package `jazz-tools/better-auth/database-adapter` is a database adapter for Better Auth based on Jazz. Better Auth's data will be stored in CoValues encrypted by [Server Worker](/docs/server-side/setup), synced on our distributed [cloud infrastructure](/cloud).
+The package `jazz-tools/better-auth/database-adapter` is a database adapter for Better Auth based on Jazz. Better Auth's data will be stored in CoValues encrypted by [Server Worker](/docs/server-side/setup), synced on our distributed [cloud infrastructure](https://dashboard.jazz.tools).
 
 ## Getting started
 
@@ -5851,8 +5225,6 @@ export function Festival({ id }: { id?: string }) {
 ```
 
 ### Update our New Band component
-
-We'll also update our `NewBand` component so that it can take a prop for the festival ID, which will make it reusable on our home page and the new festival page.
 
 **File name: app/components/NewBand.tsx**
 
@@ -6671,6 +6043,14 @@ console.log(new Date(task.$jazz.createdAt));
 console.log(new Date(task.$jazz.lastUpdatedAt));
 ```
 
+### Created By
+
+To show who created the value, use the `$jazz.createdBy` getter. This will return the ID of the user who created the value as a string.
+
+```tsx
+console.log(task.$jazz.createdBy);
+```
+
 ## Requirements
 
 - CoValues must be loaded to access history (see [Subscription & Loading](/docs/core-concepts/subscription-and-loading))
@@ -6698,14 +6078,14 @@ This quickstart guide will take you from an empty project to a server worker whi
 - You'll get the most out of this guide if you complete [the frontend quickstart guide](/docs/quickstart) first.
 - If you've already completed the frontend quickstart, you can skip straight to [extending your schema](#define-your-schema).
 
-## Create your Next.js App
+## Create Your App
 
 We'll be using Next.js for simplicity, but you can use any framework you like.
 
 You can accept the defaults for all the questions, or customise the project as you like.
 
 ```sh
-npx create-next-app@latest --typescript jazzfest
+npm create-next-app@latest --typescript jazzfest
 cd jazzfest
 
 ```
@@ -9308,6 +8688,7 @@ import { RouterProvider, createHashRouter } from "react-router-dom";
 import { HomePage } from "./3_HomePage";
 import { useMediaPlayer } from "./5_useMediaPlayer";
 import { InvitePage } from "./6_InvitePage";
+import { SettingsPage } from "./7_SettingsPage";
 import { WelcomeScreen } from "./components/WelcomeScreen";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import "./index.css";
@@ -9360,6 +8741,14 @@ function AppContent({
       element: (
         <ErrorBoundary>
           <HomePage mediaPlayer={mediaPlayer} />
+        </ErrorBoundary>
+      ),
+    },
+    {
+      path: "/settings",
+      element: (
+        <ErrorBoundary>
+          <SettingsPage mediaPlayer={mediaPlayer} />
         </ErrorBoundary>
       ),
     },
@@ -9427,9 +8816,8 @@ import { MediaPlayer } from "./5_useMediaPlayer";
 import { FileUploadButton } from "./components/FileUploadButton";
 import { MusicTrackRow } from "./components/MusicTrackRow";
 import { PlayerControls } from "./components/PlayerControls";
-import { EditPlaylistModal } from "./components/EditPlaylistModal";
 import { PlaylistMembers } from "./components/PlaylistMembers";
-import { MemberAccessModal } from "./components/MemberAccessModal";
+import { EditPlaylistDialog } from "./components/EditPlaylistDialog";
 import { AddTracksDialog } from "./components/AddTracksDialog";
 import { PlaylistEmptyState } from "./components/PlaylistEmptyState";
 import { SidePanel } from "./components/SidePanel";
@@ -9438,12 +8826,18 @@ import { SidebarInset, SidebarTrigger } from "./components/ui/sidebar";
 import { usePlayState } from "./lib/audio/usePlayState";
 import { useState } from "react";
 import { useSuspenseAccount, useSuspenseCoState } from "jazz-tools/react-core";
+import { useIsMobile } from "./hooks/use-mobile";
+import { Pencil } from "lucide-react";
 
 export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
   const playState = usePlayState();
   const isPlaying = playState.value === "play";
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
+  const [isEditPlaylistDialogOpen, setIsEditPlaylistDialogOpen] =
+    useState(false);
+  const [
+    editPlaylistDialogDefaultSection,
+    setEditPlaylistDialogDefaultSection,
+  ] = useState<"details" | "members">("members");
   const [isAddTracksModalOpen, setIsAddTracksModalOpen] = useState(false);
 
   async function handleFileLoad(files: FileList) {
@@ -9458,6 +8852,7 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
   const playlistId = useSuspenseAccount(MusicaAccount, {
     select: (me) => params.playlistId ?? me.root.$jazz.refs.rootPlaylist.id,
   });
+  const isMobile = useIsMobile();
 
   const playlist = useSuspenseCoState(PlaylistWithTracks, playlistId);
 
@@ -9476,11 +8871,13 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
   });
 
   const handlePlaylistShareClick = () => {
-    setIsMembersModalOpen(true);
+    setEditPlaylistDialogDefaultSection("members");
+    setIsEditPlaylistDialogOpen(true);
   };
 
   const handleEditClick = () => {
-    setIsEditModalOpen(true);
+    setEditPlaylistDialogDefaultSection("details");
+    setIsEditPlaylistDialogOpen(true);
   };
 
   return (
@@ -9494,13 +8891,38 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
             {isRootPlaylist ? (
               <h1 className="text-2xl font-bold text-blue-800">All tracks</h1>
             ) : (
-              <div className="flex items-center space-x-4">
-                <h1 className="text-2xl font-bold text-blue-800">
-                  {playlist.title}
-                </h1>
+              <div className="group flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  <h1 className="text-2xl font-bold text-blue-800">
+                    {canEdit ? (
+                      <button
+                        type="button"
+                        onClick={handleEditClick}
+                        className="text-left hover:underline focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+                        aria-label="Edit playlist title"
+                      >
+                        {playlist.title}
+                      </button>
+                    ) : (
+                      playlist.title
+                    )}
+                  </h1>
+                  {canEdit && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Edit playlist"
+                      onClick={handleEditClick}
+                      className={`text-blue-800`}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
                 <PlaylistMembers
                   memberIds={membersIds}
-                  onClick={() => setIsMembersModalOpen(true)}
+                  onClick={handlePlaylistShareClick}
                 />
               </div>
             )}
@@ -9519,12 +8941,7 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
                         onClick={() => setIsAddTracksModalOpen(true)}
                         variant="outline"
                       >
-                        Add tracks from library
-                      </Button>
-                    )}
-                    {canEdit && (
-                      <Button onClick={handleEditClick} variant="outline">
-                        Edit
+                        {isMobile ? "Add tracks" : "Add tracks from library"}
                       </Button>
                     )}
                     {canManage && (
@@ -9568,20 +8985,15 @@ export function HomePage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
         <PlayerControls mediaPlayer={mediaPlayer} />
       </div>
 
-      {/* Playlist Title Edit Modal */}
-      <EditPlaylistModal
-        playlistId={playlistId}
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-      />
-
-      {/* Members Management Modal */}
-      <MemberAccessModal
-        isOpen={isMembersModalOpen}
-        onOpenChange={setIsMembersModalOpen}
-        playlist={playlist}
-      />
-
+      {/* Playlist Edit / Members Dialog */}
+      {isEditPlaylistDialogOpen && (
+        <EditPlaylistDialog
+          isOpen={isEditPlaylistDialogOpen}
+          onOpenChange={setIsEditPlaylistDialogOpen}
+          playlistId={playlistId}
+          defaultSection={editPlaylistDialogDefaultSection}
+        />
+      )}
       {/* Add Tracks from Root Modal */}
       <AddTracksDialog
         isOpen={isAddTracksModalOpen}
@@ -9965,6 +9377,66 @@ export function InvitePage() {
   });
 
   return <p>Accepting invite....</p>;
+}
+```
+
+### 7_SettingsPage.tsx
+
+```tsx
+import type { MediaPlayer } from "@/5_useMediaPlayer";
+import { PlayerControls } from "@/components/PlayerControls";
+import { ProfileForm } from "@/components/ProfileForm";
+import { SidePanel } from "@/components/SidePanel";
+import { Separator } from "@/components/ui/separator";
+import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { toast } from "@/hooks/use-toast";
+
+export function SettingsPage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
+  return (
+    <SidebarInset className="flex flex-col h-screen text-gray-800">
+      <div className="flex flex-1 overflow-hidden">
+        <SidePanel />
+        <main className="flex-1 px-2 py-4 md:px-6 overflow-y-auto overflow-x-hidden relative sm:h-[calc(100vh-80px)] bg-white h-[calc(100vh-165px)]">
+          <SidebarTrigger className="md:hidden" />
+
+          <div className="pl-1 md:pl-10 pr-2 md:pr-0 mt-2 md:mt-0 w-full">
+            <h1 className="text-2xl font-bold text-blue-800">
+              Profile settings
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Update your profile information and manage your account.
+            </p>
+
+            <Separator className="my-6" />
+
+            <div className="max-w-2xl space-y-8">
+              <section className="space-y-3">
+                <h2 className="text-lg font-semibold text-gray-900">Profile</h2>
+                <p className="text-sm text-gray-600">
+                  Update your profile name and avatar.
+                </p>
+
+                <ProfileForm
+                  className="max-w-md"
+                  submitButtonText="Save"
+                  onSubmit={() => {
+                    toast({
+                      title: "Saved",
+                      description: "Your profile has been updated.",
+                    });
+                  }}
+                />
+              </section>
+
+              <Separator />
+            </div>
+          </div>
+        </main>
+
+        <PlayerControls mediaPlayer={mediaPlayer} />
+      </div>
+    </SidebarInset>
+  );
 }
 ```
 
@@ -10506,111 +9978,331 @@ export function CreatePlaylistModal({
 }
 ```
 
-### components/EditPlaylistModal.tsx
+### components/EditPlaylistDialog.tsx
 
 ```tsx
-import { Playlist } from "@/1_schema";
-import { updatePlaylistTitle } from "@/4_actions";
-import { useCoState } from "jazz-tools/react";
-import { ChangeEvent, useState, useEffect } from "react";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Account, Group } from "jazz-tools";
+import { createInviteLink, useSuspenseCoState } from "jazz-tools/react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { Crown, Edit, Eye, Link, UserPlus, Users } from "lucide-react";
+import { Playlist } from "@/1_schema";
+import { updatePlaylistTitle } from "@/4_actions";
+import { useMemberChanges } from "@/hooks/useMemberChanges";
+import { EditPlaylistMemberRow } from "./edit-playlist/EditPlaylistMemberRow";
 
-interface EditPlaylistModalProps {
-  playlistId: string | undefined;
+type EditPlaylistDialogSection = "details" | "members";
+type MemberRole = "reader" | "writer" | "manager";
+
+interface EditPlaylistDialogProps {
   isOpen: boolean;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
+  playlistId: string;
+  defaultSection?: EditPlaylistDialogSection;
 }
 
-export function EditPlaylistModal({
-  playlistId,
-  isOpen,
-  onClose,
-}: EditPlaylistModalProps) {
-  const playlist = useCoState(Playlist, playlistId);
-  const [localPlaylistTitle, setLocalPlaylistTitle] = useState("");
+export function EditPlaylistDialog(props: EditPlaylistDialogProps) {
+  const playlist = useSuspenseCoState(Playlist, props.playlistId);
+  const group = useSuspenseCoState(Group, playlist.$jazz.owner.$jazz.id);
 
-  // Reset local title when modal opens or playlist changes
-  useEffect(() => {
-    if (isOpen && playlist.$isLoaded) {
-      setLocalPlaylistTitle(playlist.title);
+  const { toast } = useToast();
+
+  const [activeSection, setActiveSection] = useState<EditPlaylistDialogSection>(
+    props.defaultSection ?? "members",
+  );
+  const [selectedRole, setSelectedRole] = useState<
+    "reader" | "writer" | "manager"
+  >("reader");
+  const [localTitle, setLocalTitle] = useState(playlist.title);
+  const memberChanges = useMemberChanges();
+
+  const members = group.members.map((m) => m.account);
+  const isManager = group.myRole() === "admin" || group.myRole() === "manager";
+
+  const handleRoleChange = (
+    member: Account,
+    currentRole: string | undefined,
+    newRole: MemberRole,
+  ) => {
+    if (!isManager) return;
+    const memberId = member.$jazz.id;
+    memberChanges.stageRoleChange({ memberId, currentRole, newRole });
+  };
+
+  const handleRemoveMemberToggle = (member: Account) => {
+    if (!isManager) return;
+    const memberId = member.$jazz.id;
+    memberChanges.toggleRemove(memberId);
+  };
+
+  const handleGetInviteLink = async () => {
+    if (!isManager) return;
+    const inviteLink = createInviteLink(playlist, selectedRole);
+    await navigator.clipboard.writeText(inviteLink);
+
+    toast({
+      title: "Invite link copied",
+      description: `Invite link for ${selectedRole} role copied to clipboard.`,
+    });
+  };
+
+  const handleSaveTitle = () => {
+    const nextTitle = localTitle.trim();
+    if (!nextTitle) return;
+    updatePlaylistTitle(playlist, nextTitle);
+    props.onOpenChange(false);
+  };
+
+  const handleDiscardMemberChanges = () => {
+    memberChanges.discard();
+  };
+
+  const handleApplyMemberChanges = async () => {
+    if (!isManager || !memberChanges.hasPendingChanges) return;
+    await memberChanges.apply({ group, members });
+    toast({ title: "Member changes applied" });
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      memberChanges.reset();
     }
-  }, [isOpen, playlist]);
-
-  function handleTitleChange(evt: ChangeEvent<HTMLInputElement>) {
-    setLocalPlaylistTitle(evt.target.value);
-  }
-
-  function handleSave() {
-    if (playlist.$isLoaded && localPlaylistTitle.trim()) {
-      updatePlaylistTitle(playlist, localPlaylistTitle.trim());
-      onClose();
-    }
-  }
-
-  function handleCancel() {
-    setLocalPlaylistTitle(playlist.$isLoaded ? playlist.title : "");
-    onClose();
-  }
-
-  function handleKeyDown(evt: React.KeyboardEvent) {
-    if (evt.key === "Enter") {
-      handleSave();
-    } else if (evt.key === "Escape") {
-      handleCancel();
-    }
-  }
-
-  if (!isOpen) return null;
+    props.onOpenChange(open);
+  };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Edit Playlist
-          </h2>
-        </div>
+    <Dialog open={props.isOpen} onOpenChange={handleOpenChange}>
+      <DialogContent className="w-[calc(100vw-1rem)] sm:max-w-2xl h-[calc(100vh-2rem)] sm:h-auto max-h-[calc(100vh-2rem)] sm:max-h-[80vh] flex flex-col overflow-hidden">
+        <DialogHeader className="px-6 pt-6">
+          <DialogTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            Edit playlist
+          </DialogTitle>
+          <DialogDescription>
+            Update playlist details and manage member access.
+          </DialogDescription>
+        </DialogHeader>
 
-        <div className="space-y-4">
-          <div>
-            <Label
-              htmlFor="playlist-title"
-              className="text-sm font-medium text-gray-700"
-            >
-              Playlist Title
-            </Label>
-            <Input
-              id="playlist-title"
-              value={localPlaylistTitle}
-              onChange={handleTitleChange}
-              onKeyDown={handleKeyDown}
-              placeholder="Enter playlist title"
-              className="mt-1"
-              autoFocus
-            />
-          </div>
-
-          <div className="flex justify-end space-x-3 pt-4">
+        <div className="px-6 pt-4">
+          <div className="flex flex-wrap gap-2">
             <Button
-              variant="outline"
-              onClick={handleCancel}
-              className="px-4 py-2"
+              type="button"
+              size="sm"
+              variant={activeSection === "details" ? "default" : "outline"}
+              onClick={() => setActiveSection("details")}
             >
-              Cancel
+              Details
             </Button>
             <Button
-              onClick={handleSave}
-              disabled={!localPlaylistTitle.trim()}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+              type="button"
+              size="sm"
+              variant={activeSection === "members" ? "default" : "outline"}
+              onClick={() => setActiveSection("members")}
             >
-              Save Changes
+              Members
             </Button>
           </div>
         </div>
-      </div>
-    </div>
+
+        <div className="flex-1 overflow-y-auto min-h-0 px-6 pb-6 pt-4">
+          {activeSection === "details" ? (
+            <section className="space-y-4">
+              <div>
+                <Label htmlFor="playlist-title" className="text-sm font-medium">
+                  Playlist title
+                </Label>
+                <Input
+                  id="playlist-title"
+                  value={localTitle}
+                  onChange={(e) => setLocalTitle(e.target.value)}
+                  placeholder="Enter playlist title"
+                  className="mt-1"
+                  autoFocus
+                  onKeyDown={(evt) => {
+                    if (evt.key === "Enter") handleSaveTitle();
+                    if (evt.key === "Escape") props.onOpenChange(false);
+                  }}
+                />
+              </div>
+            </section>
+          ) : (
+            <div className="space-y-4">
+              {members.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  No members found in this playlist.
+                </div>
+              ) : (
+                <section className="space-y-3">
+                  {members.map((member) => {
+                    const memberId = member.$jazz.id;
+                    const currentRole = group.getRoleOf(memberId);
+                    const pendingChange =
+                      memberChanges.pendingByMemberId[memberId];
+                    const isPendingRemoval = pendingChange?.type === "remove";
+                    const effectiveRole =
+                      pendingChange?.type === "setRole"
+                        ? pendingChange.role
+                        : currentRole;
+
+                    return (
+                      <EditPlaylistMemberRow
+                        key={memberId}
+                        member={member}
+                        group={group}
+                        effectiveRole={effectiveRole}
+                        isPendingRemoval={isPendingRemoval}
+                        onRoleChange={(newRole) =>
+                          handleRoleChange(member, currentRole, newRole)
+                        }
+                        onToggleRemove={() => handleRemoveMemberToggle(member)}
+                      />
+                    );
+                  })}
+                </section>
+              )}
+
+              {isManager && (
+                <section className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 mt-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                    <div className="p-3 bg-blue-50 rounded-full w-fit">
+                      <UserPlus className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900 mb-1">
+                        Invite new members
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Generate an invite link to add new members to this
+                        playlist.
+                      </p>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div
+                          className={`grid gap-2 w-full sm:w-auto ${
+                            group.myRole() === "admin"
+                              ? "grid-cols-3"
+                              : "grid-cols-2"
+                          }`}
+                        >
+                          <Button
+                            variant={
+                              selectedRole === "reader" ? "default" : "outline"
+                            }
+                            size="sm"
+                            onClick={() => setSelectedRole("reader")}
+                            className="w-full justify-center"
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            Reader
+                          </Button>
+                          <Button
+                            variant={
+                              selectedRole === "writer" ? "default" : "outline"
+                            }
+                            size="sm"
+                            onClick={() => setSelectedRole("writer")}
+                            className="w-full justify-center"
+                          >
+                            <Edit className="w-4 h-4 mr-1" />
+                            Writer
+                          </Button>
+                          {group.myRole() === "admin" && (
+                            <Button
+                              variant={
+                                selectedRole === "manager"
+                                  ? "default"
+                                  : "outline"
+                              }
+                              size="sm"
+                              onClick={() => setSelectedRole("manager")}
+                              className="w-full justify-center"
+                            >
+                              <Crown className="w-4 h-4 mr-1" />
+                              Manager
+                            </Button>
+                          )}
+                        </div>
+                        <Button
+                          onClick={handleGetInviteLink}
+                          className="gap-2 w-full sm:w-auto"
+                        >
+                          <Link className="w-4 h-4" />
+                          Get Invite Link
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              )}
+            </div>
+          )}
+        </div>
+
+        <DialogFooter className="px-6 py-4 border-t flex flex-col sm:flex-row gap-2">
+          {activeSection === "details" ? (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => props.onOpenChange(false)}
+                className="w-full sm:w-auto"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleSaveTitle}
+                disabled={!localTitle.trim()}
+                className="w-full sm:w-auto"
+              >
+                Save
+              </Button>
+            </>
+          ) : (
+            <>
+              {isManager && memberChanges.hasPendingChanges ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleDiscardMemberChanges}
+                    className="w-full sm:w-auto"
+                  >
+                    Discard
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleApplyMemberChanges}
+                    className="w-full sm:w-auto"
+                  >
+                    Apply changes
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => props.onOpenChange(false)}
+                  className="w-full sm:w-auto"
+                >
+                  Close
+                </Button>
+              )}
+            </>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 ```
@@ -10618,12 +10310,15 @@ export function EditPlaylistModal({
 ### components/ErrorBoundary.tsx
 
 ```tsx
+import { getJazzErrorType } from "jazz-tools";
+import { CoValueErrorState } from "node_modules/jazz-tools/dist/tools/internal";
 import React from "react";
 
 interface ErrorBoundaryState {
   hasError: boolean;
   isAuthorizationError?: boolean;
   error?: Error;
+  errorType?: CoValueErrorState | "unknown";
 }
 
 interface ErrorBoundaryProps {
@@ -10641,11 +10336,7 @@ export class ErrorBoundary extends React.Component<
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    if (error.message.includes("Jazz Authorization Error")) {
-      return { hasError: true, isAuthorizationError: true, error };
-    }
-
-    return { hasError: true, error };
+    return { hasError: true, error, errorType: getJazzErrorType(error) };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
@@ -10658,12 +10349,32 @@ export class ErrorBoundary extends React.Component<
         return this.props.fallback(this.state.error);
       }
 
-      if (this.state.isAuthorizationError) {
+      if (this.state.errorType === "unauthorized") {
         return (
           <div className="flex min-h-screen items-center justify-center p-8">
             <div className="max-w-2xl space-y-4">
               <h1 className="text-2xl font-semibold text-red-600">
                 You are not authorized to access this page
+              </h1>
+              <button
+                onClick={() => {
+                  window.location.href = "/";
+                }}
+                className="mt-4 rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
+              >
+                Go to home page
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      if (this.state.errorType === "unavailable") {
+        return (
+          <div className="flex min-h-screen items-center justify-center p-8">
+            <div className="max-w-2xl space-y-4">
+              <h1 className="text-2xl font-semibold text-red-600">
+                The page you are trying to access is unavailable
               </h1>
               <button
                 onClick={() => {
@@ -10880,324 +10591,6 @@ function getSizePx(size: "sm" | "md" | "lg"): number {
     default:
       return 32;
   }
-}
-```
-
-### components/MemberAccessModal.tsx
-
-```tsx
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { Account, Group } from "jazz-tools";
-import { useCoState, createInviteLink } from "jazz-tools/react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import {
-  User,
-  Crown,
-  Edit,
-  Eye,
-  Trash2,
-  Users,
-  UserPlus,
-  Link,
-} from "lucide-react";
-import { MusicaAccount, Playlist } from "@/1_schema";
-import { Member } from "./Member";
-
-interface MemberAccessModalProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  playlist: Playlist;
-}
-
-export function MemberAccessModal(props: MemberAccessModalProps) {
-  const group = useCoState(Group, props.playlist.$jazz.owner.$jazz.id);
-  const [selectedRole, setSelectedRole] = useState<
-    "reader" | "writer" | "manager"
-  >("reader");
-  const { toast } = useToast();
-
-  if (!group.$isLoaded) return null;
-
-  // Get all members from the group
-  const members = group.members.map((m) => m.account);
-  const currentUser = MusicaAccount.getMe();
-  const isManager = group.myRole() === "admin" || group.myRole() === "manager";
-
-  const handleRoleChange = async (
-    member: Account,
-    newRole: "reader" | "writer" | "manager",
-  ) => {
-    if (!isManager) return;
-
-    group.addMember(member, newRole);
-  };
-
-  const handleRemoveMember = async (member: Account) => {
-    if (!isManager) return;
-
-    group.removeMember(member);
-  };
-
-  const getRoleIcon = (role: string | undefined) => {
-    switch (role) {
-      case "admin":
-        return <Crown className="w-4 h-4 text-yellow-600" />;
-      case "writer":
-        return <Edit className="w-4 h-4 text-blue-600" />;
-      case "reader":
-        return <Eye className="w-4 h-4 text-green-600" />;
-      default:
-        return <User className="w-4 h-4 text-gray-600" />;
-    }
-  };
-
-  const getRoleLabel = (role: string | undefined) => {
-    switch (role) {
-      case "admin":
-        return "Admin";
-      case "manager":
-        return "Manager";
-      case "writer":
-        return "Writer";
-      case "reader":
-        return "Reader";
-      default:
-        return "No Access";
-    }
-  };
-
-  const getRoleColor = (role: string | undefined) => {
-    switch (role) {
-      case "admin":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "manager":
-        return "bg-purple-100 text-purple-800 border-purple-200";
-      case "writer":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "reader":
-        return "bg-green-100 text-green-800 border-green-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  const canModifyMember = (member: Account) => {
-    return (
-      isManager &&
-      (member.$jazz.id === currentUser?.$jazz.id ||
-        !member.canAdmin(props.playlist))
-    );
-  };
-
-  const handleGetInviteLink = async () => {
-    if (!isManager) return;
-
-    const inviteLink = createInviteLink(props.playlist, selectedRole);
-    await navigator.clipboard.writeText(inviteLink);
-
-    toast({
-      title: "Invite link copied",
-      description: `Invite link for ${selectedRole} role copied to clipboard.`,
-    });
-  };
-
-  return (
-    <Dialog open={props.isOpen} onOpenChange={props.onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Users className="w-5 h-5" />
-            Manage Playlist Members
-          </DialogTitle>
-          <DialogDescription>
-            Manage access levels and remove members from the playlist group.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-4">
-          {members.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No members found in this playlist.
-            </div>
-          ) : (
-            <section>
-              {members.map((member) => {
-                const memberId = member.$jazz.id;
-                const currentRole = group.getRoleOf(memberId);
-                const isCurrentUser = memberId === currentUser?.$jazz.id;
-                const canModify = canModifyMember(member);
-
-                return (
-                  <div key={memberId} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      {/* Member Info */}
-                      <div className="flex items-center gap-3 flex-1">
-                        <Member
-                          accountId={memberId}
-                          size="sm"
-                          showTooltip={true}
-                        />
-                        <div className="flex-1">
-                          <p className="font-medium text-gray-900">
-                            {isCurrentUser
-                              ? "You"
-                              : member.profile.$isLoaded
-                                ? member.profile.name
-                                : ""}
-                          </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            {getRoleIcon(currentRole)}
-                            <Badge
-                              variant="outline"
-                              className={getRoleColor(currentRole)}
-                            >
-                              {getRoleLabel(currentRole)}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      {canModify && (
-                        <div className="flex items-center gap-2">
-                          <div className="flex gap-1">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              aria-label="Grant reader access"
-                              onClick={() => handleRoleChange(member, "reader")}
-                              disabled={currentRole === "reader"}
-                              className="px-2 py-1 text-xs"
-                            >
-                              <Eye className="w-3 h-3 mr-1" />
-                              Reader
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              aria-label="Grant writer access"
-                              onClick={() => handleRoleChange(member, "writer")}
-                              disabled={currentRole === "writer"}
-                              className="px-2 py-1 text-xs"
-                            >
-                              <Edit className="w-3 h-3 mr-1" />
-                              Writer
-                            </Button>
-                            {group.myRole() === "admin" && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                aria-label="Grant manager access"
-                                onClick={() =>
-                                  handleRoleChange(member, "manager")
-                                }
-                                disabled={currentRole === "manager"}
-                                className="px-2 py-1 text-xs"
-                              >
-                                <Edit className="w-3 h-3 mr-1" />
-                                Manager
-                              </Button>
-                            )}
-                          </div>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            aria-label="Remove member"
-                            onClick={() => handleRemoveMember(member)}
-                            className="px-2 py-1 text-xs"
-                          >
-                            <Trash2 className="w-3 h-3 mr-1" />
-                            Remove
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </section>
-          )}
-
-          {isManager && (
-            <section className="border-2 border-dashed border-gray-300 rounded-lg p-6 mt-4">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-blue-50 rounded-full">
-                  <UserPlus className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-1">
-                    Invite new members
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Generate an invite link to add new members to this playlist.
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <div className="flex gap-2">
-                      <Button
-                        variant={
-                          selectedRole === "reader" ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() => setSelectedRole("reader")}
-                        className="px-3 py-2"
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        Reader
-                      </Button>
-                      <Button
-                        variant={
-                          selectedRole === "writer" ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() => setSelectedRole("writer")}
-                        className="px-3 py-2"
-                      >
-                        <Edit className="w-4 h-4 mr-1" />
-                        Writer
-                      </Button>
-                      {group.myRole() === "admin" && (
-                        <Button
-                          variant={
-                            selectedRole === "manager" ? "default" : "outline"
-                          }
-                          size="sm"
-                          onClick={() => setSelectedRole("manager")}
-                          className="px-3 py-2"
-                        >
-                          <Crown className="w-4 h-4 mr-1" />
-                          Manager
-                        </Button>
-                      )}
-                    </div>
-                    <Button onClick={handleGetInviteLink} className="gap-2">
-                      <Link className="w-4 h-4" />
-                      Get Invite Link
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => props.onOpenChange(false)}>
-            Close
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
 }
 ```
 
@@ -11647,9 +11040,6 @@ export function PlaylistMembers({
             />
           ))}
         </div>
-        <span className="text-sm text-gray-600 ml-2">
-          ({memberIds.length} member{memberIds.length !== 1 ? "s" : ""})
-        </span>
       </button>
     </>
   );
@@ -11714,7 +11104,7 @@ export function PlaylistTitleInput({
 ### components/ProfileForm.tsx
 
 ```tsx
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Image, useSuspenseAccount } from "jazz-tools/react";
 import { createImage } from "jazz-tools/media";
 import { Button } from "./ui/button";
@@ -11747,13 +11137,20 @@ export function ProfileForm({
   cancelButtonText = "Cancel",
   className = "",
 }: ProfileFormProps) {
-  const profile = useSuspenseAccount(MusicaAccount, {
+  const originalProfile = useSuspenseAccount(MusicaAccount, {
     select: (me) => me.profile,
   });
 
-  const [username, setUsername] = useState(profile.name);
+  const profile = useSuspenseAccount(MusicaAccount, {
+    select: (me) => me.profile,
+    // Edit the profile on a private branch
+    unstable_branch: {
+      name: "profile-form",
+      owner: useState(() => Group.create())[0], // Create a new group for the branch
+    },
+  });
+
   const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!profile) return null;
 
@@ -11782,22 +11179,32 @@ export function ProfileForm({
     }
   };
 
+  const currentAvatar = profile.avatar;
+  const isAvatarChanged =
+    currentAvatar?.$jazz.id !== originalProfile.avatar?.$jazz.id;
+  const isNameChanged = profile.name !== originalProfile.name;
+  const isChanged = isAvatarChanged || isNameChanged;
+  const isSubmitEnabled = profile.name.trim() && !isUploading && isChanged;
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!username.trim()) return;
+    if (!isSubmitEnabled) return;
 
-    // Update username
-    profile.$jazz.set("name", username.trim());
+    // Trim the name before merging
+    const name = profile.name.trim();
+    if (name !== profile.name) {
+      profile.$jazz.set("name", name);
+    }
+
+    // Merge the branch changes to confirm
+    profile.$jazz.unstable_merge();
 
     // Call custom onSubmit if provided
     if (onSubmit) {
-      onSubmit({ username: username.trim(), avatar: profile.avatar });
+      onSubmit({ username: profile.name, avatar: profile.avatar });
     }
   };
-
-  const currentAvatar = profile.avatar;
-  const canSubmit = username.trim();
 
   return (
     <div className={className}>
@@ -11820,7 +11227,10 @@ export function ProfileForm({
             Profile Picture
           </Label>
 
-          <div className="flex flex-col items-center space-y-3">
+          <label
+            htmlFor="avatar"
+            className="flex flex-col items-center space-y-3"
+          >
             {/* Current Avatar Display */}
             <div className="relative">
               <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
@@ -11842,7 +11252,6 @@ export function ProfileForm({
               {/* Upload Overlay */}
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
                 className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white hover:bg-blue-700 disabled:opacity-50 transition-colors cursor-pointer"
                 title="Change avatar"
@@ -11856,7 +11265,6 @@ export function ProfileForm({
             </div>
 
             <input
-              ref={fileInputRef}
               type="file"
               id="avatar"
               accept="image/*"
@@ -11868,7 +11276,7 @@ export function ProfileForm({
             <p className="text-xs text-gray-500 text-center">
               Click the camera icon to upload a profile picture
             </p>
-          </div>
+          </label>
         </div>
 
         <Separator />
@@ -11885,8 +11293,8 @@ export function ProfileForm({
             id="username"
             type="text"
             placeholder="Enter your username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={profile.name}
+            onChange={(e) => profile.$jazz.set("name", e.target.value)}
             className="w-full"
             maxLength={30}
           />
@@ -11910,7 +11318,7 @@ export function ProfileForm({
           )}
           <Button
             type="submit"
-            disabled={!canSubmit}
+            disabled={!isSubmitEnabled}
             className={`${showCancelButton ? "flex-1" : "w-full"} bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed`}
             size="lg"
           >
@@ -12053,7 +11461,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useAccount } from "jazz-tools/react";
-import { Home, Music, Plus, Trash2 } from "lucide-react";
+import { Home, Music, Plus, Settings, Trash2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import { useState } from "react";
 import { AuthButton } from "./AuthButton";
@@ -12070,6 +11478,10 @@ export function SidePanel() {
 
   function handleAllTracksClick() {
     navigate(`/`);
+  }
+
+  function handleProfileSettingsClick() {
+    navigate(`/settings`);
   }
 
   function handlePlaylistClick(playlistId: string) {
@@ -12132,6 +11544,12 @@ export function SidePanel() {
                   <SidebarMenuButton onClick={handleAllTracksClick}>
                     <Home className="size-4" />
                     <span>Go to all tracks</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton onClick={handleProfileSettingsClick}>
+                    <Settings className="size-4" />
+                    <span>Profile settings</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -12637,6 +12055,181 @@ export function WelcomeScreen() {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+```
+
+### components/edit-playlist/EditPlaylistMemberRow.tsx
+
+```tsx
+import type { Account, Group } from "jazz-tools";
+import type { MemberRole } from "@/hooks/useMemberChanges";
+import type { ReactNode } from "react";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Member } from "../Member";
+import { Crown, Edit, Eye, Trash2, User } from "lucide-react";
+import { MusicaAccount } from "@/1_schema";
+import { useSuspenseAccount } from "jazz-tools/react";
+
+interface EditPlaylistMemberRowProps {
+  member: Account;
+  group: Group;
+  effectiveRole: string | MemberRole | undefined;
+  isPendingRemoval: boolean;
+  onRoleChange: (newRole: MemberRole) => void;
+  onToggleRemove: () => void;
+}
+
+function getRoleIcon(role: string | undefined): ReactNode {
+  switch (role) {
+    case "admin":
+      return <Crown className="w-4 h-4 text-yellow-600" />;
+    case "manager":
+      return <Crown className="w-4 h-4 text-purple-600" />;
+    case "writer":
+      return <Edit className="w-4 h-4 text-blue-600" />;
+    case "reader":
+      return <Eye className="w-4 h-4 text-green-600" />;
+    default:
+      return <User className="w-4 h-4 text-gray-600" />;
+  }
+}
+
+function getRoleLabel(role: string | undefined) {
+  switch (role) {
+    case "admin":
+      return "Owner";
+    case "manager":
+      return "Manager";
+    case "writer":
+      return "Writer";
+    case "reader":
+      return "Reader";
+    default:
+      return "No Access";
+  }
+}
+
+function getRoleColor(role: string | undefined) {
+  switch (role) {
+    case "admin":
+      return "bg-yellow-100 text-yellow-800 border-yellow-200";
+    case "manager":
+      return "bg-purple-100 text-purple-800 border-purple-200";
+    case "writer":
+      return "bg-blue-100 text-blue-800 border-blue-200";
+    case "reader":
+      return "bg-green-100 text-green-800 border-green-200";
+    default:
+      return "bg-gray-100 text-gray-800 border-gray-200";
+  }
+}
+
+export function EditPlaylistMemberRow({
+  member,
+  group,
+  effectiveRole,
+  isPendingRemoval,
+  onRoleChange,
+  onToggleRemove,
+}: EditPlaylistMemberRowProps) {
+  const me = useSuspenseAccount(MusicaAccount);
+  const isCurrentUser = member.$jazz.id === me.$jazz.id;
+  const memberId = member.$jazz.id;
+  const isAdmin = group.myRole() === "admin";
+  const isManager = group.myRole() === "manager" || isAdmin;
+
+  const isMemberAdmin = group.getRoleOf(member.$jazz.id) === "admin";
+
+  const canModify = !isMemberAdmin && isManager;
+
+  return (
+    <div className="border rounded-lg p-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <Member accountId={memberId} size="sm" showTooltip={true} />
+          <div className="min-w-0">
+            <p className="font-medium text-gray-900 truncate">
+              {isCurrentUser
+                ? "You"
+                : member.profile.$isLoaded
+                  ? member.profile.name
+                  : ""}
+            </p>
+            <div className="flex items-center gap-2 mt-1">
+              {isPendingRemoval ? (
+                <Trash2 className="w-4 h-4 text-red-600" />
+              ) : (
+                getRoleIcon(effectiveRole)
+              )}
+              <Badge
+                variant="outline"
+                className={
+                  isPendingRemoval
+                    ? "bg-red-50 text-red-800 border-red-200"
+                    : getRoleColor(effectiveRole)
+                }
+              >
+                {isPendingRemoval ? "Removed" : getRoleLabel(effectiveRole)}
+              </Badge>
+            </div>
+          </div>
+        </div>
+
+        {canModify && (
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:justify-end">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                aria-label="Grant reader access"
+                onClick={() => onRoleChange("reader")}
+                disabled={isPendingRemoval || effectiveRole === "reader"}
+                className="px-2 py-1 text-xs w-full sm:w-auto"
+              >
+                <Eye className="w-3 h-3 mr-1" />
+                Reader
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                aria-label="Grant writer access"
+                onClick={() => onRoleChange("writer")}
+                disabled={isPendingRemoval || effectiveRole === "writer"}
+                className="px-2 py-1 text-xs w-full sm:w-auto"
+              >
+                <Edit className="w-3 h-3 mr-1" />
+                Writer
+              </Button>
+              {isAdmin && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  aria-label="Grant manager access"
+                  onClick={() => onRoleChange("manager")}
+                  disabled={isPendingRemoval || effectiveRole === "manager"}
+                  className="px-2 py-1 text-xs w-full sm:w-auto"
+                >
+                  <Crown className="w-3 h-3 mr-1" />
+                  Manager
+                </Button>
+              )}
+            </div>
+            <Button
+              variant="destructive"
+              size="sm"
+              aria-label="Remove member"
+              onClick={onToggleRemove}
+              className="px-2 py-1 text-xs w-full sm:w-auto"
+            >
+              <Trash2 className="w-3 h-3 mr-1" />
+              {isPendingRemoval ? "Undo" : "Remove"}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -14536,6 +14129,139 @@ function useToast() {
 }
 
 export { useToast, toast };
+```
+
+### hooks/useMemberChanges.ts
+
+```ts
+import { useCallback, useReducer } from "react";
+import { produce } from "immer";
+import type { Account, Group } from "jazz-tools";
+
+export type MemberRole = "reader" | "writer" | "manager";
+export type PendingMemberChange =
+  | { type: "setRole"; role: MemberRole }
+  | { type: "remove" };
+
+type State = {
+  pendingByMemberId: Record<string, PendingMemberChange>;
+};
+
+type Action =
+  | {
+      type: "stageRole";
+      memberId: string;
+      currentRole: string | undefined;
+      newRole: MemberRole;
+    }
+  | { type: "toggleRemove"; memberId: string }
+  | { type: "discard" }
+  | { type: "reset" };
+
+const initialState: State = {
+  pendingByMemberId: {},
+};
+
+function reducer(state: State, action: Action): State {
+  return produce(state, (draft) => {
+    switch (action.type) {
+      case "stageRole": {
+        const prev = draft.pendingByMemberId[action.memberId];
+        if (prev?.type === "remove") return;
+
+        // If it matches currentRole, clear any pending role change.
+        if (action.currentRole === action.newRole) {
+          delete draft.pendingByMemberId[action.memberId];
+          return;
+        }
+
+        draft.pendingByMemberId[action.memberId] = {
+          type: "setRole",
+          role: action.newRole,
+        };
+        return;
+      }
+      case "toggleRemove": {
+        const prev = draft.pendingByMemberId[action.memberId];
+        if (prev?.type === "remove") {
+          delete draft.pendingByMemberId[action.memberId];
+          return;
+        }
+        draft.pendingByMemberId[action.memberId] = { type: "remove" };
+        return;
+      }
+      case "discard": {
+        draft.pendingByMemberId = {};
+        return;
+      }
+      case "reset": {
+        return initialState;
+      }
+    }
+  });
+}
+
+export function useMemberChanges() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const hasPendingChanges = Object.keys(state.pendingByMemberId).length > 0;
+
+  const stageRoleChange = useCallback(
+    (args: {
+      memberId: string;
+      currentRole: string | undefined;
+      newRole: MemberRole;
+    }) => {
+      dispatch({ type: "stageRole", ...args });
+    },
+    [],
+  );
+
+  const toggleRemove = useCallback((memberId: string) => {
+    dispatch({ type: "toggleRemove", memberId });
+  }, []);
+
+  const discard = useCallback(() => {
+    dispatch({ type: "discard" });
+  }, []);
+
+  const reset = useCallback(() => {
+    dispatch({ type: "reset" });
+  }, []);
+
+  const apply = useCallback(
+    async (args: { group: Group; members: Account[] }) => {
+      if (!hasPendingChanges) return;
+
+      const byId = new Map(args.members.map((m) => [m.$jazz.id, m] as const));
+      const toApply = Object.entries(state.pendingByMemberId);
+
+      for (const [memberId, change] of toApply) {
+        const member = byId.get(memberId);
+
+        if (!member) continue;
+        if (change.type === "remove") {
+          args.group.removeMember(member);
+        } else if (change.type === "setRole") {
+          args.group.addMember(member, change.role);
+        }
+      }
+
+      dispatch({ type: "discard" });
+    },
+    [hasPendingChanges, state.pendingByMemberId],
+  );
+
+  return {
+    pendingByMemberId: state.pendingByMemberId,
+    hasPendingChanges,
+    stageRoleChange,
+    toggleRemove,
+    discard,
+    reset,
+    apply,
+  };
+}
 ```
 
 ### index.css
