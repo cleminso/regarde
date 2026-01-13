@@ -20,6 +20,13 @@ export const registerAppHandler = (
       const regardeAuth = c.req.header("X-Regarde-Token");
       const regardeAuthId = c.req.header("X-Regarde-Token-Id");
 
+      const workerId = process.env.REGARDE_REGISTRY_WORKER;
+      if (!workerId) {
+        throw new Error(
+          "[ERROR] Missing required environment variable: REGARDE_REGISTRY_WORKER. Please check your .env file.",
+        );
+      }
+
       const regardeAuthHeaderExists =
         regardeAuth !== null && regardeAuth !== undefined;
       if (regardeAuthHeaderExists === false) {
@@ -79,9 +86,9 @@ export const registerAppHandler = (
       }
 
       // Load the registry owner group (worker is added as "writer" in initRegardeSDK)
-      const registryProfileWorkerGroup = await co
-        .group()
-        .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", { loadAs: worker });
+      const registryProfileWorkerGroup = await co.group().load(workerId, {
+        loadAs: worker,
+      });
 
       const registryGroupLoaded = registryProfileWorkerGroup.$isLoaded === true;
       if (registryGroupLoaded === false) {

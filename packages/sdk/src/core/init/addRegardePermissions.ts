@@ -26,7 +26,13 @@ export const addRegardePermissions = async (
     });
   }
 
-  const workerRole = owner.getRoleOf("co_zoppoxWWJaHYKPgSgUkuCCXQX21");
+  const workerId = process.env.REGARDE_REGISTRY_WORKER;
+  if (workerId === undefined || workerId === null || workerId === "") {
+    throw new Error(
+      "[ERROR] Missing required environment variable: REGARDE_REGISTRY_WORKER. Please check your .env file.",
+    );
+  }
+  const workerRole = owner.getRoleOf(workerId);
   const workerAlreadyMember = workerRole !== null && workerRole !== undefined;
   if (workerAlreadyMember === true) {
     return;
@@ -34,9 +40,7 @@ export const addRegardePermissions = async (
 
   console.log("[INFO] Adding worker account to coValue", coValue.$jazz.id);
 
-  const regardeProfileWorkerGroup = await co
-    .group()
-    .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", {});
+  const regardeProfileWorkerGroup = await co.group().load(workerId, {});
 
   const workerGroupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
   if (workerGroupLoaded === false) {

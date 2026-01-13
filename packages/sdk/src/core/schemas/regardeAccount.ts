@@ -1,4 +1,4 @@
-import { co, CoValue, Group, ID } from "jazz-tools";
+import { co, CoValue, Group } from "jazz-tools";
 import { RegardeSDK } from "./regardeSDK";
 import { initRegardeSDK } from "#core/init";
 

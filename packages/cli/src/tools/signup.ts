@@ -50,11 +50,16 @@ export const signupTool: ToolConfig = {
     try {
       console.log(SimpleChalk.blue("Creating your account..."));
 
+      const syncServer =
+        process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
+      const apiKey = process.env.JAZZ_API_KEY;
+      const syncServerWithKey = apiKey
+        ? `${syncServer}?apiKey=${apiKey}`
+        : syncServer;
+
       const peer = createWebSocketPeer({
         id: "upstream",
-        websocket: new WebSocket(
-          "wss://cloud.jazz.tools?apiKey=clem2inso@gmail.com",
-        ),
+        websocket: new WebSocket(syncServerWithKey),
         role: "server",
       });
 
@@ -78,7 +83,7 @@ export const signupTool: ToolConfig = {
       // Start worker to verify setup and init SDK
       const workerOptions = {
         AccountSchema: RegardeAccount,
-        syncServer: "wss://cloud.jazz.tools?apiKey=clem2inso@gmail.com",
+        syncServer: syncServerWithKey,
         accountID: accountId,
         accountSecret,
       };

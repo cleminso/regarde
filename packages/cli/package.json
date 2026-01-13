@@ -8,9 +8,13 @@
   },
   "type": "module",
   "scripts": {
-    "build": "rm -rf dist && vite build",
-    "dev": "vite build --watch",
-    "start": "node dist/index.mjs"
+    "build": "rm -rf dist && NODE_ENV=production vite build",
+    "build:test": "rm -rf dist && NODE_ENV=test vite build",
+    "dev": "DOTENV_CONFIG_PATH=.env.local vite build --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "start": "DOTENV_CONFIG_PATH=.env.production NODE_ENV=production node dist/index.mjs",
+    "start:test": "DOTENV_CONFIG_PATH=.env.test NODE_ENV=test node dist/index.mjs"
   },
   "dependencies": {
     "@alcyone-labs/arg-parser": "^2.12.2",

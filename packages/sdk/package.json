@@ -9,10 +9,13 @@
     "directory": "packages/sdk"
   },
   "scripts": {
-    "build": "rm -rf dist && vite build",
-    "dev": "vite build --watch",
-    "test": "vitest",
-    "test:run": "vitest run"
+    "build": "rm -rf dist && NODE_ENV=production vite build",
+    "build:test": "rm -rf dist && NODE_ENV=test vite build",
+    "dev": "DOTENV_CONFIG_PATH=.env.local vite build --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "run:test": "DOTENV_CONFIG_PATH=.env.test NODE_ENV=test node dist/index.mjs",
+    "start": "DOTENV_CONFIG_PATH=.env.production NODE_ENV=production node dist/index.mjs"
   },
   "keywords": [
     "regarde",

@@ -269,6 +269,12 @@ export const lemonSqueezyWebhookHandler = (
 ) => {
   return async (c: any) => {
     try {
+      const workerId = process.env.REGARDE_REGISTRY_WORKER;
+      if (!workerId) {
+        throw new Error(
+          "[ERROR] Missing required environment variable: REGARDE_REGISTRY_WORKER. Please check your .env file.",
+        );
+      }
       console.log("[WEBHOOK DEBUG] Request received, parsing body...");
       // Capture original state for signature verification by extracting headers, raw body, method, path, content-type
       const rawBody = await c.req.text();
@@ -370,9 +376,9 @@ export const lemonSqueezyWebhookHandler = (
 
       // Need group for creating `PaymentEvent` CoValue by sharing ownership for `paymentEvents`
       console.log("[WEBHOOK DEBUG] Loading registry profile worker group...");
-      const registryProfileWorkerGroup = await co
-        .group()
-        .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", { loadAs: worker });
+      const registryProfileWorkerGroup = await co.group().load(workerId, {
+        loadAs: worker,
+      });
       console.log("[WEBHOOK DEBUG] Registry profile worker group loaded");
 
       if (!registryProfileWorkerGroup.$isLoaded) {

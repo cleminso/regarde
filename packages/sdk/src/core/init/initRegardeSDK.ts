@@ -1,4 +1,4 @@
-import { co, z, Group, CoValue, ID } from "jazz-tools";
+import { co, z, Group } from "jazz-tools";
 import { RegardeAuth } from "#schemas/regardeAuth";
 import { RegardeAccount } from "#schemas/regardeAccount";
 import { RegardeSDK } from "#schemas/regardeSDK";
@@ -18,6 +18,13 @@ export const initRegardeSDK = async (
     throw new Error("Account must be loaded before calling initRegardeSDK");
   }
 
+  const REGARDE_REGISTRY_WORKER = process.env.REGARDE_REGISTRY_WORKER;
+  if (!REGARDE_REGISTRY_WORKER) {
+    throw new Error(
+      "[ERROR] Missing required environment variable: REGARDE_REGISTRY_WORKER",
+    );
+  }
+
   try {
     if (mode === "create") {
       console.info(
@@ -26,7 +33,7 @@ export const initRegardeSDK = async (
 
       const regardeProfileWorkerGroup = await co
         .group()
-        .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", {
+        .load(REGARDE_REGISTRY_WORKER, {
           loadAs: account,
         });
 
@@ -122,14 +129,14 @@ export const initRegardeSDK = async (
 
       const regardeProfileWorkerGroup = await co
         .group()
-        .load("co_zoppoxWWJaHYKPgSgUkuCCXQX21", {
+        .load(REGARDE_REGISTRY_WORKER, {
           loadAs: account,
         });
 
       const isGroupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
       if (isGroupLoaded === false) {
         console.error(
-          "[ERROR] No public group found. Check: (1) Network connectivity, (2) Worker account ID is correct: co_zoppoxWWJaHYKPgSgUkuCCXQX21, (3) Jazz network is accessible from your environment",
+          `[ERROR] No public group found. Check: (1) Network connectivity, (2) Worker account ID is correct: ${REGARDE_REGISTRY_WORKER}, (3) Jazz network is accessible from your environment`,
         );
         throw new Error("Group not available");
       }

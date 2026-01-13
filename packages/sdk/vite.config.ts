@@ -4,6 +4,7 @@ import { resolve } from "path";
 import dts from "vite-plugin-dts";
 
 export default defineConfig({
+  mode: process.env.NODE_ENV === "production" ? "production" : "test",
   plugins: [
     dts({
       include: ["src/**/*"],
@@ -23,8 +24,8 @@ export default defineConfig({
     },
   },
   build: {
-    minify: false,
-    sourcemap: true,
+    minify: process.env.NODE_ENV === "production",
+    sourcemap: process.env.NODE_ENV !== "production",
     lib: {
       // TODO: Add dts for react / preact files
       entry: {
@@ -37,7 +38,14 @@ export default defineConfig({
     rollupOptions: {
       treeshake: true,
       // tsconfig: true,
-      external: ["react", "preact", "jazz-tools", "zod"],
+      external: [
+        "react",
+        "preact",
+        "jazz-tools",
+        "zod",
+        "dotenv",
+        "dotenv/config",
+      ],
     },
   },
 });

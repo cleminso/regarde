@@ -34,9 +34,16 @@ export const loginTool: ToolConfig = {
       console.log(SimpleChalk.green(`Already logged in as ${creds.accountID}`));
 
       try {
+        const syncServer =
+          process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
+        const apiKey = process.env.JAZZ_API_KEY;
+        const syncServerWithKey = apiKey
+          ? `${syncServer}?apiKey=${apiKey}`
+          : syncServer;
+
         await startWorker({
           AccountSchema: RegardeAccount,
-          syncServer: "wss://cloud.jazz.tools",
+          syncServer: syncServerWithKey,
           accountID: creds.accountID,
           accountSecret: creds.accountSecret,
         });
@@ -94,9 +101,14 @@ export const loginTool: ToolConfig = {
     const seed = mnemonicToEntropy(passphrase, wordlist);
     const accountSecret = crypto.agentSecretFromSecretSeed(seed);
 
+    const syncServer =
+      process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
+    const apiKey = process.env.JAZZ_API_KEY || "clem2inso@gmail.com";
+    const syncServerWithKey = `${syncServer}?apiKey=${apiKey}`;
+
     const workerOptions = {
       AccountSchema: RegardeAccount,
-      syncServer: "wss://cloud.jazz.tools?apiKey=clem2inso@gmail.com",
+      syncServer: syncServerWithKey,
       accountID: jazzAccountId,
       accountSecret,
     };
