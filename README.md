@@ -158,7 +158,7 @@ The detailed `RegardeProfile` schema with all fields (SocialLinks, Project, Work
 - Uses RegistryWorkerAccount for write operations
 - Validates token ownership and expiration
 - **State Loading:** `packages/api.regarde.dev/src/index.ts:111-119` - Loads registries via `ensureLoaded()`
-- **Environment:** Requires `JAZZ_WORKER_ACCOUNT` and `JAZZ_WORKER_SECRET`
+- **Environment:** Requires `_WORKER_ACCOUNT_ID` and `WORKER_ACCOUNT_SECRET`
 
 ### Profiles API (api.regarde.bio)
 

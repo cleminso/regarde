@@ -110,8 +110,8 @@ load_config() {
     # Required variables
     REQUIRED_VARS=(
         "APP_PUBLIC_HOSTNAME"
-        "JAZZ_WORKER_ACCOUNT"
-        "JAZZ_WORKER_SECRET"
+        "WORKER_ACCOUNT_ID"
+        "WORKER_ACCOUNT_SECRET"
         "JAZZ_SYNC_SERVER_URL"
     )
 

@@ -57,9 +57,9 @@ process.on("SIGINT", () => {
 });
 
 async function main() {
-  if (!process.env.JAZZ_WORKER_ACCOUNT || !process.env.JAZZ_WORKER_SECRET) {
+  if (!process.env.WORKER_ACCOUNT_ID || !process.env.WORKER_ACCOUNT_SECRET) {
     console.error(
-      "Error: JAZZ_WORKER_ACCOUNT and JAZZ_WORKER_SECRET environment variables must be set.",
+      "Error: WORKER_ACCOUNT_ID and WORKER_ACCOUNT_SECRET environment variables must be set.",
     );
     process.exit(1);
   }
@@ -91,6 +91,8 @@ async function main() {
       syncServer:
         JAZZ_SYNC_SERVER_URL +
         (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
+      accountID: process.env.WORKER_ACCOUNT_ID,
+      accountSecret: process.env.WORKER_ACCOUNT_SECRET,
     });
     console.debug("Worker started");
 

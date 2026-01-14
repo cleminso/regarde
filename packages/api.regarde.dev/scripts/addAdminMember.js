@@ -17,9 +17,9 @@ async function addAdminMember() {
   console.log("🚀 Adding admin member to Jazz Profile Admin Group...");
 
   // Validate environment variables
-  if (!process.env.JAZZ_WORKER_ACCOUNT || !process.env.JAZZ_WORKER_SECRET) {
+  if (!process.env.WORKER_ACCOUNT_ID || !process.env.WORKER_ACCOUNT_SECRET) {
     console.error(
-      "❌ Error: JAZZ_WORKER_ACCOUNT and JAZZ_WORKER_SECRET environment variables must be set.",
+      "❌ Error: WORKER_ACCOUNT_ID and WORKER_ACCOUNT_SECRET environment variables must be set.",
     );
     process.exit(1);
   }

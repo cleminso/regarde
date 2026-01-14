@@ -31,8 +31,8 @@ This worker provides an HTTP API for registering and checking nicknames for the 
     Create a `.env` file in this directory (`packages/regarde.bio/workers/.env`) or set the following environment variables in your deployment environment:
 
     ```env
-    JAZZ_WORKER_ACCOUNT="<WORKER_ACCOUNT_ID_FROM_STEP_2>"
-    JAZZ_WORKER_SECRET="<WORKER_ACCOUNT_SECRET_FROM_STEP_2>"
+    WORKER_ACCOUNT_ID="<WORKER_ACCOUNT_ID_FROM_STEP_2>"
+    WORKER_ACCOUNT_SECRET="<WORKER_ACCOUNT_SECRET_FROM_STEP_2>"
     JAZZ_SYNC_SERVER_URL="<YOUR_JAZZ_SYNC_SERVER_URL_OR_DEFAULT_WSS_CLOUD_JAZZ_TOOLS>"
     # Optional: If your Jazz server requires an API key for workers
     # JAZZ_API_KEY="<YOUR_JAZZ_API_KEY>"
