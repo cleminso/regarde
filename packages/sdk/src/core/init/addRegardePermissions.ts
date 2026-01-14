@@ -26,10 +26,10 @@ export const addRegardePermissions = async (
     });
   }
 
-  const workerId = process.env.REGARDE_REGISTRY_WORKER;
+  const workerId = process.env.REGARDE_REGISTRY_GROUP;
   if (workerId === undefined || workerId === null || workerId === "") {
     throw new Error(
-      "[ERROR] Missing required environment variable: REGARDE_REGISTRY_WORKER. Please check your .env file.",
+      "[ERROR] Missing required environment variable: REGARDE_REGISTRY_GROUP. Please check your .env file.",
     );
   }
   const workerRole = owner.getRoleOf(workerId);

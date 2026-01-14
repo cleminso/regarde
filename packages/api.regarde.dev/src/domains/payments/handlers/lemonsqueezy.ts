@@ -269,10 +269,10 @@ export const lemonSqueezyWebhookHandler = (
 ) => {
   return async (c: any) => {
     try {
-      const workerId = process.env.REGARDE_REGISTRY_WORKER;
+      const workerId = process.env.REGARDE_REGISTRY_GROUP;
       if (!workerId) {
         throw new Error(
-          "[ERROR] Missing required environment variable: REGARDE_REGISTRY_WORKER. Please check your .env file.",
+          "[ERROR] Missing required environment variable: REGARDE_REGISTRY_GROUP. Please check your .env file.",
         );
       }
       console.log("[WEBHOOK DEBUG] Request received, parsing body...");

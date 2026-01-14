@@ -12,8 +12,10 @@
   "scripts": {
     "build": "rm -rf dist && vite build",
     "start": "node dist/index.js",
+    "start:test": "DOTENV_CONFIG_PATH=.env.test node dist/index.js",
     "debug": "pnpm build && node --inspect dist/index.js",
     "start:bun": "bun src/index.ts",
+    "start:test:bun": "DOTENV_CONFIG_PATH=.env.test bun src/index.ts",
     "dev": "vite build --watch",
     "test": "vitest",
     "test:ui": "vitest --ui",

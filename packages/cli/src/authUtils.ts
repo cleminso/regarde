@@ -30,9 +30,12 @@ export async function loadAuthenticatedRegardeSDK(): Promise<{
     throw new Error("Incomplete credentials. Please re-login.");
   }
 
+  const syncServer =
+    process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
+
   const workerOptions = {
     AccountSchema: RegardeAccount,
-    syncServer: "wss://cloud.jazz.tools",
+    syncServer: syncServer,
     accountID: credsAccountID,
     accountSecret: creds.accountSecret,
   };

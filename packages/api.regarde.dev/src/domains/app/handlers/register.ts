@@ -20,10 +20,10 @@ export const registerAppHandler = (
       const regardeAuth = c.req.header("X-Regarde-Token");
       const regardeAuthId = c.req.header("X-Regarde-Token-Id");
 
-      const workerId = process.env.REGARDE_REGISTRY_WORKER;
+      const workerId = process.env.REGARDE_REGISTRY_GROUP;
       if (!workerId) {
         throw new Error(
-          "[ERROR] Missing required environment variable: REGARDE_REGISTRY_WORKER. Please check your .env file.",
+          "[ERROR] Missing required environment variable: REGARDE_REGISTRY_GROUP. Please check your .env file.",
         );
       }
 

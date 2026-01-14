@@ -15,7 +15,7 @@ import { generateRegardeToken } from "#managers/auth/generateToken";
  * 4. Worker verifies user owns token (no session storage needed)
  *
  * ## Migration
- * - User adds worker (set via REGARDE_REGISTRY_WORKER environment variable) with "writer" permissions
+ * - User adds worker (set via REGARDE_REGISTRY_GROUP environment variable) with "writer" permissions
  * - Worker requires write access to validate token ownership during API
  */
 /**

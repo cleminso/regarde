@@ -13,6 +13,9 @@
     "dev": "DOTENV_CONFIG_PATH=.env.local vite build --watch",
     "test": "vitest run",
     "test:watch": "vitest",
+    "setup:local": "DOTENV_CONFIG_PATH=.env.test node scripts/setupLocalWorker.js",
+    "setup:test-member": "DOTENV_CONFIG_PATH=.env.test node scripts/addTestMember.js",
+    "setup": "pnpm setup:local && pnpm setup:test-member",
     "start": "DOTENV_CONFIG_PATH=.env.production NODE_ENV=production node dist/index.mjs",
     "start:test": "DOTENV_CONFIG_PATH=.env.test NODE_ENV=test node dist/index.mjs"
   },
@@ -23,7 +26,7 @@
     "@scure/base": "^2.0.0",
     "chalk": "^5.6.2",
     "cojson-transport-ws": "catalog:",
-    "dotenv": "^16.6.1",
+    "dotenv": "catalog:",
     "inquirer": "^13.1.0",
     "node-fetch": "^3.3.2"
   },

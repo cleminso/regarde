@@ -28,7 +28,7 @@
     "@alcyone-labs/arg-parser": "^2.7.2",
     "@regarde-dev/jazz-schemas": "workspace:*",
     "@regarde-dev/core": "workspace:*",
-    "dotenv": "^16.6.1",
+    "dotenv": "catalog:",
     "jazz-tools": "catalog:",
     "ulidx": "catalog:",
     "zod": "^3.25.76"

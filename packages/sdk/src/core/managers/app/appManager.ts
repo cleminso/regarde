@@ -1,5 +1,3 @@
-import "dotenv/config";
-
 import { co, z, Loaded, Group, Account } from "jazz-tools";
 import { App, type TApp } from "#schemas/regardeUserApp";
 import { RegardeSDK } from "#schemas/regardeSDK";
@@ -11,18 +9,22 @@ export interface CreateAppParams {
   paymentProvider: "lemonsqueezy" | "stripe";
 }
 
-const REGARDE_REGISTRY_WORKER = process.env.REGARDE_REGISTRY_WORKER;
-if (!REGARDE_REGISTRY_WORKER) {
-  throw new Error(
-    "[ERROR] Missing required environment variable: REGARDE_REGISTRY_WORKER",
-  );
-}
-
 export const createApp = async (
   account: co.loaded<typeof RegardeAccount>,
   appData: CreateAppParams,
 ): Promise<TApp> => {
   console.log("createApp");
+
+  const REGARDE_REGISTRY_GROUP = process.env.REGARDE_REGISTRY_GROUP;
+  if (
+    REGARDE_REGISTRY_GROUP === undefined ||
+    REGARDE_REGISTRY_GROUP === null ||
+    REGARDE_REGISTRY_GROUP === ""
+  ) {
+    throw new Error(
+      "[ERROR] Missing required environment variable: REGARDE_REGISTRY_GROUP. Please check your .env file.",
+    );
+  }
 
   const { root: accountRoot } = await account.$jazz.ensureLoaded({
     resolve: {
@@ -49,7 +51,7 @@ export const createApp = async (
 
   const regardeProfileWorkerGroup = await co
     .group()
-    .load(REGARDE_REGISTRY_WORKER, {
+    .load(REGARDE_REGISTRY_GROUP, {
       loadAs: account,
     });
 

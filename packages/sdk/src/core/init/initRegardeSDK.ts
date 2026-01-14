@@ -6,6 +6,7 @@ import { UserHandle } from "#schemas/regardeUserHandle";
 import { App } from "#schemas/regardeUserApp";
 import { getRegardeAuth } from "#managers/auth/refreshAuthToken";
 import { generateRegardeToken } from "#managers/auth/generateToken";
+import { TOKEN_LIFETIME_SECONDS } from "#managers/auth/";
 
 export type InitRegardeSDKMode = "ensure" | "create";
 
@@ -18,10 +19,10 @@ export const initRegardeSDK = async (
     throw new Error("Account must be loaded before calling initRegardeSDK");
   }
 
-  const REGARDE_REGISTRY_WORKER = process.env.REGARDE_REGISTRY_WORKER;
-  if (!REGARDE_REGISTRY_WORKER) {
+  const REGARDE_REGISTRY_GROUP = process.env.REGARDE_REGISTRY_GROUP;
+  if (!REGARDE_REGISTRY_GROUP) {
     throw new Error(
-      "[ERROR] Missing required environment variable: REGARDE_REGISTRY_WORKER",
+      "[ERROR] Missing required environment variable: REGARDE_REGISTRY_GROUP",
     );
   }
 
@@ -33,7 +34,7 @@ export const initRegardeSDK = async (
 
       const regardeProfileWorkerGroup = await co
         .group()
-        .load(REGARDE_REGISTRY_WORKER, {
+        .load(REGARDE_REGISTRY_GROUP, {
           loadAs: account,
         });
 
@@ -77,7 +78,7 @@ export const initRegardeSDK = async (
           auth: RegardeAuth.create(
             {
               token: generateRegardeToken(),
-              expiresAt: 0,
+              expiresAt: Date.now() + TOKEN_LIFETIME_SECONDS * 1000,
             },
             {
               owner: userGroup,
@@ -129,14 +130,14 @@ export const initRegardeSDK = async (
 
       const regardeProfileWorkerGroup = await co
         .group()
-        .load(REGARDE_REGISTRY_WORKER, {
+        .load(REGARDE_REGISTRY_GROUP, {
           loadAs: account,
         });
 
       const isGroupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
       if (isGroupLoaded === false) {
         console.error(
-          `[ERROR] No public group found. Check: (1) Network connectivity, (2) Worker account ID is correct: ${REGARDE_REGISTRY_WORKER}, (3) Jazz network is accessible from your environment`,
+          `[ERROR] No public group found. Check: (1) Network connectivity, (2) Worker account ID is correct: ${REGARDE_REGISTRY_GROUP}, (3) Jazz network is accessible from your environment`,
         );
         throw new Error("Group not available");
       }
@@ -174,7 +175,7 @@ export const initRegardeSDK = async (
           auth: RegardeAuth.create(
             {
               token: generateRegardeToken(),
-              expiresAt: 0,
+              expiresAt: Date.now() + TOKEN_LIFETIME_SECONDS * 1000,
             },
             {
               owner: userGroup,

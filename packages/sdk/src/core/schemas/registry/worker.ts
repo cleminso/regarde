@@ -143,7 +143,12 @@ export const RegistryWorkerAccount = co
     } catch (e) {
       console.log("EnsureLoaded Root failed, fallback", account, e);
 
-      if (!account.root.$isLoaded) {
+      const accountRootExists =
+        account.root !== undefined && account.root !== null;
+      const rootLoaded =
+        accountRootExists === true && account.root.$isLoaded === true;
+
+      if (rootLoaded === false) {
         const newRoot = RegistryWorkerAccountRoot.create({
           registry: NicknameRegistryCoRecord.create({}),
           reverseRegistry: ReverseNicknameRegistryCoRecord.create({}),
