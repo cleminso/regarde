@@ -14,6 +14,7 @@ import { wordlist } from "@scure/bip39/wordlists/english.js";
 import { generateMnemonic, mnemonicToEntropy } from "@scure/bip39";
 
 import { NapiCrypto } from "jazz-tools/napi";
+import { z } from "zod";
 
 const crypto = await NapiCrypto.create();
 const sessionProvider = new MockSessionProvider();
@@ -22,6 +23,23 @@ export const signupTool: ToolConfig = {
   name: "signup",
   description: "Create a new Jazz Account and login",
   flags: [],
+  outputSchema: z.object({
+    ok: z.boolean(),
+    command: z.literal("signup"),
+    data: z
+      .object({
+        accountId: z.string(),
+        passphrase: z.string(),
+        storedCredentials: z.boolean(),
+      })
+      .optional(),
+    error: z
+      .object({
+        code: z.string(),
+        message: z.string(),
+      })
+      .optional(),
+  }),
   handler: async () => {
     console.log(SimpleChalk.blue("Creating your Regarde account..."));
 
@@ -106,12 +124,20 @@ export const signupTool: ToolConfig = {
             "✓ Login credentials saved locally ~/.local/share/regarde/auth.json",
           ),
         );
-      } catch (storageError: unknown) {
+      } catch {
         console.error("Warning: Credentials not saved");
         console.error("  You will need to re-login next session");
       }
 
-      process.exit(0);
+      return {
+        ok: true,
+        command: "signup",
+        data: {
+          accountId,
+          passphrase,
+          storedCredentials: true,
+        },
+      };
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
@@ -120,7 +146,14 @@ export const signupTool: ToolConfig = {
       console.error("  Check your network connection");
       console.error("  Try running 'regarde signup' again");
 
-      return { success: false, error: errorMessage };
+      return {
+        ok: false,
+        command: "signup",
+        error: {
+          code: "SIGNUP_FAILED",
+          message: errorMessage,
+        },
+      };
     }
   },
 };

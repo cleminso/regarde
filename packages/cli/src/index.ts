@@ -17,7 +17,11 @@ cli.addTool(registerAppTool);
 
 async function main() {
   try {
-    await cli.parse(process.argv.slice(2));
+    const result = await cli.parse(process.argv.slice(2));
+    if (typeof result === "object" && result !== null && "ok" in result) {
+      const ok = (result as { ok?: boolean }).ok === true;
+      process.exit(ok ? 0 : 1);
+    }
   } catch (error: any) {
     console.error("Error:", error.message);
     process.exit(1);

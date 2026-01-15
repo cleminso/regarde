@@ -27,7 +27,7 @@ export const loadCredentials = async (): Promise<string | null> => {
     await ensureAuthDir();
     const content = await fs.readFile(AUTH_FILE_PATH, "utf-8");
     return content;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -35,7 +35,7 @@ export const loadCredentials = async (): Promise<string | null> => {
 export const clearCredentials = async () => {
   try {
     await fs.unlink(AUTH_FILE_PATH);
-  } catch (e) {
+  } catch {
     // ignore
   }
 };

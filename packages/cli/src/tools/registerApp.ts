@@ -4,7 +4,8 @@ import {
   loadAuthenticatedRegardeSDK,
   getAuthenticationHeaders,
 } from "../authUtils.js";
-import { createApp, RegardeAccount } from "@regarde-dev/core";
+import { createApp } from "@regarde-dev/core";
+import { z } from "zod";
 
 interface RegisterAppResponse {
   appId?: string;
@@ -40,6 +41,23 @@ export const registerAppTool: ToolConfig = {
       description: "Description of the App",
     },
   ],
+  outputSchema: z.object({
+    ok: z.boolean(),
+    command: z.literal("register-app"),
+    data: z
+      .object({
+        appId: z.string(),
+        webhookUrl: z.string(),
+        webhookSecret: z.string(),
+      })
+      .optional(),
+    error: z
+      .object({
+        code: z.string(),
+        message: z.string(),
+      })
+      .optional(),
+  }),
   handler: async (ctx) => {
     console.log(SimpleChalk.blue("Registering app..."));
 
@@ -147,9 +165,15 @@ export const registerAppTool: ToolConfig = {
         SimpleChalk.green("App is now available for payment subscriptions"),
       );
 
-      setTimeout(() => process.exit(0), 100);
-
-      return { success: true, data };
+      return {
+        ok: true,
+        command: "register-app",
+        data: {
+          appId: String(data.appId ?? ""),
+          webhookUrl: String(data.webhookUrl ?? ""),
+          webhookSecret: String(data.webhookSecret ?? ""),
+        },
+      };
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
@@ -183,9 +207,14 @@ export const registerAppTool: ToolConfig = {
         console.error(SimpleChalk.red("Failed to register app"), errorMessage);
       }
 
-      setTimeout(() => process.exit(1), 100);
-
-      return { success: false, error: errorMessage };
+      return {
+        ok: false,
+        command: "register-app",
+        error: {
+          code: "REGISTER_APP_FAILED",
+          message: errorMessage,
+        },
+      };
     }
   },
 };

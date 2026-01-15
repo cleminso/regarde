@@ -11,7 +11,7 @@ import { mnemonicToEntropy, validateMnemonic } from "@scure/bip39";
 import { NapiCrypto } from "jazz-tools/napi";
 
 import { wordlist } from "@scure/bip39/wordlists/english.js";
-import z from "zod";
+import { z } from "zod";
 
 const crypto = await NapiCrypto.create();
 
@@ -19,6 +19,23 @@ export const loginTool: ToolConfig = {
   name: "login",
   description: "Login to Regarde using your Jazz Account ID and passphrase",
   flags: [],
+  outputSchema: z.object({
+    ok: z.boolean(),
+    command: z.literal("login"),
+    data: z
+      .object({
+        accountId: z.string(),
+        authMethod: z.literal("passphrase"),
+        storedCredentials: z.boolean(),
+      })
+      .optional(),
+    error: z
+      .object({
+        code: z.string(),
+        message: z.string(),
+      })
+      .optional(),
+  }),
   handler: async () => {
     const existingCreds = await getStoredCredentials();
 
@@ -47,8 +64,16 @@ export const loginTool: ToolConfig = {
           accountID: creds.accountID,
           accountSecret: creds.accountSecret,
         });
-        process.exit(0);
-      } catch (error: unknown) {
+        return {
+          ok: true,
+          command: "login",
+          data: {
+            accountId: creds.accountID,
+            authMethod: "passphrase",
+            storedCredentials: true,
+          },
+        };
+      } catch {
         console.error(
           SimpleChalk.red(
             "Stored credentials are invalid. Please login again.",
@@ -129,13 +154,21 @@ export const loginTool: ToolConfig = {
       try {
         await authStorage.set(JSON.stringify(storedCredentials));
         console.log(SimpleChalk.green("Credentials saved locally"));
-      } catch (storageError: unknown) {
+      } catch {
         console.error("Warning: Credentials not saved");
         console.error("  You will need to re-login next session");
       }
 
       console.log(SimpleChalk.green("Login successful!"));
-      process.exit(0);
+      return {
+        ok: true,
+        command: "login",
+        data: {
+          accountId: jazzAccountId,
+          authMethod: "passphrase",
+          storedCredentials: true,
+        },
+      };
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
@@ -149,7 +182,14 @@ export const loginTool: ToolConfig = {
         console.error("  Check your network connection and try again");
       }
 
-      return { success: false, error: errorMessage };
+      return {
+        ok: false,
+        command: "login",
+        error: {
+          code: "LOGIN_FAILED",
+          message: errorMessage,
+        },
+      };
     }
   },
 };
