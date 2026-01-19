@@ -3,6 +3,7 @@ import { startWorker } from "jazz-tools/worker";
 import {
   createJazzContextForNewAccount,
   MockSessionProvider,
+  Peer,
 } from "jazz-tools";
 
 import { createWebSocketPeer } from "cojson-transport-ws";
@@ -84,7 +85,7 @@ export const signupTool: ToolConfig = {
       const jazzContext = createJazzContextForNewAccount({
         creationProps: { name: "Regarde user" },
         crypto,
-        peers: [peer],
+        peers: [peer as Peer],
         sessionProvider,
         initialAgentSecret: accountSecret,
         AccountSchema: RegardeAccount,

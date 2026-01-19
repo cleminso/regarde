@@ -12,6 +12,7 @@ export default defineConfig({
       outDir: "dist",
       entryRoot: "src",
       tsconfigPath: "./tsconfig.json",
+      rollupTypes: true,
     }),
   ],
   resolve: {
