@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import type { Loaded } from "jazz-tools";
 import { useAccount, useIsAuthenticated } from "jazz-tools/react";
 import { RegardeAccount } from "#schemas/regardeAccount";
 
@@ -17,9 +16,27 @@ export interface UseRegardeLemonSqueezyCheckoutLinkResult {
   error: string | null;
 }
 
+/**
+ * You must pass either the storeName or the storeDomain
+ */
 export function useRegardeLemonSqueezyCheckoutLink(
+  /** JAZZ Regarde AppIp */
   appId: string,
+  /** Your Store NAME (see the list here: https://app.lemonsqueezy.com/settings/stores) */
+  storeName?: string,
+  /** You Store DOMAIN (e.g. https://my-store.lemonsqueezy.com), find it here: https://app.lemonsqueezy.com/settings/stores */
+  storeDomain?: string,
 ): UseRegardeLemonSqueezyCheckoutLinkResult {
+  if (!storeDomain && !storeName)
+    throw new Error(
+      "Store information missing. You must pass either the storeName or the storeDomain",
+    );
+
+  if (storeDomain && storeDomain.match(/^.*\.lemonsqueezy.com$/))
+    throw new Error(
+      `The store domain appears invalid: ${storeDomain}, make sure it contains a valid domain name. See your list of stores here: https://app.lemonsqueezy.com/settings/stores`,
+    );
+
   const isAuthenticated = useIsAuthenticated();
   const account = useAccount(
     RegardeAccount,
@@ -62,7 +79,9 @@ export function useRegardeLemonSqueezyCheckoutLink(
 
       const regardeSdkId = regardeSdk.$jazz.id;
 
-      const baseUrl = `https://${storeDomain}/checkout/buy/${variantId}`;
+      const effectiveStoreDomain =
+        storeDomain || `${storeName}.lemonsqueezy.com`;
+      const baseUrl = `https://${effectiveStoreDomain}/checkout/buy/${variantId}`;
       const searchParams = new URLSearchParams();
 
       const allCustomData: Record<string, string> = {
