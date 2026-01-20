@@ -8,12 +8,13 @@ export default defineConfig({
     minify: false,
     sourcemap: true,
     target: "node22",
-    lib: {
-      entry: resolve(__dirname, "src/index.ts"),
-      formats: ["es"],
-      fileName: "index",
-    },
+    ssr: true,
     rollupOptions: {
+      input: resolve(__dirname, "src/index.ts"),
+      output: {
+        entryFileNames: "index.js",
+        format: "es",
+      },
       treeshake: true,
       external: [
         "hono",

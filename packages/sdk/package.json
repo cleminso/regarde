@@ -57,18 +57,15 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": "./dist/index.js"
     },
     "./react": {
       "types": "./dist/react.d.ts",
-      "import": "./dist/react.js",
-      "require": "./dist/react.cjs"
+      "import": "./dist/react.js"
     },
     "./preact": {
       "types": "./dist/preact.d.ts",
-      "import": "./dist/preact.js",
-      "require": "./dist/preact.cjs"
+      "import": "./dist/preact.js"
     }
   },
   "files": [

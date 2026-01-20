@@ -26,7 +26,7 @@ export default defineConfig({
         }
         return `${entryName}.${format}.js`;
       },
-      formats: ["es", "cjs"],
+      formats: ["es"],
     },
     rollupOptions: {
       treeshake: true,

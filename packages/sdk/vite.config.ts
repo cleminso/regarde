@@ -27,22 +27,24 @@ export default defineConfig({
   build: {
     minify: process.env.NODE_ENV === "production",
     sourcemap: process.env.NODE_ENV !== "production",
-    lib: {
-      // TODO: Add dts for react / preact files
-      entry: {
+    target: "es2020",
+    ssr: true,
+    rollupOptions: {
+      input: {
         index: resolve(__dirname, "src/index.ts"),
         react: resolve(__dirname, "src/frameworks/react/index.ts"),
         preact: resolve(__dirname, "src/frameworks/preact/index.ts"),
       },
-      formats: ["es", "cjs"],
-    },
-    rollupOptions: {
+      output: {
+        entryFileNames: "[name].js",
+        format: "es",
+      },
       treeshake: true,
-      // tsconfig: true,
       external: [
         "react",
         "preact",
         "jazz-tools",
+        "jazz-tools/react",
         "zod",
         "dotenv",
         "dotenv/config",
