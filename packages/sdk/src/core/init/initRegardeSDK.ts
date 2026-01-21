@@ -19,12 +19,7 @@ export const initRegardeSDK = async (
     throw new Error("Account must be loaded before calling initRegardeSDK");
   }
 
-  const REGARDE_REGISTRY_GROUP = process.env.REGARDE_REGISTRY_GROUP;
-  if (!REGARDE_REGISTRY_GROUP) {
-    throw new Error(
-      "[ERROR] Missing required environment variable: REGARDE_REGISTRY_GROUP",
-    );
-  }
+  const REGARDE_REGISTRY_GROUP = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
 
   try {
     if (mode === "create") {

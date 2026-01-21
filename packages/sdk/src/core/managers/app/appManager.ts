@@ -15,16 +15,7 @@ export const createApp = async (
 ): Promise<TApp> => {
   console.log("createApp");
 
-  const REGARDE_REGISTRY_GROUP = process.env.REGARDE_REGISTRY_GROUP;
-  if (
-    REGARDE_REGISTRY_GROUP === undefined ||
-    REGARDE_REGISTRY_GROUP === null ||
-    REGARDE_REGISTRY_GROUP === ""
-  ) {
-    throw new Error(
-      "[ERROR] Missing required environment variable: REGARDE_REGISTRY_GROUP. Please check your .env file.",
-    );
-  }
+  const REGARDE_REGISTRY_GROUP = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
 
   const { root: accountRoot } = await account.$jazz.ensureLoaded({
     resolve: {
