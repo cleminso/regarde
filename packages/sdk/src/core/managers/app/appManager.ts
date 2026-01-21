@@ -2,6 +2,11 @@ import { co, z, Loaded, Group, Account } from "jazz-tools";
 import { App, type TApp } from "#schemas/regardeUserApp";
 import { RegardeSDK } from "#schemas/regardeSDK";
 import { RegardeAccount } from "#schemas/regardeAccount";
+import { useLogging } from "#core/lib/logger";
+
+const logger = useLogging({
+  module: __filename,
+});
 
 export interface CreateAppParams {
   name: string;
@@ -13,8 +18,6 @@ export const createApp = async (
   account: co.loaded<typeof RegardeAccount>,
   appData: CreateAppParams,
 ): Promise<TApp> => {
-  console.log("createApp");
-
   const REGARDE_REGISTRY_GROUP = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
 
   const { root: accountRoot } = await account.$jazz.ensureLoaded({
@@ -24,20 +27,31 @@ export const createApp = async (
       },
     },
   });
+  const { "regarde-sdk": regardeSdk } = accountRoot;
 
   const { myApps } = await accountRoot["regarde-sdk"].$jazz.ensureLoaded({
     resolve: {
       myApps: { $each: true },
     },
   });
-
-  const { "regarde-sdk": regardeSdk } = accountRoot;
-  console.log("Account", account);
-  console.log("myApps", myApps);
-
   const myAppsLoaded = myApps !== null && myApps.$isLoaded === true;
+
+  logger.debug({
+    message: "create App object",
+    data: {
+      REGARDE_REGISTRY_GROUP,
+      account: account.isMe,
+      accountRoot,
+      myApps: myApps.toJSON(), // i don't want all jazz object data
+      myAppsLoaded,
+      regardeSdkJazzId: regardeSdk.$jazz.id,
+    },
+  });
+
   if (myAppsLoaded === false) {
-    throw new Error("RegardeSDK.myApps is not loaded");
+    throw new Error(
+      "RegardeSDK.myApps must be loaded before calling createApp",
+    );
   }
 
   const regardeProfileWorkerGroup = await co
@@ -45,12 +59,23 @@ export const createApp = async (
     .load(REGARDE_REGISTRY_GROUP, {
       loadAs: account,
     });
+  const isGroupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
 
-  const groupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
-  if (groupLoaded === false) {
-    throw new Error("Group not available");
+  logger.debug({
+    message: "regardeProfileWorkerGroup is loaded",
+    data: {
+      regardeProfileWorkerGroupJazzId: regardeProfileWorkerGroup.$jazz.id,
+      isGroupLoaded,
+      directMembers: regardeProfileWorkerGroup.getDirectMembers(),
+      allMembers: regardeProfileWorkerGroup.members,
+    },
+  });
+
+  if (isGroupLoaded === false) {
+    throw new Error("regardeProfileWorkerGroup not available");
   }
-  const userGroup = regardeSdk.$jazz.owner;
+
+  const userGroup = regardeSdk.$jazz.owner; // TODO: investigate where userGroup is from
 
   const regardeAdminOtherReadersGroup = Group.create({
     owner: account,
@@ -82,13 +107,6 @@ export const createApp = async (
           },
           { owner: regardeAdminOtherReadersGroup },
         ),
-
-      // payments: {
-      //   all: ListOfPaymentEvents.create([], { owner: userGroup }),
-      //   byUser: co
-      //     .record(z.string(), ListOfPaymentEvents)
-      //     .create({}, { owner: userGroup }),
-      // },
     },
     { owner: userGroup },
   );
@@ -97,6 +115,13 @@ export const createApp = async (
 
   myApps.$jazz.push(newApp);
   await myApps.$jazz.waitForSync();
+
+  logger.debug({
+    message: "Regarde App created",
+    data: {
+      regardeApp: newApp.toJSON(),
+    },
+  });
 
   return newApp;
 };
