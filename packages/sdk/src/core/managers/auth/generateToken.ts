@@ -36,10 +36,9 @@ export function generateRegardeToken(): string {
     globalThis.crypto,
   );
   const cryptoAvailable = typeof getRandomValues === "function";
+
   if (cryptoAvailable === false) {
-    throw new Error(
-      "[ERROR] WebCrypto getRandomValues() is not available. Fix by: (1) Running in a secure browser context (https), (2) Using Node.js v20+ which provides globalThis.crypto",
-    );
+    throw new Error("WebCrypto getRandomValues() is not available");
   }
 
   const tokenLength = 16;

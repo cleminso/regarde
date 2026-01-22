@@ -2,6 +2,11 @@ import { Loaded } from "jazz-tools";
 import { generateRegardeToken } from "#managers/auth/generateToken";
 import { TOKEN_LIFETIME_SECONDS } from "#managers/auth/tokenUtils";
 import { RegardeAuth } from "#schemas/regardeAuth";
+import { useLogging } from "#core/logger";
+
+const logger = useLogging({
+  module: __filename,
+});
 
 /**
  # Regarde Token - How to get a token?
@@ -61,17 +66,11 @@ export async function getRegardeAuth({
   loadedRegardeAuthCoMap: Loaded<typeof RegardeAuth> | null | undefined;
 }): Promise<string | null> {
   if (loadedRegardeAuthCoMap === null || loadedRegardeAuthCoMap === undefined) {
-    console.error(
-      "[ERROR] No auth target available. Fix by: (1) Ensuring RegardeAuth CoMap exists in account root, (2) Loading it with resolve: { auth: true }, (3) Passing a loaded CoMap instance to getRegardeAuth",
-    );
     return null;
   }
 
   const authLoaded = loadedRegardeAuthCoMap.$isLoaded === true;
   if (authLoaded === false) {
-    console.error(
-      "[ERROR] RegardeAuth CoMap is not loaded. Fix by: (1) Loading it with ensureLoaded, (2) Passing a Loaded<RegardeAuth> instance to getRegardeAuth",
-    );
     return null;
   }
 
@@ -87,11 +86,15 @@ export async function getRegardeAuth({
     await loadedRegardeAuthCoMap.$jazz.waitForSync();
     return token;
   } catch (error) {
-    console.error(
-      "[ERROR] Failed to store authentication token:",
-      error,
-      ". Verify Jazz network connection and account permissions.",
-    );
+    logger.error({
+      message: "Failed to store authentication token in RegardeAuth",
+      data: {
+        metadata: {
+          operation: "refresh-auth-token",
+        },
+        loadedRegardeAuthCoMapId: loadedRegardeAuthCoMap.$jazz.id,
+      },
+    });
     return null;
   }
 }

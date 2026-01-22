@@ -1,6 +1,11 @@
 import { useCallback } from "react";
 import { useAccount, useIsAuthenticated } from "jazz-tools/react";
 import { RegardeAccount } from "#schemas/regardeAccount";
+import { useLogging } from "#core/logger";
+
+const logger = useLogging({
+  module: __filename,
+});
 
 export interface RegardeLemonSqueezyCheckoutLinkOptions {
   variantId: string | number;
@@ -96,7 +101,23 @@ export function useRegardeLemonSqueezyCheckoutLink(
       });
 
       const queryString = searchParams.toString();
-      return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+      const checkoutUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl;
+
+      logger.info({
+        message: "Generated Lemon Squeezy checkout link",
+        data: {
+          metadata: {
+            operation: "generate-checkout-link",
+          },
+          appId,
+          variantId,
+          effectiveStoreDomain,
+          jazzAccountId,
+          regardeSdkId,
+        },
+      });
+
+      return checkoutUrl;
     },
     [account, appId],
   );

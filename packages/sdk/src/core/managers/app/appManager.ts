@@ -2,7 +2,7 @@ import { co, z, Loaded, Group, Account } from "jazz-tools";
 import { App, type TApp } from "#schemas/regardeUserApp";
 import { RegardeSDK } from "#schemas/regardeSDK";
 import { RegardeAccount } from "#schemas/regardeAccount";
-import { useLogging } from "#core/lib/logger";
+import { useLogging } from "#core/logger";
 
 const logger = useLogging({
   module: __filename,
@@ -41,14 +41,21 @@ export const createApp = async (
     data: {
       REGARDE_REGISTRY_GROUP,
       account: account.isMe,
-      accountRoot,
-      myApps: myApps.toJSON(), // i don't want all jazz object data
+      accountRoot: accountRoot.toJSON(), // only return object data without Jazz methods
+      myApps: myApps.toJSON(),
       myAppsLoaded,
       regardeSdkJazzId: regardeSdk.$jazz.id,
     },
   });
 
   if (myAppsLoaded === false) {
+    logger.debug({
+      message: "myApps not loaded before app creation",
+      data: {
+        myAppsNull: myApps === null,
+        myAppsLoaded: myApps?.$isLoaded,
+      },
+    });
     throw new Error(
       "RegardeSDK.myApps must be loaded before calling createApp",
     );
@@ -64,15 +71,13 @@ export const createApp = async (
   logger.debug({
     message: "regardeProfileWorkerGroup is loaded",
     data: {
-      regardeProfileWorkerGroupJazzId: regardeProfileWorkerGroup.$jazz.id,
+      groupJazzId: regardeProfileWorkerGroup.$jazz.id,
       isGroupLoaded,
-      directMembers: regardeProfileWorkerGroup.getDirectMembers(),
-      allMembers: regardeProfileWorkerGroup.members,
     },
   });
 
   if (isGroupLoaded === false) {
-    throw new Error("regardeProfileWorkerGroup not available");
+    throw new Error("regardeProfileWorkerGroup not loaded");
   }
 
   const userGroup = regardeSdk.$jazz.owner; // TODO: investigate where userGroup is from
@@ -84,6 +89,16 @@ export const createApp = async (
   regardeAdminOtherReadersGroup.addMember(account, "reader");
 
   await regardeAdminOtherReadersGroup.$jazz.waitForSync();
+
+  logger.debug({
+    message: "regardeAdminOtherReadersGroup created",
+    data: {
+      groupJazzId: regardeAdminOtherReadersGroup.$jazz.id,
+      directMembers: regardeAdminOtherReadersGroup.getDirectMembers(),
+      allMembers: regardeAdminOtherReadersGroup.members,
+      myRole: regardeAdminOtherReadersGroup.myRole,
+    },
+  });
 
   const newApp = App.create(
     {

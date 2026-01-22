@@ -96,7 +96,7 @@ export async function registerNickname(
       error:
         error instanceof Error
           ? error.message
-          : "Registration failed: Network or parsing error occurred. Check connection and retry manually.",
+          : "Registration failed: Network or parsing error occurred.",
     };
   }
 }
@@ -136,22 +136,29 @@ export async function registerNickname(
 export async function checkNicknameAvailability(
   params: CheckAvailabilityParams,
 ): Promise<CheckAvailabilityResponse> {
-  const response = await fetch(`${params.baseUrl}/checkAvailability`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      nickname: params.nickname,
-    }),
-    signal: params.signal,
-  });
+  try {
+    const response = await fetch(`${params.baseUrl}/checkAvailability`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        nickname: params.nickname,
+      }),
+      signal: params.signal,
+    });
 
-  if (!response.ok) {
-    throw new Error(
-      `[ERROR] Failed to check availability. Server returned ${response.status} ${response.statusText}. Fix by: (1) Verifying the nickname format meets requirements, (2) Checking network connectivity to api.regarde.dev, (3) Confirming the service endpoint is accessible`,
-    );
+    if (!response.ok) {
+      throw new Error(
+        `Failed to check availability. Server returned ${response.status} ${response.statusText}`,
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error("Failed to check availability: Network error occurred");
   }
-
-  return await response.json();
 }
