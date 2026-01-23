@@ -1,5 +1,13 @@
-import { RegardeAuth, RegistryWorkerAccount } from "@regarde-dev/core";
+import {
+  RegardeAuth,
+  RegistryWorkerAccount,
+  useLogging,
+} from "@regarde-dev/core";
 import { co, Loaded } from "jazz-tools";
+
+const logger = useLogging({
+  module: __filename,
+});
 
 export interface VerificationResult {
   isValid: boolean;
@@ -13,73 +21,133 @@ export async function verifyRegardeAuth(
   worker: Loaded<typeof RegistryWorkerAccount>,
 ): Promise<VerificationResult> {
   try {
-    if (!jazzAccountId || !providedRegardeAuth) {
-      return { isValid: false, error: "Missing jazzAccountId or key" };
-    }
+    const jazzAccountIdValid =
+      typeof jazzAccountId === "string" && jazzAccountId !== "";
 
-    console.log(
-      `Attempting to load account: ${jazzAccountId} with regardeAuthCoValueId ${regardeAuthCoValueId}`,
-    );
+    const providedRegardeAuthValid =
+      typeof providedRegardeAuth === "string" && providedRegardeAuth !== "";
 
-    let regardeAuth = null;
-
-    try {
-      regardeAuth = await RegardeAuth.load(regardeAuthCoValueId, {
-        resolve: true,
-      });
-
-      // Check if loaded successfully
-      if (!regardeAuth || !regardeAuth.$isLoaded) {
-        console.log(`No registration token found or not loaded`);
-        return {
-          isValid: false,
-          error:
-            "No registration token found - user must create registration token first",
-        };
-      }
-
-      // Load user account to verify permissions on RegardeAuth CoValue
-      const userAccount = await co.account().load(jazzAccountId, {
-        loadAs: worker,
-      });
-
-      const userAccountLoaded = userAccount.$isLoaded === true;
-      if (userAccountLoaded === false) {
-        throw new Error("User account not found");
-      }
-
-      // Verify user has admin permissions on RegardeAuth CoValue
-      // create a small test to isolate account via admin worker
-      const userCanAdminRegardeAuth = userAccount.canAdmin(regardeAuth);
-      if (userCanAdminRegardeAuth === false) {
-        throw new Error("User does not own the CoValue");
-      }
-    } catch (loadError: any) {
-      console.error(`Failed to load account ${jazzAccountId}:`, loadError);
+    if (jazzAccountIdValid === false || providedRegardeAuthValid === false) {
       return {
         isValid: false,
-        error: "regardeAuth does not exist or is not accessible",
+        error:
+          "Invalid jazzAccountId or registration token: must be non-empty strings",
       };
     }
 
-    console.log(
-      `Registration token found, verifying: ${regardeAuth.token} - ${regardeAuth.expiresAt}`,
-    );
+    const regardeAuth = (await RegardeAuth.load(regardeAuthCoValueId, {
+      resolve: true,
+    })) as Loaded<typeof RegardeAuth>;
+
+    const regardeAuthLoaded = regardeAuth.$isLoaded === true;
+    if (regardeAuthLoaded === false) {
+      logger.error({
+        message: "Failed to load RegardeAuth",
+        data: {
+          jazzAccountId,
+          regardeAuthCoValueId,
+        },
+      });
+      return {
+        isValid: false,
+        error:
+          "RegardeAuth CoMap not found - verify X-Regarde-Token-Id header contains valid CoValue ID",
+      };
+    }
+
+    logger.debug({
+      message: "RegardeAuth loaded successfully, proceeding with verification",
+      data: {
+        jazzAccountId,
+        regardeAuthCoValueId,
+      },
+    });
+
+    const userAccount = await co.account().load(jazzAccountId, {
+      loadAs: worker,
+    });
+
+    const userAccountLoaded = userAccount.$isLoaded === true;
+    if (userAccountLoaded === false) {
+      logger.error({
+        message: "Failed to load userAccount",
+        data: {
+          jazzAccountId,
+        },
+      });
+      return {
+        isValid: false,
+        error: "User account not found",
+      };
+    }
+
+    const userCanAdminRegardeAuth = userAccount.canAdmin(regardeAuth);
+    if (userCanAdminRegardeAuth === false) {
+      logger.debug({
+        message: "User does not own RegardeAuth CoValue",
+        data: {
+          jazzAccountId,
+          regardeAuthCoValueId,
+          regardeAuthCovalueId: regardeAuth.$jazz.id,
+        },
+      });
+      return {
+        isValid: false,
+        error: "User does not have permission to access this RegardeAuth CoMap",
+      };
+    }
 
     if (regardeAuth.token !== providedRegardeAuth) {
+      logger.error({
+        message: "Invalid registration token",
+        data: {
+          jazzAccountId,
+          regardeAuthCoValueId,
+          providedTokenLength: providedRegardeAuth.length,
+          storedTokenLength: regardeAuth.token.length,
+          tokensMatch: providedRegardeAuth === regardeAuth.token, // false
+          tokenExpiresAt: regardeAuth.expiresAt,
+          currentTime: Date.now(),
+        },
+      });
       return { isValid: false, error: "Invalid registration token" };
     }
 
     if (regardeAuth.expiresAt && Date.now() > regardeAuth.expiresAt) {
+      logger.error({
+        message: "Registration token has expired",
+        data: {
+          jazzAccountId,
+          regardeAuthCoValueId,
+          tokenExpiresAt: regardeAuth.expiresAt,
+          currentTime: Date.now(),
+          ageMinutes: Math.floor((Date.now() - regardeAuth.expiresAt) / 60000),
+        },
+      });
       return { isValid: false, error: "Registration token has expired" };
     }
 
-    console.log(
-      `Registration token verified successfully for account: ${jazzAccountId}`,
-    );
+    logger.info({
+      message: "Registration token verified successfully",
+      data: {
+        jazzAccountId,
+        regardeAuthCoValueId,
+      },
+    });
     return { isValid: true };
-  } catch (error: any) {
-    console.error("Error verifying registration token:", error);
-    return { isValid: false, error: `Verification failed: ${error.message}` };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
+    logger.error({
+      message: "Unexpected error during registration token verification",
+      data: {
+        jazzAccountId,
+        errorMessage,
+      },
+    });
+    return {
+      isValid: false,
+      error: `Verification failed: ${errorMessage}`,
+    };
   }
 }

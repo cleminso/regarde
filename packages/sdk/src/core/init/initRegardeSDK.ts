@@ -167,6 +167,15 @@ export const initRegardeSDK = async (
 
   const rootLoaded = root.$isLoaded === true;
   if (rootLoaded === false) {
+    logger.debug({
+      message: "Account root not loaded after ensureLoaded",
+      data: {
+        mode,
+        accountJazzId: account.$jazz.id,
+        accountIsLoaded: account.$isLoaded,
+        root: root,
+      },
+    });
     throw new Error("Account root not loaded");
   }
 
