@@ -455,6 +455,7 @@ export const lemonSqueezyWebhookHandler = (
           logger.error({
             message: "Failed to load existing PaymentEvent",
             data: {
+              metadata: { operation: "load existing event" },
               existingEventId,
               prefixedProviderEventUUID,
               appId,
@@ -471,8 +472,9 @@ export const lemonSqueezyWebhookHandler = (
           logger.error({
             message: "Failed to load userAccount",
             data: {
+              metadata: { operation: "create payment event" },
               userAccountIsLoaded: userAccount.$isLoaded,
-              jazzAccountId, // whcih account id failed to load?
+              jazzAccountId, // which account id failed to load?
               appId,
             },
           });
