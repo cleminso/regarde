@@ -35,9 +35,9 @@ export function generateRegardeToken(): string {
   const getRandomValues = globalThis.crypto?.getRandomValues?.bind(
     globalThis.crypto,
   );
-  const cryptoAvailable = typeof getRandomValues === "function";
+  const isCryptoAvailable = typeof getRandomValues === "function";
 
-  if (cryptoAvailable === false) {
+  if (isCryptoAvailable === false) {
     throw new Error("WebCrypto getRandomValues() is not available");
   }
 

@@ -36,9 +36,9 @@ export const registerAppHandler = (
         );
       }
 
-      const regardeAuthHeaderExists =
+      const isRegardeAuthHeaderExists =
         regardeAuth !== null && regardeAuth !== undefined;
-      if (regardeAuthHeaderExists === false) {
+      if (isRegardeAuthHeaderExists === false) {
         logger.error({
           message: "Missing registration token header",
           data: {
@@ -59,8 +59,8 @@ export const registerAppHandler = (
         worker,
       );
 
-      const authenticationValid = verificationResult.isValid === true;
-      if (authenticationValid === false) {
+      const isAuthenticationValid = verificationResult.isValid === true;
+      if (isAuthenticationValid === false) {
         logger.error({
           message: "Authentication failed",
           data: {
@@ -80,8 +80,8 @@ export const registerAppHandler = (
         resolve: true,
       });
 
-      const appLoaded = app !== null && app.$isLoaded === true;
-      if (appLoaded === false) {
+      const isAppLoaded = app !== null && app.$isLoaded === true;
+      if (isAppLoaded === false) {
         logger.error({
           message: "App not found or failed to load",
           data: {
@@ -96,9 +96,9 @@ export const registerAppHandler = (
         loadAs: worker,
       });
 
-      const userAccountLoaded =
+      const isUserAccountLoaded =
         userAccount !== null && userAccount.$isLoaded === true;
-      if (userAccountLoaded === false) {
+      if (isUserAccountLoaded === false) {
         logger.error({
           message: "User account not found or failed to load",
           data: {
@@ -109,8 +109,8 @@ export const registerAppHandler = (
       }
 
       // Verify user has admin write permissions on the App
-      const userCanAdminApp = userAccount.canAdmin(app);
-      if (userCanAdminApp === false) {
+      const isUserCanAdminApp = userAccount.canAdmin(app);
+      if (isUserCanAdminApp === false) {
         logger.warn({
           message: "Permission denied - user cannot admin App",
           data: {
@@ -137,8 +137,9 @@ export const registerAppHandler = (
         loadAs: worker,
       });
 
-      const registryGroupLoaded = registryProfileWorkerGroup.$isLoaded === true;
-      if (registryGroupLoaded === false) {
+      const isRegistryGroupLoaded =
+        registryProfileWorkerGroup.$isLoaded === true;
+      if (isRegistryGroupLoaded === false) {
         logger.error({
           message: "Failed to load registryProfileWorkerGroup",
           data: {
@@ -155,11 +156,11 @@ export const registerAppHandler = (
 
       let webhookSecret: string;
 
-      const webhookSecretExists =
+      const isWebhookSecretExists =
         app.webhookSecret !== null &&
         app.webhookSecret !== undefined &&
         app.webhookSecret !== "";
-      if (webhookSecretExists === false) {
+      if (isWebhookSecretExists === false) {
         webhookSecret = randomBytes(20).toString("hex");
         app.$jazz.set("webhookSecret", webhookSecret);
         await app.$jazz.waitForSync();
@@ -184,10 +185,10 @@ export const registerAppHandler = (
       appsRecord.$jazz.set(appId, metadata);
       await appsRecord.$jazz.waitForSync();
 
-      const userAppsListExists =
+      const isUserAppsListExists =
         appsByUserRecord[jazzAccountId] !== null &&
         appsByUserRecord[jazzAccountId] !== undefined;
-      if (userAppsListExists === false) {
+      if (isUserAppsListExists === false) {
         appsByUserRecord.$jazz.set(
           jazzAccountId,
           co.list(RegistryAppMetadata).create([], registryProfileWorkerGroup),
@@ -197,10 +198,10 @@ export const registerAppHandler = (
 
       const userAppsList = appsByUserRecord[jazzAccountId];
 
-      const userAppsListValid =
+      const isUserAppsListValid =
         userAppsList !== undefined && userAppsList.$isLoaded === true;
 
-      if (userAppsListValid === true) {
+      if (isUserAppsListValid === true) {
         userAppsList.$jazz.push(metadata);
         await appsByUserRecord.$jazz.waitForSync();
       }

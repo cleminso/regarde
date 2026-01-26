@@ -69,8 +69,8 @@ export async function getRegardeAuth({
     return null;
   }
 
-  const authLoaded = loadedRegardeAuthCoMap.$isLoaded === true;
-  if (authLoaded === false) {
+  const isAuthLoaded = loadedRegardeAuthCoMap.$isLoaded === true;
+  if (isAuthLoaded === false) {
     return null;
   }
 

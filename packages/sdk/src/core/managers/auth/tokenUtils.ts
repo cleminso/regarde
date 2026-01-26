@@ -26,9 +26,9 @@ export function isTokenExpired(
   regardeAuth: { expiresAt?: number | null } | null | undefined,
 ): boolean {
   const expiresAt = regardeAuth?.expiresAt ?? null;
-  const expiresAtValid =
+  const isExpiresAtValid =
     typeof expiresAt === "number" && Number.isFinite(expiresAt);
-  if (expiresAtValid === false) return true;
+  if (isExpiresAtValid === false) return true;
 
   return Date.now() > expiresAt;
 }

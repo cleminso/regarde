@@ -159,6 +159,6 @@ export async function checkNicknameAvailability(
     if (error instanceof Error) {
       throw error;
     }
-    throw new Error("Failed to check availability: Network error occurred");
+    throw new Error("Failed to check availability: Network error occurred", { cause: error });
   }
 }

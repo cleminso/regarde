@@ -9,11 +9,11 @@ import { generateRegardeToken } from "#managers/auth/generateToken";
 import { TOKEN_LIFETIME_SECONDS } from "#managers/auth/";
 import { useLogging } from "#core/logger";
 
-export type InitRegardeSDKMode = "ensure" | "create";
-
 const logger = useLogging({
   module: __filename,
 });
+
+export type InitRegardeSDKMode = "ensure" | "create";
 
 export const initRegardeSDK = async (
   account: co.loaded<typeof RegardeAccount>,
@@ -21,7 +21,7 @@ export const initRegardeSDK = async (
   /** The AppId you get when creating your Regarde App */
   appId: ID<string> | "no-app",
 ): Promise<co.loaded<typeof RegardeSDK>> => {
-  const accountValid = account !== null && account.$isLoaded === true;
+  const isAccountValid = account !== null && account.$isLoaded === true;
   const REGARDE_REGISTRY_GROUP = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
 
   logger.debug({
@@ -32,7 +32,7 @@ export const initRegardeSDK = async (
       },
       account,
       accountIsLoaded: account.$isLoaded,
-      accountValid,
+      isAccountValid,
       mode,
       ["process.env.REGARDE_REGISTRY_GROUP"]:
         process.env.REGARDE_REGISTRY_GROUP,
@@ -40,7 +40,7 @@ export const initRegardeSDK = async (
     },
   });
 
-  if (accountValid === false) {
+  if (isAccountValid === false) {
     throw new Error("Account must be loaded before calling initRegardeSDK");
   }
 
@@ -165,8 +165,8 @@ export const initRegardeSDK = async (
     },
   });
 
-  const rootLoaded = root.$isLoaded === true;
-  if (rootLoaded === false) {
+  const isRootLoaded = root.$isLoaded === true;
+  if (isRootLoaded === false) {
     logger.debug({
       message: "Account root not loaded after ensureLoaded",
       data: {
@@ -181,8 +181,8 @@ export const initRegardeSDK = async (
 
   const regardeSDK = root["regarde-sdk"];
 
-  const sdkValid = regardeSDK !== null && regardeSDK.$isLoaded === true;
-  if (sdkValid === false) {
+  const isSdkValid = regardeSDK !== null && regardeSDK.$isLoaded === true;
+  if (isSdkValid === false) {
     logger.debug({
       message: "RegardeSDK missing, preparing fallback creation",
       data: {
@@ -314,9 +314,9 @@ export const initRegardeSDK = async (
     },
   });
 
-  const authLoaded =
+  const isAuthLoaded =
     regardeSDK.auth !== null && regardeSDK.auth.$isLoaded === true;
-  if (authLoaded === false) {
+  if (isAuthLoaded === false) {
     logger.warn({
       message: "RegardeSDK auth not loaded",
       data: {
@@ -330,9 +330,9 @@ export const initRegardeSDK = async (
 
   const hasToken = regardeSDK.auth.$jazz.has("token") === true;
   const hasExpiresAt = regardeSDK.auth.$jazz.has("expiresAt") === true;
-  const bothFieldsPresent = hasToken && hasExpiresAt;
+  const isBothFieldsPresent = hasToken && hasExpiresAt;
 
-  if (bothFieldsPresent === false) {
+  if (isBothFieldsPresent === false) {
     logger.warn({
       message: "RegardeSDK auth missing fields",
       data: {
@@ -347,9 +347,9 @@ export const initRegardeSDK = async (
   }
 
   const tokenValue = regardeSDK.auth.token;
-  const tokenPresent = tokenValue !== null && tokenValue.length > 0;
+  const isTokenPresent = tokenValue !== null && tokenValue.length > 0;
 
-  if (tokenPresent === false) {
+  if (isTokenPresent === false) {
     logger.warn({
       message: "RegardeSDK auth token empty",
       data: {

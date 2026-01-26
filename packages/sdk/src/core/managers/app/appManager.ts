@@ -34,7 +34,7 @@ export const createApp = async (
       myApps: { $each: true },
     },
   });
-  const myAppsLoaded = myApps !== null && myApps.$isLoaded === true;
+  const isMyAppsLoaded = myApps !== null && myApps.$isLoaded === true;
 
   logger.debug({
     message: "create App object",
@@ -43,12 +43,12 @@ export const createApp = async (
       account: account.isMe,
       accountRoot: accountRoot.toJSON(), // only return object data without Jazz methods
       myApps: myApps.toJSON(),
-      myAppsLoaded,
+      isMyAppsLoaded,
       regardeSdkJazzId: regardeSdk.$jazz.id,
     },
   });
 
-  if (myAppsLoaded === false) {
+  if (isMyAppsLoaded === false) {
     logger.debug({
       message: "myApps not loaded before app creation",
       data: {

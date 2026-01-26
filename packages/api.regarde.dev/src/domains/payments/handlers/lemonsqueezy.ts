@@ -284,8 +284,9 @@ export const lemonSqueezyWebhookHandler = (
       if (typeof regardeSDKId !== "string") regardeSDKId = undefined;
 
       const appId = parsed.meta.custom_data?.app_id as ID<Account>;
-      const appIdValid = appId !== null && appId !== undefined && appId !== "";
-      if (appIdValid === false) {
+      const isAppIdValid =
+        appId !== null && appId !== undefined && appId !== "";
+      if (isAppIdValid === false) {
         logger.error({
           message: "Missing App ID in custom_data",
           data: {
@@ -293,7 +294,7 @@ export const lemonSqueezyWebhookHandler = (
             customData: parsed.meta.custom_data,
           },
         });
-        return c.json({ error: "Missing App ID" }, 400);
+        return c.json({ error: "Missing App ID from custom_data" }, 400);
       }
 
       const appRef = await App.load(appId, {
@@ -304,6 +305,10 @@ export const lemonSqueezyWebhookHandler = (
           },
         },
       });
+      // TODO: after load id
+      // (1) sync doesnt work - hard pit if jazz connection is well establish
+      // (2) doesn't have permissions to load - what's happen if I dont have? if crash I need a try catch; what if it's empty?
+      // (3) is the webhook correspond to App
 
       if (!appRef.$jazz.id) {
         logger.error({
@@ -327,9 +332,9 @@ export const lemonSqueezyWebhookHandler = (
       });
 
       // Ensure request come from Lemon Squeezy
-      const secretValid =
+      const isSecretValid =
         typeof app.webhookSecret === "string" && app.webhookSecret !== "";
-      if (secretValid === false) {
+      if (isSecretValid === false) {
         logger.error({
           message: "App webhookSecret is missing",
           data: {
@@ -346,17 +351,17 @@ export const lemonSqueezyWebhookHandler = (
       const signaturex = c.req.header("x-signature");
       const signature = signatureX || signaturex || null;
 
-      const signatureValid = verifyLemonSqueezySignature(
+      const isSignatureValid = verifyLemonSqueezySignature(
         secret,
         rawBody,
         signature,
       );
-      if (!signatureValid) {
+      if (!isSignatureValid) {
         logger.error({
           message: "Invalid webhook signature - review misconfiguration",
           data: {
             appId,
-            signaturePresent: signature !== null,
+            isSignaturePresent: signature !== null,
             signatureLength: signature?.length,
           },
         });
@@ -367,9 +372,9 @@ export const lemonSqueezyWebhookHandler = (
       const command = standardizeLemonSqueezy(parsed);
 
       //  Need to link payment to user `RegardeSDK` so need RegardeSDK CoValueId to update user's payment history
-      const regardeSDKIdValid =
+      const isRegardeSDKIdValid =
         regardeSDKId !== undefined && regardeSDKId !== "";
-      if (regardeSDKIdValid === false) {
+      if (isRegardeSDKIdValid === false) {
         logger.error({
           message: "RegardeSDK ID is required in custom_data.regarde_sdk_id",
           data: {
@@ -409,11 +414,11 @@ export const lemonSqueezyWebhookHandler = (
 
       // Need to check for duplicate webhook deliveries  against worker deduplication records of processed event IDs
       const processedProviderEvents = workerRoot.processedProviderEvents;
-      const processedProviderEventsLoaded =
+      const isProcessedProviderEventsLoaded =
         processedProviderEvents !== null &&
         processedProviderEvents !== undefined &&
         processedProviderEvents.$isLoaded === true;
-      if (processedProviderEventsLoaded === false) {
+      if (isProcessedProviderEventsLoaded === false) {
         logger.error({
           message: "Failed to load processedProviderEvents from worker root",
           data: {
@@ -467,8 +472,8 @@ export const lemonSqueezyWebhookHandler = (
         // Branch 2 - Create new payment event
         const userAccount = await co.account().load(jazzAccountId);
 
-        const userAccountLoaded = userAccount.$isLoaded === true;
-        if (userAccountLoaded === false) {
+        const isUserAccountLoaded = userAccount.$isLoaded === true;
+        if (isUserAccountLoaded === false) {
           logger.error({
             message: "Failed to load userAccount",
             data: {
@@ -533,8 +538,8 @@ export const lemonSqueezyWebhookHandler = (
         },
       });
 
-      const userSDKLoaded = userSDK.$isLoaded === true;
-      if (userSDKLoaded === false) {
+      const isUserSDKLoaded = userSDK.$isLoaded === true;
+      if (isUserSDKLoaded === false) {
         logger.error({
           message: "Failed to load user RegardeSDK",
           data: {

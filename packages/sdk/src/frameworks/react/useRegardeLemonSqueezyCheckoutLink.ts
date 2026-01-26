@@ -60,8 +60,14 @@ export function useRegardeLemonSqueezyCheckoutLink(
     (options: RegardeLemonSqueezyCheckoutLinkOptions): string => {
       const { variantId, storeDomain, customData } = options;
 
-      const accountValid = account !== null && account.$isLoaded === true;
-      if (accountValid === false) {
+      const isAccountValid = account !== null && account.$isLoaded === true;
+      if (isAccountValid === false) {
+        logger.error({
+          message: "Account must be loaded",
+          data: {
+            account,
+          },
+        });
         throw new Error("Account must be loaded");
       }
 
@@ -76,9 +82,15 @@ export function useRegardeLemonSqueezyCheckoutLink(
 
       const regardeSdk = root["regarde-sdk"];
 
-      const regardeSdkValid =
+      const isRegardeSdkValid =
         regardeSdk !== null && regardeSdk.$isLoaded === true;
-      if (regardeSdkValid === false) {
+      if (isRegardeSdkValid === false) {
+        logger.error({
+          message: "RegardeSDK must be loaded",
+          data: {
+            regardeSdk,
+          },
+        });
         throw new Error("RegardeSDK must be loaded");
       }
 

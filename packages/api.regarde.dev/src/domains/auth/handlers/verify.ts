@@ -21,13 +21,16 @@ export async function verifyRegardeAuth(
   worker: Loaded<typeof RegistryWorkerAccount>,
 ): Promise<VerificationResult> {
   try {
-    const jazzAccountIdValid =
+    const isJazzAccountIdValid =
       typeof jazzAccountId === "string" && jazzAccountId !== "";
 
-    const providedRegardeAuthValid =
+    const isProvidedRegardeAuthValid =
       typeof providedRegardeAuth === "string" && providedRegardeAuth !== "";
 
-    if (jazzAccountIdValid === false || providedRegardeAuthValid === false) {
+    if (
+      isJazzAccountIdValid === false ||
+      isProvidedRegardeAuthValid === false
+    ) {
       return {
         isValid: false,
         error:
@@ -39,8 +42,8 @@ export async function verifyRegardeAuth(
       resolve: true,
     })) as Loaded<typeof RegardeAuth>;
 
-    const regardeAuthLoaded = regardeAuth.$isLoaded === true;
-    if (regardeAuthLoaded === false) {
+    const isRegardeAuthLoaded = regardeAuth.$isLoaded === true;
+    if (isRegardeAuthLoaded === false) {
       logger.error({
         message: "Failed to load RegardeAuth",
         data: {
@@ -55,7 +58,7 @@ export async function verifyRegardeAuth(
       };
     }
 
-    logger.debug({
+    logger.info({
       message: "RegardeAuth loaded successfully, proceeding with verification",
       data: {
         jazzAccountId,
@@ -67,8 +70,8 @@ export async function verifyRegardeAuth(
       loadAs: worker,
     });
 
-    const userAccountLoaded = userAccount.$isLoaded === true;
-    if (userAccountLoaded === false) {
+    const isUserAccountLoaded = userAccount.$isLoaded === true;
+    if (isUserAccountLoaded === false) {
       logger.error({
         message: "Failed to load userAccount",
         data: {
@@ -81,8 +84,8 @@ export async function verifyRegardeAuth(
       };
     }
 
-    const userCanAdminRegardeAuth = userAccount.canAdmin(regardeAuth);
-    if (userCanAdminRegardeAuth === false) {
+    const isUserCanAdminRegardeAuth = userAccount.canAdmin(regardeAuth);
+    if (isUserCanAdminRegardeAuth === false) {
       logger.debug({
         message: "User does not own RegardeAuth CoValue",
         data: {

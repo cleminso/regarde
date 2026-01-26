@@ -2,12 +2,16 @@ import "dotenv/config";
 
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
+import { logger as Honologger } from "hono/logger";
 import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { startWorker } from "jazz-tools/worker";
 
-import { RegistryWorkerAccount, TNicknameRegistry } from "@regarde-dev/core";
+import {
+  RegistryWorkerAccount,
+  TNicknameRegistry,
+  useLogging,
+} from "@regarde-dev/core";
 
 import { rateLimit } from "./middleware/rateLimit.js";
 
@@ -27,6 +31,10 @@ import { registerAppRoute } from "./routes/registerApp.js";
 import { registerAppHandler } from "#/domains/app/handlers/register";
 import { webhookLemonSqueezyRoute } from "./routes/webhooks.js";
 import { lemonSqueezyWebhookHandler } from "#/domains/payments/handlers/lemonsqueezy";
+
+const logger = useLogging({
+  module: __filename,
+});
 
 const PORT = process.env.PORT || 3000;
 const JAZZ_SYNC_SERVER_URL =
@@ -57,10 +65,16 @@ process.on("SIGINT", () => {
 });
 
 async function main() {
-  if (!process.env.WORKER_ACCOUNT_ID || !process.env.WORKER_ACCOUNT_SECRET) {
-    console.error(
-      "Error: WORKER_ACCOUNT_ID and WORKER_ACCOUNT_SECRET environment variables must be set.",
-    );
+  const workerAccountId = process.env.WORKER_ACCOUNT_ID;
+  const workerAccountSecret = process.env.WORKER_ACCOUNT_SECRET;
+
+  if (!workerAccountId || !workerAccountSecret) {
+    logger.error({
+      message: "worker environment variables must be set",
+      data: {
+        metadata: { workerAccountId, workerAccountSecret },
+      },
+    });
     process.exit(1);
   }
 
@@ -69,11 +83,15 @@ async function main() {
     (!process.env.APP_PUBLIC_HOSTNAME ||
       process.env.APP_PUBLIC_HOSTNAME.includes("localhost"))
   ) {
-    console.warn(
-      "Warning: APP_PUBLIC_HOSTNAME is not set or is localhost. For production behind Nginx/HTTPS, set it to your public domain (e.g., api.regarde.bio) for correct documentation links.",
-    );
+    logger.warn({
+      message: "APP_PUBLIC_HOSTNAME is not set or is localhost",
+      data: {
+        metadata: { APP_PUBLIC_HOSTNAME: process.env.APP_PUBLIC_HOSTNAME },
+      },
+    });
   }
 
+  // I like as it is
   console.log(`Starting Nickname Registry Worker...`);
   console.log(`Internal HTTP server will listen on port ${PORT}`);
   console.log(`Publicly accessible via Nginx at: ${PUBLIC_BASE_URL}`);
@@ -85,7 +103,6 @@ async function main() {
 
   let worker;
   try {
-    console.debug("Starting worker");
     const workerResult = await startWorker({
       AccountSchema: RegistryWorkerAccount,
       syncServer:
@@ -94,19 +111,32 @@ async function main() {
       accountID: process.env.WORKER_ACCOUNT_ID,
       accountSecret: process.env.WORKER_ACCOUNT_SECRET,
     });
-    console.debug("Worker started");
-
     worker = workerResult.worker;
+
+    const isWorkerLoaded =
+      worker !== null && worker !== undefined && worker.$isLoaded === true;
+    logger.debug({
+      message: "Worker started",
+      data: {
+        workerLoaded: isWorkerLoaded,
+        workerId: isWorkerLoaded ? worker.$jazz.id : "not loaded",
+      },
+    });
   } catch (workerError) {
-    console.error("Failed to start Jazz worker:", workerError);
-    console.error("This is a critical error. Exiting...");
+    const errorMessage =
+      workerError instanceof Error ? workerError.message : "Unknown error";
+    logger.error({
+      message: "Failed to start worker",
+      data: {
+        errorMessage,
+        syncServerUrl: JAZZ_SYNC_SERVER_URL,
+        workerAccountId: process.env.WORKER_ACCOUNT_ID,
+      },
+    });
     process.exit(1);
   }
 
-  console.log(`Worker started with Account ID: ${worker.$jazz.id}`);
-
   let loadedWorker: Loaded<typeof RegistryWorkerAccount>;
-  console.log("Starting worker loading sequence...");
   try {
     loadedWorker = await worker.$jazz.ensureLoaded({
       resolve: {
@@ -122,37 +152,50 @@ async function main() {
 
     // Check if loadedWorker and its root are loaded before accessing
     if (
-      loadedWorker &&
-      loadedWorker.$isLoaded &&
-      loadedWorker.root &&
-      loadedWorker.root.$isLoaded
+      loadedWorker !== null &&
+      loadedWorker !== undefined &&
+      loadedWorker.$isLoaded === true &&
+      loadedWorker.root !== null &&
+      loadedWorker.root !== undefined &&
+      loadedWorker.root.$isLoaded === true
     ) {
-      // Ensure the apps field exists (no migration needed now)
-      if (loadedWorker.root.apps && loadedWorker.root.apps.$isLoaded) {
+      // Deep load the apps and appsByUser records
+      if (
+        loadedWorker.root.apps !== null &&
+        loadedWorker.root.apps !== undefined &&
+        loadedWorker.root.apps.$isLoaded === true
+      ) {
         const appRegistry = loadedWorker.root.apps;
-        if (loadedWorker.root.apps && loadedWorker.root.apps.$isLoaded) {
-          const appRegistry = loadedWorker.root.apps;
-          // Deep load the apps and appsByUser records
-          console.log("Deep loading AppRegistry components...");
-          await appRegistry.$jazz.ensureLoaded({
-            resolve: {
-              apps: true,
-              appsByUser: true,
-            },
-          });
-        }
+        await appRegistry.$jazz.ensureLoaded({
+          resolve: {
+            apps: true,
+            appsByUser: true,
+          },
+        });
       }
 
       if (
-        loadedWorker.root?.reservedNicknames &&
-        loadedWorker.root.reservedNicknames.$isLoaded
+        loadedWorker.root.reservedNicknames !== null &&
+        loadedWorker.root.reservedNicknames !== undefined &&
+        loadedWorker.root.reservedNicknames.$isLoaded === true
       ) {
-        console.log("Reserved nicknames registry fully loaded");
+        logger.info({
+          message: "Successfully loaded worker data",
+          data: {
+            workerId: loadedWorker.$jazz.id,
+          },
+        });
       }
     }
   } catch (loadError) {
-    console.error("Failed to load worker data:", loadError);
-    console.error("This is a critical error. Exiting...");
+    const errorMessage =
+      loadError instanceof Error ? loadError.message : "Unknown error";
+    logger.error({
+      message: "Failed to load worker data",
+      data: {
+        errorMessage,
+      },
+    });
     process.exit(1);
   }
 
@@ -197,41 +240,63 @@ async function main() {
       ? loadedWorker.root.apps
       : undefined;
 
-  if (!nicknameRegistry || !reverseNicknameRegistry) {
-    console.error(
-      "Critical: NicknameRegistry or ReverseNicknameRegistry CoRecord not found in worker's account root. Migration might have failed.",
-    );
+  if (nicknameRegistry === null || nicknameRegistry === undefined) {
+    logger.error({
+      message: "NicknameRegistry not found in worker account root",
+      data: {
+        workerId: loadedWorker.$jazz.id,
+      },
+    });
     process.exit(1);
   }
 
-  if (!reservedNicknames) {
-    console.error(
-      "Critical: ReservedNicknames CoRecord not found in worker's account root. Migration might have failed.",
-    );
+  if (
+    reverseNicknameRegistry === null ||
+    reverseNicknameRegistry === undefined
+  ) {
+    logger.error({
+      message: "ReverseNicknameRegistry not found in worker account root",
+      data: {
+        workerId: loadedWorker.$jazz.id,
+      },
+    });
     process.exit(1);
   }
 
-  if (!appRegistry) {
-    console.error(
-      "Critical: AppRegistry CoRecord not found in worker's account root. Migration might have failed.",
-    );
+  if (reservedNicknames === null || reservedNicknames === undefined) {
+    logger.error({
+      message: "ReservedNicknames not found in worker account root",
+      data: {
+        workerId: loadedWorker.$jazz.id,
+      },
+    });
     process.exit(1);
   }
 
-  console.log(
-    `NicknameRegistry CoRecord loaded. ID: ${nicknameRegistry.$jazz.id}`,
-  );
-  console.log(
-    `ReverseNicknameRegistry CoRecord loaded. ID: ${reverseNicknameRegistry.$jazz.id}`,
-  );
-  console.log(
-    `ReservedNicknames CoRecord loaded. ID: ${reservedNicknames.$jazz.id}`,
-  );
-  console.log(`AppRegistry CoRecord loaded. ID: ${appRegistry.$jazz.id}`);
+  if (appRegistry === null || appRegistry === undefined) {
+    logger.error({
+      message: "AppRegistry not found in worker account root",
+      data: {
+        workerId: loadedWorker.$jazz.id,
+      },
+    });
+    process.exit(1);
+  }
+
+  logger.info({
+    message: "Registries loaded successfully",
+    data: {
+      nicknameRegistryId: nicknameRegistry.$jazz.id,
+      reverseNicknameRegistryId: reverseNicknameRegistry.$jazz.id,
+      reservedNicknamesId: reservedNicknames.$jazz.id,
+      appRegistryId: appRegistry.$jazz.id,
+      workerId: worker.$jazz.id,
+    },
+  });
 
   const app = new OpenAPIHono();
 
-  app.use("*", logger());
+  app.use("*", Honologger());
   app.use("*", cors());
   app.use("*", rateLimit(100, 60000));
 
@@ -263,8 +328,13 @@ async function main() {
   const safeVerifyHandler = async (c: any) => {
     try {
       return await verifyHandler(worker)(c);
-    } catch (error) {
-      console.error("Error in verifyHandler:", error);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      logger.error({
+        message: "Error in verifyHandler",
+        data: { errorMessage },
+      });
       return c.json({ error: "Internal server error" }, 500);
     }
   };
@@ -275,8 +345,13 @@ async function main() {
         nicknameRegistry,
         reservedNicknames,
       )(c);
-    } catch (error) {
-      console.error("Error in checkAvailabilityHandler:", error);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      logger.error({
+        message: "Error in checkAvailabilityHandler",
+        data: { errorMessage },
+      });
       return c.json({ error: "Internal server error" }, 500);
     }
   };
@@ -289,8 +364,13 @@ async function main() {
         worker,
         reservedNicknames,
       )(c);
-    } catch (error) {
-      console.error("Error in registerHandler:", error);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      logger.error({
+        message: "Error in registerHandler",
+        data: { errorMessage },
+      });
       return c.json({ error: "Internal server error" }, 500);
     }
   };
@@ -298,15 +378,32 @@ async function main() {
   const safeLookupHandler = async (c: any) => {
     try {
       return await lookupHandler(nicknameRegistry)(c);
-    } catch (error) {
-      console.error("Error in lookupHandler:", error);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      logger.error({
+        message: "Error in lookupHandler",
+        data: { errorMessage },
+      });
       return c.json({ error: "Internal server error" }, 500);
     }
   };
 
   const safeRegisterAppHandler = async (c: any) => {
     try {
-      if (!appRegistry.apps.$isLoaded || !appRegistry.appsByUser.$isLoaded) {
+      const isAppsLoaded =
+        appRegistry !== null &&
+        appRegistry !== undefined &&
+        appRegistry.apps !== null &&
+        appRegistry.apps !== undefined &&
+        appRegistry.apps.$isLoaded === true;
+      const isAppsByUserLoaded =
+        appRegistry !== null &&
+        appRegistry !== undefined &&
+        appRegistry.appsByUser !== null &&
+        appRegistry.appsByUser !== undefined &&
+        appRegistry.appsByUser.$isLoaded === true;
+      if (isAppsLoaded === false || isAppsByUserLoaded === false) {
         throw new Error("App registry not fully loaded");
       }
       return await registerAppHandler(
@@ -314,20 +411,36 @@ async function main() {
         appRegistry.appsByUser,
         worker,
       )(c);
-    } catch (error) {
-      console.error("Error in registerAppHandler:", error);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      logger.error({
+        message: "Error in registerAppHandler",
+        data: { errorMessage },
+      });
       return c.json({ error: "Internal server error" }, 500);
     }
   };
 
   const safeLemonSqueezyWebhookHandler = async (c: any) => {
     try {
-      if (!appRegistry.apps.$isLoaded) {
+      const isAppsLoaded =
+        appRegistry !== null &&
+        appRegistry !== undefined &&
+        appRegistry.apps !== null &&
+        appRegistry.apps !== undefined &&
+        appRegistry.apps.$isLoaded === true;
+      if (isAppsLoaded === false) {
         throw new Error("App registry not fully loaded");
       }
       return await lemonSqueezyWebhookHandler(loadedWorker)(c);
-    } catch (error) {
-      console.error("Error in lemonSqueezyWebhookHandler:", error);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      logger.error({
+        message: "Error in lemonSqueezyWebhookHandler",
+        data: { errorMessage },
+      });
       return c.json({ error: "Internal server error" }, 500);
     }
   };
@@ -352,24 +465,54 @@ async function main() {
 
   app.notFound((c) => {
     try {
-      console.log(`404 - Path not found: ${c.req.path}`);
+      logger.debug({
+        message: "404 - Path not found",
+        data: {
+          path: c.req.path,
+          method: c.req.method,
+        },
+      });
       return c.json({ error: "Not Found" }, 404);
-    } catch (error) {
-      console.error("Error in notFound handler:", error);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      logger.error({
+        message: "Error in notFound handler",
+        data: { errorMessage },
+      });
       return c.json({ error: "Not Found" }, 404);
     }
   });
 
   app.onError((error, c) => {
-    console.error("Global error handler caught:", error);
-    console.error("Stack:", error.stack);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    logger.error({
+      message: "Global error handler caught",
+      data: {
+        errorMessage,
+        path: c.req.path,
+        method: c.req.method,
+      },
+    });
     try {
       return c.json(
         { error: "Internal server error", timestamp: new Date().toISOString() },
         500,
       );
     } catch (responseError) {
-      console.error("Error creating error response:", responseError);
+      const responseErrorMessage =
+        responseError instanceof Error
+          ? responseError.message
+          : "Unknown error";
+      logger.error({
+        message: "Error creating error response",
+        data: {
+          errorMessage: responseErrorMessage,
+          path: c.req.path,
+          method: c.req.method,
+        },
+      });
       return new Response("Internal server error", { status: 500 });
     }
   });

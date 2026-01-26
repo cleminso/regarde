@@ -24,7 +24,3 @@ export const RegardeSDK = co.map({
   myUserHandle: UserHandle,
   version: z.number(),
 });
-
-// if(paymentsByApp["app1"].has("ls_mabite") === false) {
-//   paymentsByApp["app1"].set("ls_mabite", event.id);
-// }
