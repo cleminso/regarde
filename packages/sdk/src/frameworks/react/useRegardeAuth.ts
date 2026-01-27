@@ -1,32 +1,15 @@
-/**
- * # React Authentication Hook - Authentication State Management
- *
- * ## Purpose
- * - Provides React hook for managing Regarde authentication tokens
- * - Handles token refresh, expiration checking, and error management
- *
- * ## Flow
- * 1. Hook initializes with RegardeAuth CoMap instance
- * 2. Provides current token state and expiration status
- * 3. Allows manual token refresh when needed
- * 4. Handles loading states and error reporting
- *
- * ## Migration
- * - Added React wrapper for token management
- * - Simplified token lifecycle for React applications
- */
 import { useCallback, useState } from "react";
 import type { Loaded } from "jazz-tools";
 import { RegardeAuth } from "#core/schemas/regardeAuth";
 import { getRegardeAuth, isTokenExpired } from "#managers/auth";
 
 /**
- * Result object returned by useRegardeAuth hook containing token state and operations
+ * Authentication state and operations.
  */
 export interface UseRegardeAuthResult {
   /** Current authentication token or null if not available */
   token: string | null;
-  /** Unique ID of the RegardeAuth CoMap containing the token */
+  /** CoValue ID of the RegardeAuth CoMap (starts with co_) */
   tokenId: string | null;
   /** Unix timestamp when the token expires or null if not available */
   expiresAt: number | null;
@@ -41,28 +24,21 @@ export interface UseRegardeAuthResult {
 }
 
 /**
- * React hook for managing Regarde authentication tokens
+ * React hook for managing Regarde authentication tokens.
  *
- * @param regardeAuthCoMap - Loaded RegardeAuth schema instance
- * @returns Object containing current token state and refresh functionality
+ * Provides token state, expiration checking, and refresh functionality.
+ * Does not automatically retry failed refreshes.
  *
- * ## Error Handling Note
- * This hook does not automatically retry failed token refresh.
- * If a refresh operation fails, the error state is set and
- * the developer must explicitly call refresh() again or
- * implement their own retry logic. This prevents potential
- * infinite loops of failed refresh attempts.
+ * @param regardeAuthCoMap - Loaded RegardeAuth CoMap instance
+ * @returns Token state and refresh function
  *
  * @example
  * ```tsx
  * function MyComponent() {
- *   const { token, isExpired, refresh, isLoading, error } = useRegardeAuth(regardeAuth);
+ *   const { token, isExpired, refresh, error } = useRegardeAuth(regardeAuth);
  *
- *   if (error) {
- *     return <div>Error: {error}</div>;
- *   }
- *
- *   return <div>Current token: {token?.substring(0, 10)}...</div>;
+ *   if (error) return <div>Error: {error}</div>;
+ *   return <div>Token: {token}</div>;
  * }
  * ```
  */

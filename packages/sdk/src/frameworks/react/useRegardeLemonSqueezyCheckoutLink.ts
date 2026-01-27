@@ -7,22 +7,66 @@ const logger = useLogging({
   module: __filename,
 });
 
+/**
+ * Options for generating checkout link.
+ */
 export interface RegardeLemonSqueezyCheckoutLinkOptions {
+  /** LemonSqueezy product variant ID */
   variantId: string | number;
+  /** Store domain (overrides storeName) */
   storeDomain: string;
+  /** Custom data to pass to checkout */
   customData?: Record<string, string | number>;
 }
 
+/**
+ * Checkout link generator result.
+ */
 export interface UseRegardeLemonSqueezyCheckoutLinkResult {
+  /** Generate checkout URL with user and app identifiers */
   generateLemonSqueezyCheckoutLink: (
     options: RegardeLemonSqueezyCheckoutLinkOptions,
   ) => string;
+  /** Whether RegardeAccount is loading */
   isLoading: boolean;
+  /** Error message if RegardeSDK not loaded, null otherwise */
   error: string | null;
 }
 
 /**
- * You must pass either the storeName or the storeDomain
+ * React hook for generating LemonSqueezy checkout links.
+ *
+ * Generates checkout URLs with Regarde app and user identifiers embedded
+ * in custom data fields. App ID is required for webhook routing.
+ *
+ * @param appId - Regarde App ID used for webhook routing
+ * @param storeName - Store name (e.g., "my-store")
+ * @param storeDomain - Full store domain (e.g., "https://my-store.lemonsqueezy.com")
+ * @returns Checkout link generator with loading and error states
+ * @throws {Error} When neither storeName nor storeDomain is provided
+ * @throws {Error} When storeDomain format is invalid
+ *
+ * @example
+ * ```tsx
+ * function CheckoutPage() {
+ *   const { generateLemonSqueezyCheckoutLink, isLoading, error } =
+ *     useRegardeLemonSqueezyCheckoutLink("co_app123", "my-store");
+ *
+ *   const handleCheckout = () => {
+ *     const url = generateLemonSqueezyCheckoutLink({
+ *       variantId: 12345,
+ *       storeDomain: "https://my-store.lemonsqueezy.com",
+ *       customData: { plan: "pro" }
+ *     });
+ *     window.location.href = url;
+ *   };
+ *
+ *   if (error) return <div>Error: {error}</div>;
+ *   if (isLoading) return <div>Loading...</div>;
+ *
+ *   return <button onClick={handleCheckout}>Subscribe</button>;
+ * }
+ * ```
  */
 export function useRegardeLemonSqueezyCheckoutLink(
   /** JAZZ Regarde AppIp */

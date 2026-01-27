@@ -1,47 +1,30 @@
 import { co, z } from "jazz-tools";
-/**
- * # Registry Module - Nickname and App Management
- *
- * ## Purpose
- * - Maintains nickname-to-account ID mappings
- * - Provides reverse lookup from accounts to nicknames
- * - Tracks all nickname operations with audit trail
- * - Implements nickname reservations and policies
- * - Manages application registrations and metadata
- * - Tracks payment webhook configuration status
- *
- * ## Registry Structure
- * - Forward registry: nickname → Jazz Account ID
- * - Reverse registry: Jazz Account ID → nickname
- * - Reserved nicknames: protected names with metadata
- * - Audit log: complete change history
- * - Apps registry: application definitions and metadata
- */
 
-/**
- * Forward mapping from nicknames to Jazz Account IDs
- */
+/** Forward mapping: nicknames to Jazz account IDs. */
 export const NicknameRegistryCoRecord = co.record(z.string(), z.string());
+
+/** Loaded NicknameRegistry instance */
 export type TNicknameRegistry = co.loaded<typeof NicknameRegistryCoRecord>;
 
-/**
- * Reverse mapping from Jazz Account IDs to nicknames
- */
+/** Reverse mapping: Jazz account IDs to nicknames */
 export const ReverseNicknameRegistryCoRecord = co.record(
   z.string(),
   z.string(),
 );
+
+/** Loaded ReverseNicknameRegistry instance */
 export type TReverseNicknameRegistry = co.loaded<
   typeof ReverseNicknameRegistryCoRecord
 >;
 
 /**
- * Information about a reserved nickname
+ * Reserved nickname with metadata.
  *
- * - reservedBy - ID of the user/admin who reserved the nickname
- * - reservedAt - Unix timestamp when the reservation was created
- * - reason - Optional explanation for the reservation
- * - category - Reservation type for policy enforcement
+ * Fields:
+ * - reservedBy: User/admin who reserved it
+ * - reservedAt: Unix timestamp of reservation
+ * - reason: Optional explanation
+ * - category: admin, brand, system, offensive, or custom
  */
 export const ReservationEntry = co.map({
   reservedBy: z.string(),
@@ -49,12 +32,17 @@ export const ReservationEntry = co.map({
   reason: z.optional(z.string()),
   category: z.enum(["admin", "brand", "system", "offensive", "custom"]),
 });
+
+/** Loaded ReservationEntry instance */
 export type TReservationEntry = co.loaded<typeof ReservationEntry>;
 
+/** All reserved nicknames, indexed by nickname */
 export const ReservedNicknamesRegistry = co.record(
   z.string(),
   ReservationEntry,
 );
+
+/** Loaded ReservedNicknamesRegistry instance */
 export type TReservedNicknamesRegistry = co.loaded<
   typeof ReservedNicknamesRegistry
 >;

@@ -2,10 +2,25 @@ import { co, Group } from "jazz-tools";
 import { RegardeSDK } from "./regardeSDK";
 import { initRegardeSDK } from "#core/init";
 
+/**
+ * Regarde account root structure.
+ *
+ * Contains RegardeSDK CoMap with all SDK components.
+ */
 export const RegardeRoot = co.map({
   "regarde-sdk": RegardeSDK,
 });
 
+/**
+ * Regarde account schema.
+ *
+ * Extends Jazz account with Regarde SDK integration.
+ * Initializes profile and RegardeSDK on first load.
+ *
+ * @schema
+ * - `profile`: Public user profile (Group.owner = account)
+ * - `root`: RegardeRoot CoMap containing SDK data
+ */
 export const RegardeAccount = co
   .account({
     profile: co.profile(),
@@ -63,4 +78,6 @@ export const RegardeAccount = co
       }
     }
   });
+
+/** Loaded RegardeAccount instance */
 export type TRegardeAccount = co.loaded<typeof RegardeAccount>;

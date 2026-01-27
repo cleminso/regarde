@@ -1,20 +1,5 @@
 /**
- * # Token Verification - Server-Side Authentication
- *
- * ## Purpose
- * - Validates tokens against Jazz network data
- * - Provides secure token validation for API requests
- * - Returns structured verification results
- *
- * ## Verification Flow
- * 1. Client sends verification request with token headers
- * 2. Server loads RegardeAuth using provided token ID
- * 3. Server validates token matches the stored value
- * 4. Server checks token has not expired
- */
-
-/**
- * Parameters sent to verification server
+ * Parameters for verification request
  */
 export interface VerifyRegardeAuthParams {
   /** Base URL of the verification API endpoint */
@@ -25,7 +10,7 @@ export interface VerifyRegardeAuthParams {
   regardeAuth: string;
   /** ID of the RegardeAuth CoMap containing the token */
   regardeAuthId: string;
-  /** Server API token for authentication (internal use) */
+  /** Server API token for authentication */
   apiToken: string;
   /** Optional signal to abort the request */
   signal?: AbortSignal;
@@ -42,10 +27,19 @@ export interface VerificationResult {
 }
 
 /**
- * Sends verification request to server with token details
+ * Verifies authentication token against Regarde server.
  *
- * @param params - Verification parameters with token and identification
- * @returns Promise resolving to verification status
+ * Sends token, CoMap ID, and account ID for server-side validation.
+ * Server checks token ownership, validity, and expiration.
+ *
+ * @param params - Verification parameters
+ * @param params.baseUrl - Base URL of the verification API endpoint
+ * @param params.jazzAccountId - Jazz account ID (starts with co_)
+ * @param params.regardeAuth - Token string from RegardeAuth CoMap
+ * @param params.regardeAuthId - CoValue ID of RegardeAuth CoMap (starts with co_)
+ * @param params.apiToken - Server API token for authentication
+ * @param params.signal - Optional abort signal
+ * @returns Verification result with validity status
  */
 export async function verifyRegardeAuthViaServer(
   params: VerifyRegardeAuthParams,

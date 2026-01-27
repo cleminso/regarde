@@ -8,12 +8,29 @@ const logger = useLogging({
   module: __filename,
 });
 
+/**
+ * Parameters for creating a new app
+ */
 export interface CreateAppParams {
+  /** App name for display purposes */
   name: string;
+  /** Optional description of app functionality */
   description?: string;
+  /** App payment provider */
   paymentProvider: "lemonsqueezy" | "stripe";
 }
 
+/**
+ * Creates a new app with payment configuration.
+ *
+ * Creates App CoMap with registry group access and stores it in
+ * RegardeSDK.myApps list. Automatically handles group creation and sync.
+ *
+ * @param account - Loaded RegardeAccount instance (app owner)
+ * @param appData - App configuration including name and payment provider
+ * @returns Promise resolving to newly created App CoMap
+ * @throws {Error} When registry group cannot be loaded or sync fails
+ */
 export const createApp = async (
   account: co.loaded<typeof RegardeAccount>,
   appData: CreateAppParams,
@@ -141,6 +158,12 @@ export const createApp = async (
   return newApp;
 };
 
+/**
+ * Returns array of user's apps.
+ *
+ * @param regardeSDK - Loaded RegardeSDK instance
+ * @returns Array of loaded App CoMaps, empty array if none exist
+ */
 export const getMyApps = async (
   regardeSDK: Loaded<typeof RegardeSDK>,
 ): Promise<TApp[]> => {

@@ -1,32 +1,8 @@
 /**
- * # Token Generation Module - Authentication Token Creator
+ * Generates a registration token for 2FA authentication.
  *
- * ## Purpose
- * - Generates random authentication tokens for temporary API access
- * - Creates unique tokens using WebCrypto (crypto.getRandomValues)
- *
- * ## Flow
- * 1. Function called when new token is needed
- * 2. Random selection from character set
- * 3. 16-character token returned
- *
- * ## Migration
- * - Initial token generation implementation
- * - Uses alphanumeric and special characters for uniqueness
- */
-/**
- * Generates a random token for authentication
- *
- * Creates a 16-character token using letters, numbers, and common special characters.
- * This provides sufficient uniqueness for temporary authentication tokens with limited lifetime.
- *
- * @private Internal function used by token management system
- * @returns A randomly generated 16-character token string
- *
- * @example
- * const token = generateRegardeToken();
- * console.log(`Generated token: ${token.substring(0, 8)}...`);
- *
+ * @returns Randomly generated 16-character token string
+ * @throws {Error} When WebCrypto getRandomValues is not available
  */
 export function generateRegardeToken(): string {
   const chars =

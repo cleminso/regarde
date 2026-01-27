@@ -10,22 +10,24 @@ import {
 
 /**
  * Idempotency index for webhook events.
- * Key format: `LS_{providerIdentifier}`
- * Value: CoValue.id of the PaymentEvent to serve as caching
  *
- * Examples:
- * - LS_89b36d62-4f5c-4353-853f-0c769d0535c8 (LemonSqueezy order/subscription identifier)
+ * Key format: `LS_{providerIdentifier}`
+ * Value: PaymentEvent CoValue ID
+ *
+ * Example: `LS_89b36d62-4f5c-4353-853f-0c769d0535c8`
  */
 export const ProcessedProviderEvents = co.record(z.string(), z.string());
 
 /**
- * Root schema containing all registry components
+ * Root schema containing all registry components.
  *
- * - registry - Forward nickname-to-account mapping
- * - reverseRegistry - Reverse account-to-nickname mapping
- * - auditLog - Complete change history
- * - reservedNicknames - Protected names with metadata
- * - apps - Application registry for subscription management
+ * Fields:
+ * - `registry`: Nickname to account ID mapping
+ * - `reverseRegistry`: Account ID to nickname mapping
+ * - `auditLog`: Complete change history
+ * - `reservedNicknames`: Protected names with metadata
+ * - `apps`: Application registry
+ * - `processedProviderEvents`: Webhook event deduplication
  */
 export const RegistryWorkerAccountRoot = co.map({
   registry: NicknameRegistryCoRecord,
@@ -35,6 +37,8 @@ export const RegistryWorkerAccountRoot = co.map({
   apps: AppRegistry,
   processedProviderEvents: ProcessedProviderEvents,
 });
+
+/** Loaded RegistryWorkerAccountRoot instance */
 export type TRegistryWorkerAccountRoot = co.loaded<
   typeof RegistryWorkerAccountRoot
 >;
@@ -42,12 +46,14 @@ export type TRegistryWorkerAccountRoot = co.loaded<
 const EmptyProfile = co.profile();
 
 /**
- * Worker account that manages the nickname registry and serves public requests.
+ * Worker account managing nickname registry.
  *
- * Worker account that manages all nickname operations while maintaining
- * audit trails and enforcing reservation policies.
- * - profile - Empty placeholder (worker account has no personal profile)
- * - root - Schema containing all registry data structures
+ * Handles all nickname operations with audit trails.
+ * Profile is empty placeholder (worker has no personal profile).
+ *
+ * Fields:
+ * - `profile`: Empty placeholder
+ * - `root`: Registry data structures
  */
 export const RegistryWorkerAccount = co
   .account({
@@ -55,6 +61,7 @@ export const RegistryWorkerAccount = co
     root: RegistryWorkerAccountRoot,
   })
   .withMigration(async (account) => {
+    // Migration logic - implementation detail
     try {
       const loadedAccount = await account.$jazz.ensureLoaded({
         resolve: {
@@ -221,4 +228,5 @@ export const RegistryWorkerAccount = co
     }
   });
 
+/** Loaded RegistryWorkerAccount instance */
 export type TRegistryWorkerAccount = co.loaded<typeof RegistryWorkerAccount>;

@@ -1,18 +1,19 @@
 import { co, z } from "jazz-tools";
 
 /**
- * Audit record for registry change tracking
+ * Audit record for registry changes.
  *
- * - monotonicId - Sequential ID for ordering audit entries
- * - timestamp - Unix timestamp of the change
- * - jazzAccountId - Jazz Account ID affected by the change
- * - oldNickname - Previous nickname (for update operations)
- * - newNickname - New nickname (for add/update operations)
- * - changedBy - ID of the entity that made the change
- * - source - System that initiated the change
- * - action - Type of registry operation
- * - reservationReason - Reason for reservation (if applicable)
- * - reservationCategory - Reservation type (if applicable)
+ * Fields:
+ * - `monotonicId`: Sequential ID for ordering audit entries
+ * - `timestamp`: Unix timestamp of change
+ * - `jazzAccountId`: Account affected by change
+ * - `oldNickname`: Previous nickname (for updates)
+ * - `newNickname`: New nickname (for add/update)
+ * - `changedBy`: Entity that made the change
+ * - `source`: admin-cli, user-app, or worker
+ * - `action`: add, update, remove, reserve, or unreserve
+ * - `reservationReason`: Reason for reservation (if applicable)
+ * - `reservationCategory`: Reservation type (if applicable)
  */
 export const RegistryAuditEntryCoMap = co.map({
   monotonicId: z.string(),
@@ -28,10 +29,12 @@ export const RegistryAuditEntryCoMap = co.map({
     z.enum(["admin", "brand", "system", "offensive", "custom"]),
   ),
 });
+
+/** Loaded RegistryAuditEntry instance */
 export type TRegistryAuditEntry = co.loaded<typeof RegistryAuditEntryCoMap>;
 
-/**
- * Sequential list of all registry audit entries
- */
+/** Sequential list of all registry audit entries */
 export const RegistryAuditLog = co.list(RegistryAuditEntryCoMap);
+
+/** Loaded RegistryAuditLog instance */
 export type TRegistryAuditLog = co.loaded<typeof RegistryAuditLog>;

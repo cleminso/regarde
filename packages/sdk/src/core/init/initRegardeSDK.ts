@@ -15,6 +15,18 @@ const logger = useLogging({
 
 export type InitRegardeSDKMode = "ensure" | "create";
 
+/**
+ * Initializes Regarde SDK in user's account.
+ *
+ * Creates required CoMaps (RegardeSDK, RegardeAuth, UserHandle, App list, PaymentEvent maps)
+ * and sets up group permissions for sync operations.
+ *
+ * @param account - Loaded RegardeAccount instance to initialize SDK for
+ * @param mode - Operation mode: "create" forces fresh setup, "ensure" reuses existing
+ * @param appId - TODO
+ * @returns Promise resolving to loaded RegardeSDK instance with all required CoMaps
+ * @throws {Error} When account is not loaded, registry group unavailable, or sync fails
+ */
 export const initRegardeSDK = async (
   account: co.loaded<typeof RegardeAccount>,
   mode: InitRegardeSDKMode = "ensure",

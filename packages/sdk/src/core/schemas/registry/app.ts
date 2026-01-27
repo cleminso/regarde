@@ -2,28 +2,17 @@ import { App } from "#schemas/regardeUserApp";
 import { co, z } from "jazz-tools";
 
 /**
- * Represents an application controlled by the app owner
+ * Registry-controlled metadata for an app.
  *
- * - name - Human-readable application name
- * - description - Application description and purpose
- * - ownerAccountId - Jazz Account ID of the app owner
- * - paymentProvider - Payment provider handling subscriptions
- * - providerAppId - Provider-specific application identifier
- * - isEnabled - Can this app accept payments?
- * - createdAt - Unix timestamp when app was registered
- * - metadata - Additional app configuration data
- * - webhookSecret -
- * - payments - When last successful payment received
- */
-
-/**
- * Registry-controlled metadata for an application
+ * Managed by worker, references user-owned App CoMap.
  *
- * - appId - Reference to the App CoValue
- * - isVerified - Whether app is verified and accepting subscriptions
- * - hasAccess - Does user have access right now?
- * - webhookConfigured - Whether webhook is set up for payment processing
- * - createdAt - When Regarde created this metadata record
+ * Fields:
+ * - `app`: Reference to App CoMap
+ * - `isVerified`: Whether app is verified and accepting subscriptions
+ * - `hasAccess`: Whether user has current access
+ * - `webhookConfigured`: Whether webhook is configured for payments
+ * - `createdAt`: When metadata was created
+ * - `version`: Schema version for migration tracking
  */
 export const RegistryAppMetadata = co.map({
   get app() {
@@ -35,38 +24,44 @@ export const RegistryAppMetadata = co.map({
   createdAt: z.number(),
   version: z.number(),
 });
+
+/** Loaded RegistryAppMetadata instance */
 export type TRegistryAppMetadata = co.loaded<typeof RegistryAppMetadata>;
 
-/**
- * Collection of all apps in the registry
- */
+/** All apps in the registry, indexed by App ID */
 export const AllRegistryAppsSchema = co.record(z.string(), RegistryAppMetadata);
+
+/** Loaded AllRegistryAppsSchema instance */
 export type TAllRegistryAppsSchema = co.loaded<typeof AllRegistryAppsSchema>;
 
-/**
- * Collection of apps grouped by user
- */
+/** Apps grouped by user, indexed by Jazz account ID */
 export const AppsByUserRecord = co.record(
   z.string(),
   co.list(RegistryAppMetadata),
 );
+
+/** Loaded AppsByUserRecord instance */
 export type TAppsByUserRecord = co.loaded<typeof AppsByUserRecord>;
 
 /**
- * Registry of all applications and their metadata
+ * Registry of all applications.
  *
- * - apps - Mapping of app IDs to app definitions owned by developers
- * - metadata - Registry-controlled metadata for each app
- * - registeredAt - Unix timestamp when registry was created
- * - version - Schema version for migration tracking
+ * Indexes apps by user and maintains metadata.
+ *
+ * Fields:
+ * - `appsByUser`: Apps grouped by user owner
+ * - `apps`: All apps indexed by App ID
+ * - `metadata`: Additional registry data
+ * - `registeredAt`: When registry was created
+ * - `version`: Schema version for migration tracking
  */
 export const AppRegistry = co.map({
-  // All apps for 1 user
   appsByUser: AppsByUserRecord,
-  // All apps in registry, 1 per AppId
   apps: AllRegistryAppsSchema,
   metadata: co.record(z.string(), z.string()),
   registeredAt: z.number(),
   version: z.number(),
 });
+
+/** Loaded AppRegistry instance */
 export type TAppRegistry = co.loaded<typeof AppRegistry>;
