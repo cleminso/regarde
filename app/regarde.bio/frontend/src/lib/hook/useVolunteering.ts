@@ -1,20 +1,17 @@
-import { Loaded } from 'jazz-tools';
+import { Loaded } from "jazz-tools";
 
-import { logger } from '#/lib/utils/logger';
-import { ListOfVolunteering, Volunteering } from '../schema';
-import { BaseHookProps } from './types';
+import { logger } from "#/lib/utils/logger";
+
+import { ListOfVolunteering, Volunteering } from "../schema";
+
+import { BaseHookProps } from "./types";
 
 type UseVolunteeringProps = BaseHookProps;
 
-export function useVolunteering({
-  profile,
-  triggerSyncIndicator,
-}: UseVolunteeringProps) {
-  const ensureVolunteeringList = ():
-    | Loaded<typeof ListOfVolunteering>
-    | undefined => {
+export function useVolunteering({ profile, triggerSyncIndicator }: UseVolunteeringProps) {
+  const ensureVolunteeringList = (): Loaded<typeof ListOfVolunteering> | undefined => {
     if (!profile.$isLoaded) {
-      logger.error('Profile is not loaded');
+      logger.error("Profile is not loaded");
       return undefined;
     }
 
@@ -25,16 +22,14 @@ export function useVolunteering({
     // Create new list if it doesn't exist
     const profileOwner = profile.$jazz.owner;
     if (!profileOwner?.$isLoaded) {
-      logger.error(
-        'Cannot create volunteering list: profile owner is not loaded',
-      );
+      logger.error("Cannot create volunteering list: profile owner is not loaded");
       return undefined;
     }
 
     const newVolunteeringList = ListOfVolunteering.create([], {
       owner: profileOwner,
     });
-    profile.$jazz.set('volunteering', newVolunteeringList);
+    profile.$jazz.set("volunteering", newVolunteeringList);
     return newVolunteeringList;
   };
 
@@ -52,7 +47,7 @@ export function useVolunteering({
 
     const listOwner = volunteeringList.$jazz.owner;
     if (!listOwner?.$isLoaded) {
-      logger.error('Cannot create volunteering: list owner is not loaded');
+      logger.error("Cannot create volunteering: list owner is not loaded");
       return undefined;
     }
 
@@ -86,7 +81,7 @@ export function useVolunteering({
     },
   ) => {
     if (!volunteeringToUpdate.$isLoaded) {
-      logger.error('Volunteering instance not provided for update.');
+      logger.error("Volunteering instance not provided for update.");
       return;
     }
 
@@ -96,7 +91,7 @@ export function useVolunteering({
       volunteeringData.from !== undefined &&
       volunteeringToUpdate.from !== volunteeringData.from
     ) {
-      volunteeringToUpdate.$jazz.set('from', volunteeringData.from);
+      volunteeringToUpdate.$jazz.set("from", volunteeringData.from);
       changed = true;
     }
 
@@ -104,7 +99,7 @@ export function useVolunteering({
       volunteeringData.title !== undefined &&
       volunteeringToUpdate.title !== volunteeringData.title
     ) {
-      volunteeringToUpdate.$jazz.set('title', volunteeringData.title);
+      volunteeringToUpdate.$jazz.set("title", volunteeringData.title);
       changed = true;
     }
 
@@ -112,40 +107,34 @@ export function useVolunteering({
       volunteeringData.organization !== undefined &&
       volunteeringToUpdate.organization !== volunteeringData.organization
     ) {
-      volunteeringToUpdate.$jazz.set(
-        'organization',
-        volunteeringData.organization,
-      );
+      volunteeringToUpdate.$jazz.set("organization", volunteeringData.organization);
       changed = true;
     }
 
-    if (volunteeringData.hasOwnProperty('to')) {
+    if (volunteeringData.hasOwnProperty("to")) {
       if (volunteeringToUpdate.to !== volunteeringData.to) {
-        volunteeringToUpdate.$jazz.set('to', volunteeringData.to);
+        volunteeringToUpdate.$jazz.set("to", volunteeringData.to);
         changed = true;
       }
     }
 
-    if (volunteeringData.hasOwnProperty('location')) {
+    if (volunteeringData.hasOwnProperty("location")) {
       if (volunteeringToUpdate.location !== volunteeringData.location) {
-        volunteeringToUpdate.$jazz.set('location', volunteeringData.location);
+        volunteeringToUpdate.$jazz.set("location", volunteeringData.location);
         changed = true;
       }
     }
 
-    if (volunteeringData.hasOwnProperty('url')) {
+    if (volunteeringData.hasOwnProperty("url")) {
       if (volunteeringToUpdate.url !== volunteeringData.url) {
-        volunteeringToUpdate.$jazz.set('url', volunteeringData.url);
+        volunteeringToUpdate.$jazz.set("url", volunteeringData.url);
         changed = true;
       }
     }
 
-    if (volunteeringData.hasOwnProperty('description')) {
+    if (volunteeringData.hasOwnProperty("description")) {
       if (volunteeringToUpdate.description !== volunteeringData.description) {
-        volunteeringToUpdate.$jazz.set(
-          'description',
-          volunteeringData.description,
-        );
+        volunteeringToUpdate.$jazz.set("description", volunteeringData.description);
         changed = true;
       }
     }
@@ -157,12 +146,12 @@ export function useVolunteering({
 
   const deleteVolunteering = async (volunteeringId: string) => {
     if (!profile.$isLoaded) {
-      logger.error('Profile is not loaded');
+      logger.error("Profile is not loaded");
       return;
     }
     const volunteeringList = profile.volunteering;
     if (!volunteeringList?.$isLoaded) {
-      logger.warn('No volunteering list to delete from or not loaded.');
+      logger.warn("No volunteering list to delete from or not loaded.");
       return;
     }
     const volunteeringIndex = volunteeringList.findIndex(
@@ -173,9 +162,7 @@ export function useVolunteering({
       volunteeringList.$jazz.splice(volunteeringIndex, 1);
       await triggerSyncIndicator(profile);
     } else {
-      logger.error(
-        `Volunteering with id ${volunteeringId} not found for deletion.`,
-      );
+      logger.error(`Volunteering with id ${volunteeringId} not found for deletion.`);
     }
   };
 

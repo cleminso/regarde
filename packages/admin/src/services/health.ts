@@ -1,4 +1,5 @@
 import { Loaded } from "jazz-tools";
+
 import {
   RegistryWorkerAccount,
   type TNicknameRegistry,
@@ -6,16 +7,15 @@ import {
   type TReservedNicknamesRegistry,
   type TRegistryAuditLog,
 } from "@regarde-dev/core";
-import {
-  RegardeAccount,
-  RegardeProfile,
-} from "@regarde-dev/jazz-schemas/regarde.bio";
+import { RegardeAccount, RegardeProfile } from "@regarde-dev/jazz-schemas/regarde.bio";
+
 import {
   HealthServiceInterface,
   HealthReport,
   NicknameHealthReport,
   FixResult,
 } from "../types/services.js";
+
 import { AuditService } from "./audit.js";
 
 export class HealthService implements HealthServiceInterface {
@@ -117,10 +117,7 @@ export class HealthService implements HealthServiceInterface {
     };
   }
 
-  async checkNicknameHealth(
-    nickname?: string,
-    accountId?: string,
-  ): Promise<NicknameHealthReport> {
+  async checkNicknameHealth(nickname?: string, accountId?: string): Promise<NicknameHealthReport> {
     let targetNickname = nickname;
     let targetAccountId = accountId;
 
@@ -152,9 +149,7 @@ export class HealthService implements HealthServiceInterface {
       const registryAccountId = this.nicknameRegistry[targetNickname];
       if (!registryAccountId) {
         report.registryStatus = "missing";
-        report.issues.push(
-          `Nickname "${targetNickname}" not found in registry`,
-        );
+        report.issues.push(`Nickname "${targetNickname}" not found in registry`);
       } else if (registryAccountId !== targetAccountId) {
         report.registryStatus = "mismatch";
         report.issues.push(
@@ -167,9 +162,7 @@ export class HealthService implements HealthServiceInterface {
       const reverseNickname = this.reverseNicknameRegistry[targetAccountId];
       if (!reverseNickname) {
         report.reverseRegistryStatus = "missing";
-        report.issues.push(
-          `Account ID "${targetAccountId}" not found in reverse registry`,
-        );
+        report.issues.push(`Account ID "${targetAccountId}" not found in reverse registry`);
       } else if (reverseNickname !== targetNickname) {
         report.reverseRegistryStatus = "mismatch";
         report.issues.push(
@@ -193,22 +186,16 @@ export class HealthService implements HealthServiceInterface {
 
         if (!account.$isLoaded) {
           report.profileStatus = "not_found";
-          report.issues.push(
-            `Account "${targetAccountId}" not found or not accessible`,
-          );
+          report.issues.push(`Account "${targetAccountId}" not found or not accessible`);
         } else if (!account.profile?.$isLoaded) {
           report.profileStatus = "missing";
           report.issues.push(`Account "${targetAccountId}" has no profile`);
         } else {
-          const profileData = await RegardeProfile.load(
-            account.profile["regarde.bio"],
-          );
+          const profileData = await RegardeProfile.load(account.profile["regarde.bio"]);
 
           if (!profileData.$isLoaded) {
             report.profileStatus = "missing";
-            report.issues.push(
-              `Account "${targetAccountId}" has no profile data`,
-            );
+            report.issues.push(`Account "${targetAccountId}" has no profile data`);
           } else {
             // Load the SDK data to access userHandle
             const sdkData = await account.$jazz.ensureLoaded({
@@ -221,38 +208,25 @@ export class HealthService implements HealthServiceInterface {
               },
             });
 
-            if (
-              !sdkData.root?.$isLoaded ||
-              !sdkData.root["regarde-sdk"]?.$isLoaded
-            ) {
+            if (!sdkData.root?.$isLoaded || !sdkData.root["regarde-sdk"]?.$isLoaded) {
               report.profileStatus = "missing";
-              report.issues.push(
-                `Account "${targetAccountId}" has no SDK data`,
-              );
+              report.issues.push(`Account "${targetAccountId}" has no SDK data`);
               report.recommendations.push(`Create SDK data for account`);
             } else {
               const userHandle = sdkData.root["regarde-sdk"].myUserHandle;
 
               if (!userHandle?.$isLoaded) {
                 report.profileStatus = "missing";
-                report.issues.push(
-                  `Account "${targetAccountId}" has no userHandle data`,
-                );
-                report.recommendations.push(
-                  `Create userHandle data for account`,
-                );
+                report.issues.push(`Account "${targetAccountId}" has no userHandle data`);
+                report.recommendations.push(`Create userHandle data for account`);
               } else {
                 const isActive = userHandle.isActive;
                 const storedNickname = userHandle.nickname;
 
                 if (!isActive) {
                   report.profileStatus = "inactive";
-                  report.issues.push(
-                    `UserHandle is inactive (isActive: false)`,
-                  );
-                  report.recommendations.push(
-                    `Activate userHandle and sync with registry`,
-                  );
+                  report.issues.push(`UserHandle is inactive (isActive: false)`);
+                  report.recommendations.push(`Activate userHandle and sync with registry`);
                 }
 
                 if (storedNickname !== targetNickname) {
@@ -260,9 +234,7 @@ export class HealthService implements HealthServiceInterface {
                   report.issues.push(
                     `UserHandle shows "${storedNickname}", but registry shows "${targetNickname}"`,
                   );
-                  report.recommendations.push(
-                    `Sync userHandle with registry data`,
-                  );
+                  report.recommendations.push(`Sync userHandle with registry data`);
                 }
               }
             }
@@ -270,9 +242,7 @@ export class HealthService implements HealthServiceInterface {
         }
       } catch (error) {
         report.profileStatus = "not_found";
-        report.issues.push(
-          `Failed to load account "${targetAccountId}": ${error}`,
-        );
+        report.issues.push(`Failed to load account "${targetAccountId}": ${error}`);
       }
     }
 
@@ -312,9 +282,7 @@ export class HealthService implements HealthServiceInterface {
     const reverseNickname = this.reverseNicknameRegistry[targetAccountId];
     if (reverseNickname !== targetNickname) {
       this.reverseNicknameRegistry.$jazz.set(targetAccountId, targetNickname);
-      changes.push(
-        `Updated reverse registry: ${targetAccountId} → ${targetNickname}`,
-      );
+      changes.push(`Updated reverse registry: ${targetAccountId} → ${targetNickname}`);
     }
 
     await Promise.all([
@@ -323,12 +291,7 @@ export class HealthService implements HealthServiceInterface {
     ]);
 
     try {
-      await this.auditService.logChange(
-        targetAccountId,
-        undefined,
-        targetNickname,
-        "admin-cli",
-      );
+      await this.auditService.logChange(targetAccountId, undefined, targetNickname, "admin-cli");
       changes.push(`Logged fix operation to audit trail`);
     } catch (error) {
       errors.push(`Failed to log fix operation: ${error}`);

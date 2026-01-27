@@ -1,14 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useEffect, useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useEffect, useState } from "react";
 
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useVolunteering } from '#/lib/hook/useVolunteering';
-import { RegardeProfile, Volunteering } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils/utils';
-import { Input, Label, Textarea } from '../../../ui/index';
-import { EditorFooter } from '../../layout/footer';
-import { SectionHeader } from '../../layout/header';
-import { SelectorDate } from '../../shared/selectorDate';
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useVolunteering } from "#/lib/hook/useVolunteering";
+import { RegardeProfile, Volunteering } from "#/lib/schema";
+import { getValidUrl } from "#/lib/utils/utils";
+
+import { Input, Label, Textarea } from "../../../ui/index";
+import { EditorFooter } from "../../layout/footer";
+import { SectionHeader } from "../../layout/header";
+import { SelectorDate } from "../../shared/selectorDate";
 
 type VolunteeringEditProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -30,38 +31,38 @@ export function VolunteeringEdit({
 
   const currentYear = new Date().getFullYear().toString();
 
-  const [title, setTitle] = useState('');
-  const [organization, setOrganization] = useState('');
-  const [location, setLocation] = useState('');
-  const [url, setUrl] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [organization, setOrganization] = useState("");
+  const [location, setLocation] = useState("");
+  const [url, setUrl] = useState("");
+  const [description, setDescription] = useState("");
   const [fromDate, setFromDate] = useState(currentYear);
-  const [toDate, setToDate] = useState('');
+  const [toDate, setToDate] = useState("");
 
   useEffect(() => {
     if (volunteeringToEdit) {
-      setTitle(volunteeringToEdit.title || '');
-      setOrganization(volunteeringToEdit.organization || '');
-      setLocation(volunteeringToEdit.location || '');
-      setUrl(volunteeringToEdit.url || '');
-      setDescription(volunteeringToEdit.description || '');
+      setTitle(volunteeringToEdit.title || "");
+      setOrganization(volunteeringToEdit.organization || "");
+      setLocation(volunteeringToEdit.location || "");
+      setUrl(volunteeringToEdit.url || "");
+      setDescription(volunteeringToEdit.description || "");
       setFromDate(volunteeringToEdit.from || currentYear);
-      setToDate(volunteeringToEdit.to || '');
+      setToDate(volunteeringToEdit.to || "");
     } else {
-      setTitle('');
-      setOrganization('');
-      setLocation('');
-      setUrl('');
-      setDescription('');
+      setTitle("");
+      setOrganization("");
+      setLocation("");
+      setUrl("");
+      setDescription("");
       setFromDate(currentYear);
-      setToDate('');
+      setToDate("");
     }
   }, [volunteeringToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
     if (!title.trim()) {
       const shouldContinue = confirm(
-        'Adding a role title helps visitors understand your volunteer work. Would you like to save anyway?',
+        "Adding a role title helps visitors understand your volunteer work. Would you like to save anyway?",
       );
       if (!shouldContinue) return;
     }
@@ -96,9 +97,7 @@ export function VolunteeringEdit({
           <section>
             <div className="flex flex-col gap-4 md:flex-row">
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Title
-                </label>
+                <label className="text-foreground block font-sans text-sm">Title</label>
                 <Input
                   type="text"
                   id="volunteering-title"
@@ -109,9 +108,7 @@ export function VolunteeringEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  At Organization
-                </label>
+                <label className="text-foreground block font-sans text-sm">At Organization</label>
                 <Input
                   type="text"
                   id="volunteering-organization"
@@ -126,16 +123,14 @@ export function VolunteeringEdit({
           <section>
             <div className="flex flex-col gap-4 md:flex-row">
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  From
-                </label>
+                <label className="text-foreground block font-sans text-sm">From</label>
                 <SelectorDate
                   id="volunteering-from-date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
                   placeholderOption={{
-                    value: '',
-                    label: 'Select Year',
+                    value: "",
+                    label: "Select Year",
                     disabled: true,
                   }}
                   buttonDisplayValue={fromDate || currentYear}
@@ -143,15 +138,13 @@ export function VolunteeringEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  To
-                </label>
+                <label className="text-foreground block font-sans text-sm">To</label>
                 <SelectorDate
                   id="volunteering-to-date"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
-                  placeholderOption={{ value: '', label: 'Now' }}
-                  buttonDisplayValue={toDate || 'Now'}
+                  placeholderOption={{ value: "", label: "Now" }}
+                  buttonDisplayValue={toDate || "Now"}
                 />
               </div>
             </div>
@@ -173,9 +166,7 @@ export function VolunteeringEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  At Organization
-                </label>
+                <label className="text-foreground block font-sans text-sm">At Organization</label>
                 <Input
                   type="text"
                   id="volunteering-organization"
@@ -230,11 +221,11 @@ export function VolunteeringEdit({
 
       <EditorFooter
         primaryAction={{
-          text: 'Save',
+          text: "Save",
           onClick: handleSaveAndClose,
         }}
         secondaryAction={{
-          text: 'Cancel',
+          text: "Cancel",
           onClick: onDoneEditing,
         }}
       />

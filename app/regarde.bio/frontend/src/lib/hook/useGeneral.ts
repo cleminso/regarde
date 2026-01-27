@@ -1,8 +1,9 @@
-import { createImage } from 'jazz-tools/media';
-import React, { useCallback, useRef, useState } from 'react';
+import { createImage } from "jazz-tools/media";
+import React, { useCallback, useRef, useState } from "react";
 
-import { useClerkOnboarding } from '../onboarding/useClerkOnboarding';
-import { BaseHookProps } from './types';
+import { useClerkOnboarding } from "../onboarding/useClerkOnboarding";
+
+import { BaseHookProps } from "./types";
 
 type UseGeneralProps = BaseHookProps;
 
@@ -22,13 +23,13 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
     async (file: File | null | undefined) => {
       if (!file) return;
 
-      if (!file.type.startsWith('image/')) {
-        setUpdateError('Please select an image file (e.g., PNG, JPG).');
+      if (!file.type.startsWith("image/")) {
+        setUpdateError("Please select an image file (e.g., PNG, JPG).");
         return;
       }
 
       if (!profile.$isLoaded) {
-        setUpdateError('Profile not available. Please refresh and try again.');
+        setUpdateError("Profile not available. Please refresh and try again.");
         return;
       }
 
@@ -38,23 +39,23 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
       try {
         const owner = profile.$jazz.owner;
         if (!owner || !owner.$isLoaded) {
-          setUpdateError('Profile not ready. Please refresh and try again.');
+          setUpdateError("Profile not ready. Please refresh and try again.");
           return;
         }
 
         const imageDefinition = await createImage(file, {
           owner,
           maxSize: 1024,
-          placeholder: 'blur',
+          placeholder: "blur",
           progressive: true,
         });
 
-        profile.$jazz.set('avatarImage', imageDefinition);
+        profile.$jazz.set("avatarImage", imageDefinition);
         await triggerSyncIndicator(profile);
         setUpdateError(null);
       } catch (error) {
-        console.error('Error uploading avatar:', error);
-        setUpdateError('Failed to update avatar. Please try again.');
+        console.error("Error uploading avatar:", error);
+        setUpdateError("Failed to update avatar. Please try again.");
       } finally {
         setIsUpdating(false);
       }
@@ -65,7 +66,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       processFile(e.target.files?.[0]);
-      if (e.target) e.target.value = '';
+      if (e.target) e.target.value = "";
     },
     [processFile],
   );
@@ -91,7 +92,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
 
   const handleRemoveAvatar = useCallback(async () => {
     if (!profile.$isLoaded) {
-      setUpdateError('Profile not available. Please refresh and try again.');
+      setUpdateError("Profile not available. Please refresh and try again.");
       return;
     }
 
@@ -99,11 +100,11 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
     setUpdateError(null);
 
     try {
-      profile.$jazz.set('avatarImage', undefined);
+      profile.$jazz.set("avatarImage", undefined);
       await triggerSyncIndicator(profile);
       setUpdateError(null);
     } catch (error) {
-      setUpdateError('Failed to remove avatar. Please try again.');
+      setUpdateError("Failed to remove avatar. Please try again.");
     } finally {
       setIsUpdating(false);
     }
@@ -112,7 +113,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
   const updateName = useCallback(
     async (name: string) => {
       if (!profile.$isLoaded) {
-        setUpdateError('Profile not available. Please refresh and try again.');
+        setUpdateError("Profile not available. Please refresh and try again.");
         return;
       }
 
@@ -122,10 +123,10 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
       setUpdateError(null);
 
       try {
-        profile.$jazz.set('name', name.trim() || 'User');
+        profile.$jazz.set("name", name.trim() || "User");
         await triggerSyncIndicator(profile);
       } catch (error) {
-        setUpdateError('Failed to update name. Please try again.');
+        setUpdateError("Failed to update name. Please try again.");
       } finally {
         setIsUpdating(false);
       }
@@ -136,7 +137,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
   const updateBio = useCallback(
     async (bio: string) => {
       if (!profile.$isLoaded) {
-        setUpdateError('Profile not available. Please refresh and try again.');
+        setUpdateError("Profile not available. Please refresh and try again.");
         return;
       }
 
@@ -144,10 +145,10 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
       setUpdateError(null);
 
       try {
-        profile.$jazz.set('bio', bio.length === 0 ? undefined : bio);
+        profile.$jazz.set("bio", bio.length === 0 ? undefined : bio);
         await triggerSyncIndicator(profile);
       } catch (error) {
-        setUpdateError('Failed to update bio. Please try again.');
+        setUpdateError("Failed to update bio. Please try again.");
       } finally {
         setIsUpdating(false);
       }
@@ -157,9 +158,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
 
   const clerkOnboarding = useClerkOnboarding();
 
-  const [nicknameValue, setNicknameValue] = useState(
-    clerkOnboarding.currentNickname,
-  );
+  const [nicknameValue, setNicknameValue] = useState(clerkOnboarding.currentNickname);
 
   React.useEffect(() => {
     setNicknameValue(clerkOnboarding.currentNickname);
@@ -208,8 +207,7 @@ export function useGeneral({ profile, triggerSyncIndicator }: UseGeneralProps) {
 
       currentNickname: clerkOnboarding.currentNickname,
       isNicknameActive: clerkOnboarding.isNicknameActive,
-      canUpdate:
-        clerkOnboarding.isAccountReady && !clerkOnboarding.isProcessing,
+      canUpdate: clerkOnboarding.isAccountReady && !clerkOnboarding.isProcessing,
     },
 
     canPerformUpdates: Boolean(profile && profile.$isLoaded) && !isUpdating,

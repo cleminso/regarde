@@ -1,7 +1,8 @@
 import { Loaded } from "jazz-tools";
+
+import { getMyApps } from "#managers/app/appManager";
 import { RegardeSDK } from "#schemas/regardeSDK";
 import { TApp } from "#schemas/regardeUserApp";
-import { getMyApps } from "#managers/app/appManager";
 
 export interface AppQueryParams {
   appId?: string;

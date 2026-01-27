@@ -1,7 +1,8 @@
-import { NowPage } from '@regarde-dev/jazz-schemas/regarde.bio';
-import { useCallback } from 'react';
+import { useCallback } from "react";
 
-import { BaseHookProps } from './types';
+import { NowPage } from "@regarde-dev/jazz-schemas/regarde.bio";
+
+import { BaseHookProps } from "./types";
 
 type UseNowPageProps = BaseHookProps;
 
@@ -18,17 +19,13 @@ export function useNowPage({ profile, triggerSyncIndicator }: UseNowPageProps) {
   const hasNowPage = Boolean(nowPage && nowPage.$isLoaded);
 
   const updateNowPage = useCallback(
-    async (data: {
-      title?: string;
-      location?: string;
-      description: string;
-    }) => {
+    async (data: { title?: string; location?: string; description: string }) => {
       const profileOwner = profile.$jazz.owner;
       if (!profileOwner?.$isLoaded) return;
 
       if (!profile.nowPage || !profile.nowPage.$isLoaded) {
         profile.$jazz.set(
-          'nowPage',
+          "nowPage",
           NowPage.create(
             {
               title: data.title,
@@ -40,10 +37,10 @@ export function useNowPage({ profile, triggerSyncIndicator }: UseNowPageProps) {
           ),
         );
       } else {
-        profile.nowPage.$jazz.set('title', data.title);
-        profile.nowPage.$jazz.set('location', data.location);
-        profile.nowPage.$jazz.set('description', data.description);
-        profile.nowPage.$jazz.set('lastUpdated', Date.now());
+        profile.nowPage.$jazz.set("title", data.title);
+        profile.nowPage.$jazz.set("location", data.location);
+        profile.nowPage.$jazz.set("description", data.description);
+        profile.nowPage.$jazz.set("lastUpdated", Date.now());
       }
 
       await triggerSyncIndicator(profile);

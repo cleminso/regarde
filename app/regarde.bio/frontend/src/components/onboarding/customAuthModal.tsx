@@ -1,22 +1,16 @@
-import { useSignIn, useSignUp } from '@clerk/clerk-react';
-import { useEffect, useState } from 'react';
+import { useSignIn, useSignUp } from "@clerk/clerk-react";
+import { useEffect, useState } from "react";
 
-import { Button } from '../ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '../ui/dialog';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 
 interface CustomAuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  mode?: 'login' | 'register';
-  onModeChange?: (mode: 'login' | 'register') => void;
+  mode?: "login" | "register";
+  onModeChange?: (mode: "login" | "register") => void;
   nicknameContext?: {
     nickname: string;
     onRegistered: (nickname: string) => void;
@@ -26,15 +20,15 @@ interface CustomAuthModalProps {
 export function CustomAuthModal({
   isOpen,
   onClose,
-  mode: initialMode = 'login',
+  mode: initialMode = "login",
   onModeChange,
   nicknameContext,
 }: CustomAuthModalProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [pendingVerification, setPendingVerification] = useState(false);
 
   useEffect(() => {
@@ -44,17 +38,13 @@ export function CustomAuthModal({
   }, [isOpen]);
 
   const { isLoaded: signInLoaded, signIn, setActive } = useSignIn();
-  const {
-    isLoaded: signUpLoaded,
-    signUp,
-    setActive: setActiveSignUp,
-  } = useSignUp();
+  const { isLoaded: signUpLoaded, signUp, setActive: setActiveSignUp } = useSignUp();
 
   const resetForm = () => {
-    setEmail('');
-    setPassword('');
-    setVerificationCode('');
-    setError('');
+    setEmail("");
+    setPassword("");
+    setVerificationCode("");
+    setError("");
     setPendingVerification(false);
     setIsLoading(false);
   };
@@ -64,7 +54,7 @@ export function CustomAuthModal({
     if (!signInLoaded || !signIn) return;
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       const result = await signIn.create({
@@ -72,18 +62,18 @@ export function CustomAuthModal({
         password,
       });
 
-      if (result.status === 'complete') {
+      if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
         onClose();
         resetForm();
-      } else if (result.status === 'needs_second_factor') {
+      } else if (result.status === "needs_second_factor") {
         setPendingVerification(true);
       } else {
-        setError('Unable to complete login. Please try again.');
+        setError("Unable to complete login. Please try again.");
       }
     } catch (err: any) {
-      console.error('Login error:', err);
-      setError(err.errors?.[0]?.message || 'An error occurred during login');
+      console.error("Login error:", err);
+      setError(err.errors?.[0]?.message || "An error occurred during login");
     } finally {
       setIsLoading(false);
     }
@@ -94,7 +84,7 @@ export function CustomAuthModal({
     if (!signUpLoaded || !signUp) return;
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       const result = await signUp.create({
@@ -102,12 +92,12 @@ export function CustomAuthModal({
         password,
       });
 
-      if (result.status === 'missing_requirements') {
+      if (result.status === "missing_requirements") {
         await signUp.prepareEmailAddressVerification({
-          strategy: 'email_code',
+          strategy: "email_code",
         });
         setPendingVerification(true);
-      } else if (result.status === 'complete') {
+      } else if (result.status === "complete") {
         await setActiveSignUp({ session: result.createdSessionId });
         if (nicknameContext) {
           nicknameContext.onRegistered(nicknameContext.nickname);
@@ -116,10 +106,8 @@ export function CustomAuthModal({
         resetForm();
       }
     } catch (err: any) {
-      console.error('Register error:', err);
-      setError(
-        err.errors?.[0]?.message || 'An error occurred during registration',
-      );
+      console.error("Register error:", err);
+      setError(err.errors?.[0]?.message || "An error occurred during registration");
     } finally {
       setIsLoading(false);
     }
@@ -130,24 +118,22 @@ export function CustomAuthModal({
     if (!signUpLoaded || !signUp) return;
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       const result = await signUp.attemptEmailAddressVerification({
         code: verificationCode,
       });
 
-      if (result.status === 'complete') {
+      if (result.status === "complete") {
         await setActiveSignUp({ session: result.createdSessionId });
         if (nicknameContext) {
           nicknameContext.onRegistered(nicknameContext.nickname);
         }
         onClose();
         resetForm();
-      } else if (result.status === 'missing_requirements') {
-        const isTestMode = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY?.includes(
-          'test',
-        );
+      } else if (result.status === "missing_requirements") {
+        const isTestMode = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY?.includes("test");
 
         if (isTestMode) {
           if (nicknameContext) {
@@ -157,21 +143,21 @@ export function CustomAuthModal({
           resetForm();
           return;
         } else {
-          setError('Additional information required to complete signup.');
+          setError("Additional information required to complete signup.");
         }
       } else {
         setError(`Verification status: ${result.status}`);
       }
     } catch (err: any) {
-      console.error('Verification error:', err);
-      setError(err.errors?.[0]?.message || 'Invalid verification code');
+      console.error("Verification error:", err);
+      setError(err.errors?.[0]?.message || "Invalid verification code");
     } finally {
       setIsLoading(false);
     }
   };
 
   const switchMode = () => {
-    const newMode = initialMode === 'login' ? 'register' : 'login';
+    const newMode = initialMode === "login" ? "register" : "login";
     onModeChange?.(newMode);
     resetForm();
   };
@@ -197,26 +183,23 @@ export function CustomAuthModal({
         <DialogHeader className="text-center">
           <DialogTitle className="text-foreground font-mono text-xl">
             {pendingVerification
-              ? 'Verify your email'
-              : initialMode === 'login'
-                ? 'Login'
-                : 'Create your account'}
+              ? "Verify your email"
+              : initialMode === "login"
+                ? "Login"
+                : "Create your account"}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground font-mono">
             {pendingVerification ? (
               `We sent a verification code to ${email}`
-            ) : initialMode === 'login' ? (
-              'Welcome back! Please log in to continue.'
+            ) : initialMode === "login" ? (
+              "Welcome back! Please log in to continue."
             ) : nicknameContext ? (
               <>
                 Create your account to register `
-                <span className="text-foreground font-semibold">
-                  {nicknameContext.nickname}
-                </span>
-                `
+                <span className="text-foreground font-semibold">{nicknameContext.nickname}</span>`
               </>
             ) : (
-              'Welcome! Please fill the details to get started.'
+              "Welcome! Please fill the details to get started."
             )}
           </DialogDescription>
         </DialogHeader>
@@ -249,7 +232,7 @@ export function CustomAuthModal({
                 className="bg-primary text-primary-foreground hover:bg-primary/90 w-full font-mono"
                 disabled={!verificationCode || isLoading}
               >
-                {isLoading ? 'Verifying...' : 'Verify Email'}
+                {isLoading ? "Verifying..." : "Verify Email"}
               </Button>
 
               <Button
@@ -264,9 +247,7 @@ export function CustomAuthModal({
           ) : (
             <>
               <form
-                onSubmit={
-                  initialMode === 'login' ? handleLogin : handleRegister
-                }
+                onSubmit={initialMode === "login" ? handleLogin : handleRegister}
                 className="space-y-4"
               >
                 <div className="space-y-2">
@@ -279,18 +260,13 @@ export function CustomAuthModal({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    autoComplete={
-                      initialMode === 'login' ? 'email' : 'new-email'
-                    }
+                    autoComplete={initialMode === "login" ? "email" : "new-email"}
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="password"
-                    className="text-foreground font-mono"
-                  >
+                  <Label htmlFor="password" className="text-foreground font-mono">
                     Password
                   </Label>
                   <Input
@@ -299,11 +275,7 @@ export function CustomAuthModal({
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    autoComplete={
-                      initialMode === 'login'
-                        ? 'current-password'
-                        : 'new-password'
-                    }
+                    autoComplete={initialMode === "login" ? "current-password" : "new-password"}
                     required
                   />
                 </div>
@@ -314,26 +286,22 @@ export function CustomAuthModal({
                   className="text-foreground h-11 w-full font-mono"
                   disabled={!email || !password || isLoading}
                 >
-                  {isLoading
-                    ? 'Loading...'
-                    : initialMode === 'login'
-                      ? 'Login'
-                      : 'Create account'}
+                  {isLoading ? "Loading..." : initialMode === "login" ? "Login" : "Create account"}
                 </Button>
               </form>
 
               {!nicknameContext && (
                 <div className="text-center text-sm">
                   <span className="text-muted-foreground font-mono">
-                    {initialMode === 'login'
+                    {initialMode === "login"
                       ? "Don't have an account? "
-                      : 'Already have an account? '}
+                      : "Already have an account? "}
                   </span>
                   <button
                     onClick={switchMode}
                     className="text-foreground font-mono hover:underline hover:underline-offset-2"
                   >
-                    {initialMode === 'login' ? 'register' : 'Log In'}
+                    {initialMode === "login" ? "register" : "Log In"}
                   </button>
                 </div>
               )}

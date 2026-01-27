@@ -5,12 +5,9 @@
  * @throws {Error} When WebCrypto getRandomValues is not available
  */
 export function generateRegardeToken(): string {
-  const chars =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*"[]{}';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*"[]{}';
 
-  const getRandomValues = globalThis.crypto?.getRandomValues?.bind(
-    globalThis.crypto,
-  );
+  const getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
   const isCryptoAvailable = typeof getRandomValues === "function";
 
   if (isCryptoAvailable === false) {

@@ -1,6 +1,7 @@
-import { withAdminService } from "../types.js";
 import { type ToolConfig } from "@alcyone-labs/arg-parser";
+
 import { Logger } from "../../utils/logger.js";
+import { withAdminService } from "../types.js";
 
 export const backupCommands: ToolConfig[] = [
   {
@@ -39,9 +40,7 @@ export const backupCommands: ToolConfig[] = [
         if (result.success) {
           Logger.success("Restore completed successfully!");
           console.log(`  • Restored ${result.restored.nicknames} nicknames`);
-          console.log(
-            `  • Restored ${result.restored.accounts} account mappings`,
-          );
+          console.log(`  • Restored ${result.restored.accounts} account mappings`);
         } else {
           Logger.error("Restore operation failed.");
         }
@@ -66,9 +65,7 @@ export const backupCommands: ToolConfig[] = [
           Logger.success("All registries cleared successfully!");
           console.log(`  • Backup created: ${result.backupFile}`);
           console.log(`  • Deleted ${result.deleted.nicknames} nicknames`);
-          console.log(
-            `  • Deleted ${result.deleted.accounts} account mappings`,
-          );
+          console.log(`  • Deleted ${result.deleted.accounts} account mappings`);
         } else {
           Logger.error("Delete operation failed.");
         }
@@ -134,9 +131,7 @@ export const backupCommands: ToolConfig[] = [
 
         if (result.success) {
           if (result.deletedCount > 0) {
-            Logger.success(
-              `Cleaned ${result.deletedCount} old backup file(s):`,
-            );
+            Logger.success(`Cleaned ${result.deletedCount} old backup file(s):`);
             result.deletedFiles.forEach((file: string, index: number) => {
               console.log(`  ${index + 1}. ${file}`);
             });

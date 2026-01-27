@@ -1,7 +1,8 @@
 import { co, z } from "jazz-tools";
+
+import { RegardeAuth } from "./regardeAuth";
 import { App } from "./regardeUserApp";
 import { UserHandle } from "./regardeUserHandle";
-import { RegardeAuth } from "./regardeAuth";
 
 /**
  * Payment records structure.
@@ -19,7 +20,9 @@ export type TPaymentSchema = co.loaded<typeof PaymentSchema>;
 /**
  * Regarde SDK container schema.
  *
- * Holds all SDK components for user account:
+ * Holds all SDK components for user account.
+ *
+ * @schema
  * - `auth`: Authentication token (RegardeAuth)
  * - `myApps`: List of user's apps
  * - `myPayments`: Payment records indexed by app

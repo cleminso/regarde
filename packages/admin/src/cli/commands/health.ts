@@ -1,6 +1,7 @@
-import { withAdminService } from "../types.js";
 import { type ToolConfig } from "@alcyone-labs/arg-parser";
+
 import { Logger } from "../../utils/logger.js";
+import { withAdminService } from "../types.js";
 
 export const healthCommands: ToolConfig[] = [
   {
@@ -15,18 +16,14 @@ export const healthCommands: ToolConfig[] = [
         console.log("=".repeat(50));
 
         const statusColor = healthReport.isHealthy ? "\x1b[32m" : "\x1b[33m";
-        console.log(
-          `Status: ${statusColor}${healthReport.status.toUpperCase()}\x1b[0m`,
-        );
+        console.log(`Status: ${statusColor}${healthReport.status.toUpperCase()}\x1b[0m`);
         console.log(`Last checked: ${healthReport.lastChecked}`);
         console.log("");
 
         console.log("Registry Statistics:");
         console.log(`  • Total nicknames: ${healthReport.totalNicknames}`);
         console.log(`  • Total accounts: ${healthReport.totalAccounts}`);
-        console.log(
-          `  • Reserved nicknames: ${healthReport.reservedNicknames}`,
-        );
+        console.log(`  • Reserved nicknames: ${healthReport.reservedNicknames}`);
         console.log(`  • Audit log entries: ${healthReport.auditLogEntries}`);
         console.log("");
 
@@ -70,10 +67,7 @@ export const healthCommands: ToolConfig[] = [
       }
 
       return withAdminService(async (admin) => {
-        const healthReport = await admin.checkNicknameHealth(
-          ctx.args.nickname,
-          ctx.args.accountId,
-        );
+        const healthReport = await admin.checkNicknameHealth(ctx.args.nickname, ctx.args.accountId);
 
         const loadedWorker = admin.getLoadedWorker();
 
@@ -94,8 +88,7 @@ export const healthCommands: ToolConfig[] = [
           ? loadedWorker.root?.registry?.[healthReport.nickname] || "Not found"
           : "N/A";
         const reverseValue = healthReport.accountId
-          ? loadedWorker.root?.reverseRegistry?.[healthReport.accountId] ||
-            "Not found"
+          ? loadedWorker.root?.reverseRegistry?.[healthReport.accountId] || "Not found"
           : "N/A";
 
         console.log(
@@ -115,10 +108,7 @@ export const healthCommands: ToolConfig[] = [
           });
         }
 
-        if (
-          healthReport.recommendations &&
-          healthReport.recommendations.length > 0
-        ) {
+        if (healthReport.recommendations && healthReport.recommendations.length > 0) {
           console.log("\nRecommendations:");
           healthReport.recommendations.forEach((rec: string, index: number) => {
             console.log(`  ${index + 1}. ${rec}`);
@@ -140,12 +130,8 @@ export const healthCommands: ToolConfig[] = [
 
         Logger.info("Jazz Worker Connectivity Check");
         console.log("=".repeat(50));
-        console.log(
-          `Worker Status: ${result.workerOnline ? "Online" : "Offline"}`,
-        );
-        console.log(
-          `Sync Server: ${result.syncServerConnected ? "Connected" : "Disconnected"}`,
-        );
+        console.log(`Worker Status: ${result.workerOnline ? "Online" : "Offline"}`);
+        console.log(`Sync Server: ${result.syncServerConnected ? "Connected" : "Disconnected"}`);
         console.log(
           `Last Sync: ${result.lastSync ? new Date(result.lastSync).toLocaleString() : "Never"}`,
         );
@@ -163,8 +149,7 @@ export const healthCommands: ToolConfig[] = [
 
   {
     name: "fix-nickname",
-    description:
-      "Attempt to fix synchronization issues for a nickname or account",
+    description: "Attempt to fix synchronization issues for a nickname or account",
     flags: [
       {
         name: "nickname",
@@ -187,10 +172,7 @@ export const healthCommands: ToolConfig[] = [
       }
 
       return withAdminService(async (admin) => {
-        const result = await admin.fixNickname(
-          ctx.args.nickname,
-          ctx.args.accountId,
-        );
+        const result = await admin.fixNickname(ctx.args.nickname, ctx.args.accountId);
 
         if (result.success) {
           Logger.success("Synchronization issues fixed successfully!");

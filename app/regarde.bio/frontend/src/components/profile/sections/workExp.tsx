@@ -1,9 +1,9 @@
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import type { RegardeProfile, WorkExp } from "#/lib/schema";
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import type { RegardeProfile, WorkExp } from '#/lib/schema';
-import { formatDateRange, getValidUrl } from '#/lib/utils/utils';
+import { Button } from "#/components/ui/button";
+import { formatDateRange, getValidUrl } from "#/lib/utils/utils";
 
 type WorkExperiencesProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -11,9 +11,7 @@ type WorkExperiencesProps = {
 
 export function WorkExperiences({ profile }: WorkExperiencesProps) {
   const workExperiences = profile.workExp?.$isLoaded
-    ? profile.workExp.filter(
-        (exp): exp is Loaded<typeof WorkExp> => exp.$isLoaded === true,
-      )
+    ? profile.workExp.filter((exp): exp is Loaded<typeof WorkExp> => exp.$isLoaded === true)
     : [];
 
   if (!workExperiences || workExperiences.length === 0) {
@@ -30,12 +28,12 @@ export function WorkExperiences({ profile }: WorkExperiencesProps) {
         </div>
         <div className="space-y-6">
           {workExperiences.map((workExp: any) => {
-            const displayTitle = `${workExp.title || 'Untitled Role'} @${
-              workExp.company || 'Unnamed Company'
+            const displayTitle = `${workExp.title || "Untitled Role"} @${
+              workExp.company || "Unnamed Company"
             }`;
 
-            const fromYear = String(workExp.from || '');
-            const toYear = String(workExp.to || '');
+            const fromYear = String(workExp.from || "");
+            const toYear = String(workExp.to || "");
 
             const dateRange = formatDateRange(fromYear, toYear);
             const companyLink = getValidUrl(workExp.url);
@@ -44,9 +42,7 @@ export function WorkExperiences({ profile }: WorkExperiencesProps) {
               <div key={workExp.$jazz.id} className="flex flex-col gap-3 pb-4">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground font-sans text-sm">
-                      {dateRange}
-                    </span>
+                    <span className="text-muted-foreground font-sans text-sm">{dateRange}</span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="min-w-0 flex-1">

@@ -1,7 +1,7 @@
-import { Navigate, Outlet, useParams } from 'react-router';
+import { Navigate, Outlet, useParams } from "react-router";
 
-import { useMyRegardeAccount } from '../../lib/account/useMyRegardeAccount';
-import { createNicknameUrl } from '../../lib/utils/utils';
+import { useMyRegardeAccount } from "../../lib/account/useMyRegardeAccount";
+import { createNicknameUrl } from "../../lib/utils/utils";
 
 export function ProtectedRoute() {
   const { nickname } = useParams();
@@ -15,11 +15,7 @@ export function ProtectedRoute() {
     return <div>Loading account...</div>;
   }
 
-  if (
-    account === null ||
-    !account.$isLoaded ||
-    !account.root?.['regarde.bio']
-  ) {
+  if (account === null || !account.$isLoaded || !account.root?.["regarde.bio"]) {
     return <Navigate to="/" replace />;
   }
 
@@ -30,9 +26,7 @@ export function ProtectedRoute() {
   }
 
   if (nickname !== profileNickname) {
-    return (
-      <Navigate to={createNicknameUrl(profileNickname, '/edit')} replace />
-    );
+    return <Navigate to={createNicknameUrl(profileNickname, "/edit")} replace />;
   }
 
   return <Outlet />;

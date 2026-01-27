@@ -41,51 +41,35 @@ function statusUnknown(label: string, value?: string): string {
 
 export const Logger = {
   success(message: string) {
-    console.log(
-      `${colors.green}${colors.bright}[SUCCESS]${colors.reset} ${message}`,
-    );
+    console.log(`${colors.green}${colors.bright}[SUCCESS]${colors.reset} ${message}`);
   },
 
   failed(message: string) {
-    console.log(
-      `${colors.red}${colors.bright}[FAILED]${colors.reset} ${message}`,
-    );
+    console.log(`${colors.red}${colors.bright}[FAILED]${colors.reset} ${message}`);
   },
 
   check(message: string) {
-    console.log(
-      `${colors.blue}${colors.bright}[CHECK]${colors.reset} ${message}`,
-    );
+    console.log(`${colors.blue}${colors.bright}[CHECK]${colors.reset} ${message}`);
   },
 
   status(message: string) {
-    console.log(
-      `${colors.yellow}${colors.bright}[STATUS]${colors.reset} ${message}`,
-    );
+    console.log(`${colors.yellow}${colors.bright}[STATUS]${colors.reset} ${message}`);
   },
 
   info(message: string) {
-    console.log(
-      `${colors.cyan}${colors.bright}[INFO]${colors.reset} ${message}`,
-    );
+    console.log(`${colors.cyan}${colors.bright}[INFO]${colors.reset} ${message}`);
   },
 
   error(message: string) {
-    console.error(
-      `${colors.red}${colors.bright}[ERROR]${colors.reset} ${message}`,
-    );
+    console.error(`${colors.red}${colors.bright}[ERROR]${colors.reset} ${message}`);
   },
 
   warning(message: string) {
-    console.log(
-      `${colors.yellow}${colors.bright}[WARNING]${colors.reset} ${message}`,
-    );
+    console.log(`${colors.yellow}${colors.bright}[WARNING]${colors.reset} ${message}`);
   },
 
   debug(message: string) {
-    console.log(
-      `${colors.gray}${colors.bright}[DEBUG]${colors.reset} ${message}`,
-    );
+    console.log(`${colors.gray}${colors.bright}[DEBUG]${colors.reset} ${message}`);
   },
 
   statusOk,

@@ -1,13 +1,14 @@
 import { co, z, Group, type ID } from "jazz-tools";
-import { RegardeAuth } from "#schemas/regardeAuth";
-import { RegardeAccount } from "#schemas/regardeAccount";
-import { RegardeSDK } from "#schemas/regardeSDK";
-import { UserHandle } from "#schemas/regardeUserHandle";
-import { App } from "#schemas/regardeUserApp";
-import { getRegardeAuth } from "#managers/auth/refreshAuthToken";
-import { generateRegardeToken } from "#managers/auth/generateToken";
-import { TOKEN_LIFETIME_SECONDS } from "#managers/auth/";
+
 import { useLogging } from "#core/logger";
+import { TOKEN_LIFETIME_SECONDS } from "#managers/auth/";
+import { generateRegardeToken } from "#managers/auth/generateToken";
+import { getRegardeAuth } from "#managers/auth/refreshAuthToken";
+import { RegardeAccount } from "#schemas/regardeAccount";
+import { RegardeAuth } from "#schemas/regardeAuth";
+import { RegardeSDK } from "#schemas/regardeSDK";
+import { App } from "#schemas/regardeUserApp";
+import { UserHandle } from "#schemas/regardeUserHandle";
 
 const logger = useLogging({
   module: __filename,

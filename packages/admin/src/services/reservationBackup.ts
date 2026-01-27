@@ -1,14 +1,3 @@
-import { Loaded } from "jazz-tools";
-import {
-  RegistryWorkerAccount,
-  ReservationEntry,
-  type TReservedNicknamesRegistry,
-} from "@regarde-dev/core";
-import {
-  ReservationBackupServiceInterface,
-  ReservationBackupInfo,
-} from "../types/services.js";
-import { Logger } from "../utils/logger.js";
 import {
   writeFileSync,
   readFileSync,
@@ -18,8 +7,19 @@ import {
   statSync,
   unlinkSync,
 } from "fs";
-import { createInterface } from "readline";
 import { join } from "path";
+import { createInterface } from "readline";
+
+import { Loaded } from "jazz-tools";
+
+import {
+  RegistryWorkerAccount,
+  ReservationEntry,
+  type TReservedNicknamesRegistry,
+} from "@regarde-dev/core";
+
+import { ReservationBackupServiceInterface, ReservationBackupInfo } from "../types/services.js";
+import { Logger } from "../utils/logger.js";
 
 const RESERVATION_BACKUP_DIR = "reserveRegistry-backups";
 
@@ -51,20 +51,14 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
       mkdirSync(RESERVATION_BACKUP_DIR, { recursive: true });
     }
 
-    const timestamp = new Date()
-      .toISOString()
-      .replace(/[:.]/g, "-")
-      .slice(0, -5);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, -5);
     const filename = `reservation-backup-${timestamp}.json`;
     const filepath = join(RESERVATION_BACKUP_DIR, filename);
 
-    const reservedNicknamesData: ReservationBackupData["reservedNicknames"] =
-      {};
+    const reservedNicknamesData: ReservationBackupData["reservedNicknames"] = {};
     let totalReservations = 0;
 
-    for (const [nickname, reservation] of Object.entries(
-      this.reservedNicknames,
-    )) {
+    for (const [nickname, reservation] of Object.entries(this.reservedNicknames)) {
       if (reservation && reservation.$isLoaded) {
         reservedNicknamesData[nickname] = {
           reservedBy: reservation.reservedBy,
@@ -115,9 +109,7 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
 
     Logger.warning("This will REPLACE all current reservation data!");
     Logger.info(`Restoring from: ${backupFile}`);
-    Logger.info(
-      `Backup contains ${backupData.metadata.totalReservations} reservations`,
-    );
+    Logger.info(`Backup contains ${backupData.metadata.totalReservations} reservations`);
 
     const confirmed = await this.confirmRestore();
     if (!confirmed) {
@@ -129,9 +121,7 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
     }
 
     let restoredCount = 0;
-    for (const [nickname, reservationData] of Object.entries(
-      backupData.reservedNicknames,
-    )) {
+    for (const [nickname, reservationData] of Object.entries(backupData.reservedNicknames)) {
       try {
         const reservationEntry = ReservationEntry.create({
           reservedBy: reservationData.reservedBy,
@@ -148,9 +138,7 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
         this.reservedNicknames.$jazz.set(nickname, reservationEntry);
         restoredCount++;
       } catch (error) {
-        Logger.warning(
-          `Failed to restore reservation for ${nickname}: ${error}`,
-        );
+        Logger.warning(`Failed to restore reservation for ${nickname}: ${error}`);
       }
     }
 
@@ -168,8 +156,7 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
     }
 
     const files = readdirSync(RESERVATION_BACKUP_DIR).filter(
-      (file) =>
-        file.endsWith(".json") && file.startsWith("reservation-backup-"),
+      (file) => file.endsWith(".json") && file.startsWith("reservation-backup-"),
     );
 
     const backups: ReservationBackupInfo[] = [];
@@ -199,9 +186,7 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
       }
     }
 
-    backups.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
+    backups.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return { backups };
   }
 
@@ -218,8 +203,7 @@ export class ReservationBackupService implements ReservationBackupServiceInterfa
     cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
 
     const files = readdirSync(RESERVATION_BACKUP_DIR).filter(
-      (file) =>
-        file.endsWith(".json") && file.startsWith("reservation-backup-"),
+      (file) => file.endsWith(".json") && file.startsWith("reservation-backup-"),
     );
     const deletedFiles: string[] = [];
 

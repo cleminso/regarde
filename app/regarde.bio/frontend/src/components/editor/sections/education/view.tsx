@@ -1,13 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useState } from "react";
 
-import { Button, DestructiveConfirmationDialog } from '#/components/ui';
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useEducation } from '#/lib/hook/useEducation.ts';
-import { Education, ListOfEducation, RegardeProfile } from '#/lib/schema';
-import { EditorFooter } from '../../index';
-import { SectionHeader } from './../../layout/header';
-import { EducationCard } from './card';
+import { Button, DestructiveConfirmationDialog } from "#/components/ui";
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useEducation } from "#/lib/hook/useEducation.ts";
+import { Education, ListOfEducation, RegardeProfile } from "#/lib/schema";
+
+import { EditorFooter } from "../../index";
+
+import { SectionHeader } from "./../../layout/header";
+import { EducationCard } from "./card";
 
 type EducationViewProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -59,7 +61,7 @@ export function EducationView({
   };
 
   const getEducationDisplayName = (education: Loaded<typeof Education>) => {
-    return education.degree || 'Untitled Degree';
+    return education.degree || "Untitled Degree";
   };
 
   return (
@@ -85,10 +87,7 @@ export function EducationView({
         {education && education.length > 0 && (
           <div className="space-y-6 pb-4">
             {education
-              .filter(
-                (edu): edu is Loaded<typeof Education> =>
-                  edu?.$isLoaded === true,
-              )
+              .filter((edu): edu is Loaded<typeof Education> => edu?.$isLoaded === true)
               .map((edu) => (
                 <EducationCard
                   key={edu.$jazz.id}
@@ -104,7 +103,7 @@ export function EducationView({
       <div className="shrink-0y">
         <EditorFooter
           primaryAction={{
-            text: 'Done',
+            text: "Done",
             onClick: handleClose,
           }}
         />
@@ -117,10 +116,8 @@ export function EducationView({
         description={
           deleteConfirmation.education ? (
             <>
-              Are you sure you want to delete the education record{' '}
-              <strong>
-                {getEducationDisplayName(deleteConfirmation.education)}
-              </strong>
+              Are you sure you want to delete the education record{" "}
+              <strong>{getEducationDisplayName(deleteConfirmation.education)}</strong>
               ?
               <br />
               <br />

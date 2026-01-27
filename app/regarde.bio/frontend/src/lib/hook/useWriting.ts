@@ -1,15 +1,17 @@
-import { Loaded } from 'jazz-tools';
+import { Loaded } from "jazz-tools";
 
-import { logger } from '#/lib/utils/logger';
-import { ListOfWriting, Writing } from '../schema';
-import { BaseHookProps } from './types';
+import { logger } from "#/lib/utils/logger";
+
+import { ListOfWriting, Writing } from "../schema";
+
+import { BaseHookProps } from "./types";
 
 type UseWritingProps = BaseHookProps;
 
 export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
   const ensureWritingList = (): Loaded<typeof ListOfWriting> | undefined => {
     if (!profile.$isLoaded) {
-      logger.error('Profile is not loaded');
+      logger.error("Profile is not loaded");
       return undefined;
     }
 
@@ -20,12 +22,12 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
     // Create new list if it doesn't exist
     const profileOwner = profile.$jazz.owner;
     if (!profileOwner?.$isLoaded) {
-      logger.error('Cannot create writing list: profile owner is not loaded');
+      logger.error("Cannot create writing list: profile owner is not loaded");
       return undefined;
     }
 
     const newWritingList = ListOfWriting.create([], { owner: profileOwner });
-    profile.$jazz.set('writing', newWritingList);
+    profile.$jazz.set("writing", newWritingList);
     return newWritingList;
   };
 
@@ -41,7 +43,7 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
 
     const listOwner = writingList.$jazz.owner;
     if (!listOwner?.$isLoaded) {
-      logger.error('Cannot create writing: list owner is not loaded');
+      logger.error("Cannot create writing: list owner is not loaded");
       return undefined;
     }
 
@@ -71,45 +73,39 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
     },
   ) => {
     if (!writingToUpdate.$isLoaded) {
-      logger.error('Writing instance not provided for update.');
+      logger.error("Writing instance not provided for update.");
       return;
     }
 
     let changed = false;
 
-    if (
-      writingData.title !== undefined &&
-      writingToUpdate.title !== writingData.title
-    ) {
-      writingToUpdate.$jazz.set('title', writingData.title);
+    if (writingData.title !== undefined && writingToUpdate.title !== writingData.title) {
+      writingToUpdate.$jazz.set("title", writingData.title);
       changed = true;
     }
 
-    if (
-      writingData.year !== undefined &&
-      writingToUpdate.year !== writingData.year
-    ) {
-      writingToUpdate.$jazz.set('year', writingData.year);
+    if (writingData.year !== undefined && writingToUpdate.year !== writingData.year) {
+      writingToUpdate.$jazz.set("year", writingData.year);
       changed = true;
     }
 
-    if (writingData.hasOwnProperty('publisher')) {
+    if (writingData.hasOwnProperty("publisher")) {
       if (writingToUpdate.publisher !== writingData.publisher) {
-        writingToUpdate.$jazz.set('publisher', writingData.publisher);
+        writingToUpdate.$jazz.set("publisher", writingData.publisher);
         changed = true;
       }
     }
 
-    if (writingData.hasOwnProperty('url')) {
+    if (writingData.hasOwnProperty("url")) {
       if (writingToUpdate.url !== writingData.url) {
-        writingToUpdate.$jazz.set('url', writingData.url);
+        writingToUpdate.$jazz.set("url", writingData.url);
         changed = true;
       }
     }
 
-    if (writingData.hasOwnProperty('description')) {
+    if (writingData.hasOwnProperty("description")) {
       if (writingToUpdate.description !== writingData.description) {
-        writingToUpdate.$jazz.set('description', writingData.description);
+        writingToUpdate.$jazz.set("description", writingData.description);
         changed = true;
       }
     }
@@ -121,12 +117,12 @@ export function useWriting({ profile, triggerSyncIndicator }: UseWritingProps) {
 
   const deleteWriting = async (writingId: string) => {
     if (!profile.$isLoaded) {
-      logger.error('Profile is not loaded');
+      logger.error("Profile is not loaded");
       return;
     }
     const writingList = profile.writing;
     if (!writingList?.$isLoaded) {
-      logger.warn('No writing list to delete from or not loaded.');
+      logger.warn("No writing list to delete from or not loaded.");
       return;
     }
     const writingIndex = writingList.findIndex(

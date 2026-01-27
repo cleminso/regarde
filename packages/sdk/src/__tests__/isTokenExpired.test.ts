@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import { isTokenExpired } from "#managers/auth";
+import { describe, it, expect } from "vitest";
 
 describe("isKeyExpired", () => {
   it("should return false for future expiry", () => {

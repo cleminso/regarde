@@ -1,8 +1,8 @@
-import { Loaded } from 'jazz-tools';
-import { useMemo } from 'react';
+import { Loaded } from "jazz-tools";
+import { useMemo } from "react";
 
-import { type RegardeProfile } from '../schema';
-import { generateDefaultAvatar } from '../utils/utils';
+import { type RegardeProfile } from "../schema";
+import { generateDefaultAvatar } from "../utils/utils";
 
 export function useDefaultAvatar(
   profile: Loaded<typeof RegardeProfile>,
@@ -10,7 +10,7 @@ export function useDefaultAvatar(
   size: number = 92,
 ) {
   return useMemo(() => {
-    if (typeof profile.avatarImage === 'string') {
+    if (typeof profile.avatarImage === "string") {
       return profile.avatarImage;
     }
 
@@ -26,7 +26,7 @@ export function useDefaultAvatar(
           return URL.createObjectURL(blob);
         }
       } catch (error) {
-        console.warn('Error creating URL from avatar image:', error);
+        console.warn("Error creating URL from avatar image:", error);
       }
     }
 

@@ -1,17 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useState } from "react";
 
-import { Button, DestructiveConfirmationDialog } from '#/components/ui';
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useCertification } from '#/lib/hook/useCertification';
-import {
-  Certification,
-  ListOfCertification,
-  RegardeProfile,
-} from '#/lib/schema';
-import { EditorFooter } from '../../index';
-import { SectionHeader } from '../../layout/header';
-import { CertificationCard } from './card';
+import { Button, DestructiveConfirmationDialog } from "#/components/ui";
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useCertification } from "#/lib/hook/useCertification";
+import { Certification, ListOfCertification, RegardeProfile } from "#/lib/schema";
+
+import { EditorFooter } from "../../index";
+import { SectionHeader } from "../../layout/header";
+
+import { CertificationCard } from "./card";
 
 type CertificationViewProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -43,9 +41,7 @@ export function CertificationView({
     certification: null,
   });
 
-  const handleDeleteCertification = (
-    certification: Loaded<typeof Certification>,
-  ) => {
+  const handleDeleteCertification = (certification: Loaded<typeof Certification>) => {
     setDeleteConfirmation({
       isOpen: true,
       certification,
@@ -67,11 +63,9 @@ export function CertificationView({
     onClose?.();
   };
 
-  const getCertificationDisplayName = (
-    certification: Loaded<typeof Certification>,
-  ) => {
-    const name = certification.name || 'Untitled Certification';
-    const organization = certification.organization || 'Unknown Organization';
+  const getCertificationDisplayName = (certification: Loaded<typeof Certification>) => {
+    const name = certification.name || "Untitled Certification";
+    const organization = certification.organization || "Unknown Organization";
     return `${name} from ${organization}`;
   };
 
@@ -99,9 +93,7 @@ export function CertificationView({
           <div className="space-y-6 pb-4">
             {certifications
               .filter(
-                (
-                  certification,
-                ): certification is Loaded<typeof Certification> =>
+                (certification): certification is Loaded<typeof Certification> =>
                   certification?.$isLoaded === true,
               )
               .map((certification) => (
@@ -119,7 +111,7 @@ export function CertificationView({
       <div className="shrink-0">
         <EditorFooter
           primaryAction={{
-            text: 'Done',
+            text: "Done",
             onClick: handleClose,
           }}
         />
@@ -132,10 +124,8 @@ export function CertificationView({
         description={
           deleteConfirmation.certification ? (
             <>
-              Please confirm you'd like to delete{' '}
-              <strong>
-                {getCertificationDisplayName(deleteConfirmation.certification)}
-              </strong>
+              Please confirm you'd like to delete{" "}
+              <strong>{getCertificationDisplayName(deleteConfirmation.certification)}</strong>
               ?
               <br />
               <br />

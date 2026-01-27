@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import "dotenv/config";
+
 import { startWorker } from "jazz-tools/worker";
+
 import { RegistryWorkerAccount } from "@regarde-dev/core";
 
-const JAZZ_SYNC_SERVER_URL =
-  process.env.JAZZ_SYNC_SERVER_URL || "ws://localhost:4200";
+const JAZZ_SYNC_SERVER_URL = process.env.JAZZ_SYNC_SERVER_URL || "ws://localhost:4200";
 
 // Registry worker ID from setupLocalWorker.js output
 const REGISTRY_WORKER_GROUP_ID = process.env.REGARDE_REGISTRY_GROUP;
@@ -16,10 +17,7 @@ async function addTestMember() {
   console.log("Adding test member to local registry worker group...\n");
 
   // Validate required environment variables
-  if (
-    !process.env.LOCAL_WORKER_ACCOUNT_ID ||
-    !process.env.LOCAL_WORKER_ACCOUNT_SECRET
-  ) {
+  if (!process.env.LOCAL_WORKER_ACCOUNT_ID || !process.env.LOCAL_WORKER_ACCOUNT_SECRET) {
     console.error(
       "\nMissing required environment variables:\n" +
         "  LOCAL_WORKER_ACCOUNT_ID\n" +
@@ -73,14 +71,10 @@ async function addTestMember() {
   try {
     // Load the registry worker group
     console.log(`Loading registry worker group: ${REGISTRY_WORKER_GROUP_ID}`);
-    const registryGroup = await c
-      .group()
-      .load(REGISTRY_WORKER_GROUP_ID, worker);
+    const registryGroup = await c.group().load(REGISTRY_WORKER_GROUP_ID, worker);
 
     if (!registryGroup) {
-      console.error(
-        `Failed to load registry group with ID: ${REGISTRY_WORKER_GROUP_ID}`,
-      );
+      console.error(`Failed to load registry group with ID: ${REGISTRY_WORKER_GROUP_ID}`);
       process.exit(1);
     }
 
@@ -90,12 +84,8 @@ async function addTestMember() {
     // Verify we can admin this group
     const workerRole = registryGroup.getRoleOf(worker.id);
     if (workerRole !== "admin" && workerRole !== "writer") {
-      console.error(
-        `Worker doesn't have sufficient permissions on registry group`,
-      );
-      console.error(
-        `   Current role: ${workerRole}, required: admin or writer`,
-      );
+      console.error(`Worker doesn't have sufficient permissions on registry group`);
+      console.error(`   Current role: ${workerRole}, required: admin or writer`);
       process.exit(1);
     }
 
@@ -107,9 +97,7 @@ async function addTestMember() {
 
     if (!testAccount) {
       console.error(`Failed to load test account with ID: ${TEST_ACCOUNT_ID}`);
-      console.error(
-        `Make sure the test account exists on the local sync server`,
-      );
+      console.error(`Make sure the test account exists on the local sync server`);
       process.exit(1);
     }
 
@@ -118,9 +106,7 @@ async function addTestMember() {
     // Check if account is already a member
     const existingRole = registryGroup.getRoleOf(TEST_ACCOUNT_ID);
     if (existingRole) {
-      console.log(
-        `Test account is already a member with role: ${existingRole}`,
-      );
+      console.log(`Test account is already a member with role: ${existingRole}`);
 
       // Upgrade to writer if needed
       if (existingRole !== "writer" && existingRole !== "admin") {
@@ -142,9 +128,7 @@ async function addTestMember() {
     // Verify the member was added/updated
     const verifyRole = registryGroup.getRoleOf(TEST_ACCOUNT_ID);
     if (verifyRole) {
-      console.log(
-        `Verification: Test account has role "${verifyRole}" in registry group`,
-      );
+      console.log(`Verification: Test account has role "${verifyRole}" in registry group`);
     } else {
       console.warn(`Warning: Could not verify member role after operation`);
     }
@@ -163,13 +147,9 @@ async function addTestMember() {
   } catch (error) {
     console.error("\nFailed to add test member:", error);
     console.error("\nTroubleshooting:");
-    console.error(
-      "   - Ensure local sync server is running: npx jazz-run sync",
-    );
+    console.error("   - Ensure local sync server is running: npx jazz-run sync");
     console.error("   - Check your .env.test file has correct credentials");
-    console.error(
-      "   - Verify registry worker group was set up: pnpm setup:local",
-    );
+    console.error("   - Verify registry worker group was set up: pnpm setup:local");
     console.error("   - Ensure test account exists on local server");
     process.exit(1);
   }

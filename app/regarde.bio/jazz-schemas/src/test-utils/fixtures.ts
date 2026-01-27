@@ -3,8 +3,9 @@
  * These create valid instances of our schemas for testing
  */
 
-import { RegardeProfile } from "../regarde.bio";
 import { UserHandle } from "@regarde-dev/core";
+
+import { RegardeProfile } from "../regarde.bio";
 
 /**
  * Creates a valid UserHandle for testing
@@ -16,11 +17,7 @@ export function createTestUserHandle(
     registeredAt?: number;
   } = {},
 ) {
-  const {
-    nickname = "testuser",
-    isActive = true,
-    registeredAt = Date.now(),
-  } = overrides;
+  const { nickname = "testuser", isActive = true, registeredAt = Date.now() } = overrides;
 
   return UserHandle.create({
     nickname,

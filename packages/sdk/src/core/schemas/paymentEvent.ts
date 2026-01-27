@@ -6,7 +6,7 @@ import { co, z } from "jazz-tools";
  * Created by worker from payment provider webhook events.
  * Amount stored as string to avoid precision issues.
  *
- * Fields:
+ * @schema
  * - `amount`: Payment amount
  * - `app`: App ID for the payment
  * - `currency`: Payment currency code

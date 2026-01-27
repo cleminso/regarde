@@ -50,6 +50,3 @@ describe("tool output schemas", () => {
     expect(parsed.ok).toBe(true);
   });
 });
-
-
-

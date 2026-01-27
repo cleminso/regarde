@@ -1,13 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useState } from "react";
 
-import { Button, DestructiveConfirmationDialog } from '#/components/ui';
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useWorkExp } from '#/lib/hook/useWorkExp';
-import { ListOfWorkExp, RegardeProfile, WorkExp } from '#/lib/schema';
-import { EditorFooter } from '../../index';
-import { SectionHeader } from '../../layout/header';
-import { WorkExpCard } from './card';
+import { Button, DestructiveConfirmationDialog } from "#/components/ui";
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useWorkExp } from "#/lib/hook/useWorkExp";
+import { ListOfWorkExp, RegardeProfile, WorkExp } from "#/lib/schema";
+
+import { EditorFooter } from "../../index";
+import { SectionHeader } from "../../layout/header";
+
+import { WorkExpCard } from "./card";
 
 type WorkExpViewProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -59,8 +61,8 @@ export function WorkExpView({
   };
 
   const getWorkExpDisplayName = (workExp: Loaded<typeof WorkExp>) => {
-    const title = workExp.title || 'Untitled Role';
-    const company = workExp.company || 'Unnamed Company';
+    const title = workExp.title || "Untitled Role";
+    const company = workExp.company || "Unnamed Company";
     return `${title} at ${company}`;
   };
 
@@ -87,10 +89,7 @@ export function WorkExpView({
         {workExperiences && workExperiences.length > 0 && (
           <div className="space-y-6 pb-4">
             {workExperiences
-              .filter(
-                (workExp): workExp is Loaded<typeof WorkExp> =>
-                  workExp?.$isLoaded === true,
-              )
+              .filter((workExp): workExp is Loaded<typeof WorkExp> => workExp?.$isLoaded === true)
               .map((workExp) => (
                 <WorkExpCard
                   key={workExp.$jazz.id}
@@ -106,7 +105,7 @@ export function WorkExpView({
       <div className="shrink-0">
         <EditorFooter
           primaryAction={{
-            text: 'Done',
+            text: "Done",
             onClick: handleClose,
           }}
         />
@@ -119,10 +118,8 @@ export function WorkExpView({
         description={
           deleteConfirmation.workExp ? (
             <>
-              Please confirm you'd to delete{' '}
-              <strong>
-                {getWorkExpDisplayName(deleteConfirmation.workExp)}
-              </strong>
+              Please confirm you'd to delete{" "}
+              <strong>{getWorkExpDisplayName(deleteConfirmation.workExp)}</strong>
               ?
               <br />
               <br />

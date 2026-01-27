@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import { useClerkOnboarding } from '#/lib/onboarding/useClerkOnboarding';
-import { NicknameInput } from '../onboarding/nicknameInput';
-import { CustomAuthModal } from './customAuthModal';
+import { useClerkOnboarding } from "#/lib/onboarding/useClerkOnboarding";
+
+import { NicknameInput } from "../onboarding/nicknameInput";
+
+import { CustomAuthModal } from "./customAuthModal";
 
 export function LandingNicknameForm() {
-  const [nickname, setNickname] = useState('');
+  const [nickname, setNickname] = useState("");
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [pendingNickname, setPendingNickname] = useState('');
+  const [pendingNickname, setPendingNickname] = useState("");
 
   const onboarding = useClerkOnboarding({
     customAuthCallback: (nickname: string) => {
@@ -25,7 +27,7 @@ export function LandingNicknameForm() {
 
   const handleAuthRegistered = async (nickname: string) => {
     setShowAuthModal(false);
-    setPendingNickname('');
+    setPendingNickname("");
 
     setTimeout(() => {
       onboarding.register(nickname);
@@ -34,7 +36,7 @@ export function LandingNicknameForm() {
 
   const handleAuthClose = () => {
     setShowAuthModal(false);
-    setPendingNickname('');
+    setPendingNickname("");
   };
 
   if (onboarding.isAuthenticated && !onboarding.accountId) {
@@ -55,7 +57,7 @@ export function LandingNicknameForm() {
           validationError={onboarding.validationError}
           currentNickname={onboarding.currentNickname}
           errorDisplay={{
-            position: 'below',
+            position: "below",
             externalError: onboarding.error,
           }}
         />
@@ -73,9 +75,5 @@ export function LandingNicknameForm() {
     );
   }
 
-  return (
-    <div className="text-muted-foreground">
-      Redirecting to your profile editor...
-    </div>
-  );
+  return <div className="text-muted-foreground">Redirecting to your profile editor...</div>;
 }

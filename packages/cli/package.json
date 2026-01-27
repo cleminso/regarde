@@ -2,11 +2,11 @@
   "name": "@regarde-dev/cli",
   "version": "1.0.0",
   "description": "CLI for Regarde User",
-  "main": "dist/index.mjs",
   "bin": {
     "regarde": "./dist/index.mjs"
   },
   "type": "module",
+  "main": "dist/index.mjs",
   "scripts": {
     "build": "rm -rf dist && NODE_ENV=production vite build",
     "build:test": "rm -rf dist && NODE_ENV=test vite build",

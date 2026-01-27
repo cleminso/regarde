@@ -16,9 +16,7 @@ export const ProfileWorkerAccountRoot = co.map({
   // No registries, no audit logs - just profile loading capabilities
 });
 
-export type ProfileWorkerAccountRoot = co.loaded<
-  typeof ProfileWorkerAccountRoot
->;
+export type ProfileWorkerAccountRoot = co.loaded<typeof ProfileWorkerAccountRoot>;
 
 export const ProfileWorkerAccount = co.account({
   profile: co.profile(),

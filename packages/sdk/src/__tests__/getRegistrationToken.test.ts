@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { Loaded } from "jazz-tools";
 import { getRegardeAuth } from "#managers/auth";
 import { TOKEN_LIFETIME_SECONDS } from "#managers/auth";
 import { RegardeAuth } from "#schemas/regardeAuth";
+import type { Loaded } from "jazz-tools";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
 describe("getRegardeAuth", () => {
   beforeEach(() => {
@@ -50,9 +50,7 @@ describe("getRegardeAuth", () => {
     await getRegardeAuth({ loadedRegardeAuthCoMap: mockCoMap });
     const afterCall = Date.now();
 
-    const expiresAtCall = mockSet.mock.calls.find(
-      (call) => call[0] === "expiresAt",
-    );
+    const expiresAtCall = mockSet.mock.calls.find((call) => call[0] === "expiresAt");
     expect(expiresAtCall).toBeDefined();
 
     const expiresAt = expiresAtCall![1];
@@ -78,9 +76,7 @@ describe("getRegardeAuth", () => {
   });
 
   it("should return null and log error if set throws", async () => {
-    const consoleErrorSpy = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const mockSet = vi.fn().mockImplementation(() => {
       throw new Error("Set failed");
     });
@@ -106,9 +102,7 @@ describe("getRegardeAuth", () => {
   });
 
   it("should return null and log error if waitForSync throws", async () => {
-    const consoleErrorSpy = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const mockSet = vi.fn();
     const mockWaitForSync = vi.fn().mockRejectedValue(new Error("Sync failed"));
 

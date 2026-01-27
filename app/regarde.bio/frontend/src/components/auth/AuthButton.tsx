@@ -1,16 +1,17 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
-import { useRegardeAuth } from '#/lib/account/useRegistrationToken';
-import { logger } from '#/lib/utils/logger';
-import { useMyRegardeAccount } from '../../lib/account/useMyRegardeAccount';
-import { CustomAuthModal } from '../onboarding/customAuthModal';
-import { Button } from '../ui/button';
+import { useRegardeAuth } from "#/lib/account/useRegistrationToken";
+import { logger } from "#/lib/utils/logger";
+
+import { useMyRegardeAccount } from "../../lib/account/useMyRegardeAccount";
+import { CustomAuthModal } from "../onboarding/customAuthModal";
+import { Button } from "../ui/button";
 
 export function AuthButton() {
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const { logOut, isAuthenticated } = useMyRegardeAccount();
   const { getValidKey, isAccountReady } = useRegardeAuth();
 
@@ -24,11 +25,11 @@ export function AuthButton() {
         .then((key) => {
           if (key) {
           } else {
-            logger.error('Failed to obtain valid registration key');
+            logger.error("Failed to obtain valid registration key");
           }
         })
         .catch((error) => {
-          logger.error('Error ensuring valid key:', error);
+          logger.error("Error ensuring valid key:", error);
         });
     }
   }, [isAuthenticated, isAccountReady, getValidKey]);
@@ -38,7 +39,7 @@ export function AuthButton() {
     logOut();
   }
 
-  function handleModeChange(newMode: 'login' | 'register') {
+  function handleModeChange(newMode: "login" | "register") {
     setAuthMode(newMode);
   }
 
@@ -50,7 +51,7 @@ export function AuthButton() {
           size="sm"
           className="touch-hitbox px-2 text-xs sm:px-3 sm:text-sm"
           onClick={() => {
-            setAuthMode('login');
+            setAuthMode("login");
             setShowAuthModal(true);
           }}
         >
@@ -62,7 +63,7 @@ export function AuthButton() {
           size="sm"
           className="touch-hitbox px-2 text-xs sm:px-3 sm:text-sm"
           onClick={() => {
-            setAuthMode('register');
+            setAuthMode("register");
             setShowAuthModal(true);
           }}
         >

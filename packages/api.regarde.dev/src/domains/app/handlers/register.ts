@@ -1,3 +1,8 @@
+import { randomBytes } from "node:crypto";
+
+import { Loaded, co } from "jazz-tools";
+
+import { verifyRegardeAuth } from "#/domains/auth/handlers/verify";
 import {
   RegistryWorkerAccount,
   type TAllRegistryAppsSchema,
@@ -6,10 +11,6 @@ import {
   App,
   useLogging,
 } from "@regarde-dev/core";
-
-import { Loaded, co } from "jazz-tools";
-import { randomBytes } from "node:crypto";
-import { verifyRegardeAuth } from "#/domains/auth/handlers/verify";
 
 const logger = useLogging({
   module: __filename,
@@ -31,13 +32,10 @@ export const registerAppHandler = (
           message: "Starting register app handler, checking registry group",
           data: { metadata: { workerId } },
         });
-        throw new Error(
-          "Missing `REGARDE_REGISTRY_GROUP` required environment variable",
-        );
+        throw new Error("Missing `REGARDE_REGISTRY_GROUP` required environment variable");
       }
 
-      const isRegardeAuthHeaderExists =
-        regardeAuth !== null && regardeAuth !== undefined;
+      const isRegardeAuthHeaderExists = regardeAuth !== null && regardeAuth !== undefined;
       if (isRegardeAuthHeaderExists === false) {
         logger.error({
           message: "Missing registration token header",
@@ -68,10 +66,7 @@ export const registerAppHandler = (
             authFailureReason: verificationResult.error,
           },
         });
-        return c.json(
-          { error: `Authentication failed: ${verificationResult.error}` },
-          403,
-        );
+        return c.json({ error: `Authentication failed: ${verificationResult.error}` }, 403);
       }
 
       // Load the App to verify user has admin write permissions
@@ -96,8 +91,7 @@ export const registerAppHandler = (
         loadAs: worker,
       });
 
-      const isUserAccountLoaded =
-        userAccount !== null && userAccount.$isLoaded === true;
+      const isUserAccountLoaded = userAccount !== null && userAccount.$isLoaded === true;
       if (isUserAccountLoaded === false) {
         logger.error({
           message: "User account not found or failed to load",
@@ -125,8 +119,7 @@ export const registerAppHandler = (
         });
         return c.json(
           {
-            error:
-              "Permission denied: User does not have admin access to the App",
+            error: "Permission denied: User does not have admin access to the App",
           },
           403,
         );
@@ -137,8 +130,7 @@ export const registerAppHandler = (
         loadAs: worker,
       });
 
-      const isRegistryGroupLoaded =
-        registryProfileWorkerGroup.$isLoaded === true;
+      const isRegistryGroupLoaded = registryProfileWorkerGroup.$isLoaded === true;
       if (isRegistryGroupLoaded === false) {
         logger.error({
           message: "Failed to load registryProfileWorkerGroup",
@@ -157,9 +149,7 @@ export const registerAppHandler = (
       let webhookSecret: string;
 
       const isWebhookSecretExists =
-        app.webhookSecret !== null &&
-        app.webhookSecret !== undefined &&
-        app.webhookSecret !== "";
+        app.webhookSecret !== null && app.webhookSecret !== undefined && app.webhookSecret !== "";
       if (isWebhookSecretExists === false) {
         webhookSecret = randomBytes(20).toString("hex");
         app.$jazz.set("webhookSecret", webhookSecret);
@@ -186,8 +176,7 @@ export const registerAppHandler = (
       await appsRecord.$jazz.waitForSync();
 
       const isUserAppsListExists =
-        appsByUserRecord[jazzAccountId] !== null &&
-        appsByUserRecord[jazzAccountId] !== undefined;
+        appsByUserRecord[jazzAccountId] !== null && appsByUserRecord[jazzAccountId] !== undefined;
       if (isUserAppsListExists === false) {
         appsByUserRecord.$jazz.set(
           jazzAccountId,
@@ -198,8 +187,7 @@ export const registerAppHandler = (
 
       const userAppsList = appsByUserRecord[jazzAccountId];
 
-      const isUserAppsListValid =
-        userAppsList !== undefined && userAppsList.$isLoaded === true;
+      const isUserAppsListValid = userAppsList !== undefined && userAppsList.$isLoaded === true;
 
       if (isUserAppsListValid === true) {
         userAppsList.$jazz.push(metadata);
@@ -215,15 +203,13 @@ export const registerAppHandler = (
       const response = c.json(responseData, 200);
       return response;
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Internal Server Error";
+      const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
 
       logger.error({
         message: "Register app handler failed",
         data: {
           errorMessage,
-          errorType:
-            error instanceof Error ? error.constructor.name : "Unknown",
+          errorType: error instanceof Error ? error.constructor.name : "Unknown",
         },
       });
       return c.json({ error: errorMessage }, 500);

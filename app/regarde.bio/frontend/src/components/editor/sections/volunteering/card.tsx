@@ -1,9 +1,10 @@
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import { Volunteering } from '#/lib/schema';
-import { EditorCardActions } from '../../shared/cardActions';
+import { Button } from "#/components/ui/button";
+import { Volunteering } from "#/lib/schema";
+
+import { EditorCardActions } from "../../shared/cardActions";
 
 type VolunteeringCardProps = {
   volunteering: Loaded<typeof Volunteering>;
@@ -12,19 +13,19 @@ type VolunteeringCardProps = {
 };
 
 const formatDate = (date: Date | string | undefined): string => {
-  if (!date) return 'Now';
+  if (!date) return "Now";
 
   if (date instanceof Date) {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
     });
   }
 
-  if (typeof date === 'string') {
+  if (typeof date === "string") {
     const parsedDate = new Date(date);
     if (!isNaN(parsedDate.getTime())) {
-      return parsedDate.toLocaleDateString('en-US', {
-        year: 'numeric',
+      return parsedDate.toLocaleDateString("en-US", {
+        year: "numeric",
       });
     }
   }
@@ -32,13 +33,9 @@ const formatDate = (date: Date | string | undefined): string => {
   return String(date);
 };
 
-export function VolunteeringCard({
-  volunteering,
-  onEdit,
-  onDelete,
-}: VolunteeringCardProps) {
-  const displayTitle = `${volunteering.title || 'Untitled Role'} @${
-    volunteering.organization || 'Unnamed Organization'
+export function VolunteeringCard({ volunteering, onEdit, onDelete }: VolunteeringCardProps) {
+  const displayTitle = `${volunteering.title || "Untitled Role"} @${
+    volunteering.organization || "Unnamed Organization"
   }`;
   const dateRange = `${formatDate(volunteering.from)} - ${formatDate(volunteering.to)}`;
 
@@ -79,9 +76,7 @@ export function VolunteeringCard({
             )}
           </div>
           {volunteering.location && (
-            <div className="text-muted-foreground text-sm">
-              {volunteering.location}
-            </div>
+            <div className="text-muted-foreground text-sm">{volunteering.location}</div>
           )}
           {volunteering.description && (
             <p className="text-muted-foreground text-sm whitespace-pre-line">
@@ -89,11 +84,7 @@ export function VolunteeringCard({
             </p>
           )}
           <div className="mt-2">
-            <EditorCardActions
-              item={volunteering}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
+            <EditorCardActions item={volunteering} onEdit={onEdit} onDelete={onDelete} />
           </div>
         </div>
       </div>

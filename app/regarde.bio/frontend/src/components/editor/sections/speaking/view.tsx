@@ -1,13 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useState } from "react";
 
-import { Button, DestructiveConfirmationDialog } from '#/components/ui';
-import { TriggerSyncIndicator } from '#/lib/hook/types.ts';
-import { useSpeaking } from '#/lib/hook/useSpeaking.ts';
-import { ListOfSpeaking, RegardeProfile, Speaking } from '#/lib/schema';
-import { EditorFooter } from '../../index';
-import { SectionHeader } from './../../layout/header';
-import { SpeakingCard } from './card';
+import { Button, DestructiveConfirmationDialog } from "#/components/ui";
+import { TriggerSyncIndicator } from "#/lib/hook/types.ts";
+import { useSpeaking } from "#/lib/hook/useSpeaking.ts";
+import { ListOfSpeaking, RegardeProfile, Speaking } from "#/lib/schema";
+
+import { EditorFooter } from "../../index";
+
+import { SectionHeader } from "./../../layout/header";
+import { SpeakingCard } from "./card";
 
 type SpeakingViewProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -59,7 +61,7 @@ export function SpeakingView({
   };
 
   const getSpeakingDisplayName = (speakingItem: Loaded<typeof Speaking>) => {
-    return speakingItem.title || 'Untitled Talk';
+    return speakingItem.title || "Untitled Talk";
   };
 
   return (
@@ -104,7 +106,7 @@ export function SpeakingView({
       <div className="shrink-0">
         <EditorFooter
           primaryAction={{
-            text: 'Done',
+            text: "Done",
             onClick: handleClose,
           }}
         />
@@ -117,10 +119,8 @@ export function SpeakingView({
         description={
           deleteConfirmation.speaking ? (
             <>
-              Are you sure you want to delete the speaking engagement{' '}
-              <strong>
-                {getSpeakingDisplayName(deleteConfirmation.speaking)}
-              </strong>
+              Are you sure you want to delete the speaking engagement{" "}
+              <strong>{getSpeakingDisplayName(deleteConfirmation.speaking)}</strong>
               ?
               <br />
               <br />

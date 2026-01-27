@@ -1,14 +1,15 @@
-import { SocialLinks } from '@regarde-dev/jazz-schemas/regarde.bio';
+import { SocialLinks } from "@regarde-dev/jazz-schemas/regarde.bio";
 
-import { logger } from '../utils/logger';
-import { BaseHookProps } from './types';
+import { logger } from "../utils/logger";
+
+import { BaseHookProps } from "./types";
 
 type UseContactProps = BaseHookProps;
 
 export function useContact({ profile, triggerSyncIndicator }: UseContactProps) {
   const ensureSocialLinks = () => {
     if (!profile.$isLoaded) {
-      logger.error('Profile is not loaded');
+      logger.error("Profile is not loaded");
       return undefined;
     }
 
@@ -19,7 +20,7 @@ export function useContact({ profile, triggerSyncIndicator }: UseContactProps) {
     // Create new SocialLinks if it doesn't exist
     const owner = profile.$jazz.owner;
     if (!owner?.$isLoaded) {
-      logger.error('Cannot create SocialLinks: profile owner is not loaded');
+      logger.error("Cannot create SocialLinks: profile owner is not loaded");
       return undefined;
     }
 
@@ -31,14 +32,11 @@ export function useContact({ profile, triggerSyncIndicator }: UseContactProps) {
       },
       { owner },
     );
-    profile.$jazz.set('socialLinks', newSocialLinks);
+    profile.$jazz.set("socialLinks", newSocialLinks);
     return newSocialLinks;
   };
 
-  const updateSocialLink = async (
-    field: 'github' | 'twitter' | 'website',
-    value: string,
-  ) => {
+  const updateSocialLink = async (field: "github" | "twitter" | "website", value: string) => {
     if (!profile.$isLoaded) return;
 
     if (value) {
@@ -54,7 +52,7 @@ export function useContact({ profile, triggerSyncIndicator }: UseContactProps) {
         profile.socialLinks.twitter === null &&
         profile.socialLinks.website === null
       ) {
-        profile.$jazz.set('socialLinks', undefined);
+        profile.$jazz.set("socialLinks", undefined);
       }
 
       await triggerSyncIndicator(profile);

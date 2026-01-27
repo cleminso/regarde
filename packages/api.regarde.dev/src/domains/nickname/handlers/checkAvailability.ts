@@ -1,7 +1,5 @@
-import type {
-  TNicknameRegistry,
-  TReservedNicknamesRegistry,
-} from "@regarde-dev/core";
+import type { TNicknameRegistry, TReservedNicknamesRegistry } from "@regarde-dev/core";
+
 import { useLogging } from "@regarde-dev/core";
 
 const logger = useLogging({
@@ -38,9 +36,7 @@ export const checkAvailabilityHandler = (
       const existingAccountForNickname = nicknameRegistry[nickname];
       const reservation = reservedNicknames[nickname];
       const isReservationLoaded =
-        reservation !== null &&
-        reservation !== undefined &&
-        reservation.$isLoaded === true;
+        reservation !== null && reservation !== undefined && reservation.$isLoaded === true;
 
       const isAvailable = !existingAccountForNickname && !reservation;
 
@@ -65,8 +61,7 @@ export const checkAvailabilityHandler = (
           nickname,
           isAvailable,
           hasExistingAccount:
-            existingAccountForNickname !== null &&
-            existingAccountForNickname !== undefined,
+            existingAccountForNickname !== null && existingAccountForNickname !== undefined,
           hasReservation: reservation !== null && reservation !== undefined,
           isReservationLoaded,
         },
@@ -74,8 +69,7 @@ export const checkAvailabilityHandler = (
 
       return c.json(response, 200);
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
       logger.error({
         message: "Failed to process /checkAvailability request",

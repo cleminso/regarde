@@ -1,6 +1,7 @@
-import { defineConfig } from "vite";
-import { resolve } from "path";
 import { builtinModules } from "node:module";
+import { resolve } from "path";
+
+import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({

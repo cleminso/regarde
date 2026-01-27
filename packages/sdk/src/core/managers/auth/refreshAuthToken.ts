@@ -1,8 +1,9 @@
 import { Loaded } from "jazz-tools";
+
+import { useLogging } from "#core/logger";
 import { generateRegardeToken } from "#managers/auth/generateToken";
 import { TOKEN_LIFETIME_SECONDS } from "#managers/auth/tokenUtils";
 import { RegardeAuth } from "#schemas/regardeAuth";
-import { useLogging } from "#core/logger";
 
 const logger = useLogging({
   module: __filename,
@@ -49,6 +50,7 @@ export async function getRegardeAuth({
         metadata: {
           operation: "refresh-auth-token",
         },
+        error,
         loadedRegardeAuthCoMapId: loadedRegardeAuthCoMap.$jazz.id,
       },
     });

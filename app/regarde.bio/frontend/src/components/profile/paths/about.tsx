@@ -1,6 +1,7 @@
-import { Loaded } from 'jazz-tools';
+import { Loaded } from "jazz-tools";
 
-import { RegardeProfile } from '#/lib/schema';
+import { RegardeProfile } from "#/lib/schema";
+
 import {
   About,
   Awards,
@@ -12,7 +13,7 @@ import {
   Volunteerings,
   WorkExperiences,
   Writings,
-} from '../index';
+} from "../index";
 
 type AboutPageProps = {
   profile: Loaded<typeof RegardeProfile>;

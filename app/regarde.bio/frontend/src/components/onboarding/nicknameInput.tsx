@@ -1,18 +1,13 @@
-import { RegardeProfile } from '@regarde-dev/jazz-schemas/regarde.bio';
-import { Loaded } from 'jazz-tools';
-import { Loader2 } from 'lucide-react';
-import React, { useCallback } from 'react';
+import { Loaded } from "jazz-tools";
+import { Loader2 } from "lucide-react";
+import React, { useCallback } from "react";
 
-import { normalizeNickname } from '../../lib/utils/utils';
-import { Button, Input } from '../ui';
+import { RegardeProfile } from "@regarde-dev/jazz-schemas/regarde.bio";
 
-type ValidationStatus =
-  | 'empty'
-  | 'invalid'
-  | 'checking'
-  | 'available'
-  | 'taken'
-  | 'reserved';
+import { normalizeNickname } from "../../lib/utils/utils";
+import { Button, Input } from "../ui";
+
+type ValidationStatus = "empty" | "invalid" | "checking" | "available" | "taken" | "reserved";
 
 interface NicknameInputProps {
   value: string;
@@ -33,7 +28,7 @@ interface NicknameInputProps {
   currentNickname?: string;
 
   errorDisplay?: {
-    position: 'below' | 'inline';
+    position: "below" | "inline";
     showRequiredMessage?: boolean;
     externalError?: string | null;
   };
@@ -50,15 +45,15 @@ export function NicknameInput({
   profile,
   isProcessing = false,
   disabled = false,
-  placeholder = 'your_nickname',
+  placeholder = "your_nickname",
   onBlurRestore,
   onAction,
   actionText,
   onView,
-  validationStatus = 'empty',
-  validationError = '',
-  currentNickname = '',
-  errorDisplay = { position: 'below' },
+  validationStatus = "empty",
+  validationError = "",
+  currentNickname = "",
+  errorDisplay = { position: "below" },
   label,
 }: NicknameInputProps) {
   const hasProfile = profile !== undefined;
@@ -69,9 +64,9 @@ export function NicknameInput({
       const isCmdOrCtrl = e.metaKey || e.ctrlKey;
       const isAlt = e.altKey;
 
-      if (isCmdOrCtrl && e.key === 'Enter' && !e.shiftKey && !isAlt) {
+      if (isCmdOrCtrl && e.key === "Enter" && !e.shiftKey && !isAlt) {
         e.preventDefault();
-        if (validationStatus === 'available' && onAction && !isProcessing) {
+        if (validationStatus === "available" && onAction && !isProcessing) {
           const isUnchanged = hasProfile && value === currentNickname;
           if (!isUnchanged) {
             onAction(value);
@@ -79,22 +74,14 @@ export function NicknameInput({
         }
       }
 
-      if (isAlt && e.key === 'Enter' && !e.shiftKey && !isCmdOrCtrl) {
+      if (isAlt && e.key === "Enter" && !e.shiftKey && !isCmdOrCtrl) {
         e.preventDefault();
-        if (validationStatus === 'taken' && onView) {
+        if (validationStatus === "taken" && onView) {
           onView(value);
         }
       }
     },
-    [
-      validationStatus,
-      onAction,
-      onView,
-      value,
-      isProcessing,
-      hasProfile,
-      currentNickname,
-    ],
+    [validationStatus, onAction, onView, value, isProcessing, hasProfile, currentNickname],
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,7 +113,7 @@ export function NicknameInput({
 
     const isUnchanged = hasProfile && value === currentNickname;
 
-    if (validationStatus === 'checking') {
+    if (validationStatus === "checking") {
       return (
         <Button disabled size="sm" aria-label="Checking availability">
           <Loader2 size={16} className="animate-spin" />
@@ -134,15 +121,10 @@ export function NicknameInput({
       );
     }
 
-    if (validationStatus === 'available') {
+    if (validationStatus === "available") {
       if (isUnchanged) {
         return (
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled
-            aria-label="Current nickname"
-          >
+          <Button variant="ghost" size="sm" disabled aria-label="Current nickname">
             Current
           </Button>
         );
@@ -163,7 +145,7 @@ export function NicknameInput({
       }
     }
 
-    if (validationStatus === 'taken') {
+    if (validationStatus === "taken") {
       if (onView) {
         return (
           <Button
@@ -179,38 +161,23 @@ export function NicknameInput({
       }
 
       return (
-        <Button
-          variant="destructive"
-          size="sm"
-          disabled
-          aria-label="Nickname is taken"
-        >
+        <Button variant="destructive" size="sm" disabled aria-label="Nickname is taken">
           Taken
         </Button>
       );
     }
 
-    if (validationStatus === 'reserved') {
+    if (validationStatus === "reserved") {
       return (
-        <Button
-          variant="destructive"
-          size="sm"
-          disabled
-          aria-label="Nickname is reserved"
-        >
+        <Button variant="destructive" size="sm" disabled aria-label="Nickname is reserved">
           Reserved
         </Button>
       );
     }
 
-    if (validationStatus === 'invalid') {
+    if (validationStatus === "invalid") {
       return (
-        <Button
-          variant="destructive"
-          size="sm"
-          disabled
-          aria-label="Invalid nickname format"
-        >
+        <Button variant="destructive" size="sm" disabled aria-label="Invalid nickname format">
           Invalid
         </Button>
       );
@@ -221,19 +188,17 @@ export function NicknameInput({
 
   const renderError = () => {
     if (errorDisplay.externalError) {
-      return (
-        <small className="text-destructive">{errorDisplay.externalError}</small>
-      );
+      return <small className="text-destructive">{errorDisplay.externalError}</small>;
     }
 
     if (!value && errorDisplay.showRequiredMessage) {
       return <small className="text-destructive">Nickname is required.</small>;
     }
 
-    if (value && validationStatus === 'reserved') {
+    if (value && validationStatus === "reserved") {
       return (
         <small className="text-foreground">
-          Reserved -{' '}
+          Reserved -{" "}
           <a
             href="https://x.com/cleminso"
             target="_blank"
@@ -241,13 +206,13 @@ export function NicknameInput({
             className="underline underline-offset-2"
           >
             Contact support
-          </a>{' '}
+          </a>{" "}
           if you believe you should have access to this nickname.
         </small>
       );
     }
 
-    if (value && validationStatus === 'invalid' && validationError) {
+    if (value && validationStatus === "invalid" && validationError) {
       return <small className="text-destructive">{validationError}</small>;
     }
 
@@ -266,16 +231,12 @@ export function NicknameInput({
               {label.required && <sup>*</sup>}
             </label>
           </div>
-          {errorDisplay.position === 'inline' && (
-            <div className="text-sm">{renderError()}</div>
-          )}
+          {errorDisplay.position === "inline" && <div className="text-sm">{renderError()}</div>}
         </div>
       )}
 
       <div className="space-y-2 sm:space-y-0">
-        <div className="text-muted-foreground font-mono text-sm sm:hidden">
-          regarde.bio/
-        </div>
+        <div className="text-muted-foreground font-mono text-sm sm:hidden">regarde.bio/</div>
 
         <div className="border-input flex w-full flex-col items-stretch overflow-hidden rounded-md border bg-transparent sm:flex-row sm:items-center">
           {/* Domain prefix - show inline on desktop */}
@@ -294,9 +255,7 @@ export function NicknameInput({
               placeholder={placeholder}
               className="flex-1 border-0 bg-transparent px-3 py-3 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
               disabled={isInputDisabled}
-              aria-describedby={
-                errorDisplay.position === 'below' ? 'nickname-error' : undefined
-              }
+              aria-describedby={errorDisplay.position === "below" ? "nickname-error" : undefined}
             />
 
             <div className="flex min-w-[80px] items-center justify-end px-3 py-1 sm:min-w-[100px]">
@@ -306,7 +265,7 @@ export function NicknameInput({
         </div>
       </div>
 
-      {errorDisplay.position === 'below' && (
+      {errorDisplay.position === "below" && (
         <div className="h-6 text-sm" id="nickname-error">
           {renderError()}
         </div>

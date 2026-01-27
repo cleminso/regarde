@@ -4,10 +4,7 @@ const logMessageSchema = z.object({
   message: z.string().describe("What is happening now, what you want to know"),
   data: z
     .object({
-      metadata: z
-        .record(z.string(), z.any())
-        .optional()
-        .describe("The context metadata"),
+      metadata: z.record(z.string(), z.any()).optional().describe("The context metadata"),
     })
     .and(z.record(z.string(), z.any()))
     .describe("The data / context / metadata that is relevant to the message"),

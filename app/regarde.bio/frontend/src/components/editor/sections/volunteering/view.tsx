@@ -1,13 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useState } from "react";
 
-import { Button, DestructiveConfirmationDialog } from '#/components/ui';
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useVolunteering } from '#/lib/hook/useVolunteering';
-import { ListOfVolunteering, RegardeProfile, Volunteering } from '#/lib/schema';
-import { EditorFooter } from '../../index';
-import { SectionHeader } from '../../layout/header';
-import { VolunteeringCard } from './card';
+import { Button, DestructiveConfirmationDialog } from "#/components/ui";
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useVolunteering } from "#/lib/hook/useVolunteering";
+import { ListOfVolunteering, RegardeProfile, Volunteering } from "#/lib/schema";
+
+import { EditorFooter } from "../../index";
+import { SectionHeader } from "../../layout/header";
+
+import { VolunteeringCard } from "./card";
 
 type VolunteeringViewProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -39,9 +41,7 @@ export function VolunteeringView({
     volunteering: null,
   });
 
-  const handleDeleteVolunteering = (
-    volunteeringItem: Loaded<typeof Volunteering>,
-  ) => {
+  const handleDeleteVolunteering = (volunteeringItem: Loaded<typeof Volunteering>) => {
     setDeleteConfirmation({
       isOpen: true,
       volunteering: volunteeringItem,
@@ -63,12 +63,9 @@ export function VolunteeringView({
     onClose?.();
   };
 
-  const getVolunteeringDisplayName = (
-    volunteeringItem: Loaded<typeof Volunteering>,
-  ) => {
-    const title = volunteeringItem.title || 'Untitled Role';
-    const organization =
-      volunteeringItem.organization || 'Unnamed Organization';
+  const getVolunteeringDisplayName = (volunteeringItem: Loaded<typeof Volunteering>) => {
+    const title = volunteeringItem.title || "Untitled Role";
+    const organization = volunteeringItem.organization || "Unnamed Organization";
     return `${title} at ${organization}`;
   };
 
@@ -96,9 +93,7 @@ export function VolunteeringView({
           <div className="space-y-6 pb-4">
             {volunteering
               .filter(
-                (
-                  volunteeringItem,
-                ): volunteeringItem is Loaded<typeof Volunteering> =>
+                (volunteeringItem): volunteeringItem is Loaded<typeof Volunteering> =>
                   volunteeringItem !== null,
               )
               .map((volunteeringItem) => (
@@ -116,7 +111,7 @@ export function VolunteeringView({
       <div className="shrink-0">
         <EditorFooter
           primaryAction={{
-            text: 'Done',
+            text: "Done",
             onClick: handleClose,
           }}
         />
@@ -129,10 +124,8 @@ export function VolunteeringView({
         description={
           deleteConfirmation.volunteering ? (
             <>
-              Please confirm you'd like to delete{' '}
-              <strong>
-                {getVolunteeringDisplayName(deleteConfirmation.volunteering)}
-              </strong>
+              Please confirm you'd like to delete{" "}
+              <strong>{getVolunteeringDisplayName(deleteConfirmation.volunteering)}</strong>
               ?
               <br />
               <br />

@@ -2,10 +2,10 @@ import {
   checkNicknameAvailability as sdkCheckNicknameAvailability,
   registerNickname as sdkRegisterNickname,
   type CheckAvailabilityResponse,
-} from '@regarde-dev/core';
+} from "@regarde-dev/core";
 
-import { GetValidKeyFunction } from '../account/useRegistrationToken';
-import { API_BASE_URL, AUTH_BASE_URL } from '../config/apiKey';
+import { GetValidKeyFunction } from "../account/useRegistrationToken";
+import { API_BASE_URL, AUTH_BASE_URL } from "../config/apiKey";
 
 export interface RegisterRequest {
   nickname: string;
@@ -47,8 +47,8 @@ export async function checkNicknameAvailability(
     });
   } catch (error) {
     // Handle 503 errors specifically
-    if (error instanceof Error && error.message.includes('503')) {
-      throw new Error('Service is initializing, please try again in a moment', {
+    if (error instanceof Error && error.message.includes("503")) {
+      throw new Error("Service is initializing, please try again in a moment", {
         cause: error,
       });
     }
@@ -62,7 +62,7 @@ export async function registerNickname(
 ): Promise<void> {
   const registrationData = await getValidRegardeAuth();
   if (!registrationData) {
-    throw new Error('Could not obtain valid registration token');
+    throw new Error("Could not obtain valid registration token");
   }
 
   const { token, tokenId } = registrationData;
@@ -77,22 +77,18 @@ export async function registerNickname(
   });
 
   if (!result.success) {
-    throw new Error(result.error || 'Registration failed');
+    throw new Error(result.error || "Registration failed");
   }
 }
 
-export async function getUserDetails(
-  jazzAccountId: string,
-): Promise<UserDetailsResponse> {
+export async function getUserDetails(jazzAccountId: string): Promise<UserDetailsResponse> {
   const response = await fetch(
     `${API_BASE_URL}/users?jazzAccountId=${encodeURIComponent(jazzAccountId)}`,
   );
 
   if (!response.ok) {
     const errorData: ApiError = await response.json();
-    throw new Error(
-      errorData.error || `HTTP ${response.status}: ${response.statusText}`,
-    );
+    throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
   }
   return response.json();
 }

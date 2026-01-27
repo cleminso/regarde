@@ -1,4 +1,5 @@
 import { createRoute } from "@hono/zod-openapi";
+
 import { ErrorResponseSchema } from "#/domains/common/schemas";
 import { RegisterRequestSchema } from "#/domains/nickname/schemas";
 
@@ -16,8 +17,7 @@ export const registerRoute = createRoute({
   },
   responses: {
     204: {
-      description:
-        "Registration/swap/deletion successful - no content returned",
+      description: "Registration/swap/deletion successful - no content returned",
     },
     401: {
       content: {
@@ -33,8 +33,7 @@ export const registerRoute = createRoute({
           schema: ErrorResponseSchema,
         },
       },
-      description:
-        "Bad request - invalid request body or missing required fields",
+      description: "Bad request - invalid request body or missing required fields",
     },
     403: {
       content: {
@@ -42,8 +41,7 @@ export const registerRoute = createRoute({
           schema: ErrorResponseSchema,
         },
       },
-      description:
-        "Forbidden - account does not own the nickname being swapped/deleted",
+      description: "Forbidden - account does not own the nickname being swapped/deleted",
     },
     409: {
       content: {

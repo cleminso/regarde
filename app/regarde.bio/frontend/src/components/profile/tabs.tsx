@@ -1,6 +1,6 @@
-import { cn } from '#/lib/utils/utils';
+import { cn } from "#/lib/utils/utils";
 
-export type TabId = 'about' | 'now';
+export type TabId = "about" | "now";
 
 export interface Tab {
   id: TabId;
@@ -24,20 +24,18 @@ export function ProfileTabs({
   const enabledTabs = availableTabs.filter((tab) => tab.enabled);
 
   return (
-    <div className={cn('', className)}>
+    <div className={cn("", className)}>
       <nav className="flex space-x-4" aria-label="Profile sections">
         {enabledTabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={cn(
-              'text-md text-foreground font-mono duration-200',
-              'hover:text-foreground',
-              activeTab === tab.id
-                ? 'text-foreground'
-                : 'text-muted-foreground',
+              "text-md text-foreground font-mono duration-200",
+              "hover:text-foreground",
+              activeTab === tab.id ? "text-foreground" : "text-muted-foreground",
             )}
-            aria-current={activeTab === tab.id ? 'page' : undefined}
+            aria-current={activeTab === tab.id ? "page" : undefined}
           >
             {tab.label}
           </button>
@@ -49,13 +47,13 @@ export function ProfileTabs({
 
 export const DEFAULT_TABS: Tab[] = [
   {
-    id: 'about',
-    label: 'ABOUT',
+    id: "about",
+    label: "ABOUT",
     enabled: true,
   },
   {
-    id: 'now',
-    label: 'NOW',
+    id: "now",
+    label: "NOW",
     enabled: true,
   },
 ];

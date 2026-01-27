@@ -1,1 +1,1 @@
-export * from '@regarde-dev/jazz-schemas/regarde.bio';
+export * from "@regarde-dev/jazz-schemas/regarde.bio";

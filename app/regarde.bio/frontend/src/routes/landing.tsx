@@ -1,12 +1,13 @@
-import { ArrowRight, Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { ArrowRight, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
 
-import { Button } from '#/components/ui';
-import { useClerkOnboarding } from '#/lib/onboarding/useClerkOnboarding';
-import { createNicknameUrl } from '#/lib/utils/utils';
-import { BaseLayout } from '../components/layouts/baseLayout';
-import { LandingNicknameForm } from '../components/onboarding/landingNicknameForm';
+import { Button } from "#/components/ui";
+import { useClerkOnboarding } from "#/lib/onboarding/useClerkOnboarding";
+import { createNicknameUrl } from "#/lib/utils/utils";
+
+import { BaseLayout } from "../components/layouts/baseLayout";
+import { LandingNicknameForm } from "../components/onboarding/landingNicknameForm";
 
 export function LandingPage() {
   const navigate = useNavigate();
@@ -19,16 +20,16 @@ export function LandingPage() {
 
     if (onboarding.hasExistingNickname) {
       setIsTransitioning(true);
-      const isFromRegistration = sessionStorage.getItem('isNewRegistration');
+      const isFromRegistration = sessionStorage.getItem("isNewRegistration");
 
       if (isFromRegistration) {
-        sessionStorage.removeItem('isNewRegistration');
-        navigate(createNicknameUrl(onboarding.currentNickname, '/edit'));
+        sessionStorage.removeItem("isNewRegistration");
+        navigate(createNicknameUrl(onboarding.currentNickname, "/edit"));
       } else {
         navigate(createNicknameUrl(onboarding.currentNickname));
       }
-    } else if (location.pathname !== '/') {
-      navigate('/', { replace: true });
+    } else if (location.pathname !== "/") {
+      navigate("/", { replace: true });
     }
   }, [
     onboarding.isAuthenticated,
@@ -38,11 +39,7 @@ export function LandingPage() {
     location.pathname,
   ]);
 
-  if (
-    onboarding.isAuthenticated &&
-    onboarding.hasExistingNickname &&
-    isTransitioning
-  ) {
+  if (onboarding.isAuthenticated && onboarding.hasExistingNickname && isTransitioning) {
     return (
       <BaseLayout isLandingPage={true}>
         <div className="flex flex-col items-center gap-6 py-12 text-center">
@@ -57,16 +54,11 @@ export function LandingPage() {
     <BaseLayout isLandingPage={true}>
       <div className="flex flex-col items-center gap-3 py-12 text-center">
         <h1 className="text-foreground mb-8 text-2xl font-medium">
-          The only online profile you will ever need. Build one, use it
-          everywhere.
+          The only online profile you will ever need. Build one, use it everywhere.
         </h1>
         <LandingNicknameForm />
         <Button variant="ghost" asChild className="mt-4">
-          <a
-            href="https://regarde.bio/cleminso"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="https://regarde.bio/cleminso" target="_blank" rel="noopener noreferrer">
             See example
             <ArrowRight className="ml-1" size={16} />
           </a>

@@ -1,7 +1,7 @@
-import { Loaded } from 'jazz-tools';
+import { Loaded } from "jazz-tools";
 
-import { type RegardeProfile } from '#/lib/schema';
-import { formatTimestamp } from '#/lib/utils/utils';
+import { type RegardeProfile } from "#/lib/schema";
+import { formatTimestamp } from "#/lib/utils/utils";
 
 type NowPageProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -19,7 +19,7 @@ export function NowPage({ profile }: NowPageProps) {
               This person hasn't shared what they're doing now.
             </p>
             <p className="text-muted-foreground mt-2 text-xs">
-              Learn more about{' '}
+              Learn more about{" "}
               <a
                 href="https://nownownow.com/about"
                 target="_blank"
@@ -58,7 +58,7 @@ export function NowPage({ profile }: NowPageProps) {
 
         <div className="border-border flex items-center justify-between border-t pt-4">
           <p className="text-muted-foreground text-xs">
-            Learn more about{' '}
+            Learn more about{" "}
             <a
               href="https://nownownow.com/about"
               target="_blank"

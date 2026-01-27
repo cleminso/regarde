@@ -1,7 +1,8 @@
-import React from 'react';
+import React from "react";
 
-import { cn } from '#/lib/utils/utils.ts';
-import { Button } from '../../ui/button.tsx';
+import { cn } from "#/lib/utils/utils.ts";
+
+import { Button } from "../../ui/button.tsx";
 
 type SelectorDateProps = {
   id: string;
@@ -31,11 +32,11 @@ export function SelectorDate({
   wrapperClassName,
 }: SelectorDateProps) {
   return (
-    <div className={cn('relative w-full', wrapperClassName)}>
+    <div className={cn("relative w-full", wrapperClassName)}>
       <Button
         variant="outline"
         size="lg"
-        className={cn('bg-background w-full justify-start', buttonClassName)}
+        className={cn("bg-background w-full justify-start", buttonClassName)}
         aria-hidden="true"
         tabIndex={-1}
       >
@@ -45,15 +46,9 @@ export function SelectorDate({
         id={id}
         value={value}
         onChange={onChange}
-        className={cn(
-          'absolute inset-0 h-full w-full cursor-pointer opacity-0',
-          selectClassName,
-        )}
+        className={cn("absolute inset-0 h-full w-full cursor-pointer opacity-0", selectClassName)}
       >
-        <option
-          value={placeholderOption.value}
-          disabled={placeholderOption.disabled === true}
-        >
+        <option value={placeholderOption.value} disabled={placeholderOption.disabled === true}>
           {placeholderOption.label}
         </option>
         {yearOptions.map((year) => (

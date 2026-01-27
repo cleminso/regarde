@@ -6,8 +6,7 @@ import { withAdminService } from "../types.js";
 export const inspectCommands: ToolConfig[] = [
   {
     name: "get-nickname",
-    description:
-      "Inspect current registry, reverse-registry, and reservation state for a nickname",
+    description: "Inspect current registry, reverse-registry, and reservation state for a nickname",
     flags: [
       {
         name: "nickname",
@@ -23,16 +22,11 @@ export const inspectCommands: ToolConfig[] = [
 
         const loadedWorker = admin.getLoadedWorker();
 
-        const accountId =
-          loadedWorker.root?.registry?.[ctx.args.nickname] ?? null;
+        const accountId = loadedWorker.root?.registry?.[ctx.args.nickname] ?? null;
         const reverseNickname =
-          accountId !== null
-            ? (loadedWorker.root?.reverseRegistry?.[accountId] ?? null)
-            : null;
+          accountId !== null ? (loadedWorker.root?.reverseRegistry?.[accountId] ?? null) : null;
 
-        const reservationStatus = await admin.checkReservationStatus(
-          ctx.args.nickname,
-        );
+        const reservationStatus = await admin.checkReservationStatus(ctx.args.nickname);
 
         const reverseMatches =
           accountId !== null && reverseNickname !== null
@@ -55,9 +49,7 @@ export const inspectCommands: ToolConfig[] = [
         console.log(`Registry account: ${result.accountId ?? "Not found"}`);
 
         if (result.accountId !== null) {
-          console.log(
-            `Reverse nickname: ${result.reverseNickname ?? "Not found"}`,
-          );
+          console.log(`Reverse nickname: ${result.reverseNickname ?? "Not found"}`);
           if (result.reverseMatches === false) {
             Logger.warning(
               `Mismatch: reverse registry points to "${result.reverseNickname}" (expected "${ctx.args.nickname}")`,
@@ -69,9 +61,7 @@ export const inspectCommands: ToolConfig[] = [
           Logger.warning("Reservation found:");
           console.log(`  Category: ${result.reservation.category}`);
           console.log(`  Reserved by: ${result.reservation.reservedBy}`);
-          console.log(
-            `  Reserved at: ${new Date(result.reservation.reservedAt).toLocaleString()}`,
-          );
+          console.log(`  Reserved at: ${new Date(result.reservation.reservedAt).toLocaleString()}`);
           if (result.reservation.reason) {
             console.log(`  Reason: ${result.reservation.reason}`);
           }
@@ -91,8 +81,7 @@ export const inspectCommands: ToolConfig[] = [
 
   {
     name: "get-account",
-    description:
-      "Inspect current reverse-registry and registry state for an account",
+    description: "Inspect current reverse-registry and registry state for an account",
     flags: [
       {
         name: "accountId",
@@ -108,12 +97,9 @@ export const inspectCommands: ToolConfig[] = [
 
         const loadedWorker = admin.getLoadedWorker();
 
-        const nickname =
-          loadedWorker.root?.reverseRegistry?.[ctx.args.accountId] ?? null;
+        const nickname = loadedWorker.root?.reverseRegistry?.[ctx.args.accountId] ?? null;
         const registryAccountId =
-          nickname !== null
-            ? (loadedWorker.root?.registry?.[nickname] ?? null)
-            : null;
+          nickname !== null ? (loadedWorker.root?.registry?.[nickname] ?? null) : null;
 
         const registryMatches =
           nickname !== null && registryAccountId !== null
@@ -121,9 +107,7 @@ export const inspectCommands: ToolConfig[] = [
             : null;
 
         const reservationStatus =
-          nickname !== null
-            ? await admin.checkReservationStatus(nickname)
-            : null;
+          nickname !== null ? await admin.checkReservationStatus(nickname) : null;
 
         const issues: string[] = [];
         if (nickname === null) {
@@ -154,19 +138,13 @@ export const inspectCommands: ToolConfig[] = [
           nickname,
           registryAccountId,
           registryMatches,
-          reservation:
-            reservationStatus !== null
-              ? reservationStatus.reservation
-              : undefined,
-          reservationState:
-            reservationStatus !== null ? reservationStatus.state : undefined,
+          reservation: reservationStatus !== null ? reservationStatus.reservation : undefined,
+          reservationState: reservationStatus !== null ? reservationStatus.state : undefined,
           issues,
         };
 
         Logger.info(`Account inspection: ${ctx.args.accountId}`);
-        console.log(
-          `Reverse registry nickname: ${result.nickname ?? "Not found"}`,
-        );
+        console.log(`Reverse registry nickname: ${result.nickname ?? "Not found"}`);
 
         if (result.nickname !== null) {
           console.log(

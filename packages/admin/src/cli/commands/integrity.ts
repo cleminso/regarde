@@ -1,6 +1,7 @@
-import { withAdminService } from "../types.js";
 import { type ToolConfig } from "@alcyone-labs/arg-parser";
+
 import { Logger } from "../../utils/logger.js";
+import { withAdminService } from "../types.js";
 
 export const integrityCommands: ToolConfig[] = [
   {

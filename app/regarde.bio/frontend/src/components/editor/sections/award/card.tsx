@@ -1,10 +1,11 @@
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import { Award } from '#/lib/schema';
-import { formatYearString } from '#/lib/utils/utils';
-import { EditorCardActions } from '../../shared/cardActions';
+import { Button } from "#/components/ui/button";
+import { Award } from "#/lib/schema";
+import { formatYearString } from "#/lib/utils/utils";
+
+import { EditorCardActions } from "../../shared/cardActions";
 
 type AwardCardProps = {
   award: Loaded<typeof Award>;
@@ -14,8 +15,8 @@ type AwardCardProps = {
 
 export function AwardCard({ award, onEdit, onDelete }: AwardCardProps) {
   const displayTitle = award.presenter
-    ? `${award.title || 'Untitled Award'} by ${award.presenter}`
-    : award.title || 'Untitled Award';
+    ? `${award.title || "Untitled Award"} by ${award.presenter}`
+    : award.title || "Untitled Award";
 
   const displayYear = formatYearString(award.year);
 
@@ -56,16 +57,10 @@ export function AwardCard({ award, onEdit, onDelete }: AwardCardProps) {
             )}
           </div>
           {award.description && (
-            <p className="text-muted-foreground text-sm whitespace-pre-line">
-              {award.description}
-            </p>
+            <p className="text-muted-foreground text-sm whitespace-pre-line">{award.description}</p>
           )}
           <div className="mt-2">
-            <EditorCardActions
-              item={award}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
+            <EditorCardActions item={award} onEdit={onEdit} onDelete={onDelete} />
           </div>
         </div>
       </div>

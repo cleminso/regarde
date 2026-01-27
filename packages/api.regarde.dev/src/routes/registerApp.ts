@@ -1,8 +1,6 @@
 import { createRoute, z } from "@hono/zod-openapi";
-import {
-  RegisterAppRequestSchema,
-  RegisterAppResponseSchema,
-} from "../domains/app/schemas";
+
+import { RegisterAppRequestSchema, RegisterAppResponseSchema } from "../domains/app/schemas";
 import { ErrorResponseSchema } from "../domains/common/schemas"; // Assuming this exists, I should check common schemas
 
 // Fallback error schema if common doesn't exist (I'll check later, safest to define inline or import if sure)
@@ -49,6 +47,5 @@ export const registerAppRoute = createRoute({
   },
   tags: ["App Registry"],
   summary: "Register a new application",
-  description:
-    "Registers a new application and returns webhook configuration details.",
+  description: "Registers a new application and returns webhook configuration details.",
 });

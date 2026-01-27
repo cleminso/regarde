@@ -1,9 +1,10 @@
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import { SideProject } from '#/lib/schema';
-import { EditorCardActions } from '../../shared/cardActions';
+import { Button } from "#/components/ui/button";
+import { SideProject } from "#/lib/schema";
+
+import { EditorCardActions } from "../../shared/cardActions";
 
 type SideProjectCardProps = {
   sideProject: Loaded<typeof SideProject>;
@@ -11,21 +12,17 @@ type SideProjectCardProps = {
   onDelete: (sideProject: Loaded<typeof SideProject>) => void;
 };
 
-export function SideProjectCard({
-  sideProject,
-  onEdit,
-  onDelete,
-}: SideProjectCardProps) {
+export function SideProjectCard({ sideProject, onEdit, onDelete }: SideProjectCardProps) {
   const displayTitle = sideProject.client
-    ? `${sideProject.title || 'Untitled Side Project'} @${sideProject.client}`
-    : sideProject.title || 'Untitled Side Project';
+    ? `${sideProject.title || "Untitled Side Project"} @${sideProject.client}`
+    : sideProject.title || "Untitled Side Project";
 
   return (
     <div className="border-border flex flex-col gap-4 border-b pb-4">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
           <span className="text-muted-foreground text-sm">
-            {sideProject.year || 'Year missing'}
+            {sideProject.year || "Year missing"}
           </span>
         </div>
         <div className="flex flex-col gap-1">
@@ -64,11 +61,7 @@ export function SideProjectCard({
             </p>
           )}
           <div className="mt-2">
-            <EditorCardActions
-              item={sideProject}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
+            <EditorCardActions item={sideProject} onEdit={onEdit} onDelete={onDelete} />
           </div>
         </div>
       </div>

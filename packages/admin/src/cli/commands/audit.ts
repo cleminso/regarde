@@ -1,7 +1,8 @@
-import { withAdminService } from "../types.js";
 import { type ToolConfig } from "@alcyone-labs/arg-parser";
-import { Logger } from "../../utils/logger.js";
 import type { TRegistryAuditEntry } from "@regarde-dev/core";
+
+import { Logger } from "../../utils/logger.js";
+import { withAdminService } from "../types.js";
 
 type AuditEntryDto = {
   monotonicId: string;
@@ -58,14 +59,9 @@ export const auditCommands: ToolConfig[] = [
         if (ctx.args.source) {
           const validSources = ["admin-cli", "user-app", "worker"];
           if (!validSources.includes(ctx.args.source)) {
-            throw new Error(
-              `Invalid source. Must be one of: ${validSources.join(", ")}`,
-            );
+            throw new Error(`Invalid source. Must be one of: ${validSources.join(", ")}`);
           }
-          entries = await admin.getHistoryBySource(
-            ctx.args.source,
-            ctx.args.limit,
-          );
+          entries = await admin.getHistoryBySource(ctx.args.source, ctx.args.limit);
         } else {
           entries = await admin.getChangeHistory(ctx.args.limit);
         }
@@ -77,9 +73,7 @@ export const auditCommands: ToolConfig[] = [
           return { entries: serializedEntries };
         }
 
-        Logger.info(
-          `Registry Change History (${serializedEntries.length} entries):`,
-        );
+        Logger.info(`Registry Change History (${serializedEntries.length} entries):`);
         console.log("=".repeat(80));
 
         serializedEntries.forEach((entry: AuditEntryDto, index: number) => {
@@ -92,9 +86,7 @@ export const auditCommands: ToolConfig[] = [
           console.log(`   Account: ${entry.jazzAccountId}`);
 
           if (entry.oldNickname && entry.newNickname) {
-            console.log(
-              `   Changed: "${entry.oldNickname}" → "${entry.newNickname}"`,
-            );
+            console.log(`   Changed: "${entry.oldNickname}" → "${entry.newNickname}"`);
           } else if (entry.newNickname) {
             console.log(`   Added: "${entry.newNickname}"`);
           } else if (entry.oldNickname) {
@@ -148,9 +140,7 @@ export const auditCommands: ToolConfig[] = [
           );
 
           if (entry.oldNickname && entry.newNickname) {
-            console.log(
-              `   Changed: "${entry.oldNickname}" → "${entry.newNickname}"`,
-            );
+            console.log(`   Changed: "${entry.oldNickname}" → "${entry.newNickname}"`);
           } else if (entry.newNickname) {
             console.log(`   Added: "${entry.newNickname}"`);
           } else if (entry.oldNickname) {
@@ -205,9 +195,7 @@ export const auditCommands: ToolConfig[] = [
           console.log(`   Account: ${entry.jazzAccountId}`);
 
           if (entry.oldNickname && entry.newNickname) {
-            console.log(
-              `   Changed: "${entry.oldNickname}" → "${entry.newNickname}"`,
-            );
+            console.log(`   Changed: "${entry.oldNickname}" → "${entry.newNickname}"`);
           } else if (entry.newNickname) {
             console.log(`   Added: "${entry.newNickname}"`);
           } else if (entry.oldNickname) {

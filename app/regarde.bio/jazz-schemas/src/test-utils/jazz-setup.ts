@@ -3,10 +3,12 @@
  * Inspired by Jazz testing patterns but adapted for our specific schemas
  */
 
-import { setupJazzTestSync, createJazzTestAccount } from "jazz-tools/testing";
 import { Account, Group } from "jazz-tools";
-import { RegardeAccount } from "../regarde.bio";
+import { setupJazzTestSync, createJazzTestAccount } from "jazz-tools/testing";
+
 import { UserHandle } from "@regarde-dev/core";
+
+import { RegardeAccount } from "../regarde.bio";
 
 /**
  * Sets up Jazz testing environment with sync server
@@ -25,10 +27,7 @@ export async function setupJazzTestEnvironment() {
 /**
  * Creates a test UserHandle with real Jazz CoValue
  */
-export async function createTestUserHandle(
-  nickname: string,
-  isActive: boolean,
-) {
+export async function createTestUserHandle(nickname: string, isActive: boolean) {
   return UserHandle.create({
     nickname,
     isActive,

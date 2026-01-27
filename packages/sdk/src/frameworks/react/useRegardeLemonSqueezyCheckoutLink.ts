@@ -1,7 +1,8 @@
 import { useCallback } from "react";
 import { useAccount, useIsAuthenticated } from "jazz-tools/react";
-import { RegardeAccount } from "#schemas/regardeAccount";
+
 import { useLogging } from "#core/logger";
+import { RegardeAccount } from "#schemas/regardeAccount";
 
 const logger = useLogging({
   module: __filename,
@@ -175,7 +176,7 @@ export function useRegardeLemonSqueezyCheckoutLink(
 
       return checkoutUrl;
     },
-    [account, appId],
+    [account, appId, storeName, storeDomain],
   );
 
   const isLoading =

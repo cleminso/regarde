@@ -1,14 +1,14 @@
 import "dotenv/config";
-import { startWorker } from "jazz-tools/worker";
+
 import { Group, Account } from "jazz-tools";
+import { startWorker } from "jazz-tools/worker";
+
 import { RegistryWorkerAccount } from "@regarde-dev/core";
 
-const JAZZ_SYNC_SERVER_URL =
-  process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
+const JAZZ_SYNC_SERVER_URL = process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
 
 // Admin group ID - replace with the ID from create-admin-group.js output
-const ADMIN_GROUP_ID =
-  process.env.ADMIN_GROUP_ID || "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
+const ADMIN_GROUP_ID = process.env.ADMIN_GROUP_ID || "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
 
 // Account to add as admin - replace with actual account ID
 const ADMIN_ACCOUNT_ID = process.env.ADMIN_ACCOUNT_ID || "co_cleminso";
@@ -44,8 +44,7 @@ async function addAdminMember() {
     const workerResult = await startWorker({
       AccountSchema: RegistryWorkerAccount,
       syncServer:
-        JAZZ_SYNC_SERVER_URL +
-        (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
+        JAZZ_SYNC_SERVER_URL + (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
     });
     worker = workerResult.worker;
     console.log(`✅ Worker connected with Account ID: ${worker.id}`);
@@ -73,18 +72,14 @@ async function addAdminMember() {
 
     if (!adminAccount) {
       console.error(`❌ Failed to load account with ID: ${ADMIN_ACCOUNT_ID}`);
-      console.log(
-        "💡 Make sure the account ID is correct and the account exists",
-      );
+      console.log("💡 Make sure the account ID is correct and the account exists");
       process.exit(1);
     }
 
     console.log(`✅ Account loaded successfully`);
 
     // Add the account to the admin group with admin role
-    console.log(
-      `🔧 Adding ${ADMIN_ACCOUNT_ID} to admin group with admin role...`,
-    );
+    console.log(`🔧 Adding ${ADMIN_ACCOUNT_ID} to admin group with admin role...`);
     adminGroup.addMember(adminAccount, "admin");
 
     console.log("✅ Admin member added successfully!");

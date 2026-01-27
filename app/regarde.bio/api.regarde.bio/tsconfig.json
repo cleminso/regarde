@@ -17,9 +17,7 @@
     "paths": {
       "@/*": ["src/*"],
       "@regarde-dev/jazz-schemas": ["../../jazz-schemas/src/index.ts"],
-      "@regarde-dev/jazz-schemas/regarde.bio": [
-        "../../jazz-schemas/src/regarde.bio/index.ts"
-      ]
+      "@regarde-dev/jazz-schemas/regarde.bio": ["../../jazz-schemas/src/regarde.bio/index.ts"]
     }
   },
   "include": ["src/**/*.ts"],

@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { TEST_PASSPHRASE_12 } from "./testPassphrase.js";
 
-vi.spyOn(console, "log").mockImplementation(() => { });
-vi.spyOn(console, "error").mockImplementation(() => { });
+vi.spyOn(console, "log").mockImplementation(() => {});
+vi.spyOn(console, "error").mockImplementation(() => {});
 
 vi.mock("../auth.js", () => {
   return {
@@ -30,7 +30,7 @@ vi.mock("inquirer", () => {
 });
 
 const mockStartWorker = vi.fn(async () => {
-  return { worker: { $jazz: { ensureLoaded: vi.fn(async () => { }) } } };
+  return { worker: { $jazz: { ensureLoaded: vi.fn(async () => {}) } } };
 });
 
 vi.mock("jazz-tools/worker", () => {
@@ -52,9 +52,9 @@ vi.mock("jazz-tools/napi", () => {
 vi.mock("../utils/storage.js", () => {
   return {
     authStorage: {
-      set: vi.fn(async () => { }),
+      set: vi.fn(async () => {}),
       get: vi.fn(async () => null),
-      clear: vi.fn(async () => { }),
+      clear: vi.fn(async () => {}),
     },
   };
 });
@@ -62,7 +62,7 @@ vi.mock("../utils/storage.js", () => {
 describe("login contract", () => {
   it("prompts for account + passphrase and returns structured ok output", async () => {
     mockStartWorker.mockResolvedValueOnce({
-      worker: { $jazz: { ensureLoaded: vi.fn(async () => { }) } },
+      worker: { $jazz: { ensureLoaded: vi.fn(async () => {}) } },
     });
 
     const { loginTool } = await import("../tools/login.js");
@@ -102,9 +102,7 @@ describe("login contract", () => {
   });
 
   it("returns error when authentication fails (invalid secret)", async () => {
-    mockStartWorker.mockRejectedValueOnce(
-      new Error("Invalid accountSecret provided"),
-    );
+    mockStartWorker.mockRejectedValueOnce(new Error("Invalid accountSecret provided"));
 
     const { loginTool } = await import("../tools/login.js");
 
@@ -122,4 +120,3 @@ describe("login contract", () => {
     });
   });
 });
-

@@ -3,10 +3,8 @@
  */
 
 import { describe, it, expect } from "vitest";
-import {
-  createMockRegistrationRequest,
-  createMockJazzAccount,
-} from "../../test-utils/index.js";
+
+import { createMockRegistrationRequest, createMockJazzAccount } from "../../test-utils/index.js";
 
 // Simple business logic functions to test registration workflow
 function validateRegistrationRequest(request: any) {
@@ -34,11 +32,7 @@ function validateRegistrationRequest(request: any) {
   };
 }
 
-function validateRegardeAuth(
-  token: string,
-  validToken: string,
-  expiresAt: number,
-) {
+function validateRegardeAuth(token: string, validToken: string, expiresAt: number) {
   if (token !== validToken) {
     return {
       isValid: false,
@@ -140,29 +134,17 @@ describe("Nickname Registration Logic - Business Rules", () => {
     const futureExpiry = Date.now() + 3600000;
 
     // Valid token
-    const validResult = validateRegardeAuth(
-      validToken,
-      validToken,
-      futureExpiry,
-    );
+    const validResult = validateRegardeAuth(validToken, validToken, futureExpiry);
     expect(validResult.isValid).toBe(true);
 
     // Invalid token
-    const invalidTokenResult = validateRegardeAuth(
-      "wrong-token",
-      validToken,
-      futureExpiry,
-    );
+    const invalidTokenResult = validateRegardeAuth("wrong-token", validToken, futureExpiry);
     expect(invalidTokenResult.isValid).toBe(false);
     expect(invalidTokenResult.reason).toBe("Invalid registration token");
 
     // Expired token
     const pastExpiry = Date.now() - 3600000;
-    const expiredResult = validateRegardeAuth(
-      validToken,
-      validToken,
-      pastExpiry,
-    );
+    const expiredResult = validateRegardeAuth(validToken, validToken, pastExpiry);
     expect(expiredResult.isValid).toBe(false);
     expect(expiredResult.reason).toBe("Registration token has expired");
   });
@@ -242,10 +224,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
 
   it("should handle nickname conflict scenarios", () => {
     // Test conflict resolution business logic
-    function handleNicknameConflict(
-      requestedNickname: string,
-      existingNicknames: string[],
-    ) {
+    function handleNicknameConflict(requestedNickname: string, existingNicknames: string[]) {
       if (existingNicknames.includes(requestedNickname.toLowerCase())) {
         return {
           success: false,
@@ -254,10 +233,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
             `${requestedNickname}1`,
             `${requestedNickname}2`,
             `${requestedNickname}_user`,
-          ].filter(
-            (suggestion) =>
-              !existingNicknames.includes(suggestion.toLowerCase()),
-          ),
+          ].filter((suggestion) => !existingNicknames.includes(suggestion.toLowerCase())),
         };
       }
       return { success: true };

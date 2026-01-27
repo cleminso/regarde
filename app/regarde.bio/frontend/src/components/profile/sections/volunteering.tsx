@@ -1,9 +1,9 @@
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import type { RegardeProfile, Volunteering } from "#/lib/schema";
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import type { RegardeProfile, Volunteering } from '#/lib/schema';
-import { formatDateRange, getValidUrl } from '#/lib/utils/utils';
+import { Button } from "#/components/ui/button";
+import { formatDateRange, getValidUrl } from "#/lib/utils/utils";
 
 type VolunteeringsProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -12,8 +12,7 @@ type VolunteeringsProps = {
 export function Volunteerings({ profile }: VolunteeringsProps) {
   const volunteering = profile.volunteering?.$isLoaded
     ? profile.volunteering.filter(
-        (vol: any): vol is Loaded<typeof Volunteering> =>
-          vol?.$isLoaded === true,
+        (vol: any): vol is Loaded<typeof Volunteering> => vol?.$isLoaded === true,
       )
     : [];
 
@@ -31,12 +30,12 @@ export function Volunteerings({ profile }: VolunteeringsProps) {
         </div>
         <div className="space-y-6">
           {volunteering.map((vol: any) => {
-            const displayTitle = `${vol.title || 'Untitled Role'} @${
-              vol.organization || 'Unnamed Organization'
+            const displayTitle = `${vol.title || "Untitled Role"} @${
+              vol.organization || "Unnamed Organization"
             }`;
 
-            const fromYear = String(vol.from || '');
-            const toYear = String(vol.to || '');
+            const fromYear = String(vol.from || "");
+            const toYear = String(vol.to || "");
 
             const dateRange = formatDateRange(fromYear, toYear);
             const organizationLink = getValidUrl(vol.url);
@@ -45,9 +44,7 @@ export function Volunteerings({ profile }: VolunteeringsProps) {
               <div key={vol.$jazz.id} className="flex flex-col gap-3 pb-4">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground font-sans text-sm">
-                      {dateRange}
-                    </span>
+                    <span className="text-muted-foreground font-sans text-sm">{dateRange}</span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="min-w-0 flex-1">

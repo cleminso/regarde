@@ -1,8 +1,8 @@
-import { Loaded } from 'jazz-tools';
+import { Loaded } from "jazz-tools";
 
-import { Button } from '#/components/ui/button';
-import { RegardeProfile } from '#/lib/schema';
-import { buildSocialLinks } from '#/lib/utils/utils';
+import { Button } from "#/components/ui/button";
+import { RegardeProfile } from "#/lib/schema";
+import { buildSocialLinks } from "#/lib/utils/utils";
 
 type ContactProps = {
   profile: Loaded<typeof RegardeProfile>;

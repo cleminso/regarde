@@ -1,13 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useState } from "react";
 
-import { Button, DestructiveConfirmationDialog } from '#/components/ui';
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useWriting } from '#/lib/hook/useWriting.ts';
-import { ListOfWriting, RegardeProfile, Writing } from '#/lib/schema';
-import { EditorFooter } from '../../index';
-import { SectionHeader } from './../../layout/header';
-import { WritingCard } from './card';
+import { Button, DestructiveConfirmationDialog } from "#/components/ui";
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useWriting } from "#/lib/hook/useWriting.ts";
+import { ListOfWriting, RegardeProfile, Writing } from "#/lib/schema";
+
+import { EditorFooter } from "../../index";
+
+import { SectionHeader } from "./../../layout/header";
+import { WritingCard } from "./card";
 
 type WritingViewProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -59,7 +61,7 @@ export function WritingView({
   };
 
   const getWritingDisplayName = (writing: Loaded<typeof Writing>) => {
-    return writing.title || 'Untitled Writing';
+    return writing.title || "Untitled Writing";
   };
 
   return (
@@ -104,7 +106,7 @@ export function WritingView({
       <div className="shrink-0">
         <EditorFooter
           primaryAction={{
-            text: 'Done',
+            text: "Done",
             onClick: handleClose,
           }}
         />
@@ -117,10 +119,8 @@ export function WritingView({
         description={
           deleteConfirmation.writing ? (
             <>
-              Are you sure you want to delete the writing{' '}
-              <strong>
-                {getWritingDisplayName(deleteConfirmation.writing)}
-              </strong>
+              Are you sure you want to delete the writing{" "}
+              <strong>{getWritingDisplayName(deleteConfirmation.writing)}</strong>
               ?
               <br />
               <br />

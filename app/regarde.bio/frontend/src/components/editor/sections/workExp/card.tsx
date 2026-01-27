@@ -1,11 +1,12 @@
 // packages/regarde.bio/src/components/editor/workExp/card.tsx
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import { WorkExp } from '#/lib/schema';
-import { formatDateRange } from '#/lib/utils/utils';
-import { EditorCardActions } from '../../shared/cardActions';
+import { Button } from "#/components/ui/button";
+import { WorkExp } from "#/lib/schema";
+import { formatDateRange } from "#/lib/utils/utils";
+
+import { EditorCardActions } from "../../shared/cardActions";
 
 type WorkExpCardProps = {
   workExp: Loaded<typeof WorkExp>;
@@ -14,8 +15,8 @@ type WorkExpCardProps = {
 };
 
 export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
-  const displayTitle = `${workExp.title || 'Untitled Role'} @${
-    workExp.company || 'Unnamed Company'
+  const displayTitle = `${workExp.title || "Untitled Role"} @${
+    workExp.company || "Unnamed Company"
   }`;
   const dateRange = formatDateRange(workExp.from, workExp.to);
 
@@ -56,9 +57,7 @@ export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
             )}
           </div>
           {workExp.location && (
-            <div className="text-muted-foreground text-sm">
-              {workExp.location}
-            </div>
+            <div className="text-muted-foreground text-sm">{workExp.location}</div>
           )}
           {workExp.description && (
             <p className="text-muted-foreground text-sm whitespace-pre-line">
@@ -66,11 +65,7 @@ export function WorkExpCard({ workExp, onEdit, onDelete }: WorkExpCardProps) {
             </p>
           )}
           <div className="mt-2">
-            <EditorCardActions
-              item={workExp}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
+            <EditorCardActions item={workExp} onEdit={onEdit} onDelete={onDelete} />
           </div>
         </div>
       </div>

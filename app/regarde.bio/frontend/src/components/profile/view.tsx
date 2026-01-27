@@ -1,24 +1,25 @@
-import { co } from 'jazz-tools';
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router';
+import { co } from "jazz-tools";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router";
 
-import { Button } from '#/components/ui/button';
-import { useMyRegardeAccount } from '#/lib/account/useMyRegardeAccount';
-import { fetchUserDetailsByNickname } from '#/lib/api/base';
-import { RegardeProfile } from '#/lib/schema';
-import { logger } from '#/lib/utils/logger';
-import { ScrollArea } from '../ui/scroll-area';
-import { ProfileHeader } from './header';
-import { AboutPage } from './paths/about';
-import { NowPage } from './paths/now';
-import { DEFAULT_TABS, ProfileTabs, TabId } from './tabs';
+import { Button } from "#/components/ui/button";
+import { useMyRegardeAccount } from "#/lib/account/useMyRegardeAccount";
+import { fetchUserDetailsByNickname } from "#/lib/api/base";
+import { RegardeProfile } from "#/lib/schema";
+import { logger } from "#/lib/utils/logger";
+
+import { ScrollArea } from "../ui/scroll-area";
+
+import { ProfileHeader } from "./header";
+import { AboutPage } from "./paths/about";
+import { NowPage } from "./paths/now";
+import { DEFAULT_TABS, ProfileTabs, TabId } from "./tabs";
 
 type LoadedProfile = co.loaded<typeof RegardeProfile>;
 
 export function ProfileView() {
   const { nickname } = useParams();
-  const [otherUserProfile, setOtherUserProfile] =
-    useState<LoadedProfile | null>(null);
+  const [otherUserProfile, setOtherUserProfile] = useState<LoadedProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export function ProfileView() {
 
   useEffect(() => {
     if (!nickname) {
-      setError('No nickname provided');
+      setError("No nickname provided");
       setIsLoading(false);
       return;
     }
@@ -46,17 +47,17 @@ export function ProfileView() {
         const userDetails = await fetchUserDetailsByNickname(nickname);
 
         if (!userDetails.exists) {
-          setError('Profile not found.');
+          setError("Profile not found.");
           setOtherUserProfile(null);
         } else if (userDetails.publicData) {
           setOtherUserProfile(userDetails.publicData as LoadedProfile);
         } else {
-          setError('Profile data not available');
+          setError("Profile data not available");
           setOtherUserProfile(null);
         }
       } catch (err) {
-        logger.error('Error fetching other user profile:', err);
-        setError('Failed to load profile');
+        logger.error("Error fetching other user profile:", err);
+        setError("Failed to load profile");
         setOtherUserProfile(null);
       } finally {
         setIsLoading(false);
@@ -99,11 +100,7 @@ export function ProfileView() {
             </div>
           )}
           {!showReturnButton && (
-            <Button
-              onClick={() => navigate('/')}
-              variant="outline"
-              className="font-mono"
-            >
+            <Button onClick={() => navigate("/")} variant="outline" className="font-mono">
               Go to homepage
             </Button>
           )}
@@ -143,28 +140,20 @@ export function ProfileView() {
   );
 }
 
-function ProfileContent({
-  profile,
-  nickname,
-}: {
-  profile: LoadedProfile;
-  nickname?: string;
-}) {
+function ProfileContent({ profile, nickname }: { profile: LoadedProfile; nickname?: string }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { nickname: urlNickname } = useParams();
 
-  const pathSegments = location.pathname.split('/');
+  const pathSegments = location.pathname.split("/");
   const currentPath = pathSegments[pathSegments.length - 1];
-  const activeTab: TabId = (currentPath === 'now' ? 'now' : 'about') as TabId;
+  const activeTab: TabId = (currentPath === "now" ? "now" : "about") as TabId;
 
   const availableTabs = DEFAULT_TABS.map((tab) => {
-    if (tab.id === 'now') {
+    if (tab.id === "now") {
       return {
         ...tab,
-        enabled: Boolean(
-          profile.nowPage?.$isLoaded && profile.nowPage.description,
-        ),
+        enabled: Boolean(profile.nowPage?.$isLoaded && profile.nowPage.description),
       };
     }
     return tab;
@@ -178,9 +167,9 @@ function ProfileContent({
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'about':
+      case "about":
         return <AboutPage profile={profile} />;
-      case 'now':
+      case "now":
         return <NowPage profile={profile} />;
 
       default:
@@ -189,7 +178,7 @@ function ProfileContent({
   };
 
   // For public profiles, use the nickname from URL params
-  const pageTitle = `${nickname || 'regarde.bio'}`;
+  const pageTitle = `${nickname || "regarde.bio"}`;
 
   return (
     <main className="w-full">

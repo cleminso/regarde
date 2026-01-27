@@ -1,12 +1,12 @@
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 export const getValidUrl = (url?: string): string | undefined => {
   if (!url) return undefined;
-  if (url.startsWith('http://') || url.startsWith('https://')) {
+  if (url.startsWith("http://") || url.startsWith("https://")) {
     return url;
   }
   return `https://${url}`;
@@ -14,25 +14,25 @@ export const getValidUrl = (url?: string): string | undefined => {
 
 const SOCIAL_PLATFORMS = {
   github: {
-    label: 'GitHub',
+    label: "GitHub",
     buildUrl: (value: string) => {
-      if (value.startsWith('http')) return value;
-      if (value.includes('github.com/')) return `https://${value}`;
-      return `https://github.com/${value.replace(/^@/, '')}`;
+      if (value.startsWith("http")) return value;
+      if (value.includes("github.com/")) return `https://${value}`;
+      return `https://github.com/${value.replace(/^@/, "")}`;
     },
   },
   twitter: {
-    label: 'Twitter (X)',
+    label: "Twitter (X)",
     buildUrl: (value: string) => {
-      if (value.startsWith('http')) return value;
-      if (value.includes('x.com/') || value.includes('twitter.com/')) {
-        return `https://${value.replace('twitter.com', 'x.com')}`;
+      if (value.startsWith("http")) return value;
+      if (value.includes("x.com/") || value.includes("twitter.com/")) {
+        return `https://${value.replace("twitter.com", "x.com")}`;
       }
-      return `https://x.com/${value.replace(/^@/, '')}`;
+      return `https://x.com/${value.replace(/^@/, "")}`;
     },
   },
   website: {
-    label: 'Website',
+    label: "Website",
     buildUrl: (value: string) => getValidUrl(value)!,
   },
 } as const;
@@ -64,30 +64,28 @@ export const getWebsiteDisplayName = (url?: string): string | undefined => {
   if (!url) return undefined;
   try {
     const fullUrl =
-      url.startsWith('http://') || url.startsWith('https://')
-        ? url
-        : `https://${url}`;
+      url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`;
     const parsedUrl = new URL(fullUrl);
     let hostname = parsedUrl.hostname;
-    if (hostname.startsWith('www.')) {
+    if (hostname.startsWith("www.")) {
       hostname = hostname.substring(4);
     }
-    if (parsedUrl.pathname !== '/' && parsedUrl.pathname !== '') {
-      const path = parsedUrl.pathname.startsWith('/')
+    if (parsedUrl.pathname !== "/" && parsedUrl.pathname !== "") {
+      const path = parsedUrl.pathname.startsWith("/")
         ? parsedUrl.pathname.substring(1)
         : parsedUrl.pathname;
-      const cleanPath = path.endsWith('/') ? path.slice(0, -1) : path;
+      const cleanPath = path.endsWith("/") ? path.slice(0, -1) : path;
       if (cleanPath) {
         hostname = `${hostname}/${cleanPath}`;
       }
     }
     return hostname;
   } catch (e) {
-    let displayName = url.replace(/^https?:\/\//, '');
-    if (displayName.startsWith('www.')) {
+    let displayName = url.replace(/^https?:\/\//, "");
+    if (displayName.startsWith("www.")) {
       displayName = displayName.substring(4);
     }
-    if (displayName.endsWith('/')) {
+    if (displayName.endsWith("/")) {
       displayName = displayName.slice(0, -1);
     }
     return displayName;
@@ -98,26 +96,23 @@ export const normalizeNickname = (nickname: string): string => {
   return nickname.toLowerCase().trim();
 };
 
-export const createNicknameUrl = (
-  nickname: string,
-  path: string = '',
-): string => {
+export const createNicknameUrl = (nickname: string, path: string = ""): string => {
   const normalized = normalizeNickname(nickname);
   return `/${normalized}${path}`;
 };
 
 export const formatYearString = (year?: string): string => {
-  if (!year) return 'Year missing';
+  if (!year) return "Year missing";
 
   const lowerYear = year.toLowerCase().trim();
 
   switch (lowerYear) {
-    case 'ongoing':
-    case 'current':
-    case 'now':
-      return 'Now';
-    case '':
-      return 'Year missing';
+    case "ongoing":
+    case "current":
+    case "now":
+      return "Now";
+    case "":
+      return "Year missing";
     default:
       return year;
   }
@@ -125,7 +120,7 @@ export const formatYearString = (year?: string): string => {
 
 export const formatDateRange = (from?: string, to?: string): string => {
   const startYear = formatYearString(from);
-  const endYear = to ? formatYearString(to) : 'Now';
+  const endYear = to ? formatYearString(to) : "Now";
 
   return `${startYear} - ${endYear}`;
 };
@@ -133,27 +128,24 @@ export const formatDateRange = (from?: string, to?: string): string => {
 export const formatTimestamp = (timestamp: number): string => {
   const date = new Date(timestamp);
   return date.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 };
 
 const AVATAR_COLORS = [
-  { bg: '#FEE2E2', text: '#BA1F1C' },
-  { bg: '#DBE9FC', text: '#2563EB' },
-  { bg: '#DDD6FE', text: '#7C3AED' },
-  { bg: '#FFEDD5', text: '#EA580C' },
-  { bg: '#BBF7D0', text: '#16A34A' },
-  { bg: '#FAE8FF', text: '#C026D3' },
-  { bg: '#E5E5E5', text: '#525252' },
+  { bg: "#FEE2E2", text: "#BA1F1C" },
+  { bg: "#DBE9FC", text: "#2563EB" },
+  { bg: "#DDD6FE", text: "#7C3AED" },
+  { bg: "#FFEDD5", text: "#EA580C" },
+  { bg: "#BBF7D0", text: "#16A34A" },
+  { bg: "#FAE8FF", text: "#C026D3" },
+  { bg: "#E5E5E5", text: "#525252" },
 ];
 
-export function generateDefaultAvatar(
-  nickname: string,
-  borderRadius: number = 48,
-): string {
-  if (!nickname) return '';
+export function generateDefaultAvatar(nickname: string, borderRadius: number = 48): string {
+  if (!nickname) return "";
 
   const initials = nickname.trim().toUpperCase().substring(0, 2);
 

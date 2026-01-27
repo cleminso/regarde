@@ -1,13 +1,16 @@
 import { Loaded } from "jazz-tools";
+
 import {
   RegistryWorkerAccount,
   type TNicknameRegistry,
   type TReverseNicknameRegistry,
   type TReservedNicknamesRegistry,
 } from "@regarde-dev/core";
+
 import { NicknameServiceInterface } from "../types/services.js";
-import { AuditService } from "./audit.js";
 import { validateNickname, validateAccountId } from "../utils/validation.js";
+
+import { AuditService } from "./audit.js";
 
 export class NicknameService implements NicknameServiceInterface {
   constructor(
@@ -35,9 +38,7 @@ export class NicknameService implements NicknameServiceInterface {
     if (this.reservedNicknames[nickname] && !allowReserved) {
       const reservation = this.reservedNicknames[nickname];
       if (!reservation || !reservation.$isLoaded) {
-        throw new Error(
-          `Nickname "${nickname}" reservation data not available`,
-        );
+        throw new Error(`Nickname "${nickname}" reservation data not available`);
       }
       const category = reservation?.category || "unknown";
       const reservedBy = reservation?.reservedBy || "unknown";
@@ -55,9 +56,7 @@ export class NicknameService implements NicknameServiceInterface {
     if (this.reservedNicknames[nickname] && allowReserved) {
       const reservation = this.reservedNicknames[nickname];
       if (!reservation || !reservation.$isLoaded) {
-        throw new Error(
-          `Nickname "${nickname}" reservation data not available`,
-        );
+        throw new Error(`Nickname "${nickname}" reservation data not available`);
       }
       const entryReason = reservation?.reason;
       const entryCategory = reservation?.category;
@@ -123,9 +122,7 @@ export class NicknameService implements NicknameServiceInterface {
     return { success: true, oldAccountId };
   }
 
-  async removeNickname(
-    nickname: string,
-  ): Promise<{ success: boolean; removedAccountId?: string }> {
+  async removeNickname(nickname: string): Promise<{ success: boolean; removedAccountId?: string }> {
     this.validateNickname(nickname);
 
     if (!this.nicknameRegistry[nickname]) {

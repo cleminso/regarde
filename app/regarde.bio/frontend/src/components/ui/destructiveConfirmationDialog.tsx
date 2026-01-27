@@ -1,5 +1,5 @@
-import { type VariantProps } from 'class-variance-authority';
-import * as React from 'react';
+import { type VariantProps } from "class-variance-authority";
+import * as React from "react";
 
 import {
   AlertDialog,
@@ -10,8 +10,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from './alert-dialog';
-import { buttonVariants } from './button';
+} from "./alert-dialog";
+import { buttonVariants } from "./button";
 
 export interface DestructiveConfirmationDialogProps {
   open: boolean;
@@ -21,7 +21,7 @@ export interface DestructiveConfirmationDialogProps {
   onConfirm: () => void;
   confirmButtonText?: string;
   cancelButtonText?: string;
-  confirmButtonVariant?: VariantProps<typeof buttonVariants>['variant'];
+  confirmButtonVariant?: VariantProps<typeof buttonVariants>["variant"];
 }
 
 export function DestructiveConfirmationDialog({
@@ -30,9 +30,9 @@ export function DestructiveConfirmationDialog({
   title,
   description,
   onConfirm,
-  confirmButtonText = 'Delete',
-  cancelButtonText = 'Cancel',
-  confirmButtonVariant = 'destructive',
+  confirmButtonText = "Delete",
+  cancelButtonText = "Cancel",
+  confirmButtonVariant = "destructive",
 }: DestructiveConfirmationDialogProps) {
   const handleConfirm = () => {
     onConfirm();
@@ -53,9 +53,7 @@ export function DestructiveConfirmationDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleCancel}>
-            {cancelButtonText}
-          </AlertDialogCancel>
+          <AlertDialogCancel onClick={handleCancel}>{cancelButtonText}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             className={buttonVariants({ variant: confirmButtonVariant })}

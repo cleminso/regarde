@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback } from "react";
 
 export interface KeyboardShortcut {
   key: string;
@@ -57,9 +57,7 @@ export function createKeyboardHandler(handlers: ShortcutHandler[]) {
  * Hook for managing keyboard shortcuts
  */
 export function useKeyboardShortcuts(handlers: ShortcutHandler[]) {
-  const handleKeyDown = useCallback(createKeyboardHandler(handlers), [
-    handlers,
-  ]);
+  const handleKeyDown = useCallback(createKeyboardHandler(handlers), [handlers]);
 
   return handleKeyDown;
 }
@@ -68,11 +66,11 @@ export function useKeyboardShortcuts(handlers: ShortcutHandler[]) {
  * Common keyboard shortcuts for form inputs
  */
 export const COMMON_SHORTCUTS = {
-  SUBMIT: { key: 'Enter', metaKey: true } as KeyboardShortcut,
-  SUBMIT_ALT: { key: 'Enter', ctrlKey: true } as KeyboardShortcut,
-  VIEW: { key: 'Enter', altKey: true } as KeyboardShortcut,
-  ESCAPE: { key: 'Escape' } as KeyboardShortcut,
-  SAVE: { key: 's', metaKey: true } as KeyboardShortcut,
+  SUBMIT: { key: "Enter", metaKey: true } as KeyboardShortcut,
+  SUBMIT_ALT: { key: "Enter", ctrlKey: true } as KeyboardShortcut,
+  VIEW: { key: "Enter", altKey: true } as KeyboardShortcut,
+  ESCAPE: { key: "Escape" } as KeyboardShortcut,
+  SAVE: { key: "s", metaKey: true } as KeyboardShortcut,
 } as const;
 
 /**
@@ -81,12 +79,12 @@ export const COMMON_SHORTCUTS = {
 export function formatShortcut(shortcut: KeyboardShortcut): string {
   const parts: string[] = [];
 
-  if (shortcut.metaKey) parts.push('Cmd');
-  if (shortcut.ctrlKey) parts.push('Ctrl');
-  if (shortcut.altKey) parts.push('Alt');
-  if (shortcut.shiftKey) parts.push('Shift');
+  if (shortcut.metaKey) parts.push("Cmd");
+  if (shortcut.ctrlKey) parts.push("Ctrl");
+  if (shortcut.altKey) parts.push("Alt");
+  if (shortcut.shiftKey) parts.push("Shift");
 
-  parts.push(shortcut.key === ' ' ? 'Space' : shortcut.key);
+  parts.push(shortcut.key === " " ? "Space" : shortcut.key);
 
-  return parts.join('+');
+  return parts.join("+");
 }

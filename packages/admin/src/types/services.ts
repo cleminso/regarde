@@ -69,9 +69,7 @@ export interface NicknameServiceInterface {
     nickname: string,
     newAccountId: string,
   ): Promise<{ success: boolean; oldAccountId?: string }>;
-  removeNickname(
-    nickname: string,
-  ): Promise<{ success: boolean; removedAccountId?: string }>;
+  removeNickname(nickname: string): Promise<{ success: boolean; removedAccountId?: string }>;
   validateNickname(nickname: string): void;
   validateAccountId(accountId: string): void;
 }
@@ -150,10 +148,7 @@ export interface ReservationBackupServiceInterface {
 
 export interface HealthServiceInterface {
   healthCheck(): Promise<HealthReport>;
-  checkNicknameHealth(
-    nickname?: string,
-    accountId?: string,
-  ): Promise<NicknameHealthReport>;
+  checkNicknameHealth(nickname?: string, accountId?: string): Promise<NicknameHealthReport>;
   fixNickname(nickname?: string, accountId?: string): Promise<FixResult>;
 }
 

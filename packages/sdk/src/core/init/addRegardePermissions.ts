@@ -9,12 +9,9 @@ import { co, CoValueClass, Loaded } from "jazz-tools";
  *
  * @param coValue - The loaded CoValue to check and repair permissions for.
  */
-export const addRegardePermissions = async (
-  coValue: Loaded<CoValueClass>,
-): Promise<void> => {
+export const addRegardePermissions = async (coValue: Loaded<CoValueClass>): Promise<void> => {
   const owner = coValue.$jazz.owner;
-  const ownerLoaded =
-    owner !== null && owner !== undefined && owner.$isLoaded === true;
+  const ownerLoaded = owner !== null && owner !== undefined && owner.$isLoaded === true;
   if (ownerLoaded === false) {
     console.error(
       `[ERROR] No owner found for coValue ${coValue.$jazz.id}. Fix by: (1) Checking if CoValue.create() was called with proper owner parameter, (2) Verifying account initialization sequence in your application`,

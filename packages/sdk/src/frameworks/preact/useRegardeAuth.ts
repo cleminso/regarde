@@ -1,5 +1,6 @@
-import { useCallback, useState } from "preact/hooks";
 import { Loaded } from "jazz-tools";
+import { useCallback, useState } from "preact/hooks";
+
 import { RegardeAuth } from "#core/schemas/regardeAuth";
 import { getRegardeAuth, isTokenExpired } from "#managers/auth";
 
@@ -29,8 +30,8 @@ export interface UseRegardeAuthResult {
  * Provides token state, expiration checking, and refresh functionality.
  * Does not automatically retry failed refreshes.
  *
- * @param regardeAuthCoMap - Loaded RegardeAuth CoMap instance
- * @returns Token state and refresh function
+ * @param regardeAuthCoMap - Loaded RegardeAuth CoMap instance (null/undefined = no auth)
+ * @returns Object containing token, loading state, and refresh function
  *
  * @example
  * ```tsx

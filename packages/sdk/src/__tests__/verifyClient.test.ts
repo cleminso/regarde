@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { verifyRegardeAuthViaServer } from "#managers/auth";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 describe("verifyRegardeAuthViaServer", () => {
   const mockParams = {
@@ -101,8 +101,7 @@ describe("verifyRegardeAuthViaServer", () => {
 
     expect(result).toEqual({
       isValid: false,
-      error:
-        "Verification failed: Network or parsing error. Check connection and retry.",
+      error: "Verification failed: Network or parsing error. Check connection and retry.",
     });
   });
 
@@ -129,9 +128,7 @@ describe("verifyRegardeAuthViaServer", () => {
 
   it("should handle aborted requests", async () => {
     const controller = new AbortController();
-    const mockFetch = vi
-      .fn()
-      .mockRejectedValue(new DOMException("Aborted", "AbortError"));
+    const mockFetch = vi.fn().mockRejectedValue(new DOMException("Aborted", "AbortError"));
     global.fetch = mockFetch;
 
     controller.abort();

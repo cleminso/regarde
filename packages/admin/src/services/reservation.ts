@@ -1,10 +1,12 @@
 import { Loaded } from "jazz-tools";
+
 import {
   RegistryWorkerAccount,
   ReservationEntry,
   type TNicknameRegistry,
   type TReservedNicknamesRegistry,
 } from "@regarde-dev/core";
+
 import {
   ReservationServiceInterface,
   ReservationDetails,
@@ -12,13 +14,14 @@ import {
   ReservationListResult,
   ReservationStatusResult,
 } from "../types/services.js";
-import { AuditService } from "./audit.js";
+import { Logger } from "../utils/logger.js";
 import {
   validateNickname,
   validateReservationCategory,
   validateReservationReason,
 } from "../utils/validation.js";
-import { Logger } from "../utils/logger.js";
+
+import { AuditService } from "./audit.js";
 
 export class ReservationError extends Error {
   constructor(
@@ -39,12 +42,7 @@ export const RESERVATION_ERROR_CODES = {
   VALIDATION_FAILED: "VALIDATION_FAILED",
 } as const;
 
-type ReservationCategory =
-  | "admin"
-  | "brand"
-  | "system"
-  | "offensive"
-  | "custom";
+type ReservationCategory = "admin" | "brand" | "system" | "offensive" | "custom";
 
 export class ReservationService implements ReservationServiceInterface {
   constructor(
@@ -60,16 +58,11 @@ export class ReservationService implements ReservationServiceInterface {
       typeof entry.reservedBy === "string" &&
       typeof entry.reservedAt === "number" &&
       typeof entry.category === "string" &&
-      ["admin", "brand", "system", "offensive", "custom"].includes(
-        entry.category,
-      )
+      ["admin", "brand", "system", "offensive", "custom"].includes(entry.category)
     );
   }
 
-  private extractReservationDetails(
-    reservation: any,
-    nickname: string,
-  ): ReservationDetails | null {
+  private extractReservationDetails(reservation: any, nickname: string): ReservationDetails | null {
     if (!this.isValidReservationEntry(reservation)) {
       Logger.warning(`Invalid reservation entry for nickname: ${nickname}`);
       return null;
@@ -84,9 +77,7 @@ export class ReservationService implements ReservationServiceInterface {
     };
   }
 
-  private getNicknameState(
-    nickname: string,
-  ): "available" | "taken" | "reserved" {
+  private getNicknameState(nickname: string): "available" | "taken" | "reserved" {
     if (this.nicknameRegistry[nickname]) {
       return "taken";
     }
@@ -123,10 +114,7 @@ export class ReservationService implements ReservationServiceInterface {
 
       if (this.reservedNicknames[nickname]) {
         const existing = this.reservedNicknames[nickname];
-        const existingDetails = this.extractReservationDetails(
-          existing,
-          nickname,
-        );
+        const existingDetails = this.extractReservationDetails(existing, nickname);
 
         if (existingDetails) {
           throw new ReservationError(
@@ -214,10 +202,7 @@ export class ReservationService implements ReservationServiceInterface {
       }
 
       const reservation = this.reservedNicknames[nickname];
-      const reservationDetails = this.extractReservationDetails(
-        reservation,
-        nickname,
-      );
+      const reservationDetails = this.extractReservationDetails(reservation, nickname);
 
       if (!reservationDetails) {
         throw new ReservationError(
@@ -238,12 +223,7 @@ export class ReservationService implements ReservationServiceInterface {
         "admin-cli",
         "unreserve",
         reservationDetails.reason,
-        reservationDetails.category as
-          | "admin"
-          | "brand"
-          | "system"
-          | "offensive"
-          | "custom",
+        reservationDetails.category as "admin" | "brand" | "system" | "offensive" | "custom",
       );
 
       Logger.info(`Successfully unreserved nickname "${nickname}"`);
@@ -272,22 +252,15 @@ export class ReservationService implements ReservationServiceInterface {
     }
   }
 
-  async listReservedNicknames(
-    category?: ReservationCategory,
-  ): Promise<ReservationListResult> {
+  async listReservedNicknames(category?: ReservationCategory): Promise<ReservationListResult> {
     const reservations: ReservationDetails[] = [];
     let totalCount = 0;
 
-    for (const [nickname, reservation] of Object.entries(
-      this.reservedNicknames,
-    )) {
+    for (const [nickname, reservation] of Object.entries(this.reservedNicknames)) {
       if (!reservation) continue;
 
       totalCount++;
-      const reservationDetails = this.extractReservationDetails(
-        reservation,
-        nickname,
-      );
+      const reservationDetails = this.extractReservationDetails(reservation, nickname);
 
       if (!reservationDetails) {
         continue;
@@ -307,9 +280,7 @@ export class ReservationService implements ReservationServiceInterface {
     };
   }
 
-  async checkReservationStatus(
-    nickname: string,
-  ): Promise<ReservationStatusResult> {
+  async checkReservationStatus(nickname: string): Promise<ReservationStatusResult> {
     try {
       validateNickname(nickname);
     } catch (error) {
@@ -330,10 +301,7 @@ export class ReservationService implements ReservationServiceInterface {
       };
     }
 
-    const reservationDetails = this.extractReservationDetails(
-      reservation,
-      nickname,
-    );
+    const reservationDetails = this.extractReservationDetails(reservation, nickname);
 
     if (!reservationDetails) {
       return {

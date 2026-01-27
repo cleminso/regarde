@@ -1,20 +1,17 @@
-import {
-  ArgParser,
-  type IFlag,
-  type ToolConfig,
-} from "@alcyone-labs/arg-parser";
+import { ArgParser, type IFlag, type ToolConfig } from "@alcyone-labs/arg-parser";
+
 import { Logger } from "../utils/logger.js";
 
-import { nicknameCommands } from "./commands/nickname.js";
-import { reservationCommands } from "./commands/reservation.js";
 import { auditCommands } from "./commands/audit.js";
-import { healthCommands } from "./commands/health.js";
 import { backupCommands } from "./commands/backup.js";
+import { healthCommands } from "./commands/health.js";
 import { inspectCommands } from "./commands/inspect.js";
-import { monitoringCommands } from "./commands/monitoring.js";
-import { reservationBackupCommands } from "./commands/reservationBackup.js";
-import { performanceCommands } from "./commands/performance.js";
 import { integrityCommands } from "./commands/integrity.js";
+import { monitoringCommands } from "./commands/monitoring.js";
+import { nicknameCommands } from "./commands/nickname.js";
+import { performanceCommands } from "./commands/performance.js";
+import { reservationCommands } from "./commands/reservation.js";
+import { reservationBackupCommands } from "./commands/reservationBackup.js";
 
 const FORMAT_FLAG: IFlag = {
   name: "format",
@@ -67,9 +64,7 @@ function writeJsonErrorToStdout(error: unknown): void {
     error: {
       message,
       name: error instanceof Error ? error.name : "Error",
-      ...(process.env.DEBUG && error instanceof Error && error.stack
-        ? { stack: error.stack }
-        : {}),
+      ...(process.env.DEBUG && error instanceof Error && error.stack ? { stack: error.stack } : {}),
     },
   });
 }
@@ -120,8 +115,7 @@ export function createCLI() {
         }
 
         const jsonOutput = ctx.args.format === "json";
-        const restoreConsole =
-          jsonOutput === true ? patchConsoleForJsonOutput() : null;
+        const restoreConsole = jsonOutput === true ? patchConsoleForJsonOutput() : null;
 
         try {
           const result = await command.handler(ctx);
@@ -139,8 +133,7 @@ export function createCLI() {
           if (jsonOutput === true) {
             writeJsonErrorToStdout(error);
           } else {
-            const errorMessage =
-              error instanceof Error ? error.message : String(error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
             Logger.error(`Command failed: ${errorMessage}`);
           }
 

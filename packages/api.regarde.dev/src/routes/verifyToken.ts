@@ -1,7 +1,8 @@
 import { createRoute } from "@hono/zod-openapi";
-import { ErrorResponseSchema } from "#/domains/common/schemas";
-import { VerifyResponseSchema } from "#/domains/auth/schemas";
 import { z } from "zod";
+
+import { VerifyResponseSchema } from "#/domains/auth/schemas";
+import { ErrorResponseSchema } from "#/domains/common/schemas";
 
 export const verifyRoute = createRoute({
   method: "post",

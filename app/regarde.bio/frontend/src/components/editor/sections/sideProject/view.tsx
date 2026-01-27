@@ -1,13 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useState } from "react";
 
-import { Button, DestructiveConfirmationDialog } from '#/components/ui';
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useSideProject } from '#/lib/hook/useSideProject.ts';
-import { ListOfSideProject, RegardeProfile, SideProject } from '#/lib/schema';
-import { EditorFooter } from '../../index';
-import { SectionHeader } from './../../layout/header';
-import { SideProjectCard } from './card';
+import { Button, DestructiveConfirmationDialog } from "#/components/ui";
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useSideProject } from "#/lib/hook/useSideProject.ts";
+import { ListOfSideProject, RegardeProfile, SideProject } from "#/lib/schema";
+
+import { EditorFooter } from "../../index";
+
+import { SectionHeader } from "./../../layout/header";
+import { SideProjectCard } from "./card";
 
 type SideProjectViewProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -61,10 +63,8 @@ export function SideProjectView({
     onClose?.();
   };
 
-  const getSideProjectDisplayName = (
-    sideProject: Loaded<typeof SideProject>,
-  ) => {
-    return sideProject.title || 'Untitled Side Project';
+  const getSideProjectDisplayName = (sideProject: Loaded<typeof SideProject>) => {
+    return sideProject.title || "Untitled Side Project";
   };
 
   return (
@@ -109,7 +109,7 @@ export function SideProjectView({
       <div className="shrink-0">
         <EditorFooter
           primaryAction={{
-            text: 'Done',
+            text: "Done",
             onClick: handleClose,
           }}
         />
@@ -122,10 +122,8 @@ export function SideProjectView({
         description={
           deleteConfirmation.sideProject ? (
             <>
-              Are you sure you want to delete the side project{' '}
-              <strong>
-                {getSideProjectDisplayName(deleteConfirmation.sideProject)}
-              </strong>
+              Are you sure you want to delete the side project{" "}
+              <strong>{getSideProjectDisplayName(deleteConfirmation.sideProject)}</strong>
               ?
               <br />
               <br />

@@ -1,20 +1,17 @@
-import { Loaded } from 'jazz-tools';
+import { Loaded } from "jazz-tools";
 
-import { logger } from '#/lib/utils/logger';
-import { Education, ListOfEducation } from '../schema';
-import { BaseHookProps } from './types';
+import { logger } from "#/lib/utils/logger";
+
+import { Education, ListOfEducation } from "../schema";
+
+import { BaseHookProps } from "./types";
 
 type UseEducationProps = BaseHookProps;
 
-export function useEducation({
-  profile,
-  triggerSyncIndicator,
-}: UseEducationProps) {
-  const ensureEducationList = ():
-    | Loaded<typeof ListOfEducation>
-    | undefined => {
+export function useEducation({ profile, triggerSyncIndicator }: UseEducationProps) {
+  const ensureEducationList = (): Loaded<typeof ListOfEducation> | undefined => {
     if (!profile.$isLoaded) {
-      logger.error('Profile is not loaded');
+      logger.error("Profile is not loaded");
       return undefined;
     }
 
@@ -25,14 +22,14 @@ export function useEducation({
     // Create new list if it doesn't exist
     const profileOwner = profile.$jazz.owner;
     if (!profileOwner?.$isLoaded) {
-      logger.error('Cannot create education list: profile owner is not loaded');
+      logger.error("Cannot create education list: profile owner is not loaded");
       return undefined;
     }
 
     const newEducationList = ListOfEducation.create([], {
       owner: profileOwner,
     });
-    profile.$jazz.set('education', newEducationList);
+    profile.$jazz.set("education", newEducationList);
     return newEducationList;
   };
 
@@ -50,7 +47,7 @@ export function useEducation({
 
     const listOwner = educationList.$jazz.owner;
     if (!listOwner?.$isLoaded) {
-      logger.error('Cannot create education: list owner is not loaded');
+      logger.error("Cannot create education: list owner is not loaded");
       return undefined;
     }
 
@@ -84,25 +81,19 @@ export function useEducation({
     },
   ) => {
     if (!educationToUpdate.$isLoaded) {
-      logger.error('Education instance not provided for update.');
+      logger.error("Education instance not provided for update.");
       return;
     }
 
     let changed = false;
 
-    if (
-      educationData.from !== undefined &&
-      educationToUpdate.from !== educationData.from
-    ) {
-      educationToUpdate.$jazz.set('from', educationData.from);
+    if (educationData.from !== undefined && educationToUpdate.from !== educationData.from) {
+      educationToUpdate.$jazz.set("from", educationData.from);
       changed = true;
     }
 
-    if (
-      educationData.degree !== undefined &&
-      educationToUpdate.degree !== educationData.degree
-    ) {
-      educationToUpdate.$jazz.set('degree', educationData.degree);
+    if (educationData.degree !== undefined && educationToUpdate.degree !== educationData.degree) {
+      educationToUpdate.$jazz.set("degree", educationData.degree);
       changed = true;
     }
 
@@ -110,34 +101,34 @@ export function useEducation({
       educationData.institution !== undefined &&
       educationToUpdate.institution !== educationData.institution
     ) {
-      educationToUpdate.$jazz.set('institution', educationData.institution);
+      educationToUpdate.$jazz.set("institution", educationData.institution);
       changed = true;
     }
 
-    if (educationData.hasOwnProperty('to')) {
+    if (educationData.hasOwnProperty("to")) {
       if (educationToUpdate.to !== educationData.to) {
-        educationToUpdate.$jazz.set('to', educationData.to);
+        educationToUpdate.$jazz.set("to", educationData.to);
         changed = true;
       }
     }
 
-    if (educationData.hasOwnProperty('location')) {
+    if (educationData.hasOwnProperty("location")) {
       if (educationToUpdate.location !== educationData.location) {
-        educationToUpdate.$jazz.set('location', educationData.location);
+        educationToUpdate.$jazz.set("location", educationData.location);
         changed = true;
       }
     }
 
-    if (educationData.hasOwnProperty('url')) {
+    if (educationData.hasOwnProperty("url")) {
       if (educationToUpdate.url !== educationData.url) {
-        educationToUpdate.$jazz.set('url', educationData.url);
+        educationToUpdate.$jazz.set("url", educationData.url);
         changed = true;
       }
     }
 
-    if (educationData.hasOwnProperty('description')) {
+    if (educationData.hasOwnProperty("description")) {
       if (educationToUpdate.description !== educationData.description) {
-        educationToUpdate.$jazz.set('description', educationData.description);
+        educationToUpdate.$jazz.set("description", educationData.description);
         changed = true;
       }
     }
@@ -149,12 +140,12 @@ export function useEducation({
 
   const deleteEducation = (educationId: string) => {
     if (!profile.$isLoaded) {
-      logger.error('Profile is not loaded');
+      logger.error("Profile is not loaded");
       return;
     }
     const educationList = profile.education;
     if (!educationList?.$isLoaded) {
-      logger.warn('No education list to delete from or not loaded.');
+      logger.warn("No education list to delete from or not loaded.");
       return;
     }
     const educationIndex = educationList.findIndex(

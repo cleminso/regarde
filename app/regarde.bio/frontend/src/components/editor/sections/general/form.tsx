@@ -1,14 +1,16 @@
-import { Loaded } from 'jazz-tools';
-import { useEffect, useRef, useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useEffect, useRef, useState } from "react";
 
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useGeneral } from '#/lib/hook/useGeneral';
-import { RegardeProfile } from '#/lib/schema';
-import { NicknameInput } from '../../../onboarding/nicknameInput';
-import { Input, Textarea } from '../../../ui';
-import { EditorFooter } from '../../layout/footer';
-import { SectionHeader } from '../../layout/header';
-import { AvatarUpload } from './avatarUpload';
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useGeneral } from "#/lib/hook/useGeneral";
+import { RegardeProfile } from "#/lib/schema";
+
+import { NicknameInput } from "../../../onboarding/nicknameInput";
+import { Input, Textarea } from "../../../ui";
+import { EditorFooter } from "../../layout/footer";
+import { SectionHeader } from "../../layout/header";
+
+import { AvatarUpload } from "./avatarUpload";
 
 type GeneralEditProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -17,11 +19,7 @@ type GeneralEditProps = {
   accountId: string;
 };
 
-export function GeneralEdit({
-  profile,
-  triggerSyncIndicator,
-  onCloseEditor,
-}: GeneralEditProps) {
+export function GeneralEdit({ profile, triggerSyncIndicator, onCloseEditor }: GeneralEditProps) {
   const {
     fileInputRef,
     handleAvatarClick,
@@ -35,14 +33,14 @@ export function GeneralEdit({
     nickname,
   } = useGeneral({ profile, triggerSyncIndicator });
 
-  const [localDisplayName, setLocalDisplayName] = useState(profile.name || '');
+  const [localDisplayName, setLocalDisplayName] = useState(profile.name || "");
   const [isFocused, setIsFocused] = useState(false);
-  const originalNameRef = useRef(profile.name || '');
+  const originalNameRef = useRef(profile.name || "");
 
   useEffect(() => {
     if (!isFocused) {
-      setLocalDisplayName(profile.name || '');
-      originalNameRef.current = profile.name || '';
+      setLocalDisplayName(profile.name || "");
+      originalNameRef.current = profile.name || "";
     }
   }, [profile.name, isFocused]);
 
@@ -74,10 +72,7 @@ export function GeneralEdit({
   return (
     <div className="flex h-full flex-col lg:h-full">
       <div className="mobile-form-bottom flex-1 lg:flex-1 lg:pb-0">
-        <SectionHeader
-          title="General"
-          description="Share some details about yourself."
-        />
+        <SectionHeader title="General" description="Share some details about yourself." />
 
         <div className="space-y-4 lg:space-y-6">
           <section className="flex flex-row items-center gap-4">
@@ -102,14 +97,14 @@ export function GeneralEdit({
               onAction={nickname.updateNickname}
               actionText="Update"
               label={{
-                text: 'Nickname',
+                text: "Nickname",
                 required: true,
               }}
               validationStatus={nickname.validationStatus}
               validationError={nickname.validationError}
               currentNickname={nickname.currentNickname}
               errorDisplay={{
-                position: 'inline',
+                position: "inline",
                 showRequiredMessage: true,
                 externalError: nickname.error,
               }}
@@ -133,18 +128,16 @@ export function GeneralEdit({
 
           <section>
             <div className="flex items-center justify-between">
-              <label className="text-foreground block font-sans text-sm">
-                Bio
-              </label>
+              <label className="text-foreground block font-sans text-sm">Bio</label>
               <span
-                className={`text-sm ${(profile.bio || '').length >= 240 ? 'text-destructive' : (profile.bio || '').length >= 200 ? 'text-yellow-600' : 'text-muted-foreground'}`}
+                className={`text-sm ${(profile.bio || "").length >= 240 ? "text-destructive" : (profile.bio || "").length >= 200 ? "text-yellow-600" : "text-muted-foreground"}`}
               >
-                {(profile.bio || '').length}/240 characters
+                {(profile.bio || "").length}/240 characters
               </span>
             </div>
             <Textarea
               id="bio"
-              value={profile.bio || ''}
+              value={profile.bio || ""}
               onChange={(e) => {
                 const value = e.target.value;
                 if (value.length <= 240) {
@@ -160,7 +153,7 @@ export function GeneralEdit({
 
       <EditorFooter
         primaryAction={{
-          text: 'Done',
+          text: "Done",
           onClick: onCloseEditor,
         }}
       />

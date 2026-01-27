@@ -1,10 +1,11 @@
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import { Education } from '#/lib/schema';
-import { formatDateRange } from '#/lib/utils/utils';
-import { EditorCardActions } from '../../shared/cardActions';
+import { Button } from "#/components/ui/button";
+import { Education } from "#/lib/schema";
+import { formatDateRange } from "#/lib/utils/utils";
+
+import { EditorCardActions } from "../../shared/cardActions";
 
 type EducationCardProps = {
   education: Loaded<typeof Education>;
@@ -12,13 +13,9 @@ type EducationCardProps = {
   onDelete: (education: Loaded<typeof Education>) => void;
 };
 
-export function EducationCard({
-  education,
-  onEdit,
-  onDelete,
-}: EducationCardProps) {
-  const displayTitle = `${education.degree || 'Untitled Degree'} @${
-    education.institution || 'Unnamed Institution'
+export function EducationCard({ education, onEdit, onDelete }: EducationCardProps) {
+  const displayTitle = `${education.degree || "Untitled Degree"} @${
+    education.institution || "Unnamed Institution"
   }`;
   const dateRange = formatDateRange(education.from, education.to);
 
@@ -59,9 +56,7 @@ export function EducationCard({
             )}
           </div>
           {education.location && (
-            <div className="text-muted-foreground text-sm">
-              {education.location}
-            </div>
+            <div className="text-muted-foreground text-sm">{education.location}</div>
           )}
           {education.description && (
             <p className="text-muted-foreground text-sm whitespace-pre-line">
@@ -69,11 +64,7 @@ export function EducationCard({
             </p>
           )}
           <div className="mt-2">
-            <EditorCardActions
-              item={education}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
+            <EditorCardActions item={education} onEdit={onEdit} onDelete={onDelete} />
           </div>
         </div>
       </div>

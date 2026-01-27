@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import { generateRegardeToken } from "#managers/auth";
+import { describe, it, expect } from "vitest";
 
 describe("generateRegardeToken", () => {
   it("should generate a key with correct length", () => {
@@ -26,9 +26,7 @@ describe("generateRegardeToken", () => {
     const key = generateRegardeToken();
     const validChars =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*"[]{}';
-    const allCharsValid = key
-      .split("")
-      .every((char) => validChars.includes(char));
+    const allCharsValid = key.split("").every((char) => validChars.includes(char));
     expect(allCharsValid).toBe(true);
   });
 

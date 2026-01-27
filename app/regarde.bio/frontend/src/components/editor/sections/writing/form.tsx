@@ -1,14 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useEffect, useState } from 'react';
+import type { RegardeProfile, Writing } from "#/lib/schema";
+import { Loaded } from "jazz-tools";
+import { useEffect, useState } from "react";
 
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useWriting } from '#/lib/hook/useWriting';
-import type { RegardeProfile, Writing } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils/utils';
-import { Input, Textarea } from '../../../ui/index';
-import { EditorFooter } from '../../layout/footer';
-import { SectionHeader } from '../../layout/header';
-import { SelectorDate } from '../../shared/selectorDate';
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useWriting } from "#/lib/hook/useWriting";
+import { getValidUrl } from "#/lib/utils/utils";
+
+import { Input, Textarea } from "../../../ui/index";
+import { EditorFooter } from "../../layout/footer";
+import { SectionHeader } from "../../layout/header";
+import { SelectorDate } from "../../shared/selectorDate";
 
 type WritingEditProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -30,32 +31,32 @@ export function WritingEdit({
 
   const currentYear = new Date().getFullYear().toString();
 
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [year, setYear] = useState(currentYear);
-  const [publisher, setPublisher] = useState('');
-  const [url, setUrl] = useState('');
-  const [description, setDescription] = useState('');
+  const [publisher, setPublisher] = useState("");
+  const [url, setUrl] = useState("");
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     if (writingToEdit) {
-      setTitle(writingToEdit.title || '');
+      setTitle(writingToEdit.title || "");
       setYear(writingToEdit.year || currentYear);
-      setPublisher(writingToEdit.publisher || '');
-      setUrl(writingToEdit.url || '');
-      setDescription(writingToEdit.description || '');
+      setPublisher(writingToEdit.publisher || "");
+      setUrl(writingToEdit.url || "");
+      setDescription(writingToEdit.description || "");
     } else {
-      setTitle('');
+      setTitle("");
       setYear(currentYear);
-      setPublisher('');
-      setUrl('');
-      setDescription('');
+      setPublisher("");
+      setUrl("");
+      setDescription("");
     }
   }, [writingToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
     if (!title.trim()) {
       const shouldContinue = confirm(
-        'Adding the article title helps visitors understand your writing. Would you like to save anyway?',
+        "Adding the article title helps visitors understand your writing. Would you like to save anyway?",
       );
       if (!shouldContinue) return;
     }
@@ -101,16 +102,14 @@ export function WritingEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Year
-                </label>
+                <label className="text-foreground block font-sans text-sm">Year</label>
                 <SelectorDate
                   id="writing-year"
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
                   placeholderOption={{
-                    value: '',
-                    label: 'Select Year',
+                    value: "",
+                    label: "Select Year",
                     disabled: true,
                   }}
                   buttonDisplayValue={year || currentYear}
@@ -122,9 +121,7 @@ export function WritingEdit({
           <section>
             <div className="flex flex-col gap-4 md:flex-row">
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Publisher
-                </label>
+                <label className="text-foreground block font-sans text-sm">Publisher</label>
                 <Input
                   type="text"
                   id="writing-publisher"
@@ -135,9 +132,7 @@ export function WritingEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  URL
-                </label>
+                <label className="text-foreground block font-sans text-sm">URL</label>
                 <Input
                   type="text"
                   id="writing-url"
@@ -151,9 +146,7 @@ export function WritingEdit({
 
           <section>
             <div className="flex w-full flex-col gap-2">
-              <label className="text-foreground block font-sans text-sm">
-                Description
-              </label>
+              <label className="text-foreground block font-sans text-sm">Description</label>
               <Textarea
                 id="writing-description"
                 value={description}
@@ -168,11 +161,11 @@ export function WritingEdit({
 
       <EditorFooter
         primaryAction={{
-          text: 'Save',
+          text: "Save",
           onClick: handleSaveAndClose,
         }}
         secondaryAction={{
-          text: 'Cancel',
+          text: "Cancel",
           onClick: onDoneEditing,
         }}
       />

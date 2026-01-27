@@ -1,7 +1,9 @@
 import { co } from "jazz-tools";
-import { RegardeAccount, RegardeSDK, initRegardeSDK } from "@regarde-dev/core";
-import { getStoredCredentials } from "./auth.js";
 import { startWorker } from "jazz-tools/worker";
+
+import { RegardeAccount, RegardeSDK, initRegardeSDK } from "@regarde-dev/core";
+
+import { getStoredCredentials } from "./auth.js";
 
 export async function loadAuthenticatedRegardeSDK(): Promise<{
   regardeSDK: co.loaded<typeof RegardeSDK>;
@@ -30,8 +32,7 @@ export async function loadAuthenticatedRegardeSDK(): Promise<{
     throw new Error("Incomplete credentials. Please re-login.");
   }
 
-  const syncServer =
-    process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
+  const syncServer = process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
 
   const workerOptions = {
     AccountSchema: RegardeAccount,
@@ -57,9 +58,7 @@ export async function loadAuthenticatedRegardeSDK(): Promise<{
   return { regardeSDK, account: worker };
 }
 
-export function isAuthenticationValid(
-  regardeSDK: co.loaded<typeof RegardeSDK>,
-): boolean {
+export function isAuthenticationValid(regardeSDK: co.loaded<typeof RegardeSDK>): boolean {
   if (!regardeSDK || !regardeSDK.$isLoaded) {
     return false;
   }
@@ -71,9 +70,7 @@ export function isAuthenticationValid(
   return Date.now() <= regardeSDK.auth.expiresAt;
 }
 
-export function getAuthenticationHeaders(
-  regardeSDK: co.loaded<typeof RegardeSDK>,
-) {
+export function getAuthenticationHeaders(regardeSDK: co.loaded<typeof RegardeSDK>) {
   if (!isAuthenticationValid(regardeSDK)) {
     throw new Error("Authentication not valid. Please re-login.");
   }

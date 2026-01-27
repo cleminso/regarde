@@ -1,17 +1,7 @@
-import { startWorker } from "jazz-tools/worker";
 import { Loaded } from "jazz-tools";
-import {
-  RegistryWorkerAccount,
-  type TRegistryAuditEntry,
-} from "@regarde-dev/core";
-import { Logger } from "../utils/logger.js";
+import { startWorker } from "jazz-tools/worker";
 
-import { AuditService } from "./audit.js";
-import { NicknameService } from "./nickname.js";
-import { ReservationService } from "./reservation.js";
-import { BackupService } from "./backup.js";
-import { ReservationBackupService } from "./reservationBackup.js";
-import { HealthService } from "./health.js";
+import { RegistryWorkerAccount, type TRegistryAuditEntry } from "@regarde-dev/core";
 
 import {
   NicknameServiceInterface,
@@ -29,6 +19,14 @@ import {
   NicknameHealthReport,
   FixResult,
 } from "../types/services.js";
+import { Logger } from "../utils/logger.js";
+
+import { AuditService } from "./audit.js";
+import { BackupService } from "./backup.js";
+import { HealthService } from "./health.js";
+import { NicknameService } from "./nickname.js";
+import { ReservationService } from "./reservation.js";
+import { ReservationBackupService } from "./reservationBackup.js";
 
 function buildSyncServerUrl(baseUrl: string, apiKey?: string): string {
   const base = baseUrl.trim();
@@ -55,10 +53,7 @@ type RegistryWorkerResolve = {
   };
 };
 
-type LoadedRegistryWorkerAccount = Loaded<
-  typeof RegistryWorkerAccount,
-  RegistryWorkerResolve
->;
+type LoadedRegistryWorkerAccount = Loaded<typeof RegistryWorkerAccount, RegistryWorkerResolve>;
 
 export class AdminService {
   private worker!: Loaded<typeof RegistryWorkerAccount>;
@@ -97,8 +92,7 @@ export class AdminService {
       this.worker = workerResult.worker;
       this.shutdownWorker = workerResult.shutdownWorker;
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       throw new Error(`Failed to start Jazz worker: ${errorMessage}`, {
         cause: error,
       });
@@ -146,8 +140,7 @@ export class AdminService {
       Logger.success("Registries and audit log loaded successfully");
       Logger.debug(`Initial audit log length: ${root.auditLog?.length || 0}`);
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       Logger.error(`Failed to initialize AdminService: ${errorMessage}`);
       throw error;
     }
@@ -227,9 +220,7 @@ export class AdminService {
     return this.nicknameService.updateNickname(nickname, newAccountId);
   }
 
-  async removeNickname(
-    nickname: string,
-  ): Promise<{ success: boolean; removedAccountId?: string }> {
+  async removeNickname(nickname: string): Promise<{ success: boolean; removedAccountId?: string }> {
     return this.nicknameService.removeNickname(nickname);
   }
 
@@ -251,9 +242,7 @@ export class AdminService {
     return this.reservationService.listReservedNicknames(category);
   }
 
-  async checkReservationStatus(
-    nickname: string,
-  ): Promise<ReservationStatusResult> {
+  async checkReservationStatus(nickname: string): Promise<ReservationStatusResult> {
     return this.reservationService.checkReservationStatus(nickname);
   }
 
@@ -265,15 +254,11 @@ export class AdminService {
     return this.auditService.getChangeHistory(limit);
   }
 
-  async getHistoryForAccount(
-    accountId: string,
-  ): Promise<TRegistryAuditEntry[]> {
+  async getHistoryForAccount(accountId: string): Promise<TRegistryAuditEntry[]> {
     return this.auditService.getHistoryForAccount(accountId);
   }
 
-  async getHistoryForNickname(
-    nickname: string,
-  ): Promise<TRegistryAuditEntry[]> {
+  async getHistoryForNickname(nickname: string): Promise<TRegistryAuditEntry[]> {
     return this.auditService.getHistoryForNickname(nickname);
   }
 
@@ -313,28 +298,24 @@ export class AdminService {
       throw new Error("Worker root is not available");
     }
 
-    const registryLoaded =
-      root.registry !== undefined && root.registry.$isLoaded === true;
+    const registryLoaded = root.registry !== undefined && root.registry.$isLoaded === true;
     if (registryLoaded === false) {
       throw new Error("Nickname registry is not available");
     }
 
     const reverseRegistryLoaded =
-      root.reverseRegistry !== undefined &&
-      root.reverseRegistry.$isLoaded === true;
+      root.reverseRegistry !== undefined && root.reverseRegistry.$isLoaded === true;
     if (reverseRegistryLoaded === false) {
       throw new Error("Reverse nickname registry is not available");
     }
 
     const reservedNicknamesLoaded =
-      root.reservedNicknames !== undefined &&
-      root.reservedNicknames.$isLoaded === true;
+      root.reservedNicknames !== undefined && root.reservedNicknames.$isLoaded === true;
     if (reservedNicknamesLoaded === false) {
       throw new Error("Reserved nicknames registry is not available");
     }
 
-    const auditLogLoaded =
-      root.auditLog !== undefined && root.auditLog.$isLoaded === true;
+    const auditLogLoaded = root.auditLog !== undefined && root.auditLog.$isLoaded === true;
     if (auditLogLoaded === false) {
       throw new Error("Audit log is not available");
     }
@@ -352,8 +333,7 @@ export class AdminService {
     try {
       await this.shutdownWorker?.();
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       Logger.warning(`Cleanup failed: ${errorMessage}`);
     } finally {
       this.shutdownWorker = undefined;
@@ -365,10 +345,7 @@ export class AdminService {
     return this.healthService.healthCheck();
   }
 
-  async checkNicknameHealth(
-    nickname?: string,
-    accountId?: string,
-  ): Promise<NicknameHealthReport> {
+  async checkNicknameHealth(nickname?: string, accountId?: string): Promise<NicknameHealthReport> {
     return this.healthService.checkNicknameHealth(nickname, accountId);
   }
 
@@ -520,13 +497,9 @@ export class AdminService {
     const cutoffTime = Date.now() - days * 24 * 60 * 60 * 1000;
     const recentEntries = await this.auditService.getChangeHistory(1000);
 
-    const relevantEntries = recentEntries.filter(
-      (entry) => entry.timestamp >= cutoffTime,
-    );
+    const relevantEntries = recentEntries.filter((entry) => entry.timestamp >= cutoffTime);
 
-    const adminOps = relevantEntries.filter(
-      (entry) => entry.source === "admin-cli",
-    ).length;
+    const adminOps = relevantEntries.filter((entry) => entry.source === "admin-cli").length;
     const suspiciousActivity: Array<{
       description: string;
       timestamp: number;
@@ -610,10 +583,7 @@ export class AdminService {
     }
 
     if (fix && fixedIssues.length > 0) {
-      await Promise.all([
-        registry.$jazz.waitForSync(),
-        reverseRegistry.$jazz.waitForSync(),
-      ]);
+      await Promise.all([registry.$jazz.waitForSync(), reverseRegistry.$jazz.waitForSync()]);
     }
 
     if (verbose) {
@@ -646,8 +616,7 @@ export class AdminService {
     }
 
     const duplicates: Array<{ nickname: string; accounts: string[] }> = [];
-    const reverseDuplicates: Array<{ accountId: string; nicknames: string[] }> =
-      [];
+    const reverseDuplicates: Array<{ accountId: string; nicknames: string[] }> = [];
 
     if (root.registry?.$isLoaded) {
       const nicknameGroups = new Map<string, string[]>();
@@ -667,9 +636,7 @@ export class AdminService {
 
     if (root.reverseRegistry?.$isLoaded) {
       const accountGroups = new Map<string, string[]>();
-      for (const [accountId, nickname] of Object.entries(
-        root.reverseRegistry,
-      )) {
+      for (const [accountId, nickname] of Object.entries(root.reverseRegistry)) {
         if (!accountGroups.has(accountId)) {
           accountGroups.set(accountId, []);
         }

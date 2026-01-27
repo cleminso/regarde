@@ -1,12 +1,13 @@
-import { verifyRegardeAuth } from "#/domains/auth/handlers/verify";
 import type {
   TNicknameRegistry,
   TReverseNicknameRegistry,
   TReservedNicknamesRegistry,
   RegistryWorkerAccount,
 } from "@regarde-dev/core";
-import { useLogging } from "@regarde-dev/core";
 import type { Loaded } from "jazz-tools";
+
+import { verifyRegardeAuth } from "#/domains/auth/handlers/verify";
+import { useLogging } from "@regarde-dev/core";
 
 const logger = useLogging({
   module: __filename,
@@ -24,8 +25,7 @@ export const registerHandler = (
       const regardeAuth = c.req.header("X-Regarde-Token");
       const regardeAuthId = c.req.header("X-Regarde-Token-Id");
 
-      const isRegardeAuthPresent =
-        regardeAuth !== null && regardeAuth !== undefined;
+      const isRegardeAuthPresent = regardeAuth !== null && regardeAuth !== undefined;
       if (!isRegardeAuthPresent) {
         logger.debug({
           message: "missing registration token header",
@@ -41,13 +41,11 @@ export const registerHandler = (
       }
 
       const isNicknamePresent = nickname !== null && nickname !== undefined;
-      const isOldNicknamePresent =
-        oldNickname !== null && oldNickname !== undefined;
+      const isOldNicknamePresent = oldNickname !== null && oldNickname !== undefined;
 
       if (!isNicknamePresent && !isOldNicknamePresent) {
         logger.error({
-          message:
-            "Must provide either a new nickname or an old one to delete/swap",
+          message: "Must provide either a new nickname or an old one to delete/swap",
           data: {
             isNicknamePresent,
             isOldNicknamePresent,
@@ -55,8 +53,7 @@ export const registerHandler = (
         });
         return c.json(
           {
-            error:
-              "Must provide either a new nickname or an old one to delete/swap",
+            error: "Must provide either a new nickname or an old one to delete/swap",
           },
           400,
         );
@@ -78,10 +75,7 @@ export const registerHandler = (
             worker,
           },
         });
-        return c.json(
-          { error: `Authentication failed: ${verificationResult.error}` },
-          403,
-        );
+        return c.json({ error: `Authentication failed: ${verificationResult.error}` }, 403);
       }
 
       logger.debug({
@@ -109,10 +103,7 @@ export const registerHandler = (
               currentNicknameForAccount,
             },
           });
-          return c.json(
-            { error: "Account does not own the nickname to delete" },
-            403,
-          );
+          return c.json({ error: "Account does not own the nickname to delete" }, 403);
         }
 
         // (2) - delete from both registries
@@ -129,10 +120,7 @@ export const registerHandler = (
       }
 
       // check if nickname is already taken by a jazzAccountId
-      if (
-        existingAccountForNickname &&
-        existingAccountForNickname !== jazzAccountId
-      ) {
+      if (existingAccountForNickname && existingAccountForNickname !== jazzAccountId) {
         logger.warn({
           message: "Nickname already taken by another account",
           data: {
@@ -147,9 +135,7 @@ export const registerHandler = (
       // check if nickname is reserved
       const reservation = reservedNicknames[nickname];
       const isReservationLoaded =
-        reservation !== null &&
-        reservation !== undefined &&
-        reservation.$isLoaded === true;
+        reservation !== null && reservation !== undefined && reservation.$isLoaded === true;
       if (isReservationLoaded === true) {
         logger.warn({
           message: "Nickname is reserved",
@@ -184,8 +170,7 @@ export const registerHandler = (
           });
           return c.json(
             {
-              error:
-                "Account does not own the nickname specified as oldNickname",
+              error: "Account does not own the nickname specified as oldNickname",
             },
             403,
           );
@@ -244,8 +229,7 @@ export const registerHandler = (
 
       return c.body(null, 204);
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
       logger.error({
         message: "Failed to process /register request",

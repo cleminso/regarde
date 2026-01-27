@@ -1,5 +1,6 @@
-import { RegardeAccount } from '@regarde-dev/jazz-schemas';
-import { useAccount, useIsAuthenticated, useLogOut } from 'jazz-tools/react';
+import { useAccount, useIsAuthenticated, useLogOut } from "jazz-tools/react";
+
+import { RegardeAccount } from "@regarde-dev/jazz-schemas";
 
 // I create a custom hook to wrap account-related state.
 // 1. check if the user is authenticated using `useIsAuthenticate` hook
@@ -20,7 +21,7 @@ export function useMyRegardeAccount() {
       ? {
           resolve: {
             root: {
-              'regarde.bio': {
+              "regarde.bio": {
                 socialLinks: true,
                 projects: { $each: true }, // `$each: true` tell Jazz to load each item in the array, not juste the array reference
                 workExp: { $each: true },
@@ -34,7 +35,7 @@ export function useMyRegardeAccount() {
                 nowPage: true,
                 avatarImage: { original: true },
               },
-              'regarde-sdk': {
+              "regarde-sdk": {
                 userHandle: true,
               },
             },
@@ -51,19 +52,17 @@ export function useMyRegardeAccount() {
   // I need to verify if account exists and is loaded, then i check if both namespaces are loaded.
   // So I extract the profile and auth from the account root. This enable safe access to CoValues without risking undefined errors when data hasn't sync yet.
   const regardeProfile =
-    account && account.$isLoaded && account.root['regarde.bio']?.$isLoaded
-      ? account.root['regarde.bio']
+    account && account.$isLoaded && account.root["regarde.bio"]?.$isLoaded
+      ? account.root["regarde.bio"]
       : undefined;
   const regardeAuth =
-    account && account.$isLoaded && account.root['regarde-sdk']?.$isLoaded
-      ? account.root['regarde-sdk']
+    account && account.$isLoaded && account.root["regarde-sdk"]?.$isLoaded
+      ? account.root["regarde-sdk"]
       : undefined;
 
   // Extract nickname from regardeAuth, handling the MaybeLoaded type
   const userNickname =
-    regardeAuth && regardeAuth.userHandle?.$isLoaded
-      ? regardeAuth.userHandle.nickname
-      : undefined;
+    regardeAuth && regardeAuth.userHandle?.$isLoaded ? regardeAuth.userHandle.nickname : undefined;
 
   return {
     account,

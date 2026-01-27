@@ -1,9 +1,9 @@
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import type { Award, RegardeProfile } from "#/lib/schema";
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import type { Award, RegardeProfile } from '#/lib/schema';
-import { formatYearString, getValidUrl } from '#/lib/utils/utils';
+import { Button } from "#/components/ui/button";
+import { formatYearString, getValidUrl } from "#/lib/utils/utils";
 
 type AwardsProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -11,10 +11,7 @@ type AwardsProps = {
 
 export function Awards({ profile }: AwardsProps) {
   const awards = profile.award?.$isLoaded
-    ? profile.award.filter(
-        (award: any): award is Loaded<typeof Award> =>
-          award?.$isLoaded === true,
-      )
+    ? profile.award.filter((award: any): award is Loaded<typeof Award> => award?.$isLoaded === true)
     : [];
 
   if (!awards || awards.length === 0) {
@@ -31,7 +28,7 @@ export function Awards({ profile }: AwardsProps) {
         </div>
         <div className="space-y-6">
           {awards.map((award: any) => {
-            const displayTitle = `${award.title || 'Untitled Award'} - ${award.presenter || 'Unknown Presenter'}`;
+            const displayTitle = `${award.title || "Untitled Award"} - ${award.presenter || "Unknown Presenter"}`;
 
             const awardLink = getValidUrl(award.url);
 

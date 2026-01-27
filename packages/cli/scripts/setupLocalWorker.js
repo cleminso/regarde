@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 import "dotenv/config";
-import { startWorker } from "jazz-tools/worker";
+
 import { Group } from "jazz-tools";
+import { startWorker } from "jazz-tools/worker";
+
 import { RegistryWorkerAccount } from "@regarde-dev/core";
 
 // Load environment variables
-const JAZZ_SYNC_SERVER_URL =
-  process.env.JAZZ_SYNC_SERVER_URL || "ws://localhost:4200";
+const JAZZ_SYNC_SERVER_URL = process.env.JAZZ_SYNC_SERVER_URL || "ws://localhost:4200";
 const LOCAL_WORKER_ACCOUNT_ID = process.env.LOCAL_WORKER_ACCOUNT_ID;
 const LOCAL_WORKER_ACCOUNT_SECRET = process.env.LOCAL_WORKER_ACCOUNT_SECRET;
 
@@ -74,9 +75,7 @@ async function setupLocalWorker() {
   } catch (error) {
     console.error("\nFailed to setup local worker:", error);
     console.error("\nTroubleshooting:");
-    console.error(
-      "   - Ensure local sync server is running: npx jazz-run sync",
-    );
+    console.error("   - Ensure local sync server is running: npx jazz-run sync");
     console.error("   - Check your .env.test file has correct credentials");
     console.error("   - Verify worker account was created on local server");
     process.exit(1);

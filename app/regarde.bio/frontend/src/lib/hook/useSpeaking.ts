@@ -1,18 +1,17 @@
-import { Loaded } from 'jazz-tools';
+import { Loaded } from "jazz-tools";
 
-import { logger } from '#/lib/utils/logger';
-import { ListOfSpeaking, Speaking } from '../schema';
-import { BaseHookProps } from './types';
+import { logger } from "#/lib/utils/logger";
+
+import { ListOfSpeaking, Speaking } from "../schema";
+
+import { BaseHookProps } from "./types";
 
 type UseSpeakingProps = BaseHookProps;
 
-export function useSpeaking({
-  profile,
-  triggerSyncIndicator,
-}: UseSpeakingProps) {
+export function useSpeaking({ profile, triggerSyncIndicator }: UseSpeakingProps) {
   const ensureSpeakingList = (): Loaded<typeof ListOfSpeaking> | undefined => {
     if (!profile.$isLoaded) {
-      logger.error('Profile is not loaded');
+      logger.error("Profile is not loaded");
       return undefined;
     }
 
@@ -23,12 +22,12 @@ export function useSpeaking({
     // Create new list if it doesn't exist
     const profileOwner = profile.$jazz.owner;
     if (!profileOwner?.$isLoaded) {
-      logger.error('Cannot create speaking list: profile owner is not loaded');
+      logger.error("Cannot create speaking list: profile owner is not loaded");
       return undefined;
     }
 
     const newSpeakingList = ListOfSpeaking.create([], { owner: profileOwner });
-    profile.$jazz.set('speaking', newSpeakingList);
+    profile.$jazz.set("speaking", newSpeakingList);
     return newSpeakingList;
   };
 
@@ -45,7 +44,7 @@ export function useSpeaking({
 
     const listOwner = speakingList.$jazz.owner;
     if (!listOwner?.$isLoaded) {
-      logger.error('Cannot create speaking: list owner is not loaded');
+      logger.error("Cannot create speaking: list owner is not loaded");
       return undefined;
     }
 
@@ -77,52 +76,46 @@ export function useSpeaking({
     },
   ) => {
     if (!speakingToUpdate.$isLoaded) {
-      logger.error('Speaking instance not provided for update.');
+      logger.error("Speaking instance not provided for update.");
       return;
     }
 
     let changed = false;
 
-    if (
-      speakingData.title !== undefined &&
-      speakingToUpdate.title !== speakingData.title
-    ) {
-      speakingToUpdate.$jazz.set('title', speakingData.title);
+    if (speakingData.title !== undefined && speakingToUpdate.title !== speakingData.title) {
+      speakingToUpdate.$jazz.set("title", speakingData.title);
       changed = true;
     }
 
-    if (
-      speakingData.year !== undefined &&
-      speakingToUpdate.$jazz.set('year', speakingData.year)
-    ) {
-      speakingToUpdate.$jazz.set('year', speakingData.year);
+    if (speakingData.year !== undefined && speakingToUpdate.$jazz.set("year", speakingData.year)) {
+      speakingToUpdate.$jazz.set("year", speakingData.year);
       changed = true;
     }
 
-    if (speakingData.hasOwnProperty('event')) {
+    if (speakingData.hasOwnProperty("event")) {
       if (speakingToUpdate.event !== speakingData.event) {
-        speakingToUpdate.$jazz.set('event', speakingData.event);
+        speakingToUpdate.$jazz.set("event", speakingData.event);
         changed = true;
       }
     }
 
-    if (speakingData.hasOwnProperty('location')) {
+    if (speakingData.hasOwnProperty("location")) {
       if (speakingToUpdate.location !== speakingData.location) {
-        speakingToUpdate.$jazz.set('location', speakingData.location);
+        speakingToUpdate.$jazz.set("location", speakingData.location);
         changed = true;
       }
     }
 
-    if (speakingData.hasOwnProperty('url')) {
+    if (speakingData.hasOwnProperty("url")) {
       if (speakingToUpdate.url !== speakingData.url) {
-        speakingToUpdate.$jazz.set('url', speakingData.url);
+        speakingToUpdate.$jazz.set("url", speakingData.url);
         changed = true;
       }
     }
 
-    if (speakingData.hasOwnProperty('description')) {
+    if (speakingData.hasOwnProperty("description")) {
       if (speakingToUpdate.description !== speakingData.description) {
-        speakingToUpdate.$jazz.set('description', speakingData.description);
+        speakingToUpdate.$jazz.set("description", speakingData.description);
         changed = true;
       }
     }
@@ -134,12 +127,12 @@ export function useSpeaking({
 
   const deleteSpeaking = async (speakingId: string) => {
     if (!profile.$isLoaded) {
-      logger.error('Profile is not loaded');
+      logger.error("Profile is not loaded");
       return;
     }
     const speakingList = profile.speaking;
     if (!speakingList?.$isLoaded) {
-      logger.warn('No speaking list to delete from or not loaded.');
+      logger.warn("No speaking list to delete from or not loaded.");
       return;
     }
     const speakingIndex = speakingList.findIndex(

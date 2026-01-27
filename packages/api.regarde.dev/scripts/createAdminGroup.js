@@ -1,10 +1,11 @@
 import "dotenv/config";
-import { startWorker } from "jazz-tools/worker";
+
 import { Group } from "jazz-tools";
+import { startWorker } from "jazz-tools/worker";
+
 import { RegistryWorkerAccount } from "@regarde-dev/core";
 
-const JAZZ_SYNC_SERVER_URL =
-  process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
+const JAZZ_SYNC_SERVER_URL = process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
 
 async function createAdminGroup() {
   console.log("🚀 Creating Jazz Profile Admin Group...");
@@ -27,8 +28,7 @@ async function createAdminGroup() {
     const workerResult = await startWorker({
       AccountSchema: RegistryWorkerAccount,
       syncServer:
-        JAZZ_SYNC_SERVER_URL +
-        (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
+        JAZZ_SYNC_SERVER_URL + (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
     });
     worker = workerResult.worker;
     console.log(`✅ Worker connected with Account ID: ${worker.id}`);
@@ -58,9 +58,7 @@ async function createAdminGroup() {
     console.log("\n📝 Next steps:");
     console.log("1. Copy the Group ID above");
     console.log("2. Update packages/jazz-schemas/src/profile.ts");
-    console.log(
-      "3. Replace the empty string in jazzProfileAdminGroupID with this ID",
-    );
+    console.log("3. Replace the empty string in jazzProfileAdminGroupID with this ID");
     console.log("4. Add admin members to the group as needed");
   } catch (error) {
     console.error("❌ Failed to create admin group:", error);

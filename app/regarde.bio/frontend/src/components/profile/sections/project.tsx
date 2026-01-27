@@ -1,9 +1,9 @@
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import type { Project, RegardeProfile } from "#/lib/schema";
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import type { Project, RegardeProfile } from '#/lib/schema';
-import { formatYearString, getValidUrl } from '#/lib/utils/utils';
+import { Button } from "#/components/ui/button";
+import { formatYearString, getValidUrl } from "#/lib/utils/utils";
 
 type ProjectsProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -12,8 +12,7 @@ type ProjectsProps = {
 export function Projects({ profile }: ProjectsProps) {
   const projects = profile.projects?.$isLoaded
     ? profile.projects.filter(
-        (project: any): project is Loaded<typeof Project> =>
-          project?.$isLoaded === true,
+        (project: any): project is Loaded<typeof Project> => project?.$isLoaded === true,
       )
     : [];
 
@@ -33,8 +32,8 @@ export function Projects({ profile }: ProjectsProps) {
         <div className="space-y-6">
           {projects.map((project: any) => {
             const displayTitle = project.client
-              ? `${project.title || 'Untitled Project'} @${project.client}`
-              : project.title || 'Untitled Project';
+              ? `${project.title || "Untitled Project"} @${project.client}`
+              : project.title || "Untitled Project";
 
             const projectLink = getValidUrl(project.link);
 

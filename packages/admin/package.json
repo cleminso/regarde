@@ -2,32 +2,32 @@
   "name": "@regarde-dev/admin",
   "version": "0.1.0",
   "description": "CLI tool for profile nickname registry admin operations",
-  "main": "dist/cli.js",
-  "type": "module",
-  "bin": {
-    "profile-admin": "dist/index.mjs"
-  },
+  "keywords": [
+    "admin",
+    "cli",
+    "jazz",
+    "nickname-registry"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/cleminso/regarde.git",
     "directory": "packages/admin"
   },
+  "bin": {
+    "profile-admin": "dist/index.mjs"
+  },
+  "type": "module",
+  "main": "dist/cli.js",
   "scripts": {
     "clean": "rm -rf dist",
     "build": "pnpm clean && vite build",
     "dev": "vite build --watch",
     "cli": "node dist/index.mjs"
   },
-  "keywords": [
-    "jazz",
-    "admin",
-    "cli",
-    "nickname-registry"
-  ],
   "dependencies": {
     "@alcyone-labs/arg-parser": "^2.7.2",
-    "@regarde-dev/jazz-schemas": "workspace:*",
     "@regarde-dev/core": "workspace:*",
+    "@regarde-dev/jazz-schemas": "workspace:*",
     "dotenv": "catalog:",
     "jazz-tools": "catalog:",
     "ulidx": "catalog:",

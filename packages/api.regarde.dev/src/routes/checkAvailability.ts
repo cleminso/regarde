@@ -1,9 +1,10 @@
 import { createRoute } from "@hono/zod-openapi";
+
+import { ErrorResponseSchema } from "#/domains/common/schemas";
 import {
   CheckAvailabilityRequestSchema,
   CheckAvailabilityResponseSchema,
 } from "#/domains/nickname/schemas";
-import { ErrorResponseSchema } from "#/domains/common/schemas";
 
 export const checkAvailabilityRoute = createRoute({
   method: "post",

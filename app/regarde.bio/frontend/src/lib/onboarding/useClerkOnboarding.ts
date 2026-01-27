@@ -1,23 +1,17 @@
-import { useClerk } from '@clerk/clerk-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useClerk } from "@clerk/clerk-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 
-import { useMyRegardeAccount } from '../account/useMyRegardeAccount';
-import { useRegardeAuth } from '../account/useRegistrationToken';
-import { checkNicknameAvailability } from '../api/nickname';
-import { registerNicknameWithServer } from '../nickname/services';
-import { isValidNicknameFormat } from '../nickname/utils';
-import { createNicknameUrl } from '../utils/utils';
+import { useMyRegardeAccount } from "../account/useMyRegardeAccount";
+import { useRegardeAuth } from "../account/useRegistrationToken";
+import { checkNicknameAvailability } from "../api/nickname";
+import { registerNicknameWithServer } from "../nickname/services";
+import { isValidNicknameFormat } from "../nickname/utils";
+import { createNicknameUrl } from "../utils/utils";
 
-const PENDING_NICKNAME_KEY = 'pending-nickname';
+const PENDING_NICKNAME_KEY = "pending-nickname";
 
-type ValidationStatus =
-  | 'empty'
-  | 'invalid'
-  | 'checking'
-  | 'available'
-  | 'taken'
-  | 'reserved';
+type ValidationStatus = "empty" | "invalid" | "checking" | "available" | "taken" | "reserved";
 
 // Add a global flag to prevent multiple registrations
 let globalRegistrationInProgress = false;
@@ -30,8 +24,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
   const navigate = useNavigate();
   const clerk = useClerk();
 
-  const { account, isAuthenticated, regardeAuth, userNickname } =
-    useMyRegardeAccount();
+  const { account, isAuthenticated, regardeAuth, userNickname } = useMyRegardeAccount();
 
   const { getValidKey, isAccountReady } = useRegardeAuth();
 
@@ -42,12 +35,11 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
   const hasProcessedPendingNickname = useRef(false);
 
   // Validation state
-  const [validationStatus, setValidationStatus] =
-    useState<ValidationStatus>('empty');
-  const [validationError, setValidationError] = useState('');
+  const [validationStatus, setValidationStatus] = useState<ValidationStatus>("empty");
+  const [validationError, setValidationError] = useState("");
 
   // Single source of truth for current nickname
-  const currentNickname = userNickname || '';
+  const currentNickname = userNickname || "";
   // We need to check regardeAuth to get isActive since userNickname is just the string
   const isNicknameActive =
     regardeAuth &&
@@ -61,51 +53,45 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
   const checkAvailability = useCallback(
     async (nickname: string) => {
       if (!nickname) {
-        setValidationStatus('empty');
-        setValidationError('');
+        setValidationStatus("empty");
+        setValidationError("");
         return;
       }
 
       if (!isValidNicknameFormat(nickname)) {
-        setValidationStatus('invalid');
+        setValidationStatus("invalid");
         setValidationError(
-          'Nickname must be 3-20 characters, alphanumeric with dashes/underscores only.',
+          "Nickname must be 3-20 characters, alphanumeric with dashes/underscores only.",
         );
         return;
       }
 
       // Check if this is the user's current nickname
       if (currentNickname && nickname === currentNickname) {
-        setValidationStatus('available');
-        setValidationError('');
+        setValidationStatus("available");
+        setValidationError("");
         return;
       }
 
-      setValidationStatus('checking');
+      setValidationStatus("checking");
       try {
         const result = await checkNicknameAvailability(nickname);
 
         if (result.available) {
-          setValidationStatus('available');
-          setValidationError('');
+          setValidationStatus("available");
+          setValidationError("");
         } else if (result.reserved) {
-          setValidationStatus('reserved');
-          const categoryText = result.reservationCategory
-            ? ` (${result.reservationCategory})`
-            : '';
-          const reasonText = result.reservationReason
-            ? `: ${result.reservationReason}`
-            : '';
-          setValidationError(
-            `This nickname is reserved${categoryText}${reasonText}`,
-          );
+          setValidationStatus("reserved");
+          const categoryText = result.reservationCategory ? ` (${result.reservationCategory})` : "";
+          const reasonText = result.reservationReason ? `: ${result.reservationReason}` : "";
+          setValidationError(`This nickname is reserved${categoryText}${reasonText}`);
         } else {
-          setValidationStatus('taken');
-          setValidationError('');
+          setValidationStatus("taken");
+          setValidationError("");
         }
       } catch (error) {
-        setValidationStatus('invalid');
-        setValidationError('Failed to check availability. Please try again.');
+        setValidationStatus("invalid");
+        setValidationError("Failed to check availability. Please try again.");
       }
     },
     [currentNickname],
@@ -138,20 +124,19 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
 
       try {
         // Check availability before registering
-        const availabilityResult =
-          await checkNicknameAvailability(pendingNickname);
+        const availabilityResult = await checkNicknameAvailability(pendingNickname);
 
         if (!availabilityResult.available) {
           if (availabilityResult.reserved) {
             const categoryText = availabilityResult.reservationCategory
               ? ` (${availabilityResult.reservationCategory})`
-              : '';
+              : "";
             const reasonText = availabilityResult.reservationReason
               ? `: ${availabilityResult.reservationReason}`
-              : '';
+              : "";
             setError(`This nickname is reserved${categoryText}${reasonText}`);
           } else {
-            setError('This nickname is already taken');
+            setError("This nickname is already taken");
           }
           localStorage.removeItem(PENDING_NICKNAME_KEY);
           hasProcessedPendingNickname.current = false;
@@ -165,13 +150,10 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
         });
 
         localStorage.removeItem(PENDING_NICKNAME_KEY);
-        navigate(createNicknameUrl(pendingNickname, '/edit'));
+        navigate(createNicknameUrl(pendingNickname, "/edit"));
       } catch (err) {
-        if (
-          !(err instanceof Error) ||
-          !err.message?.includes('already has a nickname')
-        ) {
-          setError(err instanceof Error ? err.message : 'Registration failed');
+        if (!(err instanceof Error) || !err.message?.includes("already has a nickname")) {
+          setError(err instanceof Error ? err.message : "Registration failed");
           hasProcessedPendingNickname.current = false;
         }
         localStorage.removeItem(PENDING_NICKNAME_KEY);
@@ -183,14 +165,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
     };
 
     completeRegistration();
-  }, [
-    isAuthenticated,
-    account?.$jazz.id,
-    isAccountReady,
-    currentNickname,
-    navigate,
-    getValidKey,
-  ]);
+  }, [isAuthenticated, account?.$jazz.id, isAccountReady, currentNickname, navigate, getValidKey]);
 
   // Reset processing flag when user gets a nickname
   useEffect(() => {
@@ -227,7 +202,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
         }
 
         if (!account?.$jazz.id || !isAccountReady) {
-          setError('Account not ready. Please try again.');
+          setError("Account not ready. Please try again.");
           registrationInProgress.current = false;
           setIsProcessing(false);
           return;
@@ -240,13 +215,13 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
           if (availabilityResult.reserved) {
             const categoryText = availabilityResult.reservationCategory
               ? ` (${availabilityResult.reservationCategory})`
-              : '';
+              : "";
             const reasonText = availabilityResult.reservationReason
               ? `: ${availabilityResult.reservationReason}`
-              : '';
+              : "";
             setError(`This nickname is reserved${categoryText}${reasonText}`);
           } else {
-            setError('This nickname is already taken');
+            setError("This nickname is already taken");
           }
           registrationInProgress.current = false;
           setIsProcessing(false);
@@ -262,11 +237,11 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
 
         // Wait a bit for the onboarding data to sync
         setTimeout(() => {
-          navigate(createNicknameUrl(nickname, '/edit'));
+          navigate(createNicknameUrl(nickname, "/edit"));
           registrationInProgress.current = false;
         }, 1000);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Registration failed');
+        setError(err instanceof Error ? err.message : "Registration failed");
         localStorage.removeItem(PENDING_NICKNAME_KEY);
         registrationInProgress.current = false;
         setIsProcessing(false);
@@ -295,7 +270,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
       )
         return;
       if (!regardeAuth || !regardeAuth.$isLoaded) {
-        setError('Regarde auth not available. Please refresh and try again.');
+        setError("Regarde auth not available. Please refresh and try again.");
         return;
       }
 
@@ -310,13 +285,13 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
           if (availabilityResult.reserved) {
             const categoryText = availabilityResult.reservationCategory
               ? ` (${availabilityResult.reservationCategory})`
-              : '';
+              : "";
             const reasonText = availabilityResult.reservationReason
               ? `: ${availabilityResult.reservationReason}`
-              : '';
+              : "";
             setError(`This nickname is reserved${categoryText}${reasonText}`);
           } else {
-            setError('This nickname is already taken');
+            setError("This nickname is already taken");
           }
           return;
         }
@@ -328,7 +303,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
           getRegardeAuth: getValidKey,
         });
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Update failed');
+        setError(err instanceof Error ? err.message : "Update failed");
       } finally {
         setIsProcessing(false);
       }
@@ -339,7 +314,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
   // View profile
   const view = useCallback((nickname: string) => {
     if (nickname) {
-      window.open(`${window.location.origin}/${nickname}`, '_blank');
+      window.open(`${window.location.origin}/${nickname}`, "_blank");
     }
   }, []);
 

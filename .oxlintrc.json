@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["oxc", "typescript", "react", "unicorn"],
+  "plugins": ["oxc", "typescript", "react", "unicorn", "jsdoc"],
   "categories": {
     "correctness": "error",
     "suspicious": "warn",
@@ -29,6 +29,31 @@
           "match": true
         }
       }
-    ]
+    ],
+    "jsdoc/check-property-names": "error",
+    "jsdoc/check-tag-names": [
+      "error",
+      {
+        "typed": true,
+        "definedTags": ["schema"]
+      }
+    ],
+    "jsdoc/require-param": [
+      "error",
+      {
+        "checkDestructuredRoots": false,
+        "checkRestProperty": false,
+        "checkConstructors": false
+      }
+    ],
+    "jsdoc/require-returns": [
+      "error",
+      {
+        "forceReturnsWithAsync": false,
+        "checkConstructors": false
+      }
+    ],
+    "jsdoc/require-param-description": "warn",
+    "jsdoc/require-returns-description": "warn"
   }
 }

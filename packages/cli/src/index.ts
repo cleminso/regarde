@@ -1,8 +1,10 @@
 #!/usr/bin/env node
+import "dotenv/config";
+
 import { ArgParser } from "@alcyone-labs/arg-parser";
+
 import { loginTool } from "./tools/login.js";
 import { registerAppTool } from "./tools/registerApp.js";
-import "dotenv/config";
 import { signupTool } from "./tools/signup.js";
 
 const cli = new ArgParser({

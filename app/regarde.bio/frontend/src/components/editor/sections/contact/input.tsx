@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-import { Input } from '../../../ui';
+import { Input } from "../../../ui";
 
 export type ContactInputProps = {
   id: string;
@@ -29,18 +29,14 @@ export function ContactInput({
   return (
     <div className="border-input bg-background flex items-center overflow-hidden rounded-md border">
       <div className="bg-muted border-border flex items-center border-r px-3 py-3">
-        <div className="text-muted-foreground mr-2 h-4 w-4 shrink-0">
-          {icon}
-        </div>
+        <div className="text-muted-foreground mr-2 h-4 w-4 shrink-0">{icon}</div>
         <span className="text-muted-foreground text-sm">{prefix}</span>
       </div>
       <Input
         type="text"
         id={id}
         value={value}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          onChange(e.target.value)
-        }
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
         onFocus={handleFocus}
         placeholder={placeholder}
         className="flex-1 border-0 bg-transparent"

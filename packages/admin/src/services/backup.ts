@@ -1,12 +1,3 @@
-import { Loaded } from "jazz-tools";
-import {
-  RegistryWorkerAccount,
-  type TNicknameRegistry,
-  type TReverseNicknameRegistry,
-} from "@regarde-dev/core";
-import { BackupServiceInterface, BackupInfo } from "../types/services.js";
-import { AuditService } from "./audit.js";
-import { Logger } from "../utils/logger.js";
 import {
   writeFileSync,
   readFileSync,
@@ -16,8 +7,21 @@ import {
   statSync,
   unlinkSync,
 } from "fs";
-import { createInterface } from "readline";
 import { join } from "path";
+import { createInterface } from "readline";
+
+import { Loaded } from "jazz-tools";
+
+import {
+  RegistryWorkerAccount,
+  type TNicknameRegistry,
+  type TReverseNicknameRegistry,
+} from "@regarde-dev/core";
+
+import { BackupServiceInterface, BackupInfo } from "../types/services.js";
+import { Logger } from "../utils/logger.js";
+
+import { AuditService } from "./audit.js";
 
 const BACKUP_DIR = "registry-backups";
 
@@ -45,10 +49,7 @@ export class BackupService implements BackupServiceInterface {
       mkdirSync(BACKUP_DIR, { recursive: true });
     }
 
-    const timestamp = new Date()
-      .toISOString()
-      .replace(/[:.]/g, "-")
-      .slice(0, -5);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, -5);
     const filename = `registry-backup-${timestamp}.json`;
     const filepath = join(BACKUP_DIR, filename);
 
@@ -70,9 +71,7 @@ export class BackupService implements BackupServiceInterface {
 
     writeFileSync(filepath, JSON.stringify(backupData, null, 2));
     Logger.info(`Backup created: ${filepath}`);
-    Logger.info(
-      `Backed up ${totalNicknames} nicknames and ${totalAccounts} account mappings`,
-    );
+    Logger.info(`Backed up ${totalNicknames} nicknames and ${totalAccounts} account mappings`);
     return filepath;
   }
 
@@ -89,8 +88,7 @@ export class BackupService implements BackupServiceInterface {
       const fileContent = readFileSync(backupFile, "utf-8");
       backupData = JSON.parse(fileContent);
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       throw new Error(`Failed to read backup file: ${errorMessage}`, {
         cause: error,
       });
@@ -103,9 +101,7 @@ export class BackupService implements BackupServiceInterface {
     const registryEntries = Object.entries(backupData.registry);
     for (const [nickname, accountId] of registryEntries) {
       if (backupData.reverseRegistry[accountId] !== nickname) {
-        throw new Error(
-          `Data inconsistency: ${nickname} -> ${accountId} not properly reversed`,
-        );
+        throw new Error(`Data inconsistency: ${nickname} -> ${accountId} not properly reversed`);
       }
     }
 
@@ -119,9 +115,7 @@ export class BackupService implements BackupServiceInterface {
     for (const [nickname, accountId] of Object.entries(backupData.registry)) {
       this.nicknameRegistry.$jazz.set(nickname, accountId);
     }
-    for (const [accountId, nickname] of Object.entries(
-      backupData.reverseRegistry,
-    )) {
+    for (const [accountId, nickname] of Object.entries(backupData.reverseRegistry)) {
       this.reverseNicknameRegistry.$jazz.set(accountId, nickname);
     }
 
@@ -264,9 +258,7 @@ export class BackupService implements BackupServiceInterface {
       }
     }
 
-    backups.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
+    backups.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return { backups };
   }
 
@@ -282,9 +274,7 @@ export class BackupService implements BackupServiceInterface {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
 
-    const files = readdirSync(BACKUP_DIR).filter((file) =>
-      file.endsWith(".json"),
-    );
+    const files = readdirSync(BACKUP_DIR).filter((file) => file.endsWith(".json"));
     const deletedFiles: string[] = [];
 
     for (const file of files) {

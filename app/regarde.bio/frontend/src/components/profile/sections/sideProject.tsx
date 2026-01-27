@@ -1,9 +1,9 @@
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import type { RegardeProfile, SideProject } from "#/lib/schema";
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import type { RegardeProfile, SideProject } from '#/lib/schema';
-import { formatYearString, getValidUrl } from '#/lib/utils/utils';
+import { Button } from "#/components/ui/button";
+import { formatYearString, getValidUrl } from "#/lib/utils/utils";
 
 type SideProjectsProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -32,16 +32,13 @@ export function SideProjects({ profile }: SideProjectsProps) {
         <div className="space-y-6">
           {sideProjects.map((sideProject: any) => {
             const displayTitle = sideProject.client
-              ? `${sideProject.title || 'Untitled Side Project'} @${sideProject.client}`
-              : sideProject.title || 'Untitled Side Project';
+              ? `${sideProject.title || "Untitled Side Project"} @${sideProject.client}`
+              : sideProject.title || "Untitled Side Project";
 
             const sideProjectLink = getValidUrl(sideProject.url);
 
             return (
-              <div
-                key={sideProject.$jazz.id}
-                className="flex flex-col gap-3 pb-4"
-              >
+              <div key={sideProject.$jazz.id} className="flex flex-col gap-3 pb-4">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground font-sans text-sm">

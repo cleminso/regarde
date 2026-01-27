@@ -1,14 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useEffect, useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useEffect, useState } from "react";
 
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useSpeaking } from '#/lib/hook/useSpeaking';
-import { RegardeProfile, Speaking } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils/utils';
-import { Input, Textarea } from '../../../ui/index';
-import { EditorFooter } from '../../layout/footer';
-import { SectionHeader } from '../../layout/header';
-import { SelectorDate } from '../../shared/selectorDate';
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useSpeaking } from "#/lib/hook/useSpeaking";
+import { RegardeProfile, Speaking } from "#/lib/schema";
+import { getValidUrl } from "#/lib/utils/utils";
+
+import { Input, Textarea } from "../../../ui/index";
+import { EditorFooter } from "../../layout/footer";
+import { SectionHeader } from "../../layout/header";
+import { SelectorDate } from "../../shared/selectorDate";
 
 type SpeakingEditProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -31,35 +32,35 @@ export function SpeakingEdit({
 
   const currentYear = new Date().getFullYear().toString();
 
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [year, setYear] = useState(currentYear);
-  const [event, setEvent] = useState('');
-  const [location, setLocation] = useState('');
-  const [url, setUrl] = useState('');
-  const [description, setDescription] = useState('');
+  const [event, setEvent] = useState("");
+  const [location, setLocation] = useState("");
+  const [url, setUrl] = useState("");
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     if (speakingToEdit) {
-      setTitle(speakingToEdit.title || '');
+      setTitle(speakingToEdit.title || "");
       setYear(speakingToEdit.year || currentYear);
-      setEvent(speakingToEdit.event || '');
-      setLocation(speakingToEdit.location || '');
-      setUrl(speakingToEdit.url || '');
-      setDescription(speakingToEdit.description || '');
+      setEvent(speakingToEdit.event || "");
+      setLocation(speakingToEdit.location || "");
+      setUrl(speakingToEdit.url || "");
+      setDescription(speakingToEdit.description || "");
     } else {
-      setTitle('');
+      setTitle("");
       setYear(currentYear);
-      setEvent('');
-      setLocation('');
-      setUrl('');
-      setDescription('');
+      setEvent("");
+      setLocation("");
+      setUrl("");
+      setDescription("");
     }
   }, [speakingToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
     if (!title.trim()) {
       const shouldContinue = confirm(
-        'Adding a talk title helps visitors understand your speaking topic. Would you like to save anyway?',
+        "Adding a talk title helps visitors understand your speaking topic. Would you like to save anyway?",
       );
       if (!shouldContinue) return;
     }
@@ -106,16 +107,14 @@ export function SpeakingEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Year
-                </label>
+                <label className="text-foreground block font-sans text-sm">Year</label>
                 <SelectorDate
                   id="speaking-year"
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
                   placeholderOption={{
-                    value: '',
-                    label: 'Select Year',
+                    value: "",
+                    label: "Select Year",
                     disabled: true,
                   }}
                   buttonDisplayValue={year || currentYear}
@@ -127,9 +126,7 @@ export function SpeakingEdit({
           <section>
             <div className="flex flex-col gap-4 md:flex-row">
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Event
-                </label>
+                <label className="text-foreground block font-sans text-sm">Event</label>
                 <Input
                   type="text"
                   id="speaking-event"
@@ -140,9 +137,7 @@ export function SpeakingEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Location
-                </label>
+                <label className="text-foreground block font-sans text-sm">Location</label>
                 <Input
                   type="text"
                   id="speaking-location"
@@ -156,9 +151,7 @@ export function SpeakingEdit({
 
           <section>
             <div className="flex w-full flex-col gap-2">
-              <label className="text-foreground block font-sans text-sm">
-                URL
-              </label>
+              <label className="text-foreground block font-sans text-sm">URL</label>
               <Input
                 type="text"
                 id="speaking-url"
@@ -171,9 +164,7 @@ export function SpeakingEdit({
 
           <section>
             <div className="flex w-full flex-col gap-2">
-              <label className="text-foreground block font-sans text-sm">
-                Description
-              </label>
+              <label className="text-foreground block font-sans text-sm">Description</label>
               <Textarea
                 id="speaking-description"
                 value={description}
@@ -188,11 +179,11 @@ export function SpeakingEdit({
 
       <EditorFooter
         primaryAction={{
-          text: 'Save',
+          text: "Save",
           onClick: handleSaveAndClose,
         }}
         secondaryAction={{
-          text: 'Cancel',
+          text: "Cancel",
           onClick: onDoneEditing,
         }}
       />

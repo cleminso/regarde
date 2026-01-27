@@ -1,14 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useEffect, useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useEffect, useState } from "react";
 
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useProject } from '#/lib/hook/useProject';
-import { Project, RegardeProfile } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils/utils';
-import { Input, Textarea } from '../../../ui/index';
-import { EditorFooter } from '../../layout/footer';
-import { SectionHeader } from '../../layout/header';
-import { SelectorDate } from '../../shared/selectorDate';
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useProject } from "#/lib/hook/useProject";
+import { Project, RegardeProfile } from "#/lib/schema";
+import { getValidUrl } from "#/lib/utils/utils";
+
+import { Input, Textarea } from "../../../ui/index";
+import { EditorFooter } from "../../layout/footer";
+import { SectionHeader } from "../../layout/header";
+import { SelectorDate } from "../../shared/selectorDate";
 
 type ProjectEditProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -30,32 +31,32 @@ export function ProjectEdit({
 
   const currentYear = new Date().getFullYear().toString();
 
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [year, setYear] = useState(currentYear);
-  const [client, setClient] = useState('');
-  const [link, setLink] = useState('');
-  const [description, setDescription] = useState('');
+  const [client, setClient] = useState("");
+  const [link, setLink] = useState("");
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     if (projectToEdit) {
-      setTitle(projectToEdit.title || '');
+      setTitle(projectToEdit.title || "");
       setYear(projectToEdit.year || currentYear);
-      setClient(projectToEdit.client || '');
-      setLink(projectToEdit.link || '');
-      setDescription(projectToEdit.description || '');
+      setClient(projectToEdit.client || "");
+      setLink(projectToEdit.link || "");
+      setDescription(projectToEdit.description || "");
     } else {
-      setTitle('');
+      setTitle("");
       setYear(currentYear);
-      setClient('');
-      setLink('');
-      setDescription('');
+      setClient("");
+      setLink("");
+      setDescription("");
     }
   }, [projectToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
     if (!title.trim()) {
       const shouldContinue = confirm(
-        'Adding a project title helps visitors understand what you built. Would you like to save anyway?',
+        "Adding a project title helps visitors understand what you built. Would you like to save anyway?",
       );
       if (!shouldContinue) return;
     }
@@ -79,10 +80,7 @@ export function ProjectEdit({
   return (
     <div className="flex h-full flex-col lg:h-full">
       <div className="mobile-form-bottom flex-1 lg:flex-1 lg:pb-0">
-        <SectionHeader
-          title="Project"
-          description="Showcase your project and contribution."
-        />
+        <SectionHeader title="Project" description="Showcase your project and contribution." />
 
         <div className="space-y-6">
           <section>
@@ -101,20 +99,16 @@ export function ProjectEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Year
-                </label>
+                <label className="text-foreground block font-sans text-sm">Year</label>
                 <SelectorDate
                   id="project-year"
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
                   placeholderOption={{
-                    value: 'ongoing',
-                    label: 'Ongoing',
+                    value: "ongoing",
+                    label: "Ongoing",
                   }}
-                  buttonDisplayValue={
-                    year === 'ongoing' ? 'Ongoing' : year || currentYear
-                  }
+                  buttonDisplayValue={year === "ongoing" ? "Ongoing" : year || currentYear}
                 />
               </div>
             </div>
@@ -123,9 +117,7 @@ export function ProjectEdit({
           <section>
             <div className="flex flex-col gap-4 md:flex-row">
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Company or client
-                </label>
+                <label className="text-foreground block font-sans text-sm">Company or client</label>
                 <Input
                   type="text"
                   id="project-client"
@@ -136,9 +128,7 @@ export function ProjectEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Link to project
-                </label>
+                <label className="text-foreground block font-sans text-sm">Link to project</label>
                 <Input
                   type="text"
                   id="project-link"
@@ -152,9 +142,7 @@ export function ProjectEdit({
 
           <section className="flex flex-1 flex-col">
             <div className="flex h-full w-full flex-col gap-2">
-              <label className="text-foreground block font-sans text-sm">
-                Description
-              </label>
+              <label className="text-foreground block font-sans text-sm">Description</label>
               <Textarea
                 id="project-description"
                 value={description}
@@ -169,11 +157,11 @@ export function ProjectEdit({
 
       <EditorFooter
         primaryAction={{
-          text: 'Save',
+          text: "Save",
           onClick: handleSaveAndClose,
         }}
         secondaryAction={{
-          text: 'Cancel',
+          text: "Cancel",
           onClick: onDoneEditing,
         }}
       />

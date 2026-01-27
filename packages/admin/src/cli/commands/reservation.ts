@@ -1,6 +1,7 @@
-import { withAdminService } from "../types.js";
 import { type ToolConfig } from "@alcyone-labs/arg-parser";
+
 import { Logger } from "../../utils/logger.js";
+import { withAdminService } from "../types.js";
 
 export const reservationCommands: ToolConfig[] = [
   {
@@ -26,32 +27,19 @@ export const reservationCommands: ToolConfig[] = [
         type: "string",
         mandatory: false,
         options: ["--category"],
-        description:
-          "Reservation category (admin, brand, system, offensive, custom)",
+        description: "Reservation category (admin, brand, system, offensive, custom)",
       },
     ],
     handler: async (ctx) => {
       return withAdminService(async (admin) => {
         const category = ctx.args.category || "custom";
-        const validCategories = [
-          "admin",
-          "brand",
-          "system",
-          "offensive",
-          "custom",
-        ];
+        const validCategories = ["admin", "brand", "system", "offensive", "custom"];
 
         if (!validCategories.includes(category)) {
-          throw new Error(
-            `Invalid category. Must be one of: ${validCategories.join(", ")}`,
-          );
+          throw new Error(`Invalid category. Must be one of: ${validCategories.join(", ")}`);
         }
 
-        const result = await admin.reserveNickname(
-          ctx.args.nickname,
-          category,
-          ctx.args.reason,
-        );
+        const result = await admin.reserveNickname(ctx.args.nickname, category, ctx.args.reason);
         Logger.success(
           `Successfully reserved nickname "${ctx.args.nickname}" (category: ${category})`,
         );
@@ -78,9 +66,7 @@ export const reservationCommands: ToolConfig[] = [
     handler: async (ctx) => {
       return withAdminService(async (admin) => {
         const result = await admin.unreserveNickname(ctx.args.nickname);
-        Logger.success(
-          `Successfully unreserved nickname "${ctx.args.nickname}"`,
-        );
+        Logger.success(`Successfully unreserved nickname "${ctx.args.nickname}"`);
         return result;
       });
     },
@@ -95,8 +81,7 @@ export const reservationCommands: ToolConfig[] = [
         type: "string",
         mandatory: false,
         options: ["--category"],
-        description:
-          "Filter by category (admin, brand, system, offensive, custom)",
+        description: "Filter by category (admin, brand, system, offensive, custom)",
       },
     ],
     handler: async (ctx) => {
@@ -104,9 +89,7 @@ export const reservationCommands: ToolConfig[] = [
         const result = await admin.listReservedNicknames(ctx.args.category);
 
         if (result.reservations.length === 0) {
-          const categoryFilter = ctx.args.category
-            ? ` in category "${ctx.args.category}"`
-            : "";
+          const categoryFilter = ctx.args.category ? ` in category "${ctx.args.category}"` : "";
           Logger.info(`No reserved nicknames found${categoryFilter}.`);
           return result;
         }
@@ -148,16 +131,12 @@ export const reservationCommands: ToolConfig[] = [
           Logger.warning(`Nickname "${ctx.args.nickname}" is RESERVED`);
           console.log(`  Category: ${result.reservation.category}`);
           console.log(`  Reserved by: ${result.reservation.reservedBy}`);
-          console.log(
-            `  Reserved at: ${new Date(result.reservation.reservedAt).toLocaleString()}`,
-          );
+          console.log(`  Reserved at: ${new Date(result.reservation.reservedAt).toLocaleString()}`);
           if (result.reservation.reason) {
             console.log(`  Reason: ${result.reservation.reason}`);
           }
         } else {
-          Logger.success(
-            `Nickname "${ctx.args.nickname}" is available (not reserved)`,
-          );
+          Logger.success(`Nickname "${ctx.args.nickname}" is available (not reserved)`);
         }
 
         return result;

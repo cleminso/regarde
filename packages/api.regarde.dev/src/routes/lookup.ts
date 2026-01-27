@@ -1,7 +1,8 @@
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
-import { LookupResponseSchema } from "#/domains/nickname/schemas";
+
 import { ErrorResponseSchema } from "#/domains/common/schemas";
+import { LookupResponseSchema } from "#/domains/nickname/schemas";
 
 export const lookupRoute = createRoute({
   method: "get",

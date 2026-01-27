@@ -1,5 +1,8 @@
-import { z } from "zod";
 import { createHmac, timingSafeEqual } from "node:crypto";
+
+import { Account, Group, ID, Loaded, co } from "jazz-tools";
+import { z } from "zod";
+
 import {
   RegistryWorkerAccount,
   PaymentEvent,
@@ -9,7 +12,6 @@ import {
   TRegistryWorkerAccountRoot,
   useLogging,
 } from "@regarde-dev/core";
-import { Account, Group, ID, Loaded, co } from "jazz-tools";
 
 const logger = useLogging({
   module: __filename,
@@ -166,9 +168,7 @@ export interface StandardPaymentCommand {
   metadata: Record<string, string>;
 }
 
-export const standardizeLemonSqueezy = (
-  payload: TLemonSqueezyPayload,
-): StandardPaymentCommand => {
+export const standardizeLemonSqueezy = (payload: TLemonSqueezyPayload): StandardPaymentCommand => {
   const { event_name, test_mode } = payload.meta;
 
   let status: StandardPaymentCommand["status"] = "pending";
@@ -252,9 +252,7 @@ export const standardizeLemonSqueezy = (
 // 4. Handler
 // ----------------------------------------------------------------------
 
-export const lemonSqueezyWebhookHandler = (
-  worker: Loaded<typeof RegistryWorkerAccount>,
-) => {
+export const lemonSqueezyWebhookHandler = (worker: Loaded<typeof RegistryWorkerAccount>) => {
   return async (c: any) => {
     try {
       const workerId = process.env.REGARDE_REGISTRY_GROUP;
@@ -263,9 +261,7 @@ export const lemonSqueezyWebhookHandler = (
           message: "Starting webhook handler, checking registry group",
           data: { workerId },
         });
-        throw new Error(
-          "Missing `REGARDE_REGISTRY_GROUP` required environment variable",
-        );
+        throw new Error("Missing `REGARDE_REGISTRY_GROUP` required environment variable");
       }
 
       // Capture original state for signature verification by extracting headers, raw body, method, path, content-type
@@ -284,8 +280,7 @@ export const lemonSqueezyWebhookHandler = (
       if (typeof regardeSDKId !== "string") regardeSDKId = undefined;
 
       const appId = parsed.meta.custom_data?.app_id as ID<Account>;
-      const isAppIdValid =
-        appId !== null && appId !== undefined && appId !== "";
+      const isAppIdValid = appId !== null && appId !== undefined && appId !== "";
       if (isAppIdValid === false) {
         logger.error({
           message: "Missing App ID in custom_data",
@@ -332,8 +327,7 @@ export const lemonSqueezyWebhookHandler = (
       });
 
       // Ensure request come from Lemon Squeezy
-      const isSecretValid =
-        typeof app.webhookSecret === "string" && app.webhookSecret !== "";
+      const isSecretValid = typeof app.webhookSecret === "string" && app.webhookSecret !== "";
       if (isSecretValid === false) {
         logger.error({
           message: "App webhookSecret is missing",
@@ -351,11 +345,7 @@ export const lemonSqueezyWebhookHandler = (
       const signaturex = c.req.header("x-signature");
       const signature = signatureX || signaturex || null;
 
-      const isSignatureValid = verifyLemonSqueezySignature(
-        secret,
-        rawBody,
-        signature,
-      );
+      const isSignatureValid = verifyLemonSqueezySignature(secret, rawBody, signature);
       if (!isSignatureValid) {
         logger.error({
           message: "Invalid webhook signature - review misconfiguration",
@@ -372,8 +362,7 @@ export const lemonSqueezyWebhookHandler = (
       const command = standardizeLemonSqueezy(parsed);
 
       //  Need to link payment to user `RegardeSDK` so need RegardeSDK CoValueId to update user's payment history
-      const isRegardeSDKIdValid =
-        regardeSDKId !== undefined && regardeSDKId !== "";
+      const isRegardeSDKIdValid = regardeSDKId !== undefined && regardeSDKId !== "";
       if (isRegardeSDKIdValid === false) {
         logger.error({
           message: "RegardeSDK ID is required in custom_data.regarde_sdk_id",
@@ -383,10 +372,7 @@ export const lemonSqueezyWebhookHandler = (
             customData: parsed.meta.custom_data, // what did Lemon Squeezy actually send?
           },
         });
-        return c.json(
-          { error: "RegardeSDK ID is required in custom_data.regarde_sdk_id" },
-          400,
-        );
+        return c.json({ error: "RegardeSDK ID is required in custom_data.regarde_sdk_id" }, 400);
       }
 
       // Need group for creating `PaymentEvent` CoValue by sharing ownership for `paymentEvents`
@@ -404,10 +390,7 @@ export const lemonSqueezyWebhookHandler = (
             appId,
           },
         });
-        return c.json(
-          { error: "Failed to load registryProfileWorkerGroup" },
-          500,
-        );
+        return c.json({ error: "Failed to load registryProfileWorkerGroup" }, 500);
       }
 
       const workerRoot = worker.root as TRegistryWorkerAccountRoot;
@@ -429,10 +412,7 @@ export const lemonSqueezyWebhookHandler = (
             processedProviderEventsIsLoaded: processedProviderEvents.$isLoaded,
           },
         });
-        return c.json(
-          { error: "processedProviderEvents not available on worker root" },
-          500,
-        );
+        return c.json({ error: "processedProviderEvents not available on worker root" }, 500);
       }
 
       // If event is not in records create `PaymentEvent` and set it into records
@@ -449,8 +429,7 @@ export const lemonSqueezyWebhookHandler = (
           },
         });
         // Branch 1 - Load existing event
-        const existingEventId =
-          processedProviderEvents[prefixedProviderEventUUID];
+        const existingEventId = processedProviderEvents[prefixedProviderEventUUID];
         event = (await PaymentEvent.load(existingEventId, {
           loadAs: worker,
         })) as co.loaded<typeof PaymentEvent>;
@@ -509,10 +488,7 @@ export const lemonSqueezyWebhookHandler = (
 
         await event.$jazz.waitForSync();
 
-        processedProviderEvents.$jazz.set(
-          prefixedProviderEventUUID,
-          event.$jazz.id,
-        );
+        processedProviderEvents.$jazz.set(prefixedProviderEventUUID, event.$jazz.id);
         await processedProviderEvents.$jazz.waitForSync();
         logger.info({
           message: "Payment event created and recorded",
@@ -571,15 +547,8 @@ export const lemonSqueezyWebhookHandler = (
         userPayments.byApp.$jazz.set(app.$jazz.id, {
           prefixedProviderEventUUID: event.$jazz.id,
         });
-      } else if (
-        userPayments.byApp[app.$jazz.id].$jazz.has(
-          prefixedProviderEventUUID,
-        ) === false
-      ) {
-        userPayments.byApp[app.$jazz.id].$jazz.set(
-          prefixedProviderEventUUID,
-          event.$jazz.id,
-        );
+      } else if (userPayments.byApp[app.$jazz.id].$jazz.has(prefixedProviderEventUUID) === false) {
+        userPayments.byApp[app.$jazz.id].$jazz.set(prefixedProviderEventUUID, event.$jazz.id);
         await userPayments.$jazz.waitForSync();
       }
 
@@ -606,15 +575,8 @@ export const lemonSqueezyWebhookHandler = (
           [prefixedProviderEventUUID]: event.$jazz.id,
         });
         await app.$jazz.waitForSync();
-      } else if (
-        appPaymentsByUser[jazzAccountId].$jazz.has(
-          prefixedProviderEventUUID,
-        ) === false
-      ) {
-        appPaymentsByUser[jazzAccountId].$jazz.set(
-          prefixedProviderEventUUID,
-          event.$jazz.id,
-        );
+      } else if (appPaymentsByUser[jazzAccountId].$jazz.has(prefixedProviderEventUUID) === false) {
+        appPaymentsByUser[jazzAccountId].$jazz.set(prefixedProviderEventUUID, event.$jazz.id);
         await app.$jazz.waitForSync();
       }
 

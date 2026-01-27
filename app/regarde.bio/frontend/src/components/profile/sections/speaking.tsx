@@ -1,9 +1,9 @@
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import type { RegardeProfile, Speaking } from "#/lib/schema";
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import type { RegardeProfile, Speaking } from '#/lib/schema';
-import { formatYearString, getValidUrl } from '#/lib/utils/utils';
+import { Button } from "#/components/ui/button";
+import { formatYearString, getValidUrl } from "#/lib/utils/utils";
 
 type SpeakingsProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -12,8 +12,7 @@ type SpeakingsProps = {
 export function Speakings({ profile }: SpeakingsProps) {
   const speakings = profile.speaking?.$isLoaded
     ? profile.speaking.filter(
-        (speaking: any): speaking is Loaded<typeof Speaking> =>
-          speaking?.$isLoaded === true,
+        (speaking: any): speaking is Loaded<typeof Speaking> => speaking?.$isLoaded === true,
       )
     : [];
 
@@ -32,8 +31,8 @@ export function Speakings({ profile }: SpeakingsProps) {
         <div className="space-y-6">
           {speakings.map((speaking: any) => {
             const displayTitle = speaking.event
-              ? `${speaking.title || 'Untitled Talk'} @${speaking.event}`
-              : speaking.title || 'Untitled Talk';
+              ? `${speaking.title || "Untitled Talk"} @${speaking.event}`
+              : speaking.title || "Untitled Talk";
 
             const speakingLink = getValidUrl(speaking.url);
 

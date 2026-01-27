@@ -1,4 +1,5 @@
 import { co, Group, Loaded, z } from "jazz-tools";
+
 import { RegardeSDK, initRegardeSDK } from "@regarde-dev/core";
 
 export const SocialLinks = co.map({
@@ -164,9 +165,10 @@ export const RegardeProfile = co.map({
   version: z.number(),
 });
 
-export function validateRegardeProfile(
-  profile: Loaded<typeof RegardeProfile>,
-): { isValid: boolean; message?: string } {
+export function validateRegardeProfile(profile: Loaded<typeof RegardeProfile>): {
+  isValid: boolean;
+  message?: string;
+} {
   if (!profile.name || profile.name.trim() === "") {
     return {
       isValid: false,
@@ -268,9 +270,7 @@ export const RegardeAccount = co
 
     // First initialization for older accounts
     if (
-      (root["regarde.bio"] &&
-        root["regarde.bio"].$isLoaded &&
-        root["regarde.bio"].version === 0) ||
+      (root["regarde.bio"] && root["regarde.bio"].$isLoaded && root["regarde.bio"].version === 0) ||
       root["regarde-sdk"] === undefined ||
       !root["regarde-sdk"].$isLoaded ||
       root["regarde-sdk"].version < 1
@@ -295,10 +295,7 @@ export const RegardeAccount = co
 
       await account.$jazz.waitForSync();
 
-      console.log(
-        "regarde.bio namespace profile data created:",
-        regardeProfile.$jazz.id,
-      );
+      console.log("regarde.bio namespace profile data created:", regardeProfile.$jazz.id);
 
       profile.$jazz.set("regarde.bio", regardeProfile.$jazz.id);
 

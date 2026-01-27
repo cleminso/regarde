@@ -1,17 +1,16 @@
 import { ToolConfig, SimpleChalk } from "@alcyone-labs/arg-parser";
-import inquirer from "inquirer";
-import { getStoredCredentials } from "../auth.js";
-import { startWorker } from "jazz-tools/worker";
-import { RegardeAccount } from "@regarde-dev/core";
-import { authStorage } from "../utils/storage.js";
-import { hasMinimumWords } from "../utils/passphraseAuth.js";
-
 import { mnemonicToEntropy, validateMnemonic } from "@scure/bip39";
-
-import { NapiCrypto } from "jazz-tools/napi";
-
 import { wordlist } from "@scure/bip39/wordlists/english.js";
+import inquirer from "inquirer";
+import { NapiCrypto } from "jazz-tools/napi";
+import { startWorker } from "jazz-tools/worker";
 import { z } from "zod";
+
+import { RegardeAccount } from "@regarde-dev/core";
+
+import { getStoredCredentials } from "../auth.js";
+import { hasMinimumWords } from "../utils/passphraseAuth.js";
+import { authStorage } from "../utils/storage.js";
 
 const crypto = await NapiCrypto.create();
 
@@ -51,12 +50,9 @@ export const loginTool: ToolConfig = {
       console.log(SimpleChalk.green(`Already logged in as ${creds.accountID}`));
 
       try {
-        const syncServer =
-          process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
+        const syncServer = process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
         const apiKey = process.env.JAZZ_API_KEY;
-        const syncServerWithKey = apiKey
-          ? `${syncServer}?apiKey=${apiKey}`
-          : syncServer;
+        const syncServerWithKey = apiKey ? `${syncServer}?apiKey=${apiKey}` : syncServer;
 
         await startWorker({
           AccountSchema: RegardeAccount,
@@ -74,11 +70,7 @@ export const loginTool: ToolConfig = {
           },
         };
       } catch {
-        console.error(
-          SimpleChalk.red(
-            "Stored credentials are invalid. Please login again.",
-          ),
-        );
+        console.error(SimpleChalk.red("Stored credentials are invalid. Please login again."));
       }
     }
 
@@ -126,8 +118,7 @@ export const loginTool: ToolConfig = {
     const seed = mnemonicToEntropy(passphrase, wordlist);
     const accountSecret = crypto.agentSecretFromSecretSeed(seed);
 
-    const syncServer =
-      process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
+    const syncServer = process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
     const apiKey = process.env.JAZZ_API_KEY || "clem2inso@gmail.com";
     const syncServerWithKey = `${syncServer}?apiKey=${apiKey}`;
 
@@ -170,8 +161,7 @@ export const loginTool: ToolConfig = {
         },
       };
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
 
       if (errorMessage.includes("accountSecret")) {
         console.error(SimpleChalk.red("Authentication failed"));

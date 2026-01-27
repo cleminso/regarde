@@ -3,7 +3,7 @@ import { co, z } from "jazz-tools";
 /**
  * Audit record for registry changes.
  *
- * Fields:
+ * @schema
  * - `monotonicId`: Sequential ID for ordering audit entries
  * - `timestamp`: Unix timestamp of change
  * - `jazzAccountId`: Account affected by change
@@ -25,9 +25,7 @@ export const RegistryAuditEntryCoMap = co.map({
   source: z.enum(["admin-cli", "user-app", "worker"]),
   action: z.enum(["add", "update", "remove", "reserve", "unreserve"]),
   reservationReason: z.optional(z.string()),
-  reservationCategory: z.optional(
-    z.enum(["admin", "brand", "system", "offensive", "custom"]),
-  ),
+  reservationCategory: z.optional(z.enum(["admin", "brand", "system", "offensive", "custom"])),
 });
 
 /** Loaded RegistryAuditEntry instance */

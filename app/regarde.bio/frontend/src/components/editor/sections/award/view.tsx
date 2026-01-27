@@ -1,13 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useState } from "react";
 
-import { Button, DestructiveConfirmationDialog } from '#/components/ui';
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useAward } from '#/lib/hook/useAward.ts';
-import { Award, ListOfAward, RegardeProfile } from '#/lib/schema';
-import { EditorFooter } from '../../index';
-import { SectionHeader } from './../../layout/header';
-import { AwardCard } from './card';
+import { Button, DestructiveConfirmationDialog } from "#/components/ui";
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useAward } from "#/lib/hook/useAward.ts";
+import { Award, ListOfAward, RegardeProfile } from "#/lib/schema";
+
+import { EditorFooter } from "../../index";
+
+import { SectionHeader } from "./../../layout/header";
+import { AwardCard } from "./card";
 
 type AwardViewProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -59,7 +61,7 @@ export function AwardView({
   };
 
   const getAwardDisplayName = (award: Loaded<typeof Award>) => {
-    return award.$isLoaded ? award.title || 'Untitled Award' : 'Untitled Award';
+    return award.$isLoaded ? award.title || "Untitled Award" : "Untitled Award";
   };
 
   return (
@@ -85,10 +87,7 @@ export function AwardView({
         {awards && awards.length > 0 && (
           <div className="space-y-6 pb-4">
             {awards
-              .filter(
-                (award): award is Loaded<typeof Award> =>
-                  award?.$isLoaded === true,
-              )
+              .filter((award): award is Loaded<typeof Award> => award?.$isLoaded === true)
               .map((award) => (
                 <AwardCard
                   key={award.$jazz.id}
@@ -104,7 +103,7 @@ export function AwardView({
       <div className="shrink-0">
         <EditorFooter
           primaryAction={{
-            text: 'Done',
+            text: "Done",
             onClick: handleClose,
           }}
         />
@@ -117,7 +116,7 @@ export function AwardView({
         description={
           deleteConfirmation.award ? (
             <>
-              Are you sure you want to delete the award{' '}
+              Are you sure you want to delete the award{" "}
               <strong>{getAwardDisplayName(deleteConfirmation.award)}</strong>
               ?
               <br />

@@ -1,5 +1,6 @@
 import { co } from "jazz-tools";
 import { z } from "zod";
+
 import { AppRegistry, AppsByUserRecord, AllRegistryAppsSchema } from "./app";
 import { RegistryAuditLog } from "./audit";
 import {
@@ -21,7 +22,7 @@ export const ProcessedProviderEvents = co.record(z.string(), z.string());
 /**
  * Root schema containing all registry components.
  *
- * Fields:
+ * @schema
  * - `registry`: Nickname to account ID mapping
  * - `reverseRegistry`: Account ID to nickname mapping
  * - `auditLog`: Complete change history
@@ -39,9 +40,7 @@ export const RegistryWorkerAccountRoot = co.map({
 });
 
 /** Loaded RegistryWorkerAccountRoot instance */
-export type TRegistryWorkerAccountRoot = co.loaded<
-  typeof RegistryWorkerAccountRoot
->;
+export type TRegistryWorkerAccountRoot = co.loaded<typeof RegistryWorkerAccountRoot>;
 
 const EmptyProfile = co.profile();
 
@@ -51,7 +50,7 @@ const EmptyProfile = co.profile();
  * Handles all nickname operations with audit trails.
  * Profile is empty placeholder (worker has no personal profile).
  *
- * Fields:
+ * @schema
  * - `profile`: Empty placeholder
  * - `root`: Registry data structures
  */
@@ -139,10 +138,7 @@ export const RegistryWorkerAccount = co
 
       if (loadedAccount.root.processedProviderEvents === undefined) {
         const newProcessedProviderEvents = ProcessedProviderEvents.create({});
-        loadedAccount.root.$jazz.set(
-          "processedProviderEvents",
-          newProcessedProviderEvents,
-        );
+        loadedAccount.root.$jazz.set("processedProviderEvents", newProcessedProviderEvents);
         console.log("ProcessedProviderEvents created in worker account root.");
       }
 
@@ -150,10 +146,8 @@ export const RegistryWorkerAccount = co
     } catch (e) {
       console.log("EnsureLoaded Root failed, fallback", account, e);
 
-      const accountRootExists =
-        account.root !== undefined && account.root !== null;
-      const rootLoaded =
-        accountRootExists === true && account.root.$isLoaded === true;
+      const accountRootExists = account.root !== undefined && account.root !== null;
+      const rootLoaded = accountRootExists === true && account.root.$isLoaded === true;
 
       if (rootLoaded === false) {
         const newRoot = RegistryWorkerAccountRoot.create({
@@ -179,16 +173,12 @@ export const RegistryWorkerAccount = co
         if (account.root.registry === undefined) {
           const newRegistry = NicknameRegistryCoRecord.create({});
           account.root.$jazz.set("registry", newRegistry);
-          console.log(
-            "NicknameRegistry created in existing root during fallback.",
-          );
+          console.log("NicknameRegistry created in existing root during fallback.");
         }
         if (account.root.reverseRegistry === undefined) {
           const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
           account.root.$jazz.set("reverseRegistry", newReverseRegistry);
-          console.log(
-            "ReverseNicknameRegistry created in existing root during fallback.",
-          );
+          console.log("ReverseNicknameRegistry created in existing root during fallback.");
         }
         if (account.root.auditLog === undefined) {
           const newAuditLog = RegistryAuditLog.create([]);
@@ -198,9 +188,7 @@ export const RegistryWorkerAccount = co
         if (account.root.reservedNicknames === undefined) {
           const newReservedNicknames = ReservedNicknamesRegistry.create({});
           account.root.$jazz.set("reservedNicknames", newReservedNicknames);
-          console.log(
-            "ReservedNicknames created in existing root during fallback.",
-          );
+          console.log("ReservedNicknames created in existing root during fallback.");
         }
         if (account.root.apps === undefined) {
           const newAppsRegistry = AppRegistry.create({
@@ -216,13 +204,8 @@ export const RegistryWorkerAccount = co
 
         if (account.root.processedProviderEvents === undefined) {
           const newProcessedProviderEvents = ProcessedProviderEvents.create({});
-          account.root.$jazz.set(
-            "processedProviderEvents",
-            newProcessedProviderEvents,
-          );
-          console.log(
-            "ProcessedProviderEvents created in existing root during fallback.",
-          );
+          account.root.$jazz.set("processedProviderEvents", newProcessedProviderEvents);
+          console.log("ProcessedProviderEvents created in existing root during fallback.");
         }
       }
     }

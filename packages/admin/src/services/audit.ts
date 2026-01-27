@@ -1,11 +1,13 @@
 import { Loaded } from "jazz-tools";
 import { ulid } from "ulidx";
+
 import {
   RegistryAuditEntryCoMap,
   RegistryWorkerAccount,
   type TRegistryAuditEntry,
   type TRegistryAuditLog,
 } from "@regarde-dev/core";
+
 import { AuditServiceInterface } from "../types/services.js";
 import { Logger } from "../utils/logger.js";
 
@@ -15,14 +17,10 @@ function isLoadedAuditEntry(entry: unknown): entry is TRegistryAuditEntry {
     $isLoaded?: boolean;
   };
 
-  return (
-    maybeEntry.$isLoaded === true && typeof maybeEntry.timestamp === "number"
-  );
+  return maybeEntry.$isLoaded === true && typeof maybeEntry.timestamp === "number";
 }
 
-function sortByTimestampDesc(
-  entries: readonly TRegistryAuditEntry[],
-): TRegistryAuditEntry[] {
+function sortByTimestampDesc(entries: readonly TRegistryAuditEntry[]): TRegistryAuditEntry[] {
   return [...entries].sort((a, b) => b.timestamp - a.timestamp);
 }
 
@@ -77,12 +75,9 @@ export class AuditService implements AuditServiceInterface {
       this.auditLog.$jazz.push(entry);
 
       await this.auditLog.$jazz.waitForSync();
-      Logger.debug(
-        `Audit entry created successfully, total entries: ${this.auditLog.length}`,
-      );
+      Logger.debug(`Audit entry created successfully, total entries: ${this.auditLog.length}`);
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       Logger.error(`Failed to log audit entry: ${errorMessage}`);
     }
   }
@@ -100,16 +95,13 @@ export class AuditService implements AuditServiceInterface {
       Logger.debug(`Retrieved ${sortedEntries.length} audit entries`);
       return sortedEntries;
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       Logger.error(`Failed to retrieve audit history: ${errorMessage}`);
       return [];
     }
   }
 
-  async getHistoryForAccount(
-    accountId: string,
-  ): Promise<TRegistryAuditEntry[]> {
+  async getHistoryForAccount(accountId: string): Promise<TRegistryAuditEntry[]> {
     try {
       Logger.debug(`Searching audit history for account: ${accountId}`);
 
@@ -118,37 +110,26 @@ export class AuditService implements AuditServiceInterface {
         .filter((entry) => entry.jazzAccountId === accountId);
 
       const sortedEntries = sortByTimestampDesc(entries);
-      Logger.debug(
-        `Found ${sortedEntries.length} audit entries for account: ${accountId}`,
-      );
+      Logger.debug(`Found ${sortedEntries.length} audit entries for account: ${accountId}`);
       return sortedEntries;
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       Logger.error(`Failed to retrieve account history: ${errorMessage}`);
       return [];
     }
   }
 
-  async getHistoryForNickname(
-    nickname: string,
-  ): Promise<TRegistryAuditEntry[]> {
+  async getHistoryForNickname(nickname: string): Promise<TRegistryAuditEntry[]> {
     try {
       const entries = [...this.auditLog]
         .filter(isLoadedAuditEntry)
-        .filter(
-          (entry) =>
-            entry.oldNickname === nickname || entry.newNickname === nickname,
-        );
+        .filter((entry) => entry.oldNickname === nickname || entry.newNickname === nickname);
 
       const sortedEntries = sortByTimestampDesc(entries);
-      Logger.debug(
-        `Found ${sortedEntries.length} audit entries for nickname: ${nickname}`,
-      );
+      Logger.debug(`Found ${sortedEntries.length} audit entries for nickname: ${nickname}`);
       return sortedEntries;
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       Logger.error(`Failed to retrieve nickname history: ${errorMessage}`);
       return [];
     }
@@ -165,13 +146,10 @@ export class AuditService implements AuditServiceInterface {
 
       const sortedEntries = sortByTimestampDesc(entries).slice(0, limit);
 
-      Logger.debug(
-        `Found ${sortedEntries.length} audit entries for source: ${source}`,
-      );
+      Logger.debug(`Found ${sortedEntries.length} audit entries for source: ${source}`);
       return sortedEntries;
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       Logger.error(`Failed to retrieve source history: ${errorMessage}`);
       return [];
     }

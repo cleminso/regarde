@@ -1,6 +1,7 @@
+import { resolve } from "path";
+
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
-import { resolve } from "path";
 
 export default defineConfig({
   plugins: [
@@ -30,13 +31,7 @@ export default defineConfig({
     },
     rollupOptions: {
       treeshake: true,
-      external: [
-        "jazz-tools",
-        "@regarde-dev/core",
-        "zod",
-        "ulidx",
-        "@hono/zod-openapi",
-      ],
+      external: ["jazz-tools", "@regarde-dev/core", "zod", "ulidx", "@hono/zod-openapi"],
     },
   },
 });

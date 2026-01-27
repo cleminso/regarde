@@ -1,11 +1,10 @@
 import { type ToolConfig, SimpleChalk } from "@alcyone-labs/arg-parser";
 import fetch from "node-fetch";
-import {
-  loadAuthenticatedRegardeSDK,
-  getAuthenticationHeaders,
-} from "../authUtils.js";
-import { createApp } from "@regarde-dev/core";
 import { z } from "zod";
+
+import { createApp } from "@regarde-dev/core";
+
+import { loadAuthenticatedRegardeSDK, getAuthenticationHeaders } from "../authUtils.js";
 
 interface RegisterAppResponse {
   appId?: string;
@@ -66,9 +65,7 @@ export const registerAppTool: ToolConfig = {
       if (!account.$isLoaded)
         throw new Error("Account not loaded after loadAuthenticatedRegardeSDK");
       if (!account.root.$isLoaded)
-        throw new Error(
-          "Account root not loaded after loadAuthenticatedRegardeSDK",
-        );
+        throw new Error("Account root not loaded after loadAuthenticatedRegardeSDK");
 
       const app = await createApp(account, {
         name: ctx.args.name,
@@ -99,9 +96,7 @@ export const registerAppTool: ToolConfig = {
 
         if (response.status === 401 || response.status === 403) {
           console.error(SimpleChalk.red("Authentication failed"));
-          console.error(
-            SimpleChalk.grey("  Run 'regarde login' to refresh your session"),
-          );
+          console.error(SimpleChalk.grey("  Run 'regarde login' to refresh your session"));
           throw new Error("Authentication failed");
         }
 
@@ -114,28 +109,21 @@ export const registerAppTool: ToolConfig = {
         if (response.status === 404) {
           console.error(SimpleChalk.red("API endpoint not found"));
           console.error(
-            SimpleChalk.grey(
-              "  Make sure the API server is running at http://localhost:3000",
-            ),
+            SimpleChalk.grey("  Make sure the API server is running at http://localhost:3000"),
           );
           throw new Error("API endpoint not found");
         }
 
         if (response.status >= 500) {
           console.error(SimpleChalk.red("Server error"));
-          console.error(
-            SimpleChalk.yellow(`  Status: ${response.status} - ${errorText}`),
-          );
+          console.error(SimpleChalk.yellow(`  Status: ${response.status} - ${errorText}`));
           console.error(SimpleChalk.grey("  Try again or contact support"));
           throw new Error(`Server error: ${response.status}`);
         }
 
         // Generic error for other status codes
         console.error(SimpleChalk.red("API request failed"));
-        console.error(
-          SimpleChalk.yellow(`  Status: ${response.status}`),
-          errorText,
-        );
+        console.error(SimpleChalk.yellow(`  Status: ${response.status}`), errorText);
         throw new Error(`API Error ${response.status}: ${errorText}`);
       }
 
@@ -143,14 +131,10 @@ export const registerAppTool: ToolConfig = {
 
       // Validate response structure
       const responseDataValid =
-        data.appId !== null &&
-        data.webhookUrl !== null &&
-        data.webhookSecret !== null;
+        data.appId !== null && data.webhookUrl !== null && data.webhookSecret !== null;
       if (responseDataValid === false) {
         console.error(SimpleChalk.red("Invalid API response format"));
-        console.error(
-          SimpleChalk.yellow("  Expected: appId, webhookUrl, webhookSecret"),
-        );
+        console.error(SimpleChalk.yellow("  Expected: appId, webhookUrl, webhookSecret"));
         throw new Error("Invalid API response format");
       }
 
@@ -161,9 +145,7 @@ export const registerAppTool: ToolConfig = {
       console.log(SimpleChalk.gray(`  Webhook URL: ${data.webhookUrl}`));
       console.log(SimpleChalk.gray(`  Webhook Secret: ${data.webhookSecret}`));
 
-      console.log(
-        SimpleChalk.green("App is now available for payment subscriptions"),
-      );
+      console.log(SimpleChalk.green("App is now available for payment subscriptions"));
 
       return {
         ok: true,
@@ -175,32 +157,18 @@ export const registerAppTool: ToolConfig = {
         },
       };
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
 
       // Categorize and display appropriate error messages
-      if (
-        errorMessage.includes("Authentication") ||
-        errorMessage.includes("Not logged in")
-      ) {
+      if (errorMessage.includes("Authentication") || errorMessage.includes("Not logged in")) {
         console.error(SimpleChalk.red("Authentication failed"));
-        console.error(
-          SimpleChalk.yellow("  Run 'regarde login' to refresh your session"),
-        );
-      } else if (
-        errorMessage.includes("fetch") ||
-        errorMessage.includes("ECONNREFUSED")
-      ) {
+        console.error(SimpleChalk.yellow("  Run 'regarde login' to refresh your session"));
+      } else if (errorMessage.includes("fetch") || errorMessage.includes("ECONNREFUSED")) {
         console.error(SimpleChalk.red("Failed to connect to API"));
         console.error(
-          SimpleChalk.yellow(
-            "  Make sure the API server is running at http://localhost:3000",
-          ),
+          SimpleChalk.yellow("  Make sure the API server is running at http://localhost:3000"),
         );
-      } else if (
-        errorMessage.includes("Network") ||
-        errorMessage.includes("ETIMEDOUT")
-      ) {
+      } else if (errorMessage.includes("Network") || errorMessage.includes("ETIMEDOUT")) {
         console.error(SimpleChalk.red("Network error"));
         console.error(SimpleChalk.yellow("  Check your internet connection"));
       } else {

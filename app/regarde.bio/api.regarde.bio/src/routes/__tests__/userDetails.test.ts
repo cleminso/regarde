@@ -3,10 +3,8 @@
  */
 
 import { describe, it, expect } from "vitest";
-import {
-  createMockUserDetailsRequest,
-  createMockJazzAccount,
-} from "../../test-utils/index.js";
+
+import { createMockUserDetailsRequest, createMockJazzAccount } from "../../test-utils/index.js";
 
 // Simple business logic functions to test user details logic
 function validateUserDetailsRequest(request: any) {
@@ -45,9 +43,7 @@ function getUserDetails(nickname: string, accounts: any[] = []) {
   // Find account by nickname
   const account = accounts.find((acc) => {
     const profile = acc.root["regarde.bio"];
-    return (
-      profile?.userHandle?.nickname?.toLowerCase() === nickname.toLowerCase()
-    );
+    return profile?.userHandle?.nickname?.toLowerCase() === nickname.toLowerCase();
   });
 
   if (!account) {

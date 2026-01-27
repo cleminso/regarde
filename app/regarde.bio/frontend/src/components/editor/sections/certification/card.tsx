@@ -1,10 +1,11 @@
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import { Certification } from '#/lib/schema';
-import { formatDateRange } from '#/lib/utils/utils';
-import { EditorCardActions } from '../../shared/cardActions';
+import { Button } from "#/components/ui/button";
+import { Certification } from "#/lib/schema";
+import { formatDateRange } from "#/lib/utils/utils";
+
+import { EditorCardActions } from "../../shared/cardActions";
 
 type CertificationCardProps = {
   certification: Loaded<typeof Certification>;
@@ -12,12 +13,8 @@ type CertificationCardProps = {
   onDelete: (certification: Loaded<typeof Certification>) => void;
 };
 
-export function CertificationCard({
-  certification,
-  onEdit,
-  onDelete,
-}: CertificationCardProps) {
-  const displayTitle = `${certification.name || 'Untitled Certification'}`;
+export function CertificationCard({ certification, onEdit, onDelete }: CertificationCardProps) {
+  const displayTitle = `${certification.name || "Untitled Certification"}`;
   const dateRange = formatDateRange(certification.issued, certification.expire);
 
   return (
@@ -57,7 +54,7 @@ export function CertificationCard({
             )}
           </div>
           <div className="text-muted-foreground text-sm">
-            {certification.organization || 'Unknown Organization'}
+            {certification.organization || "Unknown Organization"}
           </div>
           {certification.description && (
             <p className="text-muted-foreground text-sm whitespace-pre-line">
@@ -65,11 +62,7 @@ export function CertificationCard({
             </p>
           )}
           <div className="mt-2">
-            <EditorCardActions
-              item={certification}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
+            <EditorCardActions item={certification} onEdit={onEdit} onDelete={onDelete} />
           </div>
         </div>
       </div>

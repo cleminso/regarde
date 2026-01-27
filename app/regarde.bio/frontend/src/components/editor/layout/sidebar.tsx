@@ -1,22 +1,23 @@
-import { ChevronUpIcon } from 'lucide-react';
-import { useState } from 'react';
+import { ChevronUpIcon } from "lucide-react";
+import { useState } from "react";
 
-import { cn } from '#/lib/utils/utils.ts';
-import { Button } from '../../ui/button.tsx';
+import { cn } from "#/lib/utils/utils.ts";
+
+import { Button } from "../../ui/button.tsx";
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from '../../ui/drawer.tsx';
-import { editorSections, SectionType } from '../shared/index.ts';
-import { SyncStateBadge } from '../shared/syncState.tsx';
+} from "../../ui/drawer.tsx";
+import { editorSections, SectionType } from "../shared/index.ts";
+import { SyncStateBadge } from "../shared/syncState.tsx";
 
 type EditorSidebarProps = {
   activeSection: SectionType;
   onSectionChange: (section: SectionType) => void;
-  syncState: 'saved' | 'syncing' | 'error';
+  syncState: "saved" | "syncing" | "error";
 };
 
 type SidebarButtonProps = {
@@ -32,10 +33,10 @@ function SidebarButton({ isActive, onClick, children }: SidebarButtonProps) {
       onClick={onClick}
       size="md"
       className={cn(
-        'w-full justify-start px-4 text-sm font-medium lg:px-6',
+        "w-full justify-start px-4 text-sm font-medium lg:px-6",
         isActive
-          ? 'bg-secondary text-foreground border-border hover:bg-secondary hover:text-foreground cursor-pointer'
-          : 'text-foreground hover:bg-secondary hover:text-foreground cursor-pointer',
+          ? "bg-secondary text-foreground border-border hover:bg-secondary hover:text-foreground cursor-pointer"
+          : "text-foreground hover:bg-secondary hover:text-foreground cursor-pointer",
       )}
     >
       {children}
@@ -44,25 +45,21 @@ function SidebarButton({ isActive, onClick, children }: SidebarButtonProps) {
 }
 
 const sections = [
-  { key: editorSections.general, name: 'General' },
-  { key: editorSections.contact, name: 'Contact' },
-  { key: editorSections.project, name: 'Projects' },
-  { key: editorSections.workExp, name: 'Work Experience' },
-  { key: editorSections.writing, name: 'Writing' },
-  { key: editorSections.education, name: 'Education' },
-  { key: editorSections.certification, name: 'Certifications' },
-  { key: editorSections.speaking, name: 'Speaking' },
-  { key: editorSections.award, name: 'Awards' },
-  { key: editorSections.volunteering, name: 'Volunteering' },
-  { key: editorSections.sideProject, name: 'Side Projects' },
-  { key: editorSections.nowPage, name: 'Now Page' },
+  { key: editorSections.general, name: "General" },
+  { key: editorSections.contact, name: "Contact" },
+  { key: editorSections.project, name: "Projects" },
+  { key: editorSections.workExp, name: "Work Experience" },
+  { key: editorSections.writing, name: "Writing" },
+  { key: editorSections.education, name: "Education" },
+  { key: editorSections.certification, name: "Certifications" },
+  { key: editorSections.speaking, name: "Speaking" },
+  { key: editorSections.award, name: "Awards" },
+  { key: editorSections.volunteering, name: "Volunteering" },
+  { key: editorSections.sideProject, name: "Side Projects" },
+  { key: editorSections.nowPage, name: "Now Page" },
 ];
 
-export function EditorSidebar({
-  activeSection,
-  onSectionChange,
-  syncState,
-}: EditorSidebarProps) {
+export function EditorSidebar({ activeSection, onSectionChange, syncState }: EditorSidebarProps) {
   const [open, setOpen] = useState(false);
 
   const handleSectionChange = (section: SectionType) => {
@@ -79,8 +76,7 @@ export function EditorSidebar({
               <div className="flex flex-col items-start">
                 <span className="text-muted-foreground text-xs">Section</span>
                 <span className="text-foreground text-sm font-medium">
-                  {sections.find((s) => s.key === activeSection)?.name ||
-                    'Profile'}
+                  {sections.find((s) => s.key === activeSection)?.name || "Profile"}
                 </span>
               </div>
               <div className="flex items-center gap-3">
@@ -92,9 +88,7 @@ export function EditorSidebar({
 
           <DrawerContent>
             <DrawerHeader>
-              <DrawerTitle className="text-foreground font-mono">
-                Profile Sections
-              </DrawerTitle>
+              <DrawerTitle className="text-foreground font-mono">Profile Sections</DrawerTitle>
             </DrawerHeader>
 
             <div className="grid grid-cols-2 gap-2 p-4 pb-8">

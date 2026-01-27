@@ -1,21 +1,15 @@
 import { ToolConfig, SimpleChalk } from "@alcyone-labs/arg-parser";
-import { startWorker } from "jazz-tools/worker";
-import {
-  createJazzContextForNewAccount,
-  MockSessionProvider,
-  Peer,
-} from "jazz-tools";
-
+import { generateMnemonic, mnemonicToEntropy } from "@scure/bip39";
+import { wordlist } from "@scure/bip39/wordlists/english.js";
 import { createWebSocketPeer } from "cojson-transport-ws";
+import { createJazzContextForNewAccount, MockSessionProvider, Peer } from "jazz-tools";
+import { NapiCrypto } from "jazz-tools/napi";
+import { startWorker } from "jazz-tools/worker";
+import { z } from "zod";
 
 import { RegardeAccount } from "@regarde-dev/core";
+
 import { authStorage } from "../utils/storage.js";
-
-import { wordlist } from "@scure/bip39/wordlists/english.js";
-import { generateMnemonic, mnemonicToEntropy } from "@scure/bip39";
-
-import { NapiCrypto } from "jazz-tools/napi";
-import { z } from "zod";
 
 const crypto = await NapiCrypto.create();
 const sessionProvider = new MockSessionProvider();
@@ -55,11 +49,7 @@ export const signupTool: ToolConfig = {
     console.log();
     console.log(SimpleChalk.white(`  ${passphrase}`));
     console.log();
-    console.log(
-      SimpleChalk.red(
-        "  IMPORTANT: Save this passphrase now. You cannot recover it!",
-      ),
-    );
+    console.log(SimpleChalk.red("  IMPORTANT: Save this passphrase now. You cannot recover it!"));
     console.log(SimpleChalk.grey("────────────────────────────────────────"));
     console.log();
 
@@ -69,12 +59,9 @@ export const signupTool: ToolConfig = {
     try {
       console.log(SimpleChalk.blue("Creating your account..."));
 
-      const syncServer =
-        process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
+      const syncServer = process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
       const apiKey = process.env.JAZZ_API_KEY;
-      const syncServerWithKey = apiKey
-        ? `${syncServer}?apiKey=${apiKey}`
-        : syncServer;
+      const syncServerWithKey = apiKey ? `${syncServer}?apiKey=${apiKey}` : syncServer;
 
       const peer = createWebSocketPeer({
         id: "upstream",
@@ -121,9 +108,7 @@ export const signupTool: ToolConfig = {
       try {
         await authStorage.set(JSON.stringify(storedCredentials));
         console.log(
-          SimpleChalk.green(
-            "✓ Login credentials saved locally ~/.local/share/regarde/auth.json",
-          ),
+          SimpleChalk.green("✓ Login credentials saved locally ~/.local/share/regarde/auth.json"),
         );
       } catch {
         console.error("Warning: Credentials not saved");
@@ -140,8 +125,7 @@ export const signupTool: ToolConfig = {
         },
       };
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
 
       console.error(SimpleChalk.red("Account creation failed:"), errorMessage);
       console.error("  Check your network connection");

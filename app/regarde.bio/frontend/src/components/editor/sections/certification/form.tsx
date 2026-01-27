@@ -1,14 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useEffect, useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useEffect, useState } from "react";
 
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useCertification } from '#/lib/hook/useCertification';
-import { Certification, RegardeProfile } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils/utils';
-import { Input, Textarea } from '../../../ui/index';
-import { EditorFooter } from '../../layout/footer';
-import { SectionHeader } from '../../layout/header';
-import { SelectorDate } from '../../shared/selectorDate';
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useCertification } from "#/lib/hook/useCertification";
+import { Certification, RegardeProfile } from "#/lib/schema";
+import { getValidUrl } from "#/lib/utils/utils";
+
+import { Input, Textarea } from "../../../ui/index";
+import { EditorFooter } from "../../layout/footer";
+import { SectionHeader } from "../../layout/header";
+import { SelectorDate } from "../../shared/selectorDate";
 
 type CertificationEditProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -30,35 +31,35 @@ export function CertificationEdit({
 
   const currentYear = new Date().getFullYear().toString();
 
-  const [name, setName] = useState('');
-  const [organization, setOrganization] = useState('');
-  const [url, setUrl] = useState('');
-  const [description, setDescription] = useState('');
+  const [name, setName] = useState("");
+  const [organization, setOrganization] = useState("");
+  const [url, setUrl] = useState("");
+  const [description, setDescription] = useState("");
   const [issuedDate, setIssuedDate] = useState(currentYear);
-  const [expireDate, setExpireDate] = useState('');
+  const [expireDate, setExpireDate] = useState("");
 
   useEffect(() => {
     if (certificationToEdit) {
-      setName(certificationToEdit.name || '');
-      setOrganization(certificationToEdit.organization || '');
-      setUrl(certificationToEdit.url || '');
-      setDescription(certificationToEdit.description || '');
+      setName(certificationToEdit.name || "");
+      setOrganization(certificationToEdit.organization || "");
+      setUrl(certificationToEdit.url || "");
+      setDescription(certificationToEdit.description || "");
       setIssuedDate(certificationToEdit.issued || currentYear);
-      setExpireDate(certificationToEdit.expire || '');
+      setExpireDate(certificationToEdit.expire || "");
     } else {
-      setName('');
-      setOrganization('');
-      setUrl('');
-      setDescription('');
+      setName("");
+      setOrganization("");
+      setUrl("");
+      setDescription("");
       setIssuedDate(currentYear);
-      setExpireDate('');
+      setExpireDate("");
     }
   }, [certificationToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
     if (!name.trim()) {
       const shouldContinue = confirm(
-        'Adding the certification name helps visitors understand your credentials. Would you like to save anyway?',
+        "Adding the certification name helps visitors understand your credentials. Would you like to save anyway?",
       );
       if (!shouldContinue) return;
     }
@@ -83,10 +84,7 @@ export function CertificationEdit({
   return (
     <div className="flex h-full flex-col lg:h-full">
       <div className="mobile-form-bottom flex-1 lg:flex-1 lg:pb-0">
-        <SectionHeader
-          title="Certification"
-          description="Add professional certifications."
-        />
+        <SectionHeader title="Certification" description="Add professional certifications." />
 
         <div className="space-y-6">
           <section>
@@ -105,9 +103,7 @@ export function CertificationEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Organization
-                </label>
+                <label className="text-foreground block font-sans text-sm">Organization</label>
                 <Input
                   type="text"
                   id="cert-organization"
@@ -122,32 +118,28 @@ export function CertificationEdit({
           <section>
             <div className="flex flex-col gap-4 md:flex-row">
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Issued
-                </label>
+                <label className="text-foreground block font-sans text-sm">Issued</label>
                 <SelectorDate
                   id="cert-issued-date"
                   value={issuedDate}
                   onChange={(e) => setIssuedDate(e.target.value)}
                   placeholderOption={{
-                    value: '',
-                    label: 'Select Year',
+                    value: "",
+                    label: "Select Year",
                     disabled: true,
                   }}
-                  buttonDisplayValue={issuedDate || 'Select Year'}
+                  buttonDisplayValue={issuedDate || "Select Year"}
                 />
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Expires
-                </label>
+                <label className="text-foreground block font-sans text-sm">Expires</label>
                 <SelectorDate
                   id="cert-expire-date"
                   value={expireDate}
                   onChange={(e) => setExpireDate(e.target.value)}
-                  placeholderOption={{ value: '', label: 'Never expires' }}
-                  buttonDisplayValue={expireDate || 'Never expires'}
+                  placeholderOption={{ value: "", label: "Never expires" }}
+                  buttonDisplayValue={expireDate || "Never expires"}
                 />
               </div>
             </div>
@@ -155,9 +147,7 @@ export function CertificationEdit({
 
           <section>
             <div className="flex w-full flex-col gap-2">
-              <label className="text-foreground block font-sans text-sm">
-                URL
-              </label>
+              <label className="text-foreground block font-sans text-sm">URL</label>
               <Input
                 type="text"
                 id="cert-url"
@@ -170,9 +160,7 @@ export function CertificationEdit({
 
           <section>
             <div className="flex w-full flex-col gap-2">
-              <label className="text-foreground block font-sans text-sm">
-                Description
-              </label>
+              <label className="text-foreground block font-sans text-sm">Description</label>
               <Textarea
                 id="cert-description"
                 value={description}
@@ -187,11 +175,11 @@ export function CertificationEdit({
 
       <EditorFooter
         primaryAction={{
-          text: 'Save',
+          text: "Save",
           onClick: handleSaveAndClose,
         }}
         secondaryAction={{
-          text: 'Cancel',
+          text: "Cancel",
           onClick: onDoneEditing,
         }}
       />

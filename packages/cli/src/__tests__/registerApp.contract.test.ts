@@ -1,8 +1,8 @@
 import { ArgParser } from "@alcyone-labs/arg-parser";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-vi.spyOn(console, "log").mockImplementation(() => { });
-vi.spyOn(console, "error").mockImplementation(() => { });
+vi.spyOn(console, "log").mockImplementation(() => {});
+vi.spyOn(console, "error").mockImplementation(() => {});
 
 vi.mock("../authUtils.js", () => {
   return {
@@ -189,4 +189,3 @@ describe("register-app contract", () => {
     });
   });
 });
-

@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { TEST_PASSPHRASE_24 } from "./testPassphrase.js";
 
-vi.spyOn(console, "log").mockImplementation(() => { });
-vi.spyOn(console, "error").mockImplementation(() => { });
+vi.spyOn(console, "log").mockImplementation(() => {});
+vi.spyOn(console, "error").mockImplementation(() => {});
 
 vi.mock("@scure/bip39", () => {
   return {
@@ -34,7 +34,7 @@ const mockCreateJazzContext = vi.fn(async () => {
     account: {
       $jazz: {
         id: "co_new",
-        waitForAllCoValuesSync: vi.fn(async () => { }),
+        waitForAllCoValuesSync: vi.fn(async () => {}),
       },
     },
   };
@@ -42,7 +42,7 @@ const mockCreateJazzContext = vi.fn(async () => {
 
 vi.mock("jazz-tools", () => {
   return {
-    MockSessionProvider: class MockSessionProvider { },
+    MockSessionProvider: class MockSessionProvider {},
     createJazzContextForNewAccount: mockCreateJazzContext,
   };
 });
@@ -50,7 +50,7 @@ vi.mock("jazz-tools", () => {
 vi.mock("jazz-tools/worker", () => {
   return {
     startWorker: vi.fn(async () => {
-      return { worker: { $jazz: { ensureLoaded: vi.fn(async () => { }) } } };
+      return { worker: { $jazz: { ensureLoaded: vi.fn(async () => {}) } } };
     }),
   };
 });
@@ -58,16 +58,16 @@ vi.mock("jazz-tools/worker", () => {
 vi.mock("../utils/storage.js", () => {
   return {
     authStorage: {
-      set: vi.fn(async () => { }),
+      set: vi.fn(async () => {}),
       get: vi.fn(async () => null),
-      clear: vi.fn(async () => { }),
+      clear: vi.fn(async () => {}),
     },
   };
 });
 
 // Node doesn't have WebSocket in Vitest node env by default
 (globalThis as any).WebSocket = class WebSocket {
-  constructor(_url: string) { }
+  constructor(_url: string) {}
 };
 
 describe("signup contract", () => {
@@ -76,7 +76,7 @@ describe("signup contract", () => {
       account: {
         $jazz: {
           id: "co_new",
-          waitForAllCoValuesSync: vi.fn(async () => { }),
+          waitForAllCoValuesSync: vi.fn(async () => {}),
         },
       },
     });
@@ -100,9 +100,7 @@ describe("signup contract", () => {
   });
 
   it("returns error when account creation fails", async () => {
-    mockCreateJazzContext.mockRejectedValueOnce(
-      new Error("Network connection failed"),
-    );
+    mockCreateJazzContext.mockRejectedValueOnce(new Error("Network connection failed"));
 
     const { signupTool } = await import("../tools/signup.js");
 
@@ -121,4 +119,3 @@ describe("signup contract", () => {
     });
   });
 });
-

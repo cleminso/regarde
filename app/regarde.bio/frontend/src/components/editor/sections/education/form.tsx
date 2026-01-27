@@ -1,14 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useEffect, useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useEffect, useState } from "react";
 
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useEducation } from '#/lib/hook/useEducation';
-import { Education, RegardeProfile } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils/utils';
-import { Input, Textarea } from '../../../ui/index';
-import { EditorFooter } from '../../layout/footer';
-import { SectionHeader } from '../../layout/header';
-import { SelectorDate } from '../../shared/selectorDate';
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useEducation } from "#/lib/hook/useEducation";
+import { Education, RegardeProfile } from "#/lib/schema";
+import { getValidUrl } from "#/lib/utils/utils";
+
+import { Input, Textarea } from "../../../ui/index";
+import { EditorFooter } from "../../layout/footer";
+import { SectionHeader } from "../../layout/header";
+import { SelectorDate } from "../../shared/selectorDate";
 
 type EducationEditProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -30,38 +31,38 @@ export function EducationEdit({
 
   const currentYear = new Date().getFullYear().toString();
 
-  const [degree, setDegree] = useState('');
-  const [institution, setInstitution] = useState('');
-  const [location, setLocation] = useState('');
-  const [url, setUrl] = useState('');
-  const [description, setDescription] = useState('');
+  const [degree, setDegree] = useState("");
+  const [institution, setInstitution] = useState("");
+  const [location, setLocation] = useState("");
+  const [url, setUrl] = useState("");
+  const [description, setDescription] = useState("");
   const [fromDate, setFromDate] = useState(currentYear);
-  const [toDate, setToDate] = useState('');
+  const [toDate, setToDate] = useState("");
 
   useEffect(() => {
     if (educationToEdit) {
-      setDegree(educationToEdit.degree || '');
-      setInstitution(educationToEdit.institution || '');
-      setLocation(educationToEdit.location || '');
-      setUrl(educationToEdit.url || '');
-      setDescription(educationToEdit.description || '');
+      setDegree(educationToEdit.degree || "");
+      setInstitution(educationToEdit.institution || "");
+      setLocation(educationToEdit.location || "");
+      setUrl(educationToEdit.url || "");
+      setDescription(educationToEdit.description || "");
       setFromDate(educationToEdit.from || currentYear);
-      setToDate(educationToEdit.to || '');
+      setToDate(educationToEdit.to || "");
     } else {
-      setDegree('');
-      setInstitution('');
-      setLocation('');
-      setUrl('');
-      setDescription('');
+      setDegree("");
+      setInstitution("");
+      setLocation("");
+      setUrl("");
+      setDescription("");
       setFromDate(currentYear);
-      setToDate('');
+      setToDate("");
     }
   }, [educationToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
     if (!degree.trim()) {
       const shouldContinue = confirm(
-        'Adding your degree helps visitors understand your educational background. Would you like to save anyway?',
+        "Adding your degree helps visitors understand your educational background. Would you like to save anyway?",
       );
       if (!shouldContinue) return;
     }
@@ -109,9 +110,7 @@ export function EducationEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Institution
-                </label>
+                <label className="text-foreground block font-sans text-sm">Institution</label>
                 <Input
                   type="text"
                   id="education-institution"
@@ -126,16 +125,14 @@ export function EducationEdit({
           <section>
             <div className="flex flex-col gap-4 md:flex-row">
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  From
-                </label>
+                <label className="text-foreground block font-sans text-sm">From</label>
                 <SelectorDate
                   id="education-from-date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
                   placeholderOption={{
-                    value: '',
-                    label: 'Select Year',
+                    value: "",
+                    label: "Select Year",
                     disabled: true,
                   }}
                   buttonDisplayValue={fromDate || currentYear}
@@ -143,15 +140,13 @@ export function EducationEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  To
-                </label>
+                <label className="text-foreground block font-sans text-sm">To</label>
                 <SelectorDate
                   id="education-to-date"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
-                  placeholderOption={{ value: '', label: 'Now' }}
-                  buttonDisplayValue={toDate || 'Now'}
+                  placeholderOption={{ value: "", label: "Now" }}
+                  buttonDisplayValue={toDate || "Now"}
                 />
               </div>
             </div>
@@ -160,9 +155,7 @@ export function EducationEdit({
           <section>
             <div className="flex flex-col gap-4 md:flex-row">
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Location
-                </label>
+                <label className="text-foreground block font-sans text-sm">Location</label>
                 <Input
                   type="text"
                   id="education-location"
@@ -173,9 +166,7 @@ export function EducationEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  URL
-                </label>
+                <label className="text-foreground block font-sans text-sm">URL</label>
                 <Input
                   type="text"
                   id="education-url"
@@ -189,9 +180,7 @@ export function EducationEdit({
 
           <section>
             <div className="flex w-full flex-col gap-2">
-              <label className="text-foreground block font-sans text-sm">
-                Description
-              </label>
+              <label className="text-foreground block font-sans text-sm">Description</label>
               <Textarea
                 id="education-description"
                 value={description}
@@ -206,11 +195,11 @@ export function EducationEdit({
 
       <EditorFooter
         primaryAction={{
-          text: 'Save',
+          text: "Save",
           onClick: handleSaveAndClose,
         }}
         secondaryAction={{
-          text: 'Cancel',
+          text: "Cancel",
           onClick: onDoneEditing,
         }}
       />

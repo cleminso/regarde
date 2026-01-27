@@ -1,11 +1,8 @@
 import fs from "fs/promises";
-import path from "path";
 import os from "os";
+import path from "path";
 
-const AUTH_FILE_PATH = path.join(
-  os.homedir(),
-  ".local/share/regarde/auth.json",
-);
+const AUTH_FILE_PATH = path.join(os.homedir(), ".local/share/regarde/auth.json");
 
 export interface AuthCredentials {
   accountID: string;

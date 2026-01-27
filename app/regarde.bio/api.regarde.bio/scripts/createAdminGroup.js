@@ -1,19 +1,17 @@
 import "dotenv/config";
-import { startWorker } from "jazz-tools/worker";
+
 import { Group } from "jazz-tools";
+import { startWorker } from "jazz-tools/worker";
+
 import { ProfileWorkerAccount } from "@regarde-dev/jazz-schemas/regarde.bio";
 
-const JAZZ_SYNC_SERVER_URL =
-  process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
+const JAZZ_SYNC_SERVER_URL = process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
 
 async function createAdminGroup() {
   console.log("[INFO] Creating Jazz Profile Admin Group...");
 
   // Validate environment variables
-  if (
-    !process.env.PROFILE_WORKER_ACCOUNT ||
-    !process.env.PROFILE_WORKER_SECRET
-  ) {
+  if (!process.env.PROFILE_WORKER_ACCOUNT || !process.env.PROFILE_WORKER_SECRET) {
     console.error(
       "[ERROR] PROFILE_WORKER_ACCOUNT and PROFILE_WORKER_SECRET environment variables must be set.",
     );
@@ -32,13 +30,10 @@ async function createAdminGroup() {
       accountID: process.env.PROFILE_WORKER_ACCOUNT,
       accountSecret: process.env.PROFILE_WORKER_SECRET,
       syncServer:
-        JAZZ_SYNC_SERVER_URL +
-        (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
+        JAZZ_SYNC_SERVER_URL + (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
     });
     worker = workerResult.worker;
-    console.log(
-      `[SUCCESS] Worker connected with Account ID: ${worker.$jazz.id}`,
-    );
+    console.log(`[SUCCESS] Worker connected with Account ID: ${worker.$jazz.id}`);
   } catch (error) {
     console.error("[ERROR] Failed to start Jazz worker:", error);
     process.exit(1);

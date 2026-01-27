@@ -1,6 +1,7 @@
 import { co, Group } from "jazz-tools";
-import { RegardeSDK } from "./regardeSDK";
+
 import { initRegardeSDK } from "#core/init";
+import { RegardeSDK } from "./regardeSDK";
 
 /**
  * Regarde account root structure.

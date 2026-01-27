@@ -1,8 +1,10 @@
-import { Loaded } from 'jazz-tools';
+import { Loaded } from "jazz-tools";
 
-import { logger } from '#/lib/utils/logger';
-import { Award, ListOfAward } from '../schema';
-import { BaseHookProps } from './types';
+import { logger } from "#/lib/utils/logger";
+
+import { Award, ListOfAward } from "../schema";
+
+import { BaseHookProps } from "./types";
 
 type UseAwardProps = BaseHookProps;
 
@@ -10,7 +12,7 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
   const ensureAwardsList = (): Loaded<typeof ListOfAward> | undefined => {
     // Handle MaybeLoaded profile
     if (!profile.$isLoaded) {
-      logger.error('Profile is not loaded');
+      logger.error("Profile is not loaded");
       return undefined;
     }
 
@@ -22,12 +24,12 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
     // Create new list if it doesn't exist
     const owner = profile.$jazz.owner;
     if (!owner?.$isLoaded) {
-      logger.error('Cannot create award list: profile owner is not loaded');
+      logger.error("Cannot create award list: profile owner is not loaded");
       return undefined;
     }
 
     const newAwardsList = ListOfAward.create([], { owner });
-    profile.$jazz.set('award', newAwardsList);
+    profile.$jazz.set("award", newAwardsList);
     return newAwardsList;
   };
 
@@ -43,9 +45,7 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
 
     const listOwner = awardsList.$jazz.owner;
     if (!listOwner?.$isLoaded) {
-      logger.error(
-        'Cannot create a new award instance: awardsList.$jazz.owner is not loaded.',
-      );
+      logger.error("Cannot create a new award instance: awardsList.$jazz.owner is not loaded.");
       return undefined;
     }
     const newAward = Award.create(
@@ -74,43 +74,37 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
     },
   ) => {
     if (!awardToUpdate.$isLoaded) {
-      logger.error('Award instance not provided for update.');
+      logger.error("Award instance not provided for update.");
       return;
     }
 
     let changed = false;
 
-    if (
-      awardData.title !== undefined &&
-      awardToUpdate.title !== awardData.title
-    ) {
-      awardToUpdate.$jazz.set('title', awardData.title);
+    if (awardData.title !== undefined && awardToUpdate.title !== awardData.title) {
+      awardToUpdate.$jazz.set("title", awardData.title);
       changed = true;
     }
 
     if (awardData.year !== undefined && awardToUpdate.year !== awardData.year) {
-      awardToUpdate.$jazz.set('year', awardData.year);
+      awardToUpdate.$jazz.set("year", awardData.year);
       changed = true;
     }
 
-    if (
-      awardData.presenter !== undefined &&
-      awardToUpdate.presenter !== awardData.presenter
-    ) {
-      awardToUpdate.$jazz.set('presenter', awardData.presenter);
+    if (awardData.presenter !== undefined && awardToUpdate.presenter !== awardData.presenter) {
+      awardToUpdate.$jazz.set("presenter", awardData.presenter);
       changed = true;
     }
 
-    if (awardData.hasOwnProperty('url')) {
+    if (awardData.hasOwnProperty("url")) {
       if (awardToUpdate.url !== awardData.url) {
-        awardToUpdate.$jazz.set('url', awardData.url);
+        awardToUpdate.$jazz.set("url", awardData.url);
         changed = true;
       }
     }
 
-    if (awardData.hasOwnProperty('description')) {
+    if (awardData.hasOwnProperty("description")) {
       if (awardToUpdate.description !== awardData.description) {
-        awardToUpdate.$jazz.set('description', awardData.description);
+        awardToUpdate.$jazz.set("description", awardData.description);
         changed = true;
       }
     }
@@ -123,12 +117,10 @@ export function useAward({ profile, triggerSyncIndicator }: UseAwardProps) {
   const deleteAward = async (awardId: string) => {
     const awardsList = profile.award;
     if (!awardsList?.$isLoaded) {
-      logger.warn('No award list to delete from or not loaded.');
+      logger.warn("No award list to delete from or not loaded.");
       return;
     }
-    const awardIndex = awardsList.findIndex(
-      (a: any) => a && a.$isLoaded && a.$jazz.id === awardId,
-    );
+    const awardIndex = awardsList.findIndex((a: any) => a && a.$isLoaded && a.$jazz.id === awardId);
 
     if (awardIndex !== -1) {
       awardsList.$jazz.splice(awardIndex, 1);

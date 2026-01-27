@@ -52,8 +52,6 @@ export function validateReservationReason(reason?: string): void {
   }
 
   if (reason && reason.length > 200) {
-    throw new ValidationError(
-      "Reservation reason must be no more than 200 characters",
-    );
+    throw new ValidationError("Reservation reason must be no more than 200 characters");
   }
 }

@@ -1,14 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useEffect, useState } from 'react';
+import type { RegardeProfile, WorkExp } from "#/lib/schema";
+import { Loaded } from "jazz-tools";
+import { useEffect, useState } from "react";
 
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useWorkExp } from '#/lib/hook/useWorkExp';
-import type { RegardeProfile, WorkExp } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils/utils';
-import { Input, Textarea } from '../../../ui/index';
-import { EditorFooter } from '../../layout/footer';
-import { SectionHeader } from '../../layout/header';
-import { SelectorDate } from '../../shared/selectorDate';
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useWorkExp } from "#/lib/hook/useWorkExp";
+import { getValidUrl } from "#/lib/utils/utils";
+
+import { Input, Textarea } from "../../../ui/index";
+import { EditorFooter } from "../../layout/footer";
+import { SectionHeader } from "../../layout/header";
+import { SelectorDate } from "../../shared/selectorDate";
 
 type WorkExpEditProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -30,38 +31,38 @@ export function WorkExpEdit({
 
   const currentYear = new Date().getFullYear().toString();
 
-  const [title, setTitle] = useState('');
-  const [company, setCompany] = useState('');
-  const [location, setLocation] = useState('');
-  const [url, setUrl] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [company, setCompany] = useState("");
+  const [location, setLocation] = useState("");
+  const [url, setUrl] = useState("");
+  const [description, setDescription] = useState("");
   const [fromDate, setFromDate] = useState(currentYear);
-  const [toDate, setToDate] = useState('');
+  const [toDate, setToDate] = useState("");
 
   useEffect(() => {
     if (workExpToEdit) {
-      setTitle(workExpToEdit.title || '');
-      setCompany(workExpToEdit.company || '');
-      setLocation(workExpToEdit.location || '');
-      setUrl(workExpToEdit.url || '');
-      setDescription(workExpToEdit.description || '');
+      setTitle(workExpToEdit.title || "");
+      setCompany(workExpToEdit.company || "");
+      setLocation(workExpToEdit.location || "");
+      setUrl(workExpToEdit.url || "");
+      setDescription(workExpToEdit.description || "");
       setFromDate(workExpToEdit.from || currentYear);
-      setToDate(workExpToEdit.to || '');
+      setToDate(workExpToEdit.to || "");
     } else {
-      setTitle('');
-      setCompany('');
-      setLocation('');
-      setUrl('');
-      setDescription('');
+      setTitle("");
+      setCompany("");
+      setLocation("");
+      setUrl("");
+      setDescription("");
       setFromDate(currentYear);
-      setToDate('');
+      setToDate("");
     }
   }, [workExpToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
     if (!title.trim()) {
       const shouldContinue = confirm(
-        'Adding a job title helps visitors understand your role. Would you like to save anyway?',
+        "Adding a job title helps visitors understand your role. Would you like to save anyway?",
       );
       if (!shouldContinue) return;
     }
@@ -109,9 +110,7 @@ export function WorkExpEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Company
-                </label>
+                <label className="text-foreground block font-sans text-sm">Company</label>
                 <Input
                   type="text"
                   id="work-company"
@@ -126,16 +125,14 @@ export function WorkExpEdit({
           <section>
             <div className="flex flex-col gap-4 md:flex-row">
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  From
-                </label>
+                <label className="text-foreground block font-sans text-sm">From</label>
                 <SelectorDate
                   id="work-from-date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
                   placeholderOption={{
-                    value: '',
-                    label: 'Select Year',
+                    value: "",
+                    label: "Select Year",
                     disabled: true,
                   }}
                   buttonDisplayValue={fromDate || currentYear}
@@ -143,15 +140,13 @@ export function WorkExpEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  To
-                </label>
+                <label className="text-foreground block font-sans text-sm">To</label>
                 <SelectorDate
                   id="work-to-date"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
-                  placeholderOption={{ value: '', label: 'Now' }}
-                  buttonDisplayValue={toDate || 'Now'}
+                  placeholderOption={{ value: "", label: "Now" }}
+                  buttonDisplayValue={toDate || "Now"}
                 />
               </div>
             </div>
@@ -160,9 +155,7 @@ export function WorkExpEdit({
           <section>
             <div className="flex flex-col gap-4 md:flex-row">
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Location
-                </label>
+                <label className="text-foreground block font-sans text-sm">Location</label>
                 <Input
                   type="text"
                   id="work-location"
@@ -173,9 +166,7 @@ export function WorkExpEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  URL
-                </label>
+                <label className="text-foreground block font-sans text-sm">URL</label>
                 <Input
                   type="text"
                   id="work-url"
@@ -189,9 +180,7 @@ export function WorkExpEdit({
 
           <section>
             <div className="flex w-full flex-col gap-2">
-              <label className="text-foreground block font-sans text-sm">
-                Description
-              </label>
+              <label className="text-foreground block font-sans text-sm">Description</label>
               <Textarea
                 id="work-description"
                 value={description}
@@ -206,11 +195,11 @@ export function WorkExpEdit({
 
       <EditorFooter
         primaryAction={{
-          text: 'Save',
+          text: "Save",
           onClick: handleSaveAndClose,
         }}
         secondaryAction={{
-          text: 'Cancel',
+          text: "Cancel",
           onClick: onDoneEditing,
         }}
       />

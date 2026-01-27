@@ -1,13 +1,9 @@
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import type { Certification, RegardeProfile } from "#/lib/schema";
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import type { Certification, RegardeProfile } from '#/lib/schema';
-import {
-  formatDateRange,
-  formatYearString,
-  getValidUrl,
-} from '#/lib/utils/utils';
+import { Button } from "#/components/ui/button";
+import { formatDateRange, formatYearString, getValidUrl } from "#/lib/utils/utils";
 
 type CertificationsProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -16,8 +12,7 @@ type CertificationsProps = {
 export function Certifications({ profile }: CertificationsProps) {
   const certifications = profile.certification?.$isLoaded
     ? profile.certification.filter(
-        (cert: any): cert is Loaded<typeof Certification> =>
-          cert?.$isLoaded === true,
+        (cert: any): cert is Loaded<typeof Certification> => cert?.$isLoaded === true,
       )
     : [];
 
@@ -35,11 +30,11 @@ export function Certifications({ profile }: CertificationsProps) {
         </div>
         <div className="space-y-6">
           {certifications.map((certification: any) => {
-            const displayTitle = `${certification.name || 'Certification'} @${
-              certification.organization || 'Organization'
+            const displayTitle = `${certification.name || "Certification"} @${
+              certification.organization || "Organization"
             }`;
 
-            const issuedYear = String(certification.issued || '');
+            const issuedYear = String(certification.issued || "");
 
             const dateInfo = certification.expire
               ? formatDateRange(issuedYear, certification.expire)
@@ -48,15 +43,10 @@ export function Certifications({ profile }: CertificationsProps) {
             const certificationLink = getValidUrl(certification.url);
 
             return (
-              <div
-                key={certification.$jazz.id}
-                className="flex flex-col gap-3 pb-4"
-              >
+              <div key={certification.$jazz.id} className="flex flex-col gap-3 pb-4">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground font-sans text-sm">
-                      {dateInfo}
-                    </span>
+                    <span className="text-muted-foreground font-sans text-sm">{dateInfo}</span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="min-w-0 flex-1">

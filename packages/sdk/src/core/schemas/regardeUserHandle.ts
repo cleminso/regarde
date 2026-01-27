@@ -4,7 +4,9 @@ import { co, z } from "jazz-tools";
  * User profile with nickname.
  *
  * Links Jazz account ID to human-readable nickname with validation.
- * Tracks profile status and modification history:
+ * Tracks profile status and modification history.
+ *
+ * @schema
  * - `nickname`: 3-20 chars, alphanumeric + underscore + hyphen
  * - `registeredAt`: Registration timestamp
  * - `lastModified`: Last update timestamp

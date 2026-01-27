@@ -26,9 +26,7 @@ export const UserDetailsRequestSchema = z
 
 export const UserDetailsResponseSchema = z
   .object({
-    jazzAccountId: z
-      .string()
-      .describe("The resolved Jazz Account ID for this user"),
+    jazzAccountId: z.string().describe("The resolved Jazz Account ID for this user"),
     nickname: z
       .string()
       .optional()
@@ -39,16 +37,10 @@ export const UserDetailsResponseSchema = z
       .describe(
         "The nickname that was used in the request (for transparency when nickname was provided)",
       ),
-    exists: z
-      .boolean()
-      .describe(
-        "Whether the user account exists and has profile data available",
-      ),
+    exists: z.boolean().describe("Whether the user account exists and has profile data available"),
     nicknameStatus: z
       .object({
-        hasNickname: z
-          .boolean()
-          .describe("Whether this account has a registered nickname"),
+        hasNickname: z.boolean().describe("Whether this account has a registered nickname"),
         isRegistered: z
           .boolean()
           .describe(
@@ -60,31 +52,18 @@ export const UserDetailsResponseSchema = z
           .describe("When the nickname was registered (not currently tracked)"),
         canRegisterNickname: z
           .boolean()
-          .describe(
-            "Whether this account can register a new nickname (inverse of hasNickname)",
-          ),
+          .describe("Whether this account can register a new nickname (inverse of hasNickname)"),
       })
-      .describe(
-        "Detailed information about the nickname registration status for this account",
-      ),
+      .describe("Detailed information about the nickname registration status for this account"),
     publicData: z
       .object({
         name: z.string().describe("The user's display name"),
         bio: z.string().optional().describe("User's biography or description"),
-        avatarImage: z
-          .string()
-          .optional()
-          .describe("Data URL for the user's profile picture"),
+        avatarImage: z.string().optional().describe("Data URL for the user's profile picture"),
         socialLinks: z
           .object({
-            github: z
-              .string()
-              .optional()
-              .describe("GitHub username or profile URL"),
-            twitter: z
-              .string()
-              .optional()
-              .describe("Twitter/X handle or profile URL"),
+            github: z.string().optional().describe("GitHub username or profile URL"),
+            twitter: z.string().optional().describe("Twitter/X handle or profile URL"),
             website: z.string().optional().describe("Personal website URL"),
           })
           .optional()
@@ -94,22 +73,13 @@ export const UserDetailsResponseSchema = z
           .array(
             z.object({
               title: z.string().describe("Project name or title"),
-              year: z
-                .string()
-                .optional()
-                .describe("Year the project was completed or started"),
-              client: z
-                .string()
-                .optional()
-                .describe("Client or organization the project was for"),
+              year: z.string().optional().describe("Year the project was completed or started"),
+              client: z.string().optional().describe("Client or organization the project was for"),
               link: z
                 .string()
                 .optional()
                 .describe("URL to view the project (portfolio, demo, etc.)"),
-              description: z
-                .string()
-                .optional()
-                .describe("Detailed description of the project"),
+              description: z.string().optional().describe("Detailed description of the project"),
             }),
           )
           .optional()
@@ -119,28 +89,14 @@ export const UserDetailsResponseSchema = z
           .array(
             z.object({
               title: z.string().describe("Job title or position name"),
-              from: z
-                .string()
-                .optional()
-                .describe("Start date of employment (flexible format)"),
+              from: z.string().optional().describe("Start date of employment (flexible format)"),
               to: z
                 .string()
                 .optional()
-                .describe(
-                  "End date of employment (optional for current positions)",
-                ),
-              company: z
-                .string()
-                .optional()
-                .describe("Company or organization name"),
-              location: z
-                .string()
-                .optional()
-                .describe("Work location (city, remote, etc.)"),
-              url: z
-                .string()
-                .optional()
-                .describe("Company website or LinkedIn profile URL"),
+                .describe("End date of employment (optional for current positions)"),
+              company: z.string().optional().describe("Company or organization name"),
+              location: z.string().optional().describe("Work location (city, remote, etc.)"),
+              url: z.string().optional().describe("Company website or LinkedIn profile URL"),
               description: z
                 .string()
                 .optional()
@@ -153,23 +109,13 @@ export const UserDetailsResponseSchema = z
         writing: z
           .array(
             z.object({
-              title: z
-                .string()
-                .describe("Title of the written work or article"),
-              year: z
-                .string()
-                .optional()
-                .describe("Year the work was published or written"),
+              title: z.string().describe("Title of the written work or article"),
+              year: z.string().optional().describe("Year the work was published or written"),
               publisher: z
                 .string()
                 .optional()
-                .describe(
-                  "Publisher, publication, or platform where it was published",
-                ),
-              url: z
-                .string()
-                .optional()
-                .describe("URL to view or read the writing piece"),
+                .describe("Publisher, publication, or platform where it was published"),
+              url: z.string().optional().describe("URL to view or read the writing piece"),
               description: z
                 .string()
                 .optional()
@@ -177,46 +123,30 @@ export const UserDetailsResponseSchema = z
             }),
           )
           .optional()
-          .describe(
-            "Array of user's published writings, articles, or written works",
-          ),
+          .describe("Array of user's published writings, articles, or written works"),
 
         education: z
           .array(
             z.object({
-              from: z
-                .string()
-                .describe("Start date of education (flexible format)"),
+              from: z.string().describe("Start date of education (flexible format)"),
               to: z
                 .string()
                 .optional()
-                .describe(
-                  "End date of education (optional for ongoing education)",
-                ),
+                .describe("End date of education (optional for ongoing education)"),
               degree: z
                 .string()
                 .optional()
-                .describe(
-                  "Degree, diploma, or educational qualification earned",
-                ),
+                .describe("Degree, diploma, or educational qualification earned"),
               institution: z
                 .string()
                 .optional()
                 .describe("Educational institution or organization name"),
-              location: z
-                .string()
-                .optional()
-                .describe("Education location (city, remote, etc.)"),
-              url: z
-                .string()
-                .optional()
-                .describe("Institution website or program URL"),
+              location: z.string().optional().describe("Education location (city, remote, etc.)"),
+              url: z.string().optional().describe("Institution website or program URL"),
               description: z
                 .string()
                 .optional()
-                .describe(
-                  "Description of the education program or achievements",
-                ),
+                .describe("Description of the education program or achievements"),
             }),
           )
           .optional()
@@ -228,9 +158,7 @@ export const UserDetailsResponseSchema = z
               issued: z
                 .string()
                 .optional()
-                .describe(
-                  "Date when the certification was issued (flexible format)",
-                ),
+                .describe("Date when the certification was issued (flexible format)"),
               expire: z
                 .string()
                 .optional()
@@ -241,13 +169,8 @@ export const UserDetailsResponseSchema = z
               organization: z
                 .string()
                 .optional()
-                .describe(
-                  "Organization or institution that issued the certification",
-                ),
-              url: z
-                .string()
-                .optional()
-                .describe("URL to verify or view the certification"),
+                .describe("Organization or institution that issued the certification"),
+              url: z.string().optional().describe("URL to verify or view the certification"),
               description: z
                 .string()
                 .optional()
@@ -261,14 +184,8 @@ export const UserDetailsResponseSchema = z
           .array(
             z.object({
               title: z.string().describe("Title of the speaking engagement"),
-              year: z
-                .string()
-                .optional()
-                .describe("Year when the speaking engagement took place"),
-              event: z
-                .string()
-                .optional()
-                .describe("Name of the event, conference, or venue"),
+              year: z.string().optional().describe("Year when the speaking engagement took place"),
+              event: z.string().optional().describe("Name of the event, conference, or venue"),
               location: z
                 .string()
                 .optional()
@@ -280,9 +197,7 @@ export const UserDetailsResponseSchema = z
               description: z
                 .string()
                 .optional()
-                .describe(
-                  "Description of the speaking engagement or topic covered",
-                ),
+                .describe("Description of the speaking engagement or topic covered"),
             }),
           )
           .optional()
@@ -292,18 +207,12 @@ export const UserDetailsResponseSchema = z
           .array(
             z.object({
               title: z.string().describe("Title or name of the award"),
-              year: z
-                .string()
-                .optional()
-                .describe("Year when the award was received"),
+              year: z.string().optional().describe("Year when the award was received"),
               presenter: z
                 .string()
                 .optional()
                 .describe("Organization or entity that presented the award"),
-              url: z
-                .string()
-                .optional()
-                .describe("URL to view award details or verification"),
+              url: z.string().optional().describe("URL to view award details or verification"),
               description: z
                 .string()
                 .optional()
@@ -316,9 +225,7 @@ export const UserDetailsResponseSchema = z
         volunteering: z
           .array(
             z.object({
-              title: z
-                .string()
-                .describe("Title or role of the volunteering position"),
+              title: z.string().describe("Title or role of the volunteering position"),
               organization: z
                 .string()
                 .optional()
@@ -334,19 +241,12 @@ export const UserDetailsResponseSchema = z
               description: z
                 .string()
                 .optional()
-                .describe(
-                  "Description of the volunteering role and activities",
-                ),
-              from: z
-                .string()
-                .optional()
-                .describe("Start date of volunteering (flexible format)"),
+                .describe("Description of the volunteering role and activities"),
+              from: z.string().optional().describe("Start date of volunteering (flexible format)"),
               to: z
                 .string()
                 .optional()
-                .describe(
-                  "End date of volunteering (optional for ongoing volunteering)",
-                ),
+                .describe("End date of volunteering (optional for ongoing volunteering)"),
             }),
           )
           .optional()
@@ -367,9 +267,7 @@ export const UserDetailsResponseSchema = z
               url: z
                 .string()
                 .optional()
-                .describe(
-                  "URL to view the side project (portfolio, demo, etc.)",
-                ),
+                .describe("URL to view the side project (portfolio, demo, etc.)"),
               description: z
                 .string()
                 .optional()
@@ -381,25 +279,13 @@ export const UserDetailsResponseSchema = z
 
         nowPage: z
           .object({
-            title: z
-              .string()
-              .optional()
-              .describe("Brief headline or title for current focus"),
-            location: z
-              .string()
-              .optional()
-              .describe("Current location (city, remote, etc.)"),
-            description: z
-              .string()
-              .describe("Current activities and focus description"),
-            lastUpdated: z
-              .number()
-              .describe("Timestamp when the now page was last updated"),
+            title: z.string().optional().describe("Brief headline or title for current focus"),
+            location: z.string().optional().describe("Current location (city, remote, etc.)"),
+            description: z.string().describe("Current activities and focus description"),
+            lastUpdated: z.number().describe("Timestamp when the now page was last updated"),
           })
           .optional()
-          .describe(
-            "Current 'now' page content describing what the user is currently focused on",
-          ),
+          .describe("Current 'now' page content describing what the user is currently focused on"),
       })
       .optional()
       .describe(

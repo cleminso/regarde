@@ -1,29 +1,25 @@
 import "dotenv/config";
 
+import { serve } from "@hono/node-server";
+import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { serve } from "@hono/node-server";
-import { swaggerUI } from "@hono/swagger-ui";
 import { startWorker } from "jazz-tools/worker";
 
 import { ProfileWorkerAccount } from "@regarde-dev/jazz-schemas/regarde.bio";
 
 import { rateLimit } from "./middleware/rateLimit.js";
-
-import { userDetailsRoute, userDetailsHandler } from "./routes/userDetails.js";
-import { profilePageRoute, profilePageHandler } from "./routes/profilePage.js";
 import { avatarRoute, avatarHandler } from "./routes/avatar.js";
+import { profilePageRoute, profilePageHandler } from "./routes/profilePage.js";
+import { userDetailsRoute, userDetailsHandler } from "./routes/userDetails.js";
 
 const PORT = process.env.PORT || 4000;
-const JAZZ_SYNC_SERVER_URL =
-  process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
+const JAZZ_SYNC_SERVER_URL = process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
 
-const APP_PUBLIC_HOSTNAME =
-  process.env.APP_PUBLIC_HOSTNAME || `localhost:${PORT}`;
+const APP_PUBLIC_HOSTNAME = process.env.APP_PUBLIC_HOSTNAME || `localhost:${PORT}`;
 const IS_PRODUCTION_LIKE =
-  APP_PUBLIC_HOSTNAME !== `localhost:${PORT}` &&
-  !APP_PUBLIC_HOSTNAME.startsWith("localhost");
+  APP_PUBLIC_HOSTNAME !== `localhost:${PORT}` && !APP_PUBLIC_HOSTNAME.startsWith("localhost");
 const PUBLIC_PROTOCOL = IS_PRODUCTION_LIKE ? "https" : "http";
 const PUBLIC_BASE_URL = `${PUBLIC_PROTOCOL}://${APP_PUBLIC_HOSTNAME}`;
 
@@ -44,10 +40,7 @@ process.on("SIGINT", () => {
 });
 
 async function main() {
-  if (
-    !process.env.PROFILE_WORKER_ACCOUNT ||
-    !process.env.PROFILE_WORKER_SECRET
-  ) {
+  if (!process.env.PROFILE_WORKER_ACCOUNT || !process.env.PROFILE_WORKER_SECRET) {
     console.error(
       "Error: PROFILE_WORKER_ACCOUNT and PROFILE_WORKER_SECRET environment variables must be set.",
     );
@@ -56,8 +49,7 @@ async function main() {
 
   if (
     IS_PRODUCTION_LIKE &&
-    (!process.env.APP_PUBLIC_HOSTNAME ||
-      process.env.APP_PUBLIC_HOSTNAME.includes("localhost"))
+    (!process.env.APP_PUBLIC_HOSTNAME || process.env.APP_PUBLIC_HOSTNAME.includes("localhost"))
   ) {
     console.warn(
       "Warning: APP_PUBLIC_HOSTNAME is not set or is localhost. For production behind Nginx/HTTPS, set it to your public domain (e.g., api.regarde.bio) for correct documentation links.",
@@ -81,8 +73,7 @@ async function main() {
       accountID: process.env.PROFILE_WORKER_ACCOUNT,
       accountSecret: process.env.PROFILE_WORKER_SECRET,
       syncServer:
-        JAZZ_SYNC_SERVER_URL +
-        (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
+        JAZZ_SYNC_SERVER_URL + (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
     });
     console.debug("ProfileWorkerAccount started");
 
@@ -116,8 +107,7 @@ async function main() {
       ? [
           {
             url: "https://api.regarde.bio",
-            description:
-              "Production Server - Nickname Registry (api.regarde.bio)",
+            description: "Production Server - Nickname Registry (api.regarde.bio)",
           },
         ]
       : [
@@ -195,10 +185,7 @@ async function main() {
     console.error("Global error handler caught:", error);
     console.error("Stack:", error.stack);
     try {
-      return c.json(
-        { error: "Internal server error", timestamp: new Date().toISOString() },
-        500,
-      );
+      return c.json({ error: "Internal server error", timestamp: new Date().toISOString() }, 500);
     } catch (responseError) {
       console.error("Error creating error response:", responseError);
       return new Response("Internal server error", { status: 500 });

@@ -1,9 +1,10 @@
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import { Project } from '#/lib/schema';
-import { EditorCardActions } from '../../shared/cardActions';
+import { Button } from "#/components/ui/button";
+import { Project } from "#/lib/schema";
+
+import { EditorCardActions } from "../../shared/cardActions";
 
 type ProjectCardProps = {
   project: Loaded<typeof Project>;
@@ -13,17 +14,15 @@ type ProjectCardProps = {
 
 export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
   const displayTitle = project.client
-    ? `${project.title || 'Untitled Project'} @${project.client}`
-    : project.title || 'Untitled Project';
+    ? `${project.title || "Untitled Project"} @${project.client}`
+    : project.title || "Untitled Project";
 
   return (
     <div className="border-border flex flex-col gap-4 border-b pb-4">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
           <span className="text-muted-foreground text-sm">
-            {project.year === 'ongoing'
-              ? 'Ongoing'
-              : project.year || 'Year missing'}
+            {project.year === "ongoing" ? "Ongoing" : project.year || "Year missing"}
           </span>
         </div>
         <div className="flex flex-col gap-2">
@@ -62,11 +61,7 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
             </p>
           )}
           <div className="mt-2">
-            <EditorCardActions
-              item={project}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
+            <EditorCardActions item={project} onEdit={onEdit} onDelete={onDelete} />
           </div>
         </div>
       </div>

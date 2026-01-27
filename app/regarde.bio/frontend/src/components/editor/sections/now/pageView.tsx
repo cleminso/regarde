@@ -1,12 +1,13 @@
-import { Loaded } from 'jazz-tools';
-import { useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useState } from "react";
 
-import { Input, Label, Textarea } from '#/components/ui';
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useNowPage } from '#/lib/hook/useNowPage';
-import { RegardeProfile } from '#/lib/schema';
-import { EditorFooter } from '../../layout/footer';
-import { SectionHeader } from '../../layout/header';
+import { Input, Label, Textarea } from "#/components/ui";
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useNowPage } from "#/lib/hook/useNowPage";
+import { RegardeProfile } from "#/lib/schema";
+
+import { EditorFooter } from "../../layout/footer";
+import { SectionHeader } from "../../layout/header";
 
 type NowPageViewProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -14,24 +15,18 @@ type NowPageViewProps = {
   onClose?: () => void;
 };
 
-export function NowPageView({
-  profile,
-  triggerSyncIndicator,
-  onClose,
-}: NowPageViewProps) {
+export function NowPageView({ profile, triggerSyncIndicator, onClose }: NowPageViewProps) {
   const { nowPage, updateNowPage } = useNowPage({
     profile,
     triggerSyncIndicator,
   });
 
-  const [title, setTitle] = useState(
-    nowPage && nowPage.$isLoaded ? nowPage.title || '' : '',
-  );
+  const [title, setTitle] = useState(nowPage && nowPage.$isLoaded ? nowPage.title || "" : "");
   const [location, setLocation] = useState(
-    nowPage && nowPage.$isLoaded ? nowPage.location || '' : '',
+    nowPage && nowPage.$isLoaded ? nowPage.location || "" : "",
   );
   const [description, setDescription] = useState(
-    nowPage && nowPage.$isLoaded ? nowPage.description || '' : '',
+    nowPage && nowPage.$isLoaded ? nowPage.description || "" : "",
   );
 
   const handleSave = () => {
@@ -56,7 +51,7 @@ export function NowPageView({
           title="Now"
           description={
             <>
-              Share what you are doing now. Reference to{' '}
+              Share what you are doing now. Reference to{" "}
               <a
                 href="https://sive.rs"
                 target="_blank"
@@ -64,8 +59,8 @@ export function NowPageView({
                 className="text-primary hover:underline"
               >
                 Derek Sivers
-              </a>{' '}
-              and his{' '}
+              </a>{" "}
+              and his{" "}
               <a
                 href="https://sive.rs/now2"
                 target="_blank"
@@ -124,11 +119,11 @@ export function NowPageView({
 
       <EditorFooter
         primaryAction={{
-          text: 'Save',
+          text: "Save",
           onClick: handleSave,
         }}
         secondaryAction={{
-          text: 'Cancel',
+          text: "Cancel",
           onClick: handleClose,
         }}
       />

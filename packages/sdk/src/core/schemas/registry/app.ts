@@ -1,12 +1,13 @@
-import { App } from "#schemas/regardeUserApp";
 import { co, z } from "jazz-tools";
+
+import { App } from "#schemas/regardeUserApp";
 
 /**
  * Registry-controlled metadata for an app.
  *
  * Managed by worker, references user-owned App CoMap.
  *
- * Fields:
+ * @schema
  * - `app`: Reference to App CoMap
  * - `isVerified`: Whether app is verified and accepting subscriptions
  * - `hasAccess`: Whether user has current access
@@ -48,7 +49,7 @@ export type TAppsByUserRecord = co.loaded<typeof AppsByUserRecord>;
  *
  * Indexes apps by user and maintains metadata.
  *
- * Fields:
+ * @schema
  * - `appsByUser`: Apps grouped by user owner
  * - `apps`: All apps indexed by App ID
  * - `metadata`: Additional registry data

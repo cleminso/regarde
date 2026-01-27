@@ -1,20 +1,14 @@
 import { describe, expect, it, beforeAll } from "vitest";
 
-const JAZZ_SYNC_SERVER_URL =
-  process.env.JAZZ_SYNC_SERVER_URL || "ws://localhost:4200";
+const JAZZ_SYNC_SERVER_URL = process.env.JAZZ_SYNC_SERVER_URL || "ws://localhost:4200";
 
 // Node doesn't have WebSocket in Vitest node env by default
-(globalThis as any).WebSocket =
-  (globalThis as any).WebSocket || class WebSocket {};
+(globalThis as any).WebSocket = (globalThis as any).WebSocket || class WebSocket {};
 
 describe("jazz sync integration", () => {
   beforeAll(() => {
-    console.log(
-      `Jazz integration tests running against: ${JAZZ_SYNC_SERVER_URL}`,
-    );
-    console.log(
-      `REGARDE_REGISTRY_GROUP: ${process.env.REGARDE_REGISTRY_GROUP}`,
-    );
+    console.log(`Jazz integration tests running against: ${JAZZ_SYNC_SERVER_URL}`);
+    console.log(`REGARDE_REGISTRY_GROUP: ${process.env.REGARDE_REGISTRY_GROUP}`);
   });
 
   it("requires REGARDE_REGISTRY_GROUP to be set", () => {
@@ -25,12 +19,10 @@ describe("jazz sync integration", () => {
 
   it("creates a new account and syncs to local Jazz server", async () => {
     const { createWebSocketPeer } = await import("cojson-transport-ws");
-    const { createJazzContextForNewAccount, MockSessionProvider } =
-      await import("jazz-tools");
+    const { createJazzContextForNewAccount, MockSessionProvider } = await import("jazz-tools");
     const { NapiCrypto } = await import("jazz-tools/napi");
     const { RegardeAccount } = await import("@regarde-dev/core");
-    const { generateMnemonic, mnemonicToEntropy } =
-      await import("@scure/bip39");
+    const { generateMnemonic, mnemonicToEntropy } = await import("@scure/bip39");
     const { wordlist } = await import("@scure/bip39/wordlists/english.js");
 
     const crypto = await NapiCrypto.create();
@@ -75,12 +67,10 @@ describe("jazz sync integration", () => {
     const { startWorker } = await import("jazz-tools/worker");
     const { RegardeAccount } = await import("@regarde-dev/core");
     const { NapiCrypto } = await import("jazz-tools/napi");
-    const { generateMnemonic, mnemonicToEntropy } =
-      await import("@scure/bip39");
+    const { generateMnemonic, mnemonicToEntropy } = await import("@scure/bip39");
     const { wordlist } = await import("@scure/bip39/wordlists/english.js");
     const { createWebSocketPeer } = await import("cojson-transport-ws");
-    const { createJazzContextForNewAccount, MockSessionProvider } =
-      await import("jazz-tools");
+    const { createJazzContextForNewAccount, MockSessionProvider } = await import("jazz-tools");
 
     const crypto = await NapiCrypto.create();
     const sessionProvider = new MockSessionProvider();

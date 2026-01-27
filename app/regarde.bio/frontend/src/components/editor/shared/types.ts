@@ -1,7 +1,7 @@
-import { Loaded } from 'jazz-tools';
+import { Loaded } from "jazz-tools";
 
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { RegardeProfile } from '#/lib/schema';
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { RegardeProfile } from "#/lib/schema";
 
 export type BaseEditProps = {
   profile: Loaded<typeof RegardeProfile>;

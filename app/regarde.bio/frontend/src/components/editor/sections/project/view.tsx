@@ -1,13 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useState } from "react";
 
-import { Button, DestructiveConfirmationDialog } from '#/components/ui';
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useProject } from '#/lib/hook/useProject.ts';
-import { ListOfProjects, Project, RegardeProfile } from '#/lib/schema';
-import { EditorFooter } from '../../index';
-import { SectionHeader } from './../../layout/header';
-import { ProjectCard } from './card';
+import { Button, DestructiveConfirmationDialog } from "#/components/ui";
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useProject } from "#/lib/hook/useProject.ts";
+import { ListOfProjects, Project, RegardeProfile } from "#/lib/schema";
+
+import { EditorFooter } from "../../index";
+
+import { SectionHeader } from "./../../layout/header";
+import { ProjectCard } from "./card";
 
 type ProjectViewProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -59,7 +61,7 @@ export function ProjectView({
   };
 
   const getProjectDisplayName = (project: Loaded<typeof Project>) => {
-    return project.title || 'Untitled Project';
+    return project.title || "Untitled Project";
   };
 
   return (
@@ -85,10 +87,7 @@ export function ProjectView({
         {projects && projects.length > 0 && (
           <div className="space-y-6 pb-4">
             {projects
-              .filter(
-                (project): project is Loaded<typeof Project> =>
-                  project?.$isLoaded === true,
-              )
+              .filter((project): project is Loaded<typeof Project> => project?.$isLoaded === true)
               .map((project) => (
                 <ProjectCard
                   key={project.$jazz.id}
@@ -104,7 +103,7 @@ export function ProjectView({
       <div className="shrink-0">
         <EditorFooter
           primaryAction={{
-            text: 'Done',
+            text: "Done",
             onClick: handleClose,
           }}
         />
@@ -117,10 +116,8 @@ export function ProjectView({
         description={
           deleteConfirmation.project ? (
             <>
-              Are you sure you want to delete the project{' '}
-              <strong>
-                {getProjectDisplayName(deleteConfirmation.project)}
-              </strong>
+              Are you sure you want to delete the project{" "}
+              <strong>{getProjectDisplayName(deleteConfirmation.project)}</strong>
               ?
               <br />
               <br />

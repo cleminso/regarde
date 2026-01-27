@@ -1,15 +1,9 @@
 import { createRoute } from "@hono/zod-openapi";
 
-import {
-  RegardeProfile,
-  RegardeAccount,
-} from "@regarde-dev/jazz-schemas/regarde.bio";
+import { RegardeProfile, RegardeAccount } from "@regarde-dev/jazz-schemas/regarde.bio";
 
 import { ErrorResponseSchema } from "../schemas/common";
-import {
-  UserDetailsRequestSchema,
-  UserDetailsResponseSchema,
-} from "../schemas/userDetails";
+import { UserDetailsRequestSchema, UserDetailsResponseSchema } from "../schemas/userDetails";
 
 export const userDetailsRoute = createRoute({
   method: "get",
@@ -127,18 +121,14 @@ export const userDetailsHandler = () => {
 
         if (!queryJazzAccountId && !queryNickname) {
           console.warn(`Neither jazzAccountId nor nickname provided`);
-          return c.json(
-            { error: "Either jazzAccountId or nickname parameter is required" },
-            400,
-          );
+          return c.json({ error: "Either jazzAccountId or nickname parameter is required" }, 400);
         }
 
         if (queryNickname) {
           let accountIdFromNickname: string | undefined;
           try {
             // Call api.regarde.dev /lookup endpoint to resolve nickname
-            const authServiceUrl =
-              process.env.AUTH_SERVICE_URL || "https://api.regarde.dev";
+            const authServiceUrl = process.env.AUTH_SERVICE_URL || "https://api.regarde.dev";
             const lookupUrl = `${authServiceUrl}/lookup/${encodeURIComponent(queryNickname)}`;
 
             console.log(`Calling api.regarde.dev lookup API: ${lookupUrl}`);
@@ -150,13 +140,8 @@ export const userDetailsHandler = () => {
             }
 
             if (!lookupResponse.ok) {
-              console.error(
-                `api.regarde.dev lookup API returned error: ${lookupResponse.status}`,
-              );
-              return c.json(
-                { error: "Internal server error during nickname lookup" },
-                500,
-              );
+              console.error(`api.regarde.dev lookup API returned error: ${lookupResponse.status}`);
+              return c.json({ error: "Internal server error during nickname lookup" }, 500);
             }
 
             const lookupData = await lookupResponse.json();
@@ -169,10 +154,7 @@ export const userDetailsHandler = () => {
             console.error(
               `Error calling api.regarde.dev lookup API for nickname "${queryNickname}": ${registryError.message || registryError}`,
             );
-            return c.json(
-              { error: "Internal server error during nickname lookup" },
-              500,
-            );
+            return c.json({ error: "Internal server error during nickname lookup" }, 500);
           }
 
           if (!accountIdFromNickname) {
@@ -180,14 +162,10 @@ export const userDetailsHandler = () => {
           }
 
           // If both jazzAccountId and nickname were provided, they must match.
-          if (
-            queryJazzAccountId &&
-            queryJazzAccountId !== accountIdFromNickname
-          ) {
+          if (queryJazzAccountId && queryJazzAccountId !== accountIdFromNickname) {
             return c.json(
               {
-                error:
-                  "Provided nickname is not owned by the provided jazzAccountId",
+                error: "Provided nickname is not owned by the provided jazzAccountId",
               },
               400,
             );
@@ -198,9 +176,7 @@ export const userDetailsHandler = () => {
           processedJazzAccountId = queryJazzAccountId; // ID is from the query.
         } else {
           // This state should ideally be caught by the first check, but as a fallback.
-          console.error(
-            "Logical error: Reached unexpected state in parameter validation.",
-          );
+          console.error("Logical error: Reached unexpected state in parameter validation.");
           return c.json(
             {
               error: "Unable to resolve user account due to missing parameters",
@@ -227,23 +203,15 @@ export const userDetailsHandler = () => {
 
       // If we proceed beyond the inner try-catch, processedJazzAccountId should be a string.
       // Add a strict check for safety; if not, it's an unhandled logic path in param processing.
-      if (
-        typeof processedJazzAccountId !== "string" ||
-        !processedJazzAccountId
-      ) {
+      if (typeof processedJazzAccountId !== "string" || !processedJazzAccountId) {
         console.error(
           "Critical internal error: processedJazzAccountId is not a valid string after parameter block.",
         );
-        return c.json(
-          { error: "Internal server error determining account ID" },
-          500,
-        );
+        return c.json({ error: "Internal server error determining account ID" }, 500);
       }
 
       // Main application logic now uses processedJazzAccountId (guaranteed to be a string here).
-      console.log(
-        `Looking up user details for Jazz Account ID: "${processedJazzAccountId}"`,
-      );
+      console.log(`Looking up user details for Jazz Account ID: "${processedJazzAccountId}"`);
 
       // Nickname will be retrieved from the loaded profile's userHandle below
       let currentNicknameInRegistry: string | undefined;
@@ -252,16 +220,13 @@ export const userDetailsHandler = () => {
       let profileData: any = null;
 
       try {
-        const jazzUserAccount = await RegardeAccount.load(
-          processedJazzAccountId,
-          {
-            resolve: {
-              profile: {
-                "regarde.bio": true,
-              },
+        const jazzUserAccount = await RegardeAccount.load(processedJazzAccountId, {
+          resolve: {
+            profile: {
+              "regarde.bio": true,
             },
           },
-        );
+        });
         jazzUserAccount?.$jazz.ensureLoaded({
           resolve: {
             profile: true,
@@ -311,11 +276,8 @@ export const userDetailsHandler = () => {
           },
         });
       } catch (accountError: any) {
-        accountLoadError =
-          accountError?.message || "Unknown account loading error";
-        console.warn(
-          `Account ${processedJazzAccountId} could not be loaded: ${accountLoadError}`,
-        );
+        accountLoadError = accountError?.message || "Unknown account loading error";
+        console.warn(`Account ${processedJazzAccountId} could not be loaded: ${accountLoadError}`);
         // Account remains null
       }
 
@@ -378,8 +340,7 @@ export const userDetailsHandler = () => {
             {
               ...baseResponse,
               requestedNickname: requestedNicknameFromQuery || undefined,
-              publicData:
-                Object.keys(profileData).length > 0 ? publicData : undefined,
+              publicData: Object.keys(profileData).length > 0 ? publicData : undefined,
               exists: true,
             },
             200,
@@ -413,9 +374,7 @@ export const userDetailsHandler = () => {
       }
     } catch (outerError: any) {
       // Final catch-all for unexpected errors
-      console.error(
-        `Critical error in userDetailsHandler: ${outerError.message || outerError}`,
-      );
+      console.error(`Critical error in userDetailsHandler: ${outerError.message || outerError}`);
       console.error(`Stack trace: ${outerError?.stack}`);
 
       // In this outermost catch, processedJazzAccountId *might* be undefined if an error

@@ -1,14 +1,14 @@
 import "dotenv/config";
-import { startWorker } from "jazz-tools/worker";
+
 import { Group, Account } from "jazz-tools";
+import { startWorker } from "jazz-tools/worker";
+
 import { ProfileWorkerAccount } from "@regarde-dev/jazz-schemas/regarde.bio";
 
-const JAZZ_SYNC_SERVER_URL =
-  process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
+const JAZZ_SYNC_SERVER_URL = process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
 
 // Admin group ID - replace with the ID from create-admin-group.js output
-const ADMIN_GROUP_ID =
-  process.env.ADMIN_GROUP_ID || "co_zcMXnNKtGsV9YRczgjeZMHxsFDv";
+const ADMIN_GROUP_ID = process.env.ADMIN_GROUP_ID || "co_zcMXnNKtGsV9YRczgjeZMHxsFDv";
 
 // Account to add as admin - replace with actual account ID
 const ADMIN_ACCOUNT_ID = process.env.ADMIN_ACCOUNT_ID || "co_cleminso";
@@ -17,10 +17,7 @@ async function addAdminMember() {
   console.log("[INFO] Adding admin member to Jazz Profile Admin Group...");
 
   // Validate environment variables
-  if (
-    !process.env.PROFILE_WORKER_ACCOUNT ||
-    !process.env.PROFILE_WORKER_SECRET
-  ) {
+  if (!process.env.PROFILE_WORKER_ACCOUNT || !process.env.PROFILE_WORKER_SECRET) {
     console.error(
       "[ERROR] PROFILE_WORKER_ACCOUNT and PROFILE_WORKER_SECRET environment variables must be set.",
     );
@@ -49,13 +46,10 @@ async function addAdminMember() {
       accountID: process.env.PROFILE_WORKER_ACCOUNT,
       accountSecret: process.env.PROFILE_WORKER_SECRET,
       syncServer:
-        JAZZ_SYNC_SERVER_URL +
-        (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
+        JAZZ_SYNC_SERVER_URL + (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
     });
     worker = workerResult.worker;
-    console.log(
-      `[SUCCESS] Worker connected with Account ID: ${worker.$jazz.id}`,
-    );
+    console.log(`[SUCCESS] Worker connected with Account ID: ${worker.$jazz.id}`);
   } catch (error) {
     console.error("[ERROR] Failed to start Jazz worker:", error);
     process.exit(1);
@@ -67,9 +61,7 @@ async function addAdminMember() {
     const adminGroup = await Group.load(ADMIN_GROUP_ID, worker);
 
     if (!adminGroup) {
-      console.error(
-        `[ERROR] Failed to load admin group with ID: ${ADMIN_GROUP_ID}`,
-      );
+      console.error(`[ERROR] Failed to load admin group with ID: ${ADMIN_GROUP_ID}`);
       process.exit(1);
     }
 
@@ -80,21 +72,15 @@ async function addAdminMember() {
     const adminAccount = await Account.load(ADMIN_ACCOUNT_ID, worker);
 
     if (!adminAccount) {
-      console.error(
-        `[ERROR] Failed to load account with ID: ${ADMIN_ACCOUNT_ID}`,
-      );
-      console.log(
-        "[INFO] Make sure the account ID is correct and the account exists",
-      );
+      console.error(`[ERROR] Failed to load account with ID: ${ADMIN_ACCOUNT_ID}`);
+      console.log("[INFO] Make sure the account ID is correct and the account exists");
       process.exit(1);
     }
 
     console.log(`[SUCCESS] Account loaded successfully`);
 
     // Add the account to the admin group with admin role
-    console.log(
-      `[INFO] Adding ${ADMIN_ACCOUNT_ID} to admin group with admin role...`,
-    );
+    console.log(`[INFO] Adding ${ADMIN_ACCOUNT_ID} to admin group with admin role...`);
     adminGroup.addMember(adminAccount, "admin");
 
     console.log("[SUCCESS] Admin member added successfully!");
@@ -106,9 +92,7 @@ async function addAdminMember() {
     // Verify the member was added
     const role = adminGroup.getRoleOf(ADMIN_ACCOUNT_ID);
     if (role) {
-      console.log(
-        `[SUCCESS] Verification: Account has role "${role}" in the group`,
-      );
+      console.log(`[SUCCESS] Verification: Account has role "${role}" in the group`);
     } else {
       console.warn("[WARN] Could not verify member role");
     }

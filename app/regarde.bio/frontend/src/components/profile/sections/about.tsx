@@ -1,7 +1,8 @@
-import { Loaded } from 'jazz-tools';
+import { Loaded } from "jazz-tools";
 
-import { RegardeProfile } from '#/lib/schema';
-import { Contact } from './contact';
+import { RegardeProfile } from "#/lib/schema";
+
+import { Contact } from "./contact";
 
 type AboutProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -11,9 +12,7 @@ export function About({ profile }: AboutProps) {
   const hasContent =
     profile.bio ||
     (profile.socialLinks?.$isLoaded &&
-      (profile.socialLinks.github ||
-        profile.socialLinks.twitter ||
-        profile.socialLinks.website));
+      (profile.socialLinks.github || profile.socialLinks.twitter || profile.socialLinks.website));
 
   if (!hasContent) {
     return null;

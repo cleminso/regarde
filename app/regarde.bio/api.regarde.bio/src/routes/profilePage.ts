@@ -1,9 +1,7 @@
 import { createRoute } from "@hono/zod-openapi";
-import {
-  RegardeAccount,
-  RegardeProfile,
-} from "@regarde-dev/jazz-schemas/regarde.bio";
 import { z } from "zod";
+
+import { RegardeAccount, RegardeProfile } from "@regarde-dev/jazz-schemas/regarde.bio";
 
 export const profilePageRoute = createRoute({
   method: "get",
@@ -61,11 +59,7 @@ export const profilePageHandler = () => {
         });
       }
 
-      const html = generateProfileHTML(
-        userDetails.publicData,
-        nickname,
-        isCrawler,
-      );
+      const html = generateProfileHTML(userDetails.publicData, nickname, isCrawler);
       return c.html(html, 200, {
         "Cache-Control": "public, max-age=3600",
         Vary: "User-Agent",
@@ -102,8 +96,7 @@ async function getUserDetails(nickname: string) {
   let accountIdFromNickname: string | undefined;
 
   try {
-    const authServiceUrl =
-      process.env.AUTH_SERVICE_URL || "https://api.regarde.dev";
+    const authServiceUrl = process.env.AUTH_SERVICE_URL || "https://api.regarde.dev";
     const lookupUrl = `${authServiceUrl}/lookup/${encodeURIComponent(nickname)}`;
 
     const lookupResponse = await fetch(lookupUrl);
@@ -113,19 +106,14 @@ async function getUserDetails(nickname: string) {
     }
 
     if (!lookupResponse.ok) {
-      console.error(
-        `api.regarde.dev lookup API returned error: ${lookupResponse.status}`,
-      );
+      console.error(`api.regarde.dev lookup API returned error: ${lookupResponse.status}`);
       return { exists: false, publicData: null };
     }
 
     const lookupData = await lookupResponse.json();
     accountIdFromNickname = lookupData.accountId;
   } catch (error) {
-    console.error(
-      `Error calling api.regarde.dev lookup API for nickname "${nickname}":`,
-      error,
-    );
+    console.error(`Error calling api.regarde.dev lookup API for nickname "${nickname}":`, error);
     return { exists: false, publicData: null };
   }
 
@@ -142,15 +130,12 @@ async function getUserDetails(nickname: string) {
       return { exists: false, publicData: null };
     }
 
-    const profileData = await RegardeProfile.load(
-      jazzUserAccount.profile["regarde.bio"],
-      {
-        resolve: {
-          avatarImage: { original: true },
-          socialLinks: true,
-        },
+    const profileData = await RegardeProfile.load(jazzUserAccount.profile["regarde.bio"], {
+      resolve: {
+        avatarImage: { original: true },
+        socialLinks: true,
       },
-    );
+    });
 
     return {
       exists: true,
@@ -162,11 +147,7 @@ async function getUserDetails(nickname: string) {
   }
 }
 
-function generateProfileHTML(
-  profile: any,
-  nickname: string,
-  isCrawler: boolean,
-): string {
+function generateProfileHTML(profile: any, nickname: string, isCrawler: boolean): string {
   const name = profile.name || nickname;
   const bio = profile.bio || `Check out ${name}'s profile on Jazz`;
   const title = `${name} (@${nickname}) - regarde.bio`;

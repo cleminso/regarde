@@ -1,12 +1,15 @@
 {
   "name": "@regarde-dev/jazz-schemas",
+  "version": "0.1.0",
+  "description": "Shared Jazz schemas for regarde application",
   "repository": {
     "type": "git",
     "url": "https://github.com/cleminso/regarde.git",
     "directory": "app/regarde.bio/jazz-schemas"
   },
-  "version": "0.1.0",
-  "description": "Shared Jazz schemas for regarde application",
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "types": "dist/index.d.ts",
   "exports": {
@@ -38,8 +41,5 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:"
-  },
-  "files": [
-    "dist"
-  ]
+  }
 }

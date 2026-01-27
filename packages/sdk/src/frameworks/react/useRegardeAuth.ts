@@ -1,5 +1,6 @@
-import { useCallback, useState } from "react";
 import type { Loaded } from "jazz-tools";
+import { useCallback, useState } from "react";
+
 import { RegardeAuth } from "#core/schemas/regardeAuth";
 import { getRegardeAuth, isTokenExpired } from "#managers/auth";
 
@@ -29,8 +30,8 @@ export interface UseRegardeAuthResult {
  * Provides token state, expiration checking, and refresh functionality.
  * Does not automatically retry failed refreshes.
  *
- * @param regardeAuthCoMap - Loaded RegardeAuth CoMap instance
- * @returns Token state and refresh function
+ * @param regardeAuthCoMap - Loaded RegardeAuth CoMap instance (null/undefined = no auth)
+ * @returns Object containing token, loading state, and refresh function
  *
  * @example
  * ```tsx
@@ -43,13 +44,13 @@ export interface UseRegardeAuthResult {
  * ```
  */
 export function useRegardeAuth(
-  RegardeAuthCoMap: Loaded<typeof RegardeAuth> | null | undefined,
+  regardeAuthCoMap: Loaded<typeof RegardeAuth> | null | undefined,
 ): UseRegardeAuthResult {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    if (!RegardeAuthCoMap?.$isLoaded) {
+    if (!regardeAuthCoMap?.$isLoaded) {
       setError("No registration token CoMap provided");
       return;
     }
@@ -59,7 +60,7 @@ export function useRegardeAuth(
 
     try {
       const newToken = await getRegardeAuth({
-        loadedRegardeAuthCoMap: RegardeAuthCoMap,
+        loadedRegardeAuthCoMap: regardeAuthCoMap,
       });
       if (!newToken) {
         setError("Failed to update registration token");
@@ -73,13 +74,13 @@ export function useRegardeAuth(
     } finally {
       setIsLoading(false);
     }
-  }, [RegardeAuthCoMap]);
+  }, [regardeAuthCoMap]);
 
   return {
-    token: RegardeAuthCoMap?.token ?? null,
-    tokenId: RegardeAuthCoMap?.$jazz.id ?? null,
-    expiresAt: RegardeAuthCoMap?.expiresAt ?? null,
-    isExpired: RegardeAuthCoMap ? isTokenExpired(RegardeAuthCoMap) : true,
+    token: regardeAuthCoMap?.token ?? null,
+    tokenId: regardeAuthCoMap?.$jazz.id ?? null,
+    expiresAt: regardeAuthCoMap?.expiresAt ?? null,
+    isExpired: regardeAuthCoMap ? isTokenExpired(regardeAuthCoMap) : true,
     refresh,
     isLoading,
     error,

@@ -1,12 +1,14 @@
-import { Loaded } from 'jazz-tools';
+import { Loaded } from "jazz-tools";
 
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useContact } from '#/lib/hook/useContact';
-import { RegardeProfile } from '#/lib/schema';
-import { EditorFooter } from '../../layout/footer';
-import { SectionHeader } from '../../layout/header';
-import { contactFields } from './config';
-import { ContactInput } from './input';
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useContact } from "#/lib/hook/useContact";
+import { RegardeProfile } from "#/lib/schema";
+
+import { EditorFooter } from "../../layout/footer";
+import { SectionHeader } from "../../layout/header";
+
+import { contactFields } from "./config";
+import { ContactInput } from "./input";
 
 type ContactEditProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -14,11 +16,7 @@ type ContactEditProps = {
   onCloseEditor: () => void;
 };
 
-export function ContactEdit({
-  profile,
-  triggerSyncIndicator,
-  onCloseEditor,
-}: ContactEditProps) {
+export function ContactEdit({ profile, triggerSyncIndicator, onCloseEditor }: ContactEditProps) {
   const { updateSocialLink } = useContact({ profile, triggerSyncIndicator });
 
   return (
@@ -36,11 +34,7 @@ export function ContactEdit({
               id={field.id}
               icon={field.icon}
               prefix={field.prefix}
-              value={
-                profile.socialLinks?.$isLoaded
-                  ? profile.socialLinks[field.id] || ''
-                  : ''
-              }
+              value={profile.socialLinks?.$isLoaded ? profile.socialLinks[field.id] || "" : ""}
               onChange={(value) => updateSocialLink(field.id, value)}
               placeholder={field.placeholder}
             />
@@ -50,7 +44,7 @@ export function ContactEdit({
 
       <EditorFooter
         primaryAction={{
-          text: 'Done',
+          text: "Done",
           onClick: onCloseEditor,
         }}
       />

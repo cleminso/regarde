@@ -1,8 +1,8 @@
-import { Loaded } from 'jazz-tools';
-import React from 'react';
+import { Loaded } from "jazz-tools";
+import React from "react";
 
-import { ProfileAvatar } from '#/components/ui/avatar';
-import { RegardeProfile } from '#/lib/schema';
+import { ProfileAvatar } from "#/components/ui/avatar";
+import { RegardeProfile } from "#/lib/schema";
 
 export type AvatarUploadProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -45,7 +45,7 @@ export function AvatarUpload({
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
               e.stopPropagation();
               onAvatarClick();
@@ -53,11 +53,7 @@ export function AvatarUpload({
           }}
           aria-label="Upload avatar"
         >
-          <ProfileAvatar
-            profile={profile}
-            size={92}
-            className="h-full w-full"
-          />
+          <ProfileAvatar profile={profile} size={92} className="h-full w-full" />
         </div>
       </div>
       <div className="flex h-full flex-col justify-end gap-1">

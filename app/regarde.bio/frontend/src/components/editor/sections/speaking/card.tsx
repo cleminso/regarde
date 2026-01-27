@@ -1,10 +1,11 @@
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import { Speaking } from '#/lib/schema';
-import { formatYearString } from '#/lib/utils/utils';
-import { EditorCardActions } from '../../shared/cardActions';
+import { Button } from "#/components/ui/button";
+import { Speaking } from "#/lib/schema";
+import { formatYearString } from "#/lib/utils/utils";
+
+import { EditorCardActions } from "../../shared/cardActions";
 
 type SpeakingCardProps = {
   speaking: Loaded<typeof Speaking>;
@@ -12,14 +13,10 @@ type SpeakingCardProps = {
   onDelete: (speaking: Loaded<typeof Speaking>) => void;
 };
 
-export function SpeakingCard({
-  speaking,
-  onEdit,
-  onDelete,
-}: SpeakingCardProps) {
+export function SpeakingCard({ speaking, onEdit, onDelete }: SpeakingCardProps) {
   const displayTitle = speaking.event
-    ? `${speaking.title || 'Untitled Talk'} @${speaking.event}`
-    : speaking.title || 'Untitled Talk';
+    ? `${speaking.title || "Untitled Talk"} @${speaking.event}`
+    : speaking.title || "Untitled Talk";
 
   const displayLocation = speaking.location;
   const year = formatYearString(speaking.year);
@@ -60,20 +57,14 @@ export function SpeakingCard({
               </Button>
             )}
           </div>
-          {displayLocation && (
-            <p className="text-muted-foreground text-sm">{displayLocation}</p>
-          )}
+          {displayLocation && <p className="text-muted-foreground text-sm">{displayLocation}</p>}
           {speaking.description && (
             <p className="text-muted-foreground text-sm whitespace-pre-line">
               {speaking.description}
             </p>
           )}
           <div className="mt-2">
-            <EditorCardActions
-              item={speaking}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
+            <EditorCardActions item={speaking} onEdit={onEdit} onDelete={onDelete} />
           </div>
         </div>
       </div>

@@ -46,9 +46,7 @@ export async function registerNickname(
       const errorData = await response.json().catch(() => ({}));
       return {
         success: false,
-        error:
-          errorData.error ||
-          `Server returned ${response.status}: ${response.statusText}`,
+        error: errorData.error || `Server returned ${response.status}: ${response.statusText}`,
       };
     }
 

@@ -1,14 +1,15 @@
-import { Loaded } from 'jazz-tools';
-import { useEffect, useState } from 'react';
+import { Loaded } from "jazz-tools";
+import { useEffect, useState } from "react";
 
-import { TriggerSyncIndicator } from '#/lib/hook/types';
-import { useSideProject } from '#/lib/hook/useSideProject';
-import { RegardeProfile, SideProject } from '#/lib/schema';
-import { getValidUrl } from '#/lib/utils/utils';
-import { Input, Textarea } from '../../../ui/index';
-import { EditorFooter } from '../../layout/footer';
-import { SectionHeader } from '../../layout/header';
-import { SelectorDate } from '../../shared/selectorDate';
+import { TriggerSyncIndicator } from "#/lib/hook/types";
+import { useSideProject } from "#/lib/hook/useSideProject";
+import { RegardeProfile, SideProject } from "#/lib/schema";
+import { getValidUrl } from "#/lib/utils/utils";
+
+import { Input, Textarea } from "../../../ui/index";
+import { EditorFooter } from "../../layout/footer";
+import { SectionHeader } from "../../layout/header";
+import { SelectorDate } from "../../shared/selectorDate";
 
 type SideProjectEditProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -30,32 +31,32 @@ export function SideProjectEdit({
 
   const currentYear = new Date().getFullYear().toString();
 
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [year, setYear] = useState(currentYear);
-  const [client, setClient] = useState('');
-  const [url, setUrl] = useState('');
-  const [description, setDescription] = useState('');
+  const [client, setClient] = useState("");
+  const [url, setUrl] = useState("");
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     if (sideProjectToEdit) {
-      setTitle(sideProjectToEdit.title || '');
+      setTitle(sideProjectToEdit.title || "");
       setYear(sideProjectToEdit.year || currentYear);
-      setClient(sideProjectToEdit.client || '');
-      setUrl(sideProjectToEdit.url || '');
-      setDescription(sideProjectToEdit.description || '');
+      setClient(sideProjectToEdit.client || "");
+      setUrl(sideProjectToEdit.url || "");
+      setDescription(sideProjectToEdit.description || "");
     } else {
-      setTitle('');
+      setTitle("");
       setYear(currentYear);
-      setClient('');
-      setUrl('');
-      setDescription('');
+      setClient("");
+      setUrl("");
+      setDescription("");
     }
   }, [sideProjectToEdit, currentYear]);
 
   const handleSaveAndClose = () => {
     if (!title.trim()) {
       const shouldContinue = confirm(
-        'Adding a project title helps visitors understand what you built. Would you like to save anyway?',
+        "Adding a project title helps visitors understand what you built. Would you like to save anyway?",
       );
       if (!shouldContinue) return;
     }
@@ -101,16 +102,14 @@ export function SideProjectEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Year
-                </label>
+                <label className="text-foreground block font-sans text-sm">Year</label>
                 <SelectorDate
                   id="side-project-year"
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
                   placeholderOption={{
-                    value: '',
-                    label: 'Select Year',
+                    value: "",
+                    label: "Select Year",
                     disabled: true,
                   }}
                   buttonDisplayValue={year || currentYear}
@@ -122,9 +121,7 @@ export function SideProjectEdit({
           <section>
             <div className="flex flex-col gap-4 md:flex-row">
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Company or client
-                </label>
+                <label className="text-foreground block font-sans text-sm">Company or client</label>
                 <Input
                   type="text"
                   id="side-project-client"
@@ -135,9 +132,7 @@ export function SideProjectEdit({
               </div>
 
               <div className="flex w-full flex-col gap-2">
-                <label className="text-foreground block font-sans text-sm">
-                  Link to project
-                </label>
+                <label className="text-foreground block font-sans text-sm">Link to project</label>
                 <Input
                   type="text"
                   id="side-project-url"
@@ -151,9 +146,7 @@ export function SideProjectEdit({
 
           <section>
             <div className="flex w-full flex-col gap-2">
-              <label className="text-foreground block font-sans text-sm">
-                Description
-              </label>
+              <label className="text-foreground block font-sans text-sm">Description</label>
               <Textarea
                 id="side-project-description"
                 value={description}
@@ -168,11 +161,11 @@ export function SideProjectEdit({
 
       <EditorFooter
         primaryAction={{
-          text: 'Save',
+          text: "Save",
           onClick: handleSaveAndClose,
         }}
         secondaryAction={{
-          text: 'Cancel',
+          text: "Cancel",
           onClick: onDoneEditing,
         }}
       />

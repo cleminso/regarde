@@ -2,9 +2,9 @@
  * Global test setup for React + Jazz testing
  */
 
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
 
-import { beforeEach } from 'vitest';
+import { beforeEach } from "vitest";
 
 // Global test configuration
 beforeEach(() => {

@@ -1,9 +1,7 @@
-import { logger } from '#/lib/utils/logger';
+import { logger } from "#/lib/utils/logger";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'https://api.regarde.bio';
-const AUTH_BASE_URL =
-  import.meta.env.VITE_AUTH_BASE_URL || 'https://api.regarde.dev';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.regarde.bio";
+const AUTH_BASE_URL = import.meta.env.VITE_AUTH_BASE_URL || "https://api.regarde.dev";
 
 interface UserDetails {
   jazzAccountId?: string;
@@ -150,20 +148,18 @@ export async function fetchUserDetails(options: {
   const { accountId, nickname } = options;
 
   if (!accountId && !nickname) {
-    throw new Error('Either accountId or nickname must be provided');
+    throw new Error("Either accountId or nickname must be provided");
   }
 
   const searchParams = new URLSearchParams();
   if (accountId) {
-    searchParams.append('jazzAccountId', accountId);
+    searchParams.append("jazzAccountId", accountId);
   }
   if (nickname) {
-    searchParams.append('nickname', nickname);
+    searchParams.append("nickname", nickname);
   }
 
-  const response = await fetch(
-    `${API_BASE_URL}/users?${searchParams.toString()}`,
-  );
+  const response = await fetch(`${API_BASE_URL}/users?${searchParams.toString()}`);
 
   // Handle successful responses
   if (response.ok) {
@@ -178,11 +174,11 @@ export async function fetchUserDetails(options: {
       // The frontend validation logic will handle determining what to do with it
       return data;
     } catch (parseError) {
-      logger.warn('Failed to parse 400/404 response:', parseError);
+      logger.warn("Failed to parse 400/404 response:", parseError);
       // Even if parsing fails, return a minimal object for frontend handling
       return {
         exists: false,
-        jazzAccountId: '',
+        jazzAccountId: "",
         nickname: undefined,
         requestedNickname: nickname,
         nicknameStatus: {
@@ -197,8 +193,8 @@ export async function fetchUserDetails(options: {
   // Handle other error cases
   const errorData = await response
     .json()
-    .catch(() => ({ message: 'Failed to fetch user details' }));
-  logger.error('API Error fetchUserDetails:', errorData);
+    .catch(() => ({ message: "Failed to fetch user details" }));
+  logger.error("API Error fetchUserDetails:", errorData);
 
   throw new Error(
     errorData.message ||
@@ -216,9 +212,7 @@ export async function fetchUserDetails(options: {
  * @example
  * const user = await fetchUserDetailsByAccountId('co_zdpuB2Ww8jKvjq7Kp9M4N5o6P7q8R9s0T');
  */
-export async function fetchUserDetailsByAccountId(
-  accountId: string,
-): Promise<UserDetails> {
+export async function fetchUserDetailsByAccountId(accountId: string): Promise<UserDetails> {
   return fetchUserDetails({ accountId });
 }
 
@@ -232,9 +226,7 @@ export async function fetchUserDetailsByAccountId(
  * @example
  * const user = await fetchUserDetailsByNickname('john_doe');
  */
-export async function fetchUserDetailsByNickname(
-  nickname: string,
-): Promise<UserDetails> {
+export async function fetchUserDetailsByNickname(nickname: string): Promise<UserDetails> {
   return fetchUserDetails({ nickname });
 }
 
@@ -268,19 +260,13 @@ export function isNicknameOwnedByAccount(
   accountId: string,
   requestedNickname: string,
 ): boolean {
-  return (
-    userDetails.jazzAccountId === accountId &&
-    userDetails.nickname === requestedNickname
-  );
+  return userDetails.jazzAccountId === accountId && userDetails.nickname === requestedNickname;
 }
 
 /**
  * Gets the actual nickname owned by an account (if any)
  */
-export function getAccountNickname(
-  userDetails: UserDetails,
-  accountId: string,
-): string | null {
+export function getAccountNickname(userDetails: UserDetails, accountId: string): string | null {
   if (userDetails.jazzAccountId === accountId && userDetails.nickname) {
     return userDetails.nickname;
   }
@@ -297,16 +283,16 @@ export function validateNicknameOwnership(
 ): {
   isValid: boolean;
   redirectTo?: string;
-  reason: 'valid' | 'wrong_nickname' | 'not_owned' | 'not_found';
+  reason: "valid" | "wrong_nickname" | "not_owned" | "not_found";
 } {
   // Handle cases where userDetails might be partial (from 400/404 responses)
-  if (!userDetails || typeof userDetails !== 'object') {
-    return { isValid: false, reason: 'not_found' };
+  if (!userDetails || typeof userDetails !== "object") {
+    return { isValid: false, reason: "not_found" };
   }
 
   // Account owns the requested nickname
   if (isNicknameOwnedByAccount(userDetails, accountId, requestedNickname)) {
-    return { isValid: true, reason: 'valid' };
+    return { isValid: true, reason: "valid" };
   }
 
   // Account exists but owns a different nickname
@@ -315,47 +301,46 @@ export function validateNicknameOwnership(
     return {
       isValid: false,
       redirectTo: actualNickname,
-      reason: 'wrong_nickname',
+      reason: "wrong_nickname",
     };
   }
 
   // Check if the response indicates the account ID doesn't match
   if (userDetails.jazzAccountId && userDetails.jazzAccountId !== accountId) {
-    return { isValid: false, reason: 'not_owned' };
+    return { isValid: false, reason: "not_owned" };
   }
 
   // Handle case where exists field is explicitly false
   if (userDetails.exists === false) {
-    return { isValid: false, reason: 'not_found' };
+    return { isValid: false, reason: "not_found" };
   }
 
   // Handle cases where we have minimal data (e.g., error responses)
   if (!userDetails.jazzAccountId && !userDetails.nickname) {
-    return { isValid: false, reason: 'not_found' };
+    return { isValid: false, reason: "not_found" };
   }
 
   // Default case
-  return { isValid: false, reason: 'not_found' };
+  return { isValid: false, reason: "not_found" };
 }
 
 export async function checkNicknameAvailability(
   nickname: string,
 ): Promise<CheckAvailabilityResponse> {
   const response = await fetch(`${AUTH_BASE_URL}/checkAvailability`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ nickname }),
   });
   if (!response.ok) {
     const errorData = await response
       .json()
-      .catch(() => ({ message: 'Failed to check nickname availability' }));
-    logger.error('API Error checkNicknameAvailability:', errorData);
+      .catch(() => ({ message: "Failed to check nickname availability" }));
+    logger.error("API Error checkNicknameAvailability:", errorData);
     throw new Error(
-      errorData.message ||
-        `Failed to check nickname availability. Status: ${response.status}`,
+      errorData.message || `Failed to check nickname availability. Status: ${response.status}`,
     );
   }
   return response.json();
@@ -379,9 +364,9 @@ export async function updateUserNickname(
   }
 
   const response = await fetch(`${API_BASE_URL}/register`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
   });
@@ -389,29 +374,22 @@ export async function updateUserNickname(
   if (response.status === 204) {
     return true; // Success, no content
   } else if (!response.ok) {
-    const errorData = await response
-      .json()
-      .catch(() => ({ message: 'Failed to update nickname' }));
-    logger.error('API Error updateUserNickname:', errorData);
+    const errorData = await response.json().catch(() => ({ message: "Failed to update nickname" }));
+    logger.error("API Error updateUserNickname:", errorData);
     // Provide more specific error messages based on status codes if possible
-    let errorMessage =
-      errorData.message ||
-      `Failed to update nickname. Status: ${response.status}`;
+    let errorMessage = errorData.message || `Failed to update nickname. Status: ${response.status}`;
     if (response.status === 409) {
       errorMessage =
-        errorData.error === 'Nickname already taken'
-          ? 'This nickname is already taken.'
-          : 'Conflict updating nickname.';
-      if (
-        errorData.error &&
-        errorData.error.startsWith('Account already has a nickname:')
-      ) {
+        errorData.error === "Nickname already taken"
+          ? "This nickname is already taken."
+          : "Conflict updating nickname.";
+      if (errorData.error && errorData.error.startsWith("Account already has a nickname:")) {
         errorMessage = errorData.error;
       }
     } else if (response.status === 403) {
       errorMessage = "You're not allowed to perform this nickname update.";
     } else if (response.status === 400) {
-      errorMessage = `Invalid request: ${errorData.error || 'Please check the nickname.'}`;
+      errorMessage = `Invalid request: ${errorData.error || "Please check the nickname."}`;
     }
     throw new Error(errorMessage);
   }

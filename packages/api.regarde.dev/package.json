@@ -2,13 +2,22 @@
   "name": "@regarde-dev/api.regarde.dev",
   "version": "1.0.0",
   "description": "api.regarde.dev API server",
-  "main": "dist/index.js",
-  "type": "module",
+  "keywords": [
+    "api",
+    "authentication",
+    "jazz",
+    "nickname-registry",
+    "regarde"
+  ],
+  "license": "ISC",
+  "author": "",
   "repository": {
     "type": "git",
     "url": "https://github.com/cleminso/regarde.git",
     "directory": "packages/api.regarde.dev"
   },
+  "type": "module",
+  "main": "dist/index.js",
   "scripts": {
     "build": "rm -rf dist && vite build",
     "start": "node dist/index.js",
@@ -21,15 +30,6 @@
     "test:ui": "vitest --ui",
     "test:run": "vitest run"
   },
-  "keywords": [
-    "jazz",
-    "api",
-    "nickname-registry",
-    "authentication",
-    "regarde"
-  ],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@hono/node-server": "catalog:",
     "@hono/swagger-ui": "catalog:",

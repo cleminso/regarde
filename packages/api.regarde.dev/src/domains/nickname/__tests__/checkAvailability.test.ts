@@ -3,6 +3,7 @@
  */
 
 import { describe, it, expect } from "vitest";
+
 import { createMockCheckAvailabilityRequest } from "#/test-utils/index.js";
 
 // Simple business logic functions to test availability checking
@@ -22,9 +23,7 @@ function validateNickname(nickname: string) {
   }
 
   if (!/^[a-zA-Z0-9_-]+$/.test(nickname)) {
-    errors.push(
-      "Nickname can only contain letters, numbers, underscores, and hyphens",
-    );
+    errors.push("Nickname can only contain letters, numbers, underscores, and hyphens");
   }
 
   return {
@@ -33,10 +32,7 @@ function validateNickname(nickname: string) {
   };
 }
 
-function checkNicknameAvailability(
-  nickname: string,
-  existingNicknames: string[] = [],
-) {
+function checkNicknameAvailability(nickname: string, existingNicknames: string[] = []) {
   const validation = validateNickname(nickname);
 
   if (!validation.isValid) {
@@ -66,10 +62,7 @@ describe("Nickname Availability Logic - Business Rules", () => {
     // Test availability checking logic
     const existingNicknames = ["taken", "reserved"];
 
-    const availableResult = checkNicknameAvailability(
-      "newuser",
-      existingNicknames,
-    );
+    const availableResult = checkNicknameAvailability("newuser", existingNicknames);
     expect(availableResult.available).toBe(true);
 
     const takenResult = checkNicknameAvailability("taken", existingNicknames);
@@ -81,11 +74,7 @@ describe("Nickname Availability Logic - Business Rules", () => {
     // Test case handling business logic
     const existingNicknames = ["taken"];
 
-    expect(
-      checkNicknameAvailability("TAKEN", existingNicknames).available,
-    ).toBe(false);
-    expect(
-      checkNicknameAvailability("TaKeN", existingNicknames).available,
-    ).toBe(false);
+    expect(checkNicknameAvailability("TAKEN", existingNicknames).available).toBe(false);
+    expect(checkNicknameAvailability("TaKeN", existingNicknames).available).toBe(false);
   });
 });

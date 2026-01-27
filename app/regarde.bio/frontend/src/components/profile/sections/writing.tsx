@@ -1,9 +1,9 @@
-import { Loaded } from 'jazz-tools';
-import { ArrowUpRight } from 'lucide-react';
+import type { RegardeProfile, Writing } from "#/lib/schema";
+import { Loaded } from "jazz-tools";
+import { ArrowUpRight } from "lucide-react";
 
-import { Button } from '#/components/ui/button';
-import type { RegardeProfile, Writing } from '#/lib/schema';
-import { formatYearString, getValidUrl } from '#/lib/utils/utils';
+import { Button } from "#/components/ui/button";
+import { formatYearString, getValidUrl } from "#/lib/utils/utils";
 
 type WritingsProps = {
   profile: Loaded<typeof RegardeProfile>;
@@ -12,8 +12,7 @@ type WritingsProps = {
 export function Writings({ profile }: WritingsProps) {
   const writings = profile.writing?.$isLoaded
     ? profile.writing.filter(
-        (writing: any): writing is Loaded<typeof Writing> =>
-          writing?.$isLoaded === true,
+        (writing: any): writing is Loaded<typeof Writing> => writing?.$isLoaded === true,
       )
     : [];
 
@@ -32,8 +31,8 @@ export function Writings({ profile }: WritingsProps) {
         <div className="space-y-6">
           {writings.map((writing: any) => {
             const displayTitle = writing.publisher
-              ? `${writing.title || 'Untitled'} @${writing.publisher}`
-              : writing.title || 'Untitled';
+              ? `${writing.title || "Untitled"} @${writing.publisher}`
+              : writing.title || "Untitled";
 
             const writingLink = getValidUrl(writing.url);
 

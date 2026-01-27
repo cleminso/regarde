@@ -27,8 +27,7 @@ export const avatarHandler = () => {
 
     try {
       // Call api.regarde.dev /lookup endpoint to resolve nickname
-      const authServiceUrl =
-        process.env.AUTH_SERVICE_URL || "https://api.regarde.dev";
+      const authServiceUrl = process.env.AUTH_SERVICE_URL || "https://api.regarde.dev";
       const lookupUrl = `${authServiceUrl}/lookup/${encodeURIComponent(nickname)}`;
 
       const lookupResponse = await fetch(lookupUrl);
@@ -38,9 +37,7 @@ export const avatarHandler = () => {
       }
 
       if (!lookupResponse.ok) {
-        console.error(
-          `api.regarde.dev lookup API returned error: ${lookupResponse.status}`,
-        );
+        console.error(`api.regarde.dev lookup API returned error: ${lookupResponse.status}`);
         return c.notFound();
       }
 
@@ -52,8 +49,7 @@ export const avatarHandler = () => {
       }
 
       // Load profile data to get avatar
-      const { RegardeAccount, RegardeProfile } =
-        await import("@regarde-dev/jazz-schemas");
+      const { RegardeAccount, RegardeProfile } = await import("@regarde-dev/jazz-schemas");
 
       const jazzUserAccount = await RegardeAccount.load(accountId, {
         resolve: { profile: { "regarde.bio": true } },
@@ -63,14 +59,11 @@ export const avatarHandler = () => {
         return c.notFound();
       }
 
-      const profileData = await RegardeProfile.load(
-        jazzUserAccount.profile["regarde.bio"],
-        {
-          resolve: {
-            avatarImage: { original: true },
-          },
+      const profileData = await RegardeProfile.load(jazzUserAccount.profile["regarde.bio"], {
+        resolve: {
+          avatarImage: { original: true },
         },
-      );
+      });
 
       if (!profileData?.avatarImage?.original) {
         return c.notFound();

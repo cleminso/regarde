@@ -1,6 +1,8 @@
-import { verifyRegardeAuth } from "./verify";
 import type { Loaded } from "jazz-tools";
+
 import { RegistryWorkerAccount, useLogging } from "@regarde-dev/core";
+
+import { verifyRegardeAuth } from "./verify";
 
 const logger = useLogging({
   module: __filename,
@@ -70,16 +72,13 @@ export const verifyHandler = (worker: Loaded<typeof RegistryWorkerAccount>) => {
         data: {
           isValid: verificationResult.isValid,
           jazzAccountId:
-            jazzAccountId === null || jazzAccountId === undefined
-              ? "not provided"
-              : "[SANITIZED]",
+            jazzAccountId === null || jazzAccountId === undefined ? "not provided" : "[SANITIZED]",
         },
       });
 
       return c.json(verificationResult, 200);
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Internal Server Error";
+      const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
       logger.error({
         message: "Failed to process /verify request",
         data: {

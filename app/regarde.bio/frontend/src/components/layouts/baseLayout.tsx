@@ -1,4 +1,4 @@
-import { LandingHeader } from '../onboarding/landingHeader';
+import { LandingHeader } from "../onboarding/landingHeader";
 
 interface BaseLayoutProps {
   children: React.ReactNode;
@@ -15,7 +15,7 @@ export function BaseLayout({
     <div className="bg-background min-h-screen">
       {showHeader && <LandingHeader />}
       <main
-        className={`${isLandingPage ? 'container mt-12' : 'container-full'} ${showHeader ? 'py-6' : ''}`}
+        className={`${isLandingPage ? "container mt-12" : "container-full"} ${showHeader ? "py-6" : ""}`}
       >
         {children}
       </main>
