@@ -42,11 +42,14 @@ export async function registerNickname(
       signal: params.signal,
     });
 
-    if (!response.ok) {
+    const isResponseOk = response.ok === true;
+    if (isResponseOk === false) {
       const errorData = await response.json().catch(() => ({}));
       return {
         success: false,
-        error: errorData.error || `Server returned ${response.status}: ${response.statusText}`,
+        error:
+          errorData.error ||
+          `Server returned ${response.status}: ${response.statusText}`,
       };
     }
 
@@ -84,7 +87,8 @@ export async function checkNicknameAvailability(
       signal: params.signal,
     });
 
-    if (!response.ok) {
+    const isResponseOk = response.ok === true;
+    if (isResponseOk === false) {
       throw new Error(
         `Failed to check availability. Server returned ${response.status} ${response.statusText}`,
       );

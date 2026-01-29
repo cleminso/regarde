@@ -1,6 +1,7 @@
 import { co } from "jazz-tools";
 import { z } from "zod";
 
+import { useLogging } from "#core/logger";
 import { AppRegistry, AppsByUserRecord, AllRegistryAppsSchema } from "./app";
 import { RegistryAuditLog } from "./audit";
 import {
@@ -8,6 +9,8 @@ import {
   ReverseNicknameRegistryCoRecord,
   ReservedNicknamesRegistry,
 } from "./nickname";
+
+const logger = useLogging({ module: __filename });
 
 /**
  * Idempotency index for webhook events.
@@ -40,7 +43,9 @@ export const RegistryWorkerAccountRoot = co.map({
 });
 
 /** Loaded RegistryWorkerAccountRoot instance */
-export type TRegistryWorkerAccountRoot = co.loaded<typeof RegistryWorkerAccountRoot>;
+export type TRegistryWorkerAccountRoot = co.loaded<
+  typeof RegistryWorkerAccountRoot
+>;
 
 const EmptyProfile = co.profile();
 
@@ -60,7 +65,6 @@ export const RegistryWorkerAccount = co
     root: RegistryWorkerAccountRoot,
   })
   .withMigration(async (account) => {
-    // Migration logic - implementation detail
     try {
       const loadedAccount = await account.$jazz.ensureLoaded({
         resolve: {
@@ -68,144 +72,255 @@ export const RegistryWorkerAccount = co
         },
       });
 
-      console.dir("Loaded via ensureLoaded", loadedAccount);
-
-      if (!loadedAccount.root.$isLoaded) {
-        const newRoot = RegistryWorkerAccountRoot.create({
-          registry: NicknameRegistryCoRecord.create({}),
-          reverseRegistry: ReverseNicknameRegistryCoRecord.create({}),
-          auditLog: RegistryAuditLog.create([]),
-          reservedNicknames: ReservedNicknamesRegistry.create({}),
-          apps: AppRegistry.create({
-            appsByUser: AppsByUserRecord.create({}),
-            apps: AllRegistryAppsSchema.create({}),
-            metadata: {},
-            registeredAt: Date.now(),
-            version: 1,
-          }),
-          processedProviderEvents: ProcessedProviderEvents.create({}),
-        });
-        loadedAccount.$jazz.set("root", newRoot);
-        console.log("Root created after ensureLoaded since it was missing.");
-        return;
-      }
-
-      console.debug("Root done");
-
-      if (loadedAccount.root.registry === undefined) {
+      if (loadedAccount.root.$isLoaded === false) {
+        // Create all nested CoValues first
         const newRegistry = NicknameRegistryCoRecord.create({});
-        loadedAccount.root.$jazz.set("registry", newRegistry);
-        console.log("NicknameRegistry created in worker account root.");
-      }
-
-      console.debug("Root registry done");
-
-      if (loadedAccount.root.reverseRegistry === undefined) {
         const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
-        loadedAccount.root.$jazz.set("reverseRegistry", newReverseRegistry);
-        console.log("ReverseNicknameRegistry created in worker account root.");
-      }
-
-      console.debug("Root reverse registry done");
-
-      if (loadedAccount.root.auditLog === undefined) {
         const newAuditLog = RegistryAuditLog.create([]);
-        loadedAccount.root.$jazz.set("auditLog", newAuditLog);
-        console.log("AuditLog created in worker account root.");
-      }
-
-      console.debug("Root auditLog done");
-
-      if (loadedAccount.root.reservedNicknames === undefined) {
         const newReservedNicknames = ReservedNicknamesRegistry.create({});
-        loadedAccount.root.$jazz.set("reservedNicknames", newReservedNicknames);
-        console.log("ReservedNicknames created in worker account root.");
-      }
 
-      console.debug("Root reservedNicknames done");
-
-      if (loadedAccount.root.apps === undefined) {
+        const appsByUser = AppsByUserRecord.create({});
+        const allApps = AllRegistryAppsSchema.create({});
         const newAppsRegistry = AppRegistry.create({
-          appsByUser: AppsByUserRecord.create({}),
-          apps: AllRegistryAppsSchema.create({}),
+          appsByUser: appsByUser,
+          apps: allApps,
           metadata: {},
           registeredAt: Date.now(),
           version: 1,
         });
-        loadedAccount.root.$jazz.set("apps", newAppsRegistry);
-        console.log("AppRegistry created in worker account root.");
-      }
 
-      if (loadedAccount.root.processedProviderEvents === undefined) {
         const newProcessedProviderEvents = ProcessedProviderEvents.create({});
-        loadedAccount.root.$jazz.set("processedProviderEvents", newProcessedProviderEvents);
-        console.log("ProcessedProviderEvents created in worker account root.");
+
+        // Create root with all children and set in one operation
+        const newRoot = RegistryWorkerAccountRoot.create({
+          registry: newRegistry,
+          reverseRegistry: newReverseRegistry,
+          auditLog: newAuditLog,
+          reservedNicknames: newReservedNicknames,
+          apps: newAppsRegistry,
+          processedProviderEvents: newProcessedProviderEvents,
+        });
+
+        loadedAccount.$jazz.set("root", newRoot);
+        await newRoot.$jazz.waitForSync();
+        await loadedAccount.$jazz.waitForSync();
+
+        logger.info({
+          message: "Root created with all registries after ensureLoaded",
+          data: { accountId: loadedAccount.$jazz.id },
+        });
+        return;
       }
 
-      console.debug("Root apps done");
-    } catch (e) {
-      console.log("EnsureLoaded Root failed, fallback", account, e);
-
-      const accountRootExists = account.root !== undefined && account.root !== null;
-      const rootLoaded = accountRootExists === true && account.root.$isLoaded === true;
-
-      if (rootLoaded === false) {
-        const newRoot = RegistryWorkerAccountRoot.create({
-          registry: NicknameRegistryCoRecord.create({}),
-          reverseRegistry: ReverseNicknameRegistryCoRecord.create({}),
-          auditLog: RegistryAuditLog.create([]),
-          reservedNicknames: ReservedNicknamesRegistry.create({}),
-          apps: AppRegistry.create({
-            appsByUser: AppsByUserRecord.create({}),
-            apps: AllRegistryAppsSchema.create({}),
-            metadata: {},
-            registeredAt: Date.now(),
-            version: 1,
-          }),
-          processedProviderEvents: ProcessedProviderEvents.create({}),
+      // Check and create individual fields if missing
+      const hasRegistry = loadedAccount.root.$jazz.has("registry") === true;
+      if (hasRegistry === false) {
+        const newRegistry = NicknameRegistryCoRecord.create({});
+        loadedAccount.root.$jazz.set("registry", newRegistry);
+        await loadedAccount.root.$jazz.waitForSync();
+        logger.info({
+          message: "NicknameRegistry created in worker account root",
+          data: {},
         });
-        account.$jazz.set("root", newRoot);
+      }
 
-        console.log(
-          "Root created with NicknameRegistry, ReverseNicknameRegistry, AuditLog, ReservedNicknames, and AppRegistry in worker account since it was missing.",
+      const hasReverseRegistry =
+        loadedAccount.root.$jazz.has("reverseRegistry") === true;
+      if (hasReverseRegistry === false) {
+        const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
+        loadedAccount.root.$jazz.set("reverseRegistry", newReverseRegistry);
+        await loadedAccount.root.$jazz.waitForSync();
+        logger.info({
+          message: "ReverseNicknameRegistry created in worker account root",
+          data: {},
+        });
+      }
+
+      const hasAuditLog = loadedAccount.root.$jazz.has("auditLog") === true;
+      if (hasAuditLog === false) {
+        const newAuditLog = RegistryAuditLog.create([]);
+        loadedAccount.root.$jazz.set("auditLog", newAuditLog);
+        await loadedAccount.root.$jazz.waitForSync();
+        logger.info({
+          message: "AuditLog created in worker account root",
+          data: {},
+        });
+      }
+
+      const hasReservedNicknames =
+        loadedAccount.root.$jazz.has("reservedNicknames") === true;
+      if (hasReservedNicknames === false) {
+        const newReservedNicknames = ReservedNicknamesRegistry.create({});
+        loadedAccount.root.$jazz.set("reservedNicknames", newReservedNicknames);
+        await loadedAccount.root.$jazz.waitForSync();
+        logger.info({
+          message: "ReservedNicknames created in worker account root",
+          data: {},
+        });
+      }
+
+      const hasApps = loadedAccount.root.$jazz.has("apps") === true;
+      if (hasApps === false) {
+        const appsByUser = AppsByUserRecord.create({});
+        const allApps = AllRegistryAppsSchema.create({});
+        const newAppsRegistry = AppRegistry.create({
+          appsByUser: appsByUser,
+          apps: allApps,
+          metadata: {},
+          registeredAt: Date.now(),
+          version: 1,
+        });
+
+        loadedAccount.root.$jazz.set("apps", newAppsRegistry);
+        await loadedAccount.root.$jazz.waitForSync();
+        logger.info({
+          message: "AppRegistry created in worker account root",
+          data: {},
+        });
+      }
+
+      const hasProcessedProviderEvents =
+        loadedAccount.root.$jazz.has("processedProviderEvents") === true;
+      if (hasProcessedProviderEvents === false) {
+        const newProcessedProviderEvents = ProcessedProviderEvents.create({});
+        loadedAccount.root.$jazz.set(
+          "processedProviderEvents",
+          newProcessedProviderEvents,
         );
+        await loadedAccount.root.$jazz.waitForSync();
+        logger.info({
+          message: "ProcessedProviderEvents created in worker account root",
+          data: {},
+        });
+      }
+    } catch (error) {
+      logger.error({
+        message: "EnsureLoaded Root failed, using fallback migration",
+        data: { error: error instanceof Error ? error.message : String(error) },
+      });
+
+      if (account.root === null || account.root.$isLoaded === false) {
+        // Create all nested CoValues first
+        const newRegistry = NicknameRegistryCoRecord.create({});
+        const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
+        const newAuditLog = RegistryAuditLog.create([]);
+        const newReservedNicknames = ReservedNicknamesRegistry.create({});
+
+        const appsByUser = AppsByUserRecord.create({});
+        const allApps = AllRegistryAppsSchema.create({});
+        const newAppsRegistry = AppRegistry.create({
+          appsByUser: appsByUser,
+          apps: allApps,
+          metadata: {},
+          registeredAt: Date.now(),
+          version: 1,
+        });
+
+        const newProcessedProviderEvents = ProcessedProviderEvents.create({});
+
+        // Create root with all children and set in one operation
+        const newRoot = RegistryWorkerAccountRoot.create({
+          registry: newRegistry,
+          reverseRegistry: newReverseRegistry,
+          auditLog: newAuditLog,
+          reservedNicknames: newReservedNicknames,
+          apps: newAppsRegistry,
+          processedProviderEvents: newProcessedProviderEvents,
+        });
+
+        account.$jazz.set("root", newRoot);
+        await newRoot.$jazz.waitForSync();
+        await account.$jazz.waitForSync();
+
+        logger.info({
+          message: "Root created with all registries in fallback migration",
+          data: {},
+        });
       } else {
-        if (account.root.registry === undefined) {
+        // Check and create individual fields with sync waits
+        const hasRegistry = account.root.$jazz.has("registry") === true;
+        if (hasRegistry === false) {
           const newRegistry = NicknameRegistryCoRecord.create({});
           account.root.$jazz.set("registry", newRegistry);
-          console.log("NicknameRegistry created in existing root during fallback.");
+          await account.root.$jazz.waitForSync();
+          logger.info({
+            message:
+              "NicknameRegistry created in existing root during fallback",
+            data: {},
+          });
         }
-        if (account.root.reverseRegistry === undefined) {
+
+        const hasReverseRegistry =
+          account.root.$jazz.has("reverseRegistry") === true;
+        if (hasReverseRegistry === false) {
           const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
           account.root.$jazz.set("reverseRegistry", newReverseRegistry);
-          console.log("ReverseNicknameRegistry created in existing root during fallback.");
+          await account.root.$jazz.waitForSync();
+          logger.info({
+            message:
+              "ReverseNicknameRegistry created in existing root during fallback",
+            data: {},
+          });
         }
-        if (account.root.auditLog === undefined) {
+
+        const hasAuditLog = account.root.$jazz.has("auditLog") === true;
+        if (hasAuditLog === false) {
           const newAuditLog = RegistryAuditLog.create([]);
           account.root.$jazz.set("auditLog", newAuditLog);
-          console.log("AuditLog created in existing root during fallback.");
+          await account.root.$jazz.waitForSync();
+          logger.info({
+            message: "AuditLog created in existing root during fallback",
+            data: {},
+          });
         }
-        if (account.root.reservedNicknames === undefined) {
+
+        const hasReservedNicknames =
+          account.root.$jazz.has("reservedNicknames") === true;
+        if (hasReservedNicknames === false) {
           const newReservedNicknames = ReservedNicknamesRegistry.create({});
           account.root.$jazz.set("reservedNicknames", newReservedNicknames);
-          console.log("ReservedNicknames created in existing root during fallback.");
+          await account.root.$jazz.waitForSync();
+          logger.info({
+            message:
+              "ReservedNicknames created in existing root during fallback",
+            data: {},
+          });
         }
-        if (account.root.apps === undefined) {
+
+        const hasApps = account.root.$jazz.has("apps") === true;
+        if (hasApps === false) {
+          const appsByUser = AppsByUserRecord.create({});
+          const allApps = AllRegistryAppsSchema.create({});
           const newAppsRegistry = AppRegistry.create({
-            appsByUser: AppsByUserRecord.create({}),
-            apps: AllRegistryAppsSchema.create({}),
+            appsByUser: appsByUser,
+            apps: allApps,
             metadata: {},
             registeredAt: Date.now(),
             version: 1,
           });
+
           account.root.$jazz.set("apps", newAppsRegistry);
-          console.log("AppRegistry created in existing root during fallback.");
+          await account.root.$jazz.waitForSync();
+          logger.info({
+            message: "AppRegistry created in existing root during fallback",
+            data: {},
+          });
         }
 
-        if (account.root.processedProviderEvents === undefined) {
+        const hasProcessedProviderEvents =
+          account.root.$jazz.has("processedProviderEvents") === true;
+        if (hasProcessedProviderEvents === false) {
           const newProcessedProviderEvents = ProcessedProviderEvents.create({});
-          account.root.$jazz.set("processedProviderEvents", newProcessedProviderEvents);
-          console.log("ProcessedProviderEvents created in existing root during fallback.");
+          account.root.$jazz.set(
+            "processedProviderEvents",
+            newProcessedProviderEvents,
+          );
+          await account.root.$jazz.waitForSync();
+          logger.info({
+            message:
+              "ProcessedProviderEvents created in existing root during fallback",
+            data: {},
+          });
         }
       }
     }
