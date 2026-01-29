@@ -46,6 +46,8 @@ packages/
 ├── api.regarde.dev/   # Registry API service for Regarde.dev SDK
 ├── cli/               # User CLI tool
 └── admin/             # Admin CLI tool
+app/
+└── regarde.bio/       # Regarde.bio application
 ```
 
 ## Philosophy
@@ -115,12 +117,6 @@ if (accountValid === false) {
 - Use `__tests__/` folders next to implementation files
 - Test naming: `should [outcome] when [condition]`
 
-### Logging
-
-- No emojis in code, logs, or error messages
-- Logger prefixes: `[ERROR]`, `[WARN]`, `[INFO]`, `[DEBUG]`, `[SUCCESS]`
-- Example: `logger.error('Failed to validate nickname')`
-
 ## Jazz Architecture Rules
 
 ### Schema Usage
@@ -165,3 +161,12 @@ if (accountValid === false) {
 - `App`: User's app CoMap instance
 - `PaymentEvent`: Payment transaction CoMap instance
 - `RegistryAppMetadata`: Registry metadata CoMap instance
+
+## Package-Specific Guidelines
+
+For detailed package-specific guidelines, see:
+
+- `packages/sdk/AGENTS.md` - Core SDK architecture and patterns
+- `packages/api.regarde.dev/AGENTS.md` - API server architecture and patterns
+- `packages/cli/AGENTS.md` - User CLI (public) for authentication and app registration
+- `packages/admin/AGENTS.md` - Admin CLI (developer-only) for registry operations
