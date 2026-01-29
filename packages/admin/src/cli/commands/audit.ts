@@ -1,8 +1,12 @@
 import { type ToolConfig } from "@alcyone-labs/arg-parser";
 import type { TRegistryAuditEntry } from "@regarde-dev/core";
+import { z } from "zod";
 
 import { Logger } from "../../utils/logger.js";
 import { withAdminService } from "../types.js";
+
+const AUDIT_SOURCES = ["admin-cli", "user-app", "worker"] as const;
+const AUDIT_SOURCE_SCHEMA = z.enum(AUDIT_SOURCES);
 
 type AuditEntryDto = {
   monotonicId: string;
@@ -46,7 +50,7 @@ export const auditCommands: ToolConfig[] = [
       },
       {
         name: "source",
-        type: "string",
+        type: AUDIT_SOURCE_SCHEMA,
         mandatory: false,
         options: ["--source"],
         description: "Filter by source (admin-cli, user-app, worker)",
@@ -57,10 +61,6 @@ export const auditCommands: ToolConfig[] = [
         let entries: TRegistryAuditEntry[];
 
         if (ctx.args.source) {
-          const validSources = ["admin-cli", "user-app", "worker"];
-          if (!validSources.includes(ctx.args.source)) {
-            throw new Error(`Invalid source. Must be one of: ${validSources.join(", ")}`);
-          }
           entries = await admin.getHistoryBySource(ctx.args.source, ctx.args.limit);
         } else {
           entries = await admin.getChangeHistory(ctx.args.limit);

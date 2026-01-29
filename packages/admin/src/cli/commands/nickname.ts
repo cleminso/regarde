@@ -29,7 +29,8 @@ export const nicknameCommands: ToolConfig[] = [
         type: "boolean",
         mandatory: false,
         options: ["--allow-reserved"],
-        description: "Allow registration of reserved nicknames (admin override)",
+        description:
+          "Allow registration of reserved nicknames (admin override)",
       },
     ],
     handler: async (ctx) => {
@@ -68,7 +69,10 @@ export const nicknameCommands: ToolConfig[] = [
     ],
     handler: async (ctx) => {
       return withAdminService(async (admin) => {
-        const result = await admin.updateNickname(ctx.args.nickname, ctx.args.accountId);
+        const result = await admin.updateNickname(
+          ctx.args.nickname,
+          ctx.args.accountId,
+        );
         Logger.success(
           `Successfully transferred nickname "${ctx.args.nickname}" to account ${ctx.args.accountId}`,
         );
@@ -106,10 +110,11 @@ export const nicknameCommands: ToolConfig[] = [
 
   {
     name: "fix-account-access",
-    description: "Fix worker access to account by granting current worker permissions",
+    description:
+      "Fix worker access to account by granting current worker permissions",
     flags: [
       {
-        name: "account-id",
+        name: "accountId",
         type: "string",
         mandatory: true,
         options: ["--account-id"],
@@ -117,7 +122,7 @@ export const nicknameCommands: ToolConfig[] = [
       },
     ],
     handler: async (ctx) => {
-      const accountId = ctx.args["account-id"] as string;
+      const accountId = ctx.args.accountId;
 
       return withAdminService(async (admin) => {
         Logger.info(`Attempting to fix access for account: ${accountId}`);
@@ -164,7 +169,8 @@ export const nicknameCommands: ToolConfig[] = [
             error: "Account is not loaded or root is not available",
           };
         } catch (error: unknown) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
           Logger.error(`Failed to fix account access: ${errorMessage}`);
 
           // If loading fails, the account might be on a different sync server

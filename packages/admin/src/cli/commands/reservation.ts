@@ -1,7 +1,11 @@
 import { type ToolConfig } from "@alcyone-labs/arg-parser";
+import { z } from "zod";
 
 import { Logger } from "../../utils/logger.js";
 import { withAdminService } from "../types.js";
+
+const RESERVATION_CATEGORIES = ["admin", "brand", "system", "offensive", "custom"] as const;
+const RESERVATION_CATEGORY_SCHEMA = z.enum(RESERVATION_CATEGORIES);
 
 export const reservationCommands: ToolConfig[] = [
   {
@@ -16,32 +20,23 @@ export const reservationCommands: ToolConfig[] = [
         description: "The nickname to reserve",
       },
       {
-        name: "reason",
-        type: "string",
-        mandatory: false,
-        options: ["--reason"],
-        description: "Reason for reservation",
-      },
-      {
         name: "category",
-        type: "string",
+        type: RESERVATION_CATEGORY_SCHEMA,
         mandatory: false,
         options: ["--category"],
         description: "Reservation category (admin, brand, system, offensive, custom)",
+        defaultValue: "custom",
       },
     ],
     handler: async (ctx) => {
       return withAdminService(async (admin) => {
-        const category = ctx.args.category || "custom";
-        const validCategories = ["admin", "brand", "system", "offensive", "custom"];
-
-        if (!validCategories.includes(category)) {
-          throw new Error(`Invalid category. Must be one of: ${validCategories.join(", ")}`);
-        }
-
-        const result = await admin.reserveNickname(ctx.args.nickname, category, ctx.args.reason);
+        const result = await admin.reserveNickname(
+          ctx.args.nickname,
+          ctx.args.category,
+          ctx.args.reason,
+        );
         Logger.success(
-          `Successfully reserved nickname "${ctx.args.nickname}" (category: ${category})`,
+          `Successfully reserved nickname "${ctx.args.nickname}" (category: ${ctx.args.category})`,
         );
         if (ctx.args.reason) {
           Logger.info(`Reason: ${ctx.args.reason}`);
@@ -78,7 +73,7 @@ export const reservationCommands: ToolConfig[] = [
     flags: [
       {
         name: "category",
-        type: "string",
+        type: RESERVATION_CATEGORY_SCHEMA,
         mandatory: false,
         options: ["--category"],
         description: "Filter by category (admin, brand, system, offensive, custom)",

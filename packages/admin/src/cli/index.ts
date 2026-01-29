@@ -1,6 +1,9 @@
-import { ArgParser, type IFlag, type ToolConfig } from "@alcyone-labs/arg-parser";
-
-import { Logger } from "../utils/logger.js";
+import {
+  ArgParser,
+  type IFlag,
+  type ToolConfig,
+  FlagInheritance,
+} from "@alcyone-labs/arg-parser";
 
 import { auditCommands } from "./commands/audit.js";
 import { backupCommands } from "./commands/backup.js";
@@ -21,6 +24,15 @@ const FORMAT_FLAG: IFlag = {
   description: "Output format: text (default) or json",
   defaultValue: "text",
   enum: ["text", "json"],
+};
+
+const VERBOSE_FLAG: IFlag = {
+  name: "verbose",
+  type: "boolean",
+  mandatory: false,
+  options: ["--verbose", "-v"],
+  description: "Enable verbose output",
+  defaultValue: false,
 };
 
 function withFormatFlag(flags: ToolConfig["flags"]): ToolConfig["flags"] {
@@ -64,7 +76,9 @@ function writeJsonErrorToStdout(error: unknown): void {
     error: {
       message,
       name: error instanceof Error ? error.name : "Error",
-      ...(process.env.DEBUG && error instanceof Error && error.stack ? { stack: error.stack } : {}),
+      ...(process.env.DEBUG && error instanceof Error && error.stack
+        ? { stack: error.stack }
+        : {}),
     },
   });
 }
@@ -85,63 +99,163 @@ function patchConsoleForJsonOutput(): () => void {
   };
 }
 
+function wrapToolHandler(
+  tool: ToolConfig,
+): (
+  ctx: import("@alcyone-labs/arg-parser").IHandlerContext,
+) => Promise<unknown> {
+  return async (ctx) => {
+    const jsonOutput = ctx.args.format === "json";
+    const restoreConsole =
+      jsonOutput === true ? patchConsoleForJsonOutput() : null;
+
+    try {
+      const result = await tool.handler(ctx);
+
+      restoreConsole?.();
+
+      if (jsonOutput === true) {
+        writeJsonToStdout(result);
+      }
+
+      return result;
+    } catch (error: unknown) {
+      restoreConsole?.();
+
+      if (jsonOutput === true) {
+        writeJsonErrorToStdout(error);
+      } else {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        console.error(`Error: ${errorMessage}`);
+      }
+
+      throw error;
+    }
+  };
+}
+
+function addToolsToParser(parser: ArgParser, tools: ToolConfig[]): void {
+  for (const tool of tools) {
+    parser.addTool({
+      ...tool,
+      flags: withFormatFlag(tool.flags),
+      handler: wrapToolHandler(tool),
+    });
+  }
+}
+
+function createSubCommandParser(
+  name: string,
+  description: string,
+  tools: ToolConfig[],
+  parentParser: ArgParser,
+): ArgParser {
+  const parser = ArgParser.forCli({
+    appName: `admin ${name}`,
+    description,
+    handleErrors: false,
+    inheritParentFlags: FlagInheritance.AllParents,
+  });
+
+  addToolsToParser(parser, tools);
+
+  parentParser.addSubCommand({
+    name,
+    description,
+    parser,
+  });
+
+  return parser;
+}
+
 export function createCLI() {
   const cli = ArgParser.withMcp({
-    appName: "Profile Admin CLI",
-    appCommandName: "profile-admin",
-    description: "CLI tool for managing profile nickname registry",
+    appName: "Regarde Admin CLI",
+    appCommandName: "admin",
+    description:
+      "CLI tool for managing Regarde nickname registry admin operations",
+    handleErrors: false,
+    inheritParentFlags: FlagInheritance.AllParents,
+    mcp: {
+      serverInfo: { name: "regarde-admin", version: "1.0.0" },
+      defaultTransport: { type: "stdio" },
+    },
   });
 
-  const allCommands: ToolConfig[] = [
-    ...nicknameCommands,
-    ...inspectCommands,
-    ...reservationCommands,
-    ...auditCommands,
-    ...healthCommands,
-    ...backupCommands,
-    ...monitoringCommands,
-    ...reservationBackupCommands,
-    ...performanceCommands,
-    ...integrityCommands,
-  ];
+  // Add global flags to parent parser
+  cli.addFlags([FORMAT_FLAG, VERBOSE_FLAG]);
 
-  allCommands.forEach((command) => {
-    cli.addTool({
-      ...command,
-      flags: withFormatFlag(command.flags),
-      handler: async (ctx) => {
-        if (ctx.isMcp) {
-          return command.handler(ctx);
-        }
+  // Create subcommands for each command group
+  createSubCommandParser(
+    "nickname",
+    "Manage nickname registrations (add, update, remove, fix access)",
+    nicknameCommands,
+    cli,
+  );
 
-        const jsonOutput = ctx.args.format === "json";
-        const restoreConsole = jsonOutput === true ? patchConsoleForJsonOutput() : null;
+  createSubCommandParser(
+    "audit",
+    "View and manage audit logs",
+    auditCommands,
+    cli,
+  );
 
-        try {
-          const result = await command.handler(ctx);
+  createSubCommandParser(
+    "reservation",
+    "Manage reserved nicknames",
+    reservationCommands,
+    cli,
+  );
 
-          restoreConsole?.();
+  createSubCommandParser(
+    "backup",
+    "Backup and restore registries",
+    backupCommands,
+    cli,
+  );
 
-          if (jsonOutput === true) {
-            writeJsonToStdout(result);
-          }
+  createSubCommandParser(
+    "reservation-backup",
+    "Backup and restore reserved nicknames",
+    reservationBackupCommands,
+    cli,
+  );
 
-          return result;
-        } catch (error: unknown) {
-          restoreConsole?.();
+  createSubCommandParser(
+    "health",
+    "Check registry health and connectivity",
+    healthCommands,
+    cli,
+  );
 
-          if (jsonOutput === true) {
-            writeJsonErrorToStdout(error);
-          } else {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            Logger.error(`Command failed: ${errorMessage}`);
-          }
+  createSubCommandParser(
+    "integrity",
+    "Validate data integrity and check for duplicates",
+    integrityCommands,
+    cli,
+  );
 
-          throw error;
-        }
-      },
-    });
-  });
+  createSubCommandParser(
+    "monitoring",
+    "View registry metrics and statistics",
+    monitoringCommands,
+    cli,
+  );
+
+  createSubCommandParser(
+    "performance",
+    "Run benchmarks and security audits",
+    performanceCommands,
+    cli,
+  );
+
+  createSubCommandParser(
+    "inspect",
+    "Inspect account and nickname states",
+    inspectCommands,
+    cli,
+  );
 
   return cli;
 }

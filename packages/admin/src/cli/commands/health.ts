@@ -1,7 +1,24 @@
 import { type ToolConfig } from "@alcyone-labs/arg-parser";
+import { z } from "zod";
 
 import { Logger } from "../../utils/logger.js";
 import { withAdminService } from "../types.js";
+
+const nicknameOrAccountIdSchema = z.string().optional();
+
+function validateAtLeastOnePresent(
+  value: string | undefined,
+  ctx: z.RefinementCtx,
+  args: { nickname?: string; accountId?: string },
+) {
+  if (!args.nickname && !args.accountId) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Either --nickname or --account-id must be provided",
+    });
+  }
+  return value;
+}
 
 export const healthCommands: ToolConfig[] = [
   {
@@ -48,10 +65,11 @@ export const healthCommands: ToolConfig[] = [
     flags: [
       {
         name: "nickname",
-        type: "string",
+        type: nicknameOrAccountIdSchema,
         mandatory: false,
         options: ["--nickname"],
         description: "The nickname to check",
+        validate: (value, ctx) => validateAtLeastOnePresent(value, ctx, ctx.args),
       },
       {
         name: "accountId",
@@ -62,10 +80,6 @@ export const healthCommands: ToolConfig[] = [
       },
     ],
     handler: async (ctx) => {
-      if (!ctx.args.nickname && !ctx.args.accountId) {
-        throw new Error("Either --nickname or --account-id must be provided");
-      }
-
       return withAdminService(async (admin) => {
         const healthReport = await admin.checkNicknameHealth(ctx.args.nickname, ctx.args.accountId);
 
@@ -153,10 +167,11 @@ export const healthCommands: ToolConfig[] = [
     flags: [
       {
         name: "nickname",
-        type: "string",
+        type: nicknameOrAccountIdSchema,
         mandatory: false,
         options: ["--nickname"],
         description: "The nickname to fix",
+        validate: (value, ctx) => validateAtLeastOnePresent(value, ctx, ctx.args),
       },
       {
         name: "accountId",
@@ -167,10 +182,6 @@ export const healthCommands: ToolConfig[] = [
       },
     ],
     handler: async (ctx) => {
-      if (!ctx.args.nickname && !ctx.args.accountId) {
-        throw new Error("Either --nickname or --account-id must be provided");
-      }
-
       return withAdminService(async (admin) => {
         const result = await admin.fixNickname(ctx.args.nickname, ctx.args.accountId);
 

@@ -14,7 +14,7 @@
     "directory": "packages/admin"
   },
   "bin": {
-    "profile-admin": "dist/index.mjs"
+    "admin": "dist/index.mjs"
   },
   "type": "module",
   "main": "dist/cli.js",
@@ -25,7 +25,7 @@
     "cli": "node dist/index.mjs"
   },
   "dependencies": {
-    "@alcyone-labs/arg-parser": "^2.7.2",
+    "@alcyone-labs/arg-parser": "^2.13.5",
     "@regarde-dev/core": "workspace:*",
     "@regarde-dev/jazz-schemas": "workspace:*",
     "dotenv": "catalog:",

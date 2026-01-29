@@ -2,7 +2,7 @@
 
 ## Overview
 
-**@regarde-dev/admin** is the administrative CLI for Regarde developers only. Connects directly to Jazz registry worker account to manage nickname registries, reservations, audit logs, backups, and health monitoring. Executable name: `profile-admin` (legacy).
+**@regarde-dev/admin** is the administrative CLI for Regarde developers only. Connects directly to Jazz registry worker account to manage nickname registries, reservations, audit logs, backups, and health monitoring. Executable name: `admin`.
 
 ## Access Control
 
@@ -29,13 +29,19 @@ pnpm cli -- <cmd>     # Run CLI commands
 
 ```bash
 # Direct run (no global install)
-pnpm cli -- add --nickname "test" --account-id "co_z123"
+pnpm cli -- nickname add --nickname "test" --account-id "co_z123"
 
 # After global install
-profile-admin add --nickname "test" --account-id "co_z123"
+admin nickname add --nickname "test" --account-id "co_z123"
 
 # JSON output for scripting
-profile-admin health --format json
+admin health check --format json
+
+# View all commands
+admin --help
+
+# View subcommand help
+admin nickname --help
 ```
 
 ## Architecture
@@ -92,17 +98,78 @@ async (admin: AdminService) => {
 };
 ```
 
-## Key Commands
+## Key Commands (Subcommand Structure)
 
-**Nickname Management**: `add`, `update`, `remove`, `fix-account-access`
-**Reservations**: `reserve`, `unreserve`, `list-reserved`, `check-reserved`
-**Audit Log**: `history`, `history-account`, `history-nickname`, `clear-audit`
-**Health & Integrity**: `health`, `check-nickname-health`, `fix-nickname`, `validate-data`, `check-duplicates`
-**Backups**: `download-registries`, `list-backups`, `restore-all`, `delete-all`, `clean-old-backups`
-**Reservation Backups**: `backup-reservations`, `list-reservation-backups`, `restore-reservations`
-**Monitoring**: `metrics`, `check-connectivity`, `benchmark`, `audit-security`
+All commands are now organized under subcommands for better organization:
 
-All commands support `--format json` for scriptable output.
+**Nickname Management**: `admin nickname <command>`
+
+- `add` - Add a nickname to account mapping
+- `update` - Transfer nickname to different account
+- `remove` - Remove nickname from registry
+- `fix-account-access` - Fix worker access to account
+
+**Reservations**: `admin reservation <command>`
+
+- `reserve` - Reserve a nickname
+- `unreserve` - Remove a reservation
+- `list-reserved` - List all reserved nicknames
+- `check-reserved` - Check if nickname is reserved
+
+**Audit Log**: `admin audit <command>`
+
+- `history` - Show registry change history
+- `history-account` - Show history for specific account
+- `history-nickname` - Show history for specific nickname
+- `clear-audit` - Clear corrupted audit entries
+
+**Backups**: `admin backup <command>`
+
+- `download-registries` - Export registries as JSON
+- `restore-all` - Restore from backup file
+- `delete-all` - Delete all registry entries
+- `list-backups` - List available backup files
+- `clean-old-backups` - Clean old backup files
+
+**Reservation Backups**: `admin reservation-backup <command>`
+
+- `backup-reservations` - Create reservation backup
+- `restore-reservations` - Restore from reservation backup
+- `list-reservation-backups` - List reservation backups
+- `clean-old-reservation-backups` - Clean old reservation backups
+
+**Health & Integrity**: `admin health <command>`
+
+- `health` - Check registry integrity and health
+- `check-nickname-health` - Check health for specific nickname/account
+- `check-connectivity` - Test Jazz worker connectivity
+- `fix-nickname` - Fix synchronization issues
+
+**Integrity**: `admin integrity <command>`
+
+- `validate-data` - Validate data integrity
+- `check-duplicates` - Check for duplicate registrations
+
+**Monitoring**: `admin monitoring <command>`
+
+- `metrics` - Display registry metrics
+
+**Performance**: `admin performance <command>`
+
+- `benchmark` - Run performance benchmarks
+- `audit-security` - Security audit of access patterns
+
+**Inspection**: `admin inspect <command>`
+
+- `get-nickname` - Inspect nickname state
+- `get-account` - Inspect account state
+
+### Global Flags
+
+All subcommands inherit global flags from the parent parser:
+
+- `--format` - Output format: text or json
+- `--verbose` / `-v` - Enable verbose output
 
 ## Critical Operations
 
