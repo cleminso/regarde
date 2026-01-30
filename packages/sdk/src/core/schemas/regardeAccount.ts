@@ -1,6 +1,7 @@
 import { co, Group } from "jazz-tools";
 
 import { initRegardeSDK } from "#core/init";
+
 import { RegardeSDK } from "./regardeSDK";
 
 /**
@@ -33,10 +34,7 @@ export const RegardeAccount = co
         owner: account,
       });
       publicGroup.makePublic();
-      account.$jazz.set(
-        "profile",
-        co.profile().create({ name: "Regarde CLI User" }, publicGroup),
-      );
+      account.$jazz.set("profile", co.profile().create({ name: "Regarde CLI User" }, publicGroup));
     }
 
     if (!account.$jazz.has("root")) {
@@ -44,10 +42,7 @@ export const RegardeAccount = co
       account.$jazz.set("root", {
         "regarde-sdk": regardeSdk,
       });
-      console.info(
-        "RegardeAccount root initialized with RegardeSDK:",
-        regardeSdk.$jazz.id,
-      );
+      console.info("RegardeAccount root initialized with RegardeSDK:", regardeSdk.$jazz.id);
     }
 
     await account.$jazz.waitForAllCoValuesSync();
@@ -64,10 +59,7 @@ export const RegardeAccount = co
       const regardeSDK = await initRegardeSDK(account, "create");
       root.$jazz.set("regarde-sdk", regardeSDK);
       await account.$jazz.waitForSync();
-      console.info(
-        "[SUCCESS] RegardeSDK initialized and synced:",
-        regardeSDK.$jazz.id,
-      );
+      console.info("[SUCCESS] RegardeSDK initialized and synced:", regardeSDK.$jazz.id);
     } else {
       let regardeSDK = root["regarde-sdk"] as co.loaded<typeof RegardeSDK>;
 

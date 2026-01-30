@@ -1,9 +1,4 @@
-import {
-  ArgParser,
-  type IFlag,
-  type ToolConfig,
-  FlagInheritance,
-} from "@alcyone-labs/arg-parser";
+import { ArgParser, type IFlag, type ToolConfig, FlagInheritance } from "@alcyone-labs/arg-parser";
 
 import { auditCommands } from "./commands/audit.js";
 import { backupCommands } from "./commands/backup.js";
@@ -76,9 +71,7 @@ function writeJsonErrorToStdout(error: unknown): void {
     error: {
       message,
       name: error instanceof Error ? error.name : "Error",
-      ...(process.env.DEBUG && error instanceof Error && error.stack
-        ? { stack: error.stack }
-        : {}),
+      ...(process.env.DEBUG && error instanceof Error && error.stack ? { stack: error.stack } : {}),
     },
   });
 }
@@ -101,13 +94,10 @@ function patchConsoleForJsonOutput(): () => void {
 
 function wrapToolHandler(
   tool: ToolConfig,
-): (
-  ctx: import("@alcyone-labs/arg-parser").IHandlerContext,
-) => Promise<unknown> {
+): (ctx: import("@alcyone-labs/arg-parser").IHandlerContext) => Promise<unknown> {
   return async (ctx) => {
     const jsonOutput = ctx.args.format === "json";
-    const restoreConsole =
-      jsonOutput === true ? patchConsoleForJsonOutput() : null;
+    const restoreConsole = jsonOutput === true ? patchConsoleForJsonOutput() : null;
 
     try {
       const result = await tool.handler(ctx);
@@ -125,8 +115,7 @@ function wrapToolHandler(
       if (jsonOutput === true) {
         writeJsonErrorToStdout(error);
       } else {
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
         console.error(`Error: ${errorMessage}`);
       }
 
@@ -173,8 +162,7 @@ export function createCLI() {
   const cli = ArgParser.withMcp({
     appName: "Regarde Admin CLI",
     appCommandName: "admin",
-    description:
-      "CLI tool for managing Regarde nickname registry admin operations",
+    description: "CLI tool for managing Regarde nickname registry admin operations",
     handleErrors: false,
     inheritParentFlags: FlagInheritance.AllParents,
     mcp: {
@@ -194,26 +182,11 @@ export function createCLI() {
     cli,
   );
 
-  createSubCommandParser(
-    "audit",
-    "View and manage audit logs",
-    auditCommands,
-    cli,
-  );
+  createSubCommandParser("audit", "View and manage audit logs", auditCommands, cli);
 
-  createSubCommandParser(
-    "reservation",
-    "Manage reserved nicknames",
-    reservationCommands,
-    cli,
-  );
+  createSubCommandParser("reservation", "Manage reserved nicknames", reservationCommands, cli);
 
-  createSubCommandParser(
-    "backup",
-    "Backup and restore registries",
-    backupCommands,
-    cli,
-  );
+  createSubCommandParser("backup", "Backup and restore registries", backupCommands, cli);
 
   createSubCommandParser(
     "reservation-backup",
@@ -222,12 +195,7 @@ export function createCLI() {
     cli,
   );
 
-  createSubCommandParser(
-    "health",
-    "Check registry health and connectivity",
-    healthCommands,
-    cli,
-  );
+  createSubCommandParser("health", "Check registry health and connectivity", healthCommands, cli);
 
   createSubCommandParser(
     "integrity",
@@ -250,12 +218,7 @@ export function createCLI() {
     cli,
   );
 
-  createSubCommandParser(
-    "inspect",
-    "Inspect account and nickname states",
-    inspectCommands,
-    cli,
-  );
+  createSubCommandParser("inspect", "Inspect account and nickname states", inspectCommands, cli);
 
   return cli;
 }

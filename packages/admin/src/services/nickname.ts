@@ -7,10 +7,10 @@ import {
   type TReservedNicknamesRegistry,
 } from "@regarde-dev/core";
 
+import { AuditService } from "./audit.js";
+
 import { NicknameServiceInterface } from "../types/services.js";
 import { validateNickname, validateAccountId } from "../utils/validation.js";
-
-import { AuditService } from "./audit.js";
 
 export class NicknameService implements NicknameServiceInterface {
   constructor(

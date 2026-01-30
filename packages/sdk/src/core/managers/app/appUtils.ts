@@ -23,9 +23,7 @@ export const useMyApps = (regardeSDK: Loaded<typeof RegardeSDK> | null) => {
     return apps.find((app) => app.$jazz.id === appId);
   };
 
-  const getAppsByProvider = async (
-    paymentProvider: "lemonsqueezy" | "stripe",
-  ): Promise<TApp[]> => {
+  const getAppsByProvider = async (paymentProvider: "lemonsqueezy" | "stripe"): Promise<TApp[]> => {
     const isSdkExists = regardeSDK !== null;
     if (isSdkExists === false) return [];
     const apps = await getMyApps(regardeSDK);

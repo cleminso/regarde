@@ -36,10 +36,7 @@ export async function getRegardeAuth({
 
   try {
     loadedRegardeAuthCoMap.$jazz.set("token", token);
-    loadedRegardeAuthCoMap.$jazz.set(
-      "expiresAt",
-      Date.now() + TOKEN_LIFETIME_SECONDS * 1000,
-    );
+    loadedRegardeAuthCoMap.$jazz.set("expiresAt", Date.now() + TOKEN_LIFETIME_SECONDS * 1000);
 
     await loadedRegardeAuthCoMap.$jazz.waitForSync();
     return token;

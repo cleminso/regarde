@@ -29,19 +29,13 @@ export const monitoringCommands: ToolConfig[] = [
         if (format === "json") {
           // No-op: JSON output is handled by the CLI wrapper when --format=json is used.
         } else if (format === "prometheus") {
-          console.log(
-            `# HELP jazz_registry_nicknames Total number of registered nicknames`,
-          );
+          console.log(`# HELP jazz_registry_nicknames Total number of registered nicknames`);
           console.log(`# TYPE jazz_registry_nicknames gauge`);
           console.log(`jazz_registry_nicknames ${metrics.totalNicknames}`);
-          console.log(
-            `# HELP jazz_registry_accounts Total number of accounts with nicknames`,
-          );
+          console.log(`# HELP jazz_registry_accounts Total number of accounts with nicknames`);
           console.log(`# TYPE jazz_registry_accounts gauge`);
           console.log(`jazz_registry_accounts ${metrics.totalAccounts}`);
-          console.log(
-            `# HELP jazz_registry_reserved Total number of reserved nicknames`,
-          );
+          console.log(`# HELP jazz_registry_reserved Total number of reserved nicknames`);
           console.log(`# TYPE jazz_registry_reserved gauge`);
           console.log(`jazz_registry_reserved ${metrics.reservedNicknames}`);
         } else {
@@ -51,9 +45,7 @@ export const monitoringCommands: ToolConfig[] = [
           console.log(`Total Accounts: ${metrics.totalAccounts}`);
           console.log(`Reserved Nicknames: ${metrics.reservedNicknames}`);
           console.log(`Audit Log Entries: ${metrics.auditLogEntries}`);
-          console.log(
-            `Last Updated: ${new Date(metrics.lastUpdated).toLocaleString()}`,
-          );
+          console.log(`Last Updated: ${new Date(metrics.lastUpdated).toLocaleString()}`);
         }
 
         return metrics;

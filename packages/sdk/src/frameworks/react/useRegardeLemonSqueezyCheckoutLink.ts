@@ -1,5 +1,5 @@
-import { useCallback } from "react";
 import { useAccount, useIsAuthenticated } from "jazz-tools/react";
+import { useCallback } from "react";
 
 import { useLogging } from "#core/logger";
 import { RegardeAccount } from "#schemas/regardeAccount";
@@ -25,9 +25,7 @@ export interface RegardeLemonSqueezyCheckoutLinkOptions {
  */
 export interface UseRegardeLemonSqueezyCheckoutLinkResult {
   /** Generate checkout URL with user and app identifiers */
-  generateLemonSqueezyCheckoutLink: (
-    options: RegardeLemonSqueezyCheckoutLinkOptions,
-  ) => string;
+  generateLemonSqueezyCheckoutLink: (options: RegardeLemonSqueezyCheckoutLinkOptions) => string;
   /** Whether RegardeAccount is loading */
   isLoading: boolean;
   /** Error message if RegardeSDK not loaded, null otherwise */
@@ -127,8 +125,7 @@ export function useRegardeLemonSqueezyCheckoutLink(
 
       const regardeSdk = root["regarde-sdk"];
 
-      const isRegardeSdkValid =
-        regardeSdk !== null && regardeSdk.$isLoaded === true;
+      const isRegardeSdkValid = regardeSdk !== null && regardeSdk.$isLoaded === true;
       if (isRegardeSdkValid === false) {
         logger.error({
           message: "RegardeSDK must be loaded",
@@ -141,8 +138,7 @@ export function useRegardeLemonSqueezyCheckoutLink(
 
       const regardeSdkId = regardeSdk.$jazz.id;
 
-      const effectiveStoreDomain =
-        storeDomain || `${storeName}.lemonsqueezy.com`;
+      const effectiveStoreDomain = storeDomain || `${storeName}.lemonsqueezy.com`;
       const baseUrl = `https://${effectiveStoreDomain}/checkout/buy/${variantId}`;
       const searchParams = new URLSearchParams();
 
@@ -179,13 +175,10 @@ export function useRegardeLemonSqueezyCheckoutLink(
     [account, appId, storeName, storeDomain],
   );
 
-  const isLoading =
-    isAuthenticated === true && (account === undefined || !account.$isLoaded);
+  const isLoading = isAuthenticated === true && (account === undefined || !account.$isLoaded);
 
   const error =
-    isAuthenticated === true &&
-    isLoading === false &&
-    account.$isLoaded === true
+    isAuthenticated === true && isLoading === false && account.$isLoaded === true
       ? account.root.$isLoaded === true &&
         account.root.$jazz.has("regarde-sdk") === true &&
         account.root["regarde-sdk"]?.$isLoaded === true

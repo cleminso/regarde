@@ -4,13 +4,14 @@
     "groups": [
       ["side-effect"],
       ["builtin"],
-      ["external", "external-type"],
-      ["internal", "internal-type"],
-      ["parent", "parent-type"],
+      ["external", "external-type", "value-external"],
+      ["internal", "internal-type", "value-internal"],
       ["sibling", "sibling-type"],
+      ["parent", "parent-type"],
       ["index", "index-type"]
     ],
-    "internalPattern": ["#/", "~/", "@/", "@regarde-dev/"],
+    "internalPattern": ["#", "@regarde-dev/"],
     "newlinesBetween": true
-  }
+  },
+  "ignorePatterns": ["skills/", "docs/**/*.md", "AGENTS.md", "README.md"]
 }

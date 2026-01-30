@@ -74,16 +74,12 @@ export const createApp = async (
         myAppsLoaded: myApps?.$isLoaded,
       },
     });
-    throw new Error(
-      "RegardeSDK.myApps must be loaded before calling createApp",
-    );
+    throw new Error("RegardeSDK.myApps must be loaded before calling createApp");
   }
 
-  const regardeProfileWorkerGroup = await co
-    .group()
-    .load(REGARDE_REGISTRY_GROUP, {
-      loadAs: account,
-    });
+  const regardeProfileWorkerGroup = await co.group().load(REGARDE_REGISTRY_GROUP, {
+    loadAs: account,
+  });
   const isGroupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
 
   logger.debug({
@@ -165,9 +161,7 @@ export const createApp = async (
  * @param regardeSDK - Loaded RegardeSDK instance
  * @returns Array of loaded App CoMaps, empty array if none exist
  */
-export const getMyApps = async (
-  regardeSDK: Loaded<typeof RegardeSDK>,
-): Promise<TApp[]> => {
+export const getMyApps = async (regardeSDK: Loaded<typeof RegardeSDK>): Promise<TApp[]> => {
   const myApps = regardeSDK.myApps;
   const myAppsValid = myApps !== null && myApps.$isLoaded === true;
 
@@ -177,9 +171,7 @@ export const getMyApps = async (
 
   await myApps.$jazz.ensureLoaded({ resolve: { $each: true } });
 
-  return Array.from(myApps).filter(
-    (app): app is TApp => app !== null && app.$isLoaded === true,
-  );
+  return Array.from(myApps).filter((app): app is TApp => app !== null && app.$isLoaded === true);
 };
 
 // To find my app no need new fucntions

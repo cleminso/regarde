@@ -1,5 +1,6 @@
-import { verifyRegardeAuthViaServer } from "#managers/auth";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
+import { verifyRegardeAuthViaServer } from "#managers/auth";
 
 describe("verifyRegardeAuthViaServer", () => {
   const mockParams = {

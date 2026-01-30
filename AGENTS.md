@@ -59,6 +59,16 @@ app/
 
 ## Code Style Guidelines
 
+### Golden Rule - Boolean Pattern (Explicit Checks)
+
+```typescript
+// Prefer explicit comparisons over implicit truthiness
+const accountValid = account !== null && account.$isLoaded === true;
+if (accountValid === false) {
+  throw new Error("Account must be loaded");
+}
+```
+
 ### Naming Conventions
 
 - **Components**: PascalCase (`UserProfile`, `NicknameInput`)
@@ -68,7 +78,7 @@ app/
 - **Files**: camelCase for all files (`userProfile.tsx`)
 - **Folders**: kebab-case at all levels (`user-profile/`) except `__tests__/`
 
-### Imports (Prettier auto-enforced)
+### Imports
 
 ```typescript
 // Order: framework, workspace imports, aliased imports, relative imports
@@ -99,16 +109,6 @@ import { MyComponent } from "./MyComponent";
 - Use descriptive variable and function names
 - Extract complex logic into well-named functions
 - Only comment non-obvious business rules or external constraints
-
-### Boolean Pattern (Explicit Checks)
-
-```typescript
-// Prefer explicit comparisons over implicit truthiness
-const accountValid = account !== null && account.$isLoaded === true;
-if (accountValid === false) {
-  throw new Error("Account must be loaded");
-}
-```
 
 ### Testing
 

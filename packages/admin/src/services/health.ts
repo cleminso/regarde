@@ -9,14 +9,14 @@ import {
 } from "@regarde-dev/core";
 import { RegardeAccount, RegardeProfile } from "@regarde-dev/jazz-schemas/regarde.bio";
 
+import { AuditService } from "./audit.js";
+
 import {
   HealthServiceInterface,
   HealthReport,
   NicknameHealthReport,
   FixResult,
 } from "../types/services.js";
-
-import { AuditService } from "./audit.js";
 
 export class HealthService implements HealthServiceInterface {
   constructor(

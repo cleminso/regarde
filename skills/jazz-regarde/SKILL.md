@@ -13,7 +13,6 @@ references:
   - groups-permissions/README.md
   - react-hooks/README.md
   - patterns/README.md
-  - gotchas/README.md
 ---
 
 # Jazz Regarde Patterns

@@ -18,10 +18,10 @@ import {
   type TReverseNicknameRegistry,
 } from "@regarde-dev/core";
 
+import { AuditService } from "./audit.js";
+
 import { BackupServiceInterface, BackupInfo } from "../types/services.js";
 import { Logger } from "../utils/logger.js";
-
-import { AuditService } from "./audit.js";
 
 const BACKUP_DIR = "registry-backups";
 

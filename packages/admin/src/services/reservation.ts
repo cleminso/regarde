@@ -7,6 +7,8 @@ import {
   type TReservedNicknamesRegistry,
 } from "@regarde-dev/core";
 
+import { AuditService } from "./audit.js";
+
 import {
   ReservationServiceInterface,
   ReservationDetails,
@@ -20,8 +22,6 @@ import {
   validateReservationCategory,
   validateReservationReason,
 } from "../utils/validation.js";
-
-import { AuditService } from "./audit.js";
 
 export class ReservationError extends Error {
   constructor(

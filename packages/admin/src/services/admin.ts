@@ -3,6 +3,13 @@ import { startWorker } from "jazz-tools/worker";
 
 import { RegistryWorkerAccount, type TRegistryAuditEntry } from "@regarde-dev/core";
 
+import { AuditService } from "./audit.js";
+import { BackupService } from "./backup.js";
+import { HealthService } from "./health.js";
+import { NicknameService } from "./nickname.js";
+import { ReservationService } from "./reservation.js";
+import { ReservationBackupService } from "./reservationBackup.js";
+
 import {
   NicknameServiceInterface,
   ReservationServiceInterface,
@@ -20,13 +27,6 @@ import {
   FixResult,
 } from "../types/services.js";
 import { Logger } from "../utils/logger.js";
-
-import { AuditService } from "./audit.js";
-import { BackupService } from "./backup.js";
-import { HealthService } from "./health.js";
-import { NicknameService } from "./nickname.js";
-import { ReservationService } from "./reservation.js";
-import { ReservationBackupService } from "./reservationBackup.js";
 
 function buildSyncServerUrl(baseUrl: string, apiKey?: string): string {
   const base = baseUrl.trim();

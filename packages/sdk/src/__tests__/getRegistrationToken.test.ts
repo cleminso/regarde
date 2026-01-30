@@ -1,8 +1,9 @@
+import type { Loaded } from "jazz-tools";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
 import { getRegardeAuth } from "#managers/auth";
 import { TOKEN_LIFETIME_SECONDS } from "#managers/auth";
 import { RegardeAuth } from "#schemas/regardeAuth";
-import type { Loaded } from "jazz-tools";
-import { describe, it, expect, vi, beforeEach } from "vitest";
 
 describe("getRegardeAuth", () => {
   beforeEach(() => {

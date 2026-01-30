@@ -36,10 +36,7 @@ export const AllRegistryAppsSchema = co.record(z.string(), RegistryAppMetadata);
 export type TAllRegistryAppsSchema = co.loaded<typeof AllRegistryAppsSchema>;
 
 /** Apps grouped by user, indexed by Jazz account ID */
-export const AppsByUserRecord = co.record(
-  z.string(),
-  co.list(RegistryAppMetadata),
-);
+export const AppsByUserRecord = co.record(z.string(), co.list(RegistryAppMetadata));
 
 /** Loaded AppsByUserRecord instance */
 export type TAppsByUserRecord = co.loaded<typeof AppsByUserRecord>;
