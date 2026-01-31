@@ -100,7 +100,7 @@ import { myHelper } from "./myHelper";
 
 ```typescript
 import { useLogging } from "#core/logger";
-const logger = useLogging({ module: __filename });
+const logger = useLogging({ module: import.meta.filename });
 logger.info({ message: "SDK initialized", data: { accountID } });
 ```
 

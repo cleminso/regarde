@@ -7,12 +7,13 @@ import { startWorker } from "jazz-tools/worker";
 import { RegistryWorkerAccount } from "@regarde-dev/core";
 
 // Load environment variables
-const JAZZ_SYNC_SERVER_URL = process.env.JAZZ_SYNC_SERVER_URL || "ws://localhost:4200";
-const LOCAL_WORKER_ACCOUNT_ID = process.env.LOCAL_WORKER_ACCOUNT_ID;
-const LOCAL_WORKER_ACCOUNT_SECRET = process.env.LOCAL_WORKER_ACCOUNT_SECRET;
+const JAZZ_SYNC_SERVER_URL =
+  process.env.JAZZ_SYNC_SERVER_URL || "ws://localhost:4200";
+const WORKER_ACCOUNT_ID = process.env.WORKER_ACCOUNT_ID;
+const WORKER_ACCOUNT_SECRET = process.env.WORKER_ACCOUNT_SECRET;
 
 // Validate required environment variables
-if (!LOCAL_WORKER_ACCOUNT_ID || !LOCAL_WORKER_ACCOUNT_SECRET) {
+if (!WORKER_ACCOUNT_ID || !WORKER_ACCOUNT_SECRET) {
   console.error(
     "\nMissing required environment variables:\n" +
       "  LOCAL_WORKER_ACCOUNT_ID\n" +
@@ -34,8 +35,8 @@ async function setupLocalWorker() {
     const workerResult = await startWorker({
       AccountSchema: RegistryWorkerAccount,
       syncServer: JAZZ_SYNC_SERVER_URL,
-      accountID: LOCAL_WORKER_ACCOUNT_ID,
-      accountSecret: LOCAL_WORKER_ACCOUNT_SECRET,
+      accountID: WORKER_ACCOUNT_ID,
+      accountSecret: WORKER_ACCOUNT_SECRET,
     });
     worker = workerResult.worker;
     console.log(`Worker connected successfully`);
@@ -75,7 +76,9 @@ async function setupLocalWorker() {
   } catch (error) {
     console.error("\nFailed to setup local worker:", error);
     console.error("\nTroubleshooting:");
-    console.error("   - Ensure local sync server is running: npx jazz-run sync");
+    console.error(
+      "   - Ensure local sync server is running: npx jazz-run sync",
+    );
     console.error("   - Check your .env.test file has correct credentials");
     console.error("   - Verify worker account was created on local server");
     process.exit(1);

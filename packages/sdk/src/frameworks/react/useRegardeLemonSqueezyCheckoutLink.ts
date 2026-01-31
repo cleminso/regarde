@@ -5,7 +5,7 @@ import { useLogging } from "#core/logger";
 import { RegardeAccount } from "#schemas/regardeAccount";
 
 const logger = useLogging({
-  module: __filename,
+  module: import.meta.filename,
 });
 
 /**

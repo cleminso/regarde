@@ -15,7 +15,7 @@ export type TLog = z.input<typeof logMessageSchema>;
 // Centralized logger
 const logger = {
   info: (data: TLog) => console.info(data.message, data),
-  debug: (data: TLog) => console.debug(data.message, data),
+  debug: (data: TLog) => console.dir(data.message, data),
   warn: (data: TLog) => console.warn(data.message, data),
   error: (data: TLog) => console.error(data.message, data),
 };

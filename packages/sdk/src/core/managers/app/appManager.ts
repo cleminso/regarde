@@ -6,7 +6,7 @@ import { RegardeSDK } from "#schemas/regardeSDK";
 import { App, type TApp } from "#schemas/regardeUserApp";
 
 const logger = useLogging({
-  module: __filename,
+  module: import.meta.filename,
 });
 
 /**
@@ -100,8 +100,9 @@ export const createApp = async (
     owner: account,
   });
   regardeAdminOtherReadersGroup.addMember(regardeProfileWorkerGroup, "admin");
-  regardeAdminOtherReadersGroup.addMember(account, "reader");
+  await regardeAdminOtherReadersGroup.$jazz.waitForSync();
 
+  regardeAdminOtherReadersGroup.addMember(account, "reader");
   await regardeAdminOtherReadersGroup.$jazz.waitForSync();
 
   logger.debug({

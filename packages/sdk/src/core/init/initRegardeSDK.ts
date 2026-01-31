@@ -11,7 +11,7 @@ import { App } from "#schemas/regardeUserApp";
 import { UserHandle } from "#schemas/regardeUserHandle";
 
 const logger = useLogging({
-  module: __filename,
+  module: import.meta.filename,
 });
 
 export type InitRegardeSDKMode = "ensure" | "create";
@@ -24,7 +24,7 @@ export type InitRegardeSDKMode = "ensure" | "create";
  *
  * @param account - Loaded RegardeAccount instance to initialize SDK for
  * @param mode - Operation mode: "create" forces fresh setup, "ensure" reuses existing
- * @param appId - TODO
+ * @param appId - The CoValue ID you get when creating your Regarde App
  * @returns Promise resolving to loaded RegardeSDK instance with all required CoMaps
  * @throws {Error} When account is not loaded, registry group unavailable, or sync fails
  */
@@ -32,7 +32,7 @@ export const initRegardeSDK = async (
   account: co.loaded<typeof RegardeAccount>,
   mode: InitRegardeSDKMode = "ensure",
   /** The AppId you get when creating your Regarde App */
-  appId: ID<string> | "no-app",
+  appId?: ID<typeof App>,
 ): Promise<co.loaded<typeof RegardeSDK>> => {
   const isAccountValid = account !== null && account.$isLoaded === true;
   const REGARDE_REGISTRY_GROUP = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";

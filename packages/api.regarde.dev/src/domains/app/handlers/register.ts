@@ -13,7 +13,7 @@ import {
 } from "@regarde-dev/core";
 
 const logger = useLogging({
-  module: __filename,
+  module: import.meta.filename,
 });
 
 export const registerAppHandler = (

@@ -23,7 +23,7 @@ import { verifyRoute } from "./routes/verifyToken.js";
 import { webhookLemonSqueezyRoute } from "./routes/webhooks.js";
 
 const logger = useLogging({
-  module: __filename,
+  module: import.meta.filename,
 });
 
 const PORT = process.env.PORT || 3000;

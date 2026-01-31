@@ -5,7 +5,7 @@ import { RegistryWorkerAccount, useLogging } from "@regarde-dev/core";
 import { verifyRegardeAuth } from "./verify";
 
 const logger = useLogging({
-  module: __filename,
+  module: import.meta.filename,
 });
 const HARDCODED_API_KEY = "nick-sauve.app-ilfaitbeautoday";
 

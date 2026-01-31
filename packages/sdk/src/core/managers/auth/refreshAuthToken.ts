@@ -6,7 +6,7 @@ import { TOKEN_LIFETIME_SECONDS } from "#managers/auth/tokenUtils";
 import { RegardeAuth } from "#schemas/regardeAuth";
 
 const logger = useLogging({
-  module: __filename,
+  module: import.meta.filename,
 });
 
 /**

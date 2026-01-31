@@ -3,7 +3,7 @@ import { co, Loaded } from "jazz-tools";
 import { RegardeAuth, RegistryWorkerAccount, useLogging } from "@regarde-dev/core";
 
 const logger = useLogging({
-  module: __filename,
+  module: import.meta.filename,
 });
 
 export interface VerificationResult {

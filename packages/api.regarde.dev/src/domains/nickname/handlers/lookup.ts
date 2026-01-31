@@ -1,7 +1,7 @@
 import { useLogging, type TNicknameRegistry } from "@regarde-dev/core";
 
 const logger = useLogging({
-  module: __filename,
+  module: import.meta.filename,
 });
 
 export const lookupHandler = (nicknameRegistry: TNicknameRegistry) => {

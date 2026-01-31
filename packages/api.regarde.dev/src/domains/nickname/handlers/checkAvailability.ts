@@ -3,7 +3,7 @@ import type { TNicknameRegistry, TReservedNicknamesRegistry } from "@regarde-dev
 import { useLogging } from "@regarde-dev/core";
 
 const logger = useLogging({
-  module: __filename,
+  module: import.meta.filename,
 });
 
 export const checkAvailabilityHandler = (

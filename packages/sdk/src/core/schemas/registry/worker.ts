@@ -1,5 +1,4 @@
-import { co } from "jazz-tools";
-import { z } from "zod";
+import { co, z } from "jazz-tools";
 
 import { useLogging } from "#core/logger";
 
@@ -11,7 +10,7 @@ import {
   ReservedNicknamesRegistry,
 } from "./nickname";
 
-const logger = useLogging({ module: __filename });
+const logger = useLogging({ module: import.meta.filename });
 
 /**
  * Idempotency index for webhook events.
@@ -71,15 +70,21 @@ export const RegistryWorkerAccount = co
         },
       });
 
-      if (loadedAccount.root.$isLoaded === false) {
+      if (!loadedAccount.root.$isLoaded) {
         // Create all nested CoValues first
         const newRegistry = NicknameRegistryCoRecord.create({});
+        await newRegistry.$jazz.waitForSync();
         const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
+        await newReverseRegistry.$jazz.waitForSync();
         const newAuditLog = RegistryAuditLog.create([]);
+        await newAuditLog.$jazz.waitForSync();
         const newReservedNicknames = ReservedNicknamesRegistry.create({});
+        await newReservedNicknames.$jazz.waitForSync();
 
         const appsByUser = AppsByUserRecord.create({});
+        await appsByUser.$jazz.waitForSync();
         const allApps = AllRegistryAppsSchema.create({});
+        await allApps.$jazz.waitForSync();
         const newAppsRegistry = AppRegistry.create({
           appsByUser: appsByUser,
           apps: allApps,
@@ -87,8 +92,10 @@ export const RegistryWorkerAccount = co
           registeredAt: Date.now(),
           version: 1,
         });
+        await newAppsRegistry.$jazz.waitForSync();
 
         const newProcessedProviderEvents = ProcessedProviderEvents.create({});
+        await newProcessedProviderEvents.$jazz.waitForSync();
 
         // Create root with all children and set in one operation
         const newRoot = RegistryWorkerAccountRoot.create({
@@ -99,9 +106,9 @@ export const RegistryWorkerAccount = co
           apps: newAppsRegistry,
           processedProviderEvents: newProcessedProviderEvents,
         });
+        await newRoot.$jazz.waitForSync();
 
         loadedAccount.$jazz.set("root", newRoot);
-        await newRoot.$jazz.waitForSync();
         await loadedAccount.$jazz.waitForSync();
 
         logger.info({
@@ -157,9 +164,15 @@ export const RegistryWorkerAccount = co
       }
 
       const hasApps = loadedAccount.root.$jazz.has("apps") === true;
-      if (hasApps === false) {
+      const appsValue = loadedAccount.root.apps;
+      const isAppsLoaded =
+        appsValue !== null && appsValue !== undefined && appsValue.$isLoaded === true;
+
+      if (hasApps === false || isAppsLoaded === false) {
         const appsByUser = AppsByUserRecord.create({});
+        await appsByUser.$jazz.waitForSync();
         const allApps = AllRegistryAppsSchema.create({});
+        await allApps.$jazz.waitForSync();
         const newAppsRegistry = AppRegistry.create({
           appsByUser: appsByUser,
           apps: allApps,
@@ -167,12 +180,15 @@ export const RegistryWorkerAccount = co
           registeredAt: Date.now(),
           version: 1,
         });
+        await newAppsRegistry.$jazz.waitForSync();
 
         loadedAccount.root.$jazz.set("apps", newAppsRegistry);
         await loadedAccount.root.$jazz.waitForSync();
+        await loadedAccount.$jazz.waitForSync();
+
         logger.info({
           message: "AppRegistry created in worker account root",
-          data: {},
+          data: { appRegistryId: newAppsRegistry.$jazz.id },
         });
       }
 
@@ -196,12 +212,18 @@ export const RegistryWorkerAccount = co
       if (account.root === null || account.root.$isLoaded === false) {
         // Create all nested CoValues first
         const newRegistry = NicknameRegistryCoRecord.create({});
+        await newRegistry.$jazz.waitForSync();
         const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
+        await newReverseRegistry.$jazz.waitForSync();
         const newAuditLog = RegistryAuditLog.create([]);
+        await newAuditLog.$jazz.waitForSync();
         const newReservedNicknames = ReservedNicknamesRegistry.create({});
+        await newReservedNicknames.$jazz.waitForSync();
 
         const appsByUser = AppsByUserRecord.create({});
+        await appsByUser.$jazz.waitForSync();
         const allApps = AllRegistryAppsSchema.create({});
+        await allApps.$jazz.waitForSync();
         const newAppsRegistry = AppRegistry.create({
           appsByUser: appsByUser,
           apps: allApps,
@@ -209,8 +231,10 @@ export const RegistryWorkerAccount = co
           registeredAt: Date.now(),
           version: 1,
         });
+        await newAppsRegistry.$jazz.waitForSync();
 
         const newProcessedProviderEvents = ProcessedProviderEvents.create({});
+        await newProcessedProviderEvents.$jazz.waitForSync();
 
         // Create root with all children and set in one operation
         const newRoot = RegistryWorkerAccountRoot.create({
@@ -221,9 +245,9 @@ export const RegistryWorkerAccount = co
           apps: newAppsRegistry,
           processedProviderEvents: newProcessedProviderEvents,
         });
+        await newRoot.$jazz.waitForSync();
 
         account.$jazz.set("root", newRoot);
-        await newRoot.$jazz.waitForSync();
         await account.$jazz.waitForSync();
 
         logger.info({
@@ -279,7 +303,9 @@ export const RegistryWorkerAccount = co
         const hasApps = account.root.$jazz.has("apps") === true;
         if (hasApps === false) {
           const appsByUser = AppsByUserRecord.create({});
+          await appsByUser.$jazz.waitForSync();
           const allApps = AllRegistryAppsSchema.create({});
+          await allApps.$jazz.waitForSync();
           const newAppsRegistry = AppRegistry.create({
             appsByUser: appsByUser,
             apps: allApps,
@@ -287,12 +313,15 @@ export const RegistryWorkerAccount = co
             registeredAt: Date.now(),
             version: 1,
           });
+          await newAppsRegistry.$jazz.waitForSync();
 
           account.root.$jazz.set("apps", newAppsRegistry);
           await account.root.$jazz.waitForSync();
+          await account.$jazz.waitForSync();
+
           logger.info({
             message: "AppRegistry created in existing root during fallback",
-            data: {},
+            data: { appRegistryId: newAppsRegistry.$jazz.id },
           });
         }
 

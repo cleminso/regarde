@@ -67,7 +67,7 @@ vi.mock("../utils/storage.js", () => {
 
 // Node doesn't have WebSocket in Vitest node env by default
 (globalThis as any).WebSocket = class WebSocket {
-  constructor(_url: string) {}
+  
 };
 
 describe("signup contract", () => {

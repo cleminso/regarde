@@ -33,13 +33,17 @@ export async function loadAuthenticatedRegardeSDK(): Promise<{
   }
 
   const syncServer = process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
+  const apiKey = process.env.JAZZ_API_KEY;
+  const syncServerWithKey = apiKey ? `${syncServer}?apiKey=${apiKey}` : syncServer;
 
   const workerOptions = {
     AccountSchema: RegardeAccount,
-    syncServer: syncServer,
+    syncServer: syncServerWithKey,
     accountID: credsAccountID,
     accountSecret: creds.accountSecret,
   };
+
+  console.log(`Connecting to Jazz server: ${syncServerWithKey.replace(/\?.*$/, "")}`);
 
   const { worker } = await startWorker(workerOptions);
 
@@ -47,13 +51,28 @@ export async function loadAuthenticatedRegardeSDK(): Promise<{
     resolve: { profile: true, root: true },
   });
 
-  if (!worker.$isLoaded) throw new Error("Account not loaded");
+  // Verify account is fully loaded and sync is active
+  const isAccountLoaded = worker.$isLoaded === true;
+  const isProfileLoaded = worker.profile !== null && worker.profile.$isLoaded === true;
+  const isRootLoaded = worker.root !== null && worker.root.$isLoaded === true;
+  const isSyncActive = isAccountLoaded && isProfileLoaded && isRootLoaded;
+
+  if (isSyncActive === false) {
+    throw new Error(
+      "Account sync failed - session may be expired. Please run 'regarde login' to re-authenticate.",
+    );
+  }
 
   const regardeSDK = await initRegardeSDK(worker);
 
   if (!regardeSDK.$isLoaded) throw new Error("regardSDK not loaded");
 
+  // Ensure worker sync connection is still active after SDK init
+  await worker.$jazz.waitForSync();
+  if (!worker.$isLoaded) throw new Error("Account sync lost after initialization");
+
   console.log("account", worker);
+  console.log("isMe:", (worker as unknown as { isMe?: boolean }).isMe);
 
   return { regardeSDK, account: worker };
 }
