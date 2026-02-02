@@ -196,7 +196,7 @@ regarde.dev/
 
 ### Note on /app Directory
 
-The `/app/regarde.bio/` directory contains an internal testing application used for SDK development. It's not part of the main Regarde.dev services and will be moved outside this project in the future. This README focuses on the `/packages/` directory which contains the production services.
+The `/apps/regarde.bio/` directory contains an internal testing application used for SDK development. It's not part of the main Regarde.dev services and will be moved outside this project in the future. This README focuses on the `/packages/` directory which contains the production services.
 
 ## Documentation
 

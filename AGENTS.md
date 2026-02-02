@@ -46,7 +46,7 @@ packages/
 ├── api.regarde.dev/   # Registry API service for Regarde.dev SDK
 ├── cli/               # User CLI tool
 └── admin/             # Admin CLI tool
-app/
+apps/
 └── regarde.bio/       # Regarde.bio application
 ```
 

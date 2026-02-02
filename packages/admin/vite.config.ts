@@ -33,6 +33,7 @@ export default defineConfig({
         "dotenv",
         "ulidx",
         "@regarde-dev/core",
+        "@regarde-dev/jazz-schemas/regarde.bio", // TODO: quick fix, need to
         ...builtinModules,
       ],
     },
