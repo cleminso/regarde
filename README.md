@@ -80,7 +80,7 @@ Admin CLI tool for registry operations. Service-based architecture with audit lo
 
 ### Stateless Authentication
 
-Tokens are generated client-side and stored in `RegardeAuth` CoMaps with 24-hour expiration. Each API request independently verifies token ownership and expiration via Jazz group membership.
+Tokens are generated client-side and stored in `RegardeTokenAuth` CoMaps with 24-hour expiration. Each API request independently verifies token ownership and expiration via Jazz group membership.
 
 **Headers**:
 

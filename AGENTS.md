@@ -122,7 +122,7 @@ import { MyComponent } from "./MyComponent";
 
 - **RegardeAccount**: User's complete account context (auth, private data)
 - **RegardeProfile**: Public profile (name, bio, projects)
-- **RegardeAuth**: Registration token CoMap (2FA mechanism)
+- **RegardeTokenAuth**: Registration token CoMap (2FA mechanism)
 - **App / RegardeUserApp**: User's app definitions (name, payment provider, webhook config) - created by SDK users
 - **PaymentEvent**: Individual payment transaction record from webhook - created by worker
 - **RegistryAppMetadata**: Registry-controlled metadata for apps (verification status, access flags) - created by SDK developers
@@ -137,7 +137,7 @@ import { MyComponent } from "./MyComponent";
 
 1. User generates token via `generateRegardeToken` (stored in `account.root["regarde-sdk"].auth`)
 2. User sends token + CoMap ID in headers (`X-Regarde-Token`, `X-Regarde-Token-Id`)
-3. API worker loads RegardeAuth CoMap using `RegardeAuth.load(regardeAuthCoValueId)`
+3. API worker loads RegardeTokenAuth CoMap using `RegardeTokenAuth.load(regardeAuthCoValueId)`
 4. Worker loads user account to verify ownership: `co.account().load(jazzAccountId, { loadAs: worker })`
 5. Worker verifies user owns the token via `userAccount.canAdmin(regardeAuth)`
 6. Worker checks token matches and has not expired (24-hour lifetime)
@@ -155,7 +155,7 @@ import { MyComponent } from "./MyComponent";
 ### Variable Naming
 
 - `account`: RegardeAccount instance
-- `RegardeAuth`: Authentication token CoMap instance
+- `RegardeTokenAuth`: Authentication token CoMap instance
 - `worker`: RegistryWorkerAccount instance
 - `App`: User's app CoMap instance
 - `PaymentEvent`: Payment transaction CoMap instance

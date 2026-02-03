@@ -6,13 +6,13 @@
  * - Simplifies token management in Preact applications
  *
  * ## Flow
- * 1. Import useRegardeAuth hook for token management
- * 2. Use hook with RegardeAuth CoMap instance
+ * 1. Import useRegardeTokenAuth hook for token management
+ * 2. Use hook with RegardeTokenAuth CoMap instance
  * 3. Access token state and refresh functionality
  *
  * ## Migration
  * - Added Preact wrapper for token management
  * - Simplified authentication integration for Preact apps
  */
-export { useRegardeAuth } from "./useRegardeAuth";
-export type { UseRegardeAuthResult } from "./useRegardeAuth";
+export { useRegardeTokenAuth } from "./useRegardeTokenAuth";
+export type { UseRegardeTokenAuthResult } from "./useRegardeTokenAuth";

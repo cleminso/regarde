@@ -68,7 +68,7 @@ await root.$jazz.waitForSync();
 const userGroup = Group.create({ owner: account });
 await userGroup.$jazz.waitForSync();
 
-const regardeAuth = RegardeAuth.create({ ... }, { owner: userGroup });
+const regardeAuth = RegardeTokenAuth.create({ ... }, { owner: userGroup });
 await regardeAuth.$jazz.waitForSync();
 
 const myApps = co.list(App).create([], { owner: userGroup });
@@ -405,7 +405,7 @@ export const initRegardeSDK = async (
 const isExpired = Date.now() > regardeSDK.auth.expiresAt;
 
 if (isExpired === true) {
-  const newToken = await getRegardeAuth({
+  const newToken = await getRegardeTokenAuth({
     loadedRegardeAuthCoMap: regardeSDK.auth,
   });
 

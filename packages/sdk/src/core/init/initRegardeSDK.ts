@@ -3,9 +3,9 @@ import { co, z, Group, type ID } from "jazz-tools";
 import { useLogging } from "#core/logger";
 import { TOKEN_LIFETIME_SECONDS } from "#managers/auth/";
 import { generateRegardeToken } from "#managers/auth/generateToken";
-import { getRegardeAuth } from "#managers/auth/refreshAuthToken";
+import { getRegardeTokenAuth } from "#managers/auth/refreshAuthToken";
 import { RegardeAccount } from "#schemas/regardeAccount";
-import { RegardeAuth } from "#schemas/regardeAuth";
+import { RegardeTokenAuth } from "#schemas/regardeTokenAuth";
 import { RegardeSDK } from "#schemas/regardeSDK";
 import { App } from "#schemas/regardeUserApp";
 import { UserHandle } from "#schemas/regardeUserHandle";
@@ -19,7 +19,7 @@ export type InitRegardeSDKMode = "ensure" | "create";
 /**
  * Initializes Regarde SDK in user's account.
  *
- * Creates required CoMaps (RegardeSDK, RegardeAuth, UserHandle, App list, PaymentEvent maps)
+ * Creates required CoMaps (RegardeSDK, RegardeTokenAuth, UserHandle, App list, PaymentEvent maps)
  * and sets up group permissions for sync operations.
  *
  * @param account - Loaded RegardeAccount instance to initialize SDK for
@@ -47,7 +47,8 @@ export const initRegardeSDK = async (
       accountIsLoaded: account.$isLoaded,
       isAccountValid,
       mode,
-      ["process.env.REGARDE_REGISTRY_GROUP"]: process.env.REGARDE_REGISTRY_GROUP,
+      ["process.env.REGARDE_REGISTRY_GROUP"]:
+        process.env.REGARDE_REGISTRY_GROUP,
       REGARDE_REGISTRY_GROUP,
     },
   });
@@ -58,9 +59,11 @@ export const initRegardeSDK = async (
 
   // build RegardeSDK from scratch
   if (mode === "create") {
-    const regardeProfileWorkerGroup = await co.group().load(REGARDE_REGISTRY_GROUP, {
-      loadAs: account,
-    });
+    const regardeProfileWorkerGroup = await co
+      .group()
+      .load(REGARDE_REGISTRY_GROUP, {
+        loadAs: account,
+      });
     const isGroupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
 
     logger.debug({
@@ -125,7 +128,7 @@ export const initRegardeSDK = async (
             owner: userGroup,
           },
         ),
-        auth: RegardeAuth.create(
+        auth: RegardeTokenAuth.create(
           {
             token: generateRegardeToken(),
             expiresAt: Date.now() + TOKEN_LIFETIME_SECONDS * 1000,
@@ -203,9 +206,11 @@ export const initRegardeSDK = async (
       },
     });
 
-    const regardeProfileWorkerGroup = await co.group().load(REGARDE_REGISTRY_GROUP, {
-      loadAs: account,
-    });
+    const regardeProfileWorkerGroup = await co
+      .group()
+      .load(REGARDE_REGISTRY_GROUP, {
+        loadAs: account,
+      });
 
     const isGroupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
     if (isGroupLoaded === false) {
@@ -270,7 +275,7 @@ export const initRegardeSDK = async (
             owner: userGroup,
           },
         ),
-        auth: RegardeAuth.create(
+        auth: RegardeTokenAuth.create(
           {
             token: generateRegardeToken(),
             expiresAt: Date.now() + TOKEN_LIFETIME_SECONDS * 1000,
@@ -322,7 +327,8 @@ export const initRegardeSDK = async (
     },
   });
 
-  const isAuthLoaded = regardeSDK.auth !== null && regardeSDK.auth.$isLoaded === true;
+  const isAuthLoaded =
+    regardeSDK.auth !== null && regardeSDK.auth.$isLoaded === true;
   if (isAuthLoaded === false) {
     logger.warn({
       message: "RegardeSDK auth not loaded",
@@ -348,7 +354,9 @@ export const initRegardeSDK = async (
         hasExpiresAt,
       },
     });
-    throw new Error("RegardeSDK auth must have both token and expiresAt fields");
+    throw new Error(
+      "RegardeSDK auth must have both token and expiresAt fields",
+    );
   }
 
   const tokenValue = regardeSDK.auth.token;
@@ -375,7 +383,7 @@ export const initRegardeSDK = async (
         now: Date.now(),
       },
     });
-    const newToken = await getRegardeAuth({
+    const newToken = await getRegardeTokenAuth({
       loadedRegardeAuthCoMap: regardeSDK.auth,
     });
     if (newToken === null) {

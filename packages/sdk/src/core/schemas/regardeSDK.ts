@@ -1,6 +1,6 @@
 import { co, z } from "jazz-tools";
 
-import { RegardeAuth } from "./regardeAuth";
+import { RegardeTokenAuth } from "./regardeTokenAuth";
 import { App } from "./regardeUserApp";
 import { UserHandle } from "./regardeUserHandle";
 
@@ -23,14 +23,15 @@ export type TPaymentSchema = co.loaded<typeof PaymentSchema>;
  * Holds all SDK components for user account.
  *
  * @schema
- * - `auth`: Authentication token (RegardeAuth)
+ * - `auth`: Authentication token (RegardeTokenAuth)
  * - `myApps`: List of user's apps
  * - `myPayments`: Payment records indexed by app
  * - `myUserHandle`: User profile and nickname
  * - `version`: Schema version for migration tracking
  */
 export const RegardeSDK = co.map({
-  auth: RegardeAuth,
+  // TODO: `auth` become semantically wrong here? Still convenient to write `auth.token`
+  auth: RegardeTokenAuth,
   myApps: co.list(App),
   myPayments: PaymentSchema,
   myUserHandle: UserHandle,

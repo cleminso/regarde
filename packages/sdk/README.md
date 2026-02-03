@@ -44,13 +44,13 @@ pnpm add preact
 ```typescript
 import { useAccount } from "jazz-tools/react";
 import { initRegardeSDK } from "@regarde-dev/core";
-import { useRegardeAuth } from "@regarde-dev/core/react";
+import { useRegardeTokenAuth } from "@regarde-dev/core/react";
 
 function App() {
   const { me } = useAccount();
   const regardeAuth = me?.root?.["regarde-sdk"]?.auth;
 
-  const { token, tokenId, refresh, isExpired } = useRegardeAuth(regardeAuth);
+  const { token, tokenId, refresh, isExpired } = useRegardeTokenAuth(regardeAuth);
 
   return (
     <div>
@@ -71,21 +71,21 @@ await initRegardeSDK({ account: me });
 
 ```typescript
 import {
-  RegardeAuth,
-  getRegardeAuth,
+  RegardeTokenAuth,
+  getRegardeTokenAuth,
   isTokenExpired,
   generateRegardeToken,
   TOKEN_LIFETIME_SECONDS,
 } from "@regarde-dev/core";
 
-// Use RegardeAuth schema in your Jazz account
+// Use RegardeTokenAuth schema in your Jazz account
 const MyAccountRoot = co.map({
   "regarde-sdk": RegardeSDK,
-  "auth.myapp": RegardeAuth,
+  "auth.myapp": RegardeTokenAuth,
 });
 
 // Generate and store a registration token
-const token = await getRegardeAuth({
+const token = await getRegardeTokenAuth({
   loadedRegardeAuthCoMap: account.root["auth.myapp"],
 });
 
@@ -98,11 +98,11 @@ const expired = isTokenExpired({
 const randomToken = generateRegardeToken(); // 16-character string
 ```
 
-### 2. React Hook - useRegardeAuth
+### 2. React Hook - useRegardeTokenAuth
 
 ```typescript
 import { useAccount } from "jazz-tools/react";
-import { useRegardeAuth } from "@regarde-dev/core/react";
+import { useRegardeTokenAuth } from "@regarde-dev/core/react";
 
 function MyComponent() {
   const { me } = useAccount();
@@ -116,7 +116,7 @@ function MyComponent() {
     refresh,
     isLoading,
     error,
-  } = useRegardeAuth(regardeAuth);
+  } = useRegardeTokenAuth(regardeAuth);
 
   useEffect(() => {
     if (token && tokenId && !isExpired) {
@@ -201,7 +201,7 @@ const stripeApps = await appQuery.getAppsByProvider("stripe");
 - `RegardeAccount` - Root account containing RegardeSDK
 - `RegardeSDK` - Main SDK container (v3 structure)
   - `myUserHandle` - UserHandle CoMap (nickname registration)
-  - `auth` - RegardeAuth CoMap (token + expiresAt)
+  - `auth` - RegardeTokenAuth CoMap (token + expiresAt)
   - `myApps` - List of App CoMaps
   - `myPayments` - PaymentEvent maps indexed by provider UUID and App ID
 - `App` - User-app definition (name, payment provider config, webhook URL)
@@ -275,24 +275,24 @@ if (isRequired === true) {
 
 ### Auth Module (`@regarde-dev/core`)
 
-#### `RegardeAuth`
+#### `RegardeTokenAuth`
 
 Jazz CoMap schema for registration tokens.
 
 ```typescript
-const RegardeAuth = co.map({
+const RegardeTokenAuth = co.map({
   token: z.string(),
   expiresAt: z.number(),
 });
 ```
 
-#### `getRegardeAuth(params)`
+#### `getRegardeTokenAuth(params)`
 
 Generates a new registration token and stores it in the provided CoMap.
 
 **Parameters:**
 
-- `loadedRegardeAuthCoMap: Loaded<typeof RegardeAuth>` - The loaded RegardeAuth CoMap
+- `loadedRegardeAuthCoMap: Loaded<typeof RegardeTokenAuth>` - The loaded RegardeTokenAuth CoMap
 
 **Returns:** `Promise<string | null>` - The generated token, or null on error
 
@@ -318,13 +318,13 @@ Constant for token lifetime (24 hours = 86400 seconds).
 
 ### React/Preact Hooks
 
-#### `useRegardeAuth(regardeAuthCoMap)`
+#### `useRegardeTokenAuth(regardeTokenAuthCoMap)`
 
 **Parameters:**
 
-- `regardeAuthCoMap: Loaded<typeof RegardeAuth> | null | undefined` - The loaded RegardeAuth CoMap
+- `regardeTokenAuthCoMap: Loaded<typeof RegardeTokenAuth> | null | undefined` - The loaded RegardeTokenAuth CoMap
 
-**Returns:** `UseRegardeAuthResult`
+**Returns:** `UseRegardeTokenAuthResult`
 
 ```typescript
 {

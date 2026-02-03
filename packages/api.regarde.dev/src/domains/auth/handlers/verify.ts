@@ -1,6 +1,10 @@
 import { co, Loaded } from "jazz-tools";
 
-import { RegardeAuth, RegistryWorkerAccount, useLogging } from "@regarde-dev/core";
+import {
+  RegardeTokenAuth,
+  RegistryWorkerAccount,
+  useLogging,
+} from "@regarde-dev/core";
 
 const logger = useLogging({
   module: import.meta.filename,
@@ -18,26 +22,31 @@ export async function verifyRegardeAuth(
   worker: Loaded<typeof RegistryWorkerAccount>,
 ): Promise<VerificationResult> {
   try {
-    const isJazzAccountIdValid = typeof jazzAccountId === "string" && jazzAccountId !== "";
+    const isJazzAccountIdValid =
+      typeof jazzAccountId === "string" && jazzAccountId !== "";
 
     const isProvidedRegardeAuthValid =
       typeof providedRegardeAuth === "string" && providedRegardeAuth !== "";
 
-    if (isJazzAccountIdValid === false || isProvidedRegardeAuthValid === false) {
+    if (
+      isJazzAccountIdValid === false ||
+      isProvidedRegardeAuthValid === false
+    ) {
       return {
         isValid: false,
-        error: "Invalid jazzAccountId or registration token: must be non-empty strings",
+        error:
+          "Invalid jazzAccountId or registration token: must be non-empty strings",
       };
     }
 
-    const regardeAuth = (await RegardeAuth.load(regardeAuthCoValueId, {
+    const regardeAuth = (await RegardeTokenAuth.load(regardeAuthCoValueId, {
       resolve: true,
-    })) as Loaded<typeof RegardeAuth>;
+    })) as Loaded<typeof RegardeTokenAuth>;
 
     const isRegardeAuthLoaded = regardeAuth.$isLoaded === true;
     if (isRegardeAuthLoaded === false) {
       logger.error({
-        message: "Failed to load RegardeAuth",
+        message: "Failed to load RegardeTokenAuth",
         data: {
           jazzAccountId,
           regardeAuthCoValueId,
@@ -46,12 +55,13 @@ export async function verifyRegardeAuth(
       return {
         isValid: false,
         error:
-          "RegardeAuth CoMap not found - verify X-Regarde-Token-Id header contains valid CoValue ID",
+          "RegardeTokenAuth CoMap not found - verify X-Regarde-Token-Id header contains valid CoValue ID",
       };
     }
 
     logger.info({
-      message: "RegardeAuth loaded successfully, proceeding with verification",
+      message:
+        "RegardeTokenAuth loaded successfully, proceeding with verification",
       data: {
         jazzAccountId,
         regardeAuthCoValueId,
@@ -79,7 +89,7 @@ export async function verifyRegardeAuth(
     const isUserCanAdminRegardeAuth = userAccount.canAdmin(regardeAuth);
     if (isUserCanAdminRegardeAuth === false) {
       logger.debug({
-        message: "User does not own RegardeAuth CoValue",
+        message: "User does not own RegardeTokenAuth CoValue",
         data: {
           jazzAccountId,
           regardeAuthCoValueId,
@@ -88,7 +98,8 @@ export async function verifyRegardeAuth(
       });
       return {
         isValid: false,
-        error: "User does not have permission to access this RegardeAuth CoMap",
+        error:
+          "User does not have permission to access this RegardeTokenAuth CoMap",
       };
     }
 
@@ -131,7 +142,8 @@ export async function verifyRegardeAuth(
     });
     return { isValid: true };
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
     logger.error({
       message: "Unexpected error during registration token verification",
       data: {

@@ -64,11 +64,11 @@ if (isValid === false) throw new Error("Account must be loaded");
 
 ### CoValue Types (Regarde-Used)
 
-| Type              | Purpose             | Regarde Usage                              |
-| ----------------- | ------------------- | ------------------------------------------ |
-| `co.map({...})`   | Key-value objects   | RegardeSDK, RegardeAuth, App, PaymentEvent |
-| `co.list(T)`      | Ordered collections | myApps list                                |
-| `co.record(K, V)` | Dynamic key-value   | PaymentEvent maps                          |
+| Type              | Purpose             | Regarde Usage                                   |
+| ----------------- | ------------------- | ----------------------------------------------- |
+| `co.map({...})`   | Key-value objects   | RegardeSDK, RegardeTokenAuth, App, PaymentEvent |
+| `co.list(T)`      | Ordered collections | myApps list                                     |
+| `co.record(K, V)` | Dynamic key-value   | PaymentEvent maps                               |
 
 ### Import Structure
 
@@ -133,7 +133,7 @@ Working with Jazz?
 │   └── Use subscribe() for real-time updates
 ├── Authentication?
 │   ├── Passphrase (CLI) → usePassphraseAuth()
-│   └── Tokens (API) → RegardeAuth (24h expiry)
+│   └── Tokens (API) → RegardeTokenAuth (24h expiry)
 └── Permissions?
     ├── Single user → owner: account
     ├── Multiple users → Group with addMember()
@@ -237,12 +237,12 @@ function MyComponent() {
 ### Example 4: Regarde Authentication Token with Validation
 
 ```typescript
-import { RegardeAuth } from "@regarde-dev/core";
-import { useRegardeAuth } from "@regarde-dev/core/react";
+import { RegardeTokenAuth } from "@regarde-dev/core";
+import { useRegardeTokenAuth } from "@regarde-dev/core/react";
 
 function ApiComponent() {
   const { regardeSDK } = useMyRegardeAccount();
-  const { token, tokenId, isExpired, refresh, isLoading } = useRegardeAuth(
+  const { token, tokenId, isExpired, refresh, isLoading } = useRegardeTokenAuth(
     regardeSDK?.auth
   );
 

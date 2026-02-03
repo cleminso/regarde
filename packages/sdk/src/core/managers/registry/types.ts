@@ -10,9 +10,9 @@ export interface RegisterNicknameParams {
   jazzAccountID: string;
   /** Current nickname when updating to new one (omit for new registrations) */
   oldNickname?: string;
-  /** Authentication token from user's RegardeAuth schema for verification */
+  /** Authentication token from user's RegardeTokenAuth schema for verification */
   regardeAuth: string;
-  /** ID of the RegardeAuth CoMap containing the authentication token */
+  /** ID of the RegardeTokenAuth CoMap containing the authentication token */
   regardeAuthId: string;
   /** Optional AbortSignal to cancel the network request */
   signal?: AbortSignal;

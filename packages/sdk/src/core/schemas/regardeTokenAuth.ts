@@ -12,20 +12,20 @@ import { generateRegardeToken } from "#managers/auth/generateToken";
  * - `token`: Authentication token string
  * - `expiresAt`: Unix timestamp when token expires
  */
-export const RegardeAuth = co
+export const RegardeTokenAuth = co
   .map({
     token: z.string(),
     expiresAt: z.number(),
   })
-  .withMigration((regardeAuth) => {
-    if (!regardeAuth.$jazz.has("token")) {
-      regardeAuth.$jazz.set("token", generateRegardeToken());
+  .withMigration((regardeTokenAuth) => {
+    if (!regardeTokenAuth.$jazz.has("token")) {
+      regardeTokenAuth.$jazz.set("token", generateRegardeToken());
     }
 
-    if (!regardeAuth.$jazz.has("expiresAt")) {
-      regardeAuth.$jazz.set("expiresAt", 0);
+    if (!regardeTokenAuth.$jazz.has("expiresAt")) {
+      regardeTokenAuth.$jazz.set("expiresAt", 0);
     }
   });
 
-/** Loaded RegardeAuth instance */
-export type TRegardeAuthLoaded = co.loaded<typeof RegardeAuth>;
+/** Loaded RegardeTokenAuth instance */
+export type TRegardeAuthLoaded = co.loaded<typeof RegardeTokenAuth>;

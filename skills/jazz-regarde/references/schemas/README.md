@@ -286,7 +286,7 @@ const RegardeAccount = co
 
 ```typescript
 const RegardeSDK = co.map({
-  auth: RegardeAuth,
+  auth: RegardeTokenAuth,
   myApps: co.list(App),
   myPayments: PaymentSchema,
   myUserHandle: UserHandle,
@@ -294,10 +294,10 @@ const RegardeSDK = co.map({
 });
 ```
 
-### RegardeAuth
+### RegardeTokenAuth
 
 ```typescript
-const RegardeAuth = co
+const RegardeTokenAuth = co
   .map({
     token: z.string(),
     expiresAt: z.number(),

@@ -27,8 +27,14 @@ export type {
   TReservedNicknamesRegistry,
 } from "./registry/nickname";
 
-export { RegistryWorkerAccountRoot, RegistryWorkerAccount } from "./registry/worker";
-export type { TRegistryWorkerAccountRoot, TRegistryWorkerAccount } from "./registry/worker";
+export {
+  RegistryWorkerAccountRoot,
+  RegistryWorkerAccount,
+} from "./registry/worker";
+export type {
+  TRegistryWorkerAccountRoot,
+  TRegistryWorkerAccount,
+} from "./registry/worker";
 
 export { RegardeSDK } from "./regardeSDK";
 export { PaymentSchema } from "./regardeSDK";
@@ -40,13 +46,17 @@ export type { TPaymentEvent, TListOfPaymentEvents } from "./paymentEvent";
 export { RegardeAccount } from "./regardeAccount";
 export type { TRegardeAccount } from "./regardeAccount";
 
-export { RegardeAuth } from "./regardeAuth";
-export type { TRegardeAuthLoaded } from "./regardeAuth";
+export { RegardeTokenAuth } from "./regardeTokenAuth";
+export type { TRegardeAuthLoaded } from "./regardeTokenAuth";
 
 export { App } from "./regardeUserApp";
 export type { TApp } from "./regardeUserApp";
 export { AppPaymentsSchema } from "./regardeUserApp";
 export type { TAppPaymentsSchema } from "./regardeUserApp";
 
-export { UserHandle, setNicknameFromRegistry, deactivate } from "./regardeUserHandle";
+export {
+  UserHandle,
+  setNicknameFromRegistry,
+  deactivate,
+} from "./regardeUserHandle";
 export type { TUserHandleLoaded } from "./regardeUserHandle";

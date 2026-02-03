@@ -13,7 +13,7 @@ React and Preact integration for Jazz.
 - [Authentication Hooks](#authentication-hooks)
   - [usePassphraseAuth](#usepassphraseauth)
 - [Custom Hooks](#custom-hooks)
-  - [useRegardeAuth](#useregardeauth)
+  - [useRegardeTokenAuth](#useregardeauth)
   - [useMyRegardeAccount](#usemyregardeaccount)
 - [Hook Patterns](#hook-patterns)
 - [Preact Support](#preact-support)
@@ -178,17 +178,17 @@ Returns:
 
 ## Custom Hooks
 
-### useRegardeAuth
+### useRegardeTokenAuth
 
 Regarde SDK authentication hook for API tokens.
 
 ```typescript
-import { useRegardeAuth } from "@regarde-dev/core/react";
+import { useRegardeTokenAuth } from "@regarde-dev/core/react";
 
 function ApiComponent() {
   const { regardeSDK } = useMyRegardeAccount();
   const { token, tokenId, isExpired, refresh, isLoading, error } =
-    useRegardeAuth(regardeSDK?.auth);
+    useRegardeTokenAuth(regardeSDK?.auth);
 
   // Explicit boolean checks
   const hasToken = token !== null && token.length > 0;

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { useRegardeAuth } from "#/lib/account/useRegistrationToken";
+import { useRegardeTokenAuth } from "#/lib/account/useRegistrationToken";
 import { logger } from "#/lib/utils/logger";
 
 import { useMyRegardeAccount } from "../../lib/account/useMyRegardeAccount";
@@ -13,7 +13,7 @@ export function AuthButton() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const { logOut, isAuthenticated } = useMyRegardeAccount();
-  const { getValidKey, isAccountReady } = useRegardeAuth();
+  const { getValidKey, isAccountReady } = useRegardeTokenAuth();
 
   const keyInitialized = useRef(false);
 

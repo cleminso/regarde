@@ -7,14 +7,14 @@ Authentication patterns for Regarde SDK.
 Regarde uses two authentication methods:
 
 - **Passphrase**: For CLI authentication (word-based recovery phrases)
-- **RegardeAuth Token**: 24-hour expiring tokens for API authentication
+- **RegardeTokenAuth Token**: 24-hour expiring tokens for API authentication
 
 ## Authentication Methods
 
-| Method     | Description             | Use Case                         |
-| ---------- | ----------------------- | -------------------------------- |
-| Passphrase | Word-based recovery     | CLI login                        |
-| Token      | 24-hour expiring tokens | API authentication (RegardeAuth) |
+| Method     | Description             | Use Case                              |
+| ---------- | ----------------------- | ------------------------------------- |
+| Passphrase | Word-based recovery     | CLI login                             |
+| Token      | 24-hour expiring tokens | API authentication (RegardeTokenAuth) |
 
 ## Anonymous Authentication
 
@@ -108,14 +108,14 @@ auth.logOut(); // Log out
 2. Never share it with anyone
 3. Understand anyone with the passphrase can access the account
 
-## Token Authentication (RegardeAuth)
+## Token Authentication (RegardeTokenAuth)
 
 24-hour expiring tokens for API authentication. Used for stateless API requests.
 
 ### Token Schema
 
 ```typescript
-const RegardeAuth = co
+const RegardeTokenAuth = co
   .map({
     token: z.string(),
     expiresAt: z.number(),
@@ -152,7 +152,7 @@ export const TOKEN_LIFETIME_SECONDS = 24 * 60 * 60; // 24 hours
 
 ```typescript
 export const isTokenExpired = (
-  auth: co.loaded<typeof RegardeAuth>,
+  auth: co.loaded<typeof RegardeTokenAuth>,
 ): boolean => {
   const isAuthLoaded = auth !== null && auth.$isLoaded === true;
   if (isAuthLoaded === false) {
@@ -170,10 +170,10 @@ export const isTokenExpired = (
 ### Refresh Token
 
 ```typescript
-export const getRegardeAuth = async ({
+export const getRegardeTokenAuth = async ({
   loadedRegardeAuthCoMap,
 }: {
-  loadedRegardeAuthCoMap: co.loaded<typeof RegardeAuth>;
+  loadedRegardeAuthCoMap: co.loaded<typeof RegardeTokenAuth>;
 }): Promise<string | null> => {
   const isLoaded =
     loadedRegardeAuthCoMap !== null &&
@@ -198,15 +198,16 @@ export const getRegardeAuth = async ({
 ### React Hook
 
 ```typescript
-export function useRegardeAuth(
-  regardeAuthCoMap: Loaded<typeof RegardeAuth> | null | undefined,
-): UseRegardeAuthResult {
+export function useRegardeTokenAuth(
+  regardeTokenAuthCoMap: Loaded<typeof RegardeTokenAuth> | null | undefined,
+): UseRegardeTokenAuthResult {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     const isCoMapLoaded =
-      regardeAuthCoMap !== null && regardeAuthCoMap.$isLoaded === true;
+      regardeTokenAuthCoMap !== null &&
+      regardeTokenAuthCoMap.$isLoaded === true;
 
     if (isCoMapLoaded === false) {
       setError("No auth CoMap provided");
@@ -217,8 +218,8 @@ export function useRegardeAuth(
     setError(null);
 
     try {
-      const newToken = await getRegardeAuth({
-        loadedRegardeAuthCoMap: regardeAuthCoMap,
+      const newToken = await getRegardeTokenAuth({
+        loadedRegardeAuthCoMap: regardeTokenAuthCoMap,
       });
 
       const hasNewToken = newToken !== null && newToken.length > 0;
@@ -230,26 +231,28 @@ export function useRegardeAuth(
     } finally {
       setIsLoading(false);
     }
-  }, [regardeAuthCoMap]);
+  }, [regardeTokenAuthCoMap]);
 
   // Auto-refresh check
   useEffect(() => {
     const isCoMapPresent =
-      regardeAuthCoMap !== null && regardeAuthCoMap !== undefined;
+      regardeTokenAuthCoMap !== null && regardeTokenAuthCoMap !== undefined;
 
     if (isCoMapPresent === true) {
-      const isExpired = isTokenExpired(regardeAuthCoMap);
+      const isExpired = isTokenExpired(regardeTokenAuthCoMap);
       if (isExpired === true && isLoading === false) {
         refresh();
       }
     }
-  }, [regardeAuthCoMap, isLoading, refresh]);
+  }, [regardeTokenAuthCoMap, isLoading, refresh]);
 
   return {
-    token: regardeAuthCoMap?.token ?? null,
-    tokenId: regardeAuthCoMap?.$jazz.id ?? null,
-    expiresAt: regardeAuthCoMap?.expiresAt ?? null,
-    isExpired: regardeAuthCoMap ? isTokenExpired(regardeAuthCoMap) : true,
+    token: regardeTokenAuthCoMap?.token ?? null,
+    tokenId: regardeTokenAuthCoMap?.$jazz.id ?? null,
+    expiresAt: regardeTokenAuthCoMap?.expiresAt ?? null,
+    isExpired: regardeTokenAuthCoMap
+      ? isTokenExpired(regardeTokenAuthCoMap)
+      : true,
     refresh,
     isLoading,
     error,
@@ -260,12 +263,12 @@ export function useRegardeAuth(
 ### API Usage
 
 ```typescript
-import { useRegardeAuth } from "@regarde-dev/core/react";
+import { useRegardeTokenAuth } from "@regarde-dev/core/react";
 
 function ApiCaller() {
   const { regardeSDK } = useMyRegardeAccount();
   const { token, tokenId, isExpired, refresh, isLoading, error } =
-    useRegardeAuth(regardeSDK?.auth);
+    useRegardeTokenAuth(regardeSDK?.auth);
 
   const makeApiCall = useCallback(async () => {
     const hasToken = token !== null && token.length > 0;
@@ -293,7 +296,7 @@ function ApiCaller() {
 1. User generates token via `generateRegardeToken()`
 2. Token stored in `account.root["regarde-sdk"].auth`
 3. User sends token + CoMap ID in headers (`X-Regarde-Token`, `X-Regarde-Token-Id`)
-4. Worker loads `RegardeAuth` using `RegardeAuth.load(id, { loadAs: worker })`
+4. Worker loads `RegardeTokenAuth` using `RegardeTokenAuth.load(id, { loadAs: worker })`
 5. Worker loads user account to verify ownership via `canAdmin(regardeAuth)`
 6. Worker verifies token matches and hasn't expired
 7. Worker performs requested action
@@ -314,7 +317,7 @@ async function verifyToken(req: Request, worker: Account) {
     throw new Error("Missing auth headers");
   }
 
-  const regardeAuth = await RegardeAuth.load(tokenId, { loadAs: worker });
+  const regardeAuth = await RegardeTokenAuth.load(tokenId, { loadAs: worker });
   const isAuthLoaded = regardeAuth !== null && regardeAuth.$isLoaded === true;
 
   if (isAuthLoaded === false) {
@@ -406,7 +409,7 @@ console.log("SAVE THIS PASSPHRASE:", auth.passphrase);
 ### 2. Handle Token Expiration
 
 ```typescript
-const { token, isExpired, refresh, isLoading } = useRegardeAuth(auth);
+const { token, isExpired, refresh, isLoading } = useRegardeTokenAuth(auth);
 
 // Auto-refresh before expiration
 useEffect(() => {
@@ -422,9 +425,9 @@ useEffect(() => {
 ### 3. Store Token Securely
 
 ```typescript
-// Token is in RegardeAuth CoMap (already secure via Jazz)
+// Token is in RegardeTokenAuth CoMap (already secure via Jazz)
 // Never store in localStorage/sessionStorage separately
-const regardeAuth = RegardeAuth.create({ ... }, { owner: userGroup });
+const regardeAuth = RegardeTokenAuth.create({ ... }, { owner: userGroup });
 await regardeAuth.$jazz.waitForSync();
 ```
 
@@ -441,7 +444,7 @@ async function verifyToken(req: Request, worker: Account) {
     throw new Error("Missing auth headers");
   }
 
-  const auth = await RegardeAuth.load(tokenId, { loadAs: worker });
+  const auth = await RegardeTokenAuth.load(tokenId, { loadAs: worker });
   const isLoaded = auth !== null && auth.$isLoaded === true;
 
   if (isLoaded === false) {

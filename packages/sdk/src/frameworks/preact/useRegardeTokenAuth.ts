@@ -1,16 +1,16 @@
 import { Loaded } from "jazz-tools";
 import { useCallback, useState } from "preact/hooks";
 
-import { RegardeAuth } from "#core/schemas/regardeAuth";
-import { getRegardeAuth, isTokenExpired } from "#managers/auth";
+import { RegardeTokenAuth } from "#core/schemas/regardeTokenAuth";
+import { getRegardeTokenAuth, isTokenExpired } from "#managers/auth";
 
 /**
  * Authentication state and operations.
  */
-export interface UseRegardeAuthResult {
+export interface UseRegardeTokenAuthResult {
   /** Current authentication token or null if not available */
   token: string | null;
-  /** CoValue ID of the RegardeAuth CoMap (starts with co_) */
+  /** CoValue ID of the RegardeTokenAuth CoMap (starts with co_) */
   tokenId: string | null;
   /** Unix timestamp when the token expires or null if not available */
   expiresAt: number | null;
@@ -30,27 +30,27 @@ export interface UseRegardeAuthResult {
  * Provides token state, expiration checking, and refresh functionality.
  * Does not automatically retry failed refreshes.
  *
- * @param regardeAuthCoMap - Loaded RegardeAuth CoMap instance (null/undefined = no auth)
+ * @param regardeTokenAuthCoMap - Loaded RegardeTokenAuth CoMap instance (null/undefined = no auth)
  * @returns Object containing token, loading state, and refresh function
  *
  * @example
  * ```tsx
  * function MyComponent() {
- *   const { token, isExpired, refresh, error } = useRegardeAuth(regardeAuth);
+ *   const { token, isExpired, refresh, error } = useRegardeTokenAuth(regardeAuth);
  *
  *   if (error) return <div>Error: {error}</div>;
  *   return <div>Token: {token}</div>;
  * }
  * ```
  */
-export function useRegardeAuth(
-  regardeAuthCoMap: Loaded<typeof RegardeAuth> | null | undefined,
-): UseRegardeAuthResult {
+export function useRegardeTokenAuth(
+  regardeTokenAuthCoMap: Loaded<typeof RegardeTokenAuth> | null | undefined,
+): UseRegardeTokenAuthResult {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    if (!regardeAuthCoMap?.$isLoaded) {
+    if (!regardeTokenAuthCoMap?.$isLoaded) {
       setError("No registration token CoMap provided");
       return;
     }
@@ -59,8 +59,8 @@ export function useRegardeAuth(
     setError(null);
 
     try {
-      const newToken = await getRegardeAuth({
-        loadedRegardeAuthCoMap: regardeAuthCoMap,
+      const newToken = await getRegardeTokenAuth({
+        loadedRegardeAuthCoMap: regardeTokenAuthCoMap,
       });
       if (!newToken) {
         setError("Failed to update registration token");
@@ -70,13 +70,15 @@ export function useRegardeAuth(
     } finally {
       setIsLoading(false);
     }
-  }, [regardeAuthCoMap]);
+  }, [regardeTokenAuthCoMap]);
 
   return {
-    token: regardeAuthCoMap?.token ?? null,
-    tokenId: regardeAuthCoMap?.$jazz.id ?? null,
-    expiresAt: regardeAuthCoMap?.expiresAt ?? null,
-    isExpired: regardeAuthCoMap ? isTokenExpired(regardeAuthCoMap) : true,
+    token: regardeTokenAuthCoMap?.token ?? null,
+    tokenId: regardeTokenAuthCoMap?.$jazz.id ?? null,
+    expiresAt: regardeTokenAuthCoMap?.expiresAt ?? null,
+    isExpired: regardeTokenAuthCoMap
+      ? isTokenExpired(regardeTokenAuthCoMap)
+      : true,
     refresh,
     isLoading,
     error,

@@ -35,7 +35,7 @@ Jazz is a local-first database that syncs across devices and users. This skill c
 | `sync-safety/`        | Write-Wait-Use patterns, loading states, subscriptions       | [README](./references/sync-safety/README.md)                                               |
 | `authentication/`     | Passkey, passphrase, token-based auth                        | [README](./references/authentication/README.md), [API](./references/authentication/api.md) |
 | `groups-permissions/` | Group roles, sharing, permission checks                      | [README](./references/groups-permissions/README.md)                                        |
-| `react-hooks/`        | useAccount, useCoState, useRegardeAuth                       | [README](./references/react-hooks/README.md)                                               |
+| `react-hooks/`        | useAccount, useCoState, useRegardeTokenAuth                  | [README](./references/react-hooks/README.md)                                               |
 | `patterns/`           | Common implementation patterns                               | [README](./references/patterns/README.md)                                                  |
 | `gotchas/`            | Common pitfalls and how to avoid them                        | [README](./references/gotchas/README.md)                                                   |
 
@@ -75,7 +75,7 @@ Critical rules:
 
 - **RegardeAccount**: Extended Jazz account with SDK root
 - **RegardeSDK**: Container for auth, apps, payments
-- **RegardeAuth**: 24-hour token for API authentication
+- **RegardeTokenAuth**: 24-hour token for API authentication
 - **App**: User-defined app with payment configuration
 - **PaymentEvent**: Webhook-triggered payment records
 

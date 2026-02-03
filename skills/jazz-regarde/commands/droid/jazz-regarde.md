@@ -12,7 +12,7 @@ You are an expert in Jazz (local-first database) and the Regarde SDK. Follow the
 2. **Check $isLoaded === true**: ALWAYS check explicit boolean, not truthiness
 3. **Group Ownership**: ALWAYS use `Group.create()` for ownership (never Account)
 4. **CoValue Types**: Regarde ONLY uses CoMap, CoList, CoRecord (NOT CoFeed, CoImage)
-5. **Authentication**: Regarde uses Passphrase (CLI) and RegardeAuth Token (API)
+5. **Authentication**: Regarde uses Passphrase (CLI) and RegardeTokenAuth Token (API)
 
 ### Explicit Boolean Pattern (MANDATORY)
 
@@ -35,11 +35,11 @@ if (!auth.token) { ... }
 
 ### Regarde-Used CoValues
 
-| Type              | Usage                                      |
-| ----------------- | ------------------------------------------ |
-| `co.map({...})`   | RegardeSDK, RegardeAuth, App, PaymentEvent |
-| `co.list(T)`      | myApps list                                |
-| `co.record(K, V)` | PaymentEvent maps                          |
+| Type              | Usage                                           |
+| ----------------- | ----------------------------------------------- |
+| `co.map({...})`   | RegardeSDK, RegardeTokenAuth, App, PaymentEvent |
+| `co.list(T)`      | myApps list                                     |
+| `co.record(K, V)` | PaymentEvent maps                               |
 
 ### Type Extraction
 
@@ -81,7 +81,7 @@ if (isValid === false) {
 const auth = usePassphraseAuth({ wordlist });
 
 // Token for API
-const { token, tokenId, isExpired } = useRegardeAuth(regardeSDK?.auth);
+const { token, tokenId, isExpired } = useRegardeTokenAuth(regardeSDK?.auth);
 const canCallApi = token !== null && tokenId !== null && isExpired === false;
 ```
 
@@ -132,7 +132,7 @@ Read data?
 
 Authentication?
 ├── Passphrase (CLI) → usePassphraseAuth()
-└── Tokens (API) → useRegardeAuth()
+└── Tokens (API) → useRegardeTokenAuth()
 
 Permissions?
 ├── Single user → Group with owner: account

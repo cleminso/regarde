@@ -316,11 +316,11 @@ function AuthComponent() {
 ### 2. Auto-Refresh Token
 
 ```typescript
-import { useRegardeAuth } from "@regarde-dev/core/react";
+import { useRegardeTokenAuth } from "@regarde-dev/core/react";
 
 function ApiComponent() {
   const { regardeSDK } = useMyRegardeAccount();
-  const { token, tokenId, isExpired, refresh, isLoading } = useRegardeAuth(
+  const { token, tokenId, isExpired, refresh, isLoading } = useRegardeTokenAuth(
     regardeSDK?.auth,
   );
 
@@ -680,7 +680,7 @@ export const initRegardeSDK = async (
     await userGroup.$jazz.waitForSync();
 
     regardeSDK = RegardeSDK.create({
-      auth: RegardeAuth.create({ ... }, { owner: userGroup }),
+      auth: RegardeTokenAuth.create({ ... }, { owner: userGroup }),
       myApps: co.list(App).create([], { owner: userGroup }),
       // ...
     }, { owner: userGroup });
@@ -709,7 +709,7 @@ async function verifyToken(req: Request, worker: Account) {
     throw new Error("Missing auth headers");
   }
 
-  const regardeAuth = await RegardeAuth.load(tokenId, { loadAs: worker });
+  const regardeAuth = await RegardeTokenAuth.load(tokenId, { loadAs: worker });
 
   const isAuthLoaded = regardeAuth !== null && regardeAuth.$isLoaded === true;
   if (isAuthLoaded === false) {

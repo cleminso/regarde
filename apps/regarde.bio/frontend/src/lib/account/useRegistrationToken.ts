@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-import { useRegardeAuth as useSDKRegardeAuth } from "@regarde-dev/core/react";
+import { useRegardeTokenAuth } from "@regarde-dev/core/react";
 
 import { useMyRegardeAccount } from "./useMyRegardeAccount";
 
@@ -11,15 +11,15 @@ export type GetValidKeyFunctionOutput = Promise<{
 
 export type GetValidKeyFunction = () => GetValidKeyFunctionOutput;
 
-export function useRegardeAuth() {
+export function useRegardeTokenAuth() {
   const { account, isAccountReady } = useMyRegardeAccount();
 
-  const regardeAuth = account && account.$isLoaded ? account.root["regarde-sdk"] : undefined;
+  const regardeTokenAuth = account && account.$isLoaded ? account.root["regarde-sdk"] : undefined;
   const isLoading = account === undefined || (account && !account.$isLoaded);
-  const isAccessible = regardeAuth !== null;
+  const isAccessible = regardeTokenAuth !== null;
 
   // Use SDK hook for core registration key functionality
-  const sdkHook = useSDKRegardeAuth(regardeAuth);
+  const sdkHook = useRegardeTokenAuth(regardeTokenAuth);
 
   const getValidKey = useCallback(async (): GetValidKeyFunctionOutput => {
     if (!account || !account.$isLoaded || !account.root || !isAccountReady) {
@@ -31,7 +31,7 @@ export function useRegardeAuth() {
     }
 
     // Check if token is expired or missing
-    if (!regardeAuth || sdkHook.isExpired) {
+    if (!regardeTokenAuth || sdkHook.isExpired) {
       // Refresh the token using SDK's refresh function
       await sdkHook.refresh();
 
@@ -52,14 +52,14 @@ export function useRegardeAuth() {
       token: sdkHook.token,
       tokenId: sdkHook.tokenId,
     };
-  }, [account, isAccountReady, regardeAuth, isLoading, sdkHook]);
+  }, [account, isAccountReady, regardeTokenAuth, isLoading, sdkHook]);
 
   return {
     getValidKey,
     isAccountReady,
-    hasRegardeAuth: Boolean(regardeAuth),
+    hasRegardeTokenAuth: Boolean(regardeTokenAuth),
     isKeyExpired: sdkHook.isExpired,
-    isRegardeAuthLoading: isLoading,
-    isRegardeAuthAccessible: isAccessible,
+    isRegardeTokenAuthLoading: isLoading,
+    isRegardeTokenAuthAccessible: isAccessible,
   };
 }

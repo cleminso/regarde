@@ -10,12 +10,12 @@ export async function registerNicknameWithServer({
   nickname,
   accountId,
   oldNickname,
-  getRegardeAuth,
+  getRegardeTokenAuth,
 }: {
   nickname: string;
   accountId: string;
   oldNickname?: string;
-  getRegardeAuth: GetValidKeyFunction;
+  getRegardeTokenAuth: GetValidKeyFunction;
 }): Promise<void> {
   // Only send oldNickname if it's a real nickname (not placeholder)
   // This determines server behavior: new registration vs swap/update
@@ -27,6 +27,6 @@ export async function registerNicknameWithServer({
       jazzAccountID: accountId,
       oldNickname: shouldSendOldNickname ? oldNickname : undefined,
     },
-    getRegardeAuth,
+    getRegardeTokenAuth,
   );
 }

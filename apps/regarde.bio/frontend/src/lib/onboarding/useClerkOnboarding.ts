@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 
 import { useMyRegardeAccount } from "../account/useMyRegardeAccount";
-import { useRegardeAuth } from "../account/useRegistrationToken";
+import { useRegardeTokenAuth } from "../account/useRegistrationToken";
 import { checkNicknameAvailability } from "../api/nickname";
 import { registerNicknameWithServer } from "../nickname/services";
 import { isValidNicknameFormat } from "../nickname/utils";
@@ -26,7 +26,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
 
   const { account, isAuthenticated, regardeAuth, userNickname } = useMyRegardeAccount();
 
-  const { getValidKey, isAccountReady } = useRegardeAuth();
+  const { getValidKey, isAccountReady } = useRegardeTokenAuth();
 
   // Registration state
   const [isProcessing, setIsProcessing] = useState(false);
@@ -146,7 +146,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
         await registerNicknameWithServer({
           nickname: pendingNickname,
           accountId: account.$jazz.id,
-          getRegardeAuth: getValidKey,
+          getRegardeTokenAuth: getValidKey,
         });
 
         localStorage.removeItem(PENDING_NICKNAME_KEY);
@@ -232,7 +232,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
           nickname,
           accountId: account.$jazz.id,
           oldNickname: currentNickname,
-          getRegardeAuth: getValidKey,
+          getRegardeTokenAuth: getValidKey,
         });
 
         // Wait a bit for the onboarding data to sync
@@ -300,7 +300,7 @@ export function useClerkOnboarding(options: UseClerkOnboardingOptions = {}) {
           nickname,
           accountId: account!.$jazz.id,
           oldNickname: currentNickname,
-          getRegardeAuth: getValidKey,
+          getRegardeTokenAuth: getValidKey,
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : "Update failed");

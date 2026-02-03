@@ -6,7 +6,7 @@
 
 ## Core Responsibility
 
-- Initialize Regarde SDK data structures (RegardeSDK CoMap, RegardeAuth token, UserHandle, App lists, PaymentEvent maps)
+- Initialize Regarde SDK data structures (RegardeSDK CoMap, RegardeTokenAuth token, UserHandle, App lists, PaymentEvent maps)
 - Generate/refresh registration tokens (24-hour lifetime, 16-char secure strings)
 - Provide framework hooks (React/Preact) for SDK integration
 - Expose schemas for user/registry CoMaps (App, PaymentEvent, RegistryAppMetadata, nickname registries)
@@ -27,7 +27,7 @@ pnpm build            # Production build
 - `RegardeAccount` - Root account containing RegardeSDK
 - `RegardeSDK` - Main SDK container (v3 structure)
   - `myUserHandle` - UserHandle CoMap (nickname registration data)
-  - `auth` - RegardeAuth CoMap (token + expiresAt)
+  - `auth` - RegardeTokenAuth CoMap (token + expiresAt)
   - `myApps` - List of App CoMaps
   - `myPayments` - PaymentEvent maps indexed by provider UUID and App ID
 - `App` - User-app definition (name, payment provider config, webhook URL)
@@ -141,9 +141,9 @@ Build outputs `dist/index.js`, `dist/react.js`, `dist/preact.js` with bundled ty
 
 ### Token Management
 
-- Tokens are generated client-side and stored in RegardeAuth CoMap
+- Tokens are generated client-side and stored in RegardeTokenAuth CoMap
 - 24-hour lifetime enforced by expiresAt timestamp
-- Worker verifies token validity via RegardeAuth.load() + ownership checks
+- Worker verifies token validity via RegardeTokenAuth.load() + ownership checks
 
 ### Data Ownership Model
 

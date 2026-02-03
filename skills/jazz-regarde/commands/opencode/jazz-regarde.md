@@ -42,11 +42,11 @@ if (isValid === false) throw new Error("Account must be loaded");
 
 ## CoValue Types (Regarde-Used)
 
-| Type              | Purpose             | Regarde Usage                              |
-| ----------------- | ------------------- | ------------------------------------------ |
-| `co.map({...})`   | Key-value objects   | RegardeSDK, RegardeAuth, App, PaymentEvent |
-| `co.list(T)`      | Ordered collections | myApps list                                |
-| `co.record(K, V)` | Dynamic key-value   | PaymentEvent maps                          |
+| Type              | Purpose             | Regarde Usage                                   |
+| ----------------- | ------------------- | ----------------------------------------------- |
+| `co.map({...})`   | Key-value objects   | RegardeSDK, RegardeTokenAuth, App, PaymentEvent |
+| `co.list(T)`      | Ordered collections | myApps list                                     |
+| `co.record(K, V)` | Dynamic key-value   | PaymentEvent maps                               |
 
 ## Import Structure
 
@@ -103,7 +103,9 @@ function MyComponent() {
 ### Regarde Authentication
 
 ```typescript
-const { token, tokenId, isExpired, refresh } = useRegardeAuth(regardeSDK?.auth);
+const { token, tokenId, isExpired, refresh } = useRegardeTokenAuth(
+  regardeSDK?.auth,
+);
 
 const hasToken = token !== null && token.length > 0;
 const hasTokenId = tokenId !== null && tokenId.length > 0;
@@ -124,7 +126,7 @@ const response = await fetch("/api/action", {
 - **sync-safety/** - Write-Wait-Use patterns, loading states
 - **authentication/** - Passphrase (CLI), Token auth (API)
 - **groups-permissions/** - Group roles, access control
-- **react-hooks/** - useAccount, useCoState, useRegardeAuth
+- **react-hooks/** - useAccount, useCoState, useRegardeTokenAuth
 - **patterns/** - Common implementation patterns
 - **gotchas/** - Common mistakes and how to avoid them
 
@@ -146,7 +148,7 @@ Working with Jazz?
 │   └── Use subscribe() for real-time updates
 ├── Authentication?
 │   ├── Passphrase (CLI) → usePassphraseAuth()
-│   └── Tokens (API) → RegardeAuth (24h expiry)
+│   └── Tokens (API) → RegardeTokenAuth (24h expiry)
 └── Permissions?
     ├── Single user → owner: account
     ├── Multiple users → Group with addMember()

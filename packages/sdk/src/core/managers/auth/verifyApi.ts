@@ -6,9 +6,9 @@ export interface VerifyRegardeAuthParams {
   baseUrl: string;
   /** Jazz Account ID claiming ownership of the token */
   jazzAccountId: string;
-  /** Token string from user's RegardeAuth schema */
+  /** Token string from user's RegardeTokenAuth schema */
   regardeAuth: string;
-  /** ID of the RegardeAuth CoMap containing the token */
+  /** ID of the RegardeTokenAuth CoMap containing the token */
   regardeAuthId: string;
   /** Server API token for authentication */
   apiToken: string;
@@ -35,8 +35,8 @@ export interface VerificationResult {
  * @param params - Verification parameters
  * @param params.baseUrl - Base URL of the verification API endpoint
  * @param params.jazzAccountId - Jazz account ID (starts with co_)
- * @param params.regardeAuth - Token string from RegardeAuth CoMap
- * @param params.regardeAuthId - CoValue ID of RegardeAuth CoMap (starts with co_)
+ * @param params.regardeAuth - Token string from RegardeTokenAuth CoMap
+ * @param params.regardeAuthId - CoValue ID of RegardeTokenAuth CoMap (starts with co_)
  * @param params.apiToken - Server API token for authentication
  * @param params.signal - Optional abort signal
  * @returns Verification result with validity status

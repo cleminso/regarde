@@ -1,88 +1,91 @@
-import type { Loaded } from "jazz-tools";
-import { useCallback, useState } from "react";
+import { useMemo } from "react";
 
-import { RegardeAuth } from "#core/schemas/regardeAuth";
-import { getRegardeAuth, isTokenExpired } from "#managers/auth";
+import { usePassphraseAuth, useAccount, useLogOut } from "jazz-tools/react";
+import { wordlist } from "@scure/bip39/wordlists/english.js";
 
-/**
- * Authentication state and operations.
- */
+import { RegardeAccount } from "#schemas/regardeAccount";
+import { RegardeSDK } from "#schemas/regardeSDK";
+import type { co } from "jazz-tools";
+
+export type UseRegardeAuthState = "anonymous" | "signedIn";
+
 export interface UseRegardeAuthResult {
-  /** Current authentication token or null if not available */
-  token: string | null;
-  /** CoValue ID of the RegardeAuth CoMap (starts with co_) */
-  tokenId: string | null;
-  /** Unix timestamp when the token expires or null if not available */
-  expiresAt: number | null;
-  /** Whether the current token has expired */
-  isExpired: boolean;
-  /** Function to refresh the authentication token */
-  refresh: () => Promise<void>;
-  /** Whether a token refresh operation is in progress */
-  isLoading: boolean;
-  /** Error message from the last token operation or null if no error */
-  error: string | null;
+  state: UseRegardeAuthState;
+  signUp: (userName: string) => Promise<string>;
+  logIn: (passphrase: string) => Promise<void>;
+  logOut: () => void;
+  account: co.loaded<typeof RegardeAccount> | null;
+  regardeSDK: co.loaded<typeof RegardeSDK> | null;
 }
 
 /**
- * React hook for managing Regarde authentication tokens.
+ * React hook for passphrase-based authentication with Regarde SDK.
  *
- * Provides token state, expiration checking, and refresh functionality.
- * Does not automatically retry failed refreshes.
+ * Wraps Jazz's usePassphraseAuth with BIP39 wordlist. RegardeSDK is automatically
+ * initialized via RegardeAccount.withMigration during account creation.
  *
- * @param regardeAuthCoMap - Loaded RegardeAuth CoMap instance (null/undefined = no auth)
- * @returns Object containing token, loading state, and refresh function
- *
- * @example
- * ```tsx
- * function MyComponent() {
- *   const { token, isExpired, refresh, error } = useRegardeAuth(regardeAuth);
- *
- *   if (error) return <div>Error: {error}</div>;
- *   return <div>Token: {token}</div>;
- * }
- * ```
+ * @returns Authentication state, methods, and loaded account/SDK instances
  */
-export function useRegardeAuth(
-  regardeAuthCoMap: Loaded<typeof RegardeAuth> | null | undefined,
-): UseRegardeAuthResult {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export function useRegardeAuth(): UseRegardeAuthResult {
+  const jazzAuth = usePassphraseAuth({ wordlist });
+  const logOut = useLogOut();
 
-  const refresh = useCallback(async () => {
-    if (!regardeAuthCoMap?.$isLoaded) {
-      setError("No registration token CoMap provided");
-      return;
+  const account = useAccount(RegardeAccount, {
+    resolve: {
+      root: {
+        "regarde-sdk": {
+          auth: true,
+          myApps: true,
+          myUserHandle: true,
+          myPayments: true,
+        },
+      },
+    },
+  });
+
+  const state: UseRegardeAuthState = useMemo(() => {
+    const isSignedIn = jazzAuth.state === "signedIn";
+    return isSignedIn === true ? "signedIn" : "anonymous";
+  }, [jazzAuth.state]);
+
+  const signUp = useMemo(() => {
+    return async (userName: string): Promise<string> => {
+      const passphrase = jazzAuth.generateRandomPassphrase();
+      await jazzAuth.registerNewAccount(passphrase, userName);
+      return passphrase;
+    };
+  }, [jazzAuth]);
+
+  const regardeSDK = useMemo(() => {
+    const isAccountLoaded = account !== null && account.$isLoaded === true;
+    if (isAccountLoaded === false) {
+      return null;
     }
 
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const newToken = await getRegardeAuth({
-        loadedRegardeAuthCoMap: regardeAuthCoMap,
-      });
-      if (!newToken) {
-        setError("Failed to update registration token");
-      }
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Authentication failed: Unable to update token. Developer must manually call refresh() or implement retry logic. Automatic retries are disabled to prevent infinite loops.",
-      );
-    } finally {
-      setIsLoading(false);
+    const isRootLoaded =
+      account.root !== null && account.root.$isLoaded === true;
+    if (isRootLoaded === false) {
+      return null;
     }
-  }, [regardeAuthCoMap]);
+
+    const sdk = account.root["regarde-sdk"];
+    const isSdkLoaded =
+      sdk !== null && sdk !== undefined && sdk.$isLoaded === true;
+
+    return isSdkLoaded === true ? sdk : null;
+  }, [account]);
+
+  const loadedAccount = useMemo(() => {
+    const isLoaded = account !== null && account.$isLoaded === true;
+    return isLoaded === true ? account : null;
+  }, [account]);
 
   return {
-    token: regardeAuthCoMap?.token ?? null,
-    tokenId: regardeAuthCoMap?.$jazz.id ?? null,
-    expiresAt: regardeAuthCoMap?.expiresAt ?? null,
-    isExpired: regardeAuthCoMap ? isTokenExpired(regardeAuthCoMap) : true,
-    refresh,
-    isLoading,
-    error,
+    state,
+    signUp,
+    logIn: jazzAuth.logIn,
+    logOut,
+    account: loadedAccount,
+    regardeSDK,
   };
 }

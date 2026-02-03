@@ -6,17 +6,17 @@
  * - Simplifies token management and payment link generation in React applications
  *
  * ## Flow
- * 1. Import useRegardeAuth hook for token management
+ * 1. Import useRegardeTokenAuth hook for token management
  * 2. Import useRegardeLemonSqueezyCheckoutLink for Lemon Squeezy payment checkout links
- * 3. Use hooks with RegardeAuth CoMap instance and appId
+ * 3. Use hooks with RegardeTokenAuth CoMap instance and appId
  * 4. Access token state and generate checkout URLs
  *
  * ## Migration
  * - Added React wrapper for token management
  * - Simplified authentication and payment integration for React apps
  */
-export { useRegardeAuth } from "./useRegardeAuth";
-export type { UseRegardeAuthResult } from "./useRegardeAuth";
+export { useRegardeTokenAuth } from "./useRegardeTokenAuth";
+export type { UseRegardeTokenAuthResult } from "./useRegardeTokenAuth";
 
 export { useRegardeLemonSqueezyCheckoutLink } from "./useRegardeLemonSqueezyCheckoutLink";
 export type {
@@ -24,8 +24,8 @@ export type {
   RegardeLemonSqueezyCheckoutLinkOptions,
 } from "./useRegardeLemonSqueezyCheckoutLink";
 
-export { useRegardePassphraseAuth } from "./useRegardePassphraseAuth";
+export { useRegardeAuth } from "./useRegardeAuth";
 export type {
-  UseRegardePassphraseAuthResult,
-  UseRegardePassphraseAuthState,
-} from "./useRegardePassphraseAuth";
+  UseRegardeAuthResult,
+  UseRegardeAuthState,
+} from "./useRegardeAuth";

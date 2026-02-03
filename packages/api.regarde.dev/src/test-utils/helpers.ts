@@ -3,7 +3,10 @@
  */
 
 // Mock request/response helpers for testing API logic
-export function createMockRequest(body: any, headers: Record<string, string> = {}) {
+export function createMockRequest(
+  body: any,
+  headers: Record<string, string> = {},
+) {
   return {
     json: () => Promise.resolve(body),
     header: (name: string) => headers[name],
@@ -45,7 +48,7 @@ export function createMockContext() {
 export function createMockRegistrationRequest(overrides = {}) {
   return {
     nickname: "testuser",
-    RegardeAuth: "valid-registration-key",
+    RegardeTokenAuth: "valid-registration-key",
     accountId: "test-account-id",
     action: "register",
     ...overrides,

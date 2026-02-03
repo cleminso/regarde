@@ -6,7 +6,7 @@
 
 ## Core Responsibility
 
-- Verify user registration tokens (2FA validation via RegardeAuth CoMaps)
+- Verify user registration tokens (2FA validation via RegardeTokenAuth CoMaps)
 - Manage nickname registry operations (availability check, registration, lookup)
 - Register user apps with system metadata (app verification, payment config)
 - Process payment provider webhooks (LemonSqueezy) and create PaymentEvent CoMaps
@@ -85,7 +85,7 @@ src/
 
 ```typescript
 // Headers: X-API-Key, X-Regarde-Token, X-Regarde-Token-Id, X-Jazz-Account-Id
-1. Load RegardeAuth CoMap via RegardeAuth.load(regardeAuthId)
+1. Load RegardeTokenAuth CoMap via RegardeTokenAuth.load(regardeAuthId)
 2. Load user account via account.load(jazzAccountId, { loadAs: worker })
 3. Verify user owns token: userAccount.canAdmin(regardeAuth)
 4. Check token matches and not expired (24 hours)

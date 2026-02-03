@@ -61,7 +61,7 @@ Each command is a `ToolConfig` object with name, description, flags, outputSchem
 ### API Integration
 
 - Uses `node-fetch` for HTTP requests to api.regarde.dev
-- Authentication via RegardeAuth token from RegardeSDK (2FA mechanism)
+- Authentication via RegardeTokenAuth token from RegardeSDK (2FA mechanism)
 - App registration flow: create App CoMap locally → register with API
 - HTTP errors categorized (401→auth prompt, 404→server not found, 500→server error)
 
@@ -102,7 +102,7 @@ Optional:
 
 - Credentials stored locally in filesystem (plaintext - TODO: encrypt)
 - Authentication via Jazz account with BIP39 passphrase
-- 2FA via RegardeAuth token (24-hour lifetime, managed by SDK)
+- 2FA via RegardeTokenAuth token (24-hour lifetime, managed by SDK)
 - NO direct registry access - all registry operations via API with token auth
 
 ### Tool Pattern
@@ -122,6 +122,6 @@ Optional:
 ### API Contract
 
 - Communication with api.regarde.dev via HTTP
-- Uses RegardeAuth token headers (X-Regarde-Token, X-Regarde-Token-Id, X-Jazz-Account-Id)
+- Uses RegardeTokenAuth token headers (X-Regarde-Token, X-Regarde-Token-Id, X-Jazz-Account-Id)
 - App registration returns: appId, webhookUrl, webhookSecret
 - All errors mapped to user-friendly messages with next steps

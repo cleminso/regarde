@@ -8,11 +8,11 @@ CoValues are "Collaborative Values" - data structures that sync across devices i
 
 ## Regarde-Used CoValues
 
-| Type              | Purpose             | Regarde Usage                              |
-| ----------------- | ------------------- | ------------------------------------------ |
-| `co.map({...})`   | Key-value objects   | RegardeSDK, RegardeAuth, App, PaymentEvent |
-| `co.list(T)`      | Ordered collections | myApps list                                |
-| `co.record(K, V)` | Dynamic key-value   | PaymentEvent maps                          |
+| Type              | Purpose             | Regarde Usage                                   |
+| ----------------- | ------------------- | ----------------------------------------------- |
+| `co.map({...})`   | Key-value objects   | RegardeSDK, RegardeTokenAuth, App, PaymentEvent |
+| `co.list(T)`      | Ordered collections | myApps list                                     |
+| `co.record(K, V)` | Dynamic key-value   | PaymentEvent maps                               |
 
 ## CoMap
 

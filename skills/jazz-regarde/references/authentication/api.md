@@ -4,7 +4,7 @@ This is a quick reference for the Regarde token flow built on Jazz CoMaps.
 
 ## Data Model
 
-- `RegardeAuth` is a CoMap stored under `account.root["regarde-sdk"].auth`.
+- `RegardeTokenAuth` is a CoMap stored under `account.root["regarde-sdk"].auth`.
 - API callers send the token plus the CoMap ID in headers:
   - `X-Regarde-Token`
   - `X-Regarde-Token-Id`
@@ -27,7 +27,7 @@ export const generateRegardeToken = (): string => {
 };
 
 export const isTokenExpired = (
-  auth: co.loaded<typeof RegardeAuth>,
+  auth: co.loaded<typeof RegardeTokenAuth>,
 ): boolean => {
   const isAuthLoaded = auth !== null && auth.$isLoaded === true;
   if (isAuthLoaded === false) return true;
@@ -40,7 +40,7 @@ export const isTokenExpired = (
 };
 
 export const refreshRegardeAuthToken = async (
-  auth: co.loaded<typeof RegardeAuth>,
+  auth: co.loaded<typeof RegardeTokenAuth>,
 ): Promise<string | null> => {
   const isAuthLoaded = auth !== null && auth.$isLoaded === true;
   if (isAuthLoaded === false) return null;
@@ -68,7 +68,7 @@ async function verifyRegardeToken(req: Request, worker: Account) {
     throw new Error("Missing auth headers");
   }
 
-  const regardeAuth = await RegardeAuth.load(tokenId, { loadAs: worker });
+  const regardeAuth = await RegardeTokenAuth.load(tokenId, { loadAs: worker });
   const isAuthLoaded = regardeAuth !== null && regardeAuth.$isLoaded === true;
   if (isAuthLoaded === false) {
     throw new Error("Invalid token ID");
