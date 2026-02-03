@@ -1,0 +1,89 @@
+import { useMemo } from "react";
+
+import { usePassphraseAuth, useAccount, useLogOut } from "jazz-tools/react";
+import { wordlist } from "@scure/bip39/wordlists/english.js";
+
+import { RegardeAccount } from "#schemas/regardeAccount";
+import { RegardeSDK } from "#schemas/regardeSDK";
+import type { co } from "jazz-tools";
+
+export type UseRegardePassphraseAuthState = "anonymous" | "signedIn";
+
+export interface UseRegardePassphraseAuthResult {
+  state: UseRegardePassphraseAuthState;
+  signUp: (userName: string) => Promise<string>;
+  logIn: (passphrase: string) => Promise<void>;
+  logOut: () => void;
+  account: co.loaded<typeof RegardeAccount> | null;
+  regardeSDK: co.loaded<typeof RegardeSDK> | null;
+}
+
+/**
+ * React hook for passphrase-based authentication with Regarde SDK.
+ *
+ * Wraps Jazz's usePassphraseAuth with BIP39 wordlist. RegardeSDK is automatically
+ * initialized via RegardeAccount.withMigration during account creation.
+ *
+ * @returns Authentication state, methods, and loaded account/SDK instances
+ */
+export function useRegardePassphraseAuth(): UseRegardePassphraseAuthResult {
+  const jazzAuth = usePassphraseAuth({ wordlist });
+  const logOut = useLogOut();
+
+  const account = useAccount(RegardeAccount, {
+    resolve: {
+      root: {
+        "regarde-sdk": {
+          auth: true,
+          myApps: true,
+          myUserHandle: true,
+          myPayments: true,
+        },
+      },
+    },
+  });
+
+  const state: UseRegardePassphraseAuthState = useMemo(() => {
+    const isSignedIn = jazzAuth.state === "signedIn";
+    return isSignedIn === true ? "signedIn" : "anonymous";
+  }, [jazzAuth.state]);
+
+  const signUp = useMemo(() => {
+    return async (userName: string): Promise<string> => {
+      const passphrase = jazzAuth.generateRandomPassphrase();
+      await jazzAuth.registerNewAccount(passphrase, userName);
+      return passphrase;
+    };
+  }, [jazzAuth]);
+
+  const regardeSDK = useMemo(() => {
+    const isAccountLoaded = account !== null && account.$isLoaded === true;
+    if (isAccountLoaded === false) {
+      return null;
+    }
+
+    const isRootLoaded = account.root !== null && account.root.$isLoaded === true;
+    if (isRootLoaded === false) {
+      return null;
+    }
+
+    const sdk = account.root["regarde-sdk"];
+    const isSdkLoaded = sdk !== null && sdk !== undefined && sdk.$isLoaded === true;
+
+    return isSdkLoaded === true ? sdk : null;
+  }, [account]);
+
+  const loadedAccount = useMemo(() => {
+    const isLoaded = account !== null && account.$isLoaded === true;
+    return isLoaded === true ? account : null;
+  }, [account]);
+
+  return {
+    state,
+    signUp,
+    logIn: jazzAuth.logIn,
+    logOut,
+    account: loadedAccount,
+    regardeSDK,
+  };
+}

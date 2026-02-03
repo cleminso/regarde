@@ -23,3 +23,9 @@ export type {
   UseRegardeLemonSqueezyCheckoutLinkResult,
   RegardeLemonSqueezyCheckoutLinkOptions,
 } from "./useRegardeLemonSqueezyCheckoutLink";
+
+export { useRegardePassphraseAuth } from "./useRegardePassphraseAuth";
+export type {
+  UseRegardePassphraseAuthResult,
+  UseRegardePassphraseAuthState,
+} from "./useRegardePassphraseAuth";

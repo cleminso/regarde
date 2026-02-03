@@ -26,7 +26,7 @@ pnpm test
 # Build all packages
 pnpm build
 
-# Check code style (Prettier + Oxlint)
+# Check code style (Oxlint)
 pnpm format-and-lint
 
 # Auto-fix code style issues
@@ -118,7 +118,6 @@ All CoValues sync through Jazz Cloud with eventual consistency:
 - **Vite 8** with Rolldown - Build tool for all packages
 - **Oxlint** - Fast linter (10-100x faster than ESLint)
 - **Vitest** - Test runner (Vite-native)
-- **Prettier** - Code formatter with import sorting
 - **TypeScript** - Strict type checking
 
 ### Package-Specific Commands
@@ -148,7 +147,7 @@ See [AGENTS.md](AGENTS.md) for comprehensive guidelines:
 - **Files**: camelCase
 - **Folders**: kebab-case
 
-### Import Order (Prettier auto-enforced)
+### Import Order (auto-enforced)
 
 ```typescript
 // Framework imports

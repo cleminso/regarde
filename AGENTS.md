@@ -20,7 +20,7 @@ vitest path/to/test.test.ts         # Run single test file
 
 ```bash
 pnpm --filter <package> build       # Build specific package
-pnpm format-and-lint                # Check code style (Prettier + Oxlint)
+pnpm format-and-lint                # Check code style (Oxlint)
 pnpm format-and-lint:fix            # Auto-fix code style
 ```
 
@@ -29,7 +29,6 @@ pnpm format-and-lint:fix            # Auto-fix code style
 - **Vite 8** (with Rolldown): Build tool for all packages
 - **Oxlint**: Fast linter (10-100x faster than ESLint)
 - **Vitest**: Test runner (Vite-native)
-- **Prettier**: Code formatter with import sorting
 - **TypeScript**: Strict type checking
 
 ### Key Build Patterns

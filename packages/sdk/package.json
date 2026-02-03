@@ -44,11 +44,11 @@
     "start": "DOTENV_CONFIG_PATH=.env.production NODE_ENV=production node dist/index.mjs"
   },
   "dependencies": {
+    "@scure/bip39": "catalog:",
     "jazz-tools": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@scure/bip39": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "preact": "catalog:",
