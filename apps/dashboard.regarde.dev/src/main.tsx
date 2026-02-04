@@ -1,11 +1,16 @@
+import "./index.css";
+
+import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { JazzInspector } from "jazz-tools/inspector";
+import { JazzReactProvider } from "jazz-tools/react";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider, createRouter } from "@tanstack/react-router";
 
+import { RegardeAccount } from "@regarde-dev/core";
+
+import { apiKey } from "./lib/config/apiKey";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
-
-import "./index.css";
 
 // Create a new router instance
 const router = createRouter({
@@ -30,7 +35,15 @@ if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <JazzReactProvider
+        AccountSchema={RegardeAccount}
+        sync={{
+          peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+        }}
+      >
+        <RouterProvider router={router} />
+        <JazzInspector position="bottom left" />
+      </JazzReactProvider>
     </StrictMode>,
   );
 }

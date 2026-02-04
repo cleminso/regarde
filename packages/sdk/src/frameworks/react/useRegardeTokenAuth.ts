@@ -80,9 +80,7 @@ export function useRegardeTokenAuth(
     token: regardeTokenAuthCoMap?.token ?? null,
     tokenId: regardeTokenAuthCoMap?.$jazz.id ?? null,
     expiresAt: regardeTokenAuthCoMap?.expiresAt ?? null,
-    isExpired: regardeTokenAuthCoMap
-      ? isTokenExpired(regardeTokenAuthCoMap)
-      : true,
+    isExpired: regardeTokenAuthCoMap ? isTokenExpired(regardeTokenAuthCoMap) : true,
     refresh,
     isLoading,
     error,

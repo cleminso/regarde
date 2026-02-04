@@ -14,7 +14,8 @@
     "format:check": "oxfmt . --check",
     "lint:ci": "oxlint . --deny-warnings",
     "lint:admin": "oxlint packages/admin",
-    "lint:sdk": "oxlint packages/sdk"
+    "lint:sdk": "oxlint packages/sdk",
+    "lint:dashboard": "oxlint apps/dashboard.regarde.dev"
   },
   "dependencies": {
     "@scure/bip39": "catalog:",

@@ -5,6 +5,8 @@ React integration for Jazz.
 ## Table of Contents
 
 - [Overview](#overview)
+- [Setup Prerequisites](#setup-prerequisites)
+- [Provider Setup](#provider-setup)
 - [Core Hooks](#core-hooks)
   - [useAccount](#useaccount)
   - [useCoState](#usecostate)
@@ -18,11 +20,104 @@ React integration for Jazz.
   - [useMyRegardeAccount](#usemyregardeaccount)
 - [Hook Patterns](#hook-patterns)
 - [Best Practices](#best-practices)
+- [Troubleshooting](#troubleshooting)
 - [See Also](#see-also)
 
 ## Overview
 
 Jazz provides hooks for reactive UI updates. Components re-render when relevant CoValues change.
+
+## Setup Prerequisites
+
+Before using Regarde SDK hooks, ensure your application meets these requirements:
+
+### 1. React Version Alignment
+
+Your app must use the same React version as the SDK to avoid hook errors:
+
+```json
+{
+  "dependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  }
+}
+```
+
+Ensure your monorepo catalog uses matching React version across all packages.
+
+### 2. Required Dependencies
+
+```json
+{
+  "dependencies": {
+    "@regarde-dev/core": "workspace:*",
+    "jazz-tools": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  }
+}
+```
+
+### 3. SDK Build
+
+The SDK must be built before use in development:
+
+```bash
+pnpm --filter @regarde-dev/core build
+```
+
+## Provider Setup
+
+All Regarde SDK hooks require `JazzReactProvider` to be mounted at the root of your application. This sets up the Jazz context including sync server connection.
+
+### Basic Setup
+
+```typescript
+import { StrictMode } from "react";
+import ReactDOM from "react-dom/client";
+import { JazzReactProvider } from "jazz-tools/react";
+import { RegardeAccount } from "@regarde-dev/core";
+import { RouterProvider } from "@tanstack/react-router";
+
+function App() {
+  return (
+    <StrictMode>
+      <JazzReactProvider
+        AccountSchema={RegardeAccount}
+          sync={{
+            peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+          }}
+          >
+          <RouterProvider router={router} />
+        </JazzReactProvider>
+    </StrictMode>
+  );
+}
+```
+
+### Provider Configuration
+
+```typescript
+<JazzReactProvider
+  AccountSchema={RegardeAccount}
+  sync="wss://your-jazz-server.com"
+  apiKey="your-api-key"
+>
+  <App />
+</JazzReactProvider>
+```
+
+**Required Props:**
+
+- `AccountSchema`: `RegardeAccount` from `@regarde-dev/core`
+- `sync`: Jazz sync server URL
+- `apiKey`: API key for authentication
+
+**Optional Props:**
+
+- `guestMode`: Enable guest mode without authentication
+- `authSecretStorageKey`: Custom storage key for auth secrets
 
 ## Core Hooks
 
@@ -179,6 +274,8 @@ Returns:
 ### useRegardeAuth
 
 Regarde SDK wrapper for passphrase authentication with BIP39 wordlist and automatic SDK initialization.
+
+**Important**: This hook requires `JazzReactProvider` with `AccountSchema={RegardeAccount}` to be mounted at the root of your application. See [Provider Setup](#provider-setup) for details.
 
 ```typescript
 import { useRegardeAuth } from "@regarde-dev/core/react";
@@ -588,6 +685,79 @@ const account = useAccount(MyAccount);
 
 // ✗ Bad - using generic Account
 const account = useAccount();
+```
+
+## Troubleshooting
+
+### Error: "Invalid hook call" or "dispatcher.useContext"
+
+```
+Error: Invalid hook call. Hooks can only be called inside of the body of a function component.
+Error: Cannot read properties of null (reading 'useContext')
+```
+
+**Cause**: `JazzReactProvider` is not mounted at the root of your application.
+
+**Solution**: Wrap your application with `JazzReactProvider`:
+
+```typescript
+import { JazzReactProvider } from "jazz-tools/react";
+import { RegardeAccount } from "@regarde-dev/core";
+
+<JazzReactProvider
+  AccountSchema={RegardeAccount}
+    sync={{
+      peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+    }}
+    >
+  <App />
+</JazzReactProvider>
+```
+
+### Error: "Multiple copies of React"
+
+```
+Error: Invalid hook call. Hooks can only be called inside of the body of a function component.
+```
+
+**Cause**: Different React versions between SDK and app.
+
+**Solution**: Ensure all packages use the same React version via monorepo catalog:
+
+```yaml
+# pnpm-workspace.yaml
+catalog:
+  react: 19.2.4
+  react-dom: 19.2.4
+```
+
+```json
+{
+  "dependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  }
+}
+```
+
+After updating catalog, run `pnpm install` and rebuild SDK.
+
+### Error: "$isLoaded is not a function"
+
+```
+TypeError: account.$isLoaded is not a function
+```
+
+**Cause**: Using incorrect account type or accessing properties on unloaded CoValue.
+
+**Solution**: Always check if loaded before accessing:
+
+```typescript
+const account = useAccount(RegardeAccount);
+const isLoaded = account !== null && account.$isLoaded === true;
+if (isLoaded === false) {
+  return <div>Loading...</div>;
+}
 ```
 
 ## See Also

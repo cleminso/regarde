@@ -1,17 +1,21 @@
-import { useMemo } from "react";
-
-import { usePassphraseAuth, useAccount, useLogOut } from "jazz-tools/react";
 import { wordlist } from "@scure/bip39/wordlists/english.js";
+import type { co } from "jazz-tools";
+import { usePassphraseAuth, useAccount, useLogOut } from "jazz-tools/react";
+import { useMemo } from "react";
 
 import { RegardeAccount } from "#schemas/regardeAccount";
 import { RegardeSDK } from "#schemas/regardeSDK";
-import type { co } from "jazz-tools";
 
 export type UseRegardeAuthState = "anonymous" | "signedIn";
 
+export interface SignUpResult {
+  passphrase: string;
+  accountId: string;
+}
+
 export interface UseRegardeAuthResult {
   state: UseRegardeAuthState;
-  signUp: (userName: string) => Promise<string>;
+  signUp: (userName: string) => Promise<SignUpResult>;
   logIn: (passphrase: string) => Promise<void>;
   logOut: () => void;
   account: co.loaded<typeof RegardeAccount> | null;
@@ -49,12 +53,14 @@ export function useRegardeAuth(): UseRegardeAuthResult {
   }, [jazzAuth.state]);
 
   const signUp = useMemo(() => {
-    return async (userName: string): Promise<string> => {
+    return async (userName: string): Promise<SignUpResult> => {
       const passphrase = jazzAuth.generateRandomPassphrase();
       await jazzAuth.registerNewAccount(passphrase, userName);
-      return passphrase;
+      const isAccountLoaded = account !== null && account.$isLoaded === true;
+      const accountId = isAccountLoaded === true ? account.$jazz.id : "";
+      return { passphrase, accountId };
     };
-  }, [jazzAuth]);
+  }, [jazzAuth, account]);
 
   const regardeSDK = useMemo(() => {
     const isAccountLoaded = account !== null && account.$isLoaded === true;
@@ -62,15 +68,13 @@ export function useRegardeAuth(): UseRegardeAuthResult {
       return null;
     }
 
-    const isRootLoaded =
-      account.root !== null && account.root.$isLoaded === true;
+    const isRootLoaded = account.root !== null && account.root.$isLoaded === true;
     if (isRootLoaded === false) {
       return null;
     }
 
     const sdk = account.root["regarde-sdk"];
-    const isSdkLoaded =
-      sdk !== null && sdk !== undefined && sdk.$isLoaded === true;
+    const isSdkLoaded = sdk !== null && sdk !== undefined && sdk.$isLoaded === true;
 
     return isSdkLoaded === true ? sdk : null;
   }, [account]);

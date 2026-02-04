@@ -6,7 +6,7 @@
  * - Simplifies token management, passphrase authentication, and payment link generation in React applications
  *
  * ## Flow
- * 1. Import useRegardeAuth for passphrase-based account authentication (CLI)
+ * 1. Import useRegardeAuth for passphrase-based account authentication
  * 2. Import useRegardeTokenAuth hook for token management (API)
  * 3. Import useRegardeLemonSqueezyCheckoutLink for Lemon Squeezy payment checkout links
  * 4. Use hooks with RegardeTokenAuth CoMap instance and appId
@@ -28,6 +28,7 @@ export type {
 
 export { useRegardeAuth } from "./useRegardeAuth";
 export type {
+  SignUpResult,
   UseRegardeAuthResult,
   UseRegardeAuthState,
 } from "./useRegardeAuth";

@@ -5,8 +5,8 @@ import { TOKEN_LIFETIME_SECONDS } from "#managers/auth/";
 import { generateRegardeToken } from "#managers/auth/generateToken";
 import { getRegardeTokenAuth } from "#managers/auth/refreshAuthToken";
 import { RegardeAccount } from "#schemas/regardeAccount";
-import { RegardeTokenAuth } from "#schemas/regardeTokenAuth";
 import { RegardeSDK } from "#schemas/regardeSDK";
+import { RegardeTokenAuth } from "#schemas/regardeTokenAuth";
 import { App } from "#schemas/regardeUserApp";
 import { UserHandle } from "#schemas/regardeUserHandle";
 
@@ -47,8 +47,6 @@ export const initRegardeSDK = async (
       accountIsLoaded: account.$isLoaded,
       isAccountValid,
       mode,
-      ["process.env.REGARDE_REGISTRY_GROUP"]:
-        process.env.REGARDE_REGISTRY_GROUP,
       REGARDE_REGISTRY_GROUP,
     },
   });
@@ -59,11 +57,9 @@ export const initRegardeSDK = async (
 
   // build RegardeSDK from scratch
   if (mode === "create") {
-    const regardeProfileWorkerGroup = await co
-      .group()
-      .load(REGARDE_REGISTRY_GROUP, {
-        loadAs: account,
-      });
+    const regardeProfileWorkerGroup = await co.group().load(REGARDE_REGISTRY_GROUP, {
+      loadAs: account,
+    });
     const isGroupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
 
     logger.debug({
@@ -206,11 +202,9 @@ export const initRegardeSDK = async (
       },
     });
 
-    const regardeProfileWorkerGroup = await co
-      .group()
-      .load(REGARDE_REGISTRY_GROUP, {
-        loadAs: account,
-      });
+    const regardeProfileWorkerGroup = await co.group().load(REGARDE_REGISTRY_GROUP, {
+      loadAs: account,
+    });
 
     const isGroupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
     if (isGroupLoaded === false) {
@@ -327,8 +321,7 @@ export const initRegardeSDK = async (
     },
   });
 
-  const isAuthLoaded =
-    regardeSDK.auth !== null && regardeSDK.auth.$isLoaded === true;
+  const isAuthLoaded = regardeSDK.auth !== null && regardeSDK.auth.$isLoaded === true;
   if (isAuthLoaded === false) {
     logger.warn({
       message: "RegardeSDK auth not loaded",
@@ -354,9 +347,7 @@ export const initRegardeSDK = async (
         hasExpiresAt,
       },
     });
-    throw new Error(
-      "RegardeSDK auth must have both token and expiresAt fields",
-    );
+    throw new Error("RegardeSDK auth must have both token and expiresAt fields");
   }
 
   const tokenValue = regardeSDK.auth.token;
