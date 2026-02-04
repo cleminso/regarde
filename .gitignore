@@ -42,3 +42,5 @@ tests/examples/*/node_modules/
 tests/examples/**/node_modules/
 
 packages/cli/sync-db
+
+.tanstack

@@ -13,5 +13,11 @@
     "internalPattern": ["#", "@regarde-dev/"],
     "newlinesBetween": true
   },
-  "ignorePatterns": ["skills/", "docs/**/*.md", "AGENTS.md", "README.md"]
+  "ignorePatterns": [
+    "skills/",
+    "docs/**/*.md",
+    "AGENTS.md",
+    "README.md",
+    "routeTree.gen.ts"
+  ]
 }
