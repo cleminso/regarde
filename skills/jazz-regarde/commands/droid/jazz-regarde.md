@@ -131,7 +131,7 @@ Read data?
 └── Use subscribe() for real-time
 
 Authentication?
-├── Passphrase (CLI) → usePassphraseAuth()
+├── Passphrase (CLI) → useRegardeAuth() (Regarde SDK)
 └── Tokens (API) → useRegardeTokenAuth()
 
 Permissions?

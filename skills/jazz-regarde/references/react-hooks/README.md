@@ -1,6 +1,6 @@
 # React Hooks Reference
 
-React and Preact integration for Jazz.
+React integration for Jazz.
 
 ## Table of Contents
 
@@ -12,11 +12,11 @@ React and Preact integration for Jazz.
   - [useIsAuthenticated](#useisauthenticated)
 - [Authentication Hooks](#authentication-hooks)
   - [usePassphraseAuth](#usepassphraseauth)
+  - [useRegardeAuth](#useregardeauth)
 - [Custom Hooks](#custom-hooks)
-  - [useRegardeTokenAuth](#useregardeauth)
+  - [useRegardeTokenAuth](#useregardetokenauth)
   - [useMyRegardeAccount](#usemyregardeaccount)
 - [Hook Patterns](#hook-patterns)
-- [Preact Support](#preact-support)
 - [Best Practices](#best-practices)
 - [See Also](#see-also)
 
@@ -128,7 +128,7 @@ Returns: `boolean`
 
 ### usePassphraseAuth
 
-Passphrase authentication. Used in Regarde CLI.
+Jazz native passphrase authentication. Used in Regarde CLI.
 
 ```typescript
 import { usePassphraseAuth } from "jazz-tools/react";
@@ -175,6 +175,71 @@ Returns:
 - `logIn(passphrase)`: Log in
 - `state`: "idle" | "loading" | "signedIn" | "error"
 - `error`: Error message
+
+### useRegardeAuth
+
+Regarde SDK wrapper for passphrase authentication with BIP39 wordlist and automatic SDK initialization.
+
+```typescript
+import { useRegardeAuth } from "@regarde-dev/core/react";
+
+function RegardeAuthComponent() {
+  const { state, signUp, logIn, logOut, account, regardeSDK } = useRegardeAuth();
+  const [input, setInput] = useState("");
+
+  const isSignedIn = state === "signedIn";
+
+  if (isSignedIn === true) {
+    return (
+      <div>
+        <div>Welcome! Account loaded.</div>
+        <div>SDK Version: {regardeSDK?.version}</div>
+        <button onClick={logOut}>Log Out</button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <h3>Sign Up</h3>
+      <button
+        onClick={async () => {
+          const passphrase = await signUp("my-username");
+          alert(`SAVE THIS PASSPHRASE:\n${passphrase}`);
+        }}
+      >
+        Create Account
+      </button>
+
+      <h3>Log In</h3>
+      <textarea
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Enter your BIP39 passphrase"
+        rows={5}
+      />
+      <button onClick={() => logIn(input)}>Log In</button>
+    </div>
+  );
+}
+```
+
+Returns:
+
+- `state`: "anonymous" | "signedIn"
+- `signUp(userName)`: Create new account and return BIP39 passphrase
+- `logIn(passphrase)`: Log in with existing BIP39 passphrase
+- `logOut()`: Log out
+- `account`: Loaded RegardeAccount or null
+- `regardeSDK`: Loaded RegardeSDK or null
+
+Key features:
+
+- BIP39 wordlist built-in (english)
+- RegardeSDK automatically initialized via RegardeAccount.withMigration
+- Binary state (no loading state exposed)
+- Returns passphrase on signUp for user ownership
+- Deep resolution: account.root["regarde-sdk"] with auth, myApps, myUserHandle, myPayments
 
 ## Custom Hooks
 
@@ -412,14 +477,6 @@ function TaskItem({ taskId }: { taskId: string }) {
 
   return <div>{task.title}</div>;
 }
-```
-
-## Preact Support
-
-Same hooks available for Preact:
-
-```typescript
-import { useAccount, useCoState } from "jazz-tools/preact";
 ```
 
 ## Best Practices

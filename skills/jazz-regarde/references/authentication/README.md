@@ -100,6 +100,80 @@ auth.logIn(passphrase); // Log in with existing passphrase
 auth.logOut(); // Log out
 ```
 
+### Regarde SDK Wrapper: useRegardeAuth
+
+Regarde SDK provides a wrapper hook `useRegardeAuth` that simplifies passphrase authentication with BIP39 wordlist and automatic SDK initialization.
+
+```typescript
+import { useRegardeAuth } from "@regarde-dev/core/react";
+
+function RegardeCLIAuth() {
+  const { state, signUp, logIn, logOut, account, regardeSDK } = useRegardeAuth();
+  const [input, setInput] = useState("");
+
+  const isSignedIn = state === "signedIn";
+
+  if (isSignedIn === true) {
+    const hasSdk = regardeSDK !== null && regardeSDK.$isLoaded === true;
+    return (
+      <div>
+        <div>Authenticated as {account?.profile.name}</div>
+        {hasSdk === true && <div>SDK Version: {regardeSDK.version}</div>}
+        <button onClick={logOut}>Log Out</button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <h3>Sign Up</h3>
+      <button
+        onClick={async () => {
+          const passphrase = await signUp("my-username");
+          alert(`SAVE THIS PASSPHRASE:\n${passphrase}`);
+        }}
+      >
+        Create Account
+      </button>
+
+      <h3>Log In</h3>
+      <textarea
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Enter your BIP39 passphrase"
+        rows={5}
+      />
+      <button onClick={() => logIn(input)}>Log In</button>
+    </div>
+  );
+}
+```
+
+#### useRegardeAuth API
+
+```typescript
+const { state, signUp, logIn, logOut, account, regardeSDK } = useRegardeAuth();
+
+// Properties
+state; // "anonymous" | "signedIn" (binary state, no loading)
+account; // Loaded RegardeAccount | null
+regardeSDK; // Loaded RegardeSDK | null
+
+// Methods
+signUp(userName: string): Promise<string>; // Returns BIP39 passphrase
+logIn(passphrase: string): Promise<void>;
+logOut(): void;
+```
+
+#### Key Features
+
+- **BIP39 Wordlist**: Uses english wordlist from @scure/bip39
+- **Automatic SDK Init**: RegardeSDK initialized via RegardeAccount.withMigration
+- **Binary State**: Only "anonymous" | "signedIn" (no loading state exposed)
+- **Passphrase Return**: signUp() returns the generated passphrase for user ownership
+- **Deep Resolution**: Automatically resolves account.root["regarde-sdk"] with auth, myApps, myUserHandle, myPayments
+- **Explicit Loading**: Returns null for account/regardeSDK until loaded (check with `$isLoaded === true`)
+
 ### Security Warning
 
 **IMPORTANT**: The recovery passphrase is the ONLY way to access an account. If compromised, it CANNOT be changed. Users must:

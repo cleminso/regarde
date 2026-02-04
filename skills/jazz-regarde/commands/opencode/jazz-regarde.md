@@ -12,7 +12,7 @@ This skill helps you work with Jazz, a local-first database that syncs across de
 - Working with real-time sync and loading states
 - Implementing authentication (passphrase, tokens)
 - Managing permissions and groups
-- Creating React/Preact hooks for Jazz data
+- Creating React hooks for Jazz data
 - Working with Regarde SDK specifically
 
 ## Core Principles
@@ -147,7 +147,7 @@ Working with Jazz?
 │   ├── Use ensureLoaded() for deep resolution
 │   └── Use subscribe() for real-time updates
 ├── Authentication?
-│   ├── Passphrase (CLI) → usePassphraseAuth()
+│   ├── Passphrase (CLI) → useRegardeAuth() (Regarde SDK)
 │   └── Tokens (API) → RegardeTokenAuth (24h expiry)
 └── Permissions?
     ├── Single user → owner: account

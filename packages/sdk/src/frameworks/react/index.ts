@@ -3,16 +3,18 @@
  *
  * ## Purpose
  * - Provides React hooks for integrating Regarde authentication and payments
- * - Simplifies token management and payment link generation in React applications
+ * - Simplifies token management, passphrase authentication, and payment link generation in React applications
  *
  * ## Flow
- * 1. Import useRegardeTokenAuth hook for token management
- * 2. Import useRegardeLemonSqueezyCheckoutLink for Lemon Squeezy payment checkout links
- * 3. Use hooks with RegardeTokenAuth CoMap instance and appId
- * 4. Access token state and generate checkout URLs
+ * 1. Import useRegardeAuth for passphrase-based account authentication (CLI)
+ * 2. Import useRegardeTokenAuth hook for token management (API)
+ * 3. Import useRegardeLemonSqueezyCheckoutLink for Lemon Squeezy payment checkout links
+ * 4. Use hooks with RegardeTokenAuth CoMap instance and appId
+ * 5. Access token state and generate checkout URLs
  *
  * ## Migration
  * - Added React wrapper for token management
+ * - Added React wrapper for passphrase authentication with BIP39 wordlist
  * - Simplified authentication and payment integration for React apps
  */
 export { useRegardeTokenAuth } from "./useRegardeTokenAuth";
