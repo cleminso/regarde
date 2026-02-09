@@ -15,9 +15,10 @@ export interface SignUpResult {
 
 export interface UseRegardeAuthResult {
   state: UseRegardeAuthState;
-  signUp: (userName: string) => Promise<SignUpResult>;
+  signUp: (userName: string, passphrase?: string) => Promise<SignUpResult>;
   logIn: (passphrase: string) => Promise<void>;
   logOut: () => void;
+  generatePassphrase: () => string;
   account: co.loaded<typeof RegardeAccount> | null;
   regardeSDK: co.loaded<typeof RegardeSDK> | null;
 }
@@ -53,8 +54,8 @@ export function useRegardeAuth(): UseRegardeAuthResult {
   }, [jazzAuth.state]);
 
   const signUp = useMemo(() => {
-    return async (userName: string): Promise<SignUpResult> => {
-      const passphrase = jazzAuth.generateRandomPassphrase();
+    return async (userName: string, providedPassphrase?: string): Promise<SignUpResult> => {
+      const passphrase = providedPassphrase ?? jazzAuth.generateRandomPassphrase();
       await jazzAuth.registerNewAccount(passphrase, userName);
       const isAccountLoaded = account !== null && account.$isLoaded === true;
       const accountId = isAccountLoaded === true ? account.$jazz.id : "";
@@ -84,11 +85,18 @@ export function useRegardeAuth(): UseRegardeAuthResult {
     return isLoaded === true ? account : null;
   }, [account]);
 
+  const generatePassphrase = useMemo(() => {
+    return (): string => {
+      return jazzAuth.generateRandomPassphrase();
+    };
+  }, [jazzAuth]);
+
   return {
     state,
     signUp,
     logIn: jazzAuth.logIn,
     logOut,
+    generatePassphrase,
     account: loadedAccount,
     regardeSDK,
   };
