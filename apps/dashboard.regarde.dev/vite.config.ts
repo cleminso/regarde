@@ -1,4 +1,4 @@
-import { fileURLToPath, URL } from "node:url";
+import { resolve } from "path";
 
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
@@ -18,7 +18,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "#/": fileURLToPath(new URL("./src/", import.meta.url)),
+      "#ui": resolve(import.meta.dirname, "./src/components/ui"),
+      "#": resolve(import.meta.dirname, "./src"),
     },
   },
   server: { port: 3000, host: true },
