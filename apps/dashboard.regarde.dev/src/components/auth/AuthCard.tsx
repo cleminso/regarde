@@ -2,9 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Check, Clipboard, Loader2 } from "lucide-react";
 import { useState } from "react";
 
-import { useRegardeAuth } from "@regarde-dev/core/react";
-
-import { Button } from "#/components/ui/button";
+import { Button } from "#ui/button";
 import {
   Card,
   CardContent,
@@ -12,9 +10,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "#/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "#/components/ui/tabs";
-import { Textarea } from "#/components/ui/textarea";
+} from "#ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "#ui/tabs";
+import { Textarea } from "#ui/textarea";
+import { useRegardeAuth } from "@regarde-dev/core/react";
 
 interface AuthCardProps {
   defaultMode?: "login" | "create";

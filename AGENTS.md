@@ -109,6 +109,16 @@ import { MyComponent } from "./MyComponent";
 - Extract complex logic into well-named functions
 - Only comment non-obvious business rules or external constraints
 
+### Tailwind CSS Guidelines
+
+- **Use standard spacing scale**: Prefer `w-60` over `w-[15rem]`
+  - Standard classes enable Tailwind CSS IntelliSense and optimizations
+  - Arbitrary values (`[15rem]`) disable JIT optimizations and TS warnings
+  - Available scales: `w-0` to `w-96` (0-24rem), then `w-px`, fractions
+  - For custom values, extend theme in `tailwind.config.ts` rather than using arbitrary values
+- **Responsive prefixes**: Use `md:`, `lg:` consistently
+- **Avoid arbitrary values** when standard alternative exists
+
 ### Testing
 
 - **DO test**: validation rules, data transformation, error recovery
