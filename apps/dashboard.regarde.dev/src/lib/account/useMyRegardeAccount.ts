@@ -1,7 +1,7 @@
-import { useMemo } from "react";
 import { useParams } from "@tanstack/react-router";
-import { useAccount, useIsAuthenticated, useLogOut } from "jazz-tools/react";
 import { co, ID } from "jazz-tools";
+import { useAccount, useIsAuthenticated } from "jazz-tools/react";
+import { useMemo } from "react";
 
 import {
   RegardeAccount,
@@ -17,8 +17,8 @@ import {
  * Provides complete type safety for all loaded CoValues
  */
 export type TUseMyRegardeAccount = {
-  /** Authentication state from Jazz */
-  isAuthenticated: boolean;
+  /** RegardeAccount instance for operations requiring full account access */
+  account: co.loaded<typeof RegardeAccount> | undefined;
 
   /** List of user's apps (1-5 apps, fully loaded with payments) */
   myApps: co.loaded<typeof RegardeSDK>["myApps"] | undefined;
@@ -40,9 +40,6 @@ export type TUseMyRegardeAccount = {
 
   /** Currently selected app object */
   selectedApp: TApp | undefined;
-
-  /** Logout function from Jazz */
-  logOut: () => void;
 };
 
 /**
@@ -52,6 +49,8 @@ export type TUseMyRegardeAccount = {
  * - Account and profile
  * - RegardeSDK with auth, user handle, and apps
  * - Each app's payment records (as ID maps, not full PaymentEvents)
+ *
+ * For authentication operations (sign up, log in, log out), use useRegardeAuth from @regarde-dev/core/react
  *
  * Usage:
  * ```tsx
@@ -69,8 +68,6 @@ export type TUseMyRegardeAccount = {
  */
 export function useMyRegardeAccount(): TUseMyRegardeAccount {
   const isAuthenticated = useIsAuthenticated();
-  const logOut = useLogOut();
-
   const params = useParams({ strict: false });
   const selectedAppId = (params?.appId as ID<typeof App>) ?? null;
 
@@ -150,7 +147,7 @@ export function useMyRegardeAccount(): TUseMyRegardeAccount {
   const isAccountReady = accountData !== null;
 
   return {
-    isAuthenticated,
+    account: isAccountReady ? account : undefined,
     myApps: accountData?.myApps,
     myUserHandle: accountData?.myUserHandle,
     auth: accountData?.auth,
@@ -158,7 +155,6 @@ export function useMyRegardeAccount(): TUseMyRegardeAccount {
     isAccountReady,
     selectedAppId,
     selectedApp,
-    logOut,
   };
 }
 

@@ -1,16 +1,9 @@
 import { useNavigate } from "@tanstack/react-router";
 import { Check, Clipboard, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "#ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "#ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "#ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "#ui/tabs";
 import { Textarea } from "#ui/textarea";
 import { useRegardeAuth } from "@regarde-dev/core/react";
@@ -25,17 +18,16 @@ export function AuthCard({ defaultMode = "login" }: AuthCardProps) {
 
   const [mode, setMode] = useState<"login" | "create">(defaultMode);
   const [loginPassphrase, setLoginPassphrase] = useState("");
-  const [generatedPassphrase, setGeneratedPassphrase] = useState<string | null>(
-    null,
-  );
+  const [generatedPassphrase, setGeneratedPassphrase] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  if (state === "signedIn") {
-    navigate({ to: "/app" });
-    return null;
-  }
+  useEffect(() => {
+    if (state === "signedIn") {
+      void navigate({ to: "/app" });
+    }
+  }, [state, navigate]);
 
   const handleShowPassphrase = () => {
     const passphrase = generatePassphrase();
@@ -56,9 +48,7 @@ export function AuthCard({ defaultMode = "login" }: AuthCardProps) {
       await logIn(loginPassphrase.trim());
     } catch (err) {
       const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "Invalid passphrase. Please check and try again.";
+        err instanceof Error ? err.message : "Invalid passphrase. Please check and try again.";
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -66,8 +56,7 @@ export function AuthCard({ defaultMode = "login" }: AuthCardProps) {
   };
 
   const handleCreateAccount = async () => {
-    const hasPassphrase =
-      generatedPassphrase !== null && generatedPassphrase.length > 0;
+    const hasPassphrase = generatedPassphrase !== null && generatedPassphrase.length > 0;
 
     if (hasPassphrase === false) {
       setError("Please generate a passphrase first.");
@@ -81,17 +70,14 @@ export function AuthCard({ defaultMode = "login" }: AuthCardProps) {
       await signUp("anonymous", generatedPassphrase);
     } catch (err) {
       const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "Failed to create account. Please try again.";
+        err instanceof Error ? err.message : "Failed to create account. Please try again.";
       setError(errorMessage);
       setIsLoading(false);
     }
   };
 
   const handleCopy = async () => {
-    const hasPassphrase =
-      generatedPassphrase !== null && generatedPassphrase.length > 0;
+    const hasPassphrase = generatedPassphrase !== null && generatedPassphrase.length > 0;
 
     if (hasPassphrase === false) {
       return;
@@ -129,9 +115,7 @@ export function AuthCard({ defaultMode = "login" }: AuthCardProps) {
 
         <CardContent className="space-y-4">
           {error !== null && (
-            <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
-              {error}
-            </div>
+            <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">{error}</div>
           )}
 
           <TabsContent value="login" className="mt-0 space-y-4">
@@ -164,12 +148,7 @@ export function AuthCard({ defaultMode = "login" }: AuthCardProps) {
             {hasPassphrase && (
               <>
                 <div className="relative">
-                  <Textarea
-                    value={generatedPassphrase}
-                    readOnly
-                    rows={4}
-                    className="pr-12"
-                  />
+                  <Textarea value={generatedPassphrase} readOnly rows={4} className="pr-12" />
                   <Button
                     variant="ghost"
                     size="icon"
@@ -186,8 +165,8 @@ export function AuthCard({ defaultMode = "login" }: AuthCardProps) {
                 </div>
 
                 <div className="rounded-md bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">
-                  Warning: Store this passphrase in a secure location. If you
-                  lose it, your account cannot be recovered.
+                  Warning: Store this passphrase in a secure location. If you lose it, your account
+                  cannot be recovered.
                 </div>
               </>
             )}
@@ -214,11 +193,7 @@ export function AuthCard({ defaultMode = "login" }: AuthCardProps) {
 
           <TabsContent value="create" className="mt-0 w-full">
             {hasPassphrase ? (
-              <Button
-                className="w-full"
-                onClick={handleCreateAccount}
-                disabled={isLoading}
-              >
+              <Button className="w-full" onClick={handleCreateAccount} disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -229,11 +204,7 @@ export function AuthCard({ defaultMode = "login" }: AuthCardProps) {
                 )}
               </Button>
             ) : (
-              <Button
-                className="w-full"
-                onClick={handleShowPassphrase}
-                disabled={isLoading}
-              >
+              <Button className="w-full" onClick={handleShowPassphrase} disabled={isLoading}>
                 Generate Passphrase
               </Button>
             )}
