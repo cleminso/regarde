@@ -1,27 +1,17 @@
 import { useNavigate } from "@tanstack/react-router";
 
-import { useRegardeAuth } from "@regarde-dev/core/react";
-
-import { Button } from "#/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "#/components/ui/sheet";
-
 import { AppSelector } from "#/components/navigation/appSelector";
-import { NavLink } from "#/components/navigation/navLink";
+import { NavItems } from "#/components/navigation/navItems";
+import { Button } from "#/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "#/components/ui/sheet";
+import { useRegardeAuth } from "@regarde-dev/core/react";
 
 interface MobileNavSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function MobileNavSheet({
-  open,
-  onOpenChange,
-}: MobileNavSheetProps): React.ReactElement {
+export function MobileNavSheet({ open, onOpenChange }: MobileNavSheetProps): React.ReactElement {
   const { logOut } = useRegardeAuth();
   const navigate = useNavigate();
 
@@ -43,25 +33,11 @@ export function MobileNavSheet({
 
           <div className="border-t my-4" />
 
-          <div className="space-y-1">
-            <NavLink to="/app/overview" onClick={() => onOpenChange(false)}>
-              Overview
-            </NavLink>
-            <NavLink to="/app/payments" onClick={() => onOpenChange(false)}>
-              Payments
-            </NavLink>
-            <NavLink to="/app/settings" onClick={() => onOpenChange(false)}>
-              Settings
-            </NavLink>
-          </div>
+          <NavItems onNavigate={() => onOpenChange(false)} />
 
           <div className="border-t my-4" />
 
-          <Button
-            variant="ghost"
-            className="w-full justify-start"
-            onClick={handleLogout}
-          >
+          <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
             Sign out
           </Button>
         </div>

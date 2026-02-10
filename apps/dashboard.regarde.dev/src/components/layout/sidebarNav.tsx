@@ -1,11 +1,9 @@
 import { useNavigate } from "@tanstack/react-router";
 
-import { useRegardeAuth } from "@regarde-dev/core/react";
-
-import { Button } from "#/components/ui/button";
-
 import { AppSelector } from "#/components/navigation/appSelector";
-import { NavLink } from "#/components/navigation/navLink";
+import { NavItems } from "#/components/navigation/navItems";
+import { Button } from "#/components/ui/button";
+import { useRegardeAuth } from "@regarde-dev/core/react";
 
 export function SidebarNav(): React.ReactElement {
   const { logOut } = useRegardeAuth();
@@ -24,18 +22,10 @@ export function SidebarNav(): React.ReactElement {
         <AppSelector />
       </div>
 
-      <div className="space-y-1 flex-1">
-        <NavLink to="/app/overview">Overview</NavLink>
-        <NavLink to="/app/payments">Payments</NavLink>
-        <NavLink to="/app/settings">Settings</NavLink>
-      </div>
+      <NavItems />
 
       <div className="mt-auto pt-4 border-t">
-        <Button
-          variant="ghost"
-          className="w-full justify-start"
-          onClick={handleLogout}
-        >
+        <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
           Sign out
         </Button>
       </div>

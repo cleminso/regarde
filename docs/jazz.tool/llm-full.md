@@ -1,4 +1,4 @@
-# Jazz (react)
+# Jazz
 
 ## Getting started
 
@@ -33,7 +33,35 @@ You can use [create-jazz-app](/docs/tooling-and-resources/create-jazz-app) to cr
 
 ```
 
+\--- Section applies only to react ---
+
 **Using an LLM?** [Add our llms.txt](/react/llms-full.txt) to your context window!
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**Using an LLM?** [Add our llms.txt](/svelte/llms-full.txt) to your context window!
+
+\--- End of svelte specific section ---
+
+\--- Section applies only to react-native ---
+
+**Using an LLM?** [Add our llms.txt](/react-native/llms-full.txt) to your context window!
+
+\--- End of react-native specific section ---
+
+\--- Section applies only to react-native-expo ---
+
+**Using an LLM?** [Add our llms.txt](/react-native-expo/llms-full.txt) to your context window!
+
+\--- End of react-native-expo specific section ---
+
+\--- Section applies only to vanilla ---
+
+**Using an LLM?** [Add our llms.txt](/vanilla/llms-full.txt) to your context window!
+
+\--- End of vanilla specific section ---
 
 **Info:**
 
@@ -278,9 +306,35 @@ This quickstart guide will take you from an empty project to a working app with 
 
 ## Create your App
 
+\--- Section applies only to vanilla ---
+
+We're going to use a bare-bones Vite + TS app to get started. This allows us to import modules easily and allows us to use TypeScript from the start. It's not strictly necessary to use Vite and TypeScript, but this gives the minimal set-up for a modern web development workflow, and we _strongly_ recommend it.
+
+##### npm:
+
+```sh
+npm create vite@latest jazzfest -- --template vanilla-ts
+cd jazzfest
+
+```
+
+##### pnpm:
+
+```sh
+pnpm create vite@latest jazzfest -- --template vanilla-ts
+cd jazzfest
+
+```
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 We'll be using Next.js for this guide per the [React team's recommendation](https://react.dev/learn/creating-a-react-app), but Jazz works great with vanilla React and other full-stack frameworks too.
 
 You can accept the defaults for all the questions, or customise the project as you like.
+
+##### npm:
 
 ```sh
 npx create-next-app@latest --typescript jazzfest
@@ -288,14 +342,57 @@ cd jazzfest
 
 ```
 
+##### pnpm:
+
+```sh
+pnpx create-next-app@latest --typescript jazzfest
+cd jazzfest
+
+```
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+We'll be using SvelteKit for this guide, per the [Svelte team's recommendation](https://svelte.dev/docs/svelte/getting-started), but Jazz works great with vanilla Svelte too.
+
+You can accept the defaults for all the questions, or customise the project as you like.
+
+##### npm:
+
+```sh
+npx sv create --types ts --template minimal jazzfest
+cd jazzfest
+
+```
+
+##### pnpm:
+
+```sh
+pnpx sv create --types ts --template minimal jazzfest
+cd jazzfest
+
+```
+
+\--- End of svelte specific section ---
+
 **Note: Requires Node.js 20+**
 
 ## Install Jazz
 
 The `jazz-tools` package includes everything you're going to need to build your first Jazz app.
 
+##### npm:
+
 ```sh
 npm install jazz-tools
+
+```
+
+##### pnpm:
+
+```sh
+pnpm add jazz-tools
 
 ```
 
@@ -303,10 +400,42 @@ npm install jazz-tools
 
 Sign up for a free API key at [dashboard.jazz.tools](https://dashboard.jazz.tools) for higher limits or production use, or use your email address as a temporary key to get started quickly.
 
+\--- Section applies only to vanilla ---
+
 **File name: .env**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
+**File name: .env**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: .env**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```bash
+VITE_JAZZ_API_KEY="you@example.com" # or your API key
+
+```
+
+##### React:
 
 ```bash
 NEXT_PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
+
+```
+
+##### Svelte:
+
+```bash
+PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
 
 ```
 
@@ -316,9 +445,29 @@ Jazz uses Zod for more simple data types (like strings, numbers, booleans), and 
 
 Adding a `root` to the user's account gives us a container that can be used to keep a track of all the data a user might need to use the app.
 
+\--- Section applies only to react,svelte ---
+
 The migration runs when the user logs in, and ensures the account is properly set up before we try to use it.
 
+\--- End of react,svelte specific section ---
+
+\--- Section applies only to vanilla ---
+
+**File name: src/schema.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/schema.ts**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/lib/schema.ts**
+
+\--- End of svelte specific section ---
 
 ```ts
 import { co, z } from "jazz-tools";
@@ -347,9 +496,23 @@ export const JazzFestAccount = co
   });
 ```
 
+\--- Section applies only to vanilla ---
+
+## Create a Jazz context \[!framework=vanilla\]
+
+Jazz needs to have a 'context' in order to run. Once created, you can use Jazz to create, read, and update data. You can delete all the boilerplate in the `src/main.ts` file and replace it with the code below:
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react,svelte ---
+
 ## Add the Jazz Provider \[!framework=react,svelte\]
 
 Wrap your app with a provider so components can use Jazz.
+
+\--- End of react,svelte specific section ---
+
+\--- Section applies only to react ---
 
 **File name: app/components/JazzWrapper.tsx**
 
@@ -374,7 +537,51 @@ export function JazzWrapper({ children }: { children: React.ReactNode }) {
 }
 ```
 
+\--- End of react specific section ---
+
+\--- Section applies only to vanilla ---
+
+**File name: src/main.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/layout.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/routes/+layout.svelte**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```tsx
+import { JazzBrowserContextManager } from "jazz-tools/browser";
+import { JazzFestAccount } from "./schema";
+
+const apiKey = import.meta.env.VITE_JAZZ_API_KEY;
+const contextManager = new JazzBrowserContextManager<typeof JazzFestAccount>();
+await contextManager.createContext({
+  sync: {
+    peer: `wss://cloud.jazz.tools?key=${apiKey}`,
+  },
+});
+
+function getCurrentAccount() {
+  const context = contextManager.getCurrentValue();
+  if (!context || !("me" in context)) {
+    throw new Error("");
+  }
+
+  return context.me;
+}
+```
+
+##### React:
 
 ```tsx
 import { JazzWrapper } from "@/app/components/JazzWrapper";
@@ -394,31 +601,146 @@ export default function RootLayout({
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { JazzSvelteProvider } from "jazz-tools/svelte";
+  import { JazzFestAccount } from "$lib/schema";
+	import { PUBLIC_JAZZ_API_KEY } from "$env/static/public";
+  import { SyncConfig } from "jazz-tools";
+
+  const apiKey = PUBLIC_JAZZ_API_KEY;
+  let { children } = $props();
+  const sync: SyncConfig = { peer: `wss://cloud.jazz.tools/?key=${apiKey}` };
+</script>
+
+<JazzSvelteProvider {sync} AccountSchema={JazzFestAccount}>
+  {@render children?.()}
+</JazzSvelteProvider>
+
+```
+
 ## Start your app
 
 Moment of truth — time to start your app and see if it works.
+
+##### npm:
 
 ```bash
 npm run dev
 
 ```
 
+##### pnpm:
+
+```bash
+pnpm run dev
+
+```
+
+\--- Section applies only to vanilla ---
+
+If everything's going according to plan, you should see a blank page!
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 If everything's going according to plan, you should see the default Next.js welcome page!
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+If everything's going according to plan, you should see the default SvelteKit welcome page!
+
+\--- End of svelte specific section ---
 
 ### Not loading?
 
 If you're not seeing the welcome page:
 
+\--- Section applies only to react ---
+
 - Check you wrapped your app with the Jazz Provider in `app/layout.tsx`
 - Check your schema is properly defined in `app/schema.ts`
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+- Check you wrapped your app with the Jazz Provider in `src/routes/+layout.svelte`
+- Check your schema is properly defined in `src/lib/schema.ts`
+
+\--- End of svelte specific section ---
 
 **Info: Still stuck?** Ask for help on [Discord](https://discord.gg/utDMjHYg42)!
 
 ## Create data
 
+\--- Section applies only to vanilla ---
+
+Let's create a simple form to add a new band to the festival. We'll use the `getCurrentAccount` function we defined above to get the current account. Then, we'll load it using our custom schema and trigger the migration manually.
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react,svelte ---
+
 Let's create a simple form to add a new band to the festival. We'll use the `useAccount` hook to get the current account and tell Jazz to load the `myFestival` CoValue by passing a `resolve` query.
 
+\--- End of react,svelte specific section ---
+
+\--- Section applies only to vanilla ---
+
+**File name: src/main.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/components/NewBand.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/lib/components/NewBand.svelte**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```tsx
+const me = getCurrentAccount();
+const account = await JazzFestAccount.load(me.$jazz.id);
+if (!account.$isLoaded) throw new Error("Account is not loaded");
+account.migrate();
+const myAccount = await account.$jazz.ensureLoaded({
+  resolve: { root: { myFestival: true } },
+});
+
+const form = document.createElement("form");
+const input = Object.assign(document.createElement("input"), {
+  type: "text",
+  name: "band",
+  placeholder: "Band name",
+});
+const button = Object.assign(document.createElement("button"), {
+  name: "band",
+  innerText: "Add",
+  onclick: async (e: Event) => {
+    e.preventDefault(); // Prevent navigation
+    if (!myAccount.$isLoaded) return;
+    myAccount.root.myFestival.$jazz.push({ name: input.value });
+    input.value = "";
+  },
+});
+
+form.append(input, button);
+```
+
+##### React:
 
 ```tsx
 "use client";
@@ -454,11 +776,75 @@ export function NewBand() {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+	import { AccountCoState } from "jazz-tools/svelte";
+	import { JazzFestAccount } from "$lib/schema";
+
+  const me = new AccountCoState(JazzFestAccount, {
+    resolve: { root: { myFestival: true } }
+  });
+  let name = $state("");
+
+  function handleSave() {
+    if (!me.current.$isLoaded) return;
+    me.current.root.myFestival.$jazz.push({ name });
+    name = "";
+  }
+</script>
+
+<div>
+  <input type="text" bind:value={name} placeholder="Band name" />
+  <button type="button" onclick={handleSave}>Add</button>
+</div>
+
+```
+
 ## Display your data
 
 Now we've got a way to create data, so let's add a component to display it.
 
+\--- Section applies only to vanilla ---
+
+**File name: src/main.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/components/Festival.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/lib/components/Festival.svelte**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```tsx
+const bandList = document.createElement("ul");
+const unsubscribe = myAccount.root.myFestival.$jazz.subscribe((festival) => {
+  if (!festival.$isLoaded) throw new Error("Festival not loaded");
+
+  const bandElements = festival
+    .map((band) => {
+      if (!band.$isLoaded) return;
+      const bandElement = document.createElement("li");
+      bandElement.innerText = band.name;
+      return bandElement;
+    })
+    .filter((band) => band !== undefined);
+
+  bandList.replaceChildren(...bandElements);
+});
+```
+
+##### React:
 
 ```tsx
 "use client";
@@ -486,11 +872,57 @@ export function Festival() {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { AccountCoState } from "jazz-tools/svelte";
+  import { JazzFestAccount } from "$lib/schema";
+  const me = new AccountCoState(JazzFestAccount, {
+    resolve: { root: { myFestival: { $each: true } } }
+  });
+</script>
+
+<ul>
+  {#if me.current.$isLoaded}
+    {#each me.current.root.myFestival as band}
+      <li>{band.name}</li>
+    {/each}
+  {/if}
+</ul>
+
+```
+
 ## Put it all together
 
 You've built all your components, time to put them together.
 
+\--- Section applies only to vanilla ---
+
+**File name: src/main.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/page.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/routes/+page.svelte**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```tsx
+const app = document.querySelector<HTMLDivElement>("#app")!;
+app.append(form, bandList);
+```
+
+##### React:
 
 ```tsx
 import { Festival } from "@/app/components/Festival";
@@ -507,13 +939,33 @@ export default function Home() {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import NewBand from "$lib/components/NewBand.svelte";
+  import Festival from "$lib/components/Festival.svelte";
+</script>
+
+<main>
+  <h1>🎪 My Festival</h1>
+  <NewBand />
+  <Festival />
+</main>
+
+```
+
 You should now be able to add a band to your festival, and see it appear in the list!
 
 **Congratulations! 🎉** You've built your first Jazz app!
 
 You've begun to scratch the surface of what's possible with Jazz. Behind the scenes, your local-first JazzFest app is **already** securely syncing your data to the cloud in real-time, ready for you to build more and more powerful features.
 
+\--- Section applies only to react ---
+
 Psst! Got a few more minutes and want to add Server Side Rendering to your app? [We've got you covered!](/docs/server-side/ssr)
+
+\--- End of react specific section ---
 
 ## Next steps
 
@@ -526,18 +978,52 @@ Psst! Got a few more minutes and want to add Server Side Rendering to your app? 
 
 # Providers
 
+\--- Section applies only to react ---
+
 `<JazzReactProvider />` is the core component that connects your React application to Jazz. It handles:
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+`<JazzSvelteProvider />` is the core component that connects your Svelte application to Jazz. It handles:
+
+\--- End of svelte specific section ---
+
+\--- Section applies only to react-native ---
+
+`<JazzReactNativeProvider />` is the core component that connects your React Native application to Jazz. It handles:
+
+\--- End of react-native specific section ---
+
+\--- Section applies only to expo ---
+
+`<JazzExpoProvider />` is the core component that connects your Expo application to Jazz. It handles:
+
+\--- End of expo specific section ---
 
 - **Data Synchronization**: Manages connections to peers and the Jazz cloud
 - **Local Storage**: Persists data locally between app sessions
 - **Schema Types**: Provides APIs for the [AccountSchema](/docs/core-concepts/schemas/accounts-and-migrations)
 - **Authentication**: Connects your authentication system to Jazz
 
+\--- Section applies only to react ---
+
 Our [Chat example app](https://jazz.tools/examples#chat) provides a complete implementation of JazzReactProvider with authentication and real-time data sync.
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+Our [File Share example app](https://github.com/garden-co/jazz/blob/main/examples/file-share-svelte/src/routes/%2Blayout.svelte) provides an implementation of JazzSvelteProvider with authentication and real-time data sync.
+
+\--- End of svelte specific section ---
 
 ## Setting up the Provider
 
 The provider accepts several configuration options:
+
+##### React:
 
 ```tsx
 import { JazzReactProvider } from "jazz-tools/react";
@@ -558,14 +1044,103 @@ export function MyApp({ children }: { children: React.ReactNode }) {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { JazzSvelteProvider } from "jazz-tools/svelte";
+  import { MyAppAccount } from "./schema";
+  let { children } = $props();
+</script>
+
+<JazzSvelteProvider
+  sync={{
+    peer: "wss://cloud.jazz.tools/?key=your-api-key",
+    when: "always" // When to sync: "always", "never", or "signedUp"
+  }}
+  AccountSchema={MyAppAccount}
+>
+  {@render children()}
+</JazzSvelteProvider>
+
+```
+
+##### React Native:
+
+```tsx
+import { JazzReactNativeProvider } from "jazz-tools/react-native";
+import { MyAppAccount } from "./schema";
+
+export function MyJazzProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <JazzReactNativeProvider
+      sync={{ peer: `wss://cloud.jazz.tools/?key=${apiKey}` }}
+      AccountSchema={MyAppAccount}
+    >
+      {children}
+    </JazzReactNativeProvider>
+  );
+}
+```
+
+##### Expo:
+
+```tsx
+import { JazzExpoProvider } from "jazz-tools/expo";
+import { MyAppAccount } from "./schema";
+
+export function MyJazzProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <JazzExpoProvider
+      sync={{ peer: `wss://cloud.jazz.tools/?key=${apiKey}` }}
+      AccountSchema={MyAppAccount}
+    >
+      {children}
+    </JazzExpoProvider>
+  );
+}
+```
+
 **Info: Tip**
 
 Sign up for a free API key at [dashboard.jazz.tools](https://dashboard.jazz.tools) for higher limits or production use, or use your email address as a temporary key to get started quickly.
 
+\--- Section applies only to vanilla ---
+
 **File name: .env**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
+**File name: .env**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: .env**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```bash
+VITE_JAZZ_API_KEY="you@example.com" # or your API key
+
+```
+
+##### React:
 
 ```bash
 NEXT_PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
+
+```
+
+##### Svelte:
+
+```bash
+PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
 
 ```
 
@@ -587,11 +1162,27 @@ export const syncConfig: SyncConfig = {
 };
 ```
 
+\--- Section applies only to react-native-expo ---
+
+**Warning: iOS Credential Persistence**
+
+On iOS Jazz persists login credentials using Secure Store, which saves them to the Keychain. While this is secure, iOS does not clear the credentials along with other data if a user uninstalls your app.
+
+User accounts _are_ deleted, so if you are using `sync: 'never'` or `sync: 'signedUp'`, accounts for users who are not 'signed up' will be lost.
+
+If the user later re-installs your app, the credentials for the deleted account remain in the Keychain. Jazz will attempt to use these to sign in and fail, as the account no longer exists.
+
+To avoid this, consider using `sync: 'always'` for your iOS users, or [check the work around here](/docs/key-features/authentication/authentication-states#disable-sync-for-anonymous-authentication).
+
+\--- End of react-native-expo specific section ---
+
 See [Authentication States](/docs/key-features/authentication/authentication-states#controlling-sync-for-different-authentication-states) for more details on how the `when` property affects synchronization based on authentication state.
 
 ### Account Schema
 
 The `AccountSchema` property defines your application's account structure:
+
+##### React:
 
 ```tsx
 import { JazzReactProvider } from "jazz-tools/react";
@@ -612,9 +1203,88 @@ export function MyApp({ children }: { children: React.ReactNode }) {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { JazzSvelteProvider } from "jazz-tools/svelte";
+  import { MyAppAccount } from "./schema";
+  let { children } = $props();
+</script>
+
+<JazzSvelteProvider
+  sync={{
+    peer: "wss://cloud.jazz.tools/?key=your-api-key",
+    when: "always" // When to sync: "always", "never", or "signedUp"
+  }}
+  AccountSchema={MyAppAccount}
+>
+  {@render children()}
+</JazzSvelteProvider>
+
+```
+
+##### React Native:
+
+```tsx
+import { JazzReactNativeProvider } from "jazz-tools/react-native";
+import { MyAppAccount } from "./schema";
+
+export function MyJazzProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <JazzReactNativeProvider
+      sync={{ peer: `wss://cloud.jazz.tools/?key=${apiKey}` }}
+      AccountSchema={MyAppAccount}
+    >
+      {children}
+    </JazzReactNativeProvider>
+  );
+}
+```
+
+##### Expo:
+
+```tsx
+import { JazzExpoProvider } from "jazz-tools/expo";
+import { MyAppAccount } from "./schema";
+
+export function MyJazzProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <JazzExpoProvider
+      sync={{ peer: `wss://cloud.jazz.tools/?key=${apiKey}` }}
+      AccountSchema={MyAppAccount}
+    >
+      {children}
+    </JazzExpoProvider>
+  );
+}
+```
+
 ### Additional Options
 
 The provider accepts these additional options:
+
+\--- Section applies only to react-native ---
+
+- `kvStore`
+  - `MMKVStoreAdapter` (default)
+- `AccountSchema`
+  - `Account` (default)
+
+\--- End of react-native specific section ---
+
+\--- Section applies only to react-native-expo ---
+
+- `kvStore`
+  - `ExpoSecureStoreAdapter` (default)
+- `AccountSchema`
+  - `Account` (default)
+
+\--- End of react-native-expo specific section ---
+
+\--- Section applies only to react,svelte ---
+
+##### React:
 
 ```tsx
 export function MyApp({ children }: { children: React.ReactNode }) {
@@ -646,11 +1316,203 @@ export function MyApp({ children }: { children: React.ReactNode }) {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { JazzSvelteProvider } from "jazz-tools/svelte";
+  import { syncConfig } from "./sync-config";
+  import { Account } from "jazz-tools";
+  let { children } = $props();
+
+  // Enable guest mode for account-less access
+  const guestMode = false;
+
+  // Default name for new user profiles
+  const defaultProfileName = "New User";
+
+  // Override the default storage key
+  const authSecretStorageKey = "jazz-logged-in-secret";
+
+  // Handle user logout
+  const onLogOut = () => {
+    console.log("User logged out");
+  };
+
+  // Handle anonymous account data when user logs in to existing account
+  const onAnonymousAccountDiscarded = (account: Account) => {
+    console.log("Anonymous account discarded", account.$jazz.id);
+    // Migrate data here
+    return Promise.resolve();
+  };
+</script>
+
+<JazzSvelteProvider
+  sync={syncConfig}
+  {guestMode}
+  {defaultProfileName}
+  {onLogOut}
+  {onAnonymousAccountDiscarded}
+  {authSecretStorageKey}
+>
+  {@render children()}
+</JazzSvelteProvider>
+
+```
+
 See [Authentication States](/docs/key-features/authentication/authentication-states) for more information on authentication states, guest mode, and handling anonymous accounts.
+
+\--- End of react,svelte specific section ---
 
 ## Authentication
 
+\--- Section applies only to react,svelte ---
+
 The Jazz Provider works with various authentication methods to enable users to access their data across multiple devices. For a complete guide to authentication, see our [Authentication Overview](/docs/key-features/authentication/overview).
+
+\--- End of react,svelte specific section ---
+
+\--- Section applies only to react-native ---
+
+The Provider works with various authentication methods, with PassphraseAuth being the easiest way to get started for development and testing. For authentication details, refer to our [Authentication Overview](/docs/key-features/authentication/overview) guide.
+
+The authentication hooks must always be used inside the Provider component.
+
+Implementing PassphraseAuth is straightforward:
+
+1. Import the [wordlist](https://github.com/bitcoinjs/bip39/tree/a7ecbfe2e60d0214ce17163d610cad9f7b23140c/src/wordlists) for generating recovery phrases
+2. Use the `usePassphraseAuth` hook to handle authentication
+3. Create simple registration and sign-in screens
+
+##### React Native:
+
+```tsx
+import {
+  JazzReactNativeProvider,
+  usePassphraseAuth,
+} from "jazz-tools/react-native";
+import { englishWordlist } from "./wordlist";
+
+function JazzAuthentication({ children }: { children: ReactNode }) {
+  const auth = usePassphraseAuth({
+    wordlist: englishWordlist,
+  });
+
+  // If the user is already signed in, render the App
+  if (auth.state === "signedIn") {
+    return children;
+  }
+
+  // Otherwise, show a sign-in screen
+  return <SignInScreen auth={auth} />;
+}
+
+function AuthenticatedProvider({ children }: { children: ReactNode }) {
+  return (
+    <JazzReactNativeProvider
+      sync={{ peer: `wss://cloud.jazz.tools/?key=${apiKey}` }}
+    >
+      <JazzAuthentication>{children}</JazzAuthentication>
+    </JazzReactNativeProvider>
+  );
+}
+```
+
+##### Expo:
+
+```tsx
+import { JazzExpoProvider, usePassphraseAuth } from "jazz-tools/expo";
+import { englishWordlist } from "./wordlist";
+
+function JazzAuthentication({ children }: { children: ReactNode }) {
+  const auth = usePassphraseAuth({
+    wordlist: englishWordlist,
+  });
+
+  // If the user is already signed in, render the App
+  if (auth.state === "signedIn") {
+    return children;
+  }
+
+  // Otherwise, show a sign-in screen
+  return <SignInScreen auth={auth} />;
+}
+
+function AuthenticatedProvider({ children }: { children: ReactNode }) {
+  return (
+    <JazzExpoProvider sync={{ peer: `wss://cloud.jazz.tools/?key=${apiKey}` }}>
+      <JazzAuthentication>{children}</JazzAuthentication>
+    </JazzExpoProvider>
+  );
+}
+```
+
+## Local Persistence \[!framework=react-native,react-native-expo\]
+
+\--- End of react-native specific section ---
+
+\--- Section applies only to react-native ---
+
+Jazz for React Native includes built-in local persistence using SQLite. This implementation uses:
+
+- **Database Storage**: `@op-engineering/op-sqlite` \- A high-performance SQLite implementation
+- **Key-Value Storage**: `react-native-mmkv` \- A fast key-value storage system
+
+\--- End of react-native specific section ---
+
+\--- Section applies only to react-native-expo ---
+
+Jazz for Expo includes built-in local persistence using SQLite. Following Expo's best practices, the Expo implementation uses:
+
+- **Database Storage**: `expo-sqlite` \- Expo's official SQLite module
+- **Key-Value Storage**: `expo-secure-store` \- Expo's secure storage system
+
+\--- End of react-native-expo specific section ---
+
+\--- Section applies only to react-native,react-native-expo ---
+
+Local persistence is enabled by default with no additional configuration required. Your data will automatically persist across app restarts.
+
+\--- End of react-native,react-native-expo specific section ---
+
+\--- Section applies only to react-native,react-native-expo ---
+
+## RNCrypto \[!framework=react-native,react-native-expo\]
+
+\--- End of react-native,react-native-expo specific section ---
+
+\--- Section applies only to react-native-expo ---
+
+**Starting from Expo SDK 54, you do not need to follow these steps, `RNCrypto` will be enabled for you by default. These steps below should be followed only if you are using an older Expo version.**
+
+\--- End of react-native-expo specific section ---
+
+\--- Section applies only to react-native,react-native-expo ---
+
+For accelerated crypto operations, you can use the `RNCrypto` crypto provider. It is the most performant crypto provider available for React Native.
+
+To use it, install the following package:
+
+```bash
+pnpm add cojson-core-rn
+
+```
+
+You must keep the versions of `cojson-core-rn` and `jazz-tools` the same.
+
+```json
+"dependencies": {
+  "cojson-core-rn": "x.x.x", # same version as jazz-tools
+  "jazz-tools": "x.x.x" # same version as cojson-core-rn
+}
+
+```
+
+**Warning: Versioning**
+
+While you can distribute your own JS code changes OTA, if you update your Jazz version, this will result in changes in the native dependencies, which _cannot_ be distributed over the air and requires a new store submission.
+
+\--- End of react-native,react-native-expo specific section ---
 
 ## Need Help?
 
@@ -2126,36 +2988,14 @@ Consider a scenario where one wants to identify a CoMap using some unique identi
 const myTask = await Task.load("learning-jazz");
 ```
 
-To make it possible to use human-readable identifiers Jazz lets you to define a `unique` property on CoMaps.
+Jazz provides the `getOrCreateUnique` method on CoMaps to support human-readable or application-specific identifiers.
 
-Then the CoValue ID is deterministically derived from the `unique` property and the owner of the CoMap.
+When you call `getOrCreateUnique`, the CoValue ID is deterministically derived from the provided `unique` identifier (together with the owner), ensuring that the same `unique` value always refers to the same CoMap within that scope.
 
-```ts
-// Given the project owner, myTask will have always the same id
-Task.create(
-  {
-    text: "Let's learn some Jazz!",
-  },
-  {
-    unique: "learning-jazz",
-    owner: project.$jazz.owner, // Different owner, different id
-  },
-);
-```
-
-Now you can use `CoMap.loadUnique` to easily load the CoMap using the human-readable identifier:
+This allows you to easily load or create a CoMap using a readable identifier. If no such value exists, it will be created using the provided data.
 
 ```ts
-const learnJazzTask = await Task.loadUnique(
-  "learning-jazz",
-  project.$jazz.owner.$jazz.id,
-);
-```
-
-It's also possible to combine the create+load operation using `CoMap.upsertUnique`:
-
-```ts
-await Task.upsertUnique({
+await Task.getOrCreateUnique({
   value: {
     text: "Let's learn some Jazz!",
   },
@@ -2829,6 +3669,8 @@ console.log(`${note}`); // "Meeting notes"
 console.log(note.length); // 14
 ```
 
+\--- Section applies only to react ---
+
 When using CoTexts in JSX, you can read the text directly:
 
 ```tsx
@@ -2837,6 +3679,8 @@ When using CoTexts in JSX, you can read the text directly:
   <p>{note}</p>
 </>
 ```
+
+\--- End of react specific section ---
 
 **Info: Primitive values**
 
@@ -2879,6 +3723,8 @@ minutes.$jazz.applyDiff(text); // Efficiently updates only what changed
 
 Perfect for handling user input in form controls:
 
+\--- Section applies only to react ---
+
 ```ts
 function TextEditor({ textId }: { textId: string }) {
   const note = useCoState(co.plainText(), textId);
@@ -2897,6 +3743,49 @@ function TextEditor({ textId }: { textId: string }) {
 }
 
 ```
+
+\--- End of react specific section ---
+
+\--- Section applies only to vanilla ---
+
+```ts
+const note = co.plainText().create("");
+
+// Create and set up the textarea
+const textarea = document.createElement("textarea");
+textarea.value = note.toString();
+
+// Add event listener for changes
+textarea.addEventListener("input", (e: Event) => {
+  const target = e.target as HTMLTextAreaElement;
+  // Efficiently update only what the user changed
+  note.$jazz.applyDiff(target.value);
+});
+
+// Add the textarea to the document
+document.body.appendChild(textarea);
+```
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to svelte ---
+
+```svelte
+<script lang="ts">
+import { co } from "jazz-tools";
+const note = co.plainText().create("");
+</script>
+
+<textarea
+  value={note.toString()}
+  oninput={e => {
+    note.$jazz.applyDiff((e.target as HTMLTextAreaElement).value)
+  }}
+></textarea>
+
+```
+
+\--- End of svelte specific section ---
 
 ## Using Rich Text with ProseMirror
 
@@ -2918,6 +3807,20 @@ pnpm add prosemirror-view \
 ```
 
 ### Integration
+
+\--- Section applies only to react-native ---
+
+We don't currently have a React Native-specific example, but you need help you can [request one](https://github.com/garden-co/jazz/issues/new), or ask on [Discord](https://discord.gg/utDMjHYg42).
+
+\--- End of react-native specific section ---
+
+\--- Section applies only to react-native-expo ---
+
+We don't currently have a React Native Expo-specific example, but you need help please [request one](https://github.com/garden-co/jazz/issues/new), or ask on [Discord](https://discord.gg/utDMjHYg42).
+
+\--- End of react-native-expo specific section ---
+
+\--- Section applies only to react,react-native,react-native-expo ---
 
 For use with React:
 
@@ -2964,6 +3867,55 @@ function RichTextEditor() {
   );
 }
 ```
+
+\--- End of react,react-native,react-native-expo specific section ---
+
+\--- Section applies only to svelte ---
+
+We don't currently have a Svelte-specific example, but you need help you can [request one](https://github.com/garden-co/jazz/issues/new), or ask on [Discord](https://discord.gg/utDMjHYg42).
+
+\--- End of svelte specific section ---
+
+\--- Section applies only to vanilla,svelte,react-native,react-native-expo ---
+
+For use without a framework:
+
+```ts
+function setupRichTextEditor(
+  coRichText: CoRichText,
+  container: HTMLDivElement,
+) {
+  // Create the Jazz plugin for ProseMirror
+  // Providing a co.richText() instance to the plugin to automatically sync changes
+  const jazzPlugin = createJazzPlugin(coRichText); // [!code ++]
+
+  // Set up ProseMirror with Jazz plugin
+  const view = new EditorView(container, {
+    state: EditorState.create({
+      schema,
+      plugins: [
+        ...exampleSetup({ schema }),
+        jazzPlugin, // [!code ++]
+      ],
+    }),
+  });
+
+  // Return cleanup function
+  return () => {
+    view.destroy();
+  };
+}
+
+// Usage
+const doc = co.richText().create("<p>Initial content</p>");
+const editorContainer = document.getElementById("editor") as HTMLDivElement;
+const cleanup = setupRichTextEditor(doc, editorContainer);
+
+// Later when done with the editor
+cleanup();
+```
+
+\--- End of vanilla,svelte,react-native,react-native-expo specific section ---
 
 ### FileStreams
 
@@ -3346,7 +4298,44 @@ CoVectors cannot be changed after creation. Instead, create a new CoVector with 
 
 Semantic search lets you find data based on meaning, not just keywords. In Jazz, you can easily sort results by how similar they are to your search query.
 
+\--- Section applies only to react ---
+
 Use the `useCoState` hook to load your data and sort it by similarity to your query embedding:
+
+\--- End of react specific section ---
+
+\--- Section applies only to vanilla ---
+
+You can load your data using the `.load` method, then compute and sort the results by similarity to your query embedding:
+
+\--- End of vanilla specific section ---
+
+##### VanillaJS:
+
+```ts
+// // 1) Load your documents
+const allDocuments = await DocumentsList.load(documentsListId, {
+  resolve: {
+    $each: { embedding: true },
+  },
+});
+
+// 2) Obtain vector for your search query
+const queryEmbedding = await createEmbedding("search query");
+
+// 3) Sort documents by vector similarity
+const similarDocuments = documents.$isLoaded
+  ? documents
+      .map((value) => ({
+        value,
+        similarity: value.embedding.$jazz.cosineSimilarity(queryEmbedding), // [!code ++]
+      }))
+      .sort((a, b) => b.similarity - a.similarity)
+      .filter((result) => result.similarity > 0.5)
+  : null;
+```
+
+##### React:
 
 ```tsx
 import { useCoState } from "jazz-tools/react";
@@ -3372,6 +4361,41 @@ const foundDocuments = useCoState(DocumentsList, documentsListId, {
       .filter((result) => result.similarity > 0.5);
   },
 });
+```
+
+##### Svelte:
+
+```ts
+<script lang="ts">
+  import { CoState } from "jazz-tools/svelte";
+  import { DocumentsList } from "./schema";
+  const { queryEmbedding, documentsListId }: { queryEmbedding: number[], documentsListId: string } = $props();
+  // 1) Load your documents
+  const documents = new CoState(DocumentsList, documentsListId, {
+    resolve: {
+      $each: { embedding: true },
+    }
+  });
+
+  // 2) Sort documents by vector similarity
+  const foundDocuments = $derived((() => {
+    const docs = documents.current;
+    if (!docs.$isLoaded) return;
+
+    if (!queryEmbedding) {
+      return docs.map((value) => ({ value }));
+    }
+
+    return docs
+      .map((value) => ({
+        value,
+        similarity: value.embedding.$jazz.cosineSimilarity(queryEmbedding), // [!code ++]
+      }))
+      .sort((a, b) => b.similarity - a.similarity)
+      .filter((result) => result.similarity > 0.5);
+  })());
+</script>
+
 ```
 
 Wrapping each item with its similarity score makes it easy to sort, filter, and display the most relevant results. This approach is widely used in vector search and recommendation systems, since it keeps both the data and its relevance together for further processing or display.
@@ -3421,13 +4445,46 @@ Beyond `ImageDefinition`, Jazz offers higher-level functions and components that
 
 - [createImage()](#creating-images) \- function to create an `ImageDefinition` from a file
 - [loadImage, loadImageBySize, highestResAvailable](#displaying-images) \- functions to load and display images
+
+\--- Section applies only to react,svelte,react-native,react-native-expo ---
+
 - [Image](#displaying-images) \- Component to display an image
 
+\--- End of react,svelte,react-native,react-native-expo specific section ---
+
+\--- Section applies only to react ---
+
 The [Image Upload example](https://github.com/gardencmp/jazz/tree/main/examples/image-upload) demonstrates use of images in Jazz.
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+The [Chat example](https://github.com/gardencmp/jazz/tree/main/examples/chat-svelte) includes an implementation of ImageDefinitions in Svelte.
+
+\--- End of svelte specific section ---
+
+\--- Section applies only to react-native ---
+
+## Installation \[!framework=react-native\]
+
+Jazz's images implementation is based on `@bam.tech/react-native-image-resizer`. Check the [installation guide](/docs/react-native/project-setup#install-dependencies) for more details.
+
+\--- End of react-native specific section ---
+
+\--- Section applies only to react-native-expo ---
+
+## Installation \[!framework=react-native-exp\]
+
+Jazz's images implementation is based on `expo-image-manipulator`. Check the [installation guide](/docs/react-native-expo/project-setup#install-dependencies) for more details.
+
+\--- End of react-native-expo specific section ---
 
 ## Creating Images
 
 The easiest way to create and use images in your Jazz application is with the `createImage()` function:
+
+##### Vanilla:
 
 ```ts
 import { createImage } from "jazz-tools/media";
@@ -3446,6 +4503,122 @@ async function handleFileUpload(event: Event) {
     });
 
     // Store the image in your application data
+    me.profile.$jazz.set("image", image);
+  }
+}
+```
+
+##### React:
+
+```ts
+import { createImage } from "jazz-tools/media";
+
+// Create an image from a file input
+async function handleFileUpload(event: Event) {
+  const input = event.target as HTMLInputElement | null;
+  const file = input?.files?.[0];
+  if (file && me.profile.$isLoaded) {
+    // Creates ImageDefinition with a blurry placeholder, limited to 1024px on the longest side, and multiple resolutions automatically
+    const image = await createImage(file, {
+      owner: me.$jazz.owner,
+      maxSize: 1024,
+      placeholder: "blur",
+      progressive: true,
+    });
+
+    // Store the image in your application data
+    me.profile.$jazz.set("image", image);
+  }
+}
+```
+
+##### Svelte:
+
+```ts
+import { createImage } from "jazz-tools/media";
+
+// Create an image from a file input
+async function handleFileUpload(event: Event) {
+  const input = event.target as HTMLInputElement | null;
+  const file = input?.files?.[0];
+  if (file && me.profile.$isLoaded) {
+    // Creates ImageDefinition with a blurry placeholder, limited to 1024px on the longest side, and multiple resolutions automatically
+    const image = await createImage(file, {
+      owner: me.$jazz.owner,
+      maxSize: 1024,
+      placeholder: "blur",
+      progressive: true,
+    });
+
+    // Store the image in your application data
+    me.profile.$jazz.set("image", image);
+  }
+}
+```
+
+##### React Native:
+
+```ts
+import { createImage } from "jazz-tools/media";
+import { launchImageLibrary } from "react-native-image-picker";
+
+async function handleImagePicker() {
+  // Use your favorite image picker library to get the image URI
+  const result = await launchImageLibrary({
+    mediaType: "photo",
+    quality: 1,
+  });
+
+  if (
+    !result.didCancel &&
+    result.assets &&
+    result.assets.length > 0 &&
+    me.profile.$isLoaded
+  ) {
+    // Creates ImageDefinition with a blurry placeholder, limited to 1024px on the longest side, and multiple resolutions automatically.
+    // See the options below for more details.
+    const image = await createImage(result.assets[0].uri ?? "", {
+      owner: me.$jazz.owner,
+      maxSize: 1024,
+      placeholder: "blur",
+      progressive: true,
+    });
+
+    // Store the image
+    me.profile.$jazz.set("image", image);
+  }
+}
+```
+
+##### React Native (Expo):
+
+```ts
+import { createImage } from "jazz-tools/media";
+import { launchImageLibrary } from "react-native-image-picker";
+
+async function handleImagePicker() {
+  // Use your favorite image picker library to get the image URI
+  const result = await launchImageLibrary({
+    mediaType: "photo",
+    quality: 1,
+  });
+
+  if (
+    !result.didCancel &&
+    result.assets &&
+    result.assets.length > 0 &&
+    me.profile.$isLoaded
+  ) {
+    // Creates ImageDefinition with a blurry placeholder, limited to 1024px on the longest side, and multiple resolutions automatically.
+    // See the options below for more details.
+    const image = await createImage(result.assets[0].uri ?? "", {
+      owner: me.$jazz.owner,
+      maxSize: 1024,
+      placeholder: "blur",
+      progressive: true,
+    });
+
+    // Store the image
     me.profile.$jazz.set("image", image);
   }
 }
@@ -3476,7 +4649,17 @@ declare function createImage(
 
 The image to create an `ImageDefinition` from.
 
+\--- Section applies only to react,svelte,vanilla ---
+
 This can be a `Blob` or a `File`.
+
+\--- End of react,svelte,vanilla specific section ---
+
+\--- Section applies only to react-native,react-native-expo ---
+
+This must be a `string` with the file path.
+
+\--- End of react-native,react-native-expo specific section ---
 
 #### `owner`
 
@@ -3532,8 +4715,17 @@ We provide a `createImage` function to create images from server side using the 
 
 The resize features are based on the `sharp` library, then it is requested as peer dependency in order to use it.
 
+##### npm:
+
 ```sh
 npm install sharp
+
+```
+
+##### pnpm:
+
+```sh
+pnpm install sharp
 
 ```
 
@@ -3550,11 +4742,19 @@ await createImage(image, {
 
 ## Displaying Images
 
+\--- Section applies only to react,svelte,react-native,react-native-expo ---
+
 To use the stored ImageDefinition, there are two ways: declaratively, using the `Image` component, and imperatively, using the static methods.
+
+\--- End of react,svelte,react-native,react-native-expo specific section ---
+
+\--- Section applies only to react,svelte,react-native,react-native-expo ---
 
 The Image component is the best way to let Jazz handle the image loading.
 
 ### `<Image>` component \[!framework=react,svelte,react-native,react-native-expo\]
+
+##### React:
 
 ```tsx
 import { co, ImageDefinition } from "jazz-tools";
@@ -3569,6 +4769,75 @@ function GalleryView({ image }: { image: co.loaded<typeof ImageDefinition> }) {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { ImageDefinition, co } from 'jazz-tools';
+  import { Image } from 'jazz-tools/svelte';
+  let { image }: { image: co.loaded<typeof ImageDefinition> } = $props();
+</script>
+
+<Image
+  imageId={image.$jazz.id}
+  alt="Profile"
+  class="h-auto max-h-[20rem] max-w-full rounded-t-xl mb-1"
+/>
+
+```
+
+##### React Native:
+
+```tsx
+import { Image } from "jazz-tools/react-native";
+import { StyleSheet } from "react-native";
+
+function GalleryView({ image }: { image: co.loaded<typeof ImageDefinition> }) {
+  return (
+    <Image
+      imageId={image.$jazz.id}
+      style={styles.galleryImage}
+      width={400}
+      resizeMode="cover"
+    />
+  );
+}
+
+const styles = StyleSheet.create({
+  galleryImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 8,
+  },
+});
+```
+
+##### React Native (Expo):
+
+```tsx
+import { Image } from "jazz-tools/expo";
+import { StyleSheet } from "react-native";
+
+function GalleryView({ image }: { image: co.loaded<typeof ImageDefinition> }) {
+  return (
+    <Image
+      imageId={image.$jazz.id}
+      style={styles.galleryImage}
+      width={400}
+      resizeMode="cover"
+    />
+  );
+}
+
+const styles = StyleSheet.create({
+  galleryImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 8,
+  },
+});
+```
+
 The `Image` component handles:
 
 - Showing a placeholder while loading, if generated or specified
@@ -3578,6 +4847,10 @@ The `Image` component handles:
 - Cleaning up resources when unmounted
 
 The component's props are:
+
+\--- End of react,svelte,react-native,react-native-expo specific section ---
+
+\--- Section applies only to react,svelte ---
 
 ```ts
 export type ImageProps = Omit<
@@ -3591,6 +4864,23 @@ export type ImageProps = Omit<
   loading?: "lazy" | "eager";
 };
 ```
+
+\--- End of react,svelte specific section ---
+
+\--- Section applies only to react-native,react-native-expo ---
+
+```ts
+export type ImageProps = Omit<RNImageProps, "width" | "height" | "source"> & {
+  imageId: string;
+  width?: number | "original";
+  height?: number | "original";
+  placeholder?: string;
+};
+```
+
+\--- End of react-native,react-native-expo specific section ---
+
+\--- Section applies only to react,svelte,react-native,react-native-expo ---
 
 #### Width and Height props \[!framework=react,svelte,react-native,react-native-expo\]
 
@@ -3616,6 +4906,10 @@ Let's say we have an image with a width of 1920px and a height of 1080px.
 
 If the image was generated with progressive loading, the `width` and `height` props will determine the best resolution to use.
 
+\--- End of react,svelte,react-native,react-native-expo specific section ---
+
+\--- Section applies only to react,svelte ---
+
 #### Lazy loading \[!framework=react,svelte\]
 
 The `Image` component supports lazy loading with the [same options as the native browser loading attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#loading). It will generate the blob url for the image when the browser's viewport reaches the image.
@@ -3624,11 +4918,17 @@ The `Image` component supports lazy loading with the [same options as the native
 <Image imageId="123" width="original" height="original" loading="lazy" />
 ```
 
+\--- End of react,svelte specific section ---
+
+\--- Section applies only to react,svelte,react-native,react-native-expo ---
+
 #### Placeholder
 
 You can choose to specify a custom placeholder to display as a fallback while an image is loading in case your image does not have a placeholder generated. A data URL or a URL for a static asset works well here.
 
 ### Imperative Usage \[!framework=react,svelte,react-native,react-native-expo\]
+
+\--- End of react,svelte,react-native,react-native-expo specific section ---
 
 Like other CoValues, `ImageDefinition` can be used to load the object.
 
@@ -3723,7 +5023,23 @@ progressiveImage.$jazz.subscribe({}, (image) => {
 
 To manipulate images (like placeholders, resizing, etc.), `createImage()` uses different implementations depending on the environment.
 
+\--- Section applies only to react,svelte ---
+
 On the browser, image manipulation is done using the `canvas` API.
+
+\--- End of react,svelte specific section ---
+
+\--- Section applies only to react-native ---
+
+On React Native, image manipulation is done using the `@bam.tech/react-native-image-resizer` library.
+
+\--- End of react-native specific section ---
+
+\--- Section applies only to react-native-expo ---
+
+On Expo, image manipulation is done using the `expo-image-manipulator` library.
+
+\--- End of react-native-expo specific section ---
 
 If you want to use a custom implementation, you can use the `createImageFactory` function in order create your own `createImage` function and use your preferred image manipulation library.
 
@@ -3864,9 +5180,57 @@ When using custom profile schemas, you need to take care of initializing the `pr
 
 ## Resolving CoValues starting at `profile` or `root`
 
+\--- Section applies only to react,react-native,react-native-expo ---
+
 To use per-user data in your app, you typically use `useAccount` with your custom Account schema and specify which references to resolve using a resolve query (see [Subscribing & deep loading](/docs/core-concepts/subscription-and-loading)).
 
 Jazz will deduplicate loads, so you can safely use `useAccount` multiple times throughout your app without any performance overhead to ensure each component has exactly the data it needs.
+
+\--- End of react,react-native,react-native-expo specific section ---
+
+\--- Section applies only to svelte ---
+
+To use per-user data in your app, you typically use `AccountCoState` with your custom Account schema and specify which references to resolve using a resolve query (see [Subscribing & deep loading](/docs/core-concepts/subscription-and-loading)).
+
+Jazz will deduplicate loads, so you can safely use `AccountCoState` multiple times throughout your app without any performance overhead to ensure each component has exactly the data it needs.
+
+\--- End of svelte specific section ---
+
+\--- Section applies only to vanilla ---
+
+To use per-user data in your app, you typically use your custom Account schema with a `.subscribe()` call, and specify which references to resolve using a resolve query (see [Subscribing & deep loading](/docs/core-concepts/subscription-and-loading)).
+
+Jazz will deduplicate loads, so you can safely use this pattern multiple times throughout your app without any performance overhead to ensure each part of your app has exactly the data it needs.
+
+\--- End of vanilla specific section ---
+
+##### Vanilla:
+
+```ts
+import { MyAppAccount } from "./schema";
+
+const unsubscribe = MyAppAccount.getMe().$jazz.subscribe(
+  {
+    resolve: {
+      profile: true,
+      root: {
+        myChats: { $each: true },
+      },
+    },
+  },
+  (account) => {
+    const myNameElement = document.getElementById("my-name");
+    if (myNameElement) {
+      myNameElement.textContent = account.profile.name;
+    }
+  },
+);
+
+// When you're ready to clean up:
+unsubscribe();
+```
+
+##### React:
 
 ```tsx
 import { useAccount } from "jazz-tools/react";
@@ -3896,6 +5260,86 @@ function DashboardPageComponent() {
         "Loading..."
       )}
     </div>
+  );
+}
+```
+
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { AccountCoState } from "jazz-tools/svelte";
+  import { MyAppAccount } from "./schema";
+  import ChatPreview from "./ChatPreview.svelte";
+  const me = new AccountCoState(MyAppAccount, {
+    resolve: {
+      profile: true,
+      root: {
+        myChats: { $each: true },
+      },
+    },
+  });
+</script>
+
+    <div>
+      <h1>Dashboard</h1>
+      {#if me.current?.$isLoaded}
+        <div>
+          <p>Logged in as {me.current.profile.name}</p>
+          <h2>My chats</h2>
+          {#each me.current.root.myChats as chat (chat.$jazz.id)}
+            <ChatPreview id={chat.$jazz.id} />
+          {/each}
+        </div>
+        {:else}
+        <div>Loading...</div>
+        {/if}
+    </div>
+  );
+}
+
+```
+
+##### React Native:
+
+```tsx
+import { View, Text } from "react-native";
+export default function DashboardPage() {
+  const me = useAccount(MyAppAccount, {
+    resolve: { profile: true, root: { myChats: { $each: true } } },
+  });
+
+  if (!me.$isLoaded) return <Text>Loading...</Text>;
+
+  return (
+    <View>
+      <Text>Logged in as {me.profile.name}</Text>
+      {me.root.myChats.map((chat) => (
+        <ChatPreview key={chat.$jazz.id} chat={chat} />
+      ))}
+    </View>
+  );
+}
+```
+
+##### Expo:
+
+```tsx
+import { View, Text } from "react-native";
+export default function DashboardPage() {
+  const me = useAccount(MyAppAccount, {
+    resolve: { profile: true, root: { myChats: { $each: true } } },
+  });
+
+  if (!me.$isLoaded) return <Text>Loading...</Text>;
+
+  return (
+    <View>
+      <Text>Logged in as {me.profile.name}</Text>
+      {me.root.myChats.map((chat) => (
+        <ChatPreview key={chat.$jazz.id} chat={chat} />
+      ))}
+    </View>
   );
 }
 ```
@@ -4199,14 +5643,75 @@ For sync and storage, you can either use Jazz Cloud for zero-config magic, or ru
 
 Sign up for a free API key at [dashboard.jazz.tools](https://dashboard.jazz.tools) for higher limits or production use, or use your email address as a temporary key to get started quickly.
 
+\--- Section applies only to vanilla ---
+
 **File name: .env**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
+**File name: .env**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: .env**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```bash
+VITE_JAZZ_API_KEY="you@example.com" # or your API key
+
+```
+
+##### React:
 
 ```bash
 NEXT_PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
 
 ```
 
+##### Svelte:
+
+```bash
+PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
+
+```
+
+\--- Section applies only to vanilla ---
+
+Replace the API key in the sync server URL with your API key.
+
+```ts
+"peer": `wss://cloud.jazz.tools/?key=${YOUR_API_KEY}`
+
+```
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react,react-native,react-native-expo,svelte ---
+
 Replace the API key in the Jazz provider sync server URL with your API key:
+
+\--- End of react,react-native,react-native-expo,svelte specific section ---
+
+##### Vanilla:
+
+```tsx
+import { JazzBrowserContextManager } from "jazz-tools/browser";
+
+await new JazzBrowserContextManager().createContext({
+  sync: {
+    peer: `wss://cloud.jazz.tools?key=${apiKey}`,
+  },
+});
+```
+
+##### React:
 
 ```tsx
 export function MyApp({ children }: { children: React.ReactNode }) {
@@ -4223,6 +5728,62 @@ export function MyApp({ children }: { children: React.ReactNode }) {
     </JazzReactProvider>
   );
 }
+```
+
+##### React Native:
+
+```tsx
+export function MyApp({ children }: { children: React.ReactNode }) {
+  // Get a free API Key at dashboard.jazz.tools, or use your email as a temporary key.
+  const apiKey = "you@example.com";
+  return (
+    <JazzReactNativeProvider
+      sync={{
+        peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+      }}
+    >
+      {children}
+    </JazzReactNativeProvider>
+  );
+}
+```
+
+##### Expo:
+
+```tsx
+export function MyExpoApp({ children }: { children: React.ReactNode }) {
+  // Get a free API Key at dashboard.jazz.tools, or use your email as a temporary key.
+  const apiKey = "you@example.com";
+  return (
+    <JazzExpoProvider
+      sync={{
+        peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+        // ...
+      }}
+    >
+      {children}
+    </JazzExpoProvider>
+  );
+}
+```
+
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { JazzSvelteProvider } from "jazz-tools/svelte";
+  let { children } = $props();
+  let apiKey = "Get a free API Key at dashboard.jazz.tools, or use your email as a temporary key.";
+</script>
+
+<JazzSvelteProvider
+  sync={{
+    peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+  }}
+>
+  {@render children()}
+</JazzSvelteProvider>
+
 ```
 
 Jazz Cloud will
@@ -4441,9 +6002,86 @@ If you haven't gone through the [front-end Quickstart](/docs/quickstart), you mi
 
 ## Add passkey authentication
 
+\--- Section applies only to vanilla ---
+
+Jazz ships with everything you need to get started with authenticating users using passkeys. We'll add a simple sign-up form at the top of our app, allowing users to register a new passkey or log in with an existing one.
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react,svelte ---
+
 Jazz has a built-in passkey authentication component that you can use to add authentication to your app. This is the easiest way to get started with securely authenticating users into your application. By adding this component, when users access your app, they'll be greeted with an input where they can enter their name, and create a passkey.
 
+\--- End of react,svelte specific section ---
+
+\--- Section applies only to vanilla ---
+
+First, we need to setup an auth instance, and provide it with some details from our current context, as well as a name for our app.
+
+**File name: src/main.ts**
+
+```ts
+import { BrowserPasskeyAuth } from "jazz-tools/browser";
+const ctx = contextManager.getCurrentValue();
+if (!ctx) throw new Error("Context is not available");
+const crypto = ctx.node.crypto;
+const authenticate = contextManager.authenticate;
+const authSecretStorage = contextManager.getAuthSecretStorage();
+const appName = "JazzFest";
+
+const auth = new BrowserPasskeyAuth(
+  crypto,
+  authenticate,
+  authSecretStorage,
+  appName,
+);
+```
+
+Then, we'll create the sign-up form itself:
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/components/JazzWrapper.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/routes/+layout.svelte**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```ts
+const signUpForm = document.createElement("form");
+const nameInput = Object.assign(document.createElement("input"), {
+  placeholder: "Name",
+  required: true,
+});
+const signInButton = Object.assign(document.createElement("button"), {
+  type: "button",
+  innerText: "Sign In",
+  onclick: async (evt: MouseEvent) => {
+    evt.preventDefault();
+    await auth.logIn();
+    window.location.href = "/";
+  },
+});
+const signUpButton = Object.assign(document.createElement("button"), {
+  type: "submit",
+  innerText: "Sign Up",
+  onclick: async (evt: MouseEvent) => {
+    evt.preventDefault();
+    await auth.signUp(nameInput.value);
+    window.location.href = "/";
+  },
+});
+```
+
+##### React:
 
 ```tsx
 "use client"; // tells Next.js that this component can't be server-side rendered. If you're not using Next.js, you can remove it.
@@ -4472,6 +6110,32 @@ export function JazzWrapper({ children }: { children: React.ReactNode }) {
   );
 }
 ```
+
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  // [!code ++:1]
+  import { JazzSvelteProvider, PasskeyAuthBasicUI } from "jazz-tools/svelte";
+  import { JazzFestAccount } from "$lib/schema";
+  import { PUBLIC_JAZZ_API_KEY } from "$env/static/public";
+  import { SyncConfig } from "jazz-tools";
+
+  const apiKey = PUBLIC_JAZZ_API_KEY;
+  let { children } = $props();
+  const sync: SyncConfig = { peer: `wss://cloud.jazz.tools/?key=${apiKey}` };
+</script>
+
+<JazzSvelteProvider {sync} AccountSchema={JazzFestAccount}>
+  <!-- [!code ++:1] -->
+  <PasskeyAuthBasicUI appName="JazzFest">
+    {@render children?.()}
+  </PasskeyAuthBasicUI>
+</JazzSvelteProvider>
+
+```
+
+\--- Section applies only to react ---
 
 Already completed the server-side rendering guide?
 
@@ -4521,19 +6185,42 @@ export function Auth({ children }: { children: React.ReactNode }) {
 
 You'll also need to be aware that the server agent can only render public CoValues.
 
+\--- End of react specific section ---
+
 ## Give it a go!
 
 ... what, already?! Yes! Run your app and try creating a passkey and logging in!
+
+##### npm:
 
 ```bash
 npm run dev
 
 ```
 
+##### pnpm:
+
+```bash
+pnpm run dev
+
+```
+
 ### Not working?
+
+\--- Section applies only to vanilla ---
+
+- Did you get everything you need from the current context and pass it to the auth instance?
+- Did you make sure your context is properly set up?
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react,svelte ---
 
 - Did you add `<PasskeyAuthBasicUI>` _inside_ your provider?
 - Does it wrap all the children?
+
+\--- End of react,svelte specific section ---
+
 - Are you running your app in a [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure%5FContexts) (either HTTPS or localhost)?
 
 **Info: Still stuck?** Ask for help on [Discord](https://discord.gg/utDMjHYg42)!
@@ -4548,9 +6235,95 @@ So, let's add a secondary login method using a passphrase. You can integrate [as
 
 ### Create an `Auth` component
 
+\--- Section applies only to react,svelte ---
+
 The `PasskeyAuthBasicUI` component is not customisable, so we'll implement our own Auth component so that we can extend it.
 
+\--- End of react,svelte specific section ---
+
+\--- Section applies only to vanilla ---
+
+First, we'll extract our auth out into a separate component to make it easier to reason about.
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to vanilla ---
+
+**File name: src/AuthComponent.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/components/Auth.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/lib/components/Auth.svelte**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```ts
+import {
+  BrowserPasskeyAuth,
+  JazzBrowserContextManager,
+} from "jazz-tools/browser";
+import { JazzFestAccount } from "./schema";
+
+export const AuthComponent = (
+  contextManager: JazzBrowserContextManager<typeof JazzFestAccount>,
+) => {
+  const ctx = contextManager.getCurrentValue();
+  if (!ctx) throw new Error("Context is not available");
+  const crypto = ctx.node.crypto;
+  const authenticate = ctx.authenticate;
+  const authSecretStorage = contextManager.getAuthSecretStorage();
+  const appName = "JazzFest";
+
+  const auth = new BrowserPasskeyAuth(
+    crypto,
+    authenticate,
+    authSecretStorage,
+    appName,
+  );
+
+  const signUpForm = document.createElement("form");
+  const nameInput = Object.assign(document.createElement("input"), {
+    placeholder: "Name",
+    required: true,
+  });
+  const signInButton = Object.assign(document.createElement("button"), {
+    type: "button",
+    innerText: "Sign In",
+    onclick: async (evt: MouseEvent) => {
+      evt.preventDefault();
+      await auth.logIn();
+      window.location.href = "/";
+    },
+  });
+  const signUpButton = Object.assign(document.createElement("button"), {
+    type: "submit",
+    innerText: "Sign Up",
+    onclick: async (evt: MouseEvent) => {
+      evt.preventDefault();
+      await auth.signUp(nameInput.value);
+      window.location.href = "/";
+    },
+  });
+
+  signUpForm.append(nameInput, signInButton, signUpButton);
+  if (!authSecretStorage.isAuthenticated) {
+    return signUpForm;
+  }
+  return null;
+};
+```
+
+##### React:
 
 ```tsx
 import { useState } from "react";
@@ -4581,9 +6354,63 @@ export function Auth({ children }: { children: React.ReactNode }) {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { usePasskeyAuth } from 'jazz-tools/svelte';
+  const { children } = $props();
+  const auth = usePasskeyAuth({ appName: 'JazzFest' });
+  let name = $state('');
+</script>
+
+{#if auth.state === "signedIn"}
+  {@render children?.()}
+{:else}
+  <div>
+    <button onclick={() => auth.current.logIn()}>Log in</button>
+    <input type="text" bind:value={name} />
+    <button onclick={() => auth.current.signUp(name)}>Sign up</button>
+  </div>
+{/if}
+
+```
+
 ### Use your new component
 
+\--- Section applies only to vanilla ---
+
+**File name: src/main.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/components/JazzWrapper.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/routes/+layout.svelte**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```ts
+import { AuthComponent } from "./AuthComponent";
+
+// Your existing main.ts
+
+const authComponent = AuthComponent(contextManager);
+
+if (authComponent) {
+  app.insertBefore(authComponent, app.firstChild);
+}
+```
+
+##### React:
 
 ```tsx
 "use client"; // tells Next.js that this component can't be server-side rendered. If you're not using Next.js, you can remove it.
@@ -4613,6 +6440,31 @@ export function JazzWrapper({ children }: { children: React.ReactNode }) {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  // [!code ++:2]
+  import { JazzSvelteProvider } from "jazz-tools/svelte";
+  import Auth from '$lib/Auth.svelte';
+  import { JazzFestAccount } from "$lib/schema";
+  import { PUBLIC_JAZZ_API_KEY } from "$env/static/public";
+  import { SyncConfig } from "jazz-tools";
+
+  const apiKey = PUBLIC_JAZZ_API_KEY;
+  let { children } = $props();
+  const sync: SyncConfig = { peer: `wss://cloud.jazz.tools/?key=${apiKey}` };
+</script>
+
+<JazzSvelteProvider {sync} AccountSchema={JazzFestAccount}>
+  <!-- [!code ++:3] -->
+  <Auth>
+    {@render children?.()}
+  </Auth>
+</JazzSvelteProvider>
+
+```
+
 ### Show recovery key
 
 Jazz allows you to generate a passphrase from a wordlist which can be used to log in to an account. This passphrase will work regardless of how the account was originally created (passkey, Clerk, BetterAuth, etc.). Each account will always have the same recovery key.
@@ -4630,6 +6482,90 @@ export const wordlist = [
 ```
 
 We'll import this, and add a textarea into our auth component which will show the recovery key for the current user's account.
+
+##### Vanilla:
+
+```ts
+// [!code ++:2]
+import { PassphraseAuth } from "jazz-tools";
+import { wordlist } from "./wordlist";
+import {
+  BrowserPasskeyAuth,
+  JazzBrowserContextManager,
+} from "jazz-tools/browser";
+import { JazzFestAccount } from "./schema";
+
+export const AuthComponent = (
+  contextManager: JazzBrowserContextManager<typeof JazzFestAccount>,
+) => {
+  const ctx = contextManager.getCurrentValue();
+  if (!ctx) throw new Error("Context is not available");
+  const crypto = ctx.node.crypto;
+  const authenticate = ctx.authenticate;
+  const register = ctx.register;
+  const authSecretStorage = contextManager.getAuthSecretStorage();
+  const appName = "JazzFest";
+
+  const auth = new BrowserPasskeyAuth(
+    crypto,
+    authenticate,
+    authSecretStorage,
+    appName,
+  );
+
+  // [!code ++:1]
+  const passphraseAuth = new PassphraseAuth(
+    crypto,
+    authenticate,
+    register,
+    authSecretStorage,
+    wordlist,
+  );
+
+  const signUpForm = document.createElement("form");
+  const nameInput = Object.assign(document.createElement("input"), {
+    placeholder: "Name",
+    required: true,
+  });
+  const signInButton = Object.assign(document.createElement("button"), {
+    type: "button",
+    innerText: "Sign In",
+    onclick: async (evt: MouseEvent) => {
+      evt.preventDefault();
+      await auth.logIn();
+      window.location.href = "/";
+    },
+  });
+  const signUpButton = Object.assign(document.createElement("button"), {
+    type: "submit",
+    innerText: "Sign Up",
+    onclick: async (evt: MouseEvent) => {
+      evt.preventDefault();
+      await auth.signUp(nameInput.value);
+      window.location.href = "/";
+    },
+  });
+
+  // [!code ++:4]
+  const passphraseDisplay = Object.assign(document.createElement("textarea"), {
+    rows: 5,
+  });
+
+  // [!code ++:3]
+  passphraseAuth.getCurrentAccountPassphrase().then((passphrase) => {
+    passphraseDisplay.value = passphrase;
+  });
+
+  // [!code ++:1]
+  signUpForm.append(nameInput, signInButton, signUpButton, passphraseDisplay);
+  if (!authSecretStorage.isAuthenticated) {
+    return signUpForm;
+  }
+  return null;
+};
+```
+
+##### React:
 
 ```tsx
 import { useState } from "react";
@@ -4673,6 +6609,37 @@ export function Auth({ children }: { children: React.ReactNode }) {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  // [!code ++:3]
+  import { usePasskeyAuth, usePassphraseAuth } from 'jazz-tools/svelte';
+  import { wordlist } from './wordlist';
+  const { children } = $props();
+  const passphraseAuth = usePassphraseAuth({ wordlist });
+  const auth = usePasskeyAuth({ appName: 'JazzFest' });
+  let name = $state('');
+</script>
+
+{#if auth.state === "signedIn"}
+  {@render children?.()}
+  <!-- [!code ++:5] -->
+  <textarea
+    readonly
+    value={passphraseAuth.passphrase}
+    rows={5}
+  ></textarea>
+{:else}
+  <div>
+    <button onclick={() => auth.current.logIn()}>Log in</button>
+    <input type="text" bind:value={name} />
+    <button onclick={() => auth.current.signUp(name)}>Sign up</button>
+  </div>
+{/if}
+
+```
+
 **Warning: Security Warning**
 
 This 'recovery key' is a method of authenticating into an account, and if compromised, it _cannot_ be changed! You should impress on your users the importance of keeping this key secret.
@@ -4680,6 +6647,105 @@ This 'recovery key' is a method of authenticating into an account, and if compro
 ### Allow users to log in with the recovery key
 
 Now you're displaying a recovery key to users, so we'll allow users to login using a saved recovery key by extending the Auth component a little further.
+
+##### Vanilla:
+
+```ts
+// [!code ++:2]
+import { PassphraseAuth } from "jazz-tools";
+import { wordlist } from "./wordlist";
+import {
+  BrowserPasskeyAuth,
+  JazzBrowserContextManager,
+} from "jazz-tools/browser";
+import { JazzFestAccount } from "./schema";
+
+export const AuthComponent = (
+  contextManager: JazzBrowserContextManager<typeof JazzFestAccount>,
+) => {
+  const ctx = contextManager.getCurrentValue();
+  if (!ctx) throw new Error("Context is not available");
+  const crypto = ctx.node.crypto;
+  const authenticate = ctx.authenticate;
+  const register = ctx.register;
+  const authSecretStorage = contextManager.getAuthSecretStorage();
+  const appName = "JazzFest";
+
+  const auth = new BrowserPasskeyAuth(
+    crypto,
+    authenticate,
+    authSecretStorage,
+    appName,
+  );
+
+  const passphraseAuth = new PassphraseAuth(
+    crypto,
+    authenticate,
+    register,
+    authSecretStorage,
+    wordlist,
+  );
+
+  const signUpForm = document.createElement("form");
+  const nameInput = Object.assign(document.createElement("input"), {
+    placeholder: "Name",
+    required: true,
+  });
+  const signInButton = Object.assign(document.createElement("button"), {
+    type: "button",
+    innerText: "Sign In",
+    onclick: async (evt: MouseEvent) => {
+      evt.preventDefault();
+      await auth.logIn();
+      window.location.href = "/";
+    },
+  });
+  const signUpButton = Object.assign(document.createElement("button"), {
+    type: "submit",
+    innerText: "Sign Up",
+    onclick: async (evt: MouseEvent) => {
+      evt.preventDefault();
+      await auth.signUp(nameInput.value);
+      window.location.href = "/";
+    },
+  });
+
+  const passphraseDisplay = Object.assign(document.createElement("textarea"), {
+    rows: 5,
+  });
+
+  passphraseAuth.getCurrentAccountPassphrase().then((passphrase) => {
+    passphraseDisplay.value = passphrase;
+  });
+
+  // [!code ++:10]
+  const signInWithPassPhraseButton = Object.assign(
+    document.createElement("button"),
+    {
+      type: "button",
+      innerText: "Sign In With Passphrase",
+      onclick: async (evt: MouseEvent) => {
+        evt.preventDefault();
+        await passphraseAuth.logIn(passphraseDisplay.value);
+        window.location.href = "/";
+      },
+    },
+  );
+  signUpForm.append(
+    nameInput,
+    signInButton,
+    signUpButton,
+    passphraseDisplay,
+    signInWithPassPhraseButton,
+  );
+  if (!authSecretStorage.isAuthenticated) {
+    return signUpForm;
+  }
+  return null;
+};
+```
+
+##### React:
 
 ```tsx
 import { useState } from "react";
@@ -4732,6 +6798,45 @@ export function Auth({ children }: { children: React.ReactNode }) {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { usePasskeyAuth, usePassphraseAuth } from 'jazz-tools/svelte';
+  import { wordlist } from './wordlist';
+  const { children } = $props();
+  const passphraseAuth = usePassphraseAuth({ wordlist });
+  const auth = usePasskeyAuth({ appName: 'JazzFest' });
+  let name = $state('');
+  // [!code ++:1]
+  let passphrase = $state('');
+</script>
+
+{#if auth.state === "signedIn"}
+  {@render children?.()}
+  <textarea
+    readonly
+    value={passphraseAuth.passphrase}
+    rows={5}
+  ></textarea>
+{:else}
+  <div>
+    <button onclick={() => auth.current.logIn()}>Log in</button>
+    <input type="text" bind:value={name} />
+    <button onclick={() => auth.current.signUp(name)}>Sign up</button>
+    <!-- [!code ++:7] -->
+    <textarea
+      bind:value={passphrase}
+      rows={5}
+    ></textarea>
+    <button onclick={() => passphraseAuth.logIn(passphrase)}>
+      Sign In with Passphrase
+    </button>
+  </div>
+{/if}
+
+```
+
 **Info: Tip**
 
 Although we're presenting this as a 'recovery key' here, this key could also be used as the primary method of authenticating users into your app. You could even completely remove passkey support if you wanted.
@@ -4781,6 +6886,16 @@ When a user loads a Jazz application for the first time, we create a new Account
 
 You can detect the current authentication state using `useAgent` and `useIsAuthenticated`.
 
+##### Vanilla:
+
+```tsx
+// This comes from your own implementation.
+// See https://jazz.tools/docs/vanilla/project-setup for more
+const { isAuthenticated } = authSecretStorage;
+```
+
+##### React:
+
 ```tsx
 import { useAgent, useIsAuthenticated } from "jazz-tools/react";
 
@@ -4799,6 +6914,68 @@ function AuthStateIndicator() {
       {isAnonymous && <span>Anonymous Account</span>}
       {isAuthenticated && <span>Authenticated</span>}
     </div>
+  );
+}
+```
+
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { AccountCoState } from 'jazz-tools/svelte';
+  import { MusicaAccount } from './schema';
+  const account = new AccountCoState(MusicaAccount);
+  const isAuthenticated = $derived(account.isAuthenticated);
+  const agent = $derived(account.agent);
+</script>
+
+```
+
+##### React Native:
+
+```tsx
+import { useAgent, useIsAuthenticated } from "jazz-tools/react-native";
+
+function AuthStateIndicator() {
+  const agent = useAgent();
+  const isAuthenticated = useIsAuthenticated();
+
+  // Check if guest mode is enabled in JazzReactNativeProvider
+  const isGuest = agent.$type$ !== "Account";
+
+  // Anonymous authentication: has an account but not fully authenticated
+  const isAnonymous = agent.$type$ === "Account" && !isAuthenticated;
+  return (
+    <View>
+      {isGuest && <Text>Guest Mode</Text>}
+      {isAnonymous && <Text>Anonymous Account</Text>}
+      {isAuthenticated && <Text>Authenticated</Text>}
+    </View>
+  );
+}
+```
+
+##### Expo:
+
+```tsx
+import { useAgent, useIsAuthenticated } from "jazz-tools/expo";
+import { useState } from "react";
+
+function AuthStateIndicator() {
+  const agent = useAgent();
+  const isAuthenticated = useIsAuthenticated();
+
+  // Check if guest mode is enabled in JazzExpoProvider
+  const isGuest = agent.$type$ !== "Account";
+
+  // Anonymous authentication: has an account but not fully authenticated
+  const isAnonymous = agent.$type$ === "Account" && !isAuthenticated;
+  return (
+    <View>
+      {isGuest && <Text>Guest Mode</Text>}
+      {isAnonymous && <Text>Anonymous Account</Text>}
+      {isAuthenticated && <Text>Authenticated</Text>}
+    </View>
   );
 }
 ```
@@ -4870,6 +7047,23 @@ You can control network sync with [Providers](/docs/project-setup/providers/) ba
 - `when: "signedUp"`: Sync is enabled when the user is authenticated
 - `when: "never"`: Sync is disabled, content stays local
 
+##### Vanilla:
+
+```tsx
+// This comes from your own implementation.
+// See https://jazz.tools/docs/vanilla/project-setup for more
+const { me, logOut, authSecretStorage } = await createVanillaJazzApp({
+  sync: {
+    peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+    // Controls when sync is enabled for
+    // both Anonymous Authentication and Authenticated Account
+    when: "always", // or "signedUp" or "never"
+  },
+});
+```
+
+##### React:
+
 ```tsx
 <JazzReactProvider
   sync={{
@@ -4883,11 +7077,75 @@ You can control network sync with [Providers](/docs/project-setup/providers/) ba
 </JazzReactProvider>
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { JazzSvelteProvider } from "jazz-tools/svelte";
+  const { children } = $props();
+</script>
+
+<JazzSvelteProvider
+  sync={{
+  peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+  // Controls when sync is enabled for
+  // both Anonymous Authentication and Authenticated Account
+  when: "always", // or "signedUp" or "never"
+}}>
+  {@render children?.()}
+</JazzSvelteProvider>
+
+```
+
+##### React Native:
+
+```tsx
+<JazzReactNativeProvider
+  sync={{
+    peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+    // Controls when sync is enabled for
+    // both Anonymous Authentication and Authenticated Account
+    when: "always", // or "signedUp" or "never"
+  }}
+>
+  <App />
+</JazzReactNativeProvider>
+```
+
+##### Expo:
+
+```tsx
+<JazzExpoProvider
+  sync={{
+    peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+    // Controls when sync is enabled for
+    // both Anonymous Authentication and Authenticated Account
+    when: "always", // or "signedUp" or "never"—use with caution. See warning below
+  }}
+>
+  <App />
+</JazzExpoProvider>
+```
+
 ### Disable sync for Anonymous Authentication
 
 You can disable network sync to make your app local-only under specific circumstances.
 
 For example, you may want to give users with Anonymous Authentication the opportunity to try your app locally-only (incurring no sync traffic), then enable network sync only when the user is fully authenticated.
+
+##### Vanilla:
+
+```tsx
+const { me, logOut, authSecretStorage } = await createVanillaJazzApp({
+  sync: {
+    peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+    // This makes the app work in local mode when using Anonymous Authentication
+    when: "signedUp",
+  },
+});
+```
+
+##### React:
 
 ```tsx
 <JazzReactProvider
@@ -4901,9 +7159,105 @@ For example, you may want to give users with Anonymous Authentication the opport
 </JazzReactProvider>
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { JazzSvelteProvider } from "jazz-tools/svelte";
+  const { children } = $props();
+</script>
+
+<JazzSvelteProvider
+  sync={{
+  peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+  // This makes the app work in local mode when using Anonymous Authentication
+  when: "signedUp"
+}}>
+  {@render children?.()}
+</JazzSvelteProvider>
+
+```
+
+##### React Native:
+
+```tsx
+<JazzReactNativeProvider
+  sync={{
+    peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+    // This makes the app work in local mode when using Anonymous Authentication
+    when: "signedUp",
+  }}
+>
+  <App />
+</JazzReactNativeProvider>
+```
+
+##### Expo:
+
+```tsx
+<JazzExpoProvider
+  sync={{
+    peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+    // This makes the app work in local mode when using Anonymous Authentication
+    when: "signedUp", // use with caution
+  }}
+>
+  <App />
+</JazzExpoProvider>
+```
+
+\--- Section applies only to react-native-expo ---
+
+**Warning: iOS Credential Persistence**
+
+On iOS Jazz persists login credentials using Secure Store, which saves them to the Keychain. While this is secure, iOS does not clear the credentials along with other data if a user uninstalls your app.
+
+User accounts _are_ deleted, so if you are using `sync: 'never'` or `sync: 'signedUp'`, accounts for users who are not 'signed up' will be lost.
+
+If the user later re-installs your app, the credentials for the deleted account remain in the Keychain. Jazz will attempt to use these to sign in and fail, as the account no longer exists.
+
+To avoid this, consider using `sync: 'always'` for your iOS users.
+
+If you want to offer a fully local mode, you can work around this by using the `Settings` API. Settings stored using the `Settings` API _are_ cleared on an application uninstallation, which allows us to scope the credentials for the current installation. If the user uninstalls and reinstalls your app, the credentials will be regenerated correctly.
+
+```tsx
+function RootLayout() {
+  const [authSecretStorageKey, setAuthSecretStorageKey] = useState<
+    string | null
+  >(() => {
+    const stored = Settings.get("jazz-authSecretStorageKey");
+    if (stored) return stored;
+    const newKey = "jazz-" + new Date();
+    Settings.set({ "jazz-authSecretStorageKey": newKey });
+    return newKey;
+  });
+
+  if (!authSecretStorageKey) {
+    return null;
+  }
+  return (
+    <JazzExpoProvider
+      sync={{
+        peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+        when: "never",
+      }}
+      authSecretStorageKey={authSecretStorageKey}
+    >
+      <App />
+    </JazzExpoProvider>
+  );
+}
+```
+
+\--- End of react-native-expo specific section ---
+
+\--- Section applies only to react,react-native,react-native-expo,svelte ---
+
 ### Configuring Guest Mode Access \[!framework=react,react-native,react-native-expo,svelte\]
 
 You can configure Guest Mode access with the `guestMode` prop for [Providers](/docs/project-setup/providers/).
+
+##### React:
 
 ```tsx
 <JazzReactProvider
@@ -4918,6 +7272,58 @@ You can configure Guest Mode access with the `guestMode` prop for [Providers](/d
   <App />
 </JazzReactProvider>
 ```
+
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { JazzSvelteProvider } from "jazz-tools/svelte";
+  const { children } = $props();
+</script>
+
+<!-- Enable Guest Mode for public content -->
+<JazzSvelteProvider
+  guestMode={true}
+  sync={{
+    peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+    when: "signedUp"
+  }}>
+  {@render children?.()}
+</JazzSvelteProvider>
+
+```
+
+##### React Native:
+
+```tsx
+<JazzReactNativeProvider
+  // Enable Guest Mode for public content
+  guestMode={true}
+  sync={{
+    peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+    // Only sync for authenticated users
+    when: "signedUp",
+  }}
+>
+  <App />
+</JazzReactNativeProvider>
+```
+
+##### Expo:
+
+```tsx
+<JazzExpoProvider
+  // Enable Guest Mode for public content
+  guestMode={true}
+  sync={{
+    peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+  }}
+>
+  <App />
+</JazzExpoProvider>
+```
+
+\--- End of react,react-native,react-native-expo,svelte specific section ---
 
 For more complex behaviours, you can manually control sync by statefully switching when between `"always"` and `"never"`.
 
@@ -4942,6 +7348,41 @@ Passkey authentication is based on the [Web Authentication API](https://develope
 ## Implementation
 
 Using passkeys in Jazz is as easy as this:
+
+##### Vanilla:
+
+```ts
+import {
+  JazzBrowserContextManager,
+  BrowserPasskeyAuth,
+} from "jazz-tools/browser";
+
+const apiKey = import.meta.env.VITE_JAZZ_API_KEY;
+const contextManager = new JazzBrowserContextManager();
+await contextManager.createContext({
+  sync: {
+    peer: `wss://cloud.jazz.tools?key=${apiKey}`,
+  },
+});
+const ctx = contextManager.getCurrentValue();
+if (!ctx) throw new Error("Context is not available");
+const crypto = ctx.node.crypto;
+const authenticate = ctx.authenticate;
+const authSecretStorage = contextManager.getAuthSecretStorage();
+const appName = "My Jazz App";
+
+const auth = new BrowserPasskeyAuth(
+  crypto,
+  authenticate,
+  authSecretStorage,
+  appName,
+);
+
+// To register a new account, use auth.signUp(name: string)
+// To log in to an existing account with a passkey, use auth.signIn()
+```
+
+##### React:
 
 ```tsx
 export function AuthModal({ open, onOpenChange }: AuthModalProps) {
@@ -4981,6 +7422,146 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { usePasskeyAuth } from 'jazz-tools/svelte';
+  const auth = usePasskeyAuth({ appName: 'My super-cool web app' });
+  let username = $state('');
+
+  async function handleSignUp(e: Event) {
+    await auth.current.signUp(username);
+  }
+
+  async function handleLogIn(e: Event) {
+    await auth.current.logIn();
+  }
+</script>
+
+<div>
+  <button onclick={handleLogIn}>Log in</button>
+  <input type="text" bind:value={username} />
+  <button onclick={handleSignUp}>Sign up</button>
+</div>
+
+```
+
+##### React Native:
+
+```tsx
+export function AuthModal({ open, onOpenChange }: AuthModalProps) {
+  const [username, setUsername] = useState("");
+
+  const auth = usePasskeyAuth({
+    // Must be inside the JazzProvider!
+    appName: "My App",
+    rpId: "myapp.com", // Your app's domain
+  });
+
+  if (auth.state === "signedIn") {
+    return <Text>You are already signed in</Text>;
+  }
+
+  const handleSignUp = async () => {
+    await auth.signUp(username);
+    onOpenChange(false);
+  };
+
+  const handleLogIn = async () => {
+    await auth.logIn();
+    onOpenChange(false);
+  };
+
+  return (
+    <View>
+      <Button title="Log in with Passkey" onPress={handleLogIn} />
+
+      <TextInput
+        value={username}
+        onChangeText={setUsername}
+        placeholder="Enter your name"
+      />
+      <Button title="Sign up with Passkey" onPress={handleSignUp} />
+    </View>
+  );
+}
+```
+
+##### Expo:
+
+```tsx
+export function AuthModal({ open, onOpenChange }: AuthModalProps) {
+  const [username, setUsername] = useState("");
+
+  const auth = usePasskeyAuth({
+    // Must be inside the JazzProvider!
+    appName: "My App",
+    rpId: "myapp.com", // Your app's domain
+  });
+
+  if (auth.state === "signedIn") {
+    return <Text>You are already signed in</Text>;
+  }
+
+  const handleSignUp = async () => {
+    await auth.signUp(username);
+    onOpenChange(false);
+  };
+
+  const handleLogIn = async () => {
+    await auth.logIn();
+    onOpenChange(false);
+  };
+
+  return (
+    <View>
+      <Button title="Log in with Passkey" onPress={handleLogIn} />
+
+      <TextInput
+        value={username}
+        onChangeText={setUsername}
+        placeholder="Enter your name"
+      />
+      <Button title="Sign up with Passkey" onPress={handleSignUp} />
+    </View>
+  );
+}
+```
+
+\--- Section applies only to react-native,react-native-expo ---
+
+### React Native Setup
+
+Passkey authentication on React Native requires the `react-native-passkey` library and domain configuration:
+
+1. Install the peer dependency:
+
+```bash
+npm install react-native-passkey
+```
+
+2. Configure your app's associated domains:
+   - **iOS**: Add an Associated Domains entitlement with `webcredentials:yourdomain.com` and host an Apple App Site Association (AASA) file at `https://yourdomain.com/.well-known/apple-app-site-association`
+   - **Android**: Host a Digital Asset Links file at `https://yourdomain.com/.well-known/assetlinks.json`
+3. **For React Native 0.76+ with New Architecture**: The `react-native-passkey` library uses the legacy `NativeModules` bridge pattern. You need to disable bridgeless mode while keeping New Architecture enabled.  
+   Add this override to your `AppDelegate.swift`:
+
+```
+class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
+  // ... existing methods ...
+
+  override func bridgelessEnabled() -> Bool {
+    return false
+  }
+}
+
+```
+
+See the [react-native-passkey documentation](https://github.com/f-23/react-native-passkey) for detailed setup instructions.
+
+\--- End of react-native,react-native-expo specific section ---
+
 ## Examples
 
 You can try passkey authentication using our [passkey example](https://passkey.demo.jazz.tools/) or the [music player demo](https://music.demo.jazz.tools/).
@@ -4999,6 +7580,18 @@ Passkeys are ideal when:
 - Requires hardware/OS support for biometric authentication
 - Not supported in older browsers (see browser support below)
 - Requires a fallback method for unsupported environments
+
+\--- Section applies only to react-native,react-native-expo ---
+
+### React Native Limitations
+
+- Requires `react-native-passkey` peer dependency
+- Passkeys require domain verification (AASA for iOS, assetlinks.json for Android)
+- Not available in Expo Go (requires a development build)
+- React Native 0.76+ with New Architecture requires disabling bridgeless mode (see setup instructions above)
+- Android builds may hang at `configureCMakeDebug` with NDK 27.x - use NDK 28.2+ to avoid this
+
+\--- End of react-native,react-native-expo specific section ---
 
 ### Browser Support
 
@@ -5039,6 +7632,41 @@ You can use one of the ready-to-use wordlists from the [BIP39 repository](https:
 ## Implementation
 
 You can implement passphrase authentication in your application quickly and easily:
+
+##### Vanilla:
+
+```ts
+import { PassphraseAuth } from "jazz-tools";
+import { JazzBrowserContextManager } from "jazz-tools/browser";
+import { wordlist } from "./wordlist";
+
+const apiKey = import.meta.env.VITE_JAZZ_API_KEY;
+const contextManager = new JazzBrowserContextManager();
+await contextManager.createContext({
+  sync: {
+    peer: `wss://cloud.jazz.tools?key=${apiKey}`,
+  },
+});
+const ctx = contextManager.getCurrentValue();
+if (!ctx) throw new Error("Context is not available");
+const crypto = ctx.node.crypto;
+const authenticate = ctx.authenticate;
+const register = ctx.register;
+const authSecretStorage = contextManager.getAuthSecretStorage();
+
+const auth = new PassphraseAuth(
+  crypto,
+  authenticate,
+  register,
+  authSecretStorage,
+  wordlist,
+);
+
+// Use auth.getCurrentAccountPassphrase() to display the passphrase for the current account
+// Use auth.logIn(passphrase) to log in with an existing passphrase
+```
+
+##### React:
 
 ```tsx
 import { wordlist } from "./wordlist";
@@ -5085,6 +7713,166 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       </label>
       <button onClick={handleLogIn}>Log in</button>
     </div>
+  );
+}
+```
+
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { usePassphraseAuth } from "jazz-tools/svelte";
+  import { wordlist } from "./wordlist";
+  let loginPassphrase = $state('');
+  const auth = usePassphraseAuth({
+    // Must be inside the JazzProvider!
+    wordlist: wordlist,
+  });
+  const handleSignUp = async () => {
+    await auth.signUp();
+  };
+
+  const handleLogIn = async () => {
+    await auth.logIn(loginPassphrase);
+  };
+</script>
+
+{#if auth.state === "signedIn"}
+  <div>You are already signed in</div>
+{:else}
+<div>
+  <label>
+    Your current passphrase
+    <textarea readOnly value={auth.passphrase} rows={5}></textarea>
+  </label>
+  <button onclick={handleSignUp}>I have stored my passphrase</button>
+  <label>
+    Log in with your passphrase
+    <textarea
+      bind:value={loginPassphrase}
+      placeholder="Enter your passphrase"
+      rows={5}
+      required
+    ></textarea>
+  </label>
+  <button onclick={handleLogIn}>Log in</button>
+</div>
+{/if}
+
+```
+
+##### React Native:
+
+```tsx
+import { wordlist } from "./wordlist";
+
+export function AuthModal({ open, onOpenChange }: AuthModalProps) {
+  const [loginPassphrase, setLoginPassphrase] = useState("");
+
+  const auth = usePassphraseAuth({
+    // Must be inside the JazzProvider!
+    wordlist: wordlist,
+  });
+
+  if (auth.state === "signedIn") {
+    return <Text>You are already signed in</Text>;
+  }
+
+  const handleSignUp = async () => {
+    await auth.signUp();
+    onOpenChange(false);
+  };
+
+  const handleLogIn = async () => {
+    await auth.logIn(loginPassphrase);
+    onOpenChange(false);
+  };
+
+  return (
+    <View>
+      <View>
+        <Text>Your current passphrase</Text>
+        <TextInput
+          editable={false}
+          value={auth.passphrase}
+          multiline
+          numberOfLines={5}
+        />
+      </View>
+
+      <Button title="I have stored my passphrase" onPress={handleSignUp} />
+
+      <View>
+        <Text>Log in with your passphrase</Text>
+        <TextInput
+          value={loginPassphrase}
+          onChangeText={setLoginPassphrase}
+          placeholder="Enter your passphrase"
+          multiline
+          numberOfLines={5}
+        />
+      </View>
+
+      <Button title="Log in" onPress={handleLogIn} />
+    </View>
+  );
+}
+```
+
+##### Expo:
+
+```tsx
+import { wordlist } from "./wordlist";
+
+export function AuthModal({ open, onOpenChange }: AuthModalProps) {
+  const [loginPassphrase, setLoginPassphrase] = useState("");
+
+  const auth = usePassphraseAuth({
+    // Must be inside the JazzProvider!
+    wordlist: wordlist,
+  });
+
+  if (auth.state === "signedIn") {
+    return <Text>You are already signed in</Text>;
+  }
+
+  const handleSignUp = async () => {
+    await auth.signUp();
+    onOpenChange(false);
+  };
+
+  const handleLogIn = async () => {
+    await auth.logIn(loginPassphrase);
+    onOpenChange(false);
+  };
+
+  return (
+    <View>
+      <View>
+        <Text>Your current passphrase</Text>
+        <TextInput
+          editable={false}
+          value={auth.passphrase}
+          multiline
+          numberOfLines={5}
+        />
+      </View>
+
+      <Button title="I have stored my passphrase" onPress={handleSignUp} />
+
+      <View>
+        <Text>Log in with your passphrase</Text>
+        <TextInput
+          value={loginPassphrase}
+          onChangeText={setLoginPassphrase}
+          placeholder="Enter your passphrase"
+          multiline
+          numberOfLines={5}
+        />
+      </View>
+
+      <Button title="Log in" onPress={handleLogIn} />
+    </View>
   );
 }
 ```
@@ -5228,6 +8016,33 @@ export const betterAuthClient = createAuthClient({
 });
 ```
 
+\--- Section applies only to vanilla ---
+
+Register your Jazz context with the Better Auth plugin.
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to undefined ---
+
+Wrap your app with the `AuthProvider`, passing the `betterAuthClient` instance:
+
+\--- End of undefined specific section ---
+
+##### Vanilla:
+
+```ts
+import { betterAuthClient } from "./auth-client";
+// Get these from your own implementation
+import { getAuthStorage, getJazzContext } from "./jazz-utils";
+const jazzContext = getJazzContext();
+const authSecretStorage = getAuthStorage();
+
+betterAuthClient.jazz.setJazzContext(jazzContext);
+betterAuthClient.jazz.setAuthSecretStorage(authSecretStorage);
+```
+
+##### React:
+
 ```ts
 "use client";
 
@@ -5242,6 +8057,28 @@ export function App() {
     </AuthProvider>
   );
 }
+
+```
+
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import AuthProvider from "jazz-tools/better-auth/auth/svelte";
+  import { betterAuthClient } from "@/lib/auth-client";
+  import { JazzSvelteProvider } from "jazz-tools/svelte";
+  import { SyncConfig } from "jazz-tools";
+  const { children } = $props();
+
+  // Example configuration for authentication and peer connection
+  const sync: SyncConfig = { peer: `wss://cloud.jazz.tools/?key=${apiKey}` };
+</script>
+
+<JazzSvelteProvider {sync}>
+  <AuthProvider {betterAuthClient}>
+    {@render children?.()}
+  </AuthProvider>
+</JazzSvelteProvider>
 
 ```
 
@@ -5716,7 +8553,47 @@ Let's create an invite link that others can use to access our data. We'll create
 
 When we create a link, we can choose what level of permission to grant. Here, we want others to be able to collaborate, so we'll grant `writer` permissions.
 
+\--- Section applies only to vanilla ---
+
+**File name: src/main.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/components/Festival.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/lib/components/Festival.svelte**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```ts
+import { createInviteLink } from "jazz-tools";
+
+const inputLink = document.createElement("output");
+const createLinkButton = Object.assign(document.createElement("button"), {
+  innerText: "Create Invite Link",
+  onclick: () => {
+    const inviteLink = createInviteLink(
+      myAccount.root.myFestival,
+      "writer",
+      window.location.host,
+    );
+    inputLink.value = inviteLink;
+  },
+});
+
+const app = document.querySelector<HTMLDivElement>("#app")!;
+app.append(form, inputLink, createLinkButton, bandList);
+```
+
+##### React:
 
 ```tsx
 "use client";
@@ -5756,13 +8633,87 @@ export function Festival() {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  // [!code ++:1]
+  import { AccountCoState, createInviteLink } from "jazz-tools/svelte";
+  import { JazzFestAccount } from "$lib/schema";
+
+  const me = new AccountCoState(JazzFestAccount, {
+    resolve: { root: { myFestival: { $each: true } } }
+  });
+  // [!code ++:7]
+  let inviteLink = $state<string | null>(null);
+
+  function inviteLinkClickHandler() {
+    if (!me.current.$isLoaded) return;
+    const link = createInviteLink(me.current?.root.myFestival, "writer")
+    inviteLink = link;
+  }
+</script>
+
+<ul>
+  {#if me.current.$isLoaded}
+    {#each me.current.root.myFestival as band}
+      <li>{band.name}</li>
+    {/each}
+  {/if}
+</ul>
+
+<input type="text" bind:value={inviteLink} readonly />
+<button onclick={inviteLinkClickHandler}>
+  Create Invite Link
+</button>
+
+```
+
 ## Accept an invite
 
 Now we need to set up a way for Jazz to handle the links for the users who are following them.
 
 Jazz provides a handler which we can add to our `Festival` component to accept the invite. This will automatically fire when there's an invite link in the URL, and grant the user the right accesses.
 
+\--- Section applies only to vanilla ---
+
+**File name: src/main.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/components/Festival.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/lib/components/Festival.svelte**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```ts
+import { consumeInviteLink } from "jazz-tools";
+import { Festival } from "./schema";
+
+const invite = window.location.hash;
+
+if (invite) {
+  consumeInviteLink({
+    inviteURL: invite,
+    invitedObjectSchema: Festival, // Pass the schema for the invited object
+  }).then(async (invitedObject) => {
+    if (!invitedObject) throw new Error("Failed to consume invite link");
+    // Display the festival
+    window.location.href = `/festival/${invitedObject?.valueID}`;
+  });
+}
+```
+
+##### React:
 
 ```tsx
 "use client";
@@ -5813,6 +8764,52 @@ export function Festival() {
   );
 }
 ```
+
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  // [!code ++:3]
+  import { AccountCoState, createInviteLink, InviteListener } from "jazz-tools/svelte";
+  import { goto } from "$app/navigation";
+  import { Festival, JazzFestAccount } from "$lib/schema";
+
+  const me = new AccountCoState(JazzFestAccount, {
+    resolve: { root: { myFestival: { $each: true } } }
+  });
+  let inviteLink = $state<string | null>(null);
+
+  // [!code ++:6]
+  new InviteListener({
+		invitedObjectSchema: Festival,
+		onAccept: (festivalID) => {
+			goto(`/festival/${festivalID}`);
+		}
+	});
+
+  function inviteLinkClickHandler() {
+    if (!me.current.$isLoaded) return;
+    const link = createInviteLink(me.current?.root.myFestival, "writer")
+    inviteLink = link;
+  }
+</script>
+
+<ul>
+  {#if me.current.$isLoaded}
+    {#each me.current.root.myFestival as band}
+      <li>{band.name}</li>
+    {/each}
+  {/if}
+</ul>
+
+<input type="text" bind:value={inviteLink} readonly />
+<button onclick={inviteLinkClickHandler}>
+  Create Invite Link
+</button>
+
+```
+
+\--- Section applies only to react ---
 
 Already completed the server-side rendering guide?
 
@@ -5879,15 +8876,114 @@ export function Festival({ id }: { id?: string }) {
 
 You'll also need to be aware that the server agent can only render public CoValues, and the schema above does not publicly share any data (neither bands nor festivals).
 
+\--- End of react specific section ---
+
 ## Create the festival page
 
 Now we need to create the festival page, so that we can view other people's festivals and collaborate with them.
 
+\--- Section applies only to vanilla ---
+
+We will use `URLPattern` to determine what to render. Vite already supports this in dev mode, but you'll need to make sure your server is properly configured or replace this with another routing strategy.
+
+In order to do this, we'll extract the form and the band list from the `main.ts` file, and export them from their own modules.
+
+\--- End of vanilla specific section ---
+
 ### Update our Festival component
+
+\--- Section applies only to react,svelte ---
 
 We're going to continue updating our existing `Festival` component so that it can optionally take a prop for the festival ID.
 
+\--- End of react,svelte specific section ---
+
+\--- Section applies only to vanilla ---
+
+We're going to encapsulate our logic for rendering a festival and extract it to its own file. We can import it, and pass in a festival ID to tell it what to render, similar to a front-end framework component.
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to vanilla ---
+
+**File name: src/FestivalComponent.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/components/Festival.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/lib/components/Festival.svelte**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```ts
+import { createInviteLink, co } from "jazz-tools";
+import { Festival } from "./schema";
+
+export const FestivalComponent = (festival: co.loaded<typeof Festival>) => {
+  const festivalSection = document.createElement("section");
+  const form = document.createElement("form");
+  const input = Object.assign(document.createElement("input"), {
+    type: "text",
+    name: "band",
+    placeholder: "Band name",
+  });
+  const button = Object.assign(document.createElement("button"), {
+    name: "band",
+    innerText: "Add",
+    onclick: async () => {
+      festival.$jazz.push({ name: input.value });
+      input.value = "";
+    },
+  });
+
+  form.append(input, button);
+  festivalSection.append(form);
+
+  const inputLink = document.createElement("output");
+  const createLinkButton = Object.assign(document.createElement("button"), {
+    innerText: "Create Invite Link",
+    onclick: () => {
+      const inviteLink = createInviteLink(
+        festival,
+        "writer",
+        window.location.host,
+      );
+      inputLink.value = inviteLink;
+    },
+  });
+  festivalSection.append(inputLink, createLinkButton);
+
+  const bandList = document.createElement("ul");
+  const unsubscribe = festival.$jazz.subscribe((festival) => {
+    if (!festival.$isLoaded) throw new Error("Festival not loaded");
+
+    const bandElements = festival
+      .map((band) => {
+        if (!band.$isLoaded) return;
+        const bandElement = document.createElement("li");
+        bandElement.innerText = band.name;
+        return bandElement;
+      })
+      .filter((band) => band !== undefined);
+
+    bandList.replaceChildren(...bandElements);
+  });
+
+  festivalSection.append(bandList);
+  return festivalSection;
+};
+```
+
+##### React:
 
 ```tsx
 "use client";
@@ -5956,9 +9052,114 @@ export function Festival({ id }: { id?: string }) {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  // [!code ++:1]
+  import { AccountCoState, CoState, createInviteLink, InviteListener } from "jazz-tools/svelte";
+  import { goto } from "$app/navigation";
+  import { Festival, JazzFestAccount } from "$lib/schema";
+
+  // [!code ++:1]
+	const { id }: { id?: string } = $props();
+  const me = new AccountCoState(JazzFestAccount, {
+    resolve: { root: { myFestival: true } }
+  });
+  // [!code ++:2]
+  const festivalId = $derived(id ?? (me.current.$isLoaded ? me.current.root.myFestival.$jazz.id : undefined));
+	const festival = $derived(new CoState(Festival, festivalId));
+  let inviteLink = $state<string | null>(null);
+
+  new InviteListener({
+		invitedObjectSchema: Festival,
+		onAccept: (festivalID) => {
+			goto(`/festival/${festivalID}`);
+		}
+	});
+
+  function inviteLinkClickHandler() {
+    if (!me.current.$isLoaded) return;
+    const link = createInviteLink(me.current?.root.myFestival, "writer")
+    inviteLink = link;
+  }
+</script>
+
+<ul>
+  {#if me.current.$isLoaded && festival.current.$isLoaded}
+    <!-- [!code ++:1] -->
+    {#each festival.current as band}
+      <li>{band.$isLoaded ? band.name : null}</li>
+    {/each}
+  {/if}
+</ul>
+
+{#if me.current.$isLoaded && festival.current.$isLoaded}
+  {#if me.current.canAdmin(festival.current)}
+    <input type="text" bind:value={inviteLink} readonly />
+    <button onclick={inviteLinkClickHandler}>
+      Create Invite Link
+    </button>
+  {/if}
+{/if}
+
+```
+
 ### Update our New Band component
 
+\--- Section applies only to vanilla ---
+
+We're going to do the same thing for our form that adds a new band to our festival. We'll pass in the festival so we can be sure we're adding the band in the right place.
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to vanilla ---
+
+**File name: src/NewBandComponent.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/components/NewBand.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/lib/components/NewBand.svelte**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```ts
+import { co } from "jazz-tools";
+import { Festival } from "./schema";
+
+export const NewBandComponent = (festival: co.loaded<typeof Festival>) => {
+  const form = document.createElement("form");
+  const input = Object.assign(document.createElement("input"), {
+    type: "text",
+    name: "band",
+    placeholder: "Band name",
+  });
+  const button = Object.assign(document.createElement("button"), {
+    name: "band",
+    innerText: "Add",
+    onclick: async (e: Event) => {
+      e.preventDefault();
+      festival.$jazz.push({ name: input.value });
+      input.value = "";
+    },
+  });
+
+  form.append(input, button);
+  return form;
+};
+```
+
+##### React:
 
 ```tsx
 "use client";
@@ -6011,9 +9212,124 @@ export function NewBand({ id }: { id?: string }) {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  // [!code ++:2]
+  import { AccountCoState, CoState } from "jazz-tools/svelte";
+  import { JazzFestAccount, Festival } from "$lib/schema";
+
+	const { id }: { id?: string } = $props();
+  const me = new AccountCoState(JazzFestAccount, {
+    resolve: { root: { myFestival: true } }
+  });
+  let name = $state("");
+
+    // [!code ++:2]
+  const festivalId = $derived(id ?? (me.current.$isLoaded && me.current.root.$isLoaded ? me.current.root.myFestival.$jazz.id : undefined));
+	const festival = $derived(new CoState(Festival, festivalId));
+
+  function handleSave() {
+    // [!code --:2]
+    if (!me.current.$isLoaded) return;
+    me.current.root.myFestival.$jazz.push({ name });
+    // [!code ++:2]
+    if (!festival.current.$isLoaded) return;
+    festival.current.$jazz.push({ name });
+    name = "";
+  }
+</script>
+
+<div>
+  <input type="text" bind:value={name} placeholder="Band name" />
+  <button type="button" onclick={handleSave}>Add</button>
+</div>
+
+```
+
 ### Create a route
 
+\--- Section applies only to vanilla ---
+
+Last, we need to set up our `main.ts` so that it can react to different routes.
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to vanilla ---
+
+**File name: src/main.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/festival/\[festivalId\]/page.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/routes/festival/\[festivalId\]/+page.svelte**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```ts
+import { JazzBrowserContextManager } from "jazz-tools/browser";
+import { Festival, JazzFestAccount } from "./schema";
+import { FestivalComponent } from "./FestivalComponent";
+import { NewBandComponent } from "./NewBandComponent";
+import { assertLoaded } from "jazz-tools";
+
+const apiKey = import.meta.env.VITE_JAZZ_API_KEY;
+const contextManager = new JazzBrowserContextManager<typeof JazzFestAccount>();
+await contextManager.createContext({
+  sync: {
+    peer: `wss://cloud.jazz.tools?key=${apiKey}`,
+  },
+});
+
+function getCurrentAccount() {
+  const context = contextManager.getCurrentValue();
+  if (!context || !("me" in context)) {
+    throw new Error("");
+  }
+
+  return context.me;
+}
+
+const festivalRoute = new URLPattern({ pathname: "/festival/:festivalId" });
+const result = festivalRoute.exec(location.href);
+let { festivalId } = result?.pathname?.groups ?? {};
+let festival;
+if (festivalId) {
+  festival = await Festival.load(festivalId);
+} else {
+  const me = getCurrentAccount();
+  const account = await JazzFestAccount.load(me.$jazz.id);
+  if (!account.$isLoaded) throw new Error("Account is not loaded");
+  account.migrate();
+  const myAccount = await account.$jazz.ensureLoaded({
+    resolve: {
+      root: {
+        myFestival: true,
+      },
+    },
+  });
+  window.location.href = `/festival/${myAccount.root.myFestival.$jazz.id}`;
+  festival = myAccount.root.myFestival;
+}
+
+assertLoaded(festival);
+const festivalComponent = FestivalComponent(festival);
+const newBand = NewBandComponent(festival);
+const app = document.querySelector<HTMLDivElement>("#app")!;
+app.append(festivalComponent, newBand);
+```
+
+##### React:
 
 ```tsx
 "use client";
@@ -6034,6 +9350,24 @@ export default function FestivalPage(props: {
     </main>
   );
 }
+```
+
+##### Svelte:
+
+```svelte
+<script lang="ts">
+	import { page } from '$app/state';
+	import Festival from '$lib/components/Festival.svelte';
+	import NewBand from '$lib/components/NewBand.svelte';
+	const { festivalId } = page.params;
+</script>
+
+<main>
+  <h1>🎪 Festival {festivalId}</h1>
+  <Festival id={festivalId} />
+  <NewBand id={festivalId} />
+</main>
+
 ```
 
 ## Put it all together
@@ -6076,7 +9410,11 @@ group.makePublic("writer"); // [!code ++]
 // group.makePublic(); // Defaults to "reader" access
 ```
 
+\--- Section applies only to react ---
+
 This is done in the [chat example](https://github.com/garden-co/jazz/tree/main/examples/chat) where anyone can join the chat, and send messages.
+
+\--- End of react specific section ---
 
 You can also [add members by Account ID](/docs/permissions-and-sharing/overview#adding-group-members-by-id).
 
@@ -6084,7 +9422,25 @@ You can also [add members by Account ID](/docs/permissions-and-sharing/overview#
 
 You can grant users access to a CoValue by sending them an invite link.
 
+\--- Section applies only to react ---
+
 This is used in the [todo example](https://github.com/garden-co/jazz/tree/main/examples/todo).
+
+\--- End of react specific section ---
+
+##### Vanilla:
+
+```tsx
+import { createInviteLink } from "jazz-tools";
+
+const inviteLink = createInviteLink(
+  organization,
+  "writer",
+  "https://example.com/", // Base URL for the invite link
+);
+```
+
+##### React:
 
 ```tsx
 import { createInviteLink } from "jazz-tools/react";
@@ -6092,14 +9448,116 @@ import { createInviteLink } from "jazz-tools/react";
 const inviteLink = createInviteLink(organization, "writer"); // or reader, admin, writeOnly
 ```
 
+##### Svelte:
+
+```ts
+import { createInviteLink } from "jazz-tools/svelte";
+const inviteLink = createInviteLink(organization, "writer");
+```
+
+##### React Native:
+
+```tsx
+import { createInviteLink } from "jazz-tools/react-native";
+
+const inviteLink = createInviteLink(organization, "writer");
+```
+
+##### Expo:
+
+```tsx
+import { createInviteLink } from "jazz-tools/expo";
+
+const inviteLink = createInviteLink(organization, "writer");
+```
+
 It generates a URL that looks like `.../#/invite/[CoValue ID]/[inviteSecret]`
 
 In your app, you need to handle this route, and let the user accept the invitation, as done [here](https://github.com/garden-co/jazz/tree/main/examples/todo/src/2%5Fmain.tsx).
+
+##### Vanilla:
+
+```ts
+import { consumeInviteLink } from "jazz-tools";
+
+consumeInviteLink({
+  inviteURL: inviteLink,
+  invitedObjectSchema: Organization, // Pass the schema for the invited object
+}).then(async (invitedObject) => {
+  if (!invitedObject) throw new Error("Failed to consume invite link");
+  const organization = await Organization.load(invitedObject?.valueID);
+  me.root.organizations.$jazz.push(organization);
+});
+```
+
+##### React:
 
 ```tsx
 import { useAcceptInvite } from "jazz-tools/react";
 
 useAcceptInvite({
+  invitedObjectSchema: Organization,
+  onAccept: async (organizationID) => {
+    const organization = await Organization.load(organizationID);
+    if (!organization.$isLoaded)
+      throw new Error("Organization could not be loaded");
+    me.root.organizations.$jazz.push(organization);
+    // navigate to the organization page
+  },
+});
+```
+
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { AccountCoState, InviteListener } from "jazz-tools/svelte";
+  import { JazzAccount, Organization } from "./schema";
+  const me = new AccountCoState(JazzAccount, {
+    resolve: {
+      root: {
+        organizations: true
+      }
+    }
+  });
+  new InviteListener({
+    invitedObjectSchema: Organization,
+    onAccept: async (organizationID) => {
+      console.log("Accepted invite!")
+      const organization = await Organization.load(organizationID);
+      if (!organization.$isLoaded || !me.current.$isLoaded)
+        throw new Error("Error loading user or organization");
+      me.current.root.organizations.$jazz.push(organization);
+      // navigate to the organization page
+    },
+  });
+</script>
+
+```
+
+##### React Native:
+
+```tsx
+import { useAcceptInviteNative } from "jazz-tools/react-native";
+
+useAcceptInviteNative({
+  invitedObjectSchema: Organization,
+  onAccept: async (organizationID) => {
+    const organization = await Organization.load(organizationID);
+    if (!organization.$isLoaded)
+      throw new Error("Organization could not be loaded");
+    me.root.organizations.$jazz.push(organization);
+    // navigate to the organization page
+  },
+});
+```
+
+##### Expo:
+
+```ts
+import { useAcceptInviteNative } from "jazz-tools/expo";
+
+useAcceptInviteNative({
   invitedObjectSchema: Organization,
   onAccept: async (organizationID) => {
     const organization = await Organization.load(organizationID);
@@ -6442,7 +9900,57 @@ Version control is currently unstable and we may ship breaking changes in patch 
 
 ### Creating Branches
 
+\--- Section applies only to vanilla ---
+
+To create a branch, use the `unstable_branch` option when loading a CoValue:
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to svelte ---
+
+You can also create a branch via `CoState`:
+
+\--- End of svelte specific section ---
+
+\--- Section applies only to react,react-native,expo ---
+
 You can also create a branch via the `useCoState` hook:
+
+\--- End of react,react-native,expo specific section ---
+
+##### Vanilla:
+
+```ts
+const branch = await Project.load(projectId, {
+  unstable_branch: { name: "feature-branch" },
+});
+```
+
+##### React:
+
+```tsx
+const branch = useCoState(Project, projectId, {
+  unstable_branch: { name: "feature-branch" },
+});
+```
+
+##### Svelte:
+
+```ts
+const branch = new CoState(Project, projectId, {
+  unstable_branch: { name: "feature-branch" },
+});
+```
+
+##### React Native:
+
+```tsx
+const branch = useCoState(Project, projectId, {
+  unstable_branch: { name: "feature-branch" },
+});
+```
+
+##### React Native (Expo):
 
 ```tsx
 const branch = useCoState(Project, projectId, {
@@ -6463,6 +9971,16 @@ In case you create a separate reference to a nested CoValue (for example by load
 ### Making Changes
 
 Once you have a branch, you can make changes just as you would with the original CoValue:
+
+##### Vanilla:
+
+```ts
+const editBranch = await Project.load(projectId, {
+  unstable_branch: { name: "feature-branch" },
+});
+```
+
+##### React:
 
 ```tsx
 function EditProject({
@@ -6528,6 +10046,143 @@ function EditProject({
 }
 ```
 
+##### Svelte:
+
+```ts
+<script lang="ts">
+  import { CoState } from 'jazz-tools/svelte';
+  import { Project } from './schema.js';
+
+  let projectId = $state<string>();
+  let currentBranchName = $state<string>('main');
+
+  const project = new CoState(Project, () => projectId, () => ({
+    resolve: {
+      tasks: { $each: true }
+    },
+    unstable_branch: currentBranchName === 'main' ? undefined : { name: currentBranchName }
+  }));
+</script>
+
+<form>
+  {#if project.current.$isLoaded}
+    <input
+      type="text"
+      bind:value={
+        () => (project.current.$isLoaded && project.current.title) || "",
+        (v) =>
+          project.current.$isLoaded && project.current.$jazz.set("title", v)
+      }
+    />
+
+    {#each project.current.tasks as task (task.$jazz.id)}
+      <input
+        type="text"
+        bind:value={
+          () => task.title || "",
+          (v) => task.$isLoaded && task.$jazz.set("title", v)
+        }
+      />
+    {/each}
+  {/if}
+</form>
+
+```
+
+##### React Native:
+
+```tsx
+function EditProjectComponent({
+  projectId,
+  currentBranchName,
+}: {
+  projectId: ID<typeof Project>;
+  currentBranchName: string;
+}) {
+  const project = useCoState(Project, projectId, {
+    resolve: {
+      // When we use a 'resolve' query with a branch, all of the 'resolved' CoValues are also part of the new branch
+      tasks: { $each: true },
+    },
+    unstable_branch: {
+      name: currentBranchName,
+    },
+  });
+
+  return (
+    <View>
+      {project.$isLoaded && (
+        <View>
+          <Text>Project</Text>
+          <TextInput
+            value={project.title}
+            onChangeText={(v) => project.$jazz.set("title", v)}
+          />
+          {project.tasks.map((task) => {
+            return (
+              <TextInput
+                key={task.$jazz.id}
+                value={task.title}
+                onChangeText={(v) => {
+                  task.$jazz.set("title", v);
+                }}
+              />
+            );
+          })}
+        </View>
+      )}
+    </View>
+  );
+}
+```
+
+##### React Native (Expo):
+
+```tsx
+function EditProjectComponent({
+  projectId,
+  currentBranchName,
+}: {
+  projectId: ID<typeof Project>;
+  currentBranchName: string;
+}) {
+  const project = useCoState(Project, projectId, {
+    resolve: {
+      // When we use a 'resolve' query with a branch, all of the 'resolved' CoValues are also part of the new branch
+      tasks: { $each: true },
+    },
+    unstable_branch: {
+      name: currentBranchName,
+    },
+  });
+
+  return (
+    <View>
+      {project.$isLoaded && (
+        <View>
+          <Text>Project</Text>
+          <TextInput
+            value={project.title}
+            onChangeText={(v) => project.$jazz.set("title", v)}
+          />
+          {project.tasks.map((task) => {
+            return (
+              <TextInput
+                key={task.$jazz.id}
+                value={task.title}
+                onChangeText={(v) => {
+                  task.$jazz.set("title", v);
+                }}
+              />
+            );
+          })}
+        </View>
+      )}
+    </View>
+  );
+}
+```
+
 ### Account & Group
 
 Branching does not bring isolation on Account and Group CoValues.
@@ -6543,6 +10198,63 @@ featureBranch.$isLoaded &&
 ```
 
 If you are modifying an account, be aware that replacing the root or profile will also modify the main account (although updating the properties will happen on the branch).
+
+##### Vanilla:
+
+```ts
+const myAcct = MyAccount.getMe();
+const me = await myAcct.$jazz.ensureLoaded({
+  resolve: { root: true },
+  unstable_branch: { name: "feature-branch" },
+});
+
+me.$isLoaded && me.$jazz.set("root", { value: "Feature Branch" }); // Will also modify the main account
+me.$isLoaded && me.root.$jazz.set("value", "Feature Branch"); // This only modifies the branch
+```
+
+##### React:
+
+```tsx
+const me = useAccount(MyAccount, {
+  resolve: { root: true },
+  unstable_branch: { name: "feature-branch" },
+});
+
+me.$isLoaded && me.$jazz.set("root", { value: "Feature Branch" }); // Will also modify the main account
+me.$isLoaded && me.root.$jazz.set("value", "Feature Branch"); // This only modifies the branch
+```
+
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { AccountCoState } from "jazz-tools/svelte";
+  import { MyAccount } from "./schema";
+
+  const me = new AccountCoState(MyAccount, {
+    resolve: { root: true },
+    unstable_branch: { name: "feature-branch" },
+  });
+
+  me.current.$isLoaded && me.current.$jazz.set("root", { value: "Feature Branch" }); // Will also modify the main account
+  me.current.$isLoaded && me.current.root.$jazz.set("value", "Feature Branch"); // This only modifies the branch
+</script>
+
+```
+
+##### React Native:
+
+```tsx
+const me = useAccount(MyAccount, {
+  resolve: { root: true },
+  unstable_branch: { name: "feature-branch" },
+});
+
+me.$isLoaded && me.$jazz.set("root", { value: "Feature Branch" }); // Will also modify the main account
+me.$isLoaded && me.root.$jazz.set("value", "Feature Branch"); // This only modifies the branch
+```
+
+##### React Native (Expo):
 
 ```tsx
 const me = useAccount(MyAccount, {
@@ -6812,15 +10524,75 @@ This quickstart guide will take you from an empty project to a server worker whi
 
 ## Create Your App
 
+\--- Section applies only to vanilla ---
+
+We'll be using a basic Vite + TypeScript template for simplicity, but you can use any framework you like.
+
+##### npm:
+
+```sh
+npm create vite@latest jazzfest -- --template vanilla-ts
+cd jazzfest
+
+```
+
+##### pnpm:
+
+```sh
+pnpm create vite@latest jazzfest -- --template vanilla-ts
+cd jazzfest
+
+```
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 We'll be using Next.js for simplicity, but you can use any framework you like.
 
 You can accept the defaults for all the questions, or customise the project as you like.
+
+##### npm:
 
 ```sh
 npm create-next-app@latest --typescript jazzfest
 cd jazzfest
 
 ```
+
+##### pnpm:
+
+```sh
+pnpm create-next-app@latest --typescript jazzfest
+cd jazzfest
+
+```
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+We'll be using SvelteKit for simplicity, but you can use any framework you like.
+
+You can accept the defaults for all the questions, or customise the project as you like.
+
+##### npm:
+
+```sh
+npx sv create --types ts --template minimal jazzfest
+cd jazzfest
+
+```
+
+##### pnpm:
+
+```sh
+pnpx sv create --types ts --template minimal jazzfest
+cd jazzfest
+
+```
+
+\--- End of svelte specific section ---
 
 **Info:**
 
@@ -6830,8 +10602,17 @@ Requires Node.js 20+
 
 The `jazz-tools` package includes everything you're going to need to build your first Jazz server worker.
 
+##### npm:
+
 ```sh
 npm install jazz-tools
+
+```
+
+##### pnpm:
+
+```sh
+pnpm add jazz-tools
 
 ```
 
@@ -6839,10 +10620,42 @@ npm install jazz-tools
 
 Sign up for a free API key at [dashboard.jazz.tools](https://dashboard.jazz.tools) for higher limits or production use, or use your email address as a temporary key to get started quickly.
 
+\--- Section applies only to vanilla ---
+
 **File name: .env**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
+**File name: .env**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: .env**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```bash
+VITE_JAZZ_API_KEY="you@example.com" # or your API key
+
+```
+
+##### React:
 
 ```bash
 NEXT_PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
+
+```
+
+##### Svelte:
+
+```bash
+PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
 
 ```
 
@@ -6850,7 +10663,23 @@ NEXT_PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
 
 We're going to define a simple schema for our server worker. We'll use the `root` on the worker to store a list of bands. We're also going to add a migration to initialise the `root` if it doesn't exist.
 
+\--- Section applies only to vanilla ---
+
+**File name: schema.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/schema.ts**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/lib/schema.ts**
+
+\--- End of svelte specific section ---
 
 ```ts
 import { co, z } from "jazz-tools";
@@ -6888,8 +10717,17 @@ If you're continuing from the [front-end Quickstart](/docs/quickstart), you can 
 
 Jazz provides a CLI to create server workers. You can create a server worker using the following command:
 
+##### npm:
+
 ```sh
 npx jazz-run account create --name "JazzFest Server Worker"
+
+```
+
+##### pnpm:
+
+```sh
+pnpx jazz-run account create --name "JazzFest Server Worker"
 
 ```
 
@@ -6897,10 +10735,33 @@ You can copy the output of this command and paste it directly into your `.env` f
 
 **File name: .env**
 
+##### Vanilla:
+
+```bash
+# Note that you will likely need to set up your env vars so they are readable by both your front AND backend. Check your server's docs.
+VITE_JAZZ_API_KEY=you@example.com # or your API key
+#[!code ++:2]
+VITE_JAZZ_WORKER_ACCOUNT=co_z...
+JAZZ_WORKER_SECRET=sealerSecret_z.../signerSecret_z...
+
+```
+
+##### Next.js:
+
 ```bash
 NEXT_PUBLIC_JAZZ_API_KEY=you@example.com # or your API key
 #[!code ++:2]
 NEXT_PUBLIC_JAZZ_WORKER_ACCOUNT=co_z...
+JAZZ_WORKER_SECRET=sealerSecret_z.../signerSecret_z...
+
+```
+
+##### SvelteKit:
+
+```bash
+PUBLIC_JAZZ_API_KEY=you@example.com # or your API key
+#[!code ++:2]
+PUBLIC_JAZZ_WORKER_ACCOUNT=co_z...
 JAZZ_WORKER_SECRET=sealerSecret_z.../signerSecret_z...
 
 ```
@@ -6915,7 +10776,46 @@ Next, we're going to set up an HTTP request schema to define our request and res
 
 We also need to tell Jazz which keys should be treated as loaded in the request and response using the `resolve` query.
 
+\--- Section applies only to vanilla ---
+
+**File name: announceBandSchema.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/announceBandSchema.ts**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/lib/announceBandSchema.ts**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```ts
+import { experimental_defineRequest } from "jazz-tools";
+import { Band, BandList } from "./schema";
+
+const workerId = process.env.JAZZ_WORKER_ACCOUNT;
+
+if (!workerId) throw new Error("JAZZ_WORKER_ACCOUNT is not set");
+
+export const announceBand = experimental_defineRequest({
+  url: "/api/announce-band", // update to the URL where your backend will run
+  workerId: workerId,
+  request: { schema: { band: Band }, resolve: { band: true } },
+  response: {
+    schema: { bandList: BandList },
+    resolve: { bandList: { $each: true } },
+  },
+});
+```
+
+##### Next.js:
 
 ```ts
 import { experimental_defineRequest } from "jazz-tools";
@@ -6936,13 +10836,96 @@ export const announceBand = experimental_defineRequest({
 });
 ```
 
+##### SvelteKit:
+
+```ts
+import { experimental_defineRequest } from "jazz-tools";
+import { Band, BandList } from "./schema";
+import { PUBLIC_JAZZ_WORKER_ACCOUNT } from "$env/static/public";
+
+const workerId = PUBLIC_JAZZ_WORKER_ACCOUNT;
+
+if (!workerId) throw new Error("PUBLIC_JAZZ_WORKER_ACCOUNT is not set");
+
+export const announceBand = experimental_defineRequest({
+  url: "/api/announce-band",
+  workerId: workerId,
+  request: { schema: { band: Band }, resolve: { band: true } },
+  response: {
+    schema: { bandList: BandList },
+    resolve: { bandList: { $each: true } },
+  },
+});
+```
+
 ## Configure your Server Worker
 
 We're going to use the `startWorker` function to start our server worker, and register a `POST` handler, which will listen for the requests being sent to our server worker.
 
 We'll also use a `resolve` query here to make sure that the `bandList` is loaded on the worker's root.
 
+\--- Section applies only to vanilla ---
+
+**File name: worker.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/api/announce-band/route.ts**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/routes/api/announce-band/+server.ts**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```ts
+import { startWorker } from "jazz-tools/worker";
+import { announceBand } from "./announceBandSchema";
+import { JazzFestWorkerAccount } from "./schema";
+// Bring your own server
+import { someServer } from "some-server";
+
+const { worker } = await startWorker({
+  syncServer: `wss://cloud.jazz.tools/?key=${process.env.JAZZ_API_KEY}`,
+  accountID: process.env.VITE_JAZZ_WORKER_ACCOUNT,
+  accountSecret: process.env.JAZZ_WORKER_SECRET,
+  AccountSchema: JazzFestWorkerAccount,
+});
+
+async function announceBandHandler(request: Request) {
+  return announceBand.handle(request, worker, async ({ band }) => {
+    if (!band) {
+      throw new Error("Band is required");
+    }
+    const {
+      root: { bandList },
+    } = await worker.$jazz.ensureLoaded({
+      resolve: {
+        root: {
+          bandList: true,
+        },
+      },
+    });
+    bandList.$jazz.push(band);
+    return { bandList };
+  });
+}
+
+// Register the handler for the route and start the server per your server's documentation
+someServer({
+  path: "/api/announce-band",
+  method: "POST",
+  handler: announceBandHandler,
+}).listen(3000);
+```
+
+##### Next.js:
 
 ```ts
 import { startWorker } from "jazz-tools/worker";
@@ -6976,20 +10959,104 @@ export async function POST(request: Request) {
 }
 ```
 
+##### SvelteKit:
+
+```ts
+import { startWorker } from "jazz-tools/worker";
+import { announceBand } from "$lib/announceBandSchema";
+import { JazzFestWorkerAccount } from "./schema";
+import {
+  PUBLIC_JAZZ_API_KEY,
+  PUBLIC_JAZZ_WORKER_ACCOUNT,
+} from "$env/static/public";
+import { JAZZ_WORKER_SECRET } from "$env/static/private";
+import type { RequestHandler } from "./$types";
+
+const { worker } = await startWorker({
+  syncServer: `wss://cloud.jazz.tools/?key=${PUBLIC_JAZZ_API_KEY}`,
+  accountID: PUBLIC_JAZZ_WORKER_ACCOUNT,
+  accountSecret: JAZZ_WORKER_SECRET,
+  AccountSchema: JazzFestWorkerAccount,
+});
+
+export const POST: RequestHandler = async ({ request }) => {
+  return announceBand.handle(request, worker, async ({ band }) => {
+    if (!band) {
+      throw new Error("Band is required");
+    }
+    const {
+      root: { bandList },
+    } = await worker.$jazz.ensureLoaded({
+      resolve: {
+        root: {
+          bandList: true,
+        },
+      },
+    });
+    bandList.$jazz.push(band);
+    return {
+      bandList,
+    };
+  });
+};
+```
+
 ## Start your server worker
 
 We can now start our development server to make sure everything is working.
+
+\--- Section applies only to vanilla ---
+
+_You'll probably need to check your server's docs, otherwise the command below will start the Vite frontend dev server, not your backend HTTP server._
+
+\--- End of vanilla specific section ---
+
+##### npm:
 
 ```bash
 npm run dev
 
 ```
 
+##### pnpm:
+
+```bash
+pnpm run dev
+
+```
+
+\--- Section applies only to react ---
+
 If you open your browser, you should see the default Next.js welcome page.
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+If you open your browser, you should see the default SvelteKit welcome page.
+
+\--- End of svelte specific section ---
 
 ### Not working?
 
+\--- Section applies only to vanilla ---
+
+- You should double check in your server's documentation how to launch the server.
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 - Check you set up your `.env` file correctly with `NEXT_PUBLIC_` where necessary
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+- Check you set up your `.env` file correctly with `PUBLIC_` where necessary
+
+\--- End of svelte specific section ---
+
 - Check you're importing `startWorker` from `jazz-tools/worker`
 
 **Info: Still stuck?** Ask for help on [Discord](https://discord.gg/utDMjHYg42)!
@@ -6998,11 +11065,68 @@ If you open your browser, you should see the default Next.js welcome page.
 
 ### Creating a Jazz Client
 
+\--- Section applies only to vanilla ---
+
+_If you already have a working context from the frontend quickstart, you can skip this step._
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react,svelte ---
+
 _If you already have a working provider from the frontend quickstart, you can skip this step._
+
+\--- End of react,svelte specific section ---
+
+\--- Section applies only to vanilla ---
+
+We're going to initialise a context so we can use Jazz on our client.
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
 
 We're going to wrap our Next.js app in a `JazzReactProvider` so that we can use Jazz on our client.
 
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+We're going to wrap our SvelteKit app in a `JazzSvelteProvider` so that we can use Jazz on our client.
+
+\--- End of svelte specific section ---
+
+\--- Section applies only to vanilla ---
+
+**File name: src/main.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/layout.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/routes/+layout.svelte**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```tsx
+import { JazzBrowserContextManager } from "jazz-tools/browser";
+import { announceBand } from "./announceBandSchema";
+
+await new JazzBrowserContextManager().createContext({
+  sync: {
+    peer: `wss://cloud.jazz.tools?key=${apiKey}`,
+  },
+});
+```
+
+##### Next.js:
 
 ```tsx
 import { JazzReactProvider } from "jazz-tools/react";
@@ -7028,11 +11152,80 @@ export default function RootLayout({
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { JazzSvelteProvider } from "jazz-tools/svelte";
+	import { PUBLIC_JAZZ_API_KEY } from "$env/static/public";
+  import { SyncConfig } from "jazz-tools";
+  let { children } = $props();
+  const sync: SyncConfig = { peer: `wss://cloud.jazz.tools/?key=${PUBLIC_JAZZ_API_KEY}` };
+</script>
+
+<JazzSvelteProvider {sync}>
+  {@render children?.()}
+</JazzSvelteProvider>
+
+```
+
 ### Creating your page component
 
 We're going to send a request to our server worker to announce a new band. Our worker will respond with a list of bands that we can display on our page.
 
+\--- Section applies only to vanilla ---
+
+**File name: src/main.ts**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
 **File name: app/page.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/routes/+page.svelte**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```tsx
+const app = document.querySelector<HTMLDivElement>("#app")!;
+const bandList = document.createElement("ul");
+const form = document.createElement("form");
+const input = Object.assign(document.createElement("input"), {
+  type: "text",
+  name: "band",
+});
+const button = Object.assign(document.createElement("button"), {
+  name: "band",
+  innerText: "Announce Band",
+  onclick: async () => {
+    const bandListResponse = await announceBand.send({
+      band: { name: input.value },
+    });
+    input.value = "";
+    if (bandListResponse.bandList.$isLoaded) {
+      bandList?.replaceChildren(
+        ...bandListResponse.bandList.map((band) => {
+          return Object.assign(document.createElement("li"), {
+            innerText: band.name,
+          });
+        }),
+      );
+    }
+  },
+});
+
+form.append(input, button);
+app.append(form, bandList);
+```
+
+##### Next.js:
 
 ```tsx
 "use client";
@@ -7076,7 +11269,61 @@ export default function Home() {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import type { co } from "jazz-tools";
+  import { announceBand } from "$lib/announceBandSchema.svelte.ts";
+  import type { BandList } from "./schema";
+  let bandName = $state("");
+  let bandList = $state<co.loaded<typeof BandList, { $each: true }>>();
+  async function handleAnnounceBand() {
+    const bandListResponse = await announceBand.send({
+      band: { name: bandName },
+    });
+    bandName = "";
+    if (bandListResponse.bandList) {
+      bandList = bandListResponse.bandList;
+    }
+  }
+</script>
+
+<div>
+  <input type="text" bind:value={bandName} />
+  <button type="button" onclick={handleAnnounceBand}> Announce Band </button>
+  <div>
+    {#if bandList?.$isLoaded}
+      {#each bandList as band (band?.$jazz.id)}
+        <div>{band.name}</div>
+      {/each}
+    {/if}
+  </div>
+</div>
+
+```
+
 ## Try it out!
+
+\--- Section applies only to vanilla ---
+
+If you followed the instructions above, your backend server is already running. You will also need to start the Vite development server for your frontend application.
+
+##### npm:
+
+```bash
+npm run dev
+
+```
+
+##### pnpm:
+
+```bash
+pnpm run dev
+
+```
+
+\--- End of vanilla specific section ---
 
 Your browser should now be showing you a page with an input field and a button. If you enter a band name and click the button, your server worker will receive the request and add the band to the list.
 
@@ -7886,7 +12133,17 @@ For Jazz to access data on the server, we need to create an SSR agent, which is 
 
 We can create this user using the `createSSRJazzAgent` function. In this example, we'll create a new file and export the agent, which allows us to import and use the same agent in multiple pages.
 
+\--- Section applies only to react ---
+
 **File name: app/jazzSSR.ts**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/lib/jazzSSR.ts**
+
+\--- End of svelte specific section ---
 
 ```ts
 import { createSSRJazzAgent } from "jazz-tools/ssr";
@@ -7898,7 +12155,17 @@ export const jazzSSR = createSSRJazzAgent({
 
 If you want to initialize the WASM asynchronously (**Suggested**), you can use the `initWasm` function. Otherwise, the WASM will be initialized synchronously and will block the main thread (**Not Recommended**).
 
+\--- Section applies only to react ---
+
 **File name: app/jazzSSR.ts**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/lib/jazzSSR.ts**
+
+\--- End of svelte specific section ---
 
 ```ts
 import { createSSRJazzAgent } from "jazz-tools/ssr";
@@ -7916,7 +12183,19 @@ export const jazzSSR = createSSRJazzAgent({
 
 Normally, Jazz expects a logged in user (or an anonymous user) to be accessing data. We can use the `enableSSR` setting to tell Jazz that this may not be the case, and the data on the page may be being accessed by an agent.
 
+\--- Section applies only to react ---
+
 **File name: app/components/JazzWrapper.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/routes/+layout.svelte**
+
+\--- End of svelte specific section ---
+
+##### React:
 
 ```tsx
 "use client";
@@ -7936,6 +12215,25 @@ export function JazzWrapper({ children }: { children: React.ReactNode }) {
     </JazzReactProvider>
   );
 }
+```
+
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { JazzSvelteProvider } from "jazz-tools/svelte";
+  import { apiKey } from "$lib/apiKey";
+  import { SyncConfig } from "jazz-tools";
+
+  let { children } = $props();
+  const sync: SyncConfig = { peer: `wss://cloud.jazz.tools/?key=${apiKey}` };
+</script>
+
+<!--[!code ++:1]-->
+<JazzSvelteProvider {sync} enableSSR>
+  {@render children?.()}
+</JazzSvelteProvider>
+
 ```
 
 ## Making your data public
@@ -7992,7 +12290,19 @@ export const JazzFestAccount = co
 
 Now let's set up a page which will be read by the agent we created earlier, and rendered fully on the server.
 
+\--- Section applies only to react ---
+
 **File name: app/festival/\[festivalId\]/page.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: src/routes/festival/\[festivalId\]/+page.svelte**
+
+\--- End of svelte specific section ---
+
+##### React:
 
 ```tsx
 import { jazzSSR } from "@/app/jazzSSR";
@@ -8027,15 +12337,66 @@ export default async function ServerSidePage(props: {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { jazzSSR } from "$lib/jazzSSR";
+  import { Festival } from "$lib/schema";
+  import { page } from '$app/state';
+
+	const festivalId = $derived(page.params.festivalId);
+
+  const festival = $derived(Festival.load(festivalId, {
+    loadAs: jazzSSR,
+    resolve: {
+      $each: {
+        $onError: 'catch',
+      },
+    },
+  }));
+</script>
+
+<main>
+  <h1>🎪 Server-rendered Festival {festivalId}</h1>
+  <ul>
+    {#await festival then festival}
+      {#each festival.$isLoaded ? festival : [] as band (band.$jazz.id)}
+        {#if band.$isLoaded}
+          <li>🎶 {band.name}</li>
+        {/if}
+      {/each}
+    {/await}
+  </ul>
+</main>
+
+```
+
+\--- Section applies only to react ---
+
 **Info:**
 
 TypeScript might not recognise that `params` is a promise. This is a new feature in Next.js 15, which you can [read more about here](https://nextjs.org/docs/messages/sync-dynamic-apis).
+
+\--- End of react specific section ---
 
 ## Linking to your server-rendered page
 
 The last step is to link to your server-rendered page from your `Festival` component so that you can find it easily!
 
+\--- Section applies only to react ---
+
 **File name: app/components/Festival.tsx**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: lib/components/Festival.svelte**
+
+\--- End of svelte specific section ---
+
+##### React:
 
 ```tsx
 "use client";
@@ -8066,12 +12427,50 @@ export function Festival() {
 }
 ```
 
+##### Svelte:
+
+```svelte
+<script lang="ts">
+  import { AccountCoState } from "jazz-tools/svelte";
+  import { JazzFestAccount } from "$lib/schema";
+  const me = new AccountCoState(JazzFestAccount, {
+    resolve: { root: { myFestival: {
+      $each: true
+    } } }
+  });
+</script>
+
+<ul>
+  {#each me.current.$isLoaded ? me.current.root.myFestival : [] as band}
+    {#if band.$isLoaded}
+      <li>{band.name}</li>
+    {/if}
+  {/each}
+</ul>
+
+{#if me.current.$isLoaded}
+  <a href={`/festival/${me.current.root.myFestival.$jazz.id}`}>
+    Go to my Server-Rendered Festival Page!
+  </a>
+{/if}
+
+```
+
 ## Start your app
 
 Let's fire up your app and see if it works!
 
+##### npm:
+
 ```bash
 npm run dev
+
+```
+
+##### pnpm:
+
+```bash
+pnpm run dev
 
 ```
 
@@ -8086,6 +12485,8 @@ If everything's going according to plan, your app will load with the home page. 
 - Did you add the migrations to make the data public?
 
 **Info: Still stuck?** Ask for help on [Discord](https://discord.gg/utDMjHYg42)!
+
+\--- Section applies only to react ---
 
 ## Bonus: making the server-rendered page dynamic
 
@@ -8175,6 +12576,8 @@ export function FestivalComponent(props: {
 
 Now your festival page will update in real-time, without needing to reload the page.
 
+\--- End of react specific section ---
+
 ## Next steps
 
 - Learn more about how to [manage complex permissions](/docs/permissions-and-sharing/overview) using groups and roles
@@ -8209,10 +12612,42 @@ npx create-jazz-app@latest --api-key YOUR_API_KEY
 
 Sign up for a free API key at [dashboard.jazz.tools](https://dashboard.jazz.tools) for higher limits or production use, or use your email address as a temporary key to get started quickly.
 
+\--- Section applies only to vanilla ---
+
 **File name: .env**
+
+\--- End of vanilla specific section ---
+
+\--- Section applies only to react ---
+
+**File name: .env**
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+**File name: .env**
+
+\--- End of svelte specific section ---
+
+##### Vanilla:
+
+```bash
+VITE_JAZZ_API_KEY="you@example.com" # or your API key
+
+```
+
+##### React:
 
 ```bash
 NEXT_PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
+
+```
+
+##### Svelte:
+
+```bash
+PUBLIC_JAZZ_API_KEY="you@example.com" # or your API key
 
 ```
 
@@ -8298,6 +12733,8 @@ Alternatively, you can pass the Account ID and Account Secret separately.
 
 <https://inspector.jazz.tools>
 
+\--- Section applies only to react,svelte,vue,vanilla ---
+
 ## Exporting current account to Inspector from your app
 
 In development mode, you can launch the Inspector from your Jazz app to inspect your account by pressing `Cmd+J`.
@@ -8305,6 +12742,8 @@ In development mode, you can launch the Inspector from your Jazz app to inspect 
 ## Embedding the Inspector widget into your app \[!framework=react,svelte,vue,vanilla\]
 
 You can also embed the Inspector directly into your app, so you don't need to open a separate window.
+
+\--- Section applies only to react ---
 
 ```tsx
 import { JazzInspector } from "jazz-tools/inspector";
@@ -8320,7 +12759,36 @@ function App() {
 }
 ```
 
+\--- End of react specific section ---
+
+\--- Section applies only to svelte,vue,vanilla ---
+
+Install the custom element and render it.
+
+```ts
+import "jazz-tools/inspector/register-custom-element";
+
+document.body.appendChild(document.createElement("jazz-inspector"));
+```
+
+Or
+
+```svelte
+<script lang="ts">
+  import "jazz-tools/inspector/register-custom-element"
+</script>
+
+<jazz-inspector></jazz-inspector>
+
+```
+
+\--- End of svelte,vue,vanilla specific section ---
+
 This will show the Inspector launch button on the right of your page.
+
+\--- End of react,svelte,vue,vanilla specific section ---
+
+\--- Section applies only to react ---
 
 ### Positioning the Inspector button \[!framework=react\]
 
@@ -8341,7 +12809,19 @@ For example:
 
 Your app
 
+\--- End of react specific section ---
+
+\--- Section applies only to react ---
+
 Check out the [music player app](https://github.com/garden-co/jazz/blob/main/examples/music-player/src/2%5Fmain.tsx) for a full example.
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+Check out the [file share app](https://github.com/garden-co/jazz/blob/main/examples/file-share-svelte/src/routes/%2Blayout.svelte) for a full example.
+
+\--- End of svelte specific section ---
 
 ### AI tools (llms.txt)
 
@@ -8353,7 +12833,35 @@ However, Jazz is a rapidly evolving framework, so sometimes AI might get things 
 
 To help the LLMs, we provide the Jazz documentation in a txt file that is optimized for use with AI tools, like Cursor.
 
+\--- Section applies only to react ---
+
 [llms-full.txt](/react/llms-full.txt)
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+[llms-full.txt](/svelte/llms-full.txt)
+
+\--- End of svelte specific section ---
+
+\--- Section applies only to react-native ---
+
+[llms-full.txt](/react-native/llms-full.txt)
+
+\--- End of react-native specific section ---
+
+\--- Section applies only to react-native-expo ---
+
+[llms-full.txt](/react-native-expo/llms-full.txt)
+
+\--- End of react-native-expo specific section ---
+
+\--- Section applies only to vanilla ---
+
+[llms-full.txt](/vanilla/llms-full.txt)
+
+\--- End of vanilla specific section ---
 
 ## Setting up AI tools
 
@@ -8876,7 +13384,32 @@ runWithoutActiveAccount(() => {
 
 To test UI components, you may need to create a mock Jazz context.
 
+\--- Section applies only to react ---
+
 In most cases, you'd use this for initialising a provider. You can see how we [initialise a test provider for React tests here](https://github.com/garden-co/jazz/blob/main/packages/jazz-tools/src/react-core/testing.tsx), or see how you could [integrate with @testing-library/react here](https://github.com/garden-co/jazz/blob/main/packages/jazz-tools/src/react-core/tests/testUtils.tsx).
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+You can render your components for testing by passing a mocked Jazz context to the `@testing-library/svelte` `render` helper.
+
+[You can see an example of how we do that here](https://github.com/garden-co/jazz/blob/main/packages/jazz-tools/src/svelte/tests/testUtils.ts).
+
+\--- End of svelte specific section ---
+
+\--- Section applies only to vanilla ---
+
+The `TestJazzContextManager` mocks the `JazzContextManager` to allow you to instantiate a Jazz context as a user or a guest, allowing you to run tests which depend on an authenticated or a guest session.
+
+You'll normally use either:
+
+- `TestJazzContextManager.fromAccount(account, props?)` to simulate a logged-in context. You can pass `isAuthenticated: false` as an option to simulate an [anonymous user](docs/key-features/authentication/authentication-states#anonymous-authentication).
+- `TestJazzContextManager.fromGuest({ guest }, props?)` to simulate a [guest context](/docs/key-features/authentication/authentication-states#guest-mode).
+
+You can also use `TestJazzContextManager.fromAccountOrGuest()` to allow you to pass either.
+
+\--- End of vanilla specific section ---
 
 ### Simulating connection state changes
 
@@ -8888,7 +13421,18 @@ You're ready to start writing your own tests for your Jazz apps now. For further
 
 - [Unit test examples](https://github.com/garden-co/jazz/tree/main/packages/jazz-tools/src/tools/tests)
 - [End-to-end examples](https://github.com/garden-co/jazz/tree/main/tests/e2e/tests)
+
+\--- Section applies only to react ---
+
 - [React-specific tests](https://github.com/garden-co/jazz/tree/main/packages/jazz-tools/src/react-core/tests)
+
+\--- End of react specific section ---
+
+\--- Section applies only to svelte ---
+
+- [Svelte-specific tests](https://github.com/garden-co/jazz/tree/main/packages/jazz-tools/src/svelte/tests)
+
+\--- End of svelte specific section ---
 
 ### Performance tips
 
@@ -9012,11 +13556,15 @@ myLocation.$jazz.set("position", [-33.868, -63.987]);
 // Note: you cannot replace a single array element, only replace the whole tuple
 ```
 
+\--- Section applies only to react ---
+
 ### Avoid expensive selectors \[!framework=react\]
 
 Using selectors is a great way to avoid unnecessary re-renders in your app. However, an expensive selector will cause your app to run slowly as the selector will re-run every time the CoValue updates.
 
 In case you need to run expensive computations on your CoValues, [extract this into a separate useMemo call](/docs/react/core-concepts/subscription-and-loading#avoiding-expensive-selectors).
+
+\--- End of react specific section ---
 
 ### Forms
 
@@ -9286,10 +13834,89 @@ Here's how you can generate an [invite link](/docs/permissions-and-sharing/shari
 
 When the user accepts the invite, add the `Organization` to the user's `organizations` list.
 
+##### Vanilla:
+
+```ts
+import { consumeInviteLink } from "jazz-tools";
+
+consumeInviteLink({
+  inviteURL: inviteLink,
+  invitedObjectSchema: Organization, // Pass the schema for the invited object
+}).then(async (invitedObject) => {
+  if (!invitedObject) throw new Error("Failed to consume invite link");
+  const organization = await Organization.load(invitedObject?.valueID);
+  me.root.organizations.$jazz.push(organization);
+});
+```
+
+##### React:
+
 ```tsx
 import { useAcceptInvite } from "jazz-tools/react";
 
 useAcceptInvite({
+  invitedObjectSchema: Organization,
+  onAccept: async (organizationID) => {
+    const organization = await Organization.load(organizationID);
+    if (!organization.$isLoaded)
+      throw new Error("Organization could not be loaded");
+    me.root.organizations.$jazz.push(organization);
+    // navigate to the organization page
+  },
+});
+```
+
+##### Svelte:
+
+```tsx
+<script lang="ts">
+  import { AccountCoState, InviteListener } from "jazz-tools/svelte";
+  import { JazzAccount, Organization } from "./schema";
+  const me = new AccountCoState(JazzAccount, {
+    resolve: {
+      root: {
+        organizations: true
+      }
+    }
+  });
+  new InviteListener({
+    invitedObjectSchema: Organization,
+    onAccept: async (organizationID) => {
+      console.log("Accepted invite!")
+      const organization = await Organization.load(organizationID);
+      if (!organization.$isLoaded || !me.current.$isLoaded)
+        throw new Error("Error loading user or organization");
+      me.current.root.organizations.$jazz.push(organization);
+      // navigate to the organization page
+    },
+  });
+</script>
+
+```
+
+##### React Native:
+
+```tsx
+import { useAcceptInviteNative } from "jazz-tools/react-native";
+
+useAcceptInviteNative({
+  invitedObjectSchema: Organization,
+  onAccept: async (organizationID) => {
+    const organization = await Organization.load(organizationID);
+    if (!organization.$isLoaded)
+      throw new Error("Organization could not be loaded");
+    me.root.organizations.$jazz.push(organization);
+    // navigate to the organization page
+  },
+});
+```
+
+##### Expo:
+
+```ts
+import { useAcceptInviteNative } from "jazz-tools/expo";
+
+useAcceptInviteNative({
   invitedObjectSchema: Organization,
   onAccept: async (organizationID) => {
     const organization = await Organization.load(organizationID);
@@ -9687,7 +14314,6 @@ import { apiKey } from "@/apiKey.ts";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { JazzReactProvider, useSuspenseAccount } from "jazz-tools/react";
 import { onAnonymousAccountDiscarded } from "./4_actions";
-import { KeyboardListener } from "./components/PlayerControls";
 import { useSetupAppState } from "./lib/useSetupAppState";
 
 // Normally profiling is enabled only in development mode
@@ -9757,7 +14383,6 @@ function AppContent({
   return (
     <>
       <RouterProvider router={router} />
-      <KeyboardListener mediaPlayer={mediaPlayer} />
       <Toaster />
     </>
   );
@@ -9814,11 +14439,11 @@ import { PlaylistEmptyState } from "./components/PlaylistEmptyState";
 import { SidePanel } from "./components/SidePanel";
 import { Button } from "./components/ui/button";
 import { SidebarInset, SidebarTrigger } from "./components/ui/sidebar";
-import { usePlayState } from "./lib/audio/usePlayState";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useSuspenseAccount, useSuspenseCoState } from "jazz-tools/react-core";
 import { useIsMobile } from "./hooks/use-mobile";
 import { Pencil } from "lucide-react";
+import { useAudioManager } from "./lib/audio/AudioManager";
 
 export function PlaylistPage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
   const params = useParams<{ playlistId: string }>();
@@ -9839,7 +14464,11 @@ export function PlaylistPage({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
     select: (me) => me.canManage(playlist),
   });
 
-  const isPlaying = usePlayState().value === "play";
+  const audioManager = useAudioManager();
+  const isPlaying = useSyncExternalStore(
+    (callback) => audioManager.on("statusChange", callback),
+    () => audioManager.isPlaying,
+  );
   const [currentDialog, setCurrentDialog] = useState<
     | { name: "playlist"; section: "details" | "members" }
     | { name: "add-tracks" }
@@ -10295,16 +14924,44 @@ export async function deleteMyMusicPlayerAccount() {
 ```ts
 import { MusicaAccount, MusicTrack, Playlist } from "@/1_schema";
 import { usePlayMedia } from "@/lib/audio/usePlayMedia";
-import { usePlayState } from "@/lib/audio/usePlayState";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { updateActivePlaylist, updateActiveTrack } from "./4_actions";
 import { useAudioManager } from "./lib/audio/AudioManager";
-import { getNextTrack, getPrevTrack } from "./lib/getters";
+import {
+  getNextTrack,
+  getPrevTrack,
+  getActivePlaylistTitle,
+} from "./lib/getters";
 import { useSuspenseAccount } from "jazz-tools/react-core";
+
+// Cache for prefetched audio files
+const prefetchCache = new Map<string, Blob>();
+const prefetchingInProgress = new Set<string>();
+
+async function prefetchTrackAudio(track: MusicTrack) {
+  const trackId = track.$jazz.id;
+
+  // Skip if already cached or prefetching
+  if (prefetchCache.has(trackId) || prefetchingInProgress.has(trackId)) {
+    return;
+  }
+
+  prefetchingInProgress.add(trackId);
+
+  try {
+    const file = await MusicTrack.shape.file.loadAsBlob(
+      track.$jazz.refs.file.id,
+    );
+    if (file) {
+      prefetchCache.set(trackId, file);
+    }
+  } finally {
+    prefetchingInProgress.delete(trackId);
+  }
+}
 
 export function useMediaPlayer() {
   const audioManager = useAudioManager();
-  const playState = usePlayState();
   const playMedia = usePlayMedia();
 
   const [loading, setLoading] = useState<string | null>(null);
@@ -10315,16 +14972,25 @@ export function useMediaPlayer() {
   // Reference used to avoid out-of-order track loads
   const lastLoadedTrackId = useRef<string | null>(null);
 
-  async function loadTrack(track: MusicTrack, autoPlay = true) {
-    lastLoadedTrackId.current = track.$jazz.id;
-    audioManager.unloadCurrentAudio();
+  // Store refs for the handlers so they can access current state
+  const playNextTrackRef = useRef<() => Promise<void>>(() => Promise.resolve());
+  const playPrevTrackRef = useRef<() => Promise<void>>(() => Promise.resolve());
 
-    setLoading(track.$jazz.id);
+  async function loadTrack(track: MusicTrack, autoPlay = true) {
+    const trackId = track.$jazz.id;
+    lastLoadedTrackId.current = trackId;
+    audioManager.unload();
+
+    setLoading(trackId);
     updateActiveTrack(track);
 
-    const file = await MusicTrack.shape.file.loadAsBlob(
-      track.$jazz.refs.file.id,
-    );
+    // Check prefetch cache first
+    let file = prefetchCache.get(trackId);
+    if (file) {
+      prefetchCache.delete(trackId); // Use once, then remove from cache
+    } else {
+      file = await MusicTrack.shape.file.loadAsBlob(track.$jazz.refs.file.id);
+    }
 
     if (!file) {
       setLoading(null);
@@ -10333,13 +14999,28 @@ export function useMediaPlayer() {
 
     // Check if another track has been loaded during
     // the file download
-    if (lastLoadedTrackId.current !== track.$jazz.id) {
+    if (lastLoadedTrackId.current !== trackId) {
       return;
     }
 
     await playMedia(file, autoPlay);
 
+    // Set metadata for MediaSession API (browser media controls)
+    const playlistTitle = await getActivePlaylistTitle();
+    audioManager.setMetadata({
+      title: track.title,
+      artist: playlistTitle,
+      duration: track.duration,
+    });
+
     setLoading(null);
+
+    // Prefetch the next track in the background
+    getNextTrack().then((nextTrack) => {
+      if (nextTrack?.$isLoaded) {
+        prefetchTrackAudio(nextTrack);
+      }
+    });
   }
 
   async function playNextTrack() {
@@ -10359,12 +15040,29 @@ export function useMediaPlayer() {
     }
   }
 
+  // Keep refs updated
+  playNextTrackRef.current = playNextTrack;
+  playPrevTrackRef.current = playPrevTrack;
+
+  // Register handlers with AudioManager and enable keyboard shortcuts
+  useEffect(() => {
+    audioManager.setNextTrackHandler(() => playNextTrackRef.current?.());
+    audioManager.setPreviousTrackHandler(() => playPrevTrackRef.current?.());
+    audioManager.enableKeyboardShortcuts();
+
+    return () => {
+      audioManager.setNextTrackHandler(null);
+      audioManager.setPreviousTrackHandler(null);
+      audioManager.disableKeyboardShortcuts();
+    };
+  }, [audioManager]);
+
   async function setActiveTrack(track: MusicTrack, playlist?: Playlist) {
     if (
       activeTrackId === track.$jazz.id &&
       lastLoadedTrackId.current !== null
     ) {
-      playState.toggle();
+      audioManager.togglePlayPause();
       return;
     }
 
@@ -10372,8 +15070,8 @@ export function useMediaPlayer() {
 
     await loadTrack(track);
 
-    if (playState.value === "pause") {
-      playState.toggle();
+    if (audioManager.isPaused) {
+      audioManager.play();
     }
   }
 
@@ -12219,10 +16917,7 @@ export function MusicTrackTitleInput({
 ```tsx
 import { MusicaAccount, MusicTrack } from "@/1_schema";
 import { MediaPlayer } from "@/5_useMediaPlayer";
-import { useMediaEndListener } from "@/lib/audio/useMediaEndListener";
-import { useMediaSession } from "@/lib/audio/useMediaSession";
-import { usePlayState } from "@/lib/audio/usePlayState";
-import { useKeyboardListener } from "@/lib/useKeyboardListener";
+import { useAudioManager } from "@/lib/audio/AudioManager";
 import { useCoState, useSuspenseAccount } from "jazz-tools/react";
 import {
   ChevronUp,
@@ -12232,7 +16927,7 @@ import {
   SkipBack,
   SkipForward,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import WaveformCanvas from "./WaveformCanvas";
 import { Button } from "./ui/button";
 import {
@@ -12244,8 +16939,11 @@ import {
 } from "./ui/drawer";
 
 export function PlayerControls({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
-  const playState = usePlayState();
-  const isPlaying = playState.value === "play";
+  const audioManager = useAudioManager();
+  const isPlaying = useSyncExternalStore(
+    (callback) => audioManager.on("statusChange", callback),
+    () => audioManager.isPlaying,
+  );
 
   const activePlaylistTitle = useSuspenseAccount(MusicaAccount, {
     select: (me) =>
@@ -12278,7 +16976,7 @@ export function PlayerControls({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
             </Button>
             <Button
               size="icon"
-              onClick={playState.toggle}
+              onClick={audioManager.togglePlayPause}
               className="bg-blue-600 text-white hover:bg-blue-700"
               aria-label={
                 isPlaying ? "Pause active track" : "Play active track"
@@ -12372,7 +17070,7 @@ export function PlayerControls({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
             </Button>
             <Button
               size="icon"
-              onClick={playState.toggle}
+              onClick={audioManager.togglePlayPause}
               className="bg-blue-600 text-white hover:bg-blue-700 h-16 w-16"
               aria-label={
                 isPlaying ? "Pause active track" : "Play active track"
@@ -12401,37 +17099,6 @@ export function PlayerControls({ mediaPlayer }: { mediaPlayer: MediaPlayer }) {
       </DrawerContent>
     </Drawer>
   );
-}
-
-export function KeyboardListener({
-  mediaPlayer,
-}: {
-  mediaPlayer: MediaPlayer;
-}) {
-  const playState = usePlayState();
-  const activeTrack = useCoState(MusicTrack, mediaPlayer.activeTrackId);
-  const activePlaylistTitle = useSuspenseAccount(MusicaAccount, {
-    select: (me) =>
-      me.root.activePlaylist?.$isLoaded
-        ? (me.root.activePlaylist.title ?? "All tracks")
-        : "All tracks",
-  });
-
-  useMediaSession({
-    trackTitle: activeTrack?.$isLoaded ? activeTrack.title : undefined,
-    playlistTitle: activePlaylistTitle,
-    onPrevTrack: mediaPlayer.playPrevTrack,
-    onNextTrack: mediaPlayer.playNextTrack,
-  });
-
-  useMediaEndListener(mediaPlayer.playNextTrack);
-  useKeyboardListener("Space", () => {
-    if (document.activeElement !== document.body) return;
-
-    playState.toggle();
-  });
-
-  return null;
 }
 ```
 
@@ -13085,9 +17752,10 @@ export function SidePanel() {
 
 ```tsx
 import { MusicTrack, MusicTrackWaveform } from "@/1_schema";
-import { usePlayerCurrentTime } from "@/lib/audio/usePlayerCurrentTime";
+import { useAudioManager } from "@/lib/audio/AudioManager";
 import { cn } from "@/lib/utils";
 import { useCoState } from "jazz-tools/react";
+import { useSyncExternalStore } from "react";
 
 export function Waveform(props: {
   track: MusicTrack;
@@ -13100,7 +17768,11 @@ export function Waveform(props: {
     MusicTrackWaveform,
     track.$jazz.refs.waveform?.id,
   );
-  const currentTime = usePlayerCurrentTime();
+  const audioManager = useAudioManager();
+  const currentTime = useSyncExternalStore(
+    (callback) => audioManager.on("timeUpdate", callback),
+    () => audioManager.currentTime,
+  );
 
   if (!waveform.$isLoaded) {
     return (
@@ -13116,7 +17788,7 @@ export function Waveform(props: {
   const waveformData = waveform.data;
   const barCount = waveformData.length;
   const activeBar = props.showProgress
-    ? Math.ceil(barCount * (currentTime.value / duration))
+    ? Math.ceil(barCount * (currentTime / duration))
     : -1;
 
   return (
@@ -13153,16 +17825,10 @@ export function Waveform(props: {
 
 import { MusicTrack, MusicTrackWaveform } from "@/1_schema";
 import { AudioManager, useAudioManager } from "@/lib/audio/AudioManager";
-import {
-  getPlayerCurrentTime,
-  setPlayerCurrentTime,
-  subscribeToPlayerCurrentTime,
-  usePlayerCurrentTime,
-} from "@/lib/audio/usePlayerCurrentTime";
 import { cn } from "@/lib/utils";
 import type React from "react";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 
 type Props = {
   track: MusicTrack;
@@ -13304,7 +17970,7 @@ async function renderWaveform(props: WaveformCanvasProps) {
   const { audioManager, canvas, waveformId, duration } = props;
 
   let mounted = true;
-  let currentTime = getPlayerCurrentTime(audioManager);
+  let currentTime = audioManager.currentTime;
   let waveformData: undefined | number[] = undefined;
   let isAnimating = true;
   const startTime = performance.now();
@@ -13342,13 +18008,10 @@ async function renderWaveform(props: WaveformCanvasProps) {
 
   requestAnimationFrame(animate);
 
-  const unsubscribeFromCurrentTime = subscribeToPlayerCurrentTime(
-    audioManager,
-    (time) => {
-      currentTime = time;
-      draw();
-    },
-  );
+  const unsubscribeFromCurrentTime = audioManager.on("timeUpdate", () => {
+    currentTime = audioManager.currentTime;
+    draw();
+  });
 
   const unsubscribeFromWaveform = MusicTrackWaveform.subscribe(
     waveformId,
@@ -13401,11 +18064,14 @@ export default function WaveformCanvas({
     const rect = e.currentTarget.getBoundingClientRect();
     const ratio = (e.clientX - rect.left) / rect.width;
     const time = Math.max(0, Math.min(1, ratio)) * duration;
-    setPlayerCurrentTime(audioManager, time);
+    audioManager.seekTo(time);
   };
 
-  const currentTime = usePlayerCurrentTime();
-  const progress = currentTime.value / duration;
+  const currentTime = useSyncExternalStore(
+    (callback) => audioManager.on("timeUpdate", callback),
+    () => audioManager.currentTime,
+  );
+  const progress = currentTime / duration;
 
   return (
     <div className={cn("w-full", className)}>
@@ -16195,51 +20861,396 @@ html {
 ```ts
 import { createContext, useContext } from "react";
 
-export class AudioManager {
-  mediaElement: HTMLAudioElement;
+export type MediaStatus = "playing" | "paused" | "stopped";
 
-  audioObjectURL: string | null = null;
+export interface TrackMetadata {
+  title: string;
+  artist?: string;
+  duration?: number;
+}
+
+type EventType =
+  | "statusChange"
+  | "timeUpdate"
+  | "loaded"
+  | "ended"
+  | "stallChange"
+  | "durationChange"
+  | "error";
+
+type EventCallback = () => void;
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+type TrackHandler = () => void | Promise<void>;
+
+export class AudioManager {
+  private _mediaElement: HTMLAudioElement;
+  private _audioObjectURL: string | null = null;
+  private _status: MediaStatus = "stopped";
+  private _stalled: boolean = false;
+  private _listeners: Map<EventType, Set<EventCallback>> = new Map();
+  private _eventCleanup: Array<() => void> = [];
+
+  // Track navigation handlers
+  private _nextTrackHandler: TrackHandler | null = null;
+  private _previousTrackHandler: TrackHandler | null = null;
+
+  // Auto-advance and keyboard options
+  private _autoAdvance: boolean = true;
+  private _keyboardShortcutsEnabled: boolean = false;
 
   constructor() {
-    const mediaElement = new Audio();
-
-    this.mediaElement = mediaElement;
+    this._mediaElement = new Audio();
+    this._setupEventListeners();
   }
 
-  async unloadCurrentAudio() {
-    if (this.audioObjectURL) {
-      URL.revokeObjectURL(this.audioObjectURL);
-      this.audioObjectURL = null;
-      this.mediaElement.src = "";
+  private _setupEventListeners() {
+    const audio = this._mediaElement;
+
+    const addListener = <K extends keyof HTMLMediaElementEventMap>(
+      event: K,
+      handler: (e: HTMLMediaElementEventMap[K]) => void,
+    ) => {
+      audio.addEventListener(event, handler);
+      this._eventCleanup.push(() => audio.removeEventListener(event, handler));
+    };
+
+    addListener("play", () => {
+      this._setStatus("playing");
+    });
+
+    addListener("pause", () => {
+      if (!audio.ended) {
+        this._setStatus("paused");
+      }
+    });
+
+    addListener("ended", () => {
+      this._setStatus("stopped");
+      this._emit("ended");
+
+      // Auto-advance to next track
+      if (this._autoAdvance) {
+        this.nextTrack();
+      }
+    });
+
+    addListener("timeupdate", () => {
+      this._emit("timeUpdate");
+    });
+
+    addListener("durationchange", () => {
+      this._setStalled(false);
+      this._emit("durationChange");
+      this._emit("loaded");
+    });
+
+    addListener("waiting", () => {
+      this._setStalled(true);
+    });
+
+    addListener("playing", () => {
+      this._setStalled(false);
+    });
+
+    addListener("canplay", () => {
+      this._setStalled(false);
+    });
+
+    addListener("error", () => {
+      const error = audio.error;
+      if (error) {
+        console.error(`Audio error [${error.code}]: ${error.message}`);
+      }
+      this._emit("error");
+      // Treat errors as end of track to avoid stuck state
+      this._setStatus("stopped");
+      this._emit("ended");
+    });
+  }
+
+  // Event emitter methods
+  on(event: EventType, callback: EventCallback): () => void {
+    if (!this._listeners.has(event)) {
+      this._listeners.set(event, new Set());
+    }
+    this._listeners.get(event)!.add(callback);
+
+    // Return unsubscribe function
+    return () => {
+      this._listeners.get(event)?.delete(callback);
+    };
+  }
+
+  private _emit(event: EventType) {
+    this._listeners.get(event)?.forEach((cb) => cb());
+  }
+
+  private _setStatus(status: MediaStatus) {
+    if (this._status !== status) {
+      this._status = status;
+      this._emit("statusChange");
+      this._updateMediaSessionState();
     }
   }
 
-  async loadAudio(file: Blob) {
-    await this.unloadCurrentAudio();
+  private _setStalled(stalled: boolean) {
+    if (this._stalled !== stalled) {
+      this._stalled = stalled;
+      this._emit("stallChange");
+    }
+  }
 
-    const { mediaElement } = this;
+  // Public getters
+  get status(): MediaStatus {
+    return this._status;
+  }
+
+  get isPlaying(): boolean {
+    return this._status === "playing";
+  }
+
+  get isPaused(): boolean {
+    return this._status === "paused";
+  }
+
+  get isStopped(): boolean {
+    return this._status === "stopped";
+  }
+
+  get isStalled(): boolean {
+    return this._stalled;
+  }
+
+  get duration(): number {
+    const { duration } = this._mediaElement;
+    // Handle NaN and Infinity (Safari iOS issue with missing Accept-Ranges header)
+    return isNaN(duration) || !isFinite(duration) ? 0 : duration;
+  }
+
+  get currentTime(): number {
+    return this._mediaElement.currentTime;
+  }
+
+  // Audio loading
+  async unload() {
+    if (this._audioObjectURL) {
+      URL.revokeObjectURL(this._audioObjectURL);
+      this._audioObjectURL = null;
+    }
+    this._mediaElement.src = "";
+    this._setStatus("stopped");
+    this._clearMediaSession();
+  }
+
+  async load(file: Blob) {
+    await this.unload();
+
     const audioObjectURL = URL.createObjectURL(file);
-
-    this.audioObjectURL = audioObjectURL;
-
-    mediaElement.src = audioObjectURL;
+    this._audioObjectURL = audioObjectURL;
+    this._mediaElement.src = audioObjectURL;
   }
 
-  play() {
-    if (this.mediaElement.ended) {
-      this.mediaElement.fastSeek(0);
+  // Playback controls
+  async play() {
+    if (this._status === "stopped" || this._mediaElement.ended) {
+      this.seekTo(0);
     }
 
-    this.mediaElement.play();
+    try {
+      await this._mediaElement.play();
+    } catch (err) {
+      // Play can fail if user hasn't interacted with the page yet
+      console.warn("Playback failed:", err);
+    }
   }
 
   pause() {
-    this.mediaElement.pause();
+    this._mediaElement.pause();
   }
 
-  destroy() {
-    this.unloadCurrentAudio();
-    this.mediaElement.pause();
+  stop() {
+    this._mediaElement.pause();
+    this._mediaElement.currentTime = 0;
+    this._setStatus("stopped");
+  }
+
+  togglePlayPause = () => {
+    if (this._status === "playing") {
+      this.pause();
+    } else {
+      this.play();
+    }
+  };
+
+  // Seeking
+  seekTo(time: number) {
+    const clampedTime = clamp(time, 0, this.duration || 0);
+    this._mediaElement.currentTime = clampedTime;
+    this._emit("timeUpdate");
+  }
+
+  seekBy(delta: number) {
+    this.seekTo(this.currentTime + delta);
+  }
+
+  // Track navigation
+  setNextTrackHandler(handler: TrackHandler | null) {
+    this._nextTrackHandler = handler;
+    this._updateMediaSessionHandlers();
+  }
+
+  setPreviousTrackHandler(handler: TrackHandler | null) {
+    this._previousTrackHandler = handler;
+    this._updateMediaSessionHandlers();
+  }
+
+  async nextTrack() {
+    if (this._nextTrackHandler) {
+      await this._nextTrackHandler();
+    }
+  }
+
+  async previousTrack() {
+    if (this._previousTrackHandler) {
+      await this._previousTrackHandler();
+    }
+  }
+
+  // MediaSession API for metadata
+  setMetadata(metadata: TrackMetadata) {
+    if (!("mediaSession" in navigator)) {
+      return;
+    }
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: metadata.title,
+      artist: metadata.artist ?? "",
+      album: "",
+      artwork: [],
+    });
+
+    this._updateMediaSessionHandlers();
+  }
+
+  private _updateMediaSessionHandlers() {
+    if (!("mediaSession" in navigator)) {
+      return;
+    }
+
+    navigator.mediaSession.setActionHandler("play", () => this.play());
+    navigator.mediaSession.setActionHandler("pause", () => this.pause());
+    navigator.mediaSession.setActionHandler("stop", () => this.stop());
+    navigator.mediaSession.setActionHandler("seekbackward", (details) => {
+      this.seekBy(-(details.seekOffset ?? 10));
+    });
+    navigator.mediaSession.setActionHandler("seekforward", (details) => {
+      this.seekBy(details.seekOffset ?? 10);
+    });
+    navigator.mediaSession.setActionHandler("seekto", (details) => {
+      if (details.seekTime !== undefined) {
+        this.seekTo(details.seekTime);
+      }
+    });
+
+    // Next/previous track handlers (only enabled when handlers are set)
+    navigator.mediaSession.setActionHandler(
+      "nexttrack",
+      this._nextTrackHandler ? () => this.nextTrack() : null,
+    );
+    navigator.mediaSession.setActionHandler(
+      "previoustrack",
+      this._previousTrackHandler ? () => this.previousTrack() : null,
+    );
+  }
+
+  private _updateMediaSessionState() {
+    if (!("mediaSession" in navigator)) {
+      return;
+    }
+
+    switch (this._status) {
+      case "playing":
+        navigator.mediaSession.playbackState = "playing";
+        break;
+      case "paused":
+        navigator.mediaSession.playbackState = "paused";
+        break;
+      case "stopped":
+        navigator.mediaSession.playbackState = "none";
+        break;
+    }
+  }
+
+  private _clearMediaSession() {
+    if (!("mediaSession" in navigator)) {
+      return;
+    }
+
+    navigator.mediaSession.metadata = null;
+    navigator.mediaSession.playbackState = "none";
+  }
+
+  // Keyboard shortcuts
+  private _handleKeyboard = (evt: KeyboardEvent) => {
+    // Only handle when body is focused (not in input fields)
+    if (document.activeElement !== document.body) {
+      return;
+    }
+
+    switch (evt.code) {
+      case "Space":
+        evt.preventDefault();
+        this.togglePlayPause();
+        break;
+      case "ArrowLeft":
+        evt.preventDefault();
+        this.seekBy(-10);
+        break;
+      case "ArrowRight":
+        evt.preventDefault();
+        this.seekBy(10);
+        break;
+    }
+  };
+
+  enableKeyboardShortcuts() {
+    if (this._keyboardShortcutsEnabled) return;
+
+    window.addEventListener("keydown", this._handleKeyboard);
+    this._keyboardShortcutsEnabled = true;
+  }
+
+  disableKeyboardShortcuts() {
+    if (!this._keyboardShortcutsEnabled) return;
+
+    window.removeEventListener("keydown", this._handleKeyboard);
+    this._keyboardShortcutsEnabled = false;
+  }
+
+  // Auto-advance configuration
+  setAutoAdvance(enabled: boolean) {
+    this._autoAdvance = enabled;
+  }
+
+  get autoAdvance(): boolean {
+    return this._autoAdvance;
+  }
+
+  // Cleanup
+  dispose() {
+    this.stop();
+    this.unload();
+
+    // Remove all event listeners
+    this._eventCleanup.forEach((cleanup) => cleanup());
+    this._eventCleanup = [];
+    this._listeners.clear();
+    this._clearMediaSession();
+    this.disableKeyboardShortcuts();
   }
 }
 
@@ -16249,7 +21260,7 @@ export function useAudioManager() {
   return useContext(context);
 }
 
-export const AudionManagerProvider = context.Provider;
+export const AudioManagerProvider = context.Provider;
 ```
 
 ### lib/audio/getAudioFileData.ts
@@ -16302,112 +21313,6 @@ const transformDecodedAudioToWaveformData = (
 };
 ```
 
-### lib/audio/useMediaEndListener.ts
-
-```ts
-import { useEffect } from "react";
-import { useAudioManager } from "./AudioManager";
-
-export function useMediaEndListener(callback: () => void) {
-  const audioManager = useAudioManager();
-
-  useEffect(() => {
-    audioManager.mediaElement.addEventListener("ended", callback);
-    return () => {
-      audioManager.mediaElement.removeEventListener("ended", callback);
-    };
-  }, [audioManager, callback]);
-}
-```
-
-### lib/audio/useMediaSession.ts
-
-```ts
-import { useEffect } from "react";
-import { useAudioManager } from "./AudioManager";
-import { usePlayState } from "./usePlayState";
-
-interface UseMediaSessionOptions {
-  trackTitle?: string;
-  playlistTitle?: string;
-  onPrevTrack?: () => void;
-  onNextTrack?: () => void;
-}
-
-export function useMediaSession(options: UseMediaSessionOptions) {
-  const audioManager = useAudioManager();
-  const playState = usePlayState();
-
-  // Update metadata when track changes
-  useEffect(() => {
-    if (!options.trackTitle) return;
-
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: options.trackTitle,
-      artist: options.playlistTitle || "All tracks",
-    });
-  }, [options.trackTitle, options.playlistTitle]);
-
-  // Set up action handlers
-  useEffect(() => {
-    navigator.mediaSession.setActionHandler("play", () => audioManager.play());
-    navigator.mediaSession.setActionHandler("pause", () =>
-      audioManager.pause(),
-    );
-    navigator.mediaSession.setActionHandler(
-      "previoustrack",
-      options.onPrevTrack ?? null,
-    );
-    navigator.mediaSession.setActionHandler(
-      "nexttrack",
-      options.onNextTrack ?? null,
-    );
-
-    return () => {
-      navigator.mediaSession.setActionHandler("play", null);
-      navigator.mediaSession.setActionHandler("pause", null);
-      navigator.mediaSession.setActionHandler("previoustrack", null);
-      navigator.mediaSession.setActionHandler("nexttrack", null);
-    };
-  }, [audioManager, options.onPrevTrack, options.onNextTrack]);
-
-  // Sync playback state
-  useEffect(() => {
-    navigator.mediaSession.playbackState =
-      playState.value === "play" ? "playing" : "paused";
-  }, [playState.value]);
-
-  // Sync position state (time progression)
-  useEffect(() => {
-    const updatePositionState = () => {
-      const audioDuration = audioManager.mediaElement.duration;
-      const audioCurrentTime = audioManager.mediaElement.currentTime;
-
-      if (audioDuration > 0) {
-        navigator.mediaSession.setPositionState({
-          duration: audioDuration,
-          playbackRate: 1,
-          position: audioCurrentTime,
-        });
-      }
-    };
-
-    // Update position on timeupdate events
-    audioManager.mediaElement.addEventListener(
-      "timeupdate",
-      updatePositionState,
-    );
-
-    return () => {
-      audioManager.mediaElement.removeEventListener(
-        "timeupdate",
-        updatePositionState,
-      );
-    };
-  }, [audioManager]);
-}
-```
-
 ### lib/audio/usePlayMedia.ts
 
 ```ts
@@ -16424,7 +21329,7 @@ export function usePlayMedia() {
     // to avoid to incur into concurrency issues
     await previousMediaLoad.current;
 
-    const promise = audioManager.loadAudio(file);
+    const promise = audioManager.load(file);
 
     previousMediaLoad.current = promise;
 
@@ -16436,103 +21341,6 @@ export function usePlayMedia() {
   }
 
   return playMedia;
-}
-```
-
-### lib/audio/usePlayState.ts
-
-```ts
-import { useLayoutEffect, useState } from "react";
-import { useAudioManager } from "./AudioManager";
-
-export type PlayState = "pause" | "play";
-
-export function usePlayState() {
-  const audioManager = useAudioManager();
-  const [value, setValue] = useState<PlayState>("pause");
-
-  useLayoutEffect(() => {
-    setValue(audioManager.mediaElement.paused ? "pause" : "play");
-
-    const onPlay = () => {
-      setValue("play");
-    };
-
-    const onPause = () => {
-      setValue("pause");
-    };
-
-    audioManager.mediaElement.addEventListener("play", onPlay);
-    audioManager.mediaElement.addEventListener("pause", onPause);
-
-    return () => {
-      audioManager.mediaElement.removeEventListener("play", onPlay);
-      audioManager.mediaElement.removeEventListener("pause", onPause);
-    };
-  }, [audioManager]);
-
-  function togglePlayState() {
-    if (value === "pause") {
-      audioManager.play();
-    } else {
-      audioManager.pause();
-    }
-  }
-
-  return { value, toggle: togglePlayState };
-}
-```
-
-### lib/audio/usePlayerCurrentTime.ts
-
-```ts
-import { useLayoutEffect, useState } from "react";
-import { AudioManager, useAudioManager } from "./AudioManager";
-
-export function usePlayerCurrentTime() {
-  const audioManager = useAudioManager();
-  const [value, setValue] = useState<number>(0);
-
-  useLayoutEffect(() => {
-    setValue(getPlayerCurrentTime(audioManager));
-
-    return subscribeToPlayerCurrentTime(audioManager, setValue);
-  }, [audioManager]);
-
-  function setCurrentTime(time: number) {
-    if (audioManager.mediaElement.paused) audioManager.play();
-
-    // eslint-disable-next-line react-compiler/react-compiler
-    audioManager.mediaElement.currentTime = time;
-  }
-
-  return {
-    value,
-    setValue: setCurrentTime,
-  };
-}
-
-export function setPlayerCurrentTime(audioManager: AudioManager, time: number) {
-  audioManager.mediaElement.currentTime = time;
-}
-
-export function getPlayerCurrentTime(audioManager: AudioManager): number {
-  return audioManager.mediaElement.currentTime;
-}
-
-export function subscribeToPlayerCurrentTime(
-  audioManager: AudioManager,
-  callback: (time: number) => void,
-) {
-  const onTimeUpdate = () => {
-    callback(audioManager.mediaElement.currentTime);
-  };
-
-  audioManager.mediaElement.addEventListener("timeupdate", onTimeUpdate);
-
-  return () => {
-    audioManager.mediaElement.removeEventListener("timeupdate", onTimeUpdate);
-  };
 }
 ```
 
@@ -16576,26 +21384,19 @@ export async function getPrevTrack() {
   const previousIndex = (currentIndex - 1 + tracks.length) % tracks.length;
   return tracks[previousIndex];
 }
-```
 
-### lib/useKeyboardListener.ts
+export async function getActivePlaylistTitle(): Promise<string> {
+  const { root } = await MusicaAccount.getMe().$jazz.ensureLoaded({
+    resolve: {
+      root: {
+        activePlaylist: { $onError: "catch" },
+      },
+    },
+  });
 
-```ts
-import { useEffect } from "react";
-
-export function useKeyboardListener(code: string, callback: () => void) {
-  useEffect(() => {
-    const handler = (evt: KeyboardEvent) => {
-      if (evt.code === code) {
-        callback();
-      }
-    };
-    window.addEventListener("keyup", handler);
-
-    return () => {
-      window.removeEventListener("keyup", handler);
-    };
-  }, [callback, code]);
+  return root.activePlaylist?.$isLoaded
+    ? root.activePlaylist.title
+    : "All tracks";
 }
 ```
 
@@ -16687,2059 +21488,4 @@ export function cn(...inputs: ClassValue[]) {
 
 ```ts
 /// <reference types="vite/client" />
-```
-
-### wordlist.ts
-
-```ts
-export const wordlist = [
-  "abandon",
-  "ability",
-  "able",
-  "about",
-  "above",
-  "absent",
-  "absorb",
-  "abstract",
-  "absurd",
-  "abuse",
-  "access",
-  "accident",
-  "account",
-  "accuse",
-  "achieve",
-  "acid",
-  "acoustic",
-  "acquire",
-  "across",
-  "act",
-  "action",
-  "actor",
-  "actress",
-  "actual",
-  "adapt",
-  "add",
-  "addict",
-  "address",
-  "adjust",
-  "admit",
-  "adult",
-  "advance",
-  "advice",
-  "aerobic",
-  "affair",
-  "afford",
-  "afraid",
-  "again",
-  "age",
-  "agent",
-  "agree",
-  "ahead",
-  "aim",
-  "air",
-  "airport",
-  "aisle",
-  "alarm",
-  "album",
-  "alcohol",
-  "alert",
-  "alien",
-  "all",
-  "alley",
-  "allow",
-  "almost",
-  "alone",
-  "alpha",
-  "already",
-  "also",
-  "alter",
-  "always",
-  "amateur",
-  "amazing",
-  "among",
-  "amount",
-  "amused",
-  "analyst",
-  "anchor",
-  "ancient",
-  "anger",
-  "angle",
-  "angry",
-  "animal",
-  "ankle",
-  "announce",
-  "annual",
-  "another",
-  "answer",
-  "antenna",
-  "antique",
-  "anxiety",
-  "any",
-  "apart",
-  "apology",
-  "appear",
-  "apple",
-  "approve",
-  "april",
-  "arch",
-  "arctic",
-  "area",
-  "arena",
-  "argue",
-  "arm",
-  "armed",
-  "armor",
-  "army",
-  "around",
-  "arrange",
-  "arrest",
-  "arrive",
-  "arrow",
-  "art",
-  "artefact",
-  "artist",
-  "artwork",
-  "ask",
-  "aspect",
-  "assault",
-  "asset",
-  "assist",
-  "assume",
-  "asthma",
-  "athlete",
-  "atom",
-  "attack",
-  "attend",
-  "attitude",
-  "attract",
-  "auction",
-  "audit",
-  "august",
-  "aunt",
-  "author",
-  "auto",
-  "autumn",
-  "average",
-  "avocado",
-  "avoid",
-  "awake",
-  "aware",
-  "away",
-  "awesome",
-  "awful",
-  "awkward",
-  "axis",
-  "baby",
-  "bachelor",
-  "bacon",
-  "badge",
-  "bag",
-  "balance",
-  "balcony",
-  "ball",
-  "bamboo",
-  "banana",
-  "banner",
-  "bar",
-  "barely",
-  "bargain",
-  "barrel",
-  "base",
-  "basic",
-  "basket",
-  "battle",
-  "beach",
-  "bean",
-  "beauty",
-  "because",
-  "become",
-  "beef",
-  "before",
-  "begin",
-  "behave",
-  "behind",
-  "believe",
-  "below",
-  "belt",
-  "bench",
-  "benefit",
-  "best",
-  "betray",
-  "better",
-  "between",
-  "beyond",
-  "bicycle",
-  "bid",
-  "bike",
-  "bind",
-  "biology",
-  "bird",
-  "birth",
-  "bitter",
-  "black",
-  "blade",
-  "blame",
-  "blanket",
-  "blast",
-  "bleak",
-  "bless",
-  "blind",
-  "blood",
-  "blossom",
-  "blouse",
-  "blue",
-  "blur",
-  "blush",
-  "board",
-  "boat",
-  "body",
-  "boil",
-  "bomb",
-  "bone",
-  "bonus",
-  "book",
-  "boost",
-  "border",
-  "boring",
-  "borrow",
-  "boss",
-  "bottom",
-  "bounce",
-  "box",
-  "boy",
-  "bracket",
-  "brain",
-  "brand",
-  "brass",
-  "brave",
-  "bread",
-  "breeze",
-  "brick",
-  "bridge",
-  "brief",
-  "bright",
-  "bring",
-  "brisk",
-  "broccoli",
-  "broken",
-  "bronze",
-  "broom",
-  "brother",
-  "brown",
-  "brush",
-  "bubble",
-  "buddy",
-  "budget",
-  "buffalo",
-  "build",
-  "bulb",
-  "bulk",
-  "bullet",
-  "bundle",
-  "bunker",
-  "burden",
-  "burger",
-  "burst",
-  "bus",
-  "business",
-  "busy",
-  "butter",
-  "buyer",
-  "buzz",
-  "cabbage",
-  "cabin",
-  "cable",
-  "cactus",
-  "cage",
-  "cake",
-  "call",
-  "calm",
-  "camera",
-  "camp",
-  "can",
-  "canal",
-  "cancel",
-  "candy",
-  "cannon",
-  "canoe",
-  "canvas",
-  "canyon",
-  "capable",
-  "capital",
-  "captain",
-  "car",
-  "carbon",
-  "card",
-  "cargo",
-  "carpet",
-  "carry",
-  "cart",
-  "case",
-  "cash",
-  "casino",
-  "castle",
-  "casual",
-  "cat",
-  "catalog",
-  "catch",
-  "category",
-  "cattle",
-  "caught",
-  "cause",
-  "caution",
-  "cave",
-  "ceiling",
-  "celery",
-  "cement",
-  "census",
-  "century",
-  "cereal",
-  "certain",
-  "chair",
-  "chalk",
-  "champion",
-  "change",
-  "chaos",
-  "chapter",
-  "charge",
-  "chase",
-  "chat",
-  "cheap",
-  "check",
-  "cheese",
-  "chef",
-  "cherry",
-  "chest",
-  "chicken",
-  "chief",
-  "child",
-  "chimney",
-  "choice",
-  "choose",
-  "chronic",
-  "chuckle",
-  "chunk",
-  "churn",
-  "cigar",
-  "cinnamon",
-  "circle",
-  "citizen",
-  "city",
-  "civil",
-  "claim",
-  "clap",
-  "clarify",
-  "claw",
-  "clay",
-  "clean",
-  "clerk",
-  "clever",
-  "click",
-  "client",
-  "cliff",
-  "climb",
-  "clinic",
-  "clip",
-  "clock",
-  "clog",
-  "close",
-  "cloth",
-  "cloud",
-  "clown",
-  "club",
-  "clump",
-  "cluster",
-  "clutch",
-  "coach",
-  "coast",
-  "coconut",
-  "code",
-  "coffee",
-  "coil",
-  "coin",
-  "collect",
-  "color",
-  "column",
-  "combine",
-  "come",
-  "comfort",
-  "comic",
-  "common",
-  "company",
-  "concert",
-  "conduct",
-  "confirm",
-  "congress",
-  "connect",
-  "consider",
-  "control",
-  "convince",
-  "cook",
-  "cool",
-  "copper",
-  "copy",
-  "coral",
-  "core",
-  "corn",
-  "correct",
-  "cost",
-  "cotton",
-  "couch",
-  "country",
-  "couple",
-  "course",
-  "cousin",
-  "cover",
-  "coyote",
-  "crack",
-  "cradle",
-  "craft",
-  "cram",
-  "crane",
-  "crash",
-  "crater",
-  "crawl",
-  "crazy",
-  "cream",
-  "credit",
-  "creek",
-  "crew",
-  "cricket",
-  "crime",
-  "crisp",
-  "critic",
-  "crop",
-  "cross",
-  "crouch",
-  "crowd",
-  "crucial",
-  "cruel",
-  "cruise",
-  "crumble",
-  "crunch",
-  "crush",
-  "cry",
-  "crystal",
-  "cube",
-  "culture",
-  "cup",
-  "cupboard",
-  "curious",
-  "current",
-  "curtain",
-  "curve",
-  "cushion",
-  "custom",
-  "cute",
-  "cycle",
-  "dad",
-  "damage",
-  "damp",
-  "dance",
-  "danger",
-  "daring",
-  "dash",
-  "daughter",
-  "dawn",
-  "day",
-  "deal",
-  "debate",
-  "debris",
-  "decade",
-  "december",
-  "decide",
-  "decline",
-  "decorate",
-  "decrease",
-  "deer",
-  "defense",
-  "define",
-  "defy",
-  "degree",
-  "delay",
-  "deliver",
-  "demand",
-  "demise",
-  "denial",
-  "dentist",
-  "deny",
-  "depart",
-  "depend",
-  "deposit",
-  "depth",
-  "deputy",
-  "derive",
-  "describe",
-  "desert",
-  "design",
-  "desk",
-  "despair",
-  "destroy",
-  "detail",
-  "detect",
-  "develop",
-  "device",
-  "devote",
-  "diagram",
-  "dial",
-  "diamond",
-  "diary",
-  "dice",
-  "diesel",
-  "diet",
-  "differ",
-  "digital",
-  "dignity",
-  "dilemma",
-  "dinner",
-  "dinosaur",
-  "direct",
-  "dirt",
-  "disagree",
-  "discover",
-  "disease",
-  "dish",
-  "dismiss",
-  "disorder",
-  "display",
-  "distance",
-  "divert",
-  "divide",
-  "divorce",
-  "dizzy",
-  "doctor",
-  "document",
-  "dog",
-  "doll",
-  "dolphin",
-  "domain",
-  "donate",
-  "donkey",
-  "donor",
-  "door",
-  "dose",
-  "double",
-  "dove",
-  "draft",
-  "dragon",
-  "drama",
-  "drastic",
-  "draw",
-  "dream",
-  "dress",
-  "drift",
-  "drill",
-  "drink",
-  "drip",
-  "drive",
-  "drop",
-  "drum",
-  "dry",
-  "duck",
-  "dumb",
-  "dune",
-  "during",
-  "dust",
-  "dutch",
-  "duty",
-  "dwarf",
-  "dynamic",
-  "eager",
-  "eagle",
-  "early",
-  "earn",
-  "earth",
-  "easily",
-  "east",
-  "easy",
-  "echo",
-  "ecology",
-  "economy",
-  "edge",
-  "edit",
-  "educate",
-  "effort",
-  "egg",
-  "eight",
-  "either",
-  "elbow",
-  "elder",
-  "electric",
-  "elegant",
-  "element",
-  "elephant",
-  "elevator",
-  "elite",
-  "else",
-  "embark",
-  "embody",
-  "embrace",
-  "emerge",
-  "emotion",
-  "employ",
-  "empower",
-  "empty",
-  "enable",
-  "enact",
-  "end",
-  "endless",
-  "endorse",
-  "enemy",
-  "energy",
-  "enforce",
-  "engage",
-  "engine",
-  "enhance",
-  "enjoy",
-  "enlist",
-  "enough",
-  "enrich",
-  "enroll",
-  "ensure",
-  "enter",
-  "entire",
-  "entry",
-  "envelope",
-  "episode",
-  "equal",
-  "equip",
-  "era",
-  "erase",
-  "erode",
-  "erosion",
-  "error",
-  "erupt",
-  "escape",
-  "essay",
-  "essence",
-  "estate",
-  "eternal",
-  "ethics",
-  "evidence",
-  "evil",
-  "evoke",
-  "evolve",
-  "exact",
-  "example",
-  "excess",
-  "exchange",
-  "excite",
-  "exclude",
-  "excuse",
-  "execute",
-  "exercise",
-  "exhaust",
-  "exhibit",
-  "exile",
-  "exist",
-  "exit",
-  "exotic",
-  "expand",
-  "expect",
-  "expire",
-  "explain",
-  "expose",
-  "express",
-  "extend",
-  "extra",
-  "eye",
-  "eyebrow",
-  "fabric",
-  "face",
-  "faculty",
-  "fade",
-  "faint",
-  "faith",
-  "fall",
-  "false",
-  "fame",
-  "family",
-  "famous",
-  "fan",
-  "fancy",
-  "fantasy",
-  "farm",
-  "fashion",
-  "fat",
-  "fatal",
-  "father",
-  "fatigue",
-  "fault",
-  "favorite",
-  "feature",
-  "february",
-  "federal",
-  "fee",
-  "feed",
-  "feel",
-  "female",
-  "fence",
-  "festival",
-  "fetch",
-  "fever",
-  "few",
-  "fiber",
-  "fiction",
-  "field",
-  "figure",
-  "file",
-  "film",
-  "filter",
-  "final",
-  "find",
-  "fine",
-  "finger",
-  "finish",
-  "fire",
-  "firm",
-  "first",
-  "fiscal",
-  "fish",
-  "fit",
-  "fitness",
-  "fix",
-  "flag",
-  "flame",
-  "flash",
-  "flat",
-  "flavor",
-  "flee",
-  "flight",
-  "flip",
-  "float",
-  "flock",
-  "floor",
-  "flower",
-  "fluid",
-  "flush",
-  "fly",
-  "foam",
-  "focus",
-  "fog",
-  "foil",
-  "fold",
-  "follow",
-  "food",
-  "foot",
-  "force",
-  "forest",
-  "forget",
-  "fork",
-  "fortune",
-  "forum",
-  "forward",
-  "fossil",
-  "foster",
-  "found",
-  "fox",
-  "fragile",
-  "frame",
-  "frequent",
-  "fresh",
-  "friend",
-  "fringe",
-  "frog",
-  "front",
-  "frost",
-  "frown",
-  "frozen",
-  "fruit",
-  "fuel",
-  "fun",
-  "funny",
-  "furnace",
-  "fury",
-  "future",
-  "gadget",
-  "gain",
-  "galaxy",
-  "gallery",
-  "game",
-  "gap",
-  "garage",
-  "garbage",
-  "garden",
-  "garlic",
-  "garment",
-  "gas",
-  "gasp",
-  "gate",
-  "gather",
-  "gauge",
-  "gaze",
-  "general",
-  "genius",
-  "genre",
-  "gentle",
-  "genuine",
-  "gesture",
-  "ghost",
-  "giant",
-  "gift",
-  "giggle",
-  "ginger",
-  "giraffe",
-  "girl",
-  "give",
-  "glad",
-  "glance",
-  "glare",
-  "glass",
-  "glide",
-  "glimpse",
-  "globe",
-  "gloom",
-  "glory",
-  "glove",
-  "glow",
-  "glue",
-  "goat",
-  "goddess",
-  "gold",
-  "good",
-  "goose",
-  "gorilla",
-  "gospel",
-  "gossip",
-  "govern",
-  "gown",
-  "grab",
-  "grace",
-  "grain",
-  "grant",
-  "grape",
-  "grass",
-  "gravity",
-  "great",
-  "green",
-  "grid",
-  "grief",
-  "grit",
-  "grocery",
-  "group",
-  "grow",
-  "grunt",
-  "guard",
-  "guess",
-  "guide",
-  "guilt",
-  "guitar",
-  "gun",
-  "gym",
-  "habit",
-  "hair",
-  "half",
-  "hammer",
-  "hamster",
-  "hand",
-  "happy",
-  "harbor",
-  "hard",
-  "harsh",
-  "harvest",
-  "hat",
-  "have",
-  "hawk",
-  "hazard",
-  "head",
-  "health",
-  "heart",
-  "heavy",
-  "hedgehog",
-  "height",
-  "hello",
-  "helmet",
-  "help",
-  "hen",
-  "hero",
-  "hidden",
-  "high",
-  "hill",
-  "hint",
-  "hip",
-  "hire",
-  "history",
-  "hobby",
-  "hockey",
-  "hold",
-  "hole",
-  "holiday",
-  "hollow",
-  "home",
-  "honey",
-  "hood",
-  "hope",
-  "horn",
-  "horror",
-  "horse",
-  "hospital",
-  "host",
-  "hotel",
-  "hour",
-  "hover",
-  "hub",
-  "huge",
-  "human",
-  "humble",
-  "humor",
-  "hundred",
-  "hungry",
-  "hunt",
-  "hurdle",
-  "hurry",
-  "hurt",
-  "husband",
-  "hybrid",
-  "ice",
-  "icon",
-  "idea",
-  "identify",
-  "idle",
-  "ignore",
-  "ill",
-  "illegal",
-  "illness",
-  "image",
-  "imitate",
-  "immense",
-  "immune",
-  "impact",
-  "impose",
-  "improve",
-  "impulse",
-  "inch",
-  "include",
-  "income",
-  "increase",
-  "index",
-  "indicate",
-  "indoor",
-  "industry",
-  "infant",
-  "inflict",
-  "inform",
-  "inhale",
-  "inherit",
-  "initial",
-  "inject",
-  "injury",
-  "inmate",
-  "inner",
-  "innocent",
-  "input",
-  "inquiry",
-  "insane",
-  "insect",
-  "inside",
-  "inspire",
-  "install",
-  "intact",
-  "interest",
-  "into",
-  "invest",
-  "invite",
-  "involve",
-  "iron",
-  "island",
-  "isolate",
-  "issue",
-  "item",
-  "ivory",
-  "jacket",
-  "jaguar",
-  "jar",
-  "jazz",
-  "jealous",
-  "jeans",
-  "jelly",
-  "jewel",
-  "job",
-  "join",
-  "joke",
-  "journey",
-  "joy",
-  "judge",
-  "juice",
-  "jump",
-  "jungle",
-  "junior",
-  "junk",
-  "just",
-  "kangaroo",
-  "keen",
-  "keep",
-  "ketchup",
-  "key",
-  "kick",
-  "kid",
-  "kidney",
-  "kind",
-  "kingdom",
-  "kiss",
-  "kit",
-  "kitchen",
-  "kite",
-  "kitten",
-  "kiwi",
-  "knee",
-  "knife",
-  "knock",
-  "know",
-  "lab",
-  "label",
-  "labor",
-  "ladder",
-  "lady",
-  "lake",
-  "lamp",
-  "language",
-  "laptop",
-  "large",
-  "later",
-  "latin",
-  "laugh",
-  "laundry",
-  "lava",
-  "law",
-  "lawn",
-  "lawsuit",
-  "layer",
-  "lazy",
-  "leader",
-  "leaf",
-  "learn",
-  "leave",
-  "lecture",
-  "left",
-  "leg",
-  "legal",
-  "legend",
-  "leisure",
-  "lemon",
-  "lend",
-  "length",
-  "lens",
-  "leopard",
-  "lesson",
-  "letter",
-  "level",
-  "liar",
-  "liberty",
-  "library",
-  "license",
-  "life",
-  "lift",
-  "light",
-  "like",
-  "limb",
-  "limit",
-  "link",
-  "lion",
-  "liquid",
-  "list",
-  "little",
-  "live",
-  "lizard",
-  "load",
-  "loan",
-  "lobster",
-  "local",
-  "lock",
-  "logic",
-  "lonely",
-  "long",
-  "loop",
-  "lottery",
-  "loud",
-  "lounge",
-  "love",
-  "loyal",
-  "lucky",
-  "luggage",
-  "lumber",
-  "lunar",
-  "lunch",
-  "luxury",
-  "lyrics",
-  "machine",
-  "mad",
-  "magic",
-  "magnet",
-  "maid",
-  "mail",
-  "main",
-  "major",
-  "make",
-  "mammal",
-  "man",
-  "manage",
-  "mandate",
-  "mango",
-  "mansion",
-  "manual",
-  "maple",
-  "marble",
-  "march",
-  "margin",
-  "marine",
-  "market",
-  "marriage",
-  "mask",
-  "mass",
-  "master",
-  "match",
-  "material",
-  "math",
-  "matrix",
-  "matter",
-  "maximum",
-  "maze",
-  "meadow",
-  "mean",
-  "measure",
-  "meat",
-  "mechanic",
-  "medal",
-  "media",
-  "melody",
-  "melt",
-  "member",
-  "memory",
-  "mention",
-  "menu",
-  "mercy",
-  "merge",
-  "merit",
-  "merry",
-  "mesh",
-  "message",
-  "metal",
-  "method",
-  "middle",
-  "midnight",
-  "milk",
-  "million",
-  "mimic",
-  "mind",
-  "minimum",
-  "minor",
-  "minute",
-  "miracle",
-  "mirror",
-  "misery",
-  "miss",
-  "mistake",
-  "mix",
-  "mixed",
-  "mixture",
-  "mobile",
-  "model",
-  "modify",
-  "mom",
-  "moment",
-  "monitor",
-  "monkey",
-  "monster",
-  "month",
-  "moon",
-  "moral",
-  "more",
-  "morning",
-  "mosquito",
-  "mother",
-  "motion",
-  "motor",
-  "mountain",
-  "mouse",
-  "move",
-  "movie",
-  "much",
-  "muffin",
-  "mule",
-  "multiply",
-  "muscle",
-  "museum",
-  "mushroom",
-  "music",
-  "must",
-  "mutual",
-  "myself",
-  "mystery",
-  "myth",
-  "naive",
-  "name",
-  "napkin",
-  "narrow",
-  "nasty",
-  "nation",
-  "nature",
-  "near",
-  "neck",
-  "need",
-  "negative",
-  "neglect",
-  "neither",
-  "nephew",
-  "nerve",
-  "nest",
-  "net",
-  "network",
-  "neutral",
-  "never",
-  "news",
-  "next",
-  "nice",
-  "night",
-  "noble",
-  "noise",
-  "nominee",
-  "noodle",
-  "normal",
-  "north",
-  "nose",
-  "notable",
-  "note",
-  "nothing",
-  "notice",
-  "novel",
-  "now",
-  "nuclear",
-  "number",
-  "nurse",
-  "nut",
-  "oak",
-  "obey",
-  "object",
-  "oblige",
-  "obscure",
-  "observe",
-  "obtain",
-  "obvious",
-  "occur",
-  "ocean",
-  "october",
-  "odor",
-  "off",
-  "offer",
-  "office",
-  "often",
-  "oil",
-  "okay",
-  "old",
-  "olive",
-  "olympic",
-  "omit",
-  "once",
-  "one",
-  "onion",
-  "online",
-  "only",
-  "open",
-  "opera",
-  "opinion",
-  "oppose",
-  "option",
-  "orange",
-  "orbit",
-  "orchard",
-  "order",
-  "ordinary",
-  "organ",
-  "orient",
-  "original",
-  "orphan",
-  "ostrich",
-  "other",
-  "outdoor",
-  "outer",
-  "output",
-  "outside",
-  "oval",
-  "oven",
-  "over",
-  "own",
-  "owner",
-  "oxygen",
-  "oyster",
-  "ozone",
-  "pact",
-  "paddle",
-  "page",
-  "pair",
-  "palace",
-  "palm",
-  "panda",
-  "panel",
-  "panic",
-  "panther",
-  "paper",
-  "parade",
-  "parent",
-  "park",
-  "parrot",
-  "party",
-  "pass",
-  "patch",
-  "path",
-  "patient",
-  "patrol",
-  "pattern",
-  "pause",
-  "pave",
-  "payment",
-  "peace",
-  "peanut",
-  "pear",
-  "peasant",
-  "pelican",
-  "pen",
-  "penalty",
-  "pencil",
-  "people",
-  "pepper",
-  "perfect",
-  "permit",
-  "person",
-  "pet",
-  "phone",
-  "photo",
-  "phrase",
-  "physical",
-  "piano",
-  "picnic",
-  "picture",
-  "piece",
-  "pig",
-  "pigeon",
-  "pill",
-  "pilot",
-  "pink",
-  "pioneer",
-  "pipe",
-  "pistol",
-  "pitch",
-  "pizza",
-  "place",
-  "planet",
-  "plastic",
-  "plate",
-  "play",
-  "please",
-  "pledge",
-  "pluck",
-  "plug",
-  "plunge",
-  "poem",
-  "poet",
-  "point",
-  "polar",
-  "pole",
-  "police",
-  "pond",
-  "pony",
-  "pool",
-  "popular",
-  "portion",
-  "position",
-  "possible",
-  "post",
-  "potato",
-  "pottery",
-  "poverty",
-  "powder",
-  "power",
-  "practice",
-  "praise",
-  "predict",
-  "prefer",
-  "prepare",
-  "present",
-  "pretty",
-  "prevent",
-  "price",
-  "pride",
-  "primary",
-  "print",
-  "priority",
-  "prison",
-  "private",
-  "prize",
-  "problem",
-  "process",
-  "produce",
-  "profit",
-  "program",
-  "project",
-  "promote",
-  "proof",
-  "property",
-  "prosper",
-  "protect",
-  "proud",
-  "provide",
-  "public",
-  "pudding",
-  "pull",
-  "pulp",
-  "pulse",
-  "pumpkin",
-  "punch",
-  "pupil",
-  "puppy",
-  "purchase",
-  "purity",
-  "purpose",
-  "purse",
-  "push",
-  "put",
-  "puzzle",
-  "pyramid",
-  "quality",
-  "quantum",
-  "quarter",
-  "question",
-  "quick",
-  "quit",
-  "quiz",
-  "quote",
-  "rabbit",
-  "raccoon",
-  "race",
-  "rack",
-  "radar",
-  "radio",
-  "rail",
-  "rain",
-  "raise",
-  "rally",
-  "ramp",
-  "ranch",
-  "random",
-  "range",
-  "rapid",
-  "rare",
-  "rate",
-  "rather",
-  "raven",
-  "raw",
-  "razor",
-  "ready",
-  "real",
-  "reason",
-  "rebel",
-  "rebuild",
-  "recall",
-  "receive",
-  "recipe",
-  "record",
-  "recycle",
-  "reduce",
-  "reflect",
-  "reform",
-  "refuse",
-  "region",
-  "regret",
-  "regular",
-  "reject",
-  "relax",
-  "release",
-  "relief",
-  "rely",
-  "remain",
-  "remember",
-  "remind",
-  "remove",
-  "render",
-  "renew",
-  "rent",
-  "reopen",
-  "repair",
-  "repeat",
-  "replace",
-  "report",
-  "require",
-  "rescue",
-  "resemble",
-  "resist",
-  "resource",
-  "response",
-  "result",
-  "retire",
-  "retreat",
-  "return",
-  "reunion",
-  "reveal",
-  "review",
-  "reward",
-  "rhythm",
-  "rib",
-  "ribbon",
-  "rice",
-  "rich",
-  "ride",
-  "ridge",
-  "rifle",
-  "right",
-  "rigid",
-  "ring",
-  "riot",
-  "ripple",
-  "risk",
-  "ritual",
-  "rival",
-  "river",
-  "road",
-  "roast",
-  "robot",
-  "robust",
-  "rocket",
-  "romance",
-  "roof",
-  "rookie",
-  "room",
-  "rose",
-  "rotate",
-  "rough",
-  "round",
-  "route",
-  "royal",
-  "rubber",
-  "rude",
-  "rug",
-  "rule",
-  "run",
-  "runway",
-  "rural",
-  "sad",
-  "saddle",
-  "sadness",
-  "safe",
-  "sail",
-  "salad",
-  "salmon",
-  "salon",
-  "salt",
-  "salute",
-  "same",
-  "sample",
-  "sand",
-  "satisfy",
-  "satoshi",
-  "sauce",
-  "sausage",
-  "save",
-  "say",
-  "scale",
-  "scan",
-  "scare",
-  "scatter",
-  "scene",
-  "scheme",
-  "school",
-  "science",
-  "scissors",
-  "scorpion",
-  "scout",
-  "scrap",
-  "screen",
-  "script",
-  "scrub",
-  "sea",
-  "search",
-  "season",
-  "seat",
-  "second",
-  "secret",
-  "section",
-  "security",
-  "seed",
-  "seek",
-  "segment",
-  "select",
-  "sell",
-  "seminar",
-  "senior",
-  "sense",
-  "sentence",
-  "series",
-  "service",
-  "session",
-  "settle",
-  "setup",
-  "seven",
-  "shadow",
-  "shaft",
-  "shallow",
-  "share",
-  "shed",
-  "shell",
-  "sheriff",
-  "shield",
-  "shift",
-  "shine",
-  "ship",
-  "shiver",
-  "shock",
-  "shoe",
-  "shoot",
-  "shop",
-  "short",
-  "shoulder",
-  "shove",
-  "shrimp",
-  "shrug",
-  "shuffle",
-  "shy",
-  "sibling",
-  "sick",
-  "side",
-  "siege",
-  "sight",
-  "sign",
-  "silent",
-  "silk",
-  "silly",
-  "silver",
-  "similar",
-  "simple",
-  "since",
-  "sing",
-  "siren",
-  "sister",
-  "situate",
-  "six",
-  "size",
-  "skate",
-  "sketch",
-  "ski",
-  "skill",
-  "skin",
-  "skirt",
-  "skull",
-  "slab",
-  "slam",
-  "sleep",
-  "slender",
-  "slice",
-  "slide",
-  "slight",
-  "slim",
-  "slogan",
-  "slot",
-  "slow",
-  "slush",
-  "small",
-  "smart",
-  "smile",
-  "smoke",
-  "smooth",
-  "snack",
-  "snake",
-  "snap",
-  "sniff",
-  "snow",
-  "soap",
-  "soccer",
-  "social",
-  "sock",
-  "soda",
-  "soft",
-  "solar",
-  "soldier",
-  "solid",
-  "solution",
-  "solve",
-  "someone",
-  "song",
-  "soon",
-  "sorry",
-  "sort",
-  "soul",
-  "sound",
-  "soup",
-  "source",
-  "south",
-  "space",
-  "spare",
-  "spatial",
-  "spawn",
-  "speak",
-  "special",
-  "speed",
-  "spell",
-  "spend",
-  "sphere",
-  "spice",
-  "spider",
-  "spike",
-  "spin",
-  "spirit",
-  "split",
-  "spoil",
-  "sponsor",
-  "spoon",
-  "sport",
-  "spot",
-  "spray",
-  "spread",
-  "spring",
-  "spy",
-  "square",
-  "squeeze",
-  "squirrel",
-  "stable",
-  "stadium",
-  "staff",
-  "stage",
-  "stairs",
-  "stamp",
-  "stand",
-  "start",
-  "state",
-  "stay",
-  "steak",
-  "steel",
-  "stem",
-  "step",
-  "stereo",
-  "stick",
-  "still",
-  "sting",
-  "stock",
-  "stomach",
-  "stone",
-  "stool",
-  "story",
-  "stove",
-  "strategy",
-  "street",
-  "strike",
-  "strong",
-  "struggle",
-  "student",
-  "stuff",
-  "stumble",
-  "style",
-  "subject",
-  "submit",
-  "subway",
-  "success",
-  "such",
-  "sudden",
-  "suffer",
-  "sugar",
-  "suggest",
-  "suit",
-  "summer",
-  "sun",
-  "sunny",
-  "sunset",
-  "super",
-  "supply",
-  "supreme",
-  "sure",
-  "surface",
-  "surge",
-  "surprise",
-  "surround",
-  "survey",
-  "suspect",
-  "sustain",
-  "swallow",
-  "swamp",
-  "swap",
-  "swarm",
-  "swear",
-  "sweet",
-  "swift",
-  "swim",
-  "swing",
-  "switch",
-  "sword",
-  "symbol",
-  "symptom",
-  "syrup",
-  "system",
-  "table",
-  "tackle",
-  "tag",
-  "tail",
-  "talent",
-  "talk",
-  "tank",
-  "tape",
-  "target",
-  "task",
-  "taste",
-  "tattoo",
-  "taxi",
-  "teach",
-  "team",
-  "tell",
-  "ten",
-  "tenant",
-  "tennis",
-  "tent",
-  "term",
-  "test",
-  "text",
-  "thank",
-  "that",
-  "theme",
-  "then",
-  "theory",
-  "there",
-  "they",
-  "thing",
-  "this",
-  "thought",
-  "three",
-  "thrive",
-  "throw",
-  "thumb",
-  "thunder",
-  "ticket",
-  "tide",
-  "tiger",
-  "tilt",
-  "timber",
-  "time",
-  "tiny",
-  "tip",
-  "tired",
-  "tissue",
-  "title",
-  "toast",
-  "tobacco",
-  "today",
-  "toddler",
-  "toe",
-  "together",
-  "toilet",
-  "token",
-  "tomato",
-  "tomorrow",
-  "tone",
-  "tongue",
-  "tonight",
-  "tool",
-  "tooth",
-  "top",
-  "topic",
-  "topple",
-  "torch",
-  "tornado",
-  "tortoise",
-  "toss",
-  "total",
-  "tourist",
-  "toward",
-  "tower",
-  "town",
-  "toy",
-  "track",
-  "trade",
-  "traffic",
-  "tragic",
-  "train",
-  "transfer",
-  "trap",
-  "trash",
-  "travel",
-  "tray",
-  "treat",
-  "tree",
-  "trend",
-  "trial",
-  "tribe",
-  "trick",
-  "trigger",
-  "trim",
-  "trip",
-  "trophy",
-  "trouble",
-  "truck",
-  "true",
-  "truly",
-  "trumpet",
-  "trust",
-  "truth",
-  "try",
-  "tube",
-  "tuition",
-  "tumble",
-  "tuna",
-  "tunnel",
-  "turkey",
-  "turn",
-  "turtle",
-  "twelve",
-  "twenty",
-  "twice",
-  "twin",
-  "twist",
-  "two",
-  "type",
-  "typical",
-  "ugly",
-  "umbrella",
-  "unable",
-  "unaware",
-  "uncle",
-  "uncover",
-  "under",
-  "undo",
-  "unfair",
-  "unfold",
-  "unhappy",
-  "uniform",
-  "unique",
-  "unit",
-  "universe",
-  "unknown",
-  "unlock",
-  "until",
-  "unusual",
-  "unveil",
-  "update",
-  "upgrade",
-  "uphold",
-  "upon",
-  "upper",
-  "upset",
-  "urban",
-  "urge",
-  "usage",
-  "use",
-  "used",
-  "useful",
-  "useless",
-  "usual",
-  "utility",
-  "vacant",
-  "vacuum",
-  "vague",
-  "valid",
-  "valley",
-  "valve",
-  "van",
-  "vanish",
-  "vapor",
-  "various",
-  "vast",
-  "vault",
-  "vehicle",
-  "velvet",
-  "vendor",
-  "venture",
-  "venue",
-  "verb",
-  "verify",
-  "version",
-  "very",
-  "vessel",
-  "veteran",
-  "viable",
-  "vibrant",
-  "vicious",
-  "victory",
-  "video",
-  "view",
-  "village",
-  "vintage",
-  "violin",
-  "virtual",
-  "virus",
-  "visa",
-  "visit",
-  "visual",
-  "vital",
-  "vivid",
-  "vocal",
-  "voice",
-  "void",
-  "volcano",
-  "volume",
-  "vote",
-  "voyage",
-  "wage",
-  "wagon",
-  "wait",
-  "walk",
-  "wall",
-  "walnut",
-  "want",
-  "warfare",
-  "warm",
-  "warrior",
-  "wash",
-  "wasp",
-  "waste",
-  "water",
-  "wave",
-  "way",
-  "wealth",
-  "weapon",
-  "wear",
-  "weasel",
-  "weather",
-  "web",
-  "wedding",
-  "weekend",
-  "weird",
-  "welcome",
-  "west",
-  "wet",
-  "whale",
-  "what",
-  "wheat",
-  "wheel",
-  "when",
-  "where",
-  "whip",
-  "whisper",
-  "wide",
-  "width",
-  "wife",
-  "wild",
-  "will",
-  "win",
-  "window",
-  "wine",
-  "wing",
-  "wink",
-  "winner",
-  "winter",
-  "wire",
-  "wisdom",
-  "wise",
-  "wish",
-  "witness",
-  "wolf",
-  "woman",
-  "wonder",
-  "wood",
-  "wool",
-  "word",
-  "work",
-  "world",
-  "worry",
-  "worth",
-  "wrap",
-  "wreck",
-  "wrestle",
-  "wrist",
-  "write",
-  "wrong",
-  "yard",
-  "year",
-  "yellow",
-  "you",
-  "young",
-  "youth",
-  "zebra",
-  "zero",
-  "zone",
-  "zoo",
-];
 ```

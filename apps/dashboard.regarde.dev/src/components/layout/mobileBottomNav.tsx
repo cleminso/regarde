@@ -1,3 +1,4 @@
+import { Link, useParams } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
 import * as React from "react";
 
@@ -5,21 +6,27 @@ import { Button } from "#/components/ui/button";
 
 import { MobileNavSheet } from "./mobileNavSheet";
 
-const NAV_ITEMS = [
-  { to: "/app/overview", label: "Overview" },
-  { to: "/app/payments", label: "Payments" },
-  { to: "/app/settings", label: "Settings" },
-];
-
 export function MobileBottomNav(): React.ReactElement {
   const [sheetOpen, setSheetOpen] = React.useState(false);
+  const { appId } = useParams({ strict: false });
+
+  const navItems = [
+    { to: "/app/$appId/overview" as const, label: "Overview" },
+    { to: "/app/$appId/payments" as const, label: "Payments" },
+    { to: "/app/$appId/settings" as const, label: "Settings" },
+  ];
 
   return (
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 border-t bg-background md:hidden">
         <div className="flex h-full items-center justify-around px-4">
-          {NAV_ITEMS.map((item) => (
-            <MobileNavButton key={item.to} to={item.to} label={item.label} />
+          {navItems.map((item) => (
+            <MobileNavButton 
+              key={item.to} 
+              to={item.to} 
+              label={item.label}
+              appId={appId}
+            />
           ))}
           <Button
             variant="ghost"
@@ -38,25 +45,40 @@ export function MobileBottomNav(): React.ReactElement {
 }
 
 interface MobileNavButtonProps {
-  to: string;
+  to: "/app/$appId/overview" | "/app/$appId/payments" | "/app/$appId/settings";
   label: string;
+  appId: string | undefined;
 }
 
-function MobileNavButton({ to, label }: MobileNavButtonProps): React.ReactElement {
-  const isActive = typeof window !== "undefined" && window.location.pathname === to;
+function MobileNavButton({ to, label, appId }: MobileNavButtonProps): React.ReactElement {
+  if (!appId) {
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        disabled
+        className="flex flex-col items-center gap-1 h-auto py-2 text-muted-foreground"
+      >
+        <span className="text-xs">{label}</span>
+      </Button>
+    );
+  }
 
   return (
     <Button
       variant="ghost"
       size="sm"
-      className={`flex flex-col items-center gap-1 h-auto py-2 ${
-        isActive ? "text-primary font-medium" : "text-muted-foreground"
-      }`}
+      className="flex flex-col items-center gap-1 h-auto py-2"
       asChild
     >
-      <a href={to}>
+      <Link
+        to={to}
+        params={{ appId }}
+        activeProps={{ className: "text-primary font-medium" }}
+        inactiveProps={{ className: "text-muted-foreground" }}
+      >
         <span className="text-xs">{label}</span>
-      </a>
+      </Link>
     </Button>
   );
 }

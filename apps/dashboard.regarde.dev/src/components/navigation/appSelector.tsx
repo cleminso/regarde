@@ -1,6 +1,9 @@
+import { useNavigate } from "@tanstack/react-router";
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 
+import { useMyRegardeAccount } from "#/lib/account/useMyRegardeAccount";
+import { cn } from "#/lib/utils";
 import { Button } from "#ui/button";
 import {
   Command,
@@ -11,30 +14,37 @@ import {
   CommandList,
 } from "#ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "#ui/popover";
-import { cn } from "#/lib/utils";
 
 export function AppSelector(): React.ReactElement {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+  const navigate = useNavigate();
+  const { myApps, selectedAppId, isAccountReady } = useMyRegardeAccount();
 
-  const apps: string[] = [];
-  const hasApps = apps.length > 0;
+  const handleSelect = (selectedAppIdValue: string): void => {
+    // Navigate to overview page with new appId
+    navigate({
+      to: "/app/$appId/overview",
+      params: { appId: selectedAppIdValue },
+    });
+    setOpen(false);
+  };
+
+  const selectedApp = myApps?.find((app) => app.$jazz.id === selectedAppId);
+
+  if (isAccountReady === false || myApps === undefined) {
+    return (
+      <Button variant="outline" disabled className="w-full justify-between">
+        <span className="text-gray-400">Loading apps...</span>
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+    );
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between"
-          disabled={hasApps === false}
-        >
-          {value
-            ? apps.find((app) => app === value)
-            : hasApps
-              ? "Select app"
-              : "No apps"}
+        <Button variant="outline" role="combobox" className="w-full justify-between">
+          {selectedApp?.name ?? "Select app"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -44,22 +54,19 @@ export function AppSelector(): React.ReactElement {
           <CommandList>
             <CommandEmpty>No apps found.</CommandEmpty>
             <CommandGroup>
-              {apps.map((app) => (
+              {myApps.map((app) => (
                 <CommandItem
-                  key={app}
-                  value={app}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
-                    setOpen(false);
-                  }}
+                  key={app.$jazz.id}
+                  value={app.$jazz.id}
+                  onSelect={() => handleSelect(app.$jazz.id)}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === app ? "opacity-100" : "opacity-0",
+                      selectedAppId === app.$jazz.id ? "opacity-100" : "opacity-0",
                     )}
                   />
-                  {app}
+                  {app.name}
                 </CommandItem>
               ))}
             </CommandGroup>
