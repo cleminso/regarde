@@ -29,7 +29,25 @@ export function AppSelector(): React.ReactElement {
     setOpen(false);
   };
 
-  const selectedApp = myApps?.find((app) => app.$jazz.id === selectedAppId);
+  const selectedApp = myApps?.find(
+    (app) => app.$isLoaded === true && app.$jazz.id === selectedAppId,
+  );
+
+  // Determine effective selected app for display
+  const effectiveSelectedApp =
+    selectedApp ??
+    (() => {
+      const isAppsListLoaded = myApps?.$isLoaded === true;
+      const hasApps = isAppsListLoaded && myApps.length > 0;
+      
+      if (hasApps) {
+        const firstApp = myApps[0];
+        if (firstApp?.$isLoaded === true) {
+          return firstApp;
+        }
+      }
+      return undefined;
+    })();
 
   if (isAccountReady === false || myApps === undefined) {
     return (
@@ -44,7 +62,7 @@ export function AppSelector(): React.ReactElement {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" role="combobox" className="w-full justify-between">
-          {selectedApp?.name ?? "Select app"}
+          {effectiveSelectedApp?.name ?? "Select app"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -54,21 +72,23 @@ export function AppSelector(): React.ReactElement {
           <CommandList>
             <CommandEmpty>No apps found.</CommandEmpty>
             <CommandGroup>
-              {myApps.map((app) => (
-                <CommandItem
-                  key={app.$jazz.id}
-                  value={app.$jazz.id}
-                  onSelect={() => handleSelect(app.$jazz.id)}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      selectedAppId === app.$jazz.id ? "opacity-100" : "opacity-0",
-                    )}
-                  />
-                  {app.name}
-                </CommandItem>
-              ))}
+              {myApps
+                .filter((app) => app.$isLoaded === true)
+                .map((app) => (
+                  <CommandItem
+                    key={app.$jazz.id}
+                    value={app.$jazz.id}
+                    onSelect={() => handleSelect(app.$jazz.id)}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        selectedAppId === app.$jazz.id ? "opacity-100" : "opacity-0",
+                      )}
+                    />
+                    {app.name}
+                  </CommandItem>
+                ))}
             </CommandGroup>
           </CommandList>
         </Command>

@@ -1,5 +1,7 @@
 import { useParams } from "@tanstack/react-router";
 
+import { useMyRegardeAccount } from "#/lib/account/useMyRegardeAccount";
+
 import { NavLink } from "./navLink";
 
 interface NavItemsProps {
@@ -8,11 +10,37 @@ interface NavItemsProps {
 
 export function NavItems({ onNavigate }: NavItemsProps): React.ReactElement {
   const { appId } = useParams({ strict: false });
+  const { myApps, isAccountReady } = useMyRegardeAccount();
+
+  // Determine which appId to use - from URL or first available app
+  let effectiveAppId = appId;
+  if (effectiveAppId === undefined && isAccountReady) {
+    const isAppsListLoaded = myApps?.$isLoaded === true;
+    const hasApps = isAppsListLoaded && myApps.length > 0;
+    
+    if (hasApps) {
+      const firstApp = myApps[0];
+      if (firstApp?.$isLoaded === true) {
+        effectiveAppId = firstApp.$jazz.id;
+      }
+    }
+  }
+
+  // If no appId available, show disabled placeholder
+  if (effectiveAppId === undefined) {
+    return (
+      <div className="space-y-1">
+        <div className="px-3 py-2 text-sm text-muted-foreground">Overview</div>
+        <div className="px-3 py-2 text-sm text-muted-foreground">Payments</div>
+        <div className="px-3 py-2 text-sm text-muted-foreground">Settings</div>
+      </div>
+    );
+  }
 
   const navItems = [
-    { to: `/app/${appId}/overview`, label: "Overview" },
-    { to: `/app/${appId}/payments`, label: "Payments" },
-    { to: `/app/${appId}/settings`, label: "Settings" },
+    { to: `/app/${effectiveAppId}/overview`, label: "Overview" },
+    { to: `/app/${effectiveAppId}/payments`, label: "Payments" },
+    { to: `/app/${effectiveAppId}/settings`, label: "Settings" },
   ];
 
   return (

@@ -10,9 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterAppRouteImport } from './routes/register-app'
-import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppAppIdRouteRouteImport } from './routes/app/$appId/route'
 import { Route as AppAppIdSettingsRouteImport } from './routes/app/$appId/settings'
 import { Route as AppAppIdPaymentsRouteImport } from './routes/app/$appId/payments'
 import { Route as AppAppIdOverviewRouteImport } from './routes/app/$appId/overview'
@@ -22,51 +20,37 @@ const RegisterAppRoute = RegisterAppRouteImport.update({
   path: '/register-app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRouteRoute = AppRouteRouteImport.update({
-  id: '/app',
-  path: '/app',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppAppIdRouteRoute = AppAppIdRouteRouteImport.update({
-  id: '/$appId',
-  path: '/$appId',
-  getParentRoute: () => AppRouteRoute,
-} as any)
 const AppAppIdSettingsRoute = AppAppIdSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AppAppIdRouteRoute,
+  id: '/app/$appId/settings',
+  path: '/app/$appId/settings',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppAppIdPaymentsRoute = AppAppIdPaymentsRouteImport.update({
-  id: '/payments',
-  path: '/payments',
-  getParentRoute: () => AppAppIdRouteRoute,
+  id: '/app/$appId/payments',
+  path: '/app/$appId/payments',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppAppIdOverviewRoute = AppAppIdOverviewRouteImport.update({
-  id: '/overview',
-  path: '/overview',
-  getParentRoute: () => AppAppIdRouteRoute,
+  id: '/app/$appId/overview',
+  path: '/app/$appId/overview',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AppRouteRouteWithChildren
   '/register-app': typeof RegisterAppRoute
-  '/app/$appId': typeof AppAppIdRouteRouteWithChildren
   '/app/$appId/overview': typeof AppAppIdOverviewRoute
   '/app/$appId/payments': typeof AppAppIdPaymentsRoute
   '/app/$appId/settings': typeof AppAppIdSettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/app': typeof AppRouteRouteWithChildren
   '/register-app': typeof RegisterAppRoute
-  '/app/$appId': typeof AppAppIdRouteRouteWithChildren
   '/app/$appId/overview': typeof AppAppIdOverviewRoute
   '/app/$appId/payments': typeof AppAppIdPaymentsRoute
   '/app/$appId/settings': typeof AppAppIdSettingsRoute
@@ -74,9 +58,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/app': typeof AppRouteRouteWithChildren
   '/register-app': typeof RegisterAppRoute
-  '/app/$appId': typeof AppAppIdRouteRouteWithChildren
   '/app/$appId/overview': typeof AppAppIdOverviewRoute
   '/app/$appId/payments': typeof AppAppIdPaymentsRoute
   '/app/$appId/settings': typeof AppAppIdSettingsRoute
@@ -85,27 +67,21 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/app'
     | '/register-app'
-    | '/app/$appId'
     | '/app/$appId/overview'
     | '/app/$appId/payments'
     | '/app/$appId/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/app'
     | '/register-app'
-    | '/app/$appId'
     | '/app/$appId/overview'
     | '/app/$appId/payments'
     | '/app/$appId/settings'
   id:
     | '__root__'
     | '/'
-    | '/app'
     | '/register-app'
-    | '/app/$appId'
     | '/app/$appId/overview'
     | '/app/$appId/payments'
     | '/app/$appId/settings'
@@ -113,8 +89,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppRouteRoute: typeof AppRouteRouteWithChildren
   RegisterAppRoute: typeof RegisterAppRoute
+  AppAppIdOverviewRoute: typeof AppAppIdOverviewRoute
+  AppAppIdPaymentsRoute: typeof AppAppIdPaymentsRoute
+  AppAppIdSettingsRoute: typeof AppAppIdSettingsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -126,13 +104,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterAppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -140,69 +111,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/$appId': {
-      id: '/app/$appId'
-      path: '/$appId'
-      fullPath: '/app/$appId'
-      preLoaderRoute: typeof AppAppIdRouteRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
     '/app/$appId/settings': {
       id: '/app/$appId/settings'
-      path: '/settings'
+      path: '/app/$appId/settings'
       fullPath: '/app/$appId/settings'
       preLoaderRoute: typeof AppAppIdSettingsRouteImport
-      parentRoute: typeof AppAppIdRouteRoute
+      parentRoute: typeof rootRouteImport
     }
     '/app/$appId/payments': {
       id: '/app/$appId/payments'
-      path: '/payments'
+      path: '/app/$appId/payments'
       fullPath: '/app/$appId/payments'
       preLoaderRoute: typeof AppAppIdPaymentsRouteImport
-      parentRoute: typeof AppAppIdRouteRoute
+      parentRoute: typeof rootRouteImport
     }
     '/app/$appId/overview': {
       id: '/app/$appId/overview'
-      path: '/overview'
+      path: '/app/$appId/overview'
       fullPath: '/app/$appId/overview'
       preLoaderRoute: typeof AppAppIdOverviewRouteImport
-      parentRoute: typeof AppAppIdRouteRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AppAppIdRouteRouteChildren {
-  AppAppIdOverviewRoute: typeof AppAppIdOverviewRoute
-  AppAppIdPaymentsRoute: typeof AppAppIdPaymentsRoute
-  AppAppIdSettingsRoute: typeof AppAppIdSettingsRoute
-}
-
-const AppAppIdRouteRouteChildren: AppAppIdRouteRouteChildren = {
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  RegisterAppRoute: RegisterAppRoute,
   AppAppIdOverviewRoute: AppAppIdOverviewRoute,
   AppAppIdPaymentsRoute: AppAppIdPaymentsRoute,
   AppAppIdSettingsRoute: AppAppIdSettingsRoute,
-}
-
-const AppAppIdRouteRouteWithChildren = AppAppIdRouteRoute._addFileChildren(
-  AppAppIdRouteRouteChildren,
-)
-
-interface AppRouteRouteChildren {
-  AppAppIdRouteRoute: typeof AppAppIdRouteRouteWithChildren
-}
-
-const AppRouteRouteChildren: AppRouteRouteChildren = {
-  AppAppIdRouteRoute: AppAppIdRouteRouteWithChildren,
-}
-
-const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
-  AppRouteRouteChildren,
-)
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AppRouteRoute: AppRouteRouteWithChildren,
-  RegisterAppRoute: RegisterAppRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

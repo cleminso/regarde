@@ -1,5 +1,5 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { Outlet, createRootRoute, useMatch } from "@tanstack/react-router";
+import { Outlet, createRootRoute, useLocation } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
 import { DashboardLayout } from "#/components/layout/dashboardLayout";
@@ -9,14 +9,12 @@ export const Route = createRootRoute({
 });
 
 function RootComponent(): React.ReactElement {
-  const isAppRoute = useMatch({
-    from: "/app",
-    shouldThrow: false,
-  });
+  const location = useLocation();
+  const isAppRoute = location.pathname.startsWith("/app/");
 
   const content = <Outlet />;
 
-  if (isAppRoute !== undefined) {
+  if (isAppRoute) {
     return (
       <>
         <DashboardLayout>{content}</DashboardLayout>

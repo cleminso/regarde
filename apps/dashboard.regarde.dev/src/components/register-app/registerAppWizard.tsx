@@ -2,7 +2,7 @@ import type { RegisterAppResponse } from "#/lib/api/registerApp";
 import type { TApp } from "@regarde-dev/core";
 import { useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { useMyRegardeAccount } from "#/lib/account/useMyRegardeAccount";
 import { registerApp, RegisterAppApiError } from "#/lib/api/registerApp";
@@ -37,49 +37,13 @@ const INITIAL_FORM_DATA: AppConfigData = {
 export function RegisterAppWizard(): React.ReactElement {
   const navigate = useNavigate();
   const { account, auth, isAccountReady } = useMyRegardeAccount();
-  const {
-    token,
-    tokenId,
-    isExpired,
-    refresh,
-    isLoading: isTokenLoading,
-  } = useRegardeTokenAuth(auth);
+  const { isExpired, refresh, isLoading: isTokenLoading } = useRegardeTokenAuth(auth);
 
   const [state, setState] = useState<WizardState>({
     step: 1,
     formData: INITIAL_FORM_DATA,
     submissionStatus: "idle",
   });
-
-  // Auto-refresh token if expired
-  useEffect(() => {
-    const shouldRefresh = isExpired === true && isTokenLoading === false;
-    if (shouldRefresh) {
-      refresh();
-    }
-  }, [isExpired, isTokenLoading, refresh]);
-
-  // Auto-retry submission when token becomes valid (was expired but now refreshed)
-  useEffect(() => {
-    const wasWaitingForToken =
-      state.submissionStatus === "error" &&
-      (state.error?.includes("expired") || state.error?.includes("Refreshing"));
-
-    const hasToken = token !== null && token.length > 0;
-    const hasTokenId = tokenId !== null && tokenId.length > 0;
-    const isTokenValid = hasToken && hasTokenId && isExpired === false;
-
-    if (wasWaitingForToken && isTokenValid && state.step === 2) {
-      setState((previous) => ({
-        ...previous,
-        submissionStatus: "idle",
-        error: undefined,
-      }));
-      setTimeout(() => {
-        void handleSubmit();
-      }, 100);
-    }
-  }, [token, tokenId, isExpired, state.submissionStatus, state.error, state.step]);
 
   const handleFormChange = (formData: AppConfigData) => {
     setState((previous) => ({ ...previous, formData }));
@@ -107,27 +71,7 @@ export function RegisterAppWizard(): React.ReactElement {
       return;
     }
 
-    // Check token validity
-    const hasToken = token !== null && token.length > 0;
-    const hasTokenId = tokenId !== null && tokenId.length > 0;
-    const isTokenValid = hasToken && hasTokenId && isExpired === false;
-
-    if (isTokenValid === false) {
-      if (isExpired === true) {
-        refresh();
-        setState((previous) => ({
-          ...previous,
-          error: "Refreshing authentication token... Please try again in a moment.",
-        }));
-      } else {
-        setState((previous) => ({
-          ...previous,
-          error: "Authentication not ready. Please wait.",
-        }));
-      }
-      return;
-    }
-
+    // Move to step 2 and start submission
     setState((previous) => ({
       ...previous,
       step: 2,
@@ -153,29 +97,6 @@ export function RegisterAppWizard(): React.ReactElement {
       return;
     }
 
-    // Check token validity using the hook's token
-    const hasToken = token !== null && token.length > 0;
-    const hasTokenId = tokenId !== null && tokenId.length > 0;
-    const isTokenValid = hasToken && hasTokenId && isExpired === false;
-
-    if (isTokenValid === false) {
-      console.log(
-        "[RegisterAppWizard] Token not ready, isExpired:",
-        isExpired,
-        "hasToken:",
-        hasToken,
-      );
-      setState((previous) => ({
-        ...previous,
-        submissionStatus: "error",
-        error:
-          isExpired === true
-            ? "Authentication token expired. Refreshing..."
-            : "Authentication not ready. Please wait.",
-      }));
-      return;
-    }
-
     setState((previous) => ({
       ...previous,
       submissionStatus: "loading",
@@ -183,6 +104,11 @@ export function RegisterAppWizard(): React.ReactElement {
     }));
 
     try {
+      // Refresh token if expired before API call
+      if (isExpired === true) {
+        await refresh();
+      }
+
       // Step 1: Create the app locally using SDK
       const newApp = await createApp(account, {
         name: state.formData.name.trim(),
@@ -224,20 +150,6 @@ export function RegisterAppWizard(): React.ReactElement {
   };
 
   const handleRetry = () => {
-    // Check token validity before retrying
-    const hasToken = token !== null && token.length > 0;
-    const hasTokenId = tokenId !== null && tokenId.length > 0;
-    const isTokenValid = hasToken && hasTokenId && isExpired === false;
-
-    if (isTokenValid === false && isExpired === true) {
-      refresh();
-      setState((previous) => ({
-        ...previous,
-        error: "Refreshing authentication token...",
-      }));
-      return;
-    }
-
     // If we already created the app locally, just retry the API call
     if (state.createdApp !== undefined && state.submissionStatus === "error") {
       setState((previous) => ({
@@ -253,31 +165,24 @@ export function RegisterAppWizard(): React.ReactElement {
   };
 
   const retryApiCall = async () => {
-    const hasToken = token !== null && token.length > 0;
-    const hasTokenId = tokenId !== null && tokenId.length > 0;
-    const isTokenValid = hasToken && hasTokenId && isExpired === false;
-
     const canRetry =
-      state.createdApp !== undefined &&
-      account !== undefined &&
-      account.$isLoaded === true &&
-      isTokenValid === true;
+      state.createdApp !== undefined && account !== undefined && account.$isLoaded === true;
 
     if (canRetry === false) {
-      const errorMsg =
-        isExpired === true
-          ? "Authentication token expired. Please wait for refresh."
-          : "Cannot retry - account data not available";
-
       setState((previous) => ({
         ...previous,
         submissionStatus: "error",
-        error: errorMsg,
+        error: "Cannot retry - account data not available",
       }));
       return;
     }
 
     try {
+      // Refresh token if expired before retry
+      if (isExpired === true) {
+        await refresh();
+      }
+
       const result = await registerApp(state.createdApp!.$jazz.id, auth!, account!.$jazz.id);
 
       setState((previous) => ({
@@ -301,10 +206,13 @@ export function RegisterAppWizard(): React.ReactElement {
     }
   };
 
-  const handleGoToDashboard = () => {
+  const handleGoToDashboard = async () => {
     const appId = state.createdApp?.$jazz.id ?? state.result?.appId;
     if (appId !== undefined) {
-      void navigate({ to: "/app/$appId/overview", params: { appId } });
+      // Wait for sync to ensure the new app is available in myApps list
+      // This prevents navigation to a route that can't find the app
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      await navigate({ to: "/app/$appId/overview", params: { appId } });
     }
   };
 

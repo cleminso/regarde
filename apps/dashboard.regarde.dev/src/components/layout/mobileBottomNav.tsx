@@ -3,12 +3,28 @@ import { Menu } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "#/components/ui/button";
+import { useMyRegardeAccount } from "#/lib/account/useMyRegardeAccount";
 
 import { MobileNavSheet } from "./mobileNavSheet";
 
 export function MobileBottomNav(): React.ReactElement {
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const { appId } = useParams({ strict: false });
+  const { myApps, isAccountReady } = useMyRegardeAccount();
+
+  // Determine which appId to use - from URL or first available app
+  let effectiveAppId = appId;
+  if (effectiveAppId === undefined && isAccountReady) {
+    const isAppsListLoaded = myApps?.$isLoaded === true;
+    const hasApps = isAppsListLoaded && myApps.length > 0;
+    
+    if (hasApps) {
+      const firstApp = myApps[0];
+      if (firstApp?.$isLoaded === true) {
+        effectiveAppId = firstApp.$jazz.id;
+      }
+    }
+  }
 
   const navItems = [
     { to: "/app/$appId/overview" as const, label: "Overview" },
@@ -21,12 +37,7 @@ export function MobileBottomNav(): React.ReactElement {
       <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 border-t bg-background md:hidden">
         <div className="flex h-full items-center justify-around px-4">
           {navItems.map((item) => (
-            <MobileNavButton 
-              key={item.to} 
-              to={item.to} 
-              label={item.label}
-              appId={appId}
-            />
+            <MobileNavButton key={item.to} to={item.to} label={item.label} appId={effectiveAppId} />
           ))}
           <Button
             variant="ghost"

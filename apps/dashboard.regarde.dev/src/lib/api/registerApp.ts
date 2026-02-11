@@ -120,9 +120,9 @@ export async function registerApp(
     "appId" in data &&
     "webhookUrl" in data &&
     "webhookSecret" in data &&
-    typeof data.appId === "string" &&
-    typeof data.webhookUrl === "string" &&
-    typeof data.webhookSecret === "string";
+    typeof (data as Record<string, unknown>).appId === "string" &&
+    typeof (data as Record<string, unknown>).webhookUrl === "string" &&
+    typeof (data as Record<string, unknown>).webhookSecret === "string";
 
   if (isValidResponse === false) {
     throw new RegisterAppApiError({
@@ -132,9 +132,10 @@ export async function registerApp(
     });
   }
 
+  const responseData = data as RegisterAppResponse;
   return {
-    appId: data.appId,
-    webhookUrl: data.webhookUrl,
-    webhookSecret: data.webhookSecret,
+    appId: responseData.appId,
+    webhookUrl: responseData.webhookUrl,
+    webhookSecret: responseData.webhookSecret,
   };
 }
