@@ -14,16 +14,8 @@ export function MobileBottomNav(): React.ReactElement {
 
   // Determine which appId to use - from URL or first available app
   let effectiveAppId = appId;
-  if (effectiveAppId === undefined && isAccountReady) {
-    const isAppsListLoaded = myApps?.$isLoaded === true;
-    const hasApps = isAppsListLoaded && myApps.length > 0;
-    
-    if (hasApps) {
-      const firstApp = myApps[0];
-      if (firstApp?.$isLoaded === true) {
-        effectiveAppId = firstApp.$jazz.id;
-      }
-    }
+  if (effectiveAppId === undefined && isAccountReady && myApps && myApps.length > 0) {
+    effectiveAppId = myApps[0].$jazz.id;
   }
 
   const navItems = [

@@ -1,11 +1,9 @@
 import { useParams } from "@tanstack/react-router";
-import { co, ID } from "jazz-tools";
-import { useAccount, useIsAuthenticated } from "jazz-tools/react";
-import { useMemo } from "react";
+import { ID } from "jazz-tools";
+import { useAccount, useIsAuthenticated, useLogOut } from "jazz-tools/react";
 
 import {
   RegardeAccount,
-  RegardeSDK,
   App,
   type TApp,
   type TUserHandleLoaded,
@@ -13,63 +11,33 @@ import {
 } from "@regarde-dev/core";
 
 /**
- * Return type for useMyRegardeAccount hook
- * Provides complete type safety for all loaded CoValues
- */
-export type TUseMyRegardeAccount = {
-  /** RegardeAccount instance for operations requiring full account access */
-  account: co.loaded<typeof RegardeAccount> | undefined;
-
-  /** List of user's apps (1-5 apps, fully loaded with payments) */
-  myApps: co.loaded<typeof RegardeSDK>["myApps"] | undefined;
-
-  /** User handle with nickname info */
-  myUserHandle: TUserHandleLoaded | undefined;
-
-  /** Auth token for API calls */
-  auth: TRegardeAuthLoaded | undefined;
-
-  /** Current loading state of the account */
-  loadingState: "loading" | "loaded" | "unavailable" | "unauthorized";
-
-  /** True when account and all critical data is loaded */
-  isAccountReady: boolean;
-
-  /** Currently selected app ID from URL params */
-  selectedAppId: ID<typeof App> | null;
-
-  /** Currently selected app object */
-  selectedApp: TApp | undefined;
-};
-
-/**
- * Centralized hook for loading Regarde account data
+ * Hook for accessing the current user's Regarde account with preloaded data.
  *
  * Loads all necessary CoValues for the dashboard:
  * - Account and profile
  * - RegardeSDK with auth, user handle, and apps
  * - Each app's payment records (as ID maps, not full PaymentEvents)
  *
- * For authentication operations (sign up, log in, log out), use useRegardeAuth from @regarde-dev/core/react
+ * For authentication operations (sign up, log in, log out), use useRegardeAuth.
  *
  * Usage:
  * ```tsx
- * const {
- *   isAccountReady,
- *   myApps,
- *   selectedApp,
- *   selectedAppId
- * } = useMyRegardeAccount();
+ * const { isAccountReady, myApps, selectedApp, selectedAppId } = useMyRegardeAccount();
  *
  * if (isAccountReady === false) return <Loading />;
  *
+ * // TypeScript now knows myApps is loaded
+ * const app = myApps.find(app => app.$jazz.id === someId);
  * return <div>{selectedApp?.name}</div>;
  * ```
+ *
+ * @returns Object containing account data, derived values, and helper functions
  */
-export function useMyRegardeAccount(): TUseMyRegardeAccount {
+export function useMyRegardeAccount() {
   const isAuthenticated = useIsAuthenticated();
   const params = useParams({ strict: false });
   const selectedAppId = (params?.appId as ID<typeof App>) ?? null;
+  const logOut = useLogOut();
 
   const account = useAccount(
     RegardeAccount,
@@ -92,71 +60,50 @@ export function useMyRegardeAccount(): TUseMyRegardeAccount {
       : {},
   );
 
-  const accountData = useMemo(() => {
-    const isAccountLoaded = account?.$isLoaded === true;
-    if (isAccountLoaded === false) {
-      return null;
-    }
+  // Extract nested CoValues - check $isLoaded to get unwrapped types
+  // TypeScript infers the correct loaded types automatically
+  const regardeSdk =
+    account && account.$isLoaded && account.root["regarde-sdk"]?.$isLoaded
+      ? account.root["regarde-sdk"]
+      : undefined;
 
-    const regardeSdk = account.root?.["regarde-sdk"];
-    const isSdkLoaded = regardeSdk?.$isLoaded === true;
-    if (isSdkLoaded === false) {
-      return null;
-    }
+  // myApps is the resolved CoList (loaded with $each)
+  const myApps = regardeSdk?.myApps;
 
-    const myApps = regardeSdk.myApps;
-    const isAppsLoaded = myApps?.$isLoaded === true;
-    if (isAppsLoaded === false) {
-      return null;
-    }
+  // myUserHandle - check if loaded inside regardeSdk
+  const myUserHandle =
+    regardeSdk?.myUserHandle?.$isLoaded === true
+      ? regardeSdk.myUserHandle
+      : undefined;
 
-    const myUserHandle = regardeSdk.myUserHandle;
-    const isHandleLoaded = myUserHandle?.$isLoaded === true;
+  // auth - check if loaded inside regardeSdk
+  const auth =
+    regardeSdk?.auth?.$isLoaded === true ? regardeSdk.auth : undefined;
 
-    const auth = regardeSdk.auth;
-    const isAuthLoaded = auth?.$isLoaded === true;
+  // Find selected app from the apps list
+  const selectedApp =
+    myApps && selectedAppId !== null
+      ? myApps.find((app: TApp) => app.$jazz.id === selectedAppId)
+      : undefined;
 
-    return {
-      myApps,
-      myUserHandle: isHandleLoaded ? myUserHandle : undefined,
-      auth: isAuthLoaded ? auth : undefined,
-    };
-  }, [account]);
+  // Extract nickname if user handle is loaded
+  const userNickname = myUserHandle?.nickname;
 
-  const selectedApp = useMemo(() => {
-    const hasApps = accountData?.myApps !== undefined;
-    const hasSelectedId = selectedAppId !== null;
-
-    if (hasApps === false || hasSelectedId === false) {
-      return undefined;
-    }
-
-    const app = accountData.myApps.find(
-      (app: TApp) => app.$jazz.id === selectedAppId,
-    );
-    const isAppLoaded = app?.$isLoaded === true;
-
-    return isAppLoaded ? app : undefined;
-  }, [accountData, selectedAppId]);
-
-  const loadingState = useMemo(() => {
-    if (account === undefined) {
-      return "loading" as const;
-    }
-    return account.$jazz.loadingState;
-  }, [account]);
-
-  const isAccountReady = accountData !== null;
+  // Determine if account is fully ready
+  const isAccountReady = !!(account && account.$isLoaded && regardeSdk && myApps);
 
   return {
-    account: isAccountReady ? account : undefined,
-    myApps: accountData?.myApps,
-    myUserHandle: accountData?.myUserHandle,
-    auth: accountData?.auth,
-    loadingState,
-    isAccountReady,
-    selectedAppId,
+    account,
+    regardeSdk,
+    myApps,
+    myUserHandle,
+    auth,
     selectedApp,
+    selectedAppId,
+    userNickname,
+    isAccountReady,
+    isAuthenticated,
+    logOut,
   };
 }
 

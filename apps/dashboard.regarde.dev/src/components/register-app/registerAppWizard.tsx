@@ -60,13 +60,19 @@ export function RegisterAppWizard(): React.ReactElement {
     }
 
     // Check account is ready before moving to step 2
-    const isAccountDataReady =
-      isAccountReady === true && account !== undefined && account.$isLoaded === true;
-
-    if (isAccountDataReady === false) {
+    if (isAccountReady === false) {
       setState((previous) => ({
         ...previous,
         error: "Account is still loading. Please wait a moment and try again.",
+      }));
+      return;
+    }
+
+    // Check auth is available
+    if (auth === undefined) {
+      setState((previous) => ({
+        ...previous,
+        error: "Authentication not available. Please try again.",
       }));
       return;
     }
@@ -85,10 +91,8 @@ export function RegisterAppWizard(): React.ReactElement {
   };
 
   const handleSubmit = async () => {
-    const isAccountDataReady =
-      isAccountReady === true && account !== undefined && account.$isLoaded === true;
-
-    if (isAccountDataReady === false) {
+    // Check account and auth are ready
+    if (isAccountReady === false || auth === undefined || account === undefined) {
       setState((previous) => ({
         ...previous,
         submissionStatus: "error",
@@ -126,7 +130,7 @@ export function RegisterAppWizard(): React.ReactElement {
       }));
 
       // Step 2: Register with the API
-      const result = await registerApp(newApp.$jazz.id, auth!, account.$jazz.id);
+      const result = await registerApp(newApp.$jazz.id, auth, account.$jazz.id);
 
       setState((previous) => ({
         ...previous,
@@ -166,7 +170,9 @@ export function RegisterAppWizard(): React.ReactElement {
 
   const retryApiCall = async () => {
     const canRetry =
-      state.createdApp !== undefined && account !== undefined && account.$isLoaded === true;
+      state.createdApp !== undefined &&
+      isAccountReady === true &&
+      auth !== undefined;
 
     if (canRetry === false) {
       setState((previous) => ({
@@ -183,7 +189,11 @@ export function RegisterAppWizard(): React.ReactElement {
         await refresh();
       }
 
-      const result = await registerApp(state.createdApp!.$jazz.id, auth!, account!.$jazz.id);
+      const result = await registerApp(
+        state.createdApp!.$jazz.id,
+        auth!,
+        account!.$jazz.id,
+      );
 
       setState((previous) => ({
         ...previous,

@@ -21,25 +21,10 @@ function SettingsPage(): React.ReactElement {
   }
 
   // Handle missing appId - redirect to first app if available
-  if (appId === undefined) {
-    const isAppsListLoaded = myApps?.$isLoaded === true;
-    const hasApps = isAppsListLoaded && myApps.length > 0;
-    
-    if (hasApps) {
-      const firstApp = myApps[0];
-      const isFirstAppLoaded = firstApp?.$isLoaded === true;
-      
-      if (isFirstAppLoaded) {
-        const firstAppId = firstApp.$jazz.id;
-        return <Navigate to="/app/$appId/settings" params={{ appId: firstAppId }} />;
-      }
-    }
-
-    // No apps or still loading - show spinner
+  if (appId === undefined && myApps && myApps.length > 0) {
+    const firstAppId = myApps[0].$jazz.id;
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900" />
-      </div>
+      <Navigate to="/app/$appId/settings" params={{ appId: firstAppId }} />
     );
   }
 
@@ -65,7 +50,9 @@ function SettingsPage(): React.ReactElement {
               </div>
               <div>
                 <dt className="text-sm text-gray-500">Payment Provider</dt>
-                <dd className="text-sm font-medium capitalize">{selectedApp.paymentProvider}</dd>
+                <dd className="text-sm font-medium capitalize">
+                  {selectedApp.paymentProvider}
+                </dd>
               </div>
             </dl>
           </div>

@@ -2,7 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 
-import { useMyRegardeAccount } from "#/lib/account/useMyRegardeAccount";
+import { useMyRegardeAccount, type TApp } from "#/lib/account/useMyRegardeAccount";
 import { cn } from "#/lib/utils";
 import { Button } from "#ui/button";
 import {
@@ -21,7 +21,6 @@ export function AppSelector(): React.ReactElement {
   const { myApps, selectedAppId, isAccountReady } = useMyRegardeAccount();
 
   const handleSelect = (selectedAppIdValue: string): void => {
-    // Navigate to overview page with new appId
     navigate({
       to: "/app/$appId/overview",
       params: { appId: selectedAppIdValue },
@@ -29,26 +28,7 @@ export function AppSelector(): React.ReactElement {
     setOpen(false);
   };
 
-  const selectedApp = myApps?.find(
-    (app) => app.$isLoaded === true && app.$jazz.id === selectedAppId,
-  );
-
-  // Determine effective selected app for display
-  const effectiveSelectedApp =
-    selectedApp ??
-    (() => {
-      const isAppsListLoaded = myApps?.$isLoaded === true;
-      const hasApps = isAppsListLoaded && myApps.length > 0;
-      
-      if (hasApps) {
-        const firstApp = myApps[0];
-        if (firstApp?.$isLoaded === true) {
-          return firstApp;
-        }
-      }
-      return undefined;
-    })();
-
+  // Show loading state while account is not ready
   if (isAccountReady === false || myApps === undefined) {
     return (
       <Button variant="outline" disabled className="w-full justify-between">
@@ -57,6 +37,14 @@ export function AppSelector(): React.ReactElement {
       </Button>
     );
   }
+
+  // At this point myApps is loaded (CoList<TApp>) - safe to use array methods
+  const selectedApp = myApps.find(
+    (app: TApp) => app.$jazz.id === selectedAppId,
+  );
+
+  // Determine effective selected app for display
+  const effectiveSelectedApp = selectedApp ?? myApps[0];
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -72,23 +60,21 @@ export function AppSelector(): React.ReactElement {
           <CommandList>
             <CommandEmpty>No apps found.</CommandEmpty>
             <CommandGroup>
-              {myApps
-                .filter((app) => app.$isLoaded === true)
-                .map((app) => (
-                  <CommandItem
-                    key={app.$jazz.id}
-                    value={app.$jazz.id}
-                    onSelect={() => handleSelect(app.$jazz.id)}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        selectedAppId === app.$jazz.id ? "opacity-100" : "opacity-0",
-                      )}
-                    />
-                    {app.name}
-                  </CommandItem>
-                ))}
+              {myApps.map((app: TApp) => (
+                <CommandItem
+                  key={app.$jazz.id}
+                  value={app.$jazz.id}
+                  onSelect={() => handleSelect(app.$jazz.id)}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      selectedAppId === app.$jazz.id ? "opacity-100" : "opacity-0",
+                    )}
+                  />
+                  {app.name}
+                </CommandItem>
+              ))}
             </CommandGroup>
           </CommandList>
         </Command>

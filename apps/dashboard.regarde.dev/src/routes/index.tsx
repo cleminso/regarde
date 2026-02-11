@@ -20,25 +20,10 @@ function IndexRoute(): React.ReactElement {
   }
 
   // User has apps - redirect to first app's overview
-  const isAppsListLoaded = myApps?.$isLoaded === true;
-  const hasApps = isAppsListLoaded && myApps.length > 0;
-
-  if (hasApps) {
-    const firstApp = myApps[0];
-    const isFirstAppLoaded = firstApp?.$isLoaded === true;
-
-    if (isFirstAppLoaded) {
-      const firstAppId = firstApp.$jazz.id;
-      return (
-        <Navigate to="/app/$appId/overview" params={{ appId: firstAppId }} />
-      );
-    }
-
-    // App still loading - show spinner
+  if (myApps && myApps.length > 0) {
+    const firstAppId = myApps[0].$jazz.id;
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900" />
-      </div>
+      <Navigate to="/app/$appId/overview" params={{ appId: firstAppId }} />
     );
   }
 

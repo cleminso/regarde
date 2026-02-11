@@ -14,15 +14,10 @@ export function NavItems({ onNavigate }: NavItemsProps): React.ReactElement {
 
   // Determine which appId to use - from URL or first available app
   let effectiveAppId = appId;
-  if (effectiveAppId === undefined && isAccountReady) {
-    const isAppsListLoaded = myApps?.$isLoaded === true;
-    const hasApps = isAppsListLoaded && myApps.length > 0;
-    
+  if (effectiveAppId === undefined && isAccountReady && myApps) {
+    const hasApps = myApps.length > 0;
     if (hasApps) {
-      const firstApp = myApps[0];
-      if (firstApp?.$isLoaded === true) {
-        effectiveAppId = firstApp.$jazz.id;
-      }
+      effectiveAppId = myApps[0].$jazz.id;
     }
   }
 
