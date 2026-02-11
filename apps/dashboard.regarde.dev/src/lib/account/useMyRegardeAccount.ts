@@ -1,5 +1,5 @@
 import { useParams } from "@tanstack/react-router";
-import { co, ID, MaybeLoaded } from "jazz-tools";
+import { co, ID } from "jazz-tools";
 import { useAccount, useIsAuthenticated } from "jazz-tools/react";
 import { useMemo } from "react";
 
@@ -13,12 +13,6 @@ import {
 } from "@regarde-dev/core";
 
 /**
- * Unwraps MaybeLoaded<T> to get the fully loaded type T.
- * Used when we have runtime guarantees that data is loaded.
- */
-type TUnwrapMaybeLoaded<T> = T extends MaybeLoaded<infer U> ? U : T;
-
-/**
  * Return type for useMyRegardeAccount hook
  * Provides complete type safety for all loaded CoValues
  */
@@ -26,9 +20,8 @@ export type TUseMyRegardeAccount = {
   /** RegardeAccount instance for operations requiring full account access */
   account: co.loaded<typeof RegardeAccount> | undefined;
 
-  /** List of user's apps (1-5 apps, fully loaded with payments)
-   * Guaranteed to be defined when isAccountReady is true */
-  myApps: TUnwrapMaybeLoaded<co.loaded<typeof RegardeSDK>["myApps"]>;
+  /** List of user's apps (1-5 apps, fully loaded with payments) */
+  myApps: co.loaded<typeof RegardeSDK>["myApps"] | undefined;
 
   /** User handle with nickname info */
   myUserHandle: TUserHandleLoaded | undefined;
@@ -39,8 +32,7 @@ export type TUseMyRegardeAccount = {
   /** Current loading state of the account */
   loadingState: "loading" | "loaded" | "unavailable" | "unauthorized";
 
-  /** True when account and all critical data is loaded
-   * When true, myApps is guaranteed to be loaded and accessible */
+  /** True when account and all critical data is loaded */
   isAccountReady: boolean;
 
   /** Currently selected app ID from URL params */
@@ -58,10 +50,21 @@ export type TUseMyRegardeAccount = {
  * - RegardeSDK with auth, user handle, and apps
  * - Each app's payment records (as ID maps, not full PaymentEvents)
  *
- * For authentication operations (sign up, log in, log out),
- * use useRegardeAuth from the {@link https://www.npmjs.com/package/@regarde-dev/core @regarde-dev/core} react package
+ * For authentication operations (sign up, log in, log out), use useRegardeAuth from @regarde-dev/core/react
  *
- * @returns TUseMyRegardeAccount with loaded account data
+ * Usage:
+ * ```tsx
+ * const {
+ *   isAccountReady,
+ *   myApps,
+ *   selectedApp,
+ *   selectedAppId
+ * } = useMyRegardeAccount();
+ *
+ * if (isAccountReady === false) return <Loading />;
+ *
+ * return <div>{selectedApp?.name}</div>;
+ * ```
  */
 export function useMyRegardeAccount(): TUseMyRegardeAccount {
   const isAuthenticated = useIsAuthenticated();
@@ -128,7 +131,9 @@ export function useMyRegardeAccount(): TUseMyRegardeAccount {
       return undefined;
     }
 
-    const app = accountData.myApps.find((app: TApp) => app.$jazz.id === selectedAppId);
+    const app = accountData.myApps.find(
+      (app: TApp) => app.$jazz.id === selectedAppId,
+    );
     const isAppLoaded = app?.$isLoaded === true;
 
     return isAppLoaded ? app : undefined;
@@ -143,26 +148,13 @@ export function useMyRegardeAccount(): TUseMyRegardeAccount {
 
   const isAccountReady = accountData !== null;
 
-  if (isAccountReady === false) {
-    return {
-      account: undefined,
-      myApps: [] as never,
-      myUserHandle: undefined,
-      auth: undefined,
-      loadingState,
-      isAccountReady: false,
-      selectedAppId,
-      selectedApp: undefined,
-    };
-  }
-
   return {
-    account,
-    myApps: accountData.myApps,
-    myUserHandle: accountData.myUserHandle,
-    auth: accountData.auth,
+    account: isAccountReady ? account : undefined,
+    myApps: accountData?.myApps,
+    myUserHandle: accountData?.myUserHandle,
+    auth: accountData?.auth,
     loadingState,
-    isAccountReady: true,
+    isAccountReady,
     selectedAppId,
     selectedApp,
   };
