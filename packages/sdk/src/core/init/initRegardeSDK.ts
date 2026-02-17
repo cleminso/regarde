@@ -57,9 +57,11 @@ export const initRegardeSDK = async (
 
   // build RegardeSDK from scratch
   if (mode === "create") {
-    const regardeProfileWorkerGroup = await co.group().load(REGARDE_REGISTRY_GROUP, {
-      loadAs: account,
-    });
+    const regardeProfileWorkerGroup = await co
+      .group()
+      .load(REGARDE_REGISTRY_GROUP, {
+        loadAs: account,
+      });
     const isGroupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
 
     logger.debug({
@@ -97,7 +99,6 @@ export const initRegardeSDK = async (
       owner: account,
     });
     regardeAdminOtherReadersGroup.addMember(regardeProfileWorkerGroup, "admin");
-    regardeAdminOtherReadersGroup.addMember(account, "reader");
 
     await regardeAdminOtherReadersGroup.$jazz.waitForSync();
 
@@ -110,6 +111,30 @@ export const initRegardeSDK = async (
         myRole: regardeAdminOtherReadersGroup.myRole,
       },
     });
+
+    const allPaymentsRecord = co
+      .record(z.string(), z.string())
+      .create({}, { owner: regardeAdminOtherReadersGroup });
+    await allPaymentsRecord.$jazz.waitForSync();
+
+    const byAppPaymentsRecord = co
+      .record(z.string(), co.record(z.string(), z.string()))
+      .create({}, { owner: regardeAdminOtherReadersGroup });
+    await byAppPaymentsRecord.$jazz.waitForSync();
+
+    const myPayments = co
+      .map({
+        all: co.record(z.string(), z.string()),
+        byApp: co.record(z.string(), co.record(z.string(), z.string())),
+      })
+      .create(
+        {
+          all: allPaymentsRecord,
+          byApp: byAppPaymentsRecord,
+        },
+        { owner: regardeAdminOtherReadersGroup },
+      );
+    await myPayments.$jazz.waitForSync();
 
     const newSDK = RegardeSDK.create(
       {
@@ -134,24 +159,15 @@ export const initRegardeSDK = async (
           },
         ),
         myApps: co.list(App).create([], { owner: userGroup }),
-        myPayments: co
-          .map({
-            all: co.record(z.string(), z.string()), // prefixedProviderEventUUID -> PaymentEvent.id
-            byApp: co.record(z.string(), co.record(z.string(), z.string())), // App.id -> prefixedProviderEventUUID -> PaymentEvent.id
-          })
-          .create(
-            {
-              all: {},
-              byApp: {},
-            },
-            { owner: regardeAdminOtherReadersGroup },
-          ),
+        myPayments: myPayments,
         version: 3,
       },
       {
         owner: userGroup,
       },
     );
+
+    regardeAdminOtherReadersGroup.addMember(account, "reader");
 
     logger.debug({
       message: "RegardeSDK created",
@@ -202,9 +218,11 @@ export const initRegardeSDK = async (
       },
     });
 
-    const regardeProfileWorkerGroup = await co.group().load(REGARDE_REGISTRY_GROUP, {
-      loadAs: account,
-    });
+    const regardeProfileWorkerGroup = await co
+      .group()
+      .load(REGARDE_REGISTRY_GROUP, {
+        loadAs: account,
+      });
 
     const isGroupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
     if (isGroupLoaded === false) {
@@ -256,6 +274,31 @@ export const initRegardeSDK = async (
       },
     });
 
+    // Create nested payment records explicitly to avoid inline creation permission issues
+    const allPaymentsRecord = co
+      .record(z.string(), z.string())
+      .create({}, { owner: regardeAdminOtherReadersGroup });
+    await allPaymentsRecord.$jazz.waitForSync();
+
+    const byAppPaymentsRecord = co
+      .record(z.string(), co.record(z.string(), z.string()))
+      .create({}, { owner: regardeAdminOtherReadersGroup });
+    await byAppPaymentsRecord.$jazz.waitForSync();
+
+    const myPayments = co
+      .map({
+        all: co.record(z.string(), z.string()),
+        byApp: co.record(z.string(), co.record(z.string(), z.string())),
+      })
+      .create(
+        {
+          all: allPaymentsRecord,
+          byApp: byAppPaymentsRecord,
+        },
+        { owner: regardeAdminOtherReadersGroup },
+      );
+    await myPayments.$jazz.waitForSync();
+
     const newSDK = RegardeSDK.create(
       {
         myUserHandle: UserHandle.create(
@@ -279,14 +322,7 @@ export const initRegardeSDK = async (
           },
         ),
         myApps: co.list(App).create([], { owner: userGroup }),
-        myPayments: {
-          all: co
-            .record(z.string(), z.string())
-            .create({}, { owner: regardeAdminOtherReadersGroup }), // prefixedProviderEventUUID -> PaymentEvent.id
-          byApp: co
-            .record(z.string(), co.record(z.string(), z.string()))
-            .create({}, { owner: regardeAdminOtherReadersGroup }), // App.id -> prefixedProviderEventUUID -> PaymentEvent.id
-        },
+        myPayments: myPayments,
         version: 3,
       },
       {
@@ -321,7 +357,8 @@ export const initRegardeSDK = async (
     },
   });
 
-  const isAuthLoaded = regardeSDK.auth !== null && regardeSDK.auth.$isLoaded === true;
+  const isAuthLoaded =
+    regardeSDK.auth !== null && regardeSDK.auth.$isLoaded === true;
   if (isAuthLoaded === false) {
     logger.warn({
       message: "RegardeSDK auth not loaded",
@@ -347,7 +384,9 @@ export const initRegardeSDK = async (
         hasExpiresAt,
       },
     });
-    throw new Error("RegardeSDK auth must have both token and expiresAt fields");
+    throw new Error(
+      "RegardeSDK auth must have both token and expiresAt fields",
+    );
   }
 
   const tokenValue = regardeSDK.auth.token;

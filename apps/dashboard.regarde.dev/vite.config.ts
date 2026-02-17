@@ -23,5 +23,14 @@ export default defineConfig({
     },
   },
   server: { port: 3001, host: true },
-  build: { outDir: "dist", sourcemap: true, target: "es2022" },
+  build: {
+    outDir: "dist",
+    sourcemap: true,
+    target: "es2022",
+    rolldownOptions: {
+      experimental: {
+        // lazyBarrel: true,
+      },
+    },
+  },
 });

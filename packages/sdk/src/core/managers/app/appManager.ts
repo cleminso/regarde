@@ -98,15 +98,12 @@ export const createApp = async (
     throw new Error("regardeProfileWorkerGroup not loaded");
   }
 
-  const userGroup = regardeSdk.$jazz.owner; // TODO: create a new group, this is wrong
+  const userGroup = regardeSdk.$jazz.owner;
 
   const regardeAdminOtherReadersGroup = Group.create({
     owner: account,
   });
   regardeAdminOtherReadersGroup.addMember(regardeProfileWorkerGroup, "admin");
-  await regardeAdminOtherReadersGroup.$jazz.waitForSync();
-
-  regardeAdminOtherReadersGroup.addMember(account, "reader");
   await regardeAdminOtherReadersGroup.$jazz.waitForSync();
 
   logger.debug({
@@ -119,6 +116,30 @@ export const createApp = async (
     },
   });
 
+  const allPaymentsRecord = co
+    .record(z.string(), z.string())
+    .create({}, { owner: regardeAdminOtherReadersGroup });
+  await allPaymentsRecord.$jazz.waitForSync();
+
+  const byUserPaymentsRecord = co
+    .record(z.string(), co.record(z.string(), z.string()))
+    .create({}, { owner: regardeAdminOtherReadersGroup });
+  await byUserPaymentsRecord.$jazz.waitForSync();
+
+  const payments = co
+    .map({
+      all: co.record(z.string(), z.string()),
+      byUser: co.record(z.string(), co.record(z.string(), z.string())),
+    })
+    .create(
+      {
+        all: allPaymentsRecord,
+        byUser: byUserPaymentsRecord,
+      },
+      { owner: regardeAdminOtherReadersGroup },
+    );
+  await payments.$jazz.waitForSync();
+
   const newApp = App.create(
     {
       name: appData.name,
@@ -129,18 +150,7 @@ export const createApp = async (
       createdAt: Date.now(),
       metadata: {},
       webhookSecret: "",
-      payments: co
-        .map({
-          all: co.record(z.string(), z.string()), // prefixedProviderEventUUID -> PaymentEvent.id
-          byUser: co.record(z.string(), co.record(z.string(), z.string())), // JazzAccount.id -> prefixedProviderEventUUID -> PaymentEvent.id
-        })
-        .create(
-          {
-            all: {},
-            byUser: {},
-          },
-          { owner: regardeAdminOtherReadersGroup },
-        ),
+      payments: payments,
     },
     { owner: userGroup },
   );
@@ -149,6 +159,8 @@ export const createApp = async (
 
   myApps.$jazz.push(newApp);
   await myApps.$jazz.waitForSync();
+
+  regardeAdminOtherReadersGroup.addMember(account, "reader");
 
   logger.debug({
     message: "Regarde App created",

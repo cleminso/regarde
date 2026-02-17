@@ -6,6 +6,21 @@ settings:
 
 catalogs:
   default:
+    '@clerk/clerk-react':
+      specifier: ^5.60.0
+      version: 5.60.0
+    '@hono/node-server':
+      specifier: ^1.19.9
+      version: 1.19.9
+    '@hono/swagger-ui':
+      specifier: ^0.5.3
+      version: 0.5.3
+    '@hono/zod-openapi':
+      specifier: ^1.2.1
+      version: 1.2.1
+    '@scure/bip39':
+      specifier: ^2.0.1
+      version: 2.0.1
     '@types/node':
       specifier: ^25.2.0
       version: 25.2.0
@@ -15,12 +30,27 @@ catalogs:
     '@types/react-dom':
       specifier: ^19.2.3
       version: 19.2.3
+    '@vitest/ui':
+      specifier: ^4.0.18
+      version: 4.0.18
+    cojson-core-rn:
+      specifier: ^0.20.7
+      version: 0.20.7
+    cojson-transport-ws:
+      specifier: ^0.20.7
+      version: 0.20.7
     dotenv:
       specifier: ^17.2.3
       version: 17.2.3
+    hono:
+      specifier: ^4.11.7
+      version: 4.11.7
     jazz-tools:
       specifier: ^0.20.7
       version: 0.20.7
+    preact:
+      specifier: ^10.28.3
+      version: 10.28.3
     react:
       specifier: 19.2.4
       version: 19.2.4
@@ -30,12 +60,24 @@ catalogs:
     typescript:
       specifier: ^5.9.3
       version: 5.9.3
+    ulidx:
+      specifier: ^2.4.1
+      version: 2.4.1
     vite:
       specifier: 8.0.0-beta.5
       version: 8.0.0-beta.5
+    vite-plugin-dts:
+      specifier: ^4.5.4
+      version: 4.5.4
     vite-tsconfig-paths:
       specifier: ^6.0.5
       version: 6.0.5
+    vitest:
+      specifier: ^4.0.18
+      version: 4.0.18
+    zod:
+      specifier: ^4.3.6
+      version: 4.3.6
 
 importers:
 
@@ -44,6 +86,9 @@ importers:
       '@scure/bip39':
         specifier: 'catalog:'
         version: 2.0.1
+      beautiful-mermaid:
+        specifier: ^0.1.3
+        version: 0.1.3
       jazz-tools:
         specifier: 'catalog:'
         version: 0.20.7(@tiptap/pm@2.27.1)(csstype@3.2.3)(react-dom@19.2.4(react@19.2.4))(react-native@0.82.1(@babel/core@7.29.0)(@types/react@19.2.10)(react@19.2.4))(react@19.2.4)
@@ -983,6 +1028,13 @@ packages:
   '@csstools/css-tokenizer@3.0.4':
     resolution: {integrity: sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==}
     engines: {node: '>=18'}
+
+  '@dagrejs/dagre@1.1.8':
+    resolution: {integrity: sha512-5SEDlndt4W/LaVzPYJW+bSmSEZc9EzTf8rJ20WCKvjS5EAZAN0b+x0Yww7VMT4R3Wootkg+X9bUfUxazYw6Blw==}
+
+  '@dagrejs/graphlib@2.2.4':
+    resolution: {integrity: sha512-mepCf/e9+SKYy1d02/UkvSy6+6MoyXhVxP8lLDfA7BPE1X1d4dR0sZznmbM8/XVJ1GPM+Svnx7Xj6ZweByWUkw==}
+    engines: {node: '>17.0.0'}
 
   '@dimforge/rapier2d-simd-compat@0.17.3':
     resolution: {integrity: sha512-bijvwWz6NHsNj5e5i1vtd3dU2pDhthSaTUZSh14DUGGKJfw8eMnlWZsxwHBxB/a3AXVNDjL9abuHw1k9FGR+jg==}
@@ -3973,6 +4025,9 @@ packages:
   baseline-browser-mapping@2.9.15:
     resolution: {integrity: sha512-kX8h7K2srmDyYnXRIppo4AH/wYgzWVCs+eKr3RusRSQ5PvRYoEFmR/I0PbdTjKFAoKqp5+kbxnNTFO9jOfSVJg==}
     hasBin: true
+
+  beautiful-mermaid@0.1.3:
+    resolution: {integrity: sha512-lVEHCnlVLtVRbO03T+D9kY5BZlkpvFU6F18LEu2N2VLB0eo5evG1FJWg3SvREErKY+zZ7j9f+cNsgtiOhYI2Nw==}
 
   better-sqlite3@12.6.2:
     resolution: {integrity: sha512-8VYKM3MjCa9WcaSAI3hzwhmyHVlH8tiGFwf0RlTsZPWJ1I5MkzjiudCo4KC4DxOaL/53A5B1sI/IbldNFDbsKA==}
@@ -7120,7 +7175,7 @@ snapshots:
       '@babel/types': 7.29.0
       '@jridgewell/remapping': 2.3.5
       convert-source-map: 2.0.0
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@5.5.0)
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -7219,7 +7274,7 @@ snapshots:
       '@babel/core': 7.29.0
       '@babel/helper-module-imports': 7.28.6
       '@babel/helper-validator-identifier': 7.28.5
-      '@babel/traverse': 7.29.0
+      '@babel/traverse': 7.28.6
     transitivePeerDependencies:
       - supports-color
 
@@ -7609,7 +7664,7 @@ snapshots:
       '@babel/parser': 7.29.0
       '@babel/template': 7.28.6
       '@babel/types': 7.29.0
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -7723,6 +7778,12 @@ snapshots:
   '@csstools/css-syntax-patches-for-csstree@1.0.26': {}
 
   '@csstools/css-tokenizer@3.0.4': {}
+
+  '@dagrejs/dagre@1.1.8':
+    dependencies:
+      '@dagrejs/graphlib': 2.2.4
+
+  '@dagrejs/graphlib@2.2.4': {}
 
   '@dimforge/rapier2d-simd-compat@0.17.3':
     optional: true
@@ -9473,7 +9534,7 @@ snapshots:
   '@react-native/community-cli-plugin@0.82.1':
     dependencies:
       '@react-native/dev-middleware': 0.82.1
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@5.5.0)
       invariant: 2.2.4
       metro: 0.83.3
       metro-config: 0.83.3
@@ -9499,7 +9560,7 @@ snapshots:
       chrome-launcher: 0.15.2
       chromium-edge-launcher: 0.2.0
       connect: 3.7.0
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@5.5.0)
       invariant: 2.2.4
       nullthrows: 1.1.1
       open: 7.4.2
@@ -10817,6 +10878,10 @@ snapshots:
 
   baseline-browser-mapping@2.9.15: {}
 
+  beautiful-mermaid@0.1.3:
+    dependencies:
+      '@dagrejs/dagre': 1.1.8
+
   better-sqlite3@12.6.2:
     dependencies:
       bindings: 1.5.0
@@ -11713,7 +11778,7 @@ snapshots:
   https-proxy-agent@7.0.6:
     dependencies:
       agent-base: 7.1.4
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -12372,7 +12437,7 @@ snapshots:
 
   metro-file-map@0.83.3:
     dependencies:
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@5.5.0)
       fb-watchman: 2.0.2
       flow-enums-runtime: 0.0.6
       graceful-fs: 4.2.11
@@ -12468,7 +12533,7 @@ snapshots:
       chalk: 4.1.2
       ci-info: 2.0.0
       connect: 3.7.0
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@5.5.0)
       error-stack-parser: 2.1.4
       flow-enums-runtime: 0.0.6
       graceful-fs: 4.2.11
