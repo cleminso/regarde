@@ -260,7 +260,6 @@ export const initRegardeSDK = async (
       owner: account,
     });
     regardeAdminOtherReadersGroup.addMember(regardeProfileWorkerGroup, "admin");
-    regardeAdminOtherReadersGroup.addMember(account, "reader");
 
     await regardeAdminOtherReadersGroup.$jazz.waitForSync();
 
@@ -274,7 +273,6 @@ export const initRegardeSDK = async (
       },
     });
 
-    // Create nested payment records explicitly to avoid inline creation permission issues
     const allPaymentsRecord = co
       .record(z.string(), z.string())
       .create({}, { owner: regardeAdminOtherReadersGroup });
@@ -333,6 +331,8 @@ export const initRegardeSDK = async (
     root.$jazz.set("regarde-sdk", newSDK);
     await newSDK.$jazz.waitForSync();
     await account.$jazz.waitForSync();
+
+    regardeAdminOtherReadersGroup.addMember(account, "reader");
 
     logger.debug({
       message: "RegardeSDK created",

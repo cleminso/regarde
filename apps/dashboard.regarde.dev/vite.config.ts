@@ -22,7 +22,7 @@ export default defineConfig({
       "#": resolve(import.meta.dirname, "./src"),
     },
   },
-  server: { port: 3001, host: true },
+  server: { host: true },
   build: {
     outDir: "dist",
     sourcemap: true,

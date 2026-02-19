@@ -9,7 +9,7 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "portless regarde.bio vite",
     "build": "vite build --mode production",
     "build:analyze": "vite build --mode production && npx dist/stats.html --open",
     "preview": "vite preview --host",
