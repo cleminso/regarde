@@ -54,7 +54,6 @@ const SubscriptionSchema = z.object({
     type: z.literal("subscriptions"),
     id: z.string(),
     attributes: z.object({
-      identifier: z.string(),
       user_email: z.email(),
       status: z.string(),
       created_at: z.iso.datetime(),
@@ -78,7 +77,6 @@ const SubscriptionInvoiceSchema = z.object({
     type: z.literal("subscription-invoices"),
     id: z.string(),
     attributes: z.object({
-      identifier: z.string(),
       subscription_id: z.number(),
       user_email: z.email(),
       total: z.number(),

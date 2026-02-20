@@ -45,13 +45,20 @@ export const createApp = async (
       },
     },
   });
+
   const { "regarde-sdk": regardeSdk } = accountRoot;
 
-  const { myApps } = await accountRoot["regarde-sdk"].$jazz.ensureLoaded({
+  const resolvedSdk = await regardeSdk.$jazz.ensureLoaded({
     resolve: {
       myApps: { $each: true },
+      myPayments: true,
+      mySubscriptions: true,
+      myLicenses: true,
+      auth: true,
     },
   });
+
+  const myApps = resolvedSdk.myApps;
   const isMyAppsLoaded = myApps !== null && myApps.$isLoaded === true;
 
   logger.debug({
@@ -62,7 +69,7 @@ export const createApp = async (
       accountRoot: accountRoot.toJSON(), // only return object data without Jazz methods
       myApps: myApps.toJSON(),
       isMyAppsLoaded,
-      regardeSdkJazzId: regardeSdk.$jazz.id,
+      regardeSdkJazzId: resolvedSdk.$jazz.id,
     },
   });
 
@@ -98,7 +105,7 @@ export const createApp = async (
     throw new Error("regardeProfileWorkerGroup not loaded");
   }
 
-  const userGroup = regardeSdk.$jazz.owner;
+  const userGroup = resolvedSdk.$jazz.owner;
 
   const regardeAdminOtherReadersGroup = Group.create({
     owner: account,

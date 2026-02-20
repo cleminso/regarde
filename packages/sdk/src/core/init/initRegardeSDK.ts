@@ -468,6 +468,8 @@ export const initRegardeSDK = async (
       myApps: true,
       myUserHandle: true,
       myPayments: true,
+      mySubscriptions: true,
+      myLicenses: true,
     },
   });
 
