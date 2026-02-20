@@ -10,9 +10,17 @@ import { startWorker } from "jazz-tools/worker";
 
 import { registerAppHandler } from "#/domains/app/handlers/register";
 import { verifyHandler } from "#/domains/auth";
-import { registerHandler, checkAvailabilityHandler, lookupHandler } from "#/domains/nickname";
-import { lemonSqueezyWebhookHandler } from "#/domains/payments/handlers/lemonsqueezy";
-import { RegistryWorkerAccount, TNicknameRegistry, useLogging } from "@regarde-dev/core";
+import {
+  registerHandler,
+  checkAvailabilityHandler,
+  lookupHandler,
+} from "#/domains/nickname";
+import { unifiedWebhookHandler } from "#/domains/payments/handlers/unifiedWebhook";
+import {
+  RegistryWorkerAccount,
+  TNicknameRegistry,
+  useLogging,
+} from "@regarde-dev/core";
 
 import { rateLimit } from "./middleware/rateLimit.js";
 import { checkAvailabilityRoute } from "./routes/checkAvailability.js";
@@ -20,18 +28,21 @@ import { lookupRoute } from "./routes/lookup.js";
 import { registerRoute } from "./routes/register.js";
 import { registerAppRoute } from "./routes/registerApp.js";
 import { verifyRoute } from "./routes/verifyToken.js";
-import { webhookLemonSqueezyRoute } from "./routes/webhooks.js";
+import { unifiedWebhookRoute } from "./routes/unifiedWebhook.js";
 
 const logger = useLogging({
   module: import.meta.filename,
 });
 
 const PORT = process.env.PORT || 3000;
-const JAZZ_SYNC_SERVER_URL = process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
+const JAZZ_SYNC_SERVER_URL =
+  process.env.JAZZ_SYNC_SERVER_URL || "wss://cloud.jazz.tools";
 
-const APP_PUBLIC_HOSTNAME = process.env.APP_PUBLIC_HOSTNAME || `localhost:${PORT}`;
+const APP_PUBLIC_HOSTNAME =
+  process.env.APP_PUBLIC_HOSTNAME || `localhost:${PORT}`;
 const IS_PRODUCTION_LIKE =
-  APP_PUBLIC_HOSTNAME !== `localhost:${PORT}` && !APP_PUBLIC_HOSTNAME.startsWith("localhost");
+  APP_PUBLIC_HOSTNAME !== `localhost:${PORT}` &&
+  !APP_PUBLIC_HOSTNAME.startsWith("localhost");
 const PUBLIC_PROTOCOL = IS_PRODUCTION_LIKE ? "https" : "http";
 const PUBLIC_BASE_URL = `${PUBLIC_PROTOCOL}://${APP_PUBLIC_HOSTNAME}`;
 
@@ -67,7 +78,8 @@ async function main() {
 
   if (
     IS_PRODUCTION_LIKE &&
-    (!process.env.APP_PUBLIC_HOSTNAME || process.env.APP_PUBLIC_HOSTNAME.includes("localhost"))
+    (!process.env.APP_PUBLIC_HOSTNAME ||
+      process.env.APP_PUBLIC_HOSTNAME.includes("localhost"))
   ) {
     logger.warn({
       message: "APP_PUBLIC_HOSTNAME is not set or is localhost",
@@ -92,13 +104,15 @@ async function main() {
     const workerResult = await startWorker({
       AccountSchema: RegistryWorkerAccount,
       syncServer:
-        JAZZ_SYNC_SERVER_URL + (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
+        JAZZ_SYNC_SERVER_URL +
+        (process.env.JAZZ_API_KEY ? `?key=${process.env.JAZZ_API_KEY}` : ""),
       accountID: process.env.WORKER_ACCOUNT_ID,
       accountSecret: process.env.WORKER_ACCOUNT_SECRET,
     });
     worker = workerResult.worker;
 
-    const isWorkerLoaded = worker !== null && worker !== undefined && worker.$isLoaded === true;
+    const isWorkerLoaded =
+      worker !== null && worker !== undefined && worker.$isLoaded === true;
     logger.debug({
       message: "Worker started",
       data: {
@@ -107,7 +121,8 @@ async function main() {
       },
     });
   } catch (workerError) {
-    const errorMessage = workerError instanceof Error ? workerError.message : "Unknown error";
+    const errorMessage =
+      workerError instanceof Error ? workerError.message : "Unknown error";
     logger.error({
       message: "Failed to start worker",
       data: {
@@ -171,7 +186,8 @@ async function main() {
       }
     }
   } catch (loadError) {
-    const errorMessage = loadError instanceof Error ? loadError.message : "Unknown error";
+    const errorMessage =
+      loadError instanceof Error ? loadError.message : "Unknown error";
     logger.error({
       message: "Failed to load worker data",
       data: {
@@ -232,7 +248,10 @@ async function main() {
     process.exit(1);
   }
 
-  if (reverseNicknameRegistry === null || reverseNicknameRegistry === undefined) {
+  if (
+    reverseNicknameRegistry === null ||
+    reverseNicknameRegistry === undefined
+  ) {
     logger.error({
       message: "ReverseNicknameRegistry not found in worker account root",
       data: {
@@ -308,7 +327,8 @@ async function main() {
     try {
       return await verifyHandler(worker)(c);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       logger.error({
         message: "Error in verifyHandler",
         data: { errorMessage },
@@ -319,9 +339,13 @@ async function main() {
 
   const safeCheckAvailabilityHandler = async (c: any) => {
     try {
-      return await checkAvailabilityHandler(nicknameRegistry, reservedNicknames)(c);
+      return await checkAvailabilityHandler(
+        nicknameRegistry,
+        reservedNicknames,
+      )(c);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       logger.error({
         message: "Error in checkAvailabilityHandler",
         data: { errorMessage },
@@ -339,7 +363,8 @@ async function main() {
         reservedNicknames,
       )(c);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       logger.error({
         message: "Error in registerHandler",
         data: { errorMessage },
@@ -352,7 +377,8 @@ async function main() {
     try {
       return await lookupHandler(nicknameRegistry)(c);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       logger.error({
         message: "Error in lookupHandler",
         data: { errorMessage },
@@ -378,9 +404,14 @@ async function main() {
       if (isAppsLoaded === false || isAppsByUserLoaded === false) {
         throw new Error("App registry not fully loaded");
       }
-      return await registerAppHandler(appRegistry.apps, appRegistry.appsByUser, worker)(c);
+      return await registerAppHandler(
+        appRegistry.apps,
+        appRegistry.appsByUser,
+        worker,
+      )(c);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       logger.error({
         message: "Error in registerAppHandler",
         data: { errorMessage },
@@ -389,7 +420,7 @@ async function main() {
     }
   };
 
-  const safeLemonSqueezyWebhookHandler = async (c: any) => {
+  const safeUnifiedWebhookHandler = async (c: any) => {
     try {
       const isAppsLoaded =
         appRegistry !== null &&
@@ -400,11 +431,12 @@ async function main() {
       if (isAppsLoaded === false) {
         throw new Error("App registry not fully loaded");
       }
-      return await lemonSqueezyWebhookHandler(loadedWorker)(c);
+      return await unifiedWebhookHandler(loadedWorker)(c);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       logger.error({
-        message: "Error in lemonSqueezyWebhookHandler",
+        message: "Error in unifiedWebhookHandler",
         data: { errorMessage },
       });
       return c.json({ error: "Internal server error" }, 500);
@@ -416,7 +448,7 @@ async function main() {
   app.openapi(registerRoute, safeRegisterHandler);
   app.openapi(lookupRoute, safeLookupHandler);
   app.openapi(registerAppRoute, safeRegisterAppHandler);
-  app.openapi(webhookLemonSqueezyRoute, safeLemonSqueezyWebhookHandler);
+  app.openapi(unifiedWebhookRoute, safeUnifiedWebhookHandler);
 
   // Register non-OpenAPI specific routes BEFORE catch-all
   app.get("/health", (c) => {
@@ -440,7 +472,8 @@ async function main() {
       });
       return c.json({ error: "Not Found" }, 404);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       logger.error({
         message: "Error in notFound handler",
         data: { errorMessage },
@@ -450,7 +483,8 @@ async function main() {
   });
 
   app.onError((error, c) => {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     logger.error({
       message: "Global error handler caught",
       data: {
@@ -460,10 +494,15 @@ async function main() {
       },
     });
     try {
-      return c.json({ error: "Internal server error", timestamp: new Date().toISOString() }, 500);
+      return c.json(
+        { error: "Internal server error", timestamp: new Date().toISOString() },
+        500,
+      );
     } catch (responseError) {
       const responseErrorMessage =
-        responseError instanceof Error ? responseError.message : "Unknown error";
+        responseError instanceof Error
+          ? responseError.message
+          : "Unknown error";
       logger.error({
         message: "Error creating error response",
         data: {

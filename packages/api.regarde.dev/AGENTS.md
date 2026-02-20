@@ -9,7 +9,7 @@
 - Verify user registration tokens (2FA validation via RegardeTokenAuth CoMaps)
 - Manage nickname registry operations (availability check, registration, lookup)
 - Register user apps with system metadata (app verification, payment config)
-- Process payment provider webhooks (LemonSqueezy) and create PaymentEvent CoMaps
+- Process payment provider webhooks (LemonSqueezy, Stripe, Polar) and create PaymentEvent, SubscriptionEvent, LicenseEvent CoMaps
 - Serve OpenAPI spec at `/doc` and Swagger UI at `/ui`
 
 ## Explicitly NOT Responsible For
@@ -57,7 +57,7 @@ src/
 - `auth` - Token verification (`verify`, `verifyToken`)
 - `nickname` - Registration operations (`checkAvailability`, `register`, `lookup`)
 - `app` - App registration (`register`)
-- `payments` - Webhook processing (`lemonsqueezy`)
+- `payments` - Webhook processing (`unified`) with provider adapters
 
 ### Worker Init Flow
 
@@ -185,7 +185,7 @@ Dev: Vite watch mode (NOT Bun/Tsx)
 ## HTTP Endpoints
 
 `GET /health`, `GET /ui`, `GET /doc`
-`POST /verifyToken`, `POST /checkAvailability`, `POST /register`, `POST /lookup`, `POST /registerApp`, `POST /webhooks/lemonsqueezy`
+`POST /verifyToken`, `POST /checkAvailability`, `POST /register`, `POST /lookup`, `POST /registerApp`, `POST /webhooks/{provider}/{appId}` (provider: lemonsqueezy, stripe, polar)
 Middleware: Rate limiting (100 req/min), CORS, logger
 
 ## Key Architectural Decisions

@@ -140,6 +140,54 @@ export const createApp = async (
     );
   await payments.$jazz.waitForSync();
 
+  const allSubscriptionsRecord = co
+    .record(z.string(), z.string())
+    .create({}, { owner: regardeAdminOtherReadersGroup });
+  await allSubscriptionsRecord.$jazz.waitForSync();
+
+  const byUserSubscriptionsRecord = co
+    .record(z.string(), co.record(z.string(), z.string()))
+    .create({}, { owner: regardeAdminOtherReadersGroup });
+  await byUserSubscriptionsRecord.$jazz.waitForSync();
+
+  const subscriptions = co
+    .map({
+      all: co.record(z.string(), z.string()),
+      byUser: co.record(z.string(), co.record(z.string(), z.string())),
+    })
+    .create(
+      {
+        all: allSubscriptionsRecord,
+        byUser: byUserSubscriptionsRecord,
+      },
+      { owner: regardeAdminOtherReadersGroup },
+    );
+  await subscriptions.$jazz.waitForSync();
+
+  const allLicensesRecord = co
+    .record(z.string(), z.string())
+    .create({}, { owner: regardeAdminOtherReadersGroup });
+  await allLicensesRecord.$jazz.waitForSync();
+
+  const byUserLicensesRecord = co
+    .record(z.string(), co.record(z.string(), z.string()))
+    .create({}, { owner: regardeAdminOtherReadersGroup });
+  await byUserLicensesRecord.$jazz.waitForSync();
+
+  const licenses = co
+    .map({
+      all: co.record(z.string(), z.string()),
+      byUser: co.record(z.string(), co.record(z.string(), z.string())),
+    })
+    .create(
+      {
+        all: allLicensesRecord,
+        byUser: byUserLicensesRecord,
+      },
+      { owner: regardeAdminOtherReadersGroup },
+    );
+  await licenses.$jazz.waitForSync();
+
   const newApp = App.create(
     {
       name: appData.name,
@@ -151,6 +199,8 @@ export const createApp = async (
       metadata: {},
       webhookSecret: "",
       payments: payments,
+      subscriptions: subscriptions,
+      licenses: licenses,
     },
     { owner: userGroup },
   );

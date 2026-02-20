@@ -191,6 +191,132 @@ const Task = co.map({
 });
 ```
 
+## Naming Conventions
+
+### Type Prefixes
+
+Use consistent prefixes for Jazz schema types:
+
+| Convention            | Pattern                                     | Example                                                   |
+| --------------------- | ------------------------------------------- | --------------------------------------------------------- |
+| **Schema Definition** | PascalCase, no prefix                       | `const PaymentEvent = co.map({...})`                      |
+| **Loaded Type**       | PascalCase with `T` prefix                  | `type TPaymentEvent = co.loaded<typeof PaymentEvent>`     |
+| **Input Type**        | PascalCase with `T` prefix + `Input` suffix | `type TPaymentEventInput = co.input<typeof PaymentEvent>` |
+
+### Examples
+
+```typescript
+// Schema definition (no prefix)
+export const PaymentEvent = co.map({
+  amount: z.string(),
+  currency: z.string(),
+  status: z.enum(["pending", "completed", "failed"]),
+});
+
+// Loaded type (T prefix)
+export type TPaymentEvent = co.loaded<typeof PaymentEvent>;
+
+// Input type (T prefix + Input suffix)
+export type TPaymentEventInput = co.input<typeof PaymentEvent>;
+
+// Usage in function signatures
+function processPayment(event: TPaymentEvent) {
+  // All fields are guaranteed to be loaded
+  console.log(event.amount, event.currency);
+}
+
+function createPayment(input: TPaymentEventInput) {
+  return PaymentEvent.create(input, { owner: group });
+}
+```
+
+### Why This Convention?
+
+1. **T prefix** makes type names searchable and distinct from runtime values
+2. **Input suffix** clarifies this is the creation input type vs loaded instance
+
+## Decision Tree: Schema vs TSchema
+
+Use this decision tree to know when to use `Schema` vs `TSchema`:
+
+```
+Do you need to reference the schema?
+├── Defining the schema structure?
+│   └── Use Schema (e.g., const App = co.map({...}))
+├── Creating a new instance?
+│   └── Use Schema.create() (e.g., App.create(input, {owner: group}))
+├── Loading from ID?
+│   └── Use Schema.load() (e.g., App.load(id, {loadAs: me}))
+├── Subscribing to changes?
+│   └── Use Schema.subscribe() (e.g., App.subscribe(id, {}, callback))
+├── Typing a loaded instance?
+│   ├── Function parameter (accepts loaded CoMap)?
+│   │   └── Use TSchema (e.g., function process(app: TApp))
+│   ├── Function return type (returns loaded CoMap)?
+│   │   └── Use TSchema (e.g., function load(): Promise<TApp>)
+│   ├── Type guard/filter?
+│   │   └── Use TSchema (e.g., (app): app is TApp => ...)
+│   └── Inline type with co.loaded?
+│       └── Use co.loaded<typeof Schema> (e.g., const app: co.loaded<typeof App>)
+└── Referencing in another schema?
+    └── Use Schema directly (e.g., payments: AppPaymentsSchema)
+```
+
+### When to Export TSchema Types
+
+**ALWAYS export TSchema for any CoMap that:**
+
+- Will be passed between functions
+- Needs type-safe access to its fields
+- Is part of the public SDK API
+
+**Examples from the codebase:**
+
+```typescript
+// Good: TApp used in function parameters
+async function processPayment(app: TApp, event: TPaymentEvent): Promise<void> {
+  // TypeScript knows app.name, app.payments, etc. are accessible
+  console.log(app.name);
+}
+
+// Good: TApp used in return types
+async function loadApp(appId: string): Promise<TApp | undefined> {
+  const app = await App.load(appId, { loadAs: me });
+  const isLoaded = app !== null && app.$isLoaded === true;
+  if (isLoaded === false) return undefined;
+  return app; // Returns TApp
+}
+
+// Good: TApp used in type guards
+const loadedApps = apps.filter((app): app is TApp => {
+  return app !== null && app.$isLoaded === true;
+});
+```
+
+### Why TSchema Types Are Essential
+
+1. **Type Safety**: `TApp` ensures only loaded instances can be passed to functions that access fields
+2. **Self-Documentation**: `function process(app: TApp)` clearly signals "this function needs a loaded app"
+3. **Maintainability**: One import (`TApp`) vs verbose `co.loaded<typeof App>` everywhere
+4. **Refactoring Safety**: TypeScript catches all usages when schema changes
+
+### Comparison: With vs Without TSchema
+
+```typescript
+// WITHOUT TSchema - verbose and error-prone
+async function processPayment(
+  app: co.loaded<typeof App>,
+  event: co.loaded<typeof PaymentEvent>,
+): Promise<co.loaded<typeof App>> {
+  // Verbose, easy to mistype, hard to maintain
+}
+
+// WITH TSchema - clean and maintainable
+async function processPayment(app: TApp, event: TPaymentEvent): Promise<TApp> {
+  // Clean, consistent, easy to refactor
+}
+```
+
 ## Type Extraction
 
 ### Loaded Type
@@ -224,6 +350,144 @@ function processTask(task: TTaskWithSubtasks) {
   task.subtasks.forEach((s) => console.log(s.title));
 }
 ```
+
+## TypeScript Narrowing Best Practices
+
+### Never Use Indexed Access Types for CoMap Fields
+
+**Problem**: Using indexed access types like `TSchema["field"]` in function parameters causes TypeScript widening issues with Jazz CoMaps.
+
+```typescript
+// DON'T DO THIS - causes type widening issues
+type TBadParameter = TApp["payments"]; // Widens to union type
+
+function badProcessPayments(payments: TApp["payments"]) {
+  // TypeScript can't narrow properly here
+  if (payments.$isLoaded) {
+    // payments might still have union type
+  }
+}
+```
+
+**Solution**: Always use `co.loaded<typeof Schema>` pattern with explicit checks:
+
+```typescript
+// DO THIS INSTEAD - proper narrowing
+import { co } from "jazz-tools";
+import { AppPaymentsSchema } from "./schemas";
+
+// Define the type using co.loaded
+type TAppPayments = co.loaded<typeof AppPaymentsSchema>;
+
+function processPayments(payments: TAppPayments) {
+  // Explicit boolean check for proper narrowing
+  const isLoaded = payments !== null && payments.$isLoaded === true;
+
+  if (isLoaded === false) {
+    throw new Error("Payments not loaded");
+  }
+
+  // Now TypeScript knows payments is fully loaded
+  payments.all.forEach((payment) => {
+    console.log(payment.amount);
+  });
+}
+```
+
+### Always Check `$isLoaded === true` Before Accessing Nested CoMaps
+
+**Critical Pattern**: When accessing nested CoMap properties, you MUST check `$isLoaded === true` explicitly:
+
+```typescript
+// DON'T DO THIS - unsafe access
+function unsafeAccess(app: TApp) {
+  // Type error: app.payments might not be loaded
+  const count = app.payments.all.length; // Error
+}
+
+// DO THIS - safe access with proper checks
+function safeAccess(app: TApp) {
+  // Check app is loaded first
+  const isAppLoaded = app !== null && app.$isLoaded === true;
+  if (isAppLoaded === false) {
+    throw new Error("App not loaded");
+  }
+
+  // Check nested payments is loaded
+  const isPaymentsLoaded =
+    app.payments !== null && app.payments.$isLoaded === true;
+
+  if (isPaymentsLoaded === false) {
+    throw new Error("Payments not loaded");
+  }
+
+  // NOW safe to access
+  const count = app.payments.all.length; // Type-safe
+}
+```
+
+### Complete Example: Nested CoMap Access
+
+```typescript
+import { co } from "jazz-tools";
+import { App, PaymentEvent, ProcessedProviderEvents } from "./schemas";
+
+type TApp = co.loaded<typeof App>;
+type TPaymentEvent = co.loaded<typeof PaymentEvent>;
+type TProcessedEvents = co.loaded<typeof ProcessedProviderEvents>;
+
+async function handlePaymentEvent(
+  app: TApp,
+  paymentEvent: TPaymentEvent,
+  processedEvents: TProcessedEvents,
+): Promise<void> {
+  // Step 1: Validate all inputs are loaded with explicit checks
+  const isAppLoaded = app !== null && app.$isLoaded === true;
+  if (isAppLoaded === false) {
+    throw new Error("App must be loaded");
+  }
+
+  const isPaymentLoaded =
+    paymentEvent !== null && paymentEvent.$isLoaded === true;
+  if (isPaymentLoaded === false) {
+    throw new Error("Payment event must be loaded");
+  }
+
+  const isProcessedLoaded =
+    processedEvents !== null && processedEvents.$isLoaded === true;
+  if (isProcessedLoaded === false) {
+    throw new Error("Processed events must be loaded");
+  }
+
+  // Step 2: Check nested CoMaps within app
+  const isPaymentsLoaded =
+    app.payments !== null && app.payments.$isLoaded === true;
+  if (isPaymentsLoaded === false) {
+    throw new Error("App payments must be loaded");
+  }
+
+  // Step 3: Now safe to perform operations
+  const eventId = paymentEvent.prefixedProviderEventUUID;
+
+  // Check idempotency
+  if (processedEvents.all.has(eventId) === false) {
+    // Add to processed events
+    processedEvents.all.$jazz.set(eventId, paymentEvent);
+    await processedEvents.$jazz.waitForSync();
+
+    // Add to app payments
+    app.payments.all.$jazz.set(paymentEvent.$jazz.id, paymentEvent);
+    await app.payments.$jazz.waitForSync();
+  }
+}
+```
+
+### Why These Rules Matter
+
+1. **Type Safety**: `co.loaded<typeof Schema>` preserves the exact schema structure
+2. **Runtime Safety**: Explicit `$isLoaded === true` checks prevent accessing unloaded data
+3. **Jazz Best Practices**: These patterns align with how Jazz handles lazy loading and sync
+4. **Future-Proof**: Prevents bugs when schema structures change
 
 ## Schema Union
 

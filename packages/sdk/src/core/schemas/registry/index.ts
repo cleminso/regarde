@@ -7,6 +7,8 @@ export type { TAppsByUserRecord } from "./app";
 export { AppRegistry } from "./app";
 export type { TAppRegistry } from "./app";
 
+export { ProcessedProviderEvents } from "./worker";
+
 export { RegistryAuditEntryCoMap } from "./audit";
 export type { TRegistryAuditEntry } from "./audit";
 export { RegistryAuditLog } from "./audit";

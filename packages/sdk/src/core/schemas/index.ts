@@ -28,6 +28,7 @@ export type {
 } from "./registry/nickname";
 
 export {
+  ProcessedProviderEvents,
   RegistryWorkerAccountRoot,
   RegistryWorkerAccount,
 } from "./registry/worker";
@@ -37,11 +38,44 @@ export type {
 } from "./registry/worker";
 
 export { RegardeSDK } from "./regardeSDK";
-export { PaymentSchema } from "./regardeSDK";
-export type { TPaymentSchema } from "./regardeSDK";
+export { PaymentSchema, SubscriptionSchema, LicenseSchema } from "./regardeSDK";
+export type {
+  TPaymentSchema,
+  TSubscriptionSchema,
+  TLicenseSchema,
+} from "./regardeSDK";
 
-export { PaymentEvent, ListOfPaymentEvents } from "./paymentEvent";
-export type { TPaymentEvent, TListOfPaymentEvents } from "./paymentEvent";
+export {
+  PaymentEvent,
+  PAYMENT_PROVIDERS,
+  PAYMENT_EVENT_TYPES,
+  PAYMENT_STATUSES,
+} from "./paymentEvent";
+export type {
+  TPaymentEvent,
+  TPaymentProvider,
+  TPaymentEventType,
+} from "./paymentEvent";
+
+export {
+  SubscriptionEvent,
+  Subscription,
+  SUBSCRIPTION_EVENT_TYPES,
+  SUBSCRIPTION_STATUSES,
+} from "./subscriptionEvent";
+export type {
+  TSubscriptionEvent,
+  TSubscription,
+  TSubscriptionEventType,
+  TSubscriptionStatus,
+} from "./subscriptionEvent";
+
+export {
+  LicenseEvent,
+  LICENSE_EVENT_TYPES,
+  LICENSE_STATUSES,
+} from "./licenseEvent";
+export type { TLicenseEvent, TLicenseEventType } from "./licenseEvent";
 
 export { RegardeAccount } from "./regardeAccount";
 export type { TRegardeAccount } from "./regardeAccount";
@@ -51,8 +85,16 @@ export type { TRegardeAuthLoaded } from "./regardeTokenAuth";
 
 export { App } from "./regardeUserApp";
 export type { TApp } from "./regardeUserApp";
-export { AppPaymentsSchema } from "./regardeUserApp";
-export type { TAppPaymentsSchema } from "./regardeUserApp";
+export {
+  AppPaymentsSchema,
+  AppSubscriptionsSchema,
+  AppLicensesSchema,
+} from "./regardeUserApp";
+export type {
+  TAppPaymentsSchema,
+  TAppSubscriptionsSchema,
+  TAppLicensesSchema,
+} from "./regardeUserApp";
 
 export {
   UserHandle,

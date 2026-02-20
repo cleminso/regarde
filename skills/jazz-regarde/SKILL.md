@@ -60,6 +60,29 @@ const isValid = account !== null && account.$isLoaded === true;
 if (isValid === false) throw new Error("Account must be loaded");
 ```
 
+### TypeScript Narrowing Rules
+
+**CRITICAL**: When working with Jazz CoMap types in function parameters:
+
+1. **NEVER use indexed access types** like `TSchema["field"]` - they widen to union types
+2. **ALWAYS use** `co.loaded<typeof Schema>` pattern for proper narrowing
+3. **ALWAYS check** `$isLoaded === true` before accessing nested CoMap properties
+
+```typescript
+// DON'T: Indexed access widens type
+function bad(app: TApp["payments"]) { ... }
+
+// DO: Use co.loaded pattern
+function good(payments: co.loaded<typeof AppPaymentsSchema>) {
+  const isLoaded = payments !== null && payments.$isLoaded === true;
+  if (isLoaded === false) throw new Error("Not loaded");
+  // Safe to access
+  payments.all.forEach(...);
+}
+```
+
+See [TypeScript Narrowing Best Practices](./references/schemas/README.md#typescript-narrowing-best-practices) for complete examples.
+
 ## Quick Reference
 
 ### CoValue Types (Regarde-Used)

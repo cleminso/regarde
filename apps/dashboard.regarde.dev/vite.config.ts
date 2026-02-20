@@ -6,6 +6,9 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
+// Explicitly use PORT from portless
+const PORT = parseInt(process.env.PORT || "5173");
+
 export default defineConfig({
   plugins: [
     devtools(),
@@ -22,7 +25,7 @@ export default defineConfig({
       "#": resolve(import.meta.dirname, "./src"),
     },
   },
-  server: { host: true },
+  server: { port: PORT, host: true },
   build: {
     outDir: "dist",
     sourcemap: true,

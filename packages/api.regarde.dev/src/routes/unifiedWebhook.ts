@@ -1,19 +1,23 @@
 import { createRoute, z } from "@hono/zod-openapi";
 
-export const webhookLemonSqueezyRoute = createRoute({
+export const unifiedWebhookRoute = createRoute({
   method: "post",
-  path: "/webhooks/lemonsqueezy/{appId}",
-  summary: "Lemon Squeezy Webhook Endpoint",
+  path: "/webhooks/{provider}/{appId}",
+  summary: "Unified Payment Webhook Endpoint",
   description:
-    "Receives and processes webhook events from Lemon Squeezy (e.g., order_created). Verifies signature and provisions access.",
+    "Receives and processes webhook events from payment providers (LemonSqueezy, Stripe, Polar). Validates signature, normalizes event, and stores in Jazz CoValues.",
   request: {
+    params: z.object({
+      provider: z.enum(["lemonsqueezy", "stripe", "polar"]),
+      appId: z.string(),
+    }),
     body: {
       content: {
         "application/json": {
-          schema: z.unknown(), // we parse it manually/strictly inside because we need raw body for signature
+          schema: z.unknown(),
         },
       },
-      description: "Lemon Squeezy Webhook Payload",
+      description: "Payment Provider Webhook Payload",
       required: true,
     },
   },
@@ -23,6 +27,7 @@ export const webhookLemonSqueezyRoute = createRoute({
         "application/json": {
           schema: z.object({
             received: z.boolean(),
+            duplicate: z.boolean().optional(),
           }),
         },
       },
@@ -36,7 +41,7 @@ export const webhookLemonSqueezyRoute = createRoute({
           }),
         },
       },
-      description: "Invalid payload or signature",
+      description: "Invalid payload, unsupported provider, or missing context",
     },
     401: {
       content: {
