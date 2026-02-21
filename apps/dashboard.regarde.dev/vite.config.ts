@@ -1,4 +1,5 @@
 import { resolve } from "path";
+import { agentTail } from "agent-tail/vite";
 
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
@@ -12,6 +13,7 @@ const PORT = parseInt(process.env.PORT || "5173");
 export default defineConfig({
   plugins: [
     devtools(),
+    agentTail(),
     tanstackRouter({
       target: "react",
       autoCodeSplitting: true,

@@ -1,5 +1,6 @@
 import "./index.css";
 
+import { Agentation } from "agentation";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { JazzInspector } from "jazz-tools/inspector";
 import { JazzReactProvider } from "jazz-tools/react";
@@ -43,6 +44,7 @@ if (rootElement && !rootElement.innerHTML) {
       >
         <RouterProvider router={router} />
         <JazzInspector position="bottom left" />
+        {process.env.NODE_ENV === "development" && <Agentation />}
       </JazzReactProvider>
     </StrictMode>,
   );
