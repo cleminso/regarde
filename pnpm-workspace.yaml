@@ -1,5 +1,5 @@
 packages:
-  - apps/dashboard.regarde.dev/*
+  - apps/dashboard.regarde.dev
   - apps/regarde.bio/*
   - packages/*
 

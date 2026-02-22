@@ -51,8 +51,13 @@ export function useMyRegardeAccount() {
                 myApps: {
                   $each: {
                     payments: true,
+                    subscriptions: true,
+                    licenses: true,
                   },
                 },
+                myPayments: true,
+                mySubscriptions: true,
+                myLicenses: true,
               },
             },
           },

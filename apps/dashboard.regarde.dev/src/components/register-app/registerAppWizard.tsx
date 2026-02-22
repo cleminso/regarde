@@ -7,7 +7,14 @@ import { useState } from "react";
 import { useMyRegardeAccount } from "#/lib/account/useMyRegardeAccount";
 import { registerApp, RegisterAppApiError } from "#/lib/api/registerApp";
 import { Button } from "#ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "#ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "#ui/card";
 import { createApp } from "@regarde-dev/core";
 import { useRegardeTokenAuth } from "@regarde-dev/core/react";
 
@@ -37,7 +44,11 @@ const INITIAL_FORM_DATA: AppConfigData = {
 export function RegisterAppWizard(): React.ReactElement {
   const navigate = useNavigate();
   const { account, auth, isAccountReady } = useMyRegardeAccount();
-  const { isExpired, refresh, isLoading: isTokenLoading } = useRegardeTokenAuth(auth);
+  const {
+    isExpired,
+    refresh,
+    isLoading: isTokenLoading,
+  } = useRegardeTokenAuth(auth);
 
   const [state, setState] = useState<WizardState>({
     step: 1,
@@ -92,11 +103,25 @@ export function RegisterAppWizard(): React.ReactElement {
 
   const handleSubmit = async () => {
     // Check account and auth are ready
-    if (isAccountReady === false || auth === undefined || account === undefined) {
+    if (
+      isAccountReady === false ||
+      auth === undefined ||
+      account === undefined
+    ) {
       setState((previous) => ({
         ...previous,
         submissionStatus: "error",
         error: "Account not ready. Please wait and try again.",
+      }));
+      return;
+    }
+
+    const isAccountLoaded = account.$isLoaded === true;
+    if (isAccountLoaded === false) {
+      setState((previous) => ({
+        ...previous,
+        submissionStatus: "error",
+        error: "Account is still loading. Please wait and try again.",
       }));
       return;
     }
@@ -245,7 +270,9 @@ export function RegisterAppWizard(): React.ReactElement {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>{state.step === 1 ? "Create New App" : "App Registration"}</CardTitle>
+        <CardTitle>
+          {state.step === 1 ? "Create New App" : "App Registration"}
+        </CardTitle>
         <CardDescription>
           {state.step === 1
             ? "Enter your app details to get started with payment tracking."
@@ -255,7 +282,11 @@ export function RegisterAppWizard(): React.ReactElement {
 
       <CardContent>
         {state.step === 1 ? (
-          <StepConfig data={state.formData} onChange={handleFormChange} error={state.error} />
+          <StepConfig
+            data={state.formData}
+            onChange={handleFormChange}
+            error={state.error}
+          />
         ) : (
           <StepResult
             status={state.submissionStatus}

@@ -106,6 +106,19 @@ export const createApp = async (
   }
 
   const userGroup = resolvedSdk.$jazz.owner;
+  const isUserGroupValid = userGroup !== null && userGroup.$isLoaded === true;
+
+  if (isUserGroupValid === false) {
+    logger.error({
+      message: "Failed to load SDK owner group",
+      data: {
+        regardeSdkId: resolvedSdk.$jazz.id,
+        ownerExists: userGroup !== null,
+        ownerLoaded: userGroup?.$isLoaded,
+      },
+    });
+    throw new Error("Failed to load SDK owner group. Please refresh and try again.");
+  }
 
   const regardeAdminOtherReadersGroup = Group.create({
     owner: account,
