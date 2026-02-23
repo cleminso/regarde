@@ -6,7 +6,7 @@ import { TApp, App } from "#schemas/regardeUserApp";
 
 export interface AppQueryParams {
   appId?: string;
-  paymentProvider?: "lemonsqueezy" | "stripe";
+  paymentProvider?: "lemonsqueezy" | "stripe" | "polar";
 }
 
 export const useMyApps = (regardeSDK: Loaded<typeof RegardeSDK> | null) => {
@@ -24,7 +24,7 @@ export const useMyApps = (regardeSDK: Loaded<typeof RegardeSDK> | null) => {
   };
 
   const getAppsByProvider = async (
-    paymentProvider: "lemonsqueezy" | "stripe",
+    paymentProvider: "lemonsqueezy" | "stripe" | "polar",
   ): Promise<TApp[]> => {
     const isSdkExists = regardeSDK !== null;
     if (isSdkExists === false) return [];

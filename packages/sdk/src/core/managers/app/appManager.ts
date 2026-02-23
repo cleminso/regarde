@@ -18,7 +18,7 @@ export interface CreateAppParams {
   /** Optional description of app functionality */
   description?: string;
   /** App payment provider */
-  paymentProvider: "lemonsqueezy" | "stripe";
+  paymentProvider: "lemonsqueezy" | "stripe" | "polar";
 }
 
 /**

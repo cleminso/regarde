@@ -39,6 +39,7 @@ const INITIAL_FORM_DATA: AppConfigData = {
   name: "",
   paymentProvider: "lemonsqueezy",
   description: "",
+  webhookSecret: "",
 };
 
 export function RegisterAppWizard(): React.ReactElement {
@@ -148,6 +149,16 @@ export function RegisterAppWizard(): React.ReactElement {
       // Wait for sync to ensure the CoMap is persisted
       await newApp.$jazz.waitForSync();
 
+      // For stripe/polar, set the webhook secret if user provided it
+      const isStripeOrPolar =
+        state.formData.paymentProvider === "stripe" || state.formData.paymentProvider === "polar";
+      const webhookSecret = state.formData.webhookSecret;
+
+      if (isStripeOrPolar && webhookSecret && webhookSecret.trim().length > 0) {
+        newApp.$jazz.set("webhookSecret", webhookSecret.trim());
+        await newApp.$jazz.waitForSync();
+      }
+
       // Store the created app for potential retry
       setState((previous) => ({
         ...previous,
@@ -246,10 +257,19 @@ export function RegisterAppWizard(): React.ReactElement {
     if (appId !== undefined) {
       // Wait for sync to ensure the new app is available in myApps list
       // This prevents navigation to a route that can't find the app
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const JAZZ_SYNC_WAIT_MS = 500;
+      await new Promise((resolve) => setTimeout(resolve, JAZZ_SYNC_WAIT_MS));
       await navigate({ to: "/app/$appId/overview", params: { appId } });
     }
   };
+
+  // Compute derived state before rendering
+  const formWebhookSecret = state.formData.webhookSecret;
+  const hasProvidedWebhookSecret =
+    state.formData.paymentProvider !== "lemonsqueezy" &&
+    formWebhookSecret !== null &&
+    formWebhookSecret !== undefined &&
+    formWebhookSecret.trim().length > 0;
 
   // Show loading state while account or token initializes
   if (isAccountReady === false || isTokenLoading === true) {
@@ -294,6 +314,8 @@ export function RegisterAppWizard(): React.ReactElement {
             error={state.error}
             onRetry={handleRetry}
             onGoToDashboard={handleGoToDashboard}
+            paymentProvider={state.formData.paymentProvider}
+            hasWebhookSecret={hasProvidedWebhookSecret}
           />
         )}
       </CardContent>

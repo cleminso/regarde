@@ -1,4 +1,5 @@
 import type { RegisterAppResponse } from "#/lib/api/registerApp";
+import { PaymentProvider } from "./stepConfig";
 import { Check, Clipboard, Loader2, RefreshCw } from "lucide-react";
 import { useState } from "react";
 
@@ -11,6 +12,8 @@ interface StepResultProps {
   error?: string | null;
   onRetry: () => void;
   onGoToDashboard: () => void;
+  paymentProvider?: PaymentProvider;
+  hasWebhookSecret?: boolean;
 }
 
 function CopyableField({
@@ -79,6 +82,8 @@ export function StepResult({
   error,
   onRetry,
   onGoToDashboard,
+  paymentProvider,
+  hasWebhookSecret,
 }: StepResultProps): React.ReactElement {
   if (status === "idle") {
     return (
@@ -99,6 +104,9 @@ export function StepResult({
       </div>
     );
   }
+
+  const isLemonSqueezy = paymentProvider === "lemonsqueezy";
+  const isStripeOrPolar = paymentProvider === "stripe" || paymentProvider === "polar";
 
   if (status === "error") {
     return (
@@ -135,21 +143,79 @@ export function StepResult({
           App Registered Successfully
         </h4>
         <p className="text-sm text-green-700 dark:text-green-300">
-          Save these credentials securely. You will need them to configure your payment provider
-          webhooks.
+          {isLemonSqueezy
+            ? "Save these credentials securely. You'll need them to configure LemonSqueezy."
+            : hasWebhookSecret === true
+              ? "Your app is configured and ready to receive webhooks."
+              : "Your app is created. Configure the webhook secret to start receiving events."}
         </p>
       </div>
 
-      <div className="space-y-3">
-        <CopyableField label="App ID" value={result.appId} />
-        <CopyableField label="Webhook URL" value={result.webhookUrl} />
-        <CopyableField label="Webhook Secret" value={result.webhookSecret} isSecret={true} />
-      </div>
+      {isLemonSqueezy && (
+        <div className="space-y-3">
+          <CopyableField label="App ID" value={result.appId} />
+          <CopyableField label="Webhook URL" value={result.webhookUrl} />
+          <CopyableField label="Webhook Secret" value={result.webhookSecret} isSecret={true} />
+        </div>
+      )}
 
-      <div className="rounded-md bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">
-        <strong>Important:</strong> The webhook secret will not be shown again. Make sure to copy it
-        now and store it securely in your payment provider&apos;s dashboard.
-      </div>
+      {isStripeOrPolar && (
+        <div className="space-y-3">
+          <CopyableField label="App ID" value={result.appId} />
+          <CopyableField label="Webhook URL" value={result.webhookUrl} />
+
+          {hasWebhookSecret === true ? (
+            <div className="rounded-md bg-green-50 p-3 text-sm text-green-800 dark:bg-green-950 dark:text-green-200">
+              <strong>Webhook Secret:</strong> Configured. You can update it in{" "}
+              <a
+                href={`/app/${result.appId}/settings`}
+                className="underline hover:text-green-600"
+              >
+                Settings
+              </a>{" "}
+              if needed.
+            </div>
+          ) : (
+            <div className="rounded-md bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+              <strong>Action Required:</strong> Webhook secret not configured. Add it in{" "}
+              <a
+                href={`/app/${result.appId}/settings`}
+                className="underline hover:text-amber-600"
+              >
+                Settings
+              </a>{" "}
+              to receive webhooks.
+            </div>
+          )}
+        </div>
+      )}
+
+      {isLemonSqueezy && (
+        <div className="rounded-md bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+          <strong>Important:</strong> The webhook secret will not be shown again. Make sure to copy it
+          now and paste it into your LemonSqueezy dashboard.
+        </div>
+      )}
+
+      {isStripeOrPolar && hasWebhookSecret !== true && (
+        <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-800 dark:bg-blue-950 dark:text-blue-200">
+          <strong>Next Steps:</strong>
+          <br />
+          1. Go to {paymentProvider === "stripe" ? "Stripe" : "Polar"} Dashboard →{" "}
+          {paymentProvider === "stripe"
+            ? "Developers → Webhooks"
+            : "Settings → Webhooks"}
+          <br />
+          2. Create endpoint with the URL above
+          <br />
+          3. Copy the signing secret
+          <br />
+          4. Paste it in your{" "}
+          <a href={`/app/${result.appId}/settings`} className="underline hover:text-blue-600">
+            Regarde Settings
+          </a>
+        </div>
+      )}
 
       <Button onClick={onGoToDashboard} className="w-full">
         Go to Dashboard

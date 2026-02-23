@@ -150,12 +150,16 @@ export const registerAppHandler = (
 
       const isWebhookSecretExists =
         app.webhookSecret !== null && app.webhookSecret !== undefined && app.webhookSecret !== "";
-      if (isWebhookSecretExists === false) {
+
+      const isLemonSqueezy = app.paymentProvider === "lemonsqueezy";
+      const shouldAutoGenerateSecret = isLemonSqueezy === true && isWebhookSecretExists === false;
+
+      if (shouldAutoGenerateSecret === true) {
         webhookSecret = randomBytes(20).toString("hex");
         app.$jazz.set("webhookSecret", webhookSecret);
         await app.$jazz.waitForSync();
       } else {
-        webhookSecret = app.webhookSecret;
+        webhookSecret = app.webhookSecret ?? "";
       }
 
       const webhookUrl = `https://api.regarde.dev/webhooks/${app.paymentProvider}/${appId}`;
