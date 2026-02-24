@@ -77,20 +77,37 @@ export interface WebhookContext {
 }
 
 // ---------------------------------------------------------------------------
+// Query Parameter Context (fallback for testing without metadata)
+// ---------------------------------------------------------------------------
+
+export interface WebhookQueryContext {
+  pathAppId?: string;
+  regarde_user_id?: string;
+  regarde_sdk_id?: string;
+}
+
+// ---------------------------------------------------------------------------
 // Provider Adapter Interface
 // ---------------------------------------------------------------------------
 
 export interface PaymentProviderAdapter {
   readonly provider: TPaymentProvider;
   readonly signatureHeader: string;
+  readonly timestampHeader?: string;
+  readonly idHeader?: string;
 
   validateSignature(
     payload: string,
     signature: string,
     secret: string,
+    timestamp?: string,
+    id?: string,
   ): boolean;
 
-  extractContext(payload: unknown): WebhookContext;
+  extractContext(
+    payload: unknown,
+    queryContext?: WebhookQueryContext,
+  ): WebhookContext;
 
   normalizeEvent(payload: unknown): NormalizedEvent;
 }

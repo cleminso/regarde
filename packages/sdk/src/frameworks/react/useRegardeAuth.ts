@@ -21,6 +21,7 @@ export interface UseRegardeAuthResult {
   generatePassphrase: () => string;
   account: co.loaded<typeof RegardeAccount> | null;
   regardeSDK: co.loaded<typeof RegardeSDK> | null;
+  // TODO: add a new login option via secret
 }
 
 /**
@@ -54,8 +55,12 @@ export function useRegardeAuth(): UseRegardeAuthResult {
   }, [jazzAuth.state]);
 
   const signUp = useMemo(() => {
-    return async (userName: string, providedPassphrase?: string): Promise<SignUpResult> => {
-      const passphrase = providedPassphrase ?? jazzAuth.generateRandomPassphrase();
+    return async (
+      userName: string,
+      providedPassphrase?: string,
+    ): Promise<SignUpResult> => {
+      const passphrase =
+        providedPassphrase ?? jazzAuth.generateRandomPassphrase();
       await jazzAuth.registerNewAccount(passphrase, userName);
       const isAccountLoaded = account !== null && account.$isLoaded === true;
       const accountId = isAccountLoaded === true ? account.$jazz.id : "";
@@ -69,13 +74,15 @@ export function useRegardeAuth(): UseRegardeAuthResult {
       return null;
     }
 
-    const isRootLoaded = account.root !== null && account.root.$isLoaded === true;
+    const isRootLoaded =
+      account.root !== null && account.root.$isLoaded === true;
     if (isRootLoaded === false) {
       return null;
     }
 
     const sdk = account.root["regarde-sdk"];
-    const isSdkLoaded = sdk !== null && sdk !== undefined && sdk.$isLoaded === true;
+    const isSdkLoaded =
+      sdk !== null && sdk !== undefined && sdk.$isLoaded === true;
 
     return isSdkLoaded === true ? sdk : null;
   }, [account]);

@@ -30,6 +30,7 @@ export type {
   NormalizedSubscriptionData,
   NormalizedLicenseData,
   WebhookContext,
+  WebhookQueryContext,
   TUnifiedEventType,
 } from "./types";
 export { PROVIDER_PREFIXES, prefixProviderEventId } from "./types";

@@ -6,6 +6,7 @@ import type {
   PaymentProviderAdapter,
   NormalizedEvent,
   WebhookContext,
+  WebhookQueryContext,
 } from "./types";
 import { prefixProviderEventId } from "./types";
 
@@ -151,22 +152,33 @@ export const lemonsqueezyAdapter: PaymentProviderAdapter = {
     return timingSafeEqual(digest, signatureBuffer);
   },
 
-  extractContext(payload: unknown): WebhookContext {
+  extractContext(
+    payload: unknown,
+    queryContext?: WebhookQueryContext,
+  ): WebhookContext {
     const parsed = LemonSqueezyPayloadSchema.parse(payload);
     const customData = parsed.meta.custom_data ?? {};
 
-    const appId = customData.app_id;
-    const jazzAccountId = customData.user_id;
-    const regardeSDKId = customData.regarde_sdk_id;
+    // Use custom_data first, fall back to URL path for appId
+    const appId = customData.app_id ?? queryContext?.pathAppId;
+    // Use custom_data first, fall back to query params for testing
+    const jazzAccountId =
+      customData.user_id ?? queryContext?.regarde_user_id;
+    const regardeSDKId =
+      customData.regarde_sdk_id ?? queryContext?.regarde_sdk_id;
 
     if (typeof appId !== "string" || appId === "") {
-      throw new Error("Missing app_id in custom_data");
+      throw new Error("Missing app_id in custom_data or URL path");
     }
     if (typeof jazzAccountId !== "string" || jazzAccountId === "") {
-      throw new Error("Missing user_id in custom_data");
+      throw new Error(
+        "Missing user_id in custom_data or query params (regarde_user_id)",
+      );
     }
     if (typeof regardeSDKId !== "string" || regardeSDKId === "") {
-      throw new Error("Missing regarde_sdk_id in custom_data");
+      throw new Error(
+        "Missing regarde_sdk_id in custom_data or query params (regarde_sdk_id)",
+      );
     }
 
     return { appId, jazzAccountId, regardeSDKId };

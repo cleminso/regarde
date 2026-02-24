@@ -64,14 +64,71 @@ export const unifiedWebhookHandler = (
 
       // Capture raw body for signature verification
       const rawBody = await c.req.text();
+      
+      // For debugging Polar webhooks, log ALL headers
+      const isPolarProvider = provider === "polar";
+      const allHeaders = Object.fromEntries(
+        Object.entries(c.req.header()).map(([key, value]) => [
+          key, 
+          typeof value === 'string' && value.length > 50 ? value.substring(0, 50) + '...' : value
+        ])
+      );
+      
+      const headers = isPolarProvider
+        ? allHeaders
+        : {
+            stripeSignature: c.req.header("stripe-signature"),
+            contentType: c.req.header("content-type"),
+            userAgent: c.req.header("user-agent"),
+          };
+      
+      logger.debug({
+        message: "Webhook request received",
+        data: {
+          provider,
+          url: c.req.url,
+          queryParams: c.req.query(),
+          headers,
+          bodyPreview: rawBody.substring(0, 500), // First 500 chars
+          bodyLength: rawBody.length,
+        },
+      });
       const json = JSON.parse(rawBody);
+      logger.debug({
+        message: "Webhook payload parsed",
+        data: {
+          provider,
+          eventType: json.type || json.meta?.event_name, // Stripe vs LemonSqueezy
+          hasMetadata: !!(
+            json.data?.object?.metadata ||
+            json.meta?.custom_data ||
+            json.data?.metadata
+          ),
+          payloadKeys: Object.keys(json),
+          dataKeys: json.data ? Object.keys(json.data) : null,
+        },
+      });
 
       // Load the App first (needed for webhook secret)
       const pathAppId = c.req.param("appId");
 
       let ctx;
       try {
-        ctx = adapter.extractContext(json);
+        logger.debug({
+          message: "Attempting to extract context",
+          data: {
+            provider,
+            appIdFromPath: pathAppId,
+            queryParams: c.req.query(),
+          },
+        });
+
+        const queryParams = c.req.query();
+        ctx = adapter.extractContext(json, {
+          pathAppId: pathAppId,
+          regarde_user_id: queryParams.regarde_user_id,
+          regarde_sdk_id: queryParams.regarde_sdk_id,
+        });
       } catch (extractError) {
         logger.error({
           message: "Failed to extract context from webhook payload",
@@ -80,6 +137,12 @@ export const unifiedWebhookHandler = (
             pathAppId,
             errorMessage:
               extractError instanceof Error ? extractError.message : "Unknown",
+            // Add these:
+            availableMetadataSources: {
+              stripeMetadata: json.data?.object?.metadata,
+              lemonSqueezyCustomData: json.meta?.custom_data,
+              polarMetadata: json.data?.metadata,
+            },
           },
         });
         return c.json(
@@ -141,16 +204,40 @@ export const unifiedWebhookHandler = (
       }
 
       const signatureHeader = adapter.signatureHeader;
+      const rawSignatureHeader = c.req.header(signatureHeader);
       const signature =
-        c.req.header(signatureHeader) ??
+        rawSignatureHeader ??
         c.req.header(
           signatureHeader.charAt(0).toUpperCase() + signatureHeader.slice(1),
         ) ??
         null;
 
+      // Log signature details for debugging
+      logger.debug({
+        message: "Signature validation attempt",
+        data: {
+          provider,
+          signatureHeader,
+          signaturePresent: signature !== null,
+          signatureLength: signature?.length,
+          rawSignatureHeader: rawSignatureHeader, // Full value
+          signaturePreview: signature?.substring(0, 100),
+          signatureParts: signature?.split(",").length,
+          allSignatureParts: signature?.split(","),
+          webhookSecretLength: app.webhookSecret?.length,
+          webhookSecretPrefix: app.webhookSecret?.substring(0, 15),
+        },
+      });
+
       const isSignatureValid =
         signature !== null &&
-        adapter.validateSignature(rawBody, signature, app.webhookSecret);
+        adapter.validateSignature(
+          rawBody, 
+          signature, 
+          app.webhookSecret,
+          adapter.timestampHeader ? c.req.header(adapter.timestampHeader) : undefined,
+          adapter.idHeader ? c.req.header(adapter.idHeader) : undefined
+        );
       if (isSignatureValid === false) {
         logger.error({
           message: "Invalid webhook signature - review misconfiguration",
@@ -159,6 +246,13 @@ export const unifiedWebhookHandler = (
             provider,
             isSignaturePresent: signature !== null,
             signatureLength: signature?.length,
+            signatureFormat: signature?.includes(",") ? "has-commas" : "no-commas",
+            signatureParts: signature?.split(",").length,
+            idHeader: adapter.idHeader,
+            idValue: adapter.idHeader ? c.req.header(adapter.idHeader) : undefined,
+            timestampHeader: adapter.timestampHeader,
+            timestampValue: adapter.timestampHeader ? c.req.header(adapter.timestampHeader) : undefined,
+            webhookSecretPrefix: app.webhookSecret?.substring(0, 15),
           },
         });
         return c.json({ error: "Invalid Signature" }, 401);
@@ -169,15 +263,28 @@ export const unifiedWebhookHandler = (
       try {
         normalized = adapter.normalizeEvent(json);
       } catch (normalizeError) {
+        const errorMessage = normalizeError instanceof Error ? normalizeError.message : "Unknown";
+        
+        // Check if this is an unsupported event type (not an error, just not processed)
+        if (errorMessage.includes("Unsupported")) {
+          logger.debug({
+            message: "Event acknowledged but not processed",
+            data: {
+              provider,
+              appId,
+              eventType: json.type,
+              reason: errorMessage,
+            },
+          });
+          return c.json({ received: true, processed: false, reason: errorMessage }, 200);
+        }
+        
         logger.error({
           message: "Failed to normalize webhook event",
           data: {
             provider,
             appId,
-            errorMessage:
-              normalizeError instanceof Error
-                ? normalizeError.message
-                : "Unknown",
+            errorMessage,
           },
         });
         return c.json({ error: "Failed to normalize event" }, 400);
@@ -343,9 +450,6 @@ export const unifiedWebhookHandler = (
         message: "Unexpected error in unified webhook handler",
         data: { errorMessage: message },
       });
-      if (error instanceof Error && error.stack) {
-        console.error(error.stack);
-      }
       return c.json({ error: message }, 500);
     }
   };
@@ -749,7 +853,8 @@ const indexPaymentEventToApp = async (
   jazzAccountId: string,
   app: TApp,
 ): Promise<void> => {
-  const isPaymentsLoaded = app.payments !== null && app.payments.$isLoaded === true;
+  const isPaymentsLoaded =
+    app.payments !== null && app.payments.$isLoaded === true;
   if (isPaymentsLoaded === false) {
     logger.error({
       message: "App payments not loaded for indexing",
@@ -791,7 +896,8 @@ const indexSubscriptionEventToApp = async (
   jazzAccountId: string,
   app: TApp,
 ): Promise<void> => {
-  const isSubscriptionsLoaded = app.subscriptions !== null && app.subscriptions.$isLoaded === true;
+  const isSubscriptionsLoaded =
+    app.subscriptions !== null && app.subscriptions.$isLoaded === true;
   if (isSubscriptionsLoaded === false) {
     logger.error({
       message: "App subscriptions not loaded for indexing",
@@ -835,7 +941,8 @@ const indexLicenseEventToApp = async (
   jazzAccountId: string,
   app: TApp,
 ): Promise<void> => {
-  const isLicensesLoaded = app.licenses !== null && app.licenses.$isLoaded === true;
+  const isLicensesLoaded =
+    app.licenses !== null && app.licenses.$isLoaded === true;
   if (isLicensesLoaded === false) {
     logger.error({
       message: "App licenses not loaded for indexing",
