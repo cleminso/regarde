@@ -41,9 +41,7 @@ export function useRegardeAuth(): UseRegardeAuthResult {
       root: {
         "regarde-sdk": {
           auth: true,
-          myApps: true,
           myUserHandle: true,
-          myPayments: true,
         },
       },
     },

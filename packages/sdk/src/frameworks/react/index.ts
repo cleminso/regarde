@@ -33,6 +33,16 @@ export type {
   UseRegardeAuthState,
 } from "./useRegardeAuth";
 
+export { useMyRegardeAccount } from "./useMyRegardeAccount";
+export type {
+  UseMyRegardeAccountResolve,
+  UseMyRegardeAccountResult,
+  AppField,
+  PaymentField,
+  SubscriptionField,
+  LicenseField,
+} from "./useMyRegardeAccount";
+
 export { useRegardeApp } from "./useRegardeApp";
 export type { TApp } from "#core/schemas/regardeUserApp";
 

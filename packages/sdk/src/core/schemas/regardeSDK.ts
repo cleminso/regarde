@@ -72,3 +72,6 @@ export const RegardeSDK = co.map({
   myUserHandle: UserHandle,
   version: z.number(),
 });
+
+/** Loaded RegardeSDK instance */
+export type TRegardeSDK = co.loaded<typeof RegardeSDK>;
