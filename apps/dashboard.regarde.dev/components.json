@@ -14,10 +14,12 @@
   "rtl": false,
   "aliases": {
     "components": "src/components",
+    "utils": "src/lib/utils",
     "ui": "src/components/ui",
     "lib": "src/components/ui/share",
-    "utils": "src/lib/utils",
     "hooks": "src/hooks"
   },
-  "registries": {}
+  "registries": {
+    "@kibo-ui": "https://www.kibo-ui.com/r/{name}.json"
+  }
 }
