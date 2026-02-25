@@ -7,6 +7,7 @@ import type {
   NormalizedEvent,
   WebhookContext,
   WebhookQueryContext,
+  TPaymentStatus,
 } from "./types";
 import { prefixProviderEventId } from "./types";
 
@@ -26,6 +27,7 @@ export type TPolarWebhook = z.infer<typeof PolarWebhookSchema>;
 // ---------------------------------------------------------------------------
 
 export const polarAdapter: PaymentProviderAdapter = {
+  provider: "polar",
   signatureHeader: "webhook-signature",
   timestampHeader: "webhook-timestamp",
   idHeader: "webhook-id",
@@ -47,17 +49,22 @@ export const polarAdapter: PaymentProviderAdapter = {
       // Standard Webhooks format: v1,{base64-signature}
       // The signed payload should be: {id}.{timestamp}.{body}
       const sig = parts[1];
-      
+
       // Construct signed payload according to Standard Webhooks spec
       let signedPayload: string;
-      if (id !== undefined && id !== "" && timestamp !== undefined && timestamp !== "") {
+      if (
+        id !== undefined &&
+        id !== "" &&
+        timestamp !== undefined &&
+        timestamp !== ""
+      ) {
         signedPayload = `${id}.${timestamp}.${payload}`;
       } else if (timestamp !== undefined && timestamp !== "") {
         signedPayload = `${timestamp}.${payload}`;
       } else {
         signedPayload = payload;
       }
-      
+
       const expected = createHmac("sha256", signingSecret)
         .update(signedPayload)
         .digest("base64");
@@ -121,13 +128,15 @@ export const polarAdapter: PaymentProviderAdapter = {
     const parsed = PolarWebhookSchema.parse(payload);
     const data = parsed.data;
     const providerEventId = data.id ?? "";
-    const prefixedProviderEventUUID = prefixProviderEventId("polar", providerEventId);
+    const prefixedProviderEventUUID = prefixProviderEventId(
+      "polar",
+      providerEventId,
+    );
     const timestamp = data.created_at
       ? new Date(data.created_at).getTime()
       : Date.now();
 
-    // Polar sandbox = test mode; production = production mode
-    const mode = data.is_sandbox === true ? "test" : "production";
+    // Polar doesn't indicate mode in webhooks
 
     const providerMetadata: Record<string, string> = {
       polarEventType: parsed.type,
@@ -145,7 +154,6 @@ export const polarAdapter: PaymentProviderAdapter = {
         providerEventId,
         prefixedProviderEventUUID,
         eventType: "payment.created",
-        mode,
         timestamp,
         providerMetadata,
         data: {
@@ -169,7 +177,6 @@ export const polarAdapter: PaymentProviderAdapter = {
         providerEventId,
         prefixedProviderEventUUID,
         eventType: "subscription.created",
-        mode,
         timestamp,
         providerMetadata,
         data: {
@@ -197,7 +204,6 @@ export const polarAdapter: PaymentProviderAdapter = {
         providerEventId,
         prefixedProviderEventUUID,
         eventType: "subscription.canceled",
-        mode,
         timestamp,
         providerMetadata,
         data: {
@@ -225,7 +231,6 @@ export const polarAdapter: PaymentProviderAdapter = {
         providerEventId,
         prefixedProviderEventUUID,
         eventType: "license.created",
-        mode,
         timestamp,
         providerMetadata,
         data: {
@@ -247,7 +252,6 @@ export const polarAdapter: PaymentProviderAdapter = {
         providerEventId,
         prefixedProviderEventUUID,
         eventType: "license.updated",
-        mode,
         timestamp,
         providerMetadata,
         data: {
@@ -269,7 +273,6 @@ export const polarAdapter: PaymentProviderAdapter = {
         providerEventId,
         prefixedProviderEventUUID,
         eventType: "license.revoked",
-        mode,
         timestamp,
         providerMetadata,
         data: {
@@ -287,17 +290,17 @@ export const polarAdapter: PaymentProviderAdapter = {
       const currency = (data.currency ?? "usd").toUpperCase();
       if (data.customer_id) providerMetadata.customerId = data.customer_id;
       if (data.product_id) providerMetadata.productId = data.product_id;
-      
+
       // order.created might be pending, check status
       const orderStatus = data.status ?? "pending";
-      const paymentStatus: TPaymentStatus = orderStatus === "paid" ? "succeeded" : "pending";
+      const paymentStatus: TPaymentStatus =
+        orderStatus === "paid" ? "succeeded" : "pending";
 
       return {
         provider: "polar",
         providerEventId,
         prefixedProviderEventUUID,
         eventType: "payment.created",
-        mode,
         timestamp,
         providerMetadata,
         data: {
@@ -321,7 +324,6 @@ export const polarAdapter: PaymentProviderAdapter = {
         providerEventId,
         prefixedProviderEventUUID,
         eventType: "subscription.updated",
-        mode,
         timestamp,
         providerMetadata,
         data: {
@@ -350,7 +352,6 @@ export const polarAdapter: PaymentProviderAdapter = {
         providerEventId,
         prefixedProviderEventUUID,
         eventType: "subscription.updated",
-        mode,
         timestamp,
         providerMetadata,
         data: {
@@ -378,7 +379,6 @@ export const polarAdapter: PaymentProviderAdapter = {
         providerEventId,
         prefixedProviderEventUUID,
         eventType: "subscription.updated",
-        mode,
         timestamp,
         providerMetadata,
         data: {
@@ -406,7 +406,6 @@ export const polarAdapter: PaymentProviderAdapter = {
         providerEventId,
         prefixedProviderEventUUID,
         eventType: "subscription.updated",
-        mode,
         timestamp,
         providerMetadata,
         data: {
@@ -434,7 +433,6 @@ export const polarAdapter: PaymentProviderAdapter = {
         providerEventId,
         prefixedProviderEventUUID,
         eventType: "subscription.updated",
-        mode,
         timestamp,
         providerMetadata,
         data: {
@@ -462,7 +460,6 @@ export const polarAdapter: PaymentProviderAdapter = {
         providerEventId,
         prefixedProviderEventUUID,
         eventType: "license.updated",
-        mode,
         timestamp,
         providerMetadata,
         data: {
@@ -486,7 +483,6 @@ export const polarAdapter: PaymentProviderAdapter = {
         providerEventId,
         prefixedProviderEventUUID,
         eventType: "payment.refunded",
-        mode,
         timestamp,
         providerMetadata,
         data: {
@@ -507,7 +503,12 @@ export const polarAdapter: PaymentProviderAdapter = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-type TPolarSubStatus = "trialing" | "active" | "past_due" | "canceled" | "expired";
+type TPolarSubStatus =
+  | "trialing"
+  | "active"
+  | "past_due"
+  | "canceled"
+  | "expired";
 
 const mapPolarSubscriptionStatus = (status: string): TPolarSubStatus => {
   switch (status) {

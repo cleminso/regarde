@@ -188,7 +188,7 @@ export const lemonsqueezyAdapter: PaymentProviderAdapter = {
     const parsed = LemonSqueezyPayloadSchema.parse(payload);
     const { event_name, test_mode } = parsed.meta;
     const mode = test_mode === true ? "test" : "production";
-    const providerEventId = parsed.data.attributes.identifier ?? parsed.data.id;
+    const providerEventId = parsed.data.id;
     const prefixedProviderEventUUID = prefixProviderEventId(
       "lemonsqueezy",
       providerEventId,

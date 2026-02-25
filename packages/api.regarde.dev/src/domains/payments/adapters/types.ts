@@ -4,6 +4,7 @@ import type {
   TSubscriptionEventType,
   TLicenseEventType,
   TSubscriptionStatus,
+  TMode,
 } from "@regarde-dev/core";
 
 export type TUnifiedEventType =
@@ -58,7 +59,7 @@ export interface NormalizedEvent {
   prefixedProviderEventUUID: string;
   eventType: TUnifiedEventType;
 
-  mode: "test" | "production";
+  mode?: TMode;
   timestamp: number;
 
   providerMetadata: Record<string, string>;

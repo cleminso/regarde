@@ -1,6 +1,6 @@
 import { co, z } from "jazz-tools";
 
-import { PAYMENT_PROVIDERS } from "./paymentEvent";
+import { PAYMENT_PROVIDERS, ModeSchema } from "./paymentEvent";
 
 export const LICENSE_EVENT_TYPES = [
   "license.created",
@@ -22,7 +22,7 @@ export const LICENSE_STATUSES = ["active", "inactive", "revoked"] as const;
  *
  * @schema
  * - `provider`: Payment provider source
- * - `mode`: Test or production mode
+ * - `mode`: Test or production mode (optional, set by provider when available)
  * - `providerEventId`: Native provider event ID
  * - `prefixedProviderEventUUID`: Prefixed ID for deduplication
  * - `eventType`: Unified event type (license.created, .updated, .revoked)
@@ -40,7 +40,7 @@ export const LICENSE_STATUSES = ["active", "inactive", "revoked"] as const;
  */
 export const LicenseEvent = co.map({
   provider: z.enum(PAYMENT_PROVIDERS),
-  mode: z.enum(["test", "production"]),
+  mode: z.optional(ModeSchema),
 
   providerEventId: z.string(),
   prefixedProviderEventUUID: z.string(),

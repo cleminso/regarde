@@ -1,6 +1,6 @@
 import { co, z } from "jazz-tools";
 
-import { PAYMENT_PROVIDERS } from "./paymentEvent";
+import { PAYMENT_PROVIDERS, ModeSchema } from "./paymentEvent";
 
 export const SUBSCRIPTION_EVENT_TYPES = [
   "subscription.created",
@@ -26,7 +26,7 @@ export type TSubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
  *
  * @schema
  * - `provider`: Payment provider source
- * - `mode`: Test or production mode
+ * - `mode`: Test or production mode (optional, set by provider when available)
  * - `providerEventId`: Native provider event ID
  * - `prefixedProviderEventUUID`: Prefixed ID for deduplication
  * - `eventType`: Unified event type (subscription.created, .canceled, .updated)
@@ -43,7 +43,7 @@ export type TSubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
  */
 export const SubscriptionEvent = co.map({
   provider: z.enum(PAYMENT_PROVIDERS),
-  mode: z.enum(["test", "production"]),
+  mode: z.optional(ModeSchema),
 
   providerEventId: z.string(),
   prefixedProviderEventUUID: z.string(),

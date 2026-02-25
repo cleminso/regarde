@@ -17,6 +17,10 @@ export const PAYMENT_STATUSES = [
   "pending",
 ] as const;
 
+// Shared mode type across all event schemas
+export type TMode = "test" | "production";
+export const ModeSchema = z.enum(["test", "production"]);
+
 /**
  * Individual payment transaction record.
  *
@@ -25,7 +29,7 @@ export const PAYMENT_STATUSES = [
  *
  * @schema
  * - `provider`: Payment provider source (lemonsqueezy, stripe, polar)
- * - `mode`: Test or production mode
+ * - `mode`: Test or production mode (optional, set by provider when available)
  * - `providerEventId`: Native provider event ID (e.g., "evt_1NG8Du..." for Stripe)
  * - `prefixedProviderEventUUID`: Prefixed ID for deduplication (e.g., "ST_evt_1NG8Du...")
  * - `eventType`: Unified event type (payment.created, payment.failed, payment.refunded)
@@ -42,7 +46,7 @@ export const PAYMENT_STATUSES = [
  */
 export const PaymentEvent = co.map({
   provider: z.enum(PAYMENT_PROVIDERS),
-  mode: z.enum(["test", "production"]),
+  mode: z.optional(ModeSchema),
 
   providerEventId: z.string(),
   prefixedProviderEventUUID: z.string(),

@@ -50,11 +50,13 @@ export {
   PAYMENT_PROVIDERS,
   PAYMENT_EVENT_TYPES,
   PAYMENT_STATUSES,
+  ModeSchema,
 } from "./paymentEvent";
 export type {
   TPaymentEvent,
   TPaymentProvider,
   TPaymentEventType,
+  TMode,
 } from "./paymentEvent";
 
 export {
