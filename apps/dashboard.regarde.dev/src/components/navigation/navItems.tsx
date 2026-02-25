@@ -27,6 +27,8 @@ export function NavItems({ onNavigate }: NavItemsProps): React.ReactElement {
       <div className="space-y-1">
         <div className="px-3 py-2 text-sm text-muted-foreground">Overview</div>
         <div className="px-3 py-2 text-sm text-muted-foreground">Payments</div>
+        <div className="px-3 py-2 text-sm text-muted-foreground">Subscriptions</div>
+        <div className="px-3 py-2 text-sm text-muted-foreground">Licenses</div>
         <div className="px-3 py-2 text-sm text-muted-foreground">Settings</div>
       </div>
     );
@@ -35,6 +37,8 @@ export function NavItems({ onNavigate }: NavItemsProps): React.ReactElement {
   const navItems = [
     { to: `/app/${effectiveAppId}/overview`, label: "Overview" },
     { to: `/app/${effectiveAppId}/payments`, label: "Payments" },
+    { to: `/app/${effectiveAppId}/subscriptions`, label: "Subscriptions" },
+    { to: `/app/${effectiveAppId}/licenses`, label: "Licenses" },
     { to: `/app/${effectiveAppId}/settings`, label: "Settings" },
   ];
 

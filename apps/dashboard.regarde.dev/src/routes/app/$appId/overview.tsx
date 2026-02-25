@@ -1,39 +1,85 @@
-import { Navigate, createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, useParams } from "@tanstack/react-router";
+import { z } from "zod";
 
-import { useMyRegardeAccount } from "#/lib/account/useMyRegardeAccount";
+import { usePaymentEvents } from "@regarde-dev/core/react";
+
+const searchSchema = z.object({});
 
 export const Route = createFileRoute("/app/$appId/overview")({
   component: OverviewPage,
+  validateSearch: searchSchema,
 });
 
+/**
+ * Overview page with basic KPIs.
+ *
+ * @returns The overview page component
+ */
 function OverviewPage(): React.ReactElement {
-  const { selectedApp, isAccountReady, myApps } = useMyRegardeAccount();
-  const params = useParams({ strict: false });
-  const appId = params?.appId as string | undefined;
+  const { appId } = useParams({ strict: false });
 
-  // Loading state - account not ready yet
-  if (isAccountReady === false) {
+  // Guard: appId is required
+  if (appId === undefined || appId === "") {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900" />
+      <div className="flex h-full items-center justify-center">
+        <p className="text-muted-foreground">No app selected</p>
       </div>
     );
   }
 
-  // Handle missing appId - redirect to first app if available
-  if (appId === undefined && myApps && myApps.length > 0) {
-    const firstAppId = myApps[0].$jazz.id;
+  const { events: payments, isLoading: isLoadingPayments } = usePaymentEvents(
+    appId,
+    { mode: "all" },
+  );
+
+  const isLoading = isLoadingPayments;
+
+  if (isLoading) {
     return (
-      <Navigate to="/app/$appId/overview" params={{ appId: firstAppId }} />
+      <div className="flex h-full items-center justify-center">
+        <p>Loading...</p>
+      </div>
     );
   }
 
+  // Get recent events (last 5)
+  const recentEvents = [...payments]
+    .sort((a, b) => b.timestamp - a.timestamp)
+    .slice(0, 5);
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">{selectedApp?.name ?? "Overview"}</h1>
-      {selectedApp?.description && (
-        <p className="mt-4 text-gray-700">{selectedApp.description}</p>
-      )}
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold">Overview</h1>
+
+      <div>
+        <h2 className="mb-4 text-lg font-semibold">Recent Activity</h2>
+        {recentEvents.length === 0 ? (
+          <p className="text-muted-foreground">
+            No recent activity. Webhooks will appear here when received.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {recentEvents.map((event) => (
+              <div
+                key={event.$jazz.id}
+                className="flex items-center justify-between rounded border p-3"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">
+                    {event.amount} {event.currency.toUpperCase()}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {event.status}
+                  </span>
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  {new Date(event.timestamp).toLocaleString()}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

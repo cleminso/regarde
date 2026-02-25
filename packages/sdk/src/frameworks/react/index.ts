@@ -32,3 +32,27 @@ export type {
   UseRegardeAuthResult,
   UseRegardeAuthState,
 } from "./useRegardeAuth";
+
+export { useRegardeApp } from "./useRegardeApp";
+export type { TApp } from "#core/schemas/regardeUserApp";
+
+export { usePaymentEvents } from "./usePaymentEvents";
+export type {
+  UsePaymentEventsOptions,
+  UsePaymentEventsResult,
+} from "./usePaymentEvents";
+
+export { useSubscriptionEvents } from "./useSubscriptionEvents";
+export type {
+  UseSubscriptionEventsOptions,
+  UseSubscriptionEventsResult,
+} from "./useSubscriptionEvents";
+
+export { useLicenseEvents } from "./useLicenseEvents";
+export type {
+  UseLicenseEventsOptions,
+  UseLicenseEventsResult,
+} from "./useLicenseEvents";
+
+export { useActiveSubscriptions } from "./useActiveSubscriptions";
+export type { UseActiveSubscriptionsResult } from "./useActiveSubscriptions";

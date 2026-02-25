@@ -11,9 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterAppRouteImport } from './routes/register-app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppAppIdSubscriptionsRouteImport } from './routes/app/$appId/subscriptions'
 import { Route as AppAppIdSettingsRouteImport } from './routes/app/$appId/settings'
 import { Route as AppAppIdPaymentsRouteImport } from './routes/app/$appId/payments'
 import { Route as AppAppIdOverviewRouteImport } from './routes/app/$appId/overview'
+import { Route as AppAppIdLicensesRouteImport } from './routes/app/$appId/licenses'
 
 const RegisterAppRoute = RegisterAppRouteImport.update({
   id: '/register-app',
@@ -23,6 +25,11 @@ const RegisterAppRoute = RegisterAppRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppAppIdSubscriptionsRoute = AppAppIdSubscriptionsRouteImport.update({
+  id: '/app/$appId/subscriptions',
+  path: '/app/$appId/subscriptions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppAppIdSettingsRoute = AppAppIdSettingsRouteImport.update({
@@ -40,59 +47,78 @@ const AppAppIdOverviewRoute = AppAppIdOverviewRouteImport.update({
   path: '/app/$appId/overview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppAppIdLicensesRoute = AppAppIdLicensesRouteImport.update({
+  id: '/app/$appId/licenses',
+  path: '/app/$appId/licenses',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/register-app': typeof RegisterAppRoute
+  '/app/$appId/licenses': typeof AppAppIdLicensesRoute
   '/app/$appId/overview': typeof AppAppIdOverviewRoute
   '/app/$appId/payments': typeof AppAppIdPaymentsRoute
   '/app/$appId/settings': typeof AppAppIdSettingsRoute
+  '/app/$appId/subscriptions': typeof AppAppIdSubscriptionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/register-app': typeof RegisterAppRoute
+  '/app/$appId/licenses': typeof AppAppIdLicensesRoute
   '/app/$appId/overview': typeof AppAppIdOverviewRoute
   '/app/$appId/payments': typeof AppAppIdPaymentsRoute
   '/app/$appId/settings': typeof AppAppIdSettingsRoute
+  '/app/$appId/subscriptions': typeof AppAppIdSubscriptionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/register-app': typeof RegisterAppRoute
+  '/app/$appId/licenses': typeof AppAppIdLicensesRoute
   '/app/$appId/overview': typeof AppAppIdOverviewRoute
   '/app/$appId/payments': typeof AppAppIdPaymentsRoute
   '/app/$appId/settings': typeof AppAppIdSettingsRoute
+  '/app/$appId/subscriptions': typeof AppAppIdSubscriptionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/register-app'
+    | '/app/$appId/licenses'
     | '/app/$appId/overview'
     | '/app/$appId/payments'
     | '/app/$appId/settings'
+    | '/app/$appId/subscriptions'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/register-app'
+    | '/app/$appId/licenses'
     | '/app/$appId/overview'
     | '/app/$appId/payments'
     | '/app/$appId/settings'
+    | '/app/$appId/subscriptions'
   id:
     | '__root__'
     | '/'
     | '/register-app'
+    | '/app/$appId/licenses'
     | '/app/$appId/overview'
     | '/app/$appId/payments'
     | '/app/$appId/settings'
+    | '/app/$appId/subscriptions'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   RegisterAppRoute: typeof RegisterAppRoute
+  AppAppIdLicensesRoute: typeof AppAppIdLicensesRoute
   AppAppIdOverviewRoute: typeof AppAppIdOverviewRoute
   AppAppIdPaymentsRoute: typeof AppAppIdPaymentsRoute
   AppAppIdSettingsRoute: typeof AppAppIdSettingsRoute
+  AppAppIdSubscriptionsRoute: typeof AppAppIdSubscriptionsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -109,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/$appId/subscriptions': {
+      id: '/app/$appId/subscriptions'
+      path: '/app/$appId/subscriptions'
+      fullPath: '/app/$appId/subscriptions'
+      preLoaderRoute: typeof AppAppIdSubscriptionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/$appId/settings': {
@@ -132,15 +165,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppIdOverviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/$appId/licenses': {
+      id: '/app/$appId/licenses'
+      path: '/app/$appId/licenses'
+      fullPath: '/app/$appId/licenses'
+      preLoaderRoute: typeof AppAppIdLicensesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   RegisterAppRoute: RegisterAppRoute,
+  AppAppIdLicensesRoute: AppAppIdLicensesRoute,
   AppAppIdOverviewRoute: AppAppIdOverviewRoute,
   AppAppIdPaymentsRoute: AppAppIdPaymentsRoute,
   AppAppIdSettingsRoute: AppAppIdSettingsRoute,
+  AppAppIdSubscriptionsRoute: AppAppIdSubscriptionsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

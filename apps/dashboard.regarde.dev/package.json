@@ -28,7 +28,8 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "tailwind-merge": "^3.4.0",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.1.18",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@tanstack/devtools-vite": "^0.5.1",

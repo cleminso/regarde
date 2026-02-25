@@ -5,7 +5,6 @@ import { z } from "zod";
 
 import { ModeBadge } from "#/components/tables/cells/ModeBadge";
 import { ProviderBadge } from "#/components/tables/cells/ProviderBadge";
-import { RelationLink } from "#/components/tables/cells/RelationLink";
 import { StatusBadge } from "#/components/tables/cells/StatusBadge";
 import { TimestampCell } from "#/components/tables/cells/TimestampCell";
 import { UserId } from "#/components/tables/cells/UserId";
@@ -20,29 +19,31 @@ import {
   TableProvider,
   TableRow,
 } from "#/components/ui/kibo-ui/table";
-import type { TPaymentEvent, TPaymentProvider } from "@regarde-dev/core";
-import { usePaymentEvents } from "@regarde-dev/core/react";
+import type { TLicenseEvent, TPaymentProvider } from "@regarde-dev/core";
+import { useLicenseEvents } from "@regarde-dev/core/react";
 import type { TMode } from "@regarde-dev/core";
 
 const searchSchema = z.object({
   mode: z.enum(["test", "production", "all"]).optional(),
+  providerLicenseId: z.string().optional(),
 });
 
-export const Route = createFileRoute("/app/$appId/payments")({
-  component: PaymentsPage,
+export const Route = createFileRoute("/app/$appId/licenses")({
+  component: LicensesPage,
   validateSearch: searchSchema,
 });
 
 /**
- * Payments page with data table.
+ * Licenses page with event history.
  *
- * @returns The payments page component
+ * @returns The licenses page component
  */
-function PaymentsPage(): React.ReactElement {
+function LicensesPage(): React.ReactElement {
   const navigate = Route.useNavigate();
   const { appId } = useParams({ strict: false });
   const search = Route.useSearch();
   const mode = search.mode ?? "all";
+  const providerLicenseId = search.providerLicenseId;
 
   // Guard: appId is required
   if (appId === undefined || appId === "") {
@@ -53,9 +54,12 @@ function PaymentsPage(): React.ReactElement {
     );
   }
 
-  const { events, isLoading } = usePaymentEvents(appId, { mode });
+  const { events, isLoading } = useLicenseEvents(appId, {
+    mode,
+    providerLicenseId,
+  });
 
-  const columns = useMemo<ColumnDef<TPaymentEvent>[]>(
+  const columns = useMemo<ColumnDef<TLicenseEvent>[]>(
     () => [
       {
         accessorKey: "timestamp",
@@ -65,17 +69,29 @@ function PaymentsPage(): React.ReactElement {
         cell: ({ row }) => <TimestampCell value={row.original.timestamp} />,
       },
       {
-        accessorKey: "amount",
-        header: ({ column }) => (
-          <TableColumnHeader column={column} title="Amount" />
-        ),
-        cell: ({ row }) =>
-          `${row.original.amount} ${row.original.currency.toUpperCase()}`,
+        accessorKey: "eventType",
+        header: "Event Type",
+        cell: ({ row }) => <span>{row.original.eventType}</span>,
+      },
+      {
+        accessorKey: "licenseKey",
+        header: "License Key",
+        cell: ({ row }) => <span>{row.original.licenseKey ?? "—"}</span>,
+      },
+      {
+        accessorKey: "productId",
+        header: "Product",
+        cell: ({ row }) => <span>{row.original.productId ?? "—"}</span>,
       },
       {
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      },
+      {
+        accessorKey: "userAccount",
+        header: "User",
+        cell: ({ row }) => <UserId userId={row.original.userAccount} />,
       },
       {
         accessorKey: "provider",
@@ -89,34 +105,21 @@ function PaymentsPage(): React.ReactElement {
         header: "Mode",
         cell: ({ row }) => <ModeBadge mode={row.original.mode} />,
       },
-      {
-        accessorKey: "userAccount",
-        header: "User",
-        cell: ({ row }) => <UserId userId={row.original.userAccount} />,
-      },
-      {
-        accessorKey: "providerSubscriptionId",
-        header: "Subscription",
-        cell: ({ row }) => (
-          <RelationLink
-            type="subscription"
-            id={row.original.providerSubscriptionId}
-          />
-        ),
-      },
-      {
-        accessorKey: "providerLicenseId",
-        header: "License",
-        cell: ({ row }) => (
-          <RelationLink type="license" id={row.original.providerLicenseId} />
-        ),
-      },
     ],
     [],
   );
 
   const handleModeChange = (newMode: TMode | "all"): void => {
     void navigate({ search: (prev) => ({ ...prev, mode: newMode }) });
+  };
+
+  const clearFilter = (): void => {
+    void navigate({ 
+      search: (prev) => {
+        const { providerLicenseId: _, ...rest } = prev;
+        return rest;
+      }
+    });
   };
 
   if (isLoading) {
@@ -130,7 +133,7 @@ function PaymentsPage(): React.ReactElement {
   return (
     <div className="flex h-full flex-col">
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Payments</h1>
+        <h1 className="text-2xl font-bold">Licenses</h1>
         <div className="flex gap-2">
           <Button
             variant={mode === "all" ? "default" : "outline"}
@@ -156,11 +159,20 @@ function PaymentsPage(): React.ReactElement {
         </div>
       </div>
 
+      {providerLicenseId && (
+        <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+          <span>Filtered by License ID: {providerLicenseId}</span>
+          <Button variant="ghost" size="sm" onClick={clearFilter}>
+            Clear Filter
+          </Button>
+        </div>
+      )}
+
       <div className="flex-1 overflow-hidden">
         {events.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <p className="text-muted-foreground">
-              No payment events yet. Webhooks will appear here when received.
+              No license events yet. Webhooks will appear here when received.
             </p>
           </div>
         ) : (
