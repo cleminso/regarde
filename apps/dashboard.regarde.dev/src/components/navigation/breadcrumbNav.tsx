@@ -1,0 +1,95 @@
+"use client";
+
+import { Link, useLocation, useParams } from "@tanstack/react-router";
+
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "#ui/breadcrumb";
+import { useMyRegardeAccount, type TApp } from "#/lib/account/useMyRegardeAccount";
+
+function getPageLabelFromPathname(pathname: string): string {
+  const segments = pathname.split("/");
+  const lastSegment = segments[segments.length - 1];
+
+  switch (lastSegment) {
+    case "overview":
+      return "Overview";
+    case "payments":
+      return "Payments";
+    case "subscriptions":
+      return "Subscriptions";
+    case "licenses":
+      return "Licenses";
+    case "settings":
+      return "Settings";
+    default:
+      return "Overview";
+  }
+}
+
+export function BreadcrumbNav(): React.ReactElement {
+  const { appId } = useParams({ strict: false });
+  const location = useLocation();
+  const { myApps, isAccountReady } = useMyRegardeAccount();
+
+  // Determine effective app
+  let effectiveAppId = appId;
+  let effectiveApp: TApp | null = null;
+
+  if (isAccountReady && myApps) {
+    if (effectiveAppId) {
+      effectiveApp = myApps.find((app: TApp) => app.$jazz.id === effectiveAppId) ?? null;
+    }
+    const appFound = effectiveApp !== null;
+    if (appFound === false && myApps.length > 0) {
+      const firstApp = myApps[0];
+      effectiveApp = firstApp;
+      effectiveAppId = firstApp.$jazz.id;
+    }
+  }
+
+  // Get current page label from reactive location
+  const pageLabel = effectiveAppId ? getPageLabelFromPathname(location.pathname) : "Overview";
+
+  // Loading state check with explicit boolean pattern
+  const appReady = effectiveApp !== null;
+  if (isAccountReady === false || appReady === false) {
+    return (
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Loading...</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    );
+  }
+
+  // TypeScript guard: effectiveApp is guaranteed to be non-null here
+  if (effectiveApp === null) {
+    throw new Error("Unexpected: effectiveApp should not be null after guard check");
+  }
+
+  const overviewUrl = `/app/${effectiveAppId}/overview`;
+
+  return (
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink asChild>
+            <Link to={overviewUrl}>{effectiveApp.name}</Link>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>{pageLabel}</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
+  );
+}

@@ -55,9 +55,6 @@ export function useMyRegardeAccount() {
                     licenses: true,
                   },
                 },
-                myPayments: true,
-                mySubscriptions: true,
-                myLicenses: true,
               },
             },
           },
@@ -95,7 +92,12 @@ export function useMyRegardeAccount() {
   const userNickname = myUserHandle?.nickname;
 
   // Determine if account is fully ready
-  const isAccountReady = !!(account && account.$isLoaded && regardeSdk && myApps);
+  const isAccountReady = !!(
+    account &&
+    account.$isLoaded &&
+    regardeSdk &&
+    myApps
+  );
 
   return {
     account,

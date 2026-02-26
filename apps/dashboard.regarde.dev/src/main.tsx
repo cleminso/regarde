@@ -12,6 +12,7 @@ import { RegardeAccount } from "@regarde-dev/core";
 import { apiKey } from "./lib/config/apiKey";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
+import { TooltipProvider } from "#ui/tooltip";
 
 // Create a new router instance
 const router = createRouter({
@@ -35,17 +36,20 @@ const rootElement = document.getElementById("app");
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
-    <StrictMode>
-      <JazzReactProvider
-        AccountSchema={RegardeAccount}
-        sync={{
-          peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
-        }}
-      >
-        <RouterProvider router={router} />
-        <JazzInspector position="bottom left" />
-        {process.env.NODE_ENV === "development" && <Agentation />}
-      </JazzReactProvider>
-    </StrictMode>,
+    <TooltipProvider>
+      <StrictMode>
+        <JazzReactProvider
+          AccountSchema={RegardeAccount}
+          sync={{
+            peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+          }}
+        >
+          <RouterProvider router={router} />
+          <JazzInspector position="bottom left" />
+          {process.env.NODE_ENV === "development" && <Agentation />}
+        </JazzReactProvider>
+      </StrictMode>
+      ,
+    </TooltipProvider>,
   );
 }
