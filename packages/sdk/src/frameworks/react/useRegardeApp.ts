@@ -1,7 +1,7 @@
 import { useCoState } from "jazz-tools/react";
 
-import { App } from "#core/schemas/regardeUserApp";
-import type { TApp } from "#core/schemas/regardeUserApp";
+import { RegardeApp } from "#core/schemas/regardeUserApp";
+import type { TRegardeApp } from "#core/schemas/regardeUserApp";
 
 /**
  * Subscribe to a single App CoValue and ensure all event maps are loaded.
@@ -18,8 +18,8 @@ import type { TApp } from "#core/schemas/regardeUserApp";
  * }
  * ```
  */
-export function useRegardeApp(appId: string): TApp | null {
-  return useCoState(App, appId, {
+export function useRegardeApp(appId: string): TRegardeApp | null {
+  return useCoState(RegardeApp, appId, {
     resolve: {
       payments: { all: true, byUser: true },
       subscriptions: { all: true, byUser: true },

@@ -4,8 +4,8 @@ import { useMemo } from "react";
 import type { TMode } from "#core/schemas/paymentEvent";
 import { LicenseEvent } from "#core/schemas/licenseEvent";
 import type { TLicenseEvent } from "#core/schemas/licenseEvent";
-import { App } from "#core/schemas/regardeUserApp";
-import type { TApp } from "#core/schemas/regardeUserApp";
+import { RegardeApp } from "#core/schemas/regardeUserApp";
+import type { TRegardeApp } from "#core/schemas/regardeUserApp";
 
 export interface UseLicenseEventsOptions {
   /** Filter by test/production mode (default: "all") */
@@ -45,7 +45,7 @@ export function useLicenseEvents(
   options?: UseLicenseEventsOptions,
 ): UseLicenseEventsResult {
   // Load the App CoValue with all nested records
-  const app: TApp | null = useCoState(App, appId, {
+  const app: TRegardeApp | null = useCoState(RegardeApp, appId, {
     resolve: {
       payments: { all: true, byUser: true },
       subscriptions: { all: true, byUser: true },
@@ -133,7 +133,8 @@ export function useLicenseEvents(
 
     // Check if all LicenseEvents are loaded
     return allEvents.some(
-      (event) => event === null || event === undefined || event.$isLoaded === false,
+      (event) =>
+        event === null || event === undefined || event.$isLoaded === false,
     );
   }, [app, allEvents]);
 

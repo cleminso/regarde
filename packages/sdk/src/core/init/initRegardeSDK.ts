@@ -7,7 +7,7 @@ import { getRegardeTokenAuth } from "#managers/auth/refreshAuthToken";
 import { RegardeAccount } from "#schemas/regardeAccount";
 import { RegardeSDK } from "#schemas/regardeSDK";
 import { RegardeTokenAuth } from "#schemas/regardeTokenAuth";
-import { App } from "#schemas/regardeUserApp";
+import { RegardeApp } from "#schemas/regardeUserApp";
 import { UserHandle } from "#schemas/regardeUserHandle";
 
 const logger = useLogging({
@@ -32,7 +32,7 @@ export const initRegardeSDK = async (
   account: co.loaded<typeof RegardeAccount>,
   mode: InitRegardeSDKMode = "ensure",
   /** The AppId you get when creating your Regarde App */
-  appId?: ID<typeof App>,
+  appId?: ID<typeof RegardeApp>,
 ): Promise<co.loaded<typeof RegardeSDK>> => {
   const isAccountValid = account !== null && account.$isLoaded === true;
   const REGARDE_REGISTRY_GROUP = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
@@ -213,7 +213,7 @@ export const initRegardeSDK = async (
             owner: userGroup,
           },
         ),
-        myApps: co.list(App).create([], { owner: userGroup }),
+        myApps: co.list(RegardeApp).create([], { owner: userGroup }),
         myPayments: myPayments,
         mySubscriptions: mySubscriptions,
         myLicenses: myLicenses,
@@ -431,7 +431,7 @@ export const initRegardeSDK = async (
             owner: userGroup,
           },
         ),
-        myApps: co.list(App).create([], { owner: userGroup }),
+        myApps: co.list(RegardeApp).create([], { owner: userGroup }),
         myPayments: myPayments,
         mySubscriptions: mySubscriptions,
         myLicenses: myLicenses,

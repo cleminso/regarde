@@ -1,7 +1,7 @@
 import { co, z } from "jazz-tools";
 
 import { RegardeTokenAuth } from "./regardeTokenAuth";
-import { App } from "./regardeUserApp";
+import { RegardeApp } from "./regardeUserApp";
 import { UserHandle } from "./regardeUserHandle";
 
 /**
@@ -65,7 +65,7 @@ export type TLicenseSchema = co.loaded<typeof LicenseSchema>;
 export const RegardeSDK = co.map({
   // TODO: `auth` become semantically wrong here? Still convenient to write `auth.token`
   auth: RegardeTokenAuth,
-  myApps: co.list(App),
+  myApps: co.list(RegardeApp),
   myPayments: PaymentSchema,
   mySubscriptions: SubscriptionSchema,
   myLicenses: LicenseSchema,

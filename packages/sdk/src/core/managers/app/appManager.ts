@@ -3,7 +3,12 @@ import { co, z, Loaded, Group } from "jazz-tools";
 import { useLogging } from "#core/logger";
 import { RegardeAccount } from "#schemas/regardeAccount";
 import { RegardeSDK } from "#schemas/regardeSDK";
-import { App, type TApp } from "#schemas/regardeUserApp";
+import {
+  RegardeApp,
+  AllWebhookEventsFeed,
+  ListOfWebhooks,
+  type TRegardeApp,
+} from "#schemas/regardeUserApp";
 
 const logger = useLogging({
   module: import.meta.filename,
@@ -17,8 +22,6 @@ export interface CreateAppParams {
   name: string;
   /** Optional description of app functionality */
   description?: string;
-  /** App payment provider */
-  paymentProvider: "lemonsqueezy" | "stripe" | "polar";
 }
 
 /**
@@ -35,7 +38,7 @@ export interface CreateAppParams {
 export const createApp = async (
   account: co.loaded<typeof RegardeAccount>,
   appData: CreateAppParams,
-): Promise<TApp> => {
+): Promise<TRegardeApp> => {
   const REGARDE_REGISTRY_GROUP = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
 
   const { root: accountRoot } = await account.$jazz.ensureLoaded({
@@ -117,7 +120,9 @@ export const createApp = async (
         ownerLoaded: userGroup?.$isLoaded,
       },
     });
-    throw new Error("Failed to load SDK owner group. Please refresh and try again.");
+    throw new Error(
+      "Failed to load SDK owner group. Please refresh and try again.",
+    );
   }
 
   const regardeAdminOtherReadersGroup = Group.create({
@@ -208,19 +213,19 @@ export const createApp = async (
     );
   await licenses.$jazz.waitForSync();
 
-  const newApp = App.create(
+  const newApp = RegardeApp.create(
     {
       name: appData.name,
       description: appData.description || "",
       ownerAccountId: account.$jazz.id,
-      paymentProvider: appData.paymentProvider,
       isEnabled: false,
       createdAt: Date.now(),
       metadata: {},
-      webhookSecret: "",
+      webhooks: [], // TODO: created front side
       payments: payments,
       subscriptions: subscriptions,
       licenses: licenses,
+      allEvents: AllWebhookEventsFeed.create([], { owner: userGroup }),
     },
     { owner: userGroup },
   );
@@ -250,7 +255,7 @@ export const createApp = async (
  */
 export const getMyApps = async (
   regardeSDK: Loaded<typeof RegardeSDK>,
-): Promise<TApp[]> => {
+): Promise<TRegardeApp[]> => {
   const myApps = regardeSDK.myApps;
   const myAppsValid = myApps !== null && myApps.$isLoaded === true;
 
@@ -261,7 +266,7 @@ export const getMyApps = async (
   await myApps.$jazz.ensureLoaded({ resolve: { $each: true } });
 
   return Array.from(myApps).filter(
-    (app): app is TApp => app !== null && app.$isLoaded === true,
+    (app): app is TRegardeApp => app !== null && app.$isLoaded === true,
   );
 };
 

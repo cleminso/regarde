@@ -2,7 +2,11 @@ import { co, z } from "jazz-tools";
 
 import { useLogging } from "#core/logger";
 
-import { AppRegistry, AppsByUserRecord, AllRegistryAppsSchema } from "./app";
+import {
+  RegardeAppRegistry,
+  RegardeAppsByUserRecord,
+  AllRegardeRegistryAppsSchema,
+} from "./app";
 import { RegistryAuditLog } from "./audit";
 import {
   NicknameRegistryCoRecord,
@@ -38,12 +42,14 @@ export const RegistryWorkerAccountRoot = co.map({
   reverseRegistry: ReverseNicknameRegistryCoRecord,
   auditLog: RegistryAuditLog,
   reservedNicknames: ReservedNicknamesRegistry,
-  apps: AppRegistry,
+  apps: RegardeAppRegistry,
   processedProviderEvents: ProcessedProviderEvents,
 });
 
 /** Loaded RegistryWorkerAccountRoot instance */
-export type TRegistryWorkerAccountRoot = co.loaded<typeof RegistryWorkerAccountRoot>;
+export type TRegistryWorkerAccountRoot = co.loaded<
+  typeof RegistryWorkerAccountRoot
+>;
 
 const EmptyProfile = co.profile();
 
@@ -81,11 +87,11 @@ export const RegistryWorkerAccount = co
         const newReservedNicknames = ReservedNicknamesRegistry.create({});
         await newReservedNicknames.$jazz.waitForSync();
 
-        const appsByUser = AppsByUserRecord.create({});
+        const appsByUser = RegardeAppsByUserRecord.create({});
         await appsByUser.$jazz.waitForSync();
-        const allApps = AllRegistryAppsSchema.create({});
+        const allApps = AllRegardeRegistryAppsSchema.create({});
         await allApps.$jazz.waitForSync();
-        const newAppsRegistry = AppRegistry.create({
+        const newAppsRegistry = RegardeAppRegistry.create({
           appsByUser: appsByUser,
           apps: allApps,
           metadata: {},
@@ -130,7 +136,8 @@ export const RegistryWorkerAccount = co
         });
       }
 
-      const hasReverseRegistry = loadedAccount.root.$jazz.has("reverseRegistry") === true;
+      const hasReverseRegistry =
+        loadedAccount.root.$jazz.has("reverseRegistry") === true;
       if (hasReverseRegistry === false) {
         const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
         loadedAccount.root.$jazz.set("reverseRegistry", newReverseRegistry);
@@ -152,7 +159,8 @@ export const RegistryWorkerAccount = co
         });
       }
 
-      const hasReservedNicknames = loadedAccount.root.$jazz.has("reservedNicknames") === true;
+      const hasReservedNicknames =
+        loadedAccount.root.$jazz.has("reservedNicknames") === true;
       if (hasReservedNicknames === false) {
         const newReservedNicknames = ReservedNicknamesRegistry.create({});
         loadedAccount.root.$jazz.set("reservedNicknames", newReservedNicknames);
@@ -166,14 +174,16 @@ export const RegistryWorkerAccount = co
       const hasApps = loadedAccount.root.$jazz.has("apps") === true;
       const appsValue = loadedAccount.root.apps;
       const isAppsLoaded =
-        appsValue !== null && appsValue !== undefined && appsValue.$isLoaded === true;
+        appsValue !== null &&
+        appsValue !== undefined &&
+        appsValue.$isLoaded === true;
 
       if (hasApps === false || isAppsLoaded === false) {
-        const appsByUser = AppsByUserRecord.create({});
+        const appsByUser = RegardeAppsByUserRecord.create({});
         await appsByUser.$jazz.waitForSync();
-        const allApps = AllRegistryAppsSchema.create({});
+        const allApps = AllRegardeRegistryAppsSchema.create({});
         await allApps.$jazz.waitForSync();
-        const newAppsRegistry = AppRegistry.create({
+        const newAppsRegistry = RegardeAppRegistry.create({
           appsByUser: appsByUser,
           apps: allApps,
           metadata: {},
@@ -196,7 +206,10 @@ export const RegistryWorkerAccount = co
         loadedAccount.root.$jazz.has("processedProviderEvents") === true;
       if (hasProcessedProviderEvents === false) {
         const newProcessedProviderEvents = ProcessedProviderEvents.create({});
-        loadedAccount.root.$jazz.set("processedProviderEvents", newProcessedProviderEvents);
+        loadedAccount.root.$jazz.set(
+          "processedProviderEvents",
+          newProcessedProviderEvents,
+        );
         await loadedAccount.root.$jazz.waitForSync();
         logger.info({
           message: "ProcessedProviderEvents created in worker account root",
@@ -220,11 +233,11 @@ export const RegistryWorkerAccount = co
         const newReservedNicknames = ReservedNicknamesRegistry.create({});
         await newReservedNicknames.$jazz.waitForSync();
 
-        const appsByUser = AppsByUserRecord.create({});
+        const appsByUser = RegardeAppsByUserRecord.create({});
         await appsByUser.$jazz.waitForSync();
-        const allApps = AllRegistryAppsSchema.create({});
+        const allApps = AllRegardeRegistryAppsSchema.create({});
         await allApps.$jazz.waitForSync();
-        const newAppsRegistry = AppRegistry.create({
+        const newAppsRegistry = RegardeAppRegistry.create({
           appsByUser: appsByUser,
           apps: allApps,
           metadata: {},
@@ -262,18 +275,21 @@ export const RegistryWorkerAccount = co
           account.root.$jazz.set("registry", newRegistry);
           await account.root.$jazz.waitForSync();
           logger.info({
-            message: "NicknameRegistry created in existing root during fallback",
+            message:
+              "NicknameRegistry created in existing root during fallback",
             data: {},
           });
         }
 
-        const hasReverseRegistry = account.root.$jazz.has("reverseRegistry") === true;
+        const hasReverseRegistry =
+          account.root.$jazz.has("reverseRegistry") === true;
         if (hasReverseRegistry === false) {
           const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
           account.root.$jazz.set("reverseRegistry", newReverseRegistry);
           await account.root.$jazz.waitForSync();
           logger.info({
-            message: "ReverseNicknameRegistry created in existing root during fallback",
+            message:
+              "ReverseNicknameRegistry created in existing root during fallback",
             data: {},
           });
         }
@@ -289,24 +305,26 @@ export const RegistryWorkerAccount = co
           });
         }
 
-        const hasReservedNicknames = account.root.$jazz.has("reservedNicknames") === true;
+        const hasReservedNicknames =
+          account.root.$jazz.has("reservedNicknames") === true;
         if (hasReservedNicknames === false) {
           const newReservedNicknames = ReservedNicknamesRegistry.create({});
           account.root.$jazz.set("reservedNicknames", newReservedNicknames);
           await account.root.$jazz.waitForSync();
           logger.info({
-            message: "ReservedNicknames created in existing root during fallback",
+            message:
+              "ReservedNicknames created in existing root during fallback",
             data: {},
           });
         }
 
         const hasApps = account.root.$jazz.has("apps") === true;
         if (hasApps === false) {
-          const appsByUser = AppsByUserRecord.create({});
+          const appsByUser = RegardeAppsByUserRecord.create({});
           await appsByUser.$jazz.waitForSync();
-          const allApps = AllRegistryAppsSchema.create({});
+          const allApps = AllRegardeRegistryAppsSchema.create({});
           await allApps.$jazz.waitForSync();
-          const newAppsRegistry = AppRegistry.create({
+          const newAppsRegistry = RegardeAppRegistry.create({
             appsByUser: appsByUser,
             apps: allApps,
             metadata: {},
@@ -329,10 +347,14 @@ export const RegistryWorkerAccount = co
           account.root.$jazz.has("processedProviderEvents") === true;
         if (hasProcessedProviderEvents === false) {
           const newProcessedProviderEvents = ProcessedProviderEvents.create({});
-          account.root.$jazz.set("processedProviderEvents", newProcessedProviderEvents);
+          account.root.$jazz.set(
+            "processedProviderEvents",
+            newProcessedProviderEvents,
+          );
           await account.root.$jazz.waitForSync();
           logger.info({
-            message: "ProcessedProviderEvents created in existing root during fallback",
+            message:
+              "ProcessedProviderEvents created in existing root during fallback",
             data: {},
           });
         }

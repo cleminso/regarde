@@ -44,7 +44,7 @@ export type {
 } from "./useMyRegardeAccount";
 
 export { useRegardeApp } from "./useRegardeApp";
-export type { TApp } from "#core/schemas/regardeUserApp";
+export type { TRegardeApp } from "#core/schemas/regardeUserApp";
 
 export { usePaymentEvents } from "./usePaymentEvents";
 export type {

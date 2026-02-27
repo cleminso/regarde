@@ -1,11 +1,11 @@
-export { RegistryAppMetadata } from "./app";
-export type { TRegistryAppMetadata } from "./app";
-export { AllRegistryAppsSchema } from "./app";
+export { RegardeRegistryAppMetadata } from "./app";
+export type { TRegardeRegistryAppMetadata } from "./app";
+export { AllRegardeRegistryAppsSchema } from "./app";
 export type { TAllRegistryAppsSchema } from "./app";
-export { AppsByUserRecord } from "./app";
-export type { TAppsByUserRecord } from "./app";
-export { AppRegistry } from "./app";
-export type { TAppRegistry } from "./app";
+export { RegardeAppsByUserRecord } from "./app";
+export type { TRegardeAppsByUserRecord } from "./app";
+export { RegardeAppRegistry } from "./app";
+export type { TRegardeAppRegistry } from "./app";
 
 export { ProcessedProviderEvents } from "./worker";
 

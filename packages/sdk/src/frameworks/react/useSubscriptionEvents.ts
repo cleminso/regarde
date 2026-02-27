@@ -2,8 +2,8 @@ import { useCoState, useCoStates } from "jazz-tools/react";
 import { useMemo } from "react";
 
 import type { TMode } from "#core/schemas/paymentEvent";
-import { App } from "#core/schemas/regardeUserApp";
-import type { TApp } from "#core/schemas/regardeUserApp";
+import { RegardeApp } from "#core/schemas/regardeUserApp";
+import type { TRegardeApp } from "#core/schemas/regardeUserApp";
 import { SubscriptionEvent } from "#core/schemas/subscriptionEvent";
 import type { TSubscriptionEvent } from "#core/schemas/subscriptionEvent";
 
@@ -45,7 +45,7 @@ export function useSubscriptionEvents(
   options?: UseSubscriptionEventsOptions,
 ): UseSubscriptionEventsResult {
   // Load the App CoValue with all nested records
-  const app: TApp | null = useCoState(App, appId, {
+  const app: TRegardeApp | null = useCoState(RegardeApp, appId, {
     resolve: {
       payments: { all: true, byUser: true },
       subscriptions: { all: true, byUser: true },
@@ -134,7 +134,8 @@ export function useSubscriptionEvents(
 
     // Check if all SubscriptionEvents are loaded
     return allEvents.some(
-      (event) => event === null || event === undefined || event.$isLoaded === false,
+      (event) =>
+        event === null || event === undefined || event.$isLoaded === false,
     );
   }, [app, allEvents]);
 

@@ -1,8 +1,8 @@
 import { useCoState } from "jazz-tools/react";
 import { useMemo } from "react";
 
-import { App } from "#core/schemas/regardeUserApp";
-import type { TApp } from "#core/schemas/regardeUserApp";
+import { RegardeApp } from "#core/schemas/regardeUserApp";
+import type { TRegardeApp } from "#core/schemas/regardeUserApp";
 
 export interface UseActiveSubscriptionsResult {
   /** Array of loaded Subscription CoMaps (current state, not events) */
@@ -43,7 +43,7 @@ export function useActiveSubscriptions(
   _appId: string,
 ): UseActiveSubscriptionsResult {
   // Load the App CoValue with all nested records
-  const app: TApp | null = useCoState(App, _appId, {
+  const app: TRegardeApp | null = useCoState(RegardeApp, _appId, {
     resolve: {
       payments: { all: true, byUser: true },
       subscriptions: { all: true, byUser: true },

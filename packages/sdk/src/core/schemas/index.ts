@@ -1,14 +1,14 @@
 export {
-  RegistryAppMetadata,
-  AllRegistryAppsSchema,
-  AppsByUserRecord,
-  AppRegistry,
+  RegardeRegistryAppMetadata,
+  AllRegardeRegistryAppsSchema,
+  RegardeAppsByUserRecord,
+  RegardeAppRegistry,
 } from "./registry/app";
 export type {
-  TRegistryAppMetadata,
+  TRegardeRegistryAppMetadata,
   TAllRegistryAppsSchema,
-  TAppsByUserRecord,
-  TAppRegistry,
+  TRegardeAppsByUserRecord,
+  TRegardeAppRegistry,
 } from "./registry/app";
 
 export { RegistryAuditEntryCoMap, RegistryAuditLog } from "./registry/audit";
@@ -85,8 +85,8 @@ export type { TRegardeAccount } from "./regardeAccount";
 export { RegardeTokenAuth } from "./regardeTokenAuth";
 export type { TRegardeAuthLoaded } from "./regardeTokenAuth";
 
-export { App } from "./regardeUserApp";
-export type { TApp } from "./regardeUserApp";
+export { RegardeApp } from "./regardeUserApp";
+export type { TRegardeApp } from "./regardeUserApp";
 export {
   AppPaymentsSchema,
   AppSubscriptionsSchema,

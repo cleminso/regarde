@@ -7,8 +7,8 @@ import {
   SubscriptionEvent,
   Subscription,
   LicenseEvent,
-  TApp,
-  App,
+  TRegardeApp,
+  RegardeApp,
   RegardeSDK,
   TRegistryWorkerAccountRoot,
   useLogging,
@@ -64,16 +64,18 @@ export const unifiedWebhookHandler = (
 
       // Capture raw body for signature verification
       const rawBody = await c.req.text();
-      
+
       // For debugging Polar webhooks, log ALL headers
       const isPolarProvider = provider === "polar";
       const allHeaders = Object.fromEntries(
         Object.entries(c.req.header()).map(([key, value]) => [
-          key, 
-          typeof value === 'string' && value.length > 50 ? value.substring(0, 50) + '...' : value
-        ])
+          key,
+          typeof value === "string" && value.length > 50
+            ? value.substring(0, 50) + "..."
+            : value,
+        ]),
       );
-      
+
       const headers = isPolarProvider
         ? allHeaders
         : {
@@ -81,7 +83,7 @@ export const unifiedWebhookHandler = (
             contentType: c.req.header("content-type"),
             userAgent: c.req.header("user-agent"),
           };
-      
+
       logger.debug({
         message: "Webhook request received",
         data: {
@@ -164,7 +166,7 @@ export const unifiedWebhookHandler = (
         return c.json({ error: "Missing App ID" }, 400);
       }
 
-      const appRef = await App.load(appId, {
+      const appRef = await RegardeApp.load(appId, {
         resolve: {
           payments: { all: true, byUser: true },
           subscriptions: { all: true, byUser: true },
@@ -180,7 +182,7 @@ export const unifiedWebhookHandler = (
         return c.json({ error: "App not found" }, 404);
       }
 
-      const app = await (appRef as TApp).$jazz.ensureLoaded({
+      const app = await (appRef as TRegardeApp).$jazz.ensureLoaded({
         resolve: {
           payments: { all: true, byUser: true },
           subscriptions: { all: true, byUser: true },
@@ -232,11 +234,13 @@ export const unifiedWebhookHandler = (
       const isSignatureValid =
         signature !== null &&
         adapter.validateSignature(
-          rawBody, 
-          signature, 
+          rawBody,
+          signature,
           app.webhookSecret,
-          adapter.timestampHeader ? c.req.header(adapter.timestampHeader) : undefined,
-          adapter.idHeader ? c.req.header(adapter.idHeader) : undefined
+          adapter.timestampHeader
+            ? c.req.header(adapter.timestampHeader)
+            : undefined,
+          adapter.idHeader ? c.req.header(adapter.idHeader) : undefined,
         );
       if (isSignatureValid === false) {
         logger.error({
@@ -246,12 +250,18 @@ export const unifiedWebhookHandler = (
             provider,
             isSignaturePresent: signature !== null,
             signatureLength: signature?.length,
-            signatureFormat: signature?.includes(",") ? "has-commas" : "no-commas",
+            signatureFormat: signature?.includes(",")
+              ? "has-commas"
+              : "no-commas",
             signatureParts: signature?.split(",").length,
             idHeader: adapter.idHeader,
-            idValue: adapter.idHeader ? c.req.header(adapter.idHeader) : undefined,
+            idValue: adapter.idHeader
+              ? c.req.header(adapter.idHeader)
+              : undefined,
             timestampHeader: adapter.timestampHeader,
-            timestampValue: adapter.timestampHeader ? c.req.header(adapter.timestampHeader) : undefined,
+            timestampValue: adapter.timestampHeader
+              ? c.req.header(adapter.timestampHeader)
+              : undefined,
             webhookSecretPrefix: app.webhookSecret?.substring(0, 15),
           },
         });
@@ -263,8 +273,9 @@ export const unifiedWebhookHandler = (
       try {
         normalized = adapter.normalizeEvent(json);
       } catch (normalizeError) {
-        const errorMessage = normalizeError instanceof Error ? normalizeError.message : "Unknown";
-        
+        const errorMessage =
+          normalizeError instanceof Error ? normalizeError.message : "Unknown";
+
         // Check if this is an unsupported event type (not an error, just not processed)
         if (errorMessage.includes("Unsupported")) {
           logger.debug({
@@ -276,9 +287,12 @@ export const unifiedWebhookHandler = (
               reason: errorMessage,
             },
           });
-          return c.json({ received: true, processed: false, reason: errorMessage }, 200);
+          return c.json(
+            { received: true, processed: false, reason: errorMessage },
+            200,
+          );
         }
-        
+
         logger.error({
           message: "Failed to normalize webhook event",
           data: {
@@ -465,7 +479,7 @@ const handlePaymentEvent = async (
   eventOwnerGroup: ReturnType<typeof Group.create>,
   jazzAccountId: string,
   appId: string,
-  app: TApp,
+  app: TRegardeApp,
   regardeSDKId: string,
   processedProviderEvents: co.loaded<typeof ProcessedProviderEvents>,
   worker: Loaded<typeof RegistryWorkerAccount>,
@@ -543,7 +557,7 @@ const handleSubscriptionEvent = async (
   eventOwnerGroup: ReturnType<typeof Group.create>,
   jazzAccountId: string,
   appId: string,
-  app: TApp,
+  app: TRegardeApp,
   regardeSDKId: string,
   processedProviderEvents: co.loaded<typeof ProcessedProviderEvents>,
   worker: Loaded<typeof RegistryWorkerAccount>,
@@ -623,7 +637,7 @@ const handleLicenseEvent = async (
   eventOwnerGroup: ReturnType<typeof Group.create>,
   jazzAccountId: string,
   appId: string,
-  app: TApp,
+  app: TRegardeApp,
   regardeSDKId: string,
   processedProviderEvents: co.loaded<typeof ProcessedProviderEvents>,
   worker: Loaded<typeof RegistryWorkerAccount>,
@@ -851,7 +865,7 @@ const indexPaymentEventToApp = async (
   eventId: string,
   prefixedProviderEventUUID: string,
   jazzAccountId: string,
-  app: TApp,
+  app: TRegardeApp,
 ): Promise<void> => {
   const isPaymentsLoaded =
     app.payments !== null && app.payments.$isLoaded === true;
@@ -894,7 +908,7 @@ const indexSubscriptionEventToApp = async (
   eventId: string,
   prefixedProviderEventUUID: string,
   jazzAccountId: string,
-  app: TApp,
+  app: TRegardeApp,
 ): Promise<void> => {
   const isSubscriptionsLoaded =
     app.subscriptions !== null && app.subscriptions.$isLoaded === true;
@@ -939,7 +953,7 @@ const indexLicenseEventToApp = async (
   eventId: string,
   prefixedProviderEventUUID: string,
   jazzAccountId: string,
-  app: TApp,
+  app: TRegardeApp,
 ): Promise<void> => {
   const isLicensesLoaded =
     app.licenses !== null && app.licenses.$isLoaded === true;

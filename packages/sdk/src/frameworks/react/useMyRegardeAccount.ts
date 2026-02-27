@@ -5,9 +5,14 @@ import { useMemo } from "react";
 import { RegardeAccount } from "#schemas/regardeAccount";
 import type { TRegardeAccount } from "#schemas/regardeAccount";
 import { RegardeSDK } from "#schemas/regardeSDK";
-import type { TRegardeSDK, TPaymentSchema, TSubscriptionSchema, TLicenseSchema } from "#schemas/regardeSDK";
-import { App } from "#schemas/regardeUserApp";
-import type { TApp } from "#schemas/regardeUserApp";
+import type {
+  TRegardeSDK,
+  TPaymentSchema,
+  TSubscriptionSchema,
+  TLicenseSchema,
+} from "#schemas/regardeSDK";
+import { RegardeApp } from "#schemas/regardeUserApp";
+import type { TRegardeApp } from "#schemas/regardeUserApp";
 import { UserHandle } from "#schemas/regardeUserHandle";
 import type { TUserHandleLoaded } from "#schemas/regardeUserHandle";
 import { RegardeTokenAuth } from "#schemas/regardeTokenAuth";
@@ -32,9 +37,7 @@ export type AppField =
 /**
  * Payment schema field resolution options
  */
-export type PaymentField =
-  | true
-  | { all?: true; byApp?: true };
+export type PaymentField = true | { all?: true; byApp?: true };
 
 /**
  * Subscription schema field resolution options
@@ -46,9 +49,7 @@ export type SubscriptionField =
 /**
  * License schema field resolution options
  */
-export type LicenseField =
-  | true
-  | { all?: true; byApp?: true };
+export type LicenseField = true | { all?: true; byApp?: true };
 
 /**
  * Configuration for loading specific RegardeSDK fields.
@@ -119,7 +120,7 @@ export interface UseMyRegardeAccountResult {
   /** User's nickname string when myUserHandle is loaded, null otherwise */
   userNickname: string | null;
   /** Apps CoList when myApps field is requested and loaded, null otherwise */
-  myApps: CoList<TApp> | null;
+  myApps: CoList<TRegardeApp> | null;
   /** Payments CoMap when myPayments field is requested and loaded, null otherwise */
   myPayments: TPaymentSchema | null;
   /** Subscriptions CoMap when mySubscriptions field is requested and loaded, null otherwise */
@@ -136,7 +137,7 @@ export interface UseMyRegardeAccountResult {
  * Builds Jazz resolve configuration from user-friendly field config
  */
 function buildResolveConfig(
-  fields: UseMyRegardeAccountResolve
+  fields: UseMyRegardeAccountResolve,
 ): Record<string, unknown> {
   const hasFields = Object.keys(fields).length > 0;
   if (hasFields === false) {
@@ -144,7 +145,7 @@ function buildResolveConfig(
   }
 
   const regardeSdkResolve: Record<string, unknown> = {};
-  
+
   for (const [key, value] of Object.entries(fields)) {
     if (value !== undefined) {
       regardeSdkResolve[key] = value;
@@ -230,7 +231,7 @@ function isLoadedCoValue<T>(value: unknown): value is T & { $isLoaded: true } {
  * @returns Account state with typed loaded fields
  */
 export function useMyRegardeAccount(
-  options: { resolve?: UseMyRegardeAccountResolve } = {}
+  options: { resolve?: UseMyRegardeAccountResolve } = {},
 ): UseMyRegardeAccountResult {
   const { resolve = {} } = options;
 
@@ -267,35 +268,35 @@ export function useMyRegardeAccount(
 
     // Check if root is loaded
     const isRootLoaded =
-      isAccountLoaded &&
-      account.root !== null &&
-      isLoadedCoValue(account.root);
+      isAccountLoaded && account.root !== null && isLoadedCoValue(account.root);
 
     // Check if SDK is loaded
-    const sdk = isRootLoaded
-      ? account.root["regarde-sdk"]
-      : null;
+    const sdk = isRootLoaded ? account.root["regarde-sdk"] : null;
     const isSdkLoaded = sdk !== null && isLoadedCoValue<TRegardeSDK>(sdk);
 
     // Determine overall readiness (all requested fields must be loaded)
     const isReady = isAccountLoaded && isRootLoaded && isSdkLoaded;
 
     // Extract requested fields with type safety
-    const auth = isSdkLoaded && resolve.auth === true && isLoadedCoValue(sdk.auth)
-      ? sdk.auth
-      : null;
+    const auth =
+      isSdkLoaded && resolve.auth === true && isLoadedCoValue(sdk.auth)
+        ? sdk.auth
+        : null;
 
-    const myUserHandle = isSdkLoaded && resolve.myUserHandle === true && isLoadedCoValue(sdk.myUserHandle)
-      ? sdk.myUserHandle
-      : null;
+    const myUserHandle =
+      isSdkLoaded &&
+      resolve.myUserHandle === true &&
+      isLoadedCoValue(sdk.myUserHandle)
+        ? sdk.myUserHandle
+        : null;
 
     const userNickname = myUserHandle !== null ? myUserHandle.nickname : null;
 
     // Extract myApps if requested
-    let myApps: CoList<TApp> | null = null;
+    let myApps: CoList<TRegardeApp> | null = null;
     if (isSdkLoaded && resolve.myApps !== undefined) {
       const appsValue = sdk.myApps;
-      if (isLoadedCoValue<CoList<TApp>>(appsValue)) {
+      if (isLoadedCoValue<CoList<TRegardeApp>>(appsValue)) {
         myApps = appsValue;
       }
     }

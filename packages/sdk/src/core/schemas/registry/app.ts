@@ -1,6 +1,6 @@
 import { co, z } from "jazz-tools";
 
-import { App } from "#schemas/regardeUserApp";
+import { RegardeApp } from "#schemas/regardeUserApp";
 
 /**
  * Registry-controlled metadata for an app.
@@ -15,31 +15,43 @@ import { App } from "#schemas/regardeUserApp";
  * - `createdAt`: When metadata was created
  * - `version`: Schema version for migration tracking
  */
-export const RegistryAppMetadata = co.map({
+export const RegardeRegistryAppMetadata = co.map({
   get app() {
-    return App;
+    return RegardeApp;
   },
   isVerified: z.boolean(),
   hasAccess: z.boolean(),
-  webhookConfigured: z.boolean(),
+  webhookConfigured: z.boolean(), // TODO: update to reflect RegardeUserApp data model change
   createdAt: z.number(),
   version: z.number(),
 });
 
 /** Loaded RegistryAppMetadata instance */
-export type TRegistryAppMetadata = co.loaded<typeof RegistryAppMetadata>;
+export type TRegardeRegistryAppMetadata = co.loaded<
+  typeof RegardeRegistryAppMetadata
+>;
 
 /** All apps in the registry, indexed by App ID */
-export const AllRegistryAppsSchema = co.record(z.string(), RegistryAppMetadata);
+export const AllRegardeRegistryAppsSchema = co.record(
+  z.string(),
+  RegardeRegistryAppMetadata,
+);
 
 /** Loaded AllRegistryAppsSchema instance */
-export type TAllRegistryAppsSchema = co.loaded<typeof AllRegistryAppsSchema>;
+export type TAllRegistryAppsSchema = co.loaded<
+  typeof AllRegardeRegistryAppsSchema
+>;
 
 /** Apps grouped by user, indexed by Jazz account ID */
-export const AppsByUserRecord = co.record(z.string(), co.list(RegistryAppMetadata));
+export const RegardeAppsByUserRecord = co.record(
+  z.string(),
+  co.list(RegardeRegistryAppMetadata),
+);
 
 /** Loaded AppsByUserRecord instance */
-export type TAppsByUserRecord = co.loaded<typeof AppsByUserRecord>;
+export type TRegardeAppsByUserRecord = co.loaded<
+  typeof RegardeAppsByUserRecord
+>;
 
 /**
  * Registry of all applications.
@@ -53,13 +65,13 @@ export type TAppsByUserRecord = co.loaded<typeof AppsByUserRecord>;
  * - `registeredAt`: When registry was created
  * - `version`: Schema version for migration tracking
  */
-export const AppRegistry = co.map({
-  appsByUser: AppsByUserRecord,
-  apps: AllRegistryAppsSchema,
+export const RegardeAppRegistry = co.map({
+  appsByUser: RegardeAppsByUserRecord,
+  apps: AllRegardeRegistryAppsSchema,
   metadata: co.record(z.string(), z.string()),
   registeredAt: z.number(),
   version: z.number(),
 });
 
 /** Loaded AppRegistry instance */
-export type TAppRegistry = co.loaded<typeof AppRegistry>;
+export type TRegardeAppRegistry = co.loaded<typeof RegardeAppRegistry>;

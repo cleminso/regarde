@@ -3,8 +3,8 @@ import { useMemo } from "react";
 
 import { PaymentEvent } from "#core/schemas/paymentEvent";
 import type { TPaymentEvent, TMode } from "#core/schemas/paymentEvent";
-import { App } from "#core/schemas/regardeUserApp";
-import type { TApp } from "#core/schemas/regardeUserApp";
+import { RegardeApp } from "#core/schemas/regardeUserApp";
+import type { TRegardeApp } from "#core/schemas/regardeUserApp";
 
 export interface UsePaymentEventsOptions {
   /** Filter by test/production mode (default: "all") */
@@ -42,7 +42,7 @@ export function usePaymentEvents(
   options?: UsePaymentEventsOptions,
 ): UsePaymentEventsResult {
   // Load the App CoValue with all nested records
-  const app: TApp | null = useCoState(App, appId, {
+  const app: TRegardeApp | null = useCoState(RegardeApp, appId, {
     resolve: {
       payments: { all: true, byUser: true },
       subscriptions: { all: true, byUser: true },
@@ -112,7 +112,8 @@ export function usePaymentEvents(
 
     // Check if all PaymentEvents are loaded
     return allEvents.some(
-      (event) => event === null || event === undefined || event.$isLoaded === false,
+      (event) =>
+        event === null || event === undefined || event.$isLoaded === false,
     );
   }, [app, allEvents]);
 
