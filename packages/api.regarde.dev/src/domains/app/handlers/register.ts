@@ -4,8 +4,8 @@ import { verifyRegardeAuth } from "#/domains/auth/handlers/verify";
 import {
   RegistryWorkerAccount,
   type TAllRegistryAppsSchema,
-  type TAppsByUserRecord,
-  RegistryAppMetadata,
+  type TRegardeAppsByUserRecord,
+  RegardeRegistryAppMetadata,
   RegardeApp,
   useLogging,
 } from "@regarde-dev/core";
@@ -16,7 +16,7 @@ const logger = useLogging({
 
 export const registerAppHandler = (
   appsRecord: TAllRegistryAppsSchema,
-  appsByUserRecord: TAppsByUserRecord,
+  appsByUserRecord: TRegardeAppsByUserRecord,
   worker: Loaded<typeof RegistryWorkerAccount>,
 ) => {
   return async (c: any) => {
@@ -151,7 +151,7 @@ export const registerAppHandler = (
       const hasEnabledWebhooks = isWebhooksLoaded === true &&
         app.webhooks.some((w) => w !== null && w.$isLoaded === true && w.isEnabled === true);
 
-      const metadata = RegistryAppMetadata.create(
+      const metadata = RegardeRegistryAppMetadata.create(
         {
           app: app,
           isVerified: true,
@@ -171,7 +171,7 @@ export const registerAppHandler = (
       if (isUserAppsListExists === false) {
         appsByUserRecord.$jazz.set(
           jazzAccountId,
-          co.list(RegistryAppMetadata).create([], registryProfileWorkerGroup),
+          co.list(RegardeRegistryAppMetadata).create([], registryProfileWorkerGroup),
         );
         await appsByUserRecord.$jazz.waitForSync();
       }

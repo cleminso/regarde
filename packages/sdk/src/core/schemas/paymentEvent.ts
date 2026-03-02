@@ -4,9 +4,32 @@ export const PAYMENT_PROVIDERS = ["lemonsqueezy", "stripe", "polar"] as const;
 export type TPaymentProvider = (typeof PAYMENT_PROVIDERS)[number];
 
 export const PAYMENT_EVENT_TYPES = [
-  "payment.created",
+  // Checkout events
+  "payment.checkout_started",
+  "payment.checkout_completed",
+  "payment.checkout_succeeded",
+  "payment.checkout_failed",
+  "payment.checkout_expired",
+
+  // Lifecycle events
+  "payment.authorized",
+  "payment.captured",
+  "payment.succeeded",
   "payment.failed",
+  "payment.canceled",
+  "payment.expired",
+
+  // Intermediate states
+  "payment.processing",
+  "payment.action_required",
+  "payment.partially_funded",
+
+  // Post-payment
   "payment.refunded",
+  "payment.refund_failed",
+
+  // Metadata-only
+  "payment.updated",
 ] as const;
 export type TPaymentEventType = (typeof PAYMENT_EVENT_TYPES)[number];
 
@@ -15,6 +38,7 @@ export const PAYMENT_STATUSES = [
   "failed",
   "refunded",
   "pending",
+  "action_required",
 ] as const;
 
 // Shared mode type across all event schemas
@@ -33,12 +57,12 @@ export const ModeSchema = z.enum(["test", "production"]);
  * - `mode`: Test or production mode (from webhook.environment)
  * - `providerEventId`: Native provider event ID (e.g., "evt_1NG8Du..." for Stripe)
  * - `prefixedProviderEventUUID`: Prefixed ID for deduplication (e.g., "ST_evt_1NG8Du...")
- * - `eventType`: Unified event type (payment.created, payment.failed, payment.refunded)
+ * - `eventType`: Unified event type (payment.checkout_started, payment.checkout_completed, payment.succeeded, payment.failed, payment.refunded, etc.)
  * - `app`: App CoMap ID for which the payment was done
  * - `userAccount`: Jazz account ID of user who paid
  * - `amount`: Payment amount as string for precision safety
  * - `currency`: Payment currency code (e.g., "USD")
- * - `status`: Payment outcome (succeeded, failed, refunded, pending)
+ * - `status`: Payment outcome (succeeded, failed, refunded, pending, action_required)
  * - `providerSubscriptionId`: Links payment to subscription (for recurring payments)
  * - `providerLicenseId`: Links payment to license (if applicable)
  * - `providerMetadata`: Provider-specific extras (PayKit pattern)

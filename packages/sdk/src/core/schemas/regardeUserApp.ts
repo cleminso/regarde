@@ -64,13 +64,13 @@ export const ListOfWebhooks = co.list(Webhook);
  * Self-contained for debugging - includes raw payload and processing status.
  *
  * @schema
- * - `payload`: Raw JSON payload from payment provider (stored as record)
+ * - `payload`: Raw JSON payload from payment provider (arbitrary JSON)
  * - `headers`: HTTP headers from webhook request (for signature debugging)
  * - `receivedAt`: Unix timestamp when webhook was received
  * - `error`: Processing error message if normalization failed
  */
 export const WebhookEvent = z.object({
-  payload: co.record(z.string(), z.string()),
+  payload: z.json(),
   headers: z.optional(z.record(z.string(), z.string())),
   receivedAt: z.number(),
   error: z.optional(z.string()),

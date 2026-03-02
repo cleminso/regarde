@@ -12,7 +12,7 @@ export type TUnifiedEventType =
   | TSubscriptionEventType
   | TLicenseEventType;
 
-export type TPaymentStatus = "succeeded" | "failed" | "refunded" | "pending";
+export type TPaymentStatus = "succeeded" | "failed" | "refunded" | "pending" | "action_required";
 export type TLicenseStatus = "active" | "inactive" | "revoked";
 
 // ---------------------------------------------------------------------------

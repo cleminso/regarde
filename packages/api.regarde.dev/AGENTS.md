@@ -185,7 +185,7 @@ Dev: Vite watch mode (NOT Bun/Tsx)
 ## HTTP Endpoints
 
 `GET /health`, `GET /ui`, `GET /doc`
-`POST /verifyToken`, `POST /checkAvailability`, `POST /register`, `POST /lookup`, `POST /registerApp`, `POST /webhooks/{provider}/{appId}` (provider: lemonsqueezy, stripe, polar)
+`POST /verifyToken`, `POST /checkAvailability`, `POST /register`, `POST /lookup`, `POST /registerApp`, `POST /v1/webhooks/{provider}/{appId}/{webhookId}` (provider: lemonsqueezy, stripe, polar)
 Middleware: Rate limiting (100 req/min), CORS, logger
 
 ## Key Architectural Decisions

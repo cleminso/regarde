@@ -4,7 +4,14 @@ import { PAYMENT_PROVIDERS, ModeSchema } from "./paymentEvent";
 
 export const SUBSCRIPTION_EVENT_TYPES = [
   "subscription.created",
+  "subscription.activated",
+  "subscription.paused",
+  "subscription.resumed",
+  "subscription.past_due",
   "subscription.canceled",
+  "subscription.uncanceled",
+  "subscription.expired",
+  "subscription.trial_will_end",
   "subscription.updated",
 ] as const;
 export type TSubscriptionEventType = (typeof SUBSCRIPTION_EVENT_TYPES)[number];
@@ -15,6 +22,7 @@ export const SUBSCRIPTION_STATUSES = [
   "past_due",
   "canceled",
   "expired",
+  "paused",
 ] as const;
 export type TSubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
 
@@ -30,7 +38,7 @@ export type TSubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
  * - `mode`: Test or production mode (from webhook.environment)
  * - `providerEventId`: Native provider event ID
  * - `prefixedProviderEventUUID`: Prefixed ID for deduplication
- * - `eventType`: Unified event type (subscription.created, .canceled, .updated)
+ * - `eventType`: Unified event type (subscription.created, .activated, .paused, .resumed, .canceled, etc.)
  * - `app`: App CoMap ID
  * - `userAccount`: Jazz account ID of subscriber
  * - `providerSubscriptionId`: Provider's subscription identifier (for linking to Subscription state)

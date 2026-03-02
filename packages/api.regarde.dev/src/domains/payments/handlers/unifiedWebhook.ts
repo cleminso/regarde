@@ -13,6 +13,9 @@ import {
   TRegistryWorkerAccountRoot,
   WebhookEvent,
   useLogging,
+  type TPaymentEventType,
+  type TSubscriptionEventType,
+  type TLicenseEventType,
 } from "@regarde-dev/core";
 
 import { getAdapter, isSupportedProvider } from "../adapters";
@@ -47,7 +50,7 @@ export const unifiedWebhookHandler = (
         );
       }
 
-      // Extract provider from URL path: /webhooks/{provider}/{appId}
+      // Extract provider from URL path: /v1/webhooks/{provider}/{appId}/{webhookId}
       const provider = c.req.param("provider");
 
       if (isSupportedProvider(provider) === false) {
@@ -112,7 +115,7 @@ export const unifiedWebhookHandler = (
         },
       });
 
-      // Extract IDs from URL path: /webhooks/{provider}/{appId}/{webhookId}
+      // Extract IDs from URL path: /v1/webhooks/{provider}/{appId}/{webhookId}
       const pathAppId = c.req.param("appId");
       const pathWebhookId = c.req.param("webhookId");
 
@@ -561,10 +564,7 @@ const handlePaymentEvent = async (
       mode: normalized.mode,
       providerEventId: normalized.providerEventId,
       prefixedProviderEventUUID: normalized.prefixedProviderEventUUID,
-      eventType: normalized.eventType as
-        | "payment.created"
-        | "payment.failed"
-        | "payment.refunded",
+      eventType: normalized.eventType as TPaymentEventType,
       app: appId,
       userAccount: jazzAccountId,
       amount: data.amount,
@@ -641,10 +641,7 @@ const handleSubscriptionEvent = async (
       mode: normalized.mode,
       providerEventId: normalized.providerEventId,
       prefixedProviderEventUUID: normalized.prefixedProviderEventUUID,
-      eventType: normalized.eventType as
-        | "subscription.created"
-        | "subscription.canceled"
-        | "subscription.updated",
+      eventType: normalized.eventType as TSubscriptionEventType,
       app: appId,
       userAccount: jazzAccountId,
       providerSubscriptionId: data.providerSubscriptionId,
@@ -723,10 +720,7 @@ const handleLicenseEvent = async (
       mode: normalized.mode,
       providerEventId: normalized.providerEventId,
       prefixedProviderEventUUID: normalized.prefixedProviderEventUUID,
-      eventType: normalized.eventType as
-        | "license.created"
-        | "license.updated"
-        | "license.revoked",
+      eventType: normalized.eventType as TLicenseEventType,
       app: appId,
       userAccount: jazzAccountId,
       licenseKey: data.licenseKey,

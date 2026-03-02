@@ -194,7 +194,10 @@ export const lemonsqueezyAdapter: PaymentProviderAdapter = {
       providerEventId,
     );
 
-    // --- Orders ---
+    // =========================================================================
+    // PAYMENT EVENTS (Orders)
+    // =========================================================================
+
     if (parsed.data.type === "orders") {
       const attrs = parsed.data.attributes;
       const providerMetadata: Record<string, string> = {
@@ -204,19 +207,26 @@ export const lemonsqueezyAdapter: PaymentProviderAdapter = {
       };
       if (attrs.urls?.receipt) providerMetadata.receiptUrl = attrs.urls.receipt;
 
-      let status: "succeeded" | "failed" | "refunded" | "pending" = "pending";
-      let eventType: "payment.created" | "payment.failed" | "payment.refunded" =
-        "payment.created";
+      // Determine event type based on order status and event name
+      let eventType:
+        | "payment.succeeded"
+        | "payment.failed"
+        | "payment.refunded";
+      let status: "succeeded" | "failed" | "refunded" | "pending";
 
       if (attrs.status === "paid") {
         status = "succeeded";
-        eventType = "payment.created";
+        eventType = "payment.succeeded";
       } else if (attrs.status === "failed") {
         status = "failed";
         eventType = "payment.failed";
       } else if (attrs.status === "refunded") {
         status = "refunded";
         eventType = "payment.refunded";
+      } else {
+        // pending
+        status = "pending";
+        eventType = "payment.succeeded"; // Fallback for unknown states
       }
 
       return {
@@ -236,53 +246,10 @@ export const lemonsqueezyAdapter: PaymentProviderAdapter = {
       };
     }
 
-    // --- Subscriptions ---
-    if (parsed.data.type === "subscriptions") {
-      const attrs = parsed.data.attributes;
-      const providerMetadata: Record<string, string> = {
-        eventName: event_name,
-        productName: attrs.product_name,
-      };
+    // =========================================================================
+    // PAYMENT EVENTS (Subscription Invoices)
+    // =========================================================================
 
-      let eventType:
-        | "subscription.created"
-        | "subscription.canceled"
-        | "subscription.updated";
-      let status: "trialing" | "active" | "past_due" | "canceled" | "expired";
-
-      if (event_name === "subscription_created") {
-        eventType = "subscription.created";
-      } else if (event_name === "subscription_cancelled") {
-        eventType = "subscription.canceled";
-      } else {
-        eventType = "subscription.updated";
-      }
-
-      if (attrs.status === "active") status = "active";
-      else if (attrs.status === "cancelled") status = "canceled";
-      else if (attrs.status === "expired") status = "expired";
-      else if (attrs.status === "past_due") status = "past_due";
-      else if (attrs.status === "on_trial") status = "trialing";
-      else status = "active";
-
-      return {
-        provider: "lemonsqueezy",
-        providerEventId,
-        prefixedProviderEventUUID,
-        eventType,
-        mode,
-        timestamp: new Date(attrs.created_at).getTime(),
-        providerMetadata,
-        data: {
-          kind: "subscription",
-          providerSubscriptionId: parsed.data.id,
-          status,
-          planId: attrs.variant_id.toString(),
-        },
-      };
-    }
-
-    // --- Subscription Invoices ---
     if (parsed.data.type === "subscription-invoices") {
       const attrs = parsed.data.attributes;
       const providerMetadata: Record<string, string> = {
@@ -290,22 +257,33 @@ export const lemonsqueezyAdapter: PaymentProviderAdapter = {
         billingReason: attrs.billing_reason,
       };
 
-      let status: "succeeded" | "failed" | "refunded" | "pending" = "pending";
-      let eventType: "payment.created" | "payment.failed" | "payment.refunded" =
-        "payment.created";
+      // Map event names to granular event types
+      let eventType:
+        | "payment.succeeded"
+        | "payment.failed"
+        | "payment.refunded";
+      let status: "succeeded" | "failed" | "refunded" | "pending";
 
       if (
         event_name === "subscription_payment_success" ||
+        event_name === "subscription_payment_recovered" ||
         attrs.status === "paid"
       ) {
         status = "succeeded";
-        eventType = "payment.created";
+        eventType = "payment.succeeded";
       } else if (event_name === "subscription_payment_failed") {
         status = "failed";
         eventType = "payment.failed";
-      } else if (attrs.status === "void" || attrs.status === "refund") {
+      } else if (
+        event_name === "subscription_payment_refunded" ||
+        attrs.status === "void" ||
+        attrs.status === "refund"
+      ) {
         status = "refunded";
         eventType = "payment.refunded";
+      } else {
+        status = "pending";
+        eventType = "payment.succeeded";
       }
 
       return {
@@ -326,7 +304,81 @@ export const lemonsqueezyAdapter: PaymentProviderAdapter = {
       };
     }
 
-    // --- License Keys ---
+    // =========================================================================
+    // SUBSCRIPTION EVENTS
+    // =========================================================================
+
+    if (parsed.data.type === "subscriptions") {
+      const attrs = parsed.data.attributes;
+      const providerMetadata: Record<string, string> = {
+        eventName: event_name,
+        productName: attrs.product_name,
+      };
+
+      // Map event names to granular subscription event types
+      let eventType:
+        | "subscription.created"
+        | "subscription.canceled"
+        | "subscription.paused"
+        | "subscription.resumed"
+        | "subscription.expired"
+        | "subscription.past_due"
+        | "subscription.updated";
+      let status: "trialing" | "active" | "past_due" | "canceled" | "expired" | "paused";
+
+      // First determine event type from event_name
+      if (event_name === "subscription_created") {
+        eventType = "subscription.created";
+      } else if (event_name === "subscription_cancelled") {
+        eventType = "subscription.canceled";
+      } else if (event_name === "subscription_resumed") {
+        eventType = "subscription.resumed";
+      } else if (event_name === "subscription_expired") {
+        eventType = "subscription.expired";
+      } else if (event_name === "subscription_paused") {
+        eventType = "subscription.paused";
+      } else if (event_name === "subscription_unpaused") {
+        eventType = "subscription.resumed";
+      } else {
+        eventType = "subscription.updated";
+      }
+
+      // Then determine status from status field
+      if (attrs.status === "active") status = "active";
+      else if (attrs.status === "cancelled") status = "canceled";
+      else if (attrs.status === "expired") status = "expired";
+      else if (attrs.status === "past_due") status = "past_due";
+      else if (attrs.status === "on_trial") status = "trialing";
+      else if (attrs.status === "paused") status = "paused";
+      else if (attrs.status === "unpaid") status = "past_due";
+      else status = "active";
+
+      // Override event type if status indicates past_due and not already handled
+      if (status === "past_due" && eventType === "subscription.updated") {
+        eventType = "subscription.past_due";
+      }
+
+      return {
+        provider: "lemonsqueezy",
+        providerEventId,
+        prefixedProviderEventUUID,
+        eventType,
+        mode,
+        timestamp: new Date(attrs.created_at).getTime(),
+        providerMetadata,
+        data: {
+          kind: "subscription",
+          providerSubscriptionId: parsed.data.id,
+          status,
+          planId: attrs.variant_id.toString(),
+        },
+      };
+    }
+
+    // =========================================================================
+    // LICENSE EVENTS
+    // =========================================================================
+
     if (parsed.data.type === "license-keys") {
       const attrs = parsed.data.attributes;
       const providerMetadata: Record<string, string> = {
@@ -350,6 +402,9 @@ export const lemonsqueezyAdapter: PaymentProviderAdapter = {
       } else if (event_name === "license_key_updated") {
         eventType = "license.updated";
         status = attrs.status === "disabled" ? "inactive" : "active";
+      } else if (event_name === "license_key_disabled") {
+        eventType = "license.revoked";
+        status = "revoked";
       } else {
         eventType = "license.revoked";
         status = "revoked";
