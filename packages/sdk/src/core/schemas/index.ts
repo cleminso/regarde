@@ -85,14 +85,19 @@ export type { TRegardeAccount } from "./regardeAccount";
 export { RegardeTokenAuth } from "./regardeTokenAuth";
 export type { TRegardeAuthLoaded } from "./regardeTokenAuth";
 
-export { RegardeApp } from "./regardeUserApp";
-export type { TRegardeApp } from "./regardeUserApp";
 export {
+  RegardeApp,
+  Webhook,
+  ListOfWebhooks,
+  WebhookEvent,
+  AllWebhookEventsFeed,
   AppPaymentsSchema,
   AppSubscriptionsSchema,
   AppLicensesSchema,
 } from "./regardeUserApp";
 export type {
+  TRegardeApp,
+  TWebhookEvent,
   TAppPaymentsSchema,
   TAppSubscriptionsSchema,
   TAppLicensesSchema,

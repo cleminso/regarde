@@ -28,8 +28,9 @@ export const ModeSchema = z.enum(["test", "production"]);
  * Amount stored as string to avoid precision issues.
  *
  * @schema
+ * - `webhookId`: Webhook CoMap ID that received this event
  * - `provider`: Payment provider source (lemonsqueezy, stripe, polar)
- * - `mode`: Test or production mode (optional, set by provider when available)
+ * - `mode`: Test or production mode (from webhook.environment)
  * - `providerEventId`: Native provider event ID (e.g., "evt_1NG8Du..." for Stripe)
  * - `prefixedProviderEventUUID`: Prefixed ID for deduplication (e.g., "ST_evt_1NG8Du...")
  * - `eventType`: Unified event type (payment.created, payment.failed, payment.refunded)
@@ -45,8 +46,9 @@ export const ModeSchema = z.enum(["test", "production"]);
  * - `timestamp`: Unix timestamp of payment
  */
 export const PaymentEvent = co.map({
+  webhookId: z.string().describe("Webhook CoMap ID that received this event"),
   provider: z.enum(PAYMENT_PROVIDERS),
-  mode: z.optional(ModeSchema),
+  mode: z.optional(ModeSchema).describe("From webhook.environment (production -> 'production', sandbox -> 'test')"),
 
   providerEventId: z.string(),
   prefixedProviderEventUUID: z.string(),

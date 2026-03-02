@@ -25,8 +25,9 @@ export type TSubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
  * Each event captures a point-in-time snapshot of a subscription state change.
  *
  * @schema
+ * - `webhookId`: Webhook CoMap ID that received this event
  * - `provider`: Payment provider source
- * - `mode`: Test or production mode (optional, set by provider when available)
+ * - `mode`: Test or production mode (from webhook.environment)
  * - `providerEventId`: Native provider event ID
  * - `prefixedProviderEventUUID`: Prefixed ID for deduplication
  * - `eventType`: Unified event type (subscription.created, .canceled, .updated)
@@ -42,8 +43,9 @@ export type TSubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
  * - `timestamp`: Unix timestamp of event
  */
 export const SubscriptionEvent = co.map({
+  webhookId: z.string().describe("Webhook CoMap ID that received this event"),
   provider: z.enum(PAYMENT_PROVIDERS),
-  mode: z.optional(ModeSchema),
+  mode: z.optional(ModeSchema).describe("From webhook.environment (production -> 'production', sandbox -> 'test')"),
 
   providerEventId: z.string(),
   prefixedProviderEventUUID: z.string(),

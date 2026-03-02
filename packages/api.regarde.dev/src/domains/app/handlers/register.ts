@@ -1,5 +1,3 @@
-import { randomBytes } from "node:crypto";
-
 import { Loaded, co } from "jazz-tools";
 
 import { verifyRegardeAuth } from "#/domains/auth/handlers/verify";
@@ -8,7 +6,7 @@ import {
   type TAllRegistryAppsSchema,
   type TAppsByUserRecord,
   RegistryAppMetadata,
-  App,
+  RegardeApp,
   useLogging,
 } from "@regarde-dev/core";
 
@@ -70,9 +68,11 @@ export const registerAppHandler = (
       }
 
       // Load the App to verify user has admin write permissions
-      const app = await App.load(appId, {
+      const app = await RegardeApp.load(appId, {
         loadAs: worker,
-        resolve: true,
+        resolve: {
+          webhooks: { $each: true },
+        },
       });
 
       const isAppLoaded = app !== null && app.$isLoaded === true;
@@ -146,30 +146,17 @@ export const registerAppHandler = (
         return c.json({ error: "Failed to load registry owner group" }, 500);
       }
 
-      let webhookSecret: string;
-
-      const isWebhookSecretExists =
-        app.webhookSecret !== null && app.webhookSecret !== undefined && app.webhookSecret !== "";
-
-      const isLemonSqueezy = app.paymentProvider === "lemonsqueezy";
-      const shouldAutoGenerateSecret = isLemonSqueezy === true && isWebhookSecretExists === false;
-
-      if (shouldAutoGenerateSecret === true) {
-        webhookSecret = randomBytes(20).toString("hex");
-        app.$jazz.set("webhookSecret", webhookSecret);
-        await app.$jazz.waitForSync();
-      } else {
-        webhookSecret = app.webhookSecret ?? "";
-      }
-
-      const webhookUrl = `https://api.regarde.dev/webhooks/${app.paymentProvider}/${appId}`;
+      // Check if app has any enabled webhooks
+      const isWebhooksLoaded = app.webhooks !== null && app.webhooks.$isLoaded === true;
+      const hasEnabledWebhooks = isWebhooksLoaded === true &&
+        app.webhooks.some((w) => w !== null && w.$isLoaded === true && w.isEnabled === true);
 
       const metadata = RegistryAppMetadata.create(
         {
           app: app,
           isVerified: true,
           hasAccess: false,
-          webhookConfigured: false,
+          webhookConfigured: hasEnabledWebhooks,
           createdAt: Date.now(),
           version: 1,
         },
@@ -198,13 +185,7 @@ export const registerAppHandler = (
         await appsByUserRecord.$jazz.waitForSync();
       }
 
-      const responseData = {
-        appId,
-        webhookUrl,
-        webhookSecret,
-      };
-
-      const response = c.json(responseData, 200);
+      const response = c.json({ appId }, 200);
       return response;
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "Internal Server Error";

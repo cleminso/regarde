@@ -2,14 +2,15 @@ import { createRoute, z } from "@hono/zod-openapi";
 
 export const unifiedWebhookRoute = createRoute({
   method: "post",
-  path: "/webhooks/{provider}/{appId}",
+  path: "/webhooks/{provider}/{appId}/{webhookId}",
   summary: "Unified Payment Webhook Endpoint",
   description:
-    "Receives and processes webhook events from payment providers (LemonSqueezy, Stripe, Polar). Validates signature, normalizes event, and stores in Jazz CoValues.",
+    "Receives and processes webhook events from payment providers (LemonSqueezy, Stripe, Polar). Validates signature using webhook-specific secret, stores raw payload in CoFeed, and creates normalized events.",
   request: {
     params: z.object({
       provider: z.enum(["lemonsqueezy", "stripe", "polar"]),
       appId: z.string(),
+      webhookId: z.string(),
     }),
     body: {
       content: {

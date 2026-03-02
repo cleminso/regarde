@@ -4,20 +4,21 @@ packages:
   - packages/*
 
 catalog:
-  "@clerk/clerk-react": ^5.61.1
+  "@clerk/clerk-react": ^5.61.3
   "@hono/node-server": ^1.19.9
   "@hono/swagger-ui": ^0.5.3
   "@hono/zod-openapi": ^1.2.2
   "@scure/bip39": ^2.0.1
-  "@types/node": ^25.3.0
+  "@types/node": ^25.3.3
   "@types/react": ~19.2.14
   "@types/react-dom": ^19.2.3
   "@vitest/ui": ^4.0.18
-  cojson-core-rn: ^0.20.10
-  cojson-transport-ws: ^0.20.10
+  cojson-core-rn: ^0.20.11
+  cojson-transport-ws: ^0.20.11
   dotenv: ^17.3.1
-  hono: ^4.12.1
-  jazz-tools: ^0.20.10
+  hono: ^4.12.3
+  jazz-tools: ^0.20.11
+  little-timestamp: ^1.0.0
   preact: ^10.28.4
   react: 19.2.4
   react-dom: 19.2.4

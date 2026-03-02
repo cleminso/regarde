@@ -5,13 +5,13 @@ import { RegardeApp } from "#schemas/regardeUserApp";
 /**
  * Registry-controlled metadata for an app.
  *
- * Managed by worker, references user-owned App CoMap.
+ * Managed by worker, references user-owned RegardeApp CoMap.
  *
  * @schema
- * - `app`: Reference to App CoMap
+ * - `app`: Reference to RegardeApp CoMap
  * - `isVerified`: Whether app is verified and accepting subscriptions
  * - `hasAccess`: Whether user has current access
- * - `webhookConfigured`: Whether webhook is configured for payments
+ * - `webhookConfigured`: Whether at least one webhook is configured and enabled
  * - `createdAt`: When metadata was created
  * - `version`: Schema version for migration tracking
  */
@@ -21,7 +21,7 @@ export const RegardeRegistryAppMetadata = co.map({
   },
   isVerified: z.boolean(),
   hasAccess: z.boolean(),
-  webhookConfigured: z.boolean(), // TODO: update to reflect RegardeUserApp data model change
+  webhookConfigured: z.boolean(),
   createdAt: z.number(),
   version: z.number(),
 });

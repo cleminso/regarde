@@ -11,6 +11,7 @@ import {
   RegardeApp,
   RegardeSDK,
   TRegistryWorkerAccountRoot,
+  WebhookEvent,
   useLogging,
 } from "@regarde-dev/core";
 
@@ -111,8 +112,78 @@ export const unifiedWebhookHandler = (
         },
       });
 
-      // Load the App first (needed for webhook secret)
+      // Extract IDs from URL path: /webhooks/{provider}/{appId}/{webhookId}
       const pathAppId = c.req.param("appId");
+      const pathWebhookId = c.req.param("webhookId");
+
+      // Load the App with webhooks
+      const appRef = await RegardeApp.load(pathAppId, {
+        loadAs: worker,
+        resolve: {
+          webhooks: { $each: true },
+          payments: { all: true, byUser: true },
+          subscriptions: { all: true, byUser: true },
+          licenses: { all: true, byUser: true },
+        },
+      });
+
+      if (!appRef.$jazz.id) {
+        logger.error({
+          message: "App not found or failed to load",
+          data: { appId: pathAppId, provider },
+        });
+        return c.json({ error: "App not found" }, 404);
+      }
+
+      const app = await (appRef as TRegardeApp).$jazz.ensureLoaded({
+        resolve: {
+          webhooks: { $each: true },
+          payments: { all: true, byUser: true },
+          subscriptions: { all: true, byUser: true },
+          licenses: { all: true, byUser: true },
+        },
+      });
+
+      // Find specific webhook by ID
+      const webhook = app.webhooks.find((w) => w.$jazz.id === pathWebhookId);
+      const isWebhookLoaded =
+        webhook !== undefined && webhook !== null && webhook.$isLoaded === true;
+
+      if (isWebhookLoaded === false) {
+        logger.error({
+          message: "Webhook not found",
+          data: {
+            appId: pathAppId,
+            webhookId: pathWebhookId,
+            availableWebhooks: app.webhooks.map((w) => w.$jazz.id),
+          },
+        });
+        return c.json({ error: "Webhook not found" }, 404);
+      }
+
+      // Check if webhook is enabled
+      if (webhook.isEnabled === false) {
+        logger.debug({
+          message: "Webhook is disabled - acknowledging but not processing",
+          data: {
+            appId: pathAppId,
+            webhookId: pathWebhookId,
+          },
+        });
+        return c.json(
+          { received: true, ignored: true, reason: "webhook disabled" },
+          200,
+        );
+      }
+
+      // Capture headers for debugging and storage
+      // Convert all values to strings (JSON.stringify for non-strings)
+      const requestHeaders = Object.fromEntries(
+        Object.entries(c.req.header()).map(([key, value]) => [
+          key,
+          typeof value === "string" ? value : JSON.stringify(value),
+        ]),
+      );
 
       let ctx;
       try {
@@ -121,6 +192,7 @@ export const unifiedWebhookHandler = (
           data: {
             provider,
             appIdFromPath: pathAppId,
+            webhookId: pathWebhookId,
             queryParams: c.req.query(),
           },
         });
@@ -132,14 +204,28 @@ export const unifiedWebhookHandler = (
           regarde_sdk_id: queryParams.regarde_sdk_id,
         });
       } catch (extractError) {
+        // Store failed webhook in CoFeed with error
+        if (app.allEvents.$isLoaded === true) {
+          app.allEvents.$jazz.push({
+            payload: json,
+            headers: requestHeaders,
+            receivedAt: Date.now(),
+            error:
+              extractError instanceof Error
+                ? extractError.message
+                : "Failed to extract context from payload",
+          });
+          await app.allEvents.$jazz.waitForSync();
+        }
+
         logger.error({
           message: "Failed to extract context from webhook payload",
           data: {
             provider,
             pathAppId,
+            webhookId: pathWebhookId,
             errorMessage:
               extractError instanceof Error ? extractError.message : "Unknown",
-            // Add these:
             availableMetadataSources: {
               stripeMetadata: json.data?.object?.metadata,
               lemonSqueezyCustomData: json.meta?.custom_data,
@@ -161,50 +247,12 @@ export const unifiedWebhookHandler = (
       if (isAppIdValid === false) {
         logger.error({
           message: "Missing App ID",
-          data: { provider, pathAppId },
+          data: { provider, pathAppId, webhookId: pathWebhookId },
         });
         return c.json({ error: "Missing App ID" }, 400);
       }
 
-      const appRef = await RegardeApp.load(appId, {
-        resolve: {
-          payments: { all: true, byUser: true },
-          subscriptions: { all: true, byUser: true },
-          licenses: { all: true, byUser: true },
-        },
-      });
-
-      if (!appRef.$jazz.id) {
-        logger.error({
-          message: "App not found or failed to load",
-          data: { appId, provider },
-        });
-        return c.json({ error: "App not found" }, 404);
-      }
-
-      const app = await (appRef as TRegardeApp).$jazz.ensureLoaded({
-        resolve: {
-          payments: { all: true, byUser: true },
-          subscriptions: { all: true, byUser: true },
-          licenses: { all: true, byUser: true },
-        },
-      });
-
-      // Validate webhook signature
-      const isSecretValid =
-        typeof app.webhookSecret === "string" && app.webhookSecret !== "";
-      if (isSecretValid === false) {
-        logger.error({
-          message: "App webhookSecret is missing",
-          data: {
-            appId,
-            provider,
-            webhookSecretType: typeof app.webhookSecret,
-          },
-        });
-        return c.json({ error: "App webhookSecret is missing" }, 500);
-      }
-
+      // Validate webhook signature using webhook-specific secret
       const signatureHeader = adapter.signatureHeader;
       const rawSignatureHeader = c.req.header(signatureHeader);
       const signature =
@@ -214,20 +262,15 @@ export const unifiedWebhookHandler = (
         ) ??
         null;
 
-      // Log signature details for debugging
       logger.debug({
         message: "Signature validation attempt",
         data: {
           provider,
+          webhookId: pathWebhookId,
           signatureHeader,
           signaturePresent: signature !== null,
           signatureLength: signature?.length,
-          rawSignatureHeader: rawSignatureHeader, // Full value
           signaturePreview: signature?.substring(0, 100),
-          signatureParts: signature?.split(",").length,
-          allSignatureParts: signature?.split(","),
-          webhookSecretLength: app.webhookSecret?.length,
-          webhookSecretPrefix: app.webhookSecret?.substring(0, 15),
         },
       });
 
@@ -236,33 +279,31 @@ export const unifiedWebhookHandler = (
         adapter.validateSignature(
           rawBody,
           signature,
-          app.webhookSecret,
+          webhook.secret,
           adapter.timestampHeader
             ? c.req.header(adapter.timestampHeader)
             : undefined,
           adapter.idHeader ? c.req.header(adapter.idHeader) : undefined,
         );
+
       if (isSignatureValid === false) {
+        // Store failed webhook in CoFeed
+        if (app.allEvents.$isLoaded === true) {
+          app.allEvents.$jazz.push({
+            payload: json,
+            headers: requestHeaders,
+            receivedAt: Date.now(),
+            error: "Invalid signature",
+          });
+          await app.allEvents.$jazz.waitForSync();
+        }
+
         logger.error({
-          message: "Invalid webhook signature - review misconfiguration",
+          message: "Invalid webhook signature",
           data: {
             appId,
+            webhookId: pathWebhookId,
             provider,
-            isSignaturePresent: signature !== null,
-            signatureLength: signature?.length,
-            signatureFormat: signature?.includes(",")
-              ? "has-commas"
-              : "no-commas",
-            signatureParts: signature?.split(",").length,
-            idHeader: adapter.idHeader,
-            idValue: adapter.idHeader
-              ? c.req.header(adapter.idHeader)
-              : undefined,
-            timestampHeader: adapter.timestampHeader,
-            timestampValue: adapter.timestampHeader
-              ? c.req.header(adapter.timestampHeader)
-              : undefined,
-            webhookSecretPrefix: app.webhookSecret?.substring(0, 15),
           },
         });
         return c.json({ error: "Invalid Signature" }, 401);
@@ -377,7 +418,15 @@ export const unifiedWebhookHandler = (
         return c.json({ received: true, duplicate: true }, 200);
       }
 
-      // Where do we handle branch for load existing event and create new event?
+      // Store raw webhook in CoFeed (successful validation)
+      if (app.allEvents.$isLoaded === true) {
+        app.allEvents.$jazz.push({
+          payload: json,
+          headers: requestHeaders,
+          receivedAt: Date.now(),
+        });
+        await app.allEvents.$jazz.waitForSync();
+      }
 
       // Load user account
       const userAccount = await co.account().load(jazzAccountId);
@@ -388,7 +437,7 @@ export const unifiedWebhookHandler = (
           data: {
             metadata: { operation: "create payment event" },
             userAccountIsLoaded: userAccount.$isLoaded,
-            jazzAccountId, // which account id failed to load?
+            jazzAccountId,
             appId,
             provider,
           },
@@ -405,44 +454,64 @@ export const unifiedWebhookHandler = (
       // Route to appropriate event handler based on data kind
       let eventId: string;
 
-      if (normalized.data.kind === "payment") {
-        eventId = await handlePaymentEvent(
-          normalized,
-          normalized.data,
-          eventOwnerGroup,
-          jazzAccountId,
-          appId,
-          app,
-          regardeSDKId,
-          processedProviderEvents,
-          worker,
-        );
-      } else if (normalized.data.kind === "subscription") {
-        eventId = await handleSubscriptionEvent(
-          normalized,
-          normalized.data,
-          eventOwnerGroup,
-          jazzAccountId,
-          appId,
-          app,
-          regardeSDKId,
-          processedProviderEvents,
-          worker,
-        );
-      } else if (normalized.data.kind === "license") {
-        eventId = await handleLicenseEvent(
-          normalized,
-          normalized.data,
-          eventOwnerGroup,
-          jazzAccountId,
-          appId,
-          app,
-          regardeSDKId,
-          processedProviderEvents,
-          worker,
-        );
-      } else {
-        return c.json({ error: "Unknown event kind" }, 400);
+      try {
+        if (normalized.data.kind === "payment") {
+          eventId = await handlePaymentEvent(
+            normalized,
+            normalized.data,
+            eventOwnerGroup,
+            jazzAccountId,
+            appId,
+            app,
+            regardeSDKId,
+            processedProviderEvents,
+            worker,
+            pathWebhookId,
+          );
+        } else if (normalized.data.kind === "subscription") {
+          eventId = await handleSubscriptionEvent(
+            normalized,
+            normalized.data,
+            eventOwnerGroup,
+            jazzAccountId,
+            appId,
+            app,
+            regardeSDKId,
+            processedProviderEvents,
+            worker,
+            pathWebhookId,
+          );
+        } else if (normalized.data.kind === "license") {
+          eventId = await handleLicenseEvent(
+            normalized,
+            normalized.data,
+            eventOwnerGroup,
+            jazzAccountId,
+            appId,
+            app,
+            regardeSDKId,
+            processedProviderEvents,
+            worker,
+            pathWebhookId,
+          );
+        } else {
+          return c.json({ error: "Unknown event kind" }, 400);
+        }
+      } catch (processingError) {
+        // Store error in CoFeed
+        if (app.allEvents.$isLoaded === true) {
+          app.allEvents.$jazz.push({
+            payload: json,
+            headers: requestHeaders,
+            receivedAt: Date.now(),
+            error:
+              processingError instanceof Error
+                ? processingError.message
+                : "Processing failed",
+          });
+          await app.allEvents.$jazz.waitForSync();
+        }
+        throw processingError;
       }
 
       logger.info({
@@ -483,9 +552,11 @@ const handlePaymentEvent = async (
   regardeSDKId: string,
   processedProviderEvents: co.loaded<typeof ProcessedProviderEvents>,
   worker: Loaded<typeof RegistryWorkerAccount>,
+  webhookId: string,
 ): Promise<string> => {
   const event = PaymentEvent.create(
     {
+      webhookId,
       provider: normalized.provider,
       mode: normalized.mode,
       providerEventId: normalized.providerEventId,
@@ -561,9 +632,11 @@ const handleSubscriptionEvent = async (
   regardeSDKId: string,
   processedProviderEvents: co.loaded<typeof ProcessedProviderEvents>,
   worker: Loaded<typeof RegistryWorkerAccount>,
+  webhookId: string,
 ): Promise<string> => {
   const event = SubscriptionEvent.create(
     {
+      webhookId,
       provider: normalized.provider,
       mode: normalized.mode,
       providerEventId: normalized.providerEventId,
@@ -641,9 +714,11 @@ const handleLicenseEvent = async (
   regardeSDKId: string,
   processedProviderEvents: co.loaded<typeof ProcessedProviderEvents>,
   worker: Loaded<typeof RegistryWorkerAccount>,
+  webhookId: string,
 ): Promise<string> => {
   const event = LicenseEvent.create(
     {
+      webhookId,
       provider: normalized.provider,
       mode: normalized.mode,
       providerEventId: normalized.providerEventId,

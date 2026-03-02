@@ -1,4 +1,5 @@
 import { co, z } from "jazz-tools";
+import { Groups } from "./regardeGroups";
 
 /**
  * Payment records for a single app.
@@ -42,6 +43,7 @@ export const AppLicensesSchema = co.map({
 
 export type TAppLicensesSchema = co.loaded<typeof AppLicensesSchema>;
 
+//Use webhook.id as feed session key
 export const Webhook = co.map({
   name: z.string(),
   provider: z.enum(["lemonsqueezy", "stripe", "polar"]),
@@ -55,29 +57,48 @@ export const Webhook = co.map({
 
 export const ListOfWebhooks = co.list(Webhook);
 
-export const WebhookEvent = co.record(z.string(), z.object());
+/**
+ * Raw webhook payload log entry.
+ *
+ * Pushed into AllWebhookEventsFeed CoFeed. Uses Webhook CoMap ID as session key.
+ * Self-contained for debugging - includes raw payload and processing status.
+ *
+ * @schema
+ * - `payload`: Raw JSON payload from payment provider (stored as record)
+ * - `headers`: HTTP headers from webhook request (for signature debugging)
+ * - `receivedAt`: Unix timestamp when webhook was received
+ * - `error`: Processing error message if normalization failed
+ */
+export const WebhookEvent = z.object({
+  payload: co.record(z.string(), z.string()),
+  headers: z.optional(z.record(z.string(), z.string())),
+  receivedAt: z.number(),
+  error: z.optional(z.string()),
+});
 
-export type TWebhookEvent = co.loaded<typeof WebhookEvent>;
+export type TWebhookEvent = z.infer<typeof WebhookEvent>;
 
+//Lives on RegardeApp: app.allEvents. Organizes entries by session
 export const AllWebhookEventsFeed = co.feed(WebhookEvent);
 
 /**
  * User's app configuration.
  *
- * Stores app metadata, payment provider settings, and webhook configuration.
+ * Stores app metadata and webhook configuration.
  *
  * @schema
  * - `name`: App display name
  * - `description`: Optional description
  * - `ownerAccountId`: Jazz account ID of owner
- * - `paymentProvider`: "stripe", "polar", or "lemonsqueezy"
  * - `isEnabled`: Whether app is active
  * - `createdAt`: Creation timestamp
  * - `metadata`: Additional app data
- * - `webhookSecret`: Provider webhook secret
- * - `payments`: Payment event records for this app
- * - `subscriptions`: Subscription event records for this app
- * - `licenses`: License event records for this app
+ * - `webhooks`: List of Webhook configurations (created by user via dashboard)
+ * - `payments`: Payment event records for this app (deprecated `.all` field)
+ * - `subscriptions`: Subscription event records for this app (deprecated `.all` field)
+ * - `licenses`: License event records for this app (deprecated `.all` field)
+ * - `allEvents`: CoFeed of raw webhook payloads organized by webhook ID
+ * - `groups`: Permission groups for the app
  */
 export const RegardeApp = co.map({
   name: z.string(),
@@ -91,6 +112,7 @@ export const RegardeApp = co.map({
   subscriptions: AppSubscriptionsSchema,
   licenses: AppLicensesSchema,
   allEvents: AllWebhookEventsFeed,
+  groups: Groups,
 });
 
 export type TRegardeApp = co.loaded<typeof RegardeApp>;

@@ -9,6 +9,7 @@ import {
   ListOfWebhooks,
   type TRegardeApp,
 } from "#schemas/regardeUserApp";
+import { BlankGroup, Groups } from "#schemas/regardeGroups";
 
 const logger = useLogging({
   module: import.meta.filename,
@@ -25,14 +26,14 @@ export interface CreateAppParams {
 }
 
 /**
- * Creates a new app with payment configuration.
+ * Creates a new app.
  *
- * Creates App CoMap with registry group access and stores it in
- * RegardeSDK.myApps list. Automatically handles group creation and sync.
+ * Creates RegardeApp CoMap with empty webhooks list and registry group access.
+ * User creates webhooks later via dashboard. Stores app in RegardeSDK.myApps list.
  *
  * @param account - Loaded RegardeAccount instance (app owner)
- * @param appData - App configuration including name and payment provider
- * @returns Promise resolving to newly created App CoMap
+ * @param appData - App configuration (name, optional description)
+ * @returns Promise resolving to newly created RegardeApp CoMap
  * @throws {Error} When registry group cannot be loaded or sync fails
  */
 export const createApp = async (
@@ -40,6 +41,18 @@ export const createApp = async (
   appData: CreateAppParams,
 ): Promise<TRegardeApp> => {
   const REGARDE_REGISTRY_GROUP = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
+
+  const adminGroup = Group.create();
+  const writeGroup = Group.create();
+  const readerGroup = Group.create();
+
+  const appGroups = Groups.create({
+    adminGroup: BlankGroup.create({}, { owner: adminGroup }),
+    writerGroup: BlankGroup.create({}, { owner: writeGroup }),
+    readerGroup: BlankGroup.create({}, { owner: readerGroup }),
+  });
+
+  // Frontend to add member appGroups.readerGroup.$jazz.owner.removeMember("co_z456");
 
   const { root: accountRoot } = await account.$jazz.ensureLoaded({
     resolve: {
@@ -221,14 +234,24 @@ export const createApp = async (
       isEnabled: false,
       createdAt: Date.now(),
       metadata: {},
-      webhooks: [], // TODO: created front side
+      webhooks: ListOfWebhooks.create([], { owner: userGroup }),
       payments: payments,
       subscriptions: subscriptions,
       licenses: licenses,
-      allEvents: AllWebhookEventsFeed.create([], { owner: userGroup }),
+      allEvents: AllWebhookEventsFeed.create([], {
+        owner: regardeAdminOtherReadersGroup,
+      }),
+      groups: appGroups,
     },
     { owner: userGroup },
   );
+
+  newApp.$jazz.owner.addMember(adminGroup, "admin");
+  newApp.$jazz.owner.addMember(writeGroup, "writer");
+  newApp.$jazz.owner.addMember(readerGroup, "reader");
+
+  // TODO: frontside: newApp.groups.adminGroup.$jazz.owner.removeMember("co_z123");
+  // TODO: create hooks to get group members list
 
   await newApp.$jazz.waitForSync();
 
