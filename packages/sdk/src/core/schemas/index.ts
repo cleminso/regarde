@@ -97,6 +97,7 @@ export {
 } from "./regardeUserApp";
 export type {
   TRegardeApp,
+  TWebhook,
   TWebhookEvent,
   TAppPaymentsSchema,
   TAppSubscriptionsSchema,

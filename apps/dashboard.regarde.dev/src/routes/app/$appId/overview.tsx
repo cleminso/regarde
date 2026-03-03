@@ -1,13 +1,12 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
-import { z } from "zod";
+import { createFileRoute, useParams, useLocation } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
 import { usePaymentEvents } from "@regarde-dev/core/react";
-
-const searchSchema = z.object({});
+import { Alert, AlertTitle, AlertDescription } from "#ui/alert";
+import { Button } from "#ui/button";
 
 export const Route = createFileRoute("/app/$appId/overview")({
   component: OverviewPage,
-  validateSearch: searchSchema,
 });
 
 /**
@@ -15,8 +14,30 @@ export const Route = createFileRoute("/app/$appId/overview")({
  *
  * @returns The overview page component
  */
+interface LocationState {
+  registered?: boolean;
+  appName?: string;
+}
+
 function OverviewPage(): React.ReactElement {
   const { appId } = useParams({ strict: false });
+  const location = useLocation();
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const locationState = location.state as LocationState | undefined;
+
+  useEffect(() => {
+    const isNewlyRegistered = locationState?.registered === true;
+    if (isNewlyRegistered) {
+      setShowSuccessAlert(true);
+
+      const ALERT_DISMISS_MS = 5000;
+      const timer = setTimeout(() => {
+        setShowSuccessAlert(false);
+      }, ALERT_DISMISS_MS);
+
+      return () => clearTimeout(timer);
+    }
+  }, [locationState?.registered]);
 
   // Guard: appId is required
   if (appId === undefined || appId === "") {
@@ -50,6 +71,36 @@ function OverviewPage(): React.ReactElement {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Overview</h1>
+
+      {showSuccessAlert && (
+        <div className="fixed bottom-4 right-4 z-50 w-80">
+          <Alert className="shadow-lg">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1">
+                <AlertTitle>
+                  Successfully registered {locationState?.appName ?? "app"}
+                </AlertTitle>
+                <AlertDescription>
+                  Setup your first webhook
+                </AlertDescription>
+              </div>
+              <Button
+                size="sm"
+                variant="default"
+                className="shrink-0"
+                onClick={() => {
+                  void Route.navigate({
+                    to: "/app/$appId/settings",
+                    params: { appId },
+                  });
+                }}
+              >
+                Configure
+              </Button>
+            </div>
+          </Alert>
+        </div>
+      )}
 
       <div>
         <h2 className="mb-4 text-lg font-semibold">Recent Activity</h2>

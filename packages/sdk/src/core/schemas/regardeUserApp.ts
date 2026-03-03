@@ -46,6 +46,7 @@ export type TAppLicensesSchema = co.loaded<typeof AppLicensesSchema>;
 //Use webhook.id as feed session key
 export const Webhook = co.map({
   name: z.string(),
+  description: z.string(),
   provider: z.enum(["lemonsqueezy", "stripe", "polar"]),
   environment: z.enum(["sandbox", "production"]), // regarde related
   createdAt: z.number(),
@@ -56,6 +57,8 @@ export const Webhook = co.map({
 });
 
 export const ListOfWebhooks = co.list(Webhook);
+
+export type TWebhook = co.loaded<typeof Webhook>;
 
 /**
  * Raw webhook payload log entry.

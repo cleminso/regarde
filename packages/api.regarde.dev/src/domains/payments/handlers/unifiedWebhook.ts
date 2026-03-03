@@ -11,7 +11,6 @@ import {
   RegardeApp,
   RegardeSDK,
   TRegistryWorkerAccountRoot,
-  WebhookEvent,
   useLogging,
   type TPaymentEventType,
   type TSubscriptionEventType,

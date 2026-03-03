@@ -4,8 +4,6 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000
 
 export interface RegisterAppResponse {
   appId: string;
-  webhookUrl: string;
-  webhookSecret: string;
 }
 
 interface RegisterAppError {
@@ -118,11 +116,7 @@ export async function registerApp(
     data !== null &&
     typeof data === "object" &&
     "appId" in data &&
-    "webhookUrl" in data &&
-    "webhookSecret" in data &&
-    typeof (data as Record<string, unknown>).appId === "string" &&
-    typeof (data as Record<string, unknown>).webhookUrl === "string" &&
-    typeof (data as Record<string, unknown>).webhookSecret === "string";
+    typeof (data as Record<string, unknown>).appId === "string";
 
   if (isValidResponse === false) {
     throw new RegisterAppApiError({
@@ -135,7 +129,5 @@ export async function registerApp(
   const responseData = data as RegisterAppResponse;
   return {
     appId: responseData.appId,
-    webhookUrl: responseData.webhookUrl,
-    webhookSecret: responseData.webhookSecret,
   };
 }

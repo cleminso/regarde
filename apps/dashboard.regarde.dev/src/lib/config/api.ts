@@ -19,11 +19,13 @@ export const API_BASE_URL =
  *
  * @param provider - Payment provider (lemonsqueezy, stripe, polar)
  * @param appId - Jazz CoMap ID for the app
+ * @param webhookId - Webhook endpoint identifier
  * @returns Full webhook URL
  */
 export const getWebhookUrl = (
   provider: TPaymentProvider,
   appId: string,
+  webhookId: string,
 ): string => `${API_BASE_URL}/v1/webhooks/${provider}/${appId}/${webhookId}`;
 
 /**

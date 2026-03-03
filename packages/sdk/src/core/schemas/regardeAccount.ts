@@ -34,7 +34,10 @@ export const RegardeAccount = co
         owner: account,
       });
       publicGroup.makePublic();
-      account.$jazz.set("profile", co.profile().create({ name: "Regarde CLI User" }, publicGroup));
+      account.$jazz.set(
+        "profile",
+        co.profile().create({ name: "Regarde User" }, publicGroup),
+      );
     }
 
     if (!account.$jazz.has("root")) {
@@ -42,7 +45,10 @@ export const RegardeAccount = co
       account.$jazz.set("root", {
         "regarde-sdk": regardeSdk,
       });
-      console.info("RegardeAccount root initialized with RegardeSDK:", regardeSdk.$jazz.id);
+      console.info(
+        "RegardeAccount root initialized with RegardeSDK:",
+        regardeSdk.$jazz.id,
+      );
     }
 
     await account.$jazz.waitForAllCoValuesSync();
@@ -59,7 +65,10 @@ export const RegardeAccount = co
       const regardeSDK = await initRegardeSDK(account, "create");
       root.$jazz.set("regarde-sdk", regardeSDK);
       await account.$jazz.waitForSync();
-      console.info("[SUCCESS] RegardeSDK initialized and synced:", regardeSDK.$jazz.id);
+      console.info(
+        "[SUCCESS] RegardeSDK initialized and synced:",
+        regardeSDK.$jazz.id,
+      );
     } else {
       let regardeSDK = root["regarde-sdk"] as co.loaded<typeof RegardeSDK>;
 
@@ -69,12 +78,20 @@ export const RegardeAccount = co
         regardeSDK = await initRegardeSDK(account, "create");
         root.$jazz.set("regarde-sdk", regardeSDK);
         await account.$jazz.waitForSync();
-        console.info("[SUCCESS] RegardeSDK recreated as v4:", regardeSDK.$jazz.id);
-      } else if (regardeSDK && regardeSDK.$isLoaded && regardeSDK.version === 3) {
+        console.info(
+          "[SUCCESS] RegardeSDK recreated as v4:",
+          regardeSDK.$jazz.id,
+        );
+      } else if (
+        regardeSDK &&
+        regardeSDK.$isLoaded &&
+        regardeSDK.version === 3
+      ) {
         // Migration v3 -> v4: Add mySubscriptions and myLicenses if missing
         const ownerGroup = regardeSDK.$jazz.owner;
-        const isOwnerGroupValid = ownerGroup !== null && ownerGroup.$isLoaded === true;
-        
+        const isOwnerGroupValid =
+          ownerGroup !== null && ownerGroup.$isLoaded === true;
+
         if (isOwnerGroupValid === false) {
           throw new Error("Failed to load SDK owner group for migration");
         }
@@ -87,23 +104,25 @@ export const RegardeAccount = co
         });
 
         const myPayments = regardeSDK.myPayments;
-        const isMyPaymentsLoaded = myPayments !== null && myPayments.$isLoaded === true;
-        
+        const isMyPaymentsLoaded =
+          myPayments !== null && myPayments.$isLoaded === true;
+
         if (isMyPaymentsLoaded === false) {
           throw new Error("Failed to load myPayments for migration");
         }
 
         // Get the admin group from myPayments (they share the same owner)
         const adminGroup = myPayments.$jazz.owner;
-        const isAdminGroupValid = adminGroup !== null && adminGroup.$isLoaded === true;
-        
+        const isAdminGroupValid =
+          adminGroup !== null && adminGroup.$isLoaded === true;
+
         if (isAdminGroupValid === false) {
           throw new Error("Failed to load admin group for migration");
         }
 
         // Check if mySubscriptions is missing
         const hasMySubscriptions = regardeSDK.$jazz.has("mySubscriptions");
-        
+
         if (hasMySubscriptions === false) {
           // Create mySubscriptions structure
           const allSubscriptionsRecord = co
@@ -138,12 +157,15 @@ export const RegardeAccount = co
           await mySubscriptions.$jazz.waitForSync();
 
           regardeSDK.$jazz.set("mySubscriptions", mySubscriptions);
-          console.info("[MIGRATION] Created mySubscriptions:", mySubscriptions.$jazz.id);
+          console.info(
+            "[MIGRATION] Created mySubscriptions:",
+            mySubscriptions.$jazz.id,
+          );
         }
 
         // Check if myLicenses is missing
         const hasMyLicenses = regardeSDK.$jazz.has("myLicenses");
-        
+
         if (hasMyLicenses === false) {
           // Create myLicenses structure
           const allLicensesRecord = co

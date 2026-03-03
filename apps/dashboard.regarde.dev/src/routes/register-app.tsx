@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { RegisterAppWizard } from "#/components/register-app/registerAppWizard";
+import { RegisterAppForm } from "#/components/register-app/registerAppForm";
 
 export const Route = createFileRoute("/register-app")({
   component: RegisterAppPage,
@@ -9,7 +9,7 @@ export const Route = createFileRoute("/register-app")({
 function RegisterAppPage(): React.ReactElement {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-6">
-      <RegisterAppWizard />
+      <RegisterAppForm />
     </div>
   );
 }
