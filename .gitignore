@@ -44,3 +44,4 @@ tests/examples/**/node_modules/
 packages/cli/sync-db
 
 .tanstack
+.mcp_data
