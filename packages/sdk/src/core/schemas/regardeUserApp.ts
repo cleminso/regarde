@@ -76,7 +76,18 @@ export const WebhookEvent = z.object({
   payload: z.json(),
   headers: z.optional(z.record(z.string(), z.string())),
   receivedAt: z.number(),
-  error: z.optional(z.string()),
+  error: z.optional(z.string()), // Normalization error (if any)
+  httpStatusCode: z.string(),
+  responseBody: z.string(),
+  // responseTimeMs: z.optional(z.number()) , // responseTime = processingEndTime - receivedAt
+
+  regardeEventId: z.optional(z.string()), // Reference to PaymentEvent/SubscriptionEvent (if successfully normalized)
+
+  providerEventId: z.string(), // Stripe: evt_123, LemonSqueezy: meta.event_id
+  parsedEventType: z.string(), // "invoice.payment_succeeded"
+
+  isRetry: z.boolean().default(false), // True if providerEventId was seen before
+  retryCount: z.number().default(0), // 0 = first delivery, 1 = first retry, etc.
 });
 
 export type TWebhookEvent = z.infer<typeof WebhookEvent>;

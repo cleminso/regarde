@@ -206,12 +206,46 @@ export const unifiedWebhookHandler = (
           regarde_sdk_id: queryParams.regarde_sdk_id,
         });
       } catch (extractError) {
+        // Extract provider event info from raw payload for error logging
+        const rawProviderEventId = json.id || json.meta?.event_id || "unknown";
+        const rawEventType = json.type || json.meta?.event_name || "unknown";
+
+        // Calculate retry status from CoFeed
+        let errorRetryCount = 0;
+        if (app.allEvents.$isLoaded === true) {
+          const errorSessionFeed = app.allEvents.perSession[pathWebhookId];
+          if (
+            errorSessionFeed !== undefined &&
+            errorSessionFeed.all !== undefined
+          ) {
+            for (const entry of errorSessionFeed.all) {
+              const entryValue = entry.value;
+              const isEntryLoaded =
+                entryValue !== undefined &&
+                entryValue.providerEventId !== undefined;
+              if (
+                isEntryLoaded === true &&
+                entryValue.providerEventId === rawProviderEventId
+              ) {
+                errorRetryCount = errorRetryCount + 1;
+              }
+            }
+          }
+        }
+
+        const errorIsRetry = errorRetryCount > 0;
+
         // Store failed webhook in CoFeed with error
         if (app.allEvents.$isLoaded === true) {
           app.allEvents.$jazz.push({
             payload: json,
             headers: requestHeaders,
             receivedAt: Date.now(),
+            regardeEventId: undefined,
+            providerEventId: rawProviderEventId,
+            parsedEventType: rawEventType,
+            isRetry: errorIsRetry,
+            retryCount: errorRetryCount,
             error:
               extractError instanceof Error
                 ? extractError.message
@@ -289,12 +323,48 @@ export const unifiedWebhookHandler = (
         );
 
       if (isSignatureValid === false) {
+        // Extract provider event info from raw payload for error logging
+        const sigErrorProviderEventId =
+          json.id || json.meta?.event_id || "unknown";
+        const sigErrorEventType =
+          json.type || json.meta?.event_name || "unknown";
+
+        // Calculate retry status from CoFeed
+        let sigErrorRetryCount = 0;
+        if (app.allEvents.$isLoaded === true) {
+          const sigErrorSessionFeed = app.allEvents.perSession[pathWebhookId];
+          if (
+            sigErrorSessionFeed !== undefined &&
+            sigErrorSessionFeed.all !== undefined
+          ) {
+            for (const entry of sigErrorSessionFeed.all) {
+              const entryValue = entry.value;
+              const isEntryLoaded =
+                entryValue !== undefined &&
+                entryValue.providerEventId !== undefined;
+              if (
+                isEntryLoaded === true &&
+                entryValue.providerEventId === sigErrorProviderEventId
+              ) {
+                sigErrorRetryCount = sigErrorRetryCount + 1;
+              }
+            }
+          }
+        }
+
+        const sigErrorIsRetry = sigErrorRetryCount > 0;
+
         // Store failed webhook in CoFeed
         if (app.allEvents.$isLoaded === true) {
           app.allEvents.$jazz.push({
             payload: json,
             headers: requestHeaders,
             receivedAt: Date.now(),
+            regardeEventId: undefined,
+            providerEventId: sigErrorProviderEventId,
+            parsedEventType: sigErrorEventType,
+            isRetry: sigErrorIsRetry,
+            retryCount: sigErrorRetryCount,
             error: "Invalid signature",
           });
           await app.allEvents.$jazz.waitForSync();
@@ -409,25 +479,74 @@ export const unifiedWebhookHandler = (
         );
       }
 
-      const { prefixedProviderEventUUID } = normalized;
+      const { prefixedProviderEventUUID, providerEventId, eventType } =
+        normalized;
 
-      // Check idempotency
-      if (processedProviderEvents[prefixedProviderEventUUID]) {
-        logger.debug({
-          message: "Event already processed (idempotent replay)",
-          data: { prefixedProviderEventUUID, provider, appId },
-        });
-        return c.json({ received: true, duplicate: true }, 200);
+      // Calculate retry tracking
+      const isAlreadyProcessed =
+        processedProviderEvents[prefixedProviderEventUUID] !== undefined;
+      const isRetry = isAlreadyProcessed === true;
+
+      // Count how many times we've seen this providerEventId in the CoFeed
+      let retryCount = 0;
+      if (app.allEvents.$isLoaded === true) {
+        const webhookSessionFeed = app.allEvents.perSession[pathWebhookId];
+        if (
+          webhookSessionFeed !== undefined &&
+          webhookSessionFeed.all !== undefined
+        ) {
+          for (const entry of webhookSessionFeed.all) {
+            const entryValue = entry.value;
+            const isEntryLoaded =
+              entryValue !== undefined &&
+              entryValue.providerEventId !== undefined;
+            if (
+              isEntryLoaded === true &&
+              entryValue.providerEventId === providerEventId
+            ) {
+              retryCount = retryCount + 1;
+            }
+          }
+        }
       }
 
-      // Store raw webhook in CoFeed (successful validation)
+      // Log ALL deliveries to CoFeed (including retries) for debugging/audit
+      let webhookEventId: string | undefined;
       if (app.allEvents.$isLoaded === true) {
         app.allEvents.$jazz.push({
           payload: json,
           headers: requestHeaders,
           receivedAt: Date.now(),
+          providerEventId,
+          parsedEventType: eventType,
+          isRetry,
+          retryCount,
         });
         await app.allEvents.$jazz.waitForSync();
+
+        // Get the ID of the just-pushed event for later linking
+        const webhookSessionFeed = app.allEvents.perSession[pathWebhookId];
+        if (
+          webhookSessionFeed !== undefined &&
+          webhookSessionFeed.value !== undefined
+        ) {
+          webhookEventId = webhookSessionFeed.value.id;
+        }
+      }
+
+      // Check idempotency - skip normalization if already processed
+      if (isAlreadyProcessed === true) {
+        logger.debug({
+          message: "Event already processed (idempotent replay)",
+          data: {
+            prefixedProviderEventUUID,
+            provider,
+            appId,
+            providerEventId,
+            retryCount,
+          },
+        });
+        return c.json({ received: true, duplicate: true, retryCount }, 200);
       }
 
       // Load user account
@@ -500,12 +619,42 @@ export const unifiedWebhookHandler = (
           return c.json({ error: "Unknown event kind" }, 400);
         }
       } catch (processingError) {
+        // Calculate retry status for processing error
+        let procErrorRetryCount = 0;
+        if (app.allEvents.$isLoaded === true) {
+          const procErrorSessionFeed = app.allEvents.perSession[pathWebhookId];
+          if (
+            procErrorSessionFeed !== undefined &&
+            procErrorSessionFeed.all !== undefined
+          ) {
+            for (const entry of procErrorSessionFeed.all) {
+              const entryValue = entry.value;
+              const isEntryLoaded =
+                entryValue !== undefined &&
+                entryValue.providerEventId !== undefined;
+              if (
+                isEntryLoaded === true &&
+                entryValue.providerEventId === normalized.providerEventId
+              ) {
+                procErrorRetryCount = procErrorRetryCount + 1;
+              }
+            }
+          }
+        }
+
+        const procErrorIsRetry = procErrorRetryCount > 0;
+
         // Store error in CoFeed
         if (app.allEvents.$isLoaded === true) {
           app.allEvents.$jazz.push({
             payload: json,
             headers: requestHeaders,
             receivedAt: Date.now(),
+            regardeEventId: undefined,
+            providerEventId: normalized.providerEventId,
+            parsedEventType: normalized.eventType,
+            isRetry: procErrorIsRetry,
+            retryCount: procErrorRetryCount,
             error:
               processingError instanceof Error
                 ? processingError.message
