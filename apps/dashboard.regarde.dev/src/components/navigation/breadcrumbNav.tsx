@@ -1,16 +1,17 @@
 "use client";
 
-import { Link, useLocation, useParams } from "@tanstack/react-router";
+import { useLocation, useParams } from "@tanstack/react-router";
 
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "#ui/breadcrumb";
-import { useMyRegardeAccount, type TApp } from "#/lib/account/useMyRegardeAccount";
+import {
+  useMyRegardeAccount,
+  type TApp,
+} from "#/lib/account/useMyRegardeAccount";
 
 function getPageLabelFromPathname(pathname: string): string {
   const segments = pathname.split("/");
@@ -43,7 +44,8 @@ export function BreadcrumbNav(): React.ReactElement {
 
   if (isAccountReady && myApps) {
     if (effectiveAppId) {
-      effectiveApp = myApps.find((app: TApp) => app.$jazz.id === effectiveAppId) ?? null;
+      effectiveApp =
+        myApps.find((app: TApp) => app.$jazz.id === effectiveAppId) ?? null;
     }
     const appFound = effectiveApp !== null;
     if (appFound === false && myApps.length > 0) {
@@ -54,7 +56,9 @@ export function BreadcrumbNav(): React.ReactElement {
   }
 
   // Get current page label from reactive location
-  const pageLabel = effectiveAppId ? getPageLabelFromPathname(location.pathname) : "Overview";
+  const pageLabel = effectiveAppId
+    ? getPageLabelFromPathname(location.pathname)
+    : "Overview";
 
   // Loading state check with explicit boolean pattern
   const appReady = effectiveApp !== null;
@@ -72,20 +76,14 @@ export function BreadcrumbNav(): React.ReactElement {
 
   // TypeScript guard: effectiveApp is guaranteed to be non-null here
   if (effectiveApp === null) {
-    throw new Error("Unexpected: effectiveApp should not be null after guard check");
+    throw new Error(
+      "Unexpected: effectiveApp should not be null after guard check",
+    );
   }
-
-  const overviewUrl = `/app/${effectiveAppId}/overview`;
 
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link to={overviewUrl}>{effectiveApp.name}</Link>
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
         <BreadcrumbItem>
           <BreadcrumbPage>{pageLabel}</BreadcrumbPage>
         </BreadcrumbItem>

@@ -11,11 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterAppRouteImport } from './routes/register-app'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppAppIdSubscriptionsRouteImport } from './routes/app/$appId/subscriptions'
+import { Route as AppAppIdWebhooksRouteImport } from './routes/app/$appId/webhooks'
 import { Route as AppAppIdSettingsRouteImport } from './routes/app/$appId/settings'
-import { Route as AppAppIdPaymentsRouteImport } from './routes/app/$appId/payments'
 import { Route as AppAppIdOverviewRouteImport } from './routes/app/$appId/overview'
-import { Route as AppAppIdLicensesRouteImport } from './routes/app/$appId/licenses'
 
 const RegisterAppRoute = RegisterAppRouteImport.update({
   id: '/register-app',
@@ -27,9 +25,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppAppIdSubscriptionsRoute = AppAppIdSubscriptionsRouteImport.update({
-  id: '/app/$appId/subscriptions',
-  path: '/app/$appId/subscriptions',
+const AppAppIdWebhooksRoute = AppAppIdWebhooksRouteImport.update({
+  id: '/app/$appId/webhooks',
+  path: '/app/$appId/webhooks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppAppIdSettingsRoute = AppAppIdSettingsRouteImport.update({
@@ -37,88 +35,64 @@ const AppAppIdSettingsRoute = AppAppIdSettingsRouteImport.update({
   path: '/app/$appId/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppAppIdPaymentsRoute = AppAppIdPaymentsRouteImport.update({
-  id: '/app/$appId/payments',
-  path: '/app/$appId/payments',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AppAppIdOverviewRoute = AppAppIdOverviewRouteImport.update({
   id: '/app/$appId/overview',
   path: '/app/$appId/overview',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppAppIdLicensesRoute = AppAppIdLicensesRouteImport.update({
-  id: '/app/$appId/licenses',
-  path: '/app/$appId/licenses',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/register-app': typeof RegisterAppRoute
-  '/app/$appId/licenses': typeof AppAppIdLicensesRoute
   '/app/$appId/overview': typeof AppAppIdOverviewRoute
-  '/app/$appId/payments': typeof AppAppIdPaymentsRoute
   '/app/$appId/settings': typeof AppAppIdSettingsRoute
-  '/app/$appId/subscriptions': typeof AppAppIdSubscriptionsRoute
+  '/app/$appId/webhooks': typeof AppAppIdWebhooksRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/register-app': typeof RegisterAppRoute
-  '/app/$appId/licenses': typeof AppAppIdLicensesRoute
   '/app/$appId/overview': typeof AppAppIdOverviewRoute
-  '/app/$appId/payments': typeof AppAppIdPaymentsRoute
   '/app/$appId/settings': typeof AppAppIdSettingsRoute
-  '/app/$appId/subscriptions': typeof AppAppIdSubscriptionsRoute
+  '/app/$appId/webhooks': typeof AppAppIdWebhooksRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/register-app': typeof RegisterAppRoute
-  '/app/$appId/licenses': typeof AppAppIdLicensesRoute
   '/app/$appId/overview': typeof AppAppIdOverviewRoute
-  '/app/$appId/payments': typeof AppAppIdPaymentsRoute
   '/app/$appId/settings': typeof AppAppIdSettingsRoute
-  '/app/$appId/subscriptions': typeof AppAppIdSubscriptionsRoute
+  '/app/$appId/webhooks': typeof AppAppIdWebhooksRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/register-app'
-    | '/app/$appId/licenses'
     | '/app/$appId/overview'
-    | '/app/$appId/payments'
     | '/app/$appId/settings'
-    | '/app/$appId/subscriptions'
+    | '/app/$appId/webhooks'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/register-app'
-    | '/app/$appId/licenses'
     | '/app/$appId/overview'
-    | '/app/$appId/payments'
     | '/app/$appId/settings'
-    | '/app/$appId/subscriptions'
+    | '/app/$appId/webhooks'
   id:
     | '__root__'
     | '/'
     | '/register-app'
-    | '/app/$appId/licenses'
     | '/app/$appId/overview'
-    | '/app/$appId/payments'
     | '/app/$appId/settings'
-    | '/app/$appId/subscriptions'
+    | '/app/$appId/webhooks'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   RegisterAppRoute: typeof RegisterAppRoute
-  AppAppIdLicensesRoute: typeof AppAppIdLicensesRoute
   AppAppIdOverviewRoute: typeof AppAppIdOverviewRoute
-  AppAppIdPaymentsRoute: typeof AppAppIdPaymentsRoute
   AppAppIdSettingsRoute: typeof AppAppIdSettingsRoute
-  AppAppIdSubscriptionsRoute: typeof AppAppIdSubscriptionsRoute
+  AppAppIdWebhooksRoute: typeof AppAppIdWebhooksRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -137,11 +111,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/$appId/subscriptions': {
-      id: '/app/$appId/subscriptions'
-      path: '/app/$appId/subscriptions'
-      fullPath: '/app/$appId/subscriptions'
-      preLoaderRoute: typeof AppAppIdSubscriptionsRouteImport
+    '/app/$appId/webhooks': {
+      id: '/app/$appId/webhooks'
+      path: '/app/$appId/webhooks'
+      fullPath: '/app/$appId/webhooks'
+      preLoaderRoute: typeof AppAppIdWebhooksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/$appId/settings': {
@@ -151,25 +125,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppIdSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/$appId/payments': {
-      id: '/app/$appId/payments'
-      path: '/app/$appId/payments'
-      fullPath: '/app/$appId/payments'
-      preLoaderRoute: typeof AppAppIdPaymentsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/app/$appId/overview': {
       id: '/app/$appId/overview'
       path: '/app/$appId/overview'
       fullPath: '/app/$appId/overview'
       preLoaderRoute: typeof AppAppIdOverviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/app/$appId/licenses': {
-      id: '/app/$appId/licenses'
-      path: '/app/$appId/licenses'
-      fullPath: '/app/$appId/licenses'
-      preLoaderRoute: typeof AppAppIdLicensesRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -178,11 +138,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   RegisterAppRoute: RegisterAppRoute,
-  AppAppIdLicensesRoute: AppAppIdLicensesRoute,
   AppAppIdOverviewRoute: AppAppIdOverviewRoute,
-  AppAppIdPaymentsRoute: AppAppIdPaymentsRoute,
   AppAppIdSettingsRoute: AppAppIdSettingsRoute,
-  AppAppIdSubscriptionsRoute: AppAppIdSubscriptionsRoute,
+  AppAppIdWebhooksRoute: AppAppIdWebhooksRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -12,6 +12,26 @@ body {
   line-height: 20px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 
 code {
@@ -29,8 +49,8 @@ code {
 /* Data values - event IDs, amounts, codes */
 .font-mono-data {
   font-family: "CommitMono", monospace;
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 @theme inline {
@@ -41,6 +61,9 @@ code {
   --radius-2xl: 12px;
   --radius-3xl: 16px;
   --radius-4xl: 24px;
+
+  --spacing-4_5: 18px;
+  --spacing-5_5: 22px;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -90,50 +113,57 @@ code {
 }
 
 :root {
-  --background: oklch(0.97 0 0);
-  --foreground: oklch(0.19 0 0);
-  --card: oklch(0.98 0 0);
-  --card-foreground: oklch(0.19 0 0);
-  --popover: oklch(0.98 0 0);
-  --popover-foreground: oklch(0.19 0 0);
-  --primary: oklch(0.19 0 0);
+  --background: oklch(0.985 0 0);
+  --foreground: oklch(0.2 0 0);
+
+  --card: oklch(0.985 0 0);
+  --card-foreground: oklch(0.2 0 0);
+  --popover: oklch(0.985 0 0);
+  --popover-foreground: oklch(0.2 0 0);
+
+  --primary: oklch(0.2 0 0);
   --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.19 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.56 0 0);
-  --accent: oklch(0.96 0 0);
-  --accent-foreground: oklch(0.19 0 0);
-  --destructive: oklch(0.58 0.22 25);
-  --border: oklch(0.91 0 0);
-  --input: oklch(0.91 0 0);
-  --ring: oklch(0.35 0 0);
 
-  --severity-critical: oklch(0.58 0.22 25);
-  --severity-critical-bg: oklch(0.95 0.05 25);
-  --severity-high: oklch(0.67 0.15 55);
-  --severity-high-bg: oklch(0.97 0.05 85);
-  --severity-medium: oklch(0.71 0.15 85);
-  --severity-medium-bg: oklch(0.97 0.05 95);
-  --severity-low: oklch(0.55 0.22 260);
-  --severity-low-bg: oklch(0.94 0.05 260);
-  --success: oklch(0.72 0.22 145);
-  --success-bg: oklch(0.96 0.05 145);
+  --secondary: oklch(0.93 0 0);
+  --secondary-foreground: oklch(0.2 0 0);
 
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --muted: oklch(0.93 0 0);
+  --muted-foreground: oklch(0.45 0 0);
 
-  --sidebar: oklch(0.98 0 0);
-  --sidebar-foreground: oklch(0.19 0 0);
-  --sidebar-primary: oklch(0.19 0 0);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.96 0 0);
-  --sidebar-accent-foreground: oklch(0.19 0 0);
-  --sidebar-border: oklch(0.91 0 0);
-  --sidebar-ring: oklch(0.35 0 0);
+  --accent: oklch(0.93 0 0);
+  --accent-foreground: oklch(0.2 0 0);
+
+  --destructive: oklch(0.62 0.17 30);
+
+  --border: oklch(0.82 0 0);
+  --input: oklch(0.82 0 0);
+  --ring: oklch(0.65 0.18 260);
+
+  --severity-critical: oklch(0.62 0.17 30);
+  --severity-critical-bg: oklch(0.94 0.05 30);
+  --severity-high: oklch(0.6 0.14 85);
+  --severity-high-bg: oklch(0.96 0.05 85);
+  --severity-medium: oklch(0.6 0.14 85);
+  --severity-medium-bg: oklch(0.97 0.04 85);
+  --severity-low: oklch(0.65 0.18 260);
+  --severity-low-bg: oklch(0.94 0.04 260);
+  --success: oklch(0.65 0.15 145);
+  --success-bg: oklch(0.93 0.05 145);
+
+  --chart-1: oklch(0.65 0.18 260);
+  --chart-2: oklch(0.65 0.15 145);
+  --chart-3: oklch(0.6 0.14 85);
+  --chart-4: oklch(0.62 0.17 30);
+  --chart-5: oklch(0.55 0.15 300);
+
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.2 0 0);
+  --sidebar-primary: oklch(0.9039 0.0013 286.37);
+  --sidebar-primary-foreground: oklch(0.2 0 0);
+  --sidebar-border: oklch(0.82 0 0);
+  --sidebar-accent: oklch(0.93 0 0); /* selected */
+  --sidebar-accent-foreground: oklch(0.2 0 0);
+  --sidebar-ring: oklch(0.65 0.18 260);
 }
 
 .dark {
@@ -196,5 +226,23 @@ code {
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+}
+
+@layer components {
+  [data-slot="card"]:hover,
+  .card-hover:hover {
+    background-color: oklch(0.93 0 0);
+  }
+
+  [data-slot="card"]:active,
+  [data-slot="card"][data-state="active"],
+  .card-active {
+    background-color: oklch(0.89 0 0);
+  }
+
+  [data-slot="card"][data-state="selected"],
+  .card-selected {
+    background-color: oklch(0.85 0 0);
   }
 }
