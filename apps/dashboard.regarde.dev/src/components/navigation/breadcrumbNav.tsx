@@ -20,12 +20,9 @@ function getPageLabelFromPathname(pathname: string): string {
   switch (lastSegment) {
     case "overview":
       return "Overview";
-    case "payments":
-      return "Payments";
     case "subscriptions":
-      return "Subscriptions";
-    case "licenses":
-      return "Licenses";
+    case "webhooks":
+      return "Webhooks";
     case "settings":
       return "Settings";
     default:

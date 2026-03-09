@@ -95,6 +95,14 @@ export type TWebhookEvent = z.infer<typeof WebhookEvent>;
 //Lives on RegardeApp: app.allEvents. Organizes entries by session
 export const AllWebhookEventsFeed = co.feed(WebhookEvent);
 
+export const Profile = co.map({
+  description: z.optional(z.string()),
+  logoUrl: z.optional(z.url()),
+  website: z.optional(z.url()),
+  socials: co.optional(co.record(z.string(), z.url())),
+});
+
+export type TProfile = co.loaded<typeof Profile>;
 /**
  * User's app configuration.
  *
@@ -116,11 +124,11 @@ export const AllWebhookEventsFeed = co.feed(WebhookEvent);
  */
 export const RegardeApp = co.map({
   name: z.string(),
-  description: z.string(),
   ownerAccountId: z.string(),
   isEnabled: z.boolean(),
   createdAt: z.number(),
-  metadata: co.record(z.string(), z.string()),
+  providerMetadata: co.record(z.string(), z.string()),
+  profile: Profile,
   webhooks: ListOfWebhooks,
   payments: AppPaymentsSchema,
   subscriptions: AppSubscriptionsSchema,
@@ -132,5 +140,4 @@ export const RegardeApp = co.map({
 export type TRegardeApp = co.loaded<typeof RegardeApp>;
 
 // TODO: webhook per cofeed and turn it as session
-// TODO: once update done, remove `.all` from all Schemas
 // TODO: update webhook routes to wrap the webhookId

@@ -57,9 +57,7 @@ export function DeliveryList({
       <span
         className={cn(
           "inline-flex items-center rounded px-1.5 py-0.5 text-xs font-mono",
-          isSuccess
-            ? "bg-green-100 text-green-800"
-            : "bg-red-100 text-red-800"
+          isSuccess ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800",
         )}
       >
         {delivery.httpStatusCode}
@@ -83,7 +81,9 @@ export function DeliveryList({
         <thead className="sticky top-0 bg-muted/50">
           <tr className="border-b">
             <th className="px-4 py-2 text-left text-xs font-medium">Type</th>
-            <th className="px-4 py-2 text-left text-xs font-medium">Response</th>
+            <th className="px-4 py-2 text-left text-xs font-medium">
+              Response
+            </th>
             <th className="px-4 py-2 text-left text-xs font-medium">Sent At</th>
           </tr>
         </thead>
@@ -97,7 +97,7 @@ export function DeliveryList({
                 onClick={() => onSelect(delivery)}
                 className={cn(
                   "cursor-pointer border-b transition-colors hover:bg-muted/50",
-                  isSelected && "bg-muted"
+                  isSelected && "bg-muted",
                 )}
               >
                 <td className="px-4 py-3">

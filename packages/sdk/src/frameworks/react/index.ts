@@ -68,4 +68,9 @@ export { useActiveSubscriptions } from "./useActiveSubscriptions";
 export type { UseActiveSubscriptionsResult } from "./useActiveSubscriptions";
 
 export { useWebhookEvents } from "./useWebhookEvents";
-export type { UseWebhookEventsResult } from "./useWebhookEvents";
+export type {
+  UseWebhookEventsResult,
+  UseWebhookEventsOptions,
+  WebhookDelivery,
+  WebhookStats,
+} from "./useWebhookEvents";

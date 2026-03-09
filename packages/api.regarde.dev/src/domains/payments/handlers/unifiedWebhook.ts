@@ -250,6 +250,10 @@ export const unifiedWebhookHandler = (
               extractError instanceof Error
                 ? extractError.message
                 : "Failed to extract context from payload",
+            httpStatusCode: "400",
+            responseBody: JSON.stringify({
+              error: "Missing required context in webhook payload",
+            }),
           });
           await app.allEvents.$jazz.waitForSync();
         }
@@ -366,6 +370,8 @@ export const unifiedWebhookHandler = (
             isRetry: sigErrorIsRetry,
             retryCount: sigErrorRetryCount,
             error: "Invalid signature",
+            httpStatusCode: "401",
+            responseBody: JSON.stringify({ error: "Invalid Signature" }),
           });
           await app.allEvents.$jazz.waitForSync();
         }
@@ -511,7 +517,6 @@ export const unifiedWebhookHandler = (
       }
 
       // Log ALL deliveries to CoFeed (including retries) for debugging/audit
-      let webhookEventId: string | undefined;
       if (app.allEvents.$isLoaded === true) {
         app.allEvents.$jazz.push({
           payload: json,
@@ -521,17 +526,14 @@ export const unifiedWebhookHandler = (
           parsedEventType: eventType,
           isRetry,
           retryCount,
+          httpStatusCode: isAlreadyProcessed === true ? "200" : "200",
+          responseBody: JSON.stringify(
+            isAlreadyProcessed === true
+              ? { received: true, duplicate: true, retryCount }
+              : { received: true },
+          ),
         });
         await app.allEvents.$jazz.waitForSync();
-
-        // Get the ID of the just-pushed event for later linking
-        const webhookSessionFeed = app.allEvents.perSession[pathWebhookId];
-        if (
-          webhookSessionFeed !== undefined &&
-          webhookSessionFeed.value !== undefined
-        ) {
-          webhookEventId = webhookSessionFeed.value.id;
-        }
       }
 
       // Check idempotency - skip normalization if already processed
@@ -646,6 +648,10 @@ export const unifiedWebhookHandler = (
 
         // Store error in CoFeed
         if (app.allEvents.$isLoaded === true) {
+          const errorMessage =
+            processingError instanceof Error
+              ? processingError.message
+              : "Processing failed";
           app.allEvents.$jazz.push({
             payload: json,
             headers: requestHeaders,
@@ -655,10 +661,9 @@ export const unifiedWebhookHandler = (
             parsedEventType: normalized.eventType,
             isRetry: procErrorIsRetry,
             retryCount: procErrorRetryCount,
-            error:
-              processingError instanceof Error
-                ? processingError.message
-                : "Processing failed",
+            error: errorMessage,
+            httpStatusCode: "500",
+            responseBody: JSON.stringify({ error: errorMessage }),
           });
           await app.allEvents.$jazz.waitForSync();
         }

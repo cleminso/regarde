@@ -21,6 +21,8 @@ import type { TRegardeApp } from "#core/schemas/regardeUserApp";
 export function useRegardeApp(appId: string): TRegardeApp | null {
   return useCoState(RegardeApp, appId, {
     resolve: {
+      webhooks: { $each: true },
+      allEvents: true,
       payments: { all: true, byUser: true },
       subscriptions: { all: true, byUser: true },
       licenses: { all: true, byUser: true },

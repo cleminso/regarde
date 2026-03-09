@@ -7,6 +7,7 @@ import {
   RegardeApp,
   AllWebhookEventsFeed,
   ListOfWebhooks,
+  Profile,
   type TRegardeApp,
 } from "#schemas/regardeUserApp";
 import { BlankGroup, Groups } from "#schemas/regardeGroups";
@@ -229,11 +230,11 @@ export const createApp = async (
   const newApp = RegardeApp.create(
     {
       name: appData.name,
-      description: appData.description || "",
       ownerAccountId: account.$jazz.id,
       isEnabled: false,
       createdAt: Date.now(),
-      metadata: {},
+      providerMetadata: {},
+      profile: Profile.create({}, { owner: userGroup }),
       webhooks: ListOfWebhooks.create([], { owner: userGroup }),
       payments: payments,
       subscriptions: subscriptions,
