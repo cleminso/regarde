@@ -56,6 +56,7 @@ export type {
   TPaymentEvent,
   TPaymentProvider,
   TPaymentEventType,
+  TPaymentStatus,
   TMode,
 } from "./paymentEvent";
 
@@ -77,13 +78,29 @@ export {
   LICENSE_EVENT_TYPES,
   LICENSE_STATUSES,
 } from "./licenseEvent";
-export type { TLicenseEvent, TLicenseEventType } from "./licenseEvent";
+export type { TLicenseEvent, TLicenseEventType, TLicenseStatus } from "./licenseEvent";
 
 export { RegardeAccount } from "./regardeAccount";
 export type { TRegardeAccount } from "./regardeAccount";
 
 export { RegardeTokenAuth } from "./regardeTokenAuth";
 export type { TRegardeAuthLoaded } from "./regardeTokenAuth";
+
+export {
+  CheckoutSession,
+  AppCheckoutSessionsSchema,
+  CHECKOUT_SESSION_STATUSES,
+  CHECKOUT_MODES,
+} from "./checkoutSession";
+export type {
+  TCheckoutSession,
+  TCheckoutSessionStatus,
+  TCheckoutMode,
+  TAppCheckoutSessionsSchema,
+} from "./checkoutSession";
+
+export { Invoice, InvoiceLineItem } from "./invoice";
+export type { TInvoice, TInvoiceLineItem } from "./invoice";
 
 export {
   RegardeApp,

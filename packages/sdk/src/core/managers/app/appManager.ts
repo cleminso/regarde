@@ -227,6 +227,30 @@ export const createApp = async (
     );
   await licenses.$jazz.waitForSync();
 
+  const allCheckoutSessionsRecord = co
+    .record(z.string(), z.string())
+    .create({}, { owner: regardeAdminOtherReadersGroup });
+  await allCheckoutSessionsRecord.$jazz.waitForSync();
+
+  const byUserCheckoutSessionsRecord = co
+    .record(z.string(), co.record(z.string(), z.string()))
+    .create({}, { owner: regardeAdminOtherReadersGroup });
+  await byUserCheckoutSessionsRecord.$jazz.waitForSync();
+
+  const checkoutSessions = co
+    .map({
+      all: co.record(z.string(), z.string()),
+      byUser: co.record(z.string(), co.record(z.string(), z.string())),
+    })
+    .create(
+      {
+        all: allCheckoutSessionsRecord,
+        byUser: byUserCheckoutSessionsRecord,
+      },
+      { owner: regardeAdminOtherReadersGroup },
+    );
+  await checkoutSessions.$jazz.waitForSync();
+
   const newApp = RegardeApp.create(
     {
       name: appData.name,
@@ -239,6 +263,7 @@ export const createApp = async (
       payments: payments,
       subscriptions: subscriptions,
       licenses: licenses,
+      checkoutSessions: checkoutSessions,
       allEvents: AllWebhookEventsFeed.create([], {
         owner: regardeAdminOtherReadersGroup,
       }),

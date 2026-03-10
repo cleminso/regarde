@@ -10,6 +10,7 @@ export const LICENSE_EVENT_TYPES = [
 export type TLicenseEventType = (typeof LICENSE_EVENT_TYPES)[number];
 
 export const LICENSE_STATUSES = ["active", "inactive", "revoked"] as const;
+export type TLicenseStatus = (typeof LICENSE_STATUSES)[number];
 
 /**
  * Immutable license/access event record.

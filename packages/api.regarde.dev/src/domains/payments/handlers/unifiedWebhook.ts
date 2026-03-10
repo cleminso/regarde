@@ -7,6 +7,8 @@ import {
   SubscriptionEvent,
   Subscription,
   LicenseEvent,
+  CheckoutSession,
+  Invoice,
   TRegardeApp,
   RegardeApp,
   RegardeSDK,
@@ -15,6 +17,7 @@ import {
   type TPaymentEventType,
   type TSubscriptionEventType,
   type TLicenseEventType,
+  type TCheckoutSessionStatus,
 } from "@regarde-dev/core";
 
 import { getAdapter, isSupportedProvider } from "../adapters";
@@ -94,7 +97,7 @@ export const unifiedWebhookHandler = (
           url: c.req.url,
           queryParams: c.req.query(),
           headers,
-          bodyPreview: rawBody.substring(0, 500), // First 500 chars
+          bodyPreview: rawBody.substring(0, 500),
           bodyLength: rawBody.length,
         },
       });
@@ -163,7 +166,7 @@ export const unifiedWebhookHandler = (
         return c.json({ error: "Webhook not found" }, 404);
       }
 
-      // Check if webhook is enabled
+      // TODO: Do I need this? Check if webhook is enabled
       if (webhook.isEnabled === false) {
         logger.debug({
           message: "Webhook is disabled - acknowledging but not processing",
@@ -768,6 +771,25 @@ const handlePaymentEvent = async (
     );
   }
 
+  // Update CheckoutSession status if this payment is linked to a checkout
+  await updateCheckoutSessionFromPayment(
+    normalized,
+    event.$jazz.id,
+    app,
+    worker,
+  );
+
+  // Create Invoice for successful payments
+  await createInvoiceFromPayment(
+    normalized,
+    data,
+    event.$jazz.id,
+    app,
+    jazzAccountId,
+    eventOwnerGroup,
+    worker,
+  );
+
   return event.$jazz.id;
 };
 
@@ -1362,4 +1384,133 @@ const updateSubscriptionFromPayment = async (
   existingSub.$jazz.set("lastPaymentEventId", paymentEventId);
   existingSub.$jazz.set("updatedAt", Date.now());
   await existingSub.$jazz.waitForSync();
+};
+
+// ---------------------------------------------------------------------------
+// CheckoutSession Update
+// ---------------------------------------------------------------------------
+
+const updateCheckoutSessionFromPayment = async (
+  normalized: NormalizedEvent,
+  paymentEventId: string,
+  app: TRegardeApp,
+  worker: Loaded<typeof RegistryWorkerAccount>,
+): Promise<void> => {
+  const providerMetadata = normalized.providerMetadata;
+  const checkoutSessionId = providerMetadata.regarde_session_id;
+
+  const hasCheckoutSessionId =
+    checkoutSessionId !== undefined && checkoutSessionId !== null && checkoutSessionId !== "";
+  if (hasCheckoutSessionId === false) {
+    return;
+  }
+
+  const checkoutSession = await CheckoutSession.load(checkoutSessionId, {
+    loadAs: worker,
+  });
+
+  const isSessionLoaded =
+    checkoutSession !== null && checkoutSession !== undefined && checkoutSession.$isLoaded === true;
+  if (isSessionLoaded === false) {
+    logger.warn({
+      message: "CheckoutSession not found for payment event",
+      data: { checkoutSessionId, paymentEventId },
+    });
+    return;
+  }
+
+  let newStatus: TCheckoutSessionStatus | undefined;
+  switch (normalized.eventType) {
+    case "payment.checkout_completed":
+    case "payment.succeeded":
+      newStatus = "succeeded";
+      break;
+    case "payment.failed":
+    case "payment.canceled":
+      newStatus = "failed";
+      break;
+    case "payment.checkout_expired":
+      newStatus = "expired";
+      break;
+    default:
+      break;
+  }
+
+  const shouldUpdateStatus = newStatus !== undefined;
+  if (shouldUpdateStatus === true) {
+    checkoutSession.$jazz.set("status", newStatus as TCheckoutSessionStatus);
+    checkoutSession.$jazz.set("completedAt", normalized.timestamp);
+    checkoutSession.$jazz.set("paymentEventId", paymentEventId);
+    await checkoutSession.$jazz.waitForSync();
+
+    logger.info({
+      message: "Updated CheckoutSession status",
+      data: {
+        checkoutSessionId,
+        status: newStatus,
+        paymentEventId,
+      },
+    });
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Invoice Creation
+// ---------------------------------------------------------------------------
+
+const createInvoiceFromPayment = async (
+  normalized: NormalizedEvent,
+  data: NormalizedPaymentData,
+  paymentEventId: string,
+  app: TRegardeApp,
+  jazzAccountId: string,
+  eventOwnerGroup: ReturnType<typeof Group.create>,
+  worker: Loaded<typeof RegistryWorkerAccount>,
+): Promise<void> => {
+  const isSuccessfulPayment = data.status === "succeeded";
+  if (isSuccessfulPayment === false) {
+    return;
+  }
+
+  const amountNum = parseInt(data.amount, 10);
+  const isAmountValid = Number.isNaN(amountNum) === false;
+
+  const invoice = Invoice.create(
+    {
+      appId: app.$jazz.id,
+      userAccountId: jazzAccountId,
+      paymentEventId,
+      provider: normalized.provider,
+      invoiceNumber: `INV-${Date.now()}`,
+      date: normalized.timestamp,
+      amount: isAmountValid ? amountNum : 0,
+      currency: data.currency.toUpperCase(),
+      description: `Payment via ${normalized.provider}`,
+      items: [
+        {
+          description: "Payment",
+          quantity: 1,
+          unitPrice: isAmountValid ? amountNum : 0,
+          total: isAmountValid ? amountNum : 0,
+        },
+      ],
+      subtotal: isAmountValid ? amountNum : 0,
+      total: isAmountValid ? amountNum : 0,
+      providerInvoiceId: normalized.providerMetadata.invoiceId,
+      createdAt: Date.now(),
+    },
+    { owner: eventOwnerGroup },
+  );
+
+  await invoice.$jazz.waitForSync();
+
+  logger.info({
+    message: "Created Invoice from payment",
+    data: {
+      invoiceId: invoice.$jazz.id,
+      paymentEventId,
+      amount: data.amount,
+      currency: data.currency,
+    },
+  });
 };

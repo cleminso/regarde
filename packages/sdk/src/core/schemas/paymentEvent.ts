@@ -40,6 +40,7 @@ export const PAYMENT_STATUSES = [
   "pending",
   "action_required",
 ] as const;
+export type TPaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
 // Shared mode type across all event schemas
 export type TMode = "test" | "production";
@@ -72,7 +73,11 @@ export const ModeSchema = z.enum(["test", "production"]);
 export const PaymentEvent = co.map({
   webhookId: z.string().describe("Webhook CoMap ID that received this event"),
   provider: z.enum(PAYMENT_PROVIDERS),
-  mode: z.optional(ModeSchema).describe("From webhook.environment (production -> 'production', sandbox -> 'test')"),
+  mode: z
+    .optional(ModeSchema)
+    .describe(
+      "From webhook.environment (production -> 'production', sandbox -> 'test')",
+    ),
 
   providerEventId: z.string(),
   prefixedProviderEventUUID: z.string(),
@@ -87,8 +92,8 @@ export const PaymentEvent = co.map({
   currency: z.string(),
   status: z.enum(PAYMENT_STATUSES),
 
-  providerSubscriptionId: z.optional(z.string()),
-  providerLicenseId: z.optional(z.string()),
+  providerSubscriptionId: z.optional(z.string()), // Since we properly map event, is it still needed?
+  providerLicenseId: z.optional(z.string()), // same
 
   providerMetadata: co.record(z.string(), z.string()),
   metadata: co.record(z.string(), z.string()),

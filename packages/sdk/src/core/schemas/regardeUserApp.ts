@@ -1,4 +1,6 @@
 import { co, z } from "jazz-tools";
+
+import { AppCheckoutSessionsSchema } from "./checkoutSession";
 import { Groups } from "./regardeGroups";
 
 /**
@@ -119,6 +121,7 @@ export type TProfile = co.loaded<typeof Profile>;
  * - `payments`: Payment event records for this app (deprecated `.all` field)
  * - `subscriptions`: Subscription event records for this app (deprecated `.all` field)
  * - `licenses`: License event records for this app (deprecated `.all` field)
+ * - `checkoutSessions`: Checkout session records for this app
  * - `allEvents`: CoFeed of raw webhook payloads organized by webhook ID
  * - `groups`: Permission groups for the app
  */
@@ -133,6 +136,7 @@ export const RegardeApp = co.map({
   payments: AppPaymentsSchema,
   subscriptions: AppSubscriptionsSchema,
   licenses: AppLicensesSchema,
+  checkoutSessions: AppCheckoutSessionsSchema,
   allEvents: AllWebhookEventsFeed,
   groups: Groups,
 });
