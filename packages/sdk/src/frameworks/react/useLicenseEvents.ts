@@ -1,9 +1,9 @@
 import { useCoState, useCoStates } from "jazz-tools/react";
 import { useMemo } from "react";
 
-import type { TMode } from "#core/schemas/paymentEvent";
 import { LicenseEvent } from "#core/schemas/licenseEvent";
 import type { TLicenseEvent } from "#core/schemas/licenseEvent";
+import type { TMode } from "#core/schemas/paymentEvent";
 import { RegardeApp } from "#core/schemas/regardeUserApp";
 import type { TRegardeApp } from "#core/schemas/regardeUserApp";
 
@@ -71,8 +71,7 @@ export function useLicenseEvents(
 
     // Get all event IDs from the record
     return Object.values(allLicenses).filter(
-      (id): id is string =>
-        id !== null && id !== undefined && typeof id === "string",
+      (id): id is string => id !== null && id !== undefined && typeof id === "string",
     );
   }, [app]);
 
@@ -88,11 +87,7 @@ export function useLicenseEvents(
 
     // Apply mode filter
     const modeFilter = options?.mode;
-    if (
-      modeFilter !== null &&
-      modeFilter !== undefined &&
-      modeFilter !== "all"
-    ) {
+    if (modeFilter !== null && modeFilter !== undefined && modeFilter !== "all") {
       loadedEvents = loadedEvents.filter((event) => event.mode === modeFilter);
     }
 
@@ -106,8 +101,7 @@ export function useLicenseEvents(
       // Check all possible license ID fields
       loadedEvents = loadedEvents.filter((event) => {
         const licenseKeyMatch = event.licenseKey === providerLicenseIdFilter;
-        const entitlementMatch =
-          event.entitlementId === providerLicenseIdFilter;
+        const entitlementMatch = event.entitlementId === providerLicenseIdFilter;
         const benefitMatch = event.benefitId === providerLicenseIdFilter;
         return licenseKeyMatch || entitlementMatch || benefitMatch;
       });
@@ -133,8 +127,7 @@ export function useLicenseEvents(
 
     // Check if all LicenseEvents are loaded
     return allEvents.some(
-      (event) =>
-        event === null || event === undefined || event.$isLoaded === false,
+      (event) => event === null || event === undefined || event.$isLoaded === false,
     );
   }, [app, allEvents]);
 

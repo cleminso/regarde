@@ -73,14 +73,14 @@ export function useWebhookEvents(
     const entries: WebhookDelivery[] = [];
 
     for (const entry of allEntries) {
+      // oxlint-disable-next-line no-unsafe-type-assertion -- Jazz runtime data requires type assertion
       const value = entry.value as TWebhookEvent;
       if (value === undefined) {
         continue;
       }
 
       const isEntryValid =
-        value.providerEventId !== undefined &&
-        value.parsedEventType !== undefined;
+        value.providerEventId !== undefined && value.parsedEventType !== undefined;
 
       if (isEntryValid !== true) {
         continue;
@@ -125,10 +125,7 @@ export function useWebhookEvents(
 
     const limit = options?.limit;
     const isLimitValid =
-      limit !== undefined &&
-      limit !== null &&
-      limit > 0 &&
-      Number.isFinite(limit);
+      limit !== undefined && limit !== null && limit > 0 && Number.isFinite(limit);
 
     if (isLimitValid === true) {
       return filteredEntries.slice(0, limit);

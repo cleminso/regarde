@@ -100,9 +100,7 @@ describe("Checkout Manager Validation", () => {
     it("should throw SDK_NOT_INITIALIZED when SDK is missing", () => {
       const root = { $isLoaded: true };
       const regardeSdk = undefined;
-      const isSdkLoaded =
-        regardeSdk !== null &&
-        regardeSdk !== undefined;
+      const isSdkLoaded = regardeSdk !== null && regardeSdk !== undefined;
 
       expect(isSdkLoaded).toBe(false);
 
@@ -122,10 +120,7 @@ describe("Checkout Manager Validation", () => {
       expect(isAppLoaded).toBe(false);
 
       if (isAppLoaded === false) {
-        const error = new RegardeError(
-          "App must be loaded",
-          REGARDE_ERROR_CODES.COMAP_NOT_FOUND,
-        );
+        const error = new RegardeError("App must be loaded", REGARDE_ERROR_CODES.COMAP_NOT_FOUND);
         expect(error.code).toBe("comap_not_found");
       }
     });

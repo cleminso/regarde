@@ -17,7 +17,7 @@ export const RegisterRequestSchema = z.object({
   oldNickname: z
     .string()
     .optional()
-    .transform((val: string | undefined) => (val ? val.toLowerCase().trim() : val)),
+    .transform((val: string | undefined) => (val !== undefined && val !== "" ? val.toLowerCase().trim() : val)),
 });
 
 /**

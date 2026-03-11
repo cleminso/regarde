@@ -45,9 +45,16 @@ export async function registerNickname(
     const isResponseOk = response.ok === true;
     if (isResponseOk === false) {
       const errorData = await response.json().catch(() => ({}));
+      const errorMessage =
+        typeof errorData === "object" &&
+        errorData !== null &&
+        "error" in errorData &&
+        typeof errorData.error === "string"
+          ? errorData.error
+          : `Server returned ${response.status}: ${response.statusText}`;
       return {
         success: false,
-        error: errorData.error || `Server returned ${response.status}: ${response.statusText}`,
+        error: errorMessage,
       };
     }
 

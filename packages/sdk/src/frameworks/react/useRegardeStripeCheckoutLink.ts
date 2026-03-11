@@ -55,17 +55,11 @@ export function useRegardeStripeCheckoutLink(
   );
 
   const generateStripeCheckoutLink = useCallback(
-    async (
-      apiKey: string,
-      options: TRegardeStripeCheckoutLinkOptions,
-    ): Promise<string> => {
+    async (apiKey: string, options: TRegardeStripeCheckoutLinkOptions): Promise<string> => {
       const isAccountLoaded =
         account !== null && account !== undefined && account.$isLoaded === true;
       if (isAccountLoaded === false) {
-        throw new RegardeError(
-          "Account must be loaded",
-          REGARDE_ERROR_CODES.ACCOUNT_NOT_LOADED,
-        );
+        throw new RegardeError("Account must be loaded", REGARDE_ERROR_CODES.ACCOUNT_NOT_LOADED);
       }
 
       const isAppLoaded = app !== null && app !== undefined && app.$isLoaded === true;
@@ -75,9 +69,7 @@ export function useRegardeStripeCheckoutLink(
 
       const regardeSdk = account.root["regarde-sdk"];
       const isSdkLoaded =
-        regardeSdk !== null &&
-        regardeSdk !== undefined &&
-        regardeSdk.$isLoaded === true;
+        regardeSdk !== null && regardeSdk !== undefined && regardeSdk.$isLoaded === true;
       if (isSdkLoaded === false) {
         throw new RegardeError(
           "RegardeSDK must be initialized",

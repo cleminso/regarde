@@ -1,5 +1,5 @@
-import { useCoState } from "jazz-tools/react";
 import type { MaybeLoaded } from "jazz-tools";
+import { useCoState } from "jazz-tools/react";
 
 import { RegardeApp } from "#core/schemas/regardeUserApp";
 import type { TRegardeApp } from "#core/schemas/regardeUserApp";

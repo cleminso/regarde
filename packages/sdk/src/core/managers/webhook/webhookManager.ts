@@ -1,7 +1,7 @@
+import { useLogging } from "#core/logger";
+import type { TPaymentProvider } from "#schemas/paymentEvent";
 import { Webhook, type TWebhook } from "#schemas/regardeUserApp";
 import type { TRegardeApp } from "#schemas/regardeUserApp";
-import type { TPaymentProvider } from "#schemas/paymentEvent";
-import { useLogging } from "#core/logger";
 
 const logger = useLogging({
   module: import.meta.filename,
@@ -36,7 +36,8 @@ export const generateWebhookSecret = (): string => {
   const randomValues = new Uint8Array(ARRAY_LENGTH);
   crypto.getRandomValues(randomValues);
 
-  const CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const CHARSET =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const result = Array.from(randomValues)
     .map((byte) => CHARSET[byte % CHARSET.length])
     .join("");
@@ -65,19 +66,16 @@ export const createWebhook = async (
     throw new Error("App must be loaded before creating webhook");
   }
 
-  const isWebhooksLoaded = app.webhooks !== null && app.webhooks.$isLoaded === true;
+  const isWebhooksLoaded =
+    app.webhooks !== null && app.webhooks.$isLoaded === true;
   if (isWebhooksLoaded === false) {
     throw new Error("App webhooks list is not loaded");
   }
 
-  const isLemonSqueezy = params.provider === "lemonsqueezy";
-  const secret = isLemonSqueezy
-    ? (params.secret ?? generateWebhookSecret())
-    : params.secret;
-
-  if (secret === undefined || secret.length === 0) {
-    throw new Error("Secret is required for Stripe and Polar webhooks");
+  if (params.secret === undefined || params.secret.length === 0) {
+    throw new Error("Secret is required for all webhook providers");
   }
+  const secret = params.secret;
 
   const ownerGroup = app.$jazz.owner;
 
@@ -114,7 +112,8 @@ export const createWebhook = async (
 
     return webhook;
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     logger.error({
       message: "Failed to create webhook",
       data: {
@@ -123,7 +122,9 @@ export const createWebhook = async (
         provider: params.provider,
       },
     });
-    throw new Error(`Failed to create webhook: ${errorMessage}`);
+    throw new Error(`Failed to create webhook: ${errorMessage}`, {
+      cause: error,
+    });
   }
 };
 
@@ -189,7 +190,8 @@ export const updateWebhook = async (
       },
     });
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     logger.error({
       message: "Failed to update webhook",
       data: {
@@ -197,7 +199,9 @@ export const updateWebhook = async (
         webhookId: webhook.$jazz.id,
       },
     });
-    throw new Error(`Failed to update webhook: ${errorMessage}`);
+    throw new Error(`Failed to update webhook: ${errorMessage}`, {
+      cause: error,
+    });
   }
 };
 
@@ -232,7 +236,8 @@ export const regenerateSecret = async (webhook: TWebhook): Promise<string> => {
 
     return newSecret;
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     logger.error({
       message: "Failed to regenerate webhook secret",
       data: {
@@ -240,7 +245,9 @@ export const regenerateSecret = async (webhook: TWebhook): Promise<string> => {
         webhookId: webhook.$jazz.id,
       },
     });
-    throw new Error(`Failed to regenerate secret: ${errorMessage}`);
+    throw new Error(`Failed to regenerate secret: ${errorMessage}`, {
+      cause: error,
+    });
   }
 };
 
@@ -276,7 +283,8 @@ export const toggleWebhookStatus = async (
       },
     });
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     logger.error({
       message: "Failed to toggle webhook status",
       data: {
@@ -285,6 +293,8 @@ export const toggleWebhookStatus = async (
         isEnabled,
       },
     });
-    throw new Error(`Failed to toggle webhook status: ${errorMessage}`);
+    throw new Error(`Failed to toggle webhook status: ${errorMessage}`, {
+      cause: error,
+    });
   }
 };

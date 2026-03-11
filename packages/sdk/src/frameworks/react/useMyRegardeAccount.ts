@@ -1,5 +1,5 @@
-import { useAccount } from "jazz-tools/react";
 import type { MaybeLoaded, CoList } from "jazz-tools";
+import { useAccount } from "jazz-tools/react";
 import { useMemo } from "react";
 
 import { RegardeAccount } from "#schemas/regardeAccount";
@@ -11,12 +11,12 @@ import type {
   TSubscriptionSchema,
   TLicenseSchema,
 } from "#schemas/regardeSDK";
+import { RegardeTokenAuth } from "#schemas/regardeTokenAuth";
+import type { TRegardeAuthLoaded } from "#schemas/regardeTokenAuth";
 import { RegardeApp } from "#schemas/regardeUserApp";
 import type { TRegardeApp } from "#schemas/regardeUserApp";
 import { UserHandle } from "#schemas/regardeUserHandle";
 import type { TUserHandleLoaded } from "#schemas/regardeUserHandle";
-import { RegardeTokenAuth } from "#schemas/regardeTokenAuth";
-import type { TRegardeAuthLoaded } from "#schemas/regardeTokenAuth";
 
 // =============================================================================
 // Field Resolution Types (exported for documentation)
@@ -42,9 +42,7 @@ export type TPaymentField = true | { all?: true; byApp?: true };
 /**
  * Subscription schema field resolution options
  */
-export type TSubscriptionField =
-  | true
-  | { all?: true; byApp?: true; status?: true };
+export type TSubscriptionField = true | { all?: true; byApp?: true; status?: true };
 
 /**
  * License schema field resolution options
@@ -147,10 +145,11 @@ export interface TUseMyRegardeAccountResult {
 
 /**
  * Builds Jazz resolve configuration from user-friendly field config
+ *
+ * @param fields - Field resolution configuration
+ * @returns Jazz resolve configuration object
  */
-function buildResolveConfig(
-  fields: TUseMyRegardeAccountResolve,
-): Record<string, unknown> {
+function buildResolveConfig(fields: TUseMyRegardeAccountResolve): Record<string, unknown> {
   const hasFields = Object.keys(fields).length > 0;
   if (hasFields === false) {
     return { root: true };
@@ -173,6 +172,9 @@ function buildResolveConfig(
 
 /**
  * Type guard to check if a value is a loaded CoValue
+ *
+ * @param value - The value to check
+ * @returns True if the value is a loaded CoValue
  */
 function isLoadedCoValue<T>(value: unknown): value is T & { $isLoaded: true } {
   return (
@@ -302,8 +304,7 @@ export function useMyRegardeAccount(
     }
 
     // Check if root is loaded
-    const isRootLoaded =
-      isAccountLoaded && account.root !== null && isLoadedCoValue(account.root);
+    const isRootLoaded = isAccountLoaded && account.root !== null && isLoadedCoValue(account.root);
 
     // Check if SDK is loaded
     const sdk = isRootLoaded ? account.root["regarde-sdk"] : null;
@@ -314,14 +315,10 @@ export function useMyRegardeAccount(
 
     // Extract requested fields with type safety
     const auth =
-      isSdkLoaded && resolve.auth === true && isLoadedCoValue(sdk.auth)
-        ? sdk.auth
-        : null;
+      isSdkLoaded && resolve.auth === true && isLoadedCoValue(sdk.auth) ? sdk.auth : null;
 
     const myUserHandle =
-      isSdkLoaded &&
-      resolve.myUserHandle === true &&
-      isLoadedCoValue(sdk.myUserHandle)
+      isSdkLoaded && resolve.myUserHandle === true && isLoadedCoValue(sdk.myUserHandle)
         ? sdk.myUserHandle
         : null;
 

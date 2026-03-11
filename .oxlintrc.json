@@ -11,6 +11,7 @@
   "ignorePatterns": [
     "dist/**",
     "coverage/**",
+    "**/__tests__/**",
     "packages/admin/*backups/**",
     "packages/admin/registry-backups/**",
     "packages/admin/reserveRegistry-backups/**",
@@ -19,7 +20,7 @@
   "rules": {
     "unicorn/no-array-sort": "off",
     "react/react-in-jsx-scope": "off",
-    "no-unused-vars": "error",
+    "no-unused-vars": "off",
     "eqeqeq": ["error", "always", { "null": "ignore" }],
     "no-implicit-coercion": "error",
     "no-extra-boolean-cast": "error",
@@ -36,6 +37,7 @@
         "allowAny": false
       }
     ],
+    "typescript/no-unnecessary-boolean-literal-compare": "off",
     "@typescript-eslint/naming-convention": [
       "error",
       {

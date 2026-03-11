@@ -60,10 +60,7 @@ export function useSubscriptionEvents(
     }
 
     const subscriptionsRecord = app.subscriptions;
-    if (
-      subscriptionsRecord === null ||
-      subscriptionsRecord.$isLoaded === false
-    ) {
+    if (subscriptionsRecord === null || subscriptionsRecord.$isLoaded === false) {
       return [];
     }
 
@@ -74,8 +71,7 @@ export function useSubscriptionEvents(
 
     // Get all event IDs from the record
     return Object.values(allSubscriptions).filter(
-      (id): id is string =>
-        id !== null && id !== undefined && typeof id === "string",
+      (id): id is string => id !== null && id !== undefined && typeof id === "string",
     );
   }, [app]);
 
@@ -91,11 +87,7 @@ export function useSubscriptionEvents(
 
     // Apply mode filter
     const modeFilter = options?.mode;
-    if (
-      modeFilter !== null &&
-      modeFilter !== undefined &&
-      modeFilter !== "all"
-    ) {
+    if (modeFilter !== null && modeFilter !== undefined && modeFilter !== "all") {
       loadedEvents = loadedEvents.filter((event) => event.mode === modeFilter);
     }
 
@@ -120,10 +112,7 @@ export function useSubscriptionEvents(
     if (app.$isLoaded !== true) return true;
 
     const subscriptionsRecord = app.subscriptions;
-    if (
-      subscriptionsRecord === null ||
-      subscriptionsRecord.$isLoaded === false
-    ) {
+    if (subscriptionsRecord === null || subscriptionsRecord.$isLoaded === false) {
       return true;
     }
 
@@ -134,8 +123,7 @@ export function useSubscriptionEvents(
 
     // Check if all SubscriptionEvents are loaded
     return allEvents.some(
-      (event) =>
-        event === null || event === undefined || event.$isLoaded === false,
+      (event) => event === null || event === undefined || event.$isLoaded === false,
     );
   }, [app, allEvents]);
 

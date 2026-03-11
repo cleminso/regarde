@@ -2,6 +2,7 @@ import { co, z, Loaded, Group } from "jazz-tools";
 
 import { useLogging } from "#core/logger";
 import { RegardeAccount } from "#schemas/regardeAccount";
+import { BlankGroup, Groups } from "#schemas/regardeGroups";
 import { RegardeSDK } from "#schemas/regardeSDK";
 import {
   RegardeApp,
@@ -10,7 +11,6 @@ import {
   Profile,
   type TRegardeApp,
 } from "#schemas/regardeUserApp";
-import { BlankGroup, Groups } from "#schemas/regardeGroups";
 
 const logger = useLogging({
   module: import.meta.filename,
@@ -151,7 +151,7 @@ export const createApp = async (
       groupJazzId: regardeAdminOtherReadersGroup.$jazz.id,
       directMembers: regardeAdminOtherReadersGroup.getDirectMembers(),
       allMembers: regardeAdminOtherReadersGroup.members,
-      myRole: regardeAdminOtherReadersGroup.myRole,
+      myRole: regardeAdminOtherReadersGroup.myRole(),
     },
   });
 

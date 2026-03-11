@@ -4,6 +4,9 @@ import { RegardeError, REGARDE_ERROR_CODES } from "#core/errors";
  * Pauses a Stripe subscription.
  *
  * Uses Stripe's pause_collection feature to temporarily halt billing.
+ *
+ * @param apiKey - The Stripe API key
+ * @param providerSubscriptionId - The Stripe subscription ID
  */
 export async function pauseStripeSubscription(
   apiKey: string,
@@ -18,9 +21,7 @@ export async function pauseStripeSubscription(
     });
   } catch (error) {
     throw new RegardeError(
-      error instanceof Error
-        ? error.message
-        : "Failed to pause Stripe subscription",
+      error instanceof Error ? error.message : "Failed to pause Stripe subscription",
       REGARDE_ERROR_CODES.SUBSCRIPTION_PAUSE_FAILED,
       "stripe",
       error,
@@ -32,6 +33,9 @@ export async function pauseStripeSubscription(
  * Resumes a paused Stripe subscription.
  *
  * Clears the pause_collection flag to resume billing.
+ *
+ * @param apiKey - The Stripe API key
+ * @param providerSubscriptionId - The Stripe subscription ID
  */
 export async function resumeStripeSubscription(
   apiKey: string,
@@ -42,13 +46,13 @@ export async function resumeStripeSubscription(
     const stripe = new StripeSDK(apiKey);
 
     await stripe.subscriptions.update(providerSubscriptionId, {
+      // Stripe types expect undefined but API accepts null
+      // oxlint-disable-next-line no-unsafe-type-assertion
       pause_collection: null as unknown as undefined,
     });
   } catch (error) {
     throw new RegardeError(
-      error instanceof Error
-        ? error.message
-        : "Failed to resume Stripe subscription",
+      error instanceof Error ? error.message : "Failed to resume Stripe subscription",
       REGARDE_ERROR_CODES.SUBSCRIPTION_RESUME_FAILED,
       "stripe",
       error,
@@ -59,6 +63,8 @@ export async function resumeStripeSubscription(
 /**
  * Cancels a Stripe subscription.
  *
+ * @param apiKey - The Stripe API key
+ * @param providerSubscriptionId - The Stripe subscription ID
  * @param cancelAtPeriodEnd - If true, cancels at end of current billing period.
  *                            If false, cancels immediately (default: true).
  */
@@ -80,9 +86,7 @@ export async function cancelStripeSubscription(
     }
   } catch (error) {
     throw new RegardeError(
-      error instanceof Error
-        ? error.message
-        : "Failed to cancel Stripe subscription",
+      error instanceof Error ? error.message : "Failed to cancel Stripe subscription",
       REGARDE_ERROR_CODES.SUBSCRIPTION_CANCEL_FAILED,
       "stripe",
       error,

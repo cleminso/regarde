@@ -35,10 +35,7 @@ export const RegardeAccount = co
         owner: account,
       });
       publicGroup.makePublic();
-      account.$jazz.set(
-        "profile",
-        co.profile().create({ name: "Regarde User" }, publicGroup),
-      );
+      account.$jazz.set("profile", co.profile().create({ name: "Regarde User" }, publicGroup));
     }
 
     const hasRoot = account.$jazz.has("root") === true;
@@ -47,10 +44,7 @@ export const RegardeAccount = co
       account.$jazz.set("root", {
         "regarde-sdk": regardeSdk,
       });
-      console.info(
-        "RegardeAccount root initialized with RegardeSDK:",
-        regardeSdk.$jazz.id,
-      );
+      console.info("RegardeAccount root initialized with RegardeSDK:", regardeSdk.$jazz.id);
     }
 
     await account.$jazz.waitForAllCoValuesSync();
@@ -69,146 +63,131 @@ export const RegardeAccount = co
       const regardeSDK = await initRegardeSDK(account, "create");
       root.$jazz.set("regarde-sdk", regardeSDK);
       await account.$jazz.waitForSync();
-      console.info(
-        "[SUCCESS] RegardeSDK initialized and synced:",
-        regardeSDK.$jazz.id,
-      );
+      console.info("[SUCCESS] RegardeSDK initialized and synced:", regardeSDK.$jazz.id);
     } else {
+      // oxlint-disable-next-line no-unsafe-type-assertion -- Jazz CoValue access requires type assertion
       let regardeSDK = root["regarde-sdk"] as co.loaded<typeof RegardeSDK>;
 
       // v2 is deprecated - fully recreate as v4
       const isRegardeSdkV2 =
-        regardeSDK !== null &&
-        regardeSDK.$isLoaded === true &&
-        regardeSDK.version < 3;
+        regardeSDK !== null && regardeSDK.$isLoaded === true && regardeSDK.version < 3;
       if (isRegardeSdkV2 === true) {
         console.warn("[DEPRECATION] v2 SDK detected. Recreating as v4...");
         regardeSDK = await initRegardeSDK(account, "create");
         root.$jazz.set("regarde-sdk", regardeSDK);
         await account.$jazz.waitForSync();
-        console.info(
-          "[SUCCESS] RegardeSDK recreated as v4:",
-          regardeSDK.$jazz.id,
-        );
+        console.info("[SUCCESS] RegardeSDK recreated as v4:", regardeSDK.$jazz.id);
       } else {
         const isRegardeSdkV3 =
-          regardeSDK !== null &&
-          regardeSDK.$isLoaded === true &&
-          regardeSDK.version === 3;
+          regardeSDK !== null && regardeSDK.$isLoaded === true && regardeSDK.version === 3;
         if (isRegardeSdkV3 === true) {
-        // Migration v3 -> v4: Add mySubscriptions and myLicenses if missing
-        const ownerGroup = regardeSDK.$jazz.owner;
-        const isOwnerGroupValid =
-          ownerGroup !== null && ownerGroup.$isLoaded === true;
+          // Migration v3 -> v4: Add mySubscriptions and myLicenses if missing
+          const ownerGroup = regardeSDK.$jazz.owner;
+          const isOwnerGroupValid = ownerGroup !== null && ownerGroup.$isLoaded === true;
 
-        if (isOwnerGroupValid === false) {
-          throw new Error("Failed to load SDK owner group for migration");
-        }
+          if (isOwnerGroupValid === false) {
+            throw new Error("Failed to load SDK owner group for migration");
+          }
 
-        // Ensure myPayments is loaded to get the regardeAdminOtherReadersGroup
-        await regardeSDK.$jazz.ensureLoaded({
-          resolve: {
-            myPayments: true,
-          },
-        });
+          // Ensure myPayments is loaded to get the regardeAdminOtherReadersGroup
+          await regardeSDK.$jazz.ensureLoaded({
+            resolve: {
+              myPayments: true,
+            },
+          });
 
-        const myPayments = regardeSDK.myPayments;
-        const isMyPaymentsLoaded =
-          myPayments !== null && myPayments.$isLoaded === true;
+          const myPayments = regardeSDK.myPayments;
+          const isMyPaymentsLoaded = myPayments !== null && myPayments.$isLoaded === true;
 
-        if (isMyPaymentsLoaded === false) {
-          throw new Error("Failed to load myPayments for migration");
-        }
+          if (isMyPaymentsLoaded === false) {
+            throw new Error("Failed to load myPayments for migration");
+          }
 
-        // Get the admin group from myPayments (they share the same owner)
-        const adminGroup = myPayments.$jazz.owner;
-        const isAdminGroupValid =
-          adminGroup !== null && adminGroup.$isLoaded === true;
+          // Get the admin group from myPayments (they share the same owner)
+          const adminGroup = myPayments.$jazz.owner;
+          const isAdminGroupValid = adminGroup !== null && adminGroup.$isLoaded === true;
 
-        if (isAdminGroupValid === false) {
-          throw new Error("Failed to load admin group for migration");
-        }
+          if (isAdminGroupValid === false) {
+            throw new Error("Failed to load admin group for migration");
+          }
 
-        // Check if mySubscriptions is missing
-        const hasMySubscriptions = regardeSDK.$jazz.has("mySubscriptions");
+          // Check if mySubscriptions is missing
+          const hasMySubscriptions = regardeSDK.$jazz.has("mySubscriptions");
 
-        if (hasMySubscriptions === false) {
-          // Create mySubscriptions structure
-          const allSubscriptionsRecord = co
-            .record(z.string(), z.string())
-            .create({}, { owner: adminGroup });
-          await allSubscriptionsRecord.$jazz.waitForSync();
+          if (hasMySubscriptions === false) {
+            // Create mySubscriptions structure
+            const allSubscriptionsRecord = co
+              .record(z.string(), z.string())
+              .create({}, { owner: adminGroup });
+            await allSubscriptionsRecord.$jazz.waitForSync();
 
-          const byAppSubscriptionsRecord = co
-            .record(z.string(), co.record(z.string(), z.string()))
-            .create({}, { owner: adminGroup });
-          await byAppSubscriptionsRecord.$jazz.waitForSync();
+            const byAppSubscriptionsRecord = co
+              .record(z.string(), co.record(z.string(), z.string()))
+              .create({}, { owner: adminGroup });
+            await byAppSubscriptionsRecord.$jazz.waitForSync();
 
-          const subscriptionStatusRecord = co
-            .record(z.string(), z.string())
-            .create({}, { owner: adminGroup });
-          await subscriptionStatusRecord.$jazz.waitForSync();
+            const subscriptionStatusRecord = co
+              .record(z.string(), z.string())
+              .create({}, { owner: adminGroup });
+            await subscriptionStatusRecord.$jazz.waitForSync();
 
-          const mySubscriptions = co
-            .map({
-              all: co.record(z.string(), z.string()),
-              byApp: co.record(z.string(), co.record(z.string(), z.string())),
-              status: co.record(z.string(), z.string()),
-            })
-            .create(
-              {
-                all: allSubscriptionsRecord,
-                byApp: byAppSubscriptionsRecord,
-                status: subscriptionStatusRecord,
-              },
-              { owner: adminGroup },
-            );
-          await mySubscriptions.$jazz.waitForSync();
+            const mySubscriptions = co
+              .map({
+                all: co.record(z.string(), z.string()),
+                byApp: co.record(z.string(), co.record(z.string(), z.string())),
+                status: co.record(z.string(), z.string()),
+              })
+              .create(
+                {
+                  all: allSubscriptionsRecord,
+                  byApp: byAppSubscriptionsRecord,
+                  status: subscriptionStatusRecord,
+                },
+                { owner: adminGroup },
+              );
+            await mySubscriptions.$jazz.waitForSync();
 
-          regardeSDK.$jazz.set("mySubscriptions", mySubscriptions);
-          console.info(
-            "[MIGRATION] Created mySubscriptions:",
-            mySubscriptions.$jazz.id,
-          );
-        }
+            regardeSDK.$jazz.set("mySubscriptions", mySubscriptions);
+            console.info("[MIGRATION] Created mySubscriptions:", mySubscriptions.$jazz.id);
+          }
 
-        // Check if myLicenses is missing
-        const hasMyLicenses = regardeSDK.$jazz.has("myLicenses");
+          // Check if myLicenses is missing
+          const hasMyLicenses = regardeSDK.$jazz.has("myLicenses");
 
-        if (hasMyLicenses === false) {
-          // Create myLicenses structure
-          const allLicensesRecord = co
-            .record(z.string(), z.string())
-            .create({}, { owner: adminGroup });
-          await allLicensesRecord.$jazz.waitForSync();
+          if (hasMyLicenses === false) {
+            // Create myLicenses structure
+            const allLicensesRecord = co
+              .record(z.string(), z.string())
+              .create({}, { owner: adminGroup });
+            await allLicensesRecord.$jazz.waitForSync();
 
-          const byAppLicensesRecord = co
-            .record(z.string(), co.record(z.string(), z.string()))
-            .create({}, { owner: adminGroup });
-          await byAppLicensesRecord.$jazz.waitForSync();
+            const byAppLicensesRecord = co
+              .record(z.string(), co.record(z.string(), z.string()))
+              .create({}, { owner: adminGroup });
+            await byAppLicensesRecord.$jazz.waitForSync();
 
-          const myLicenses = co
-            .map({
-              all: co.record(z.string(), z.string()),
-              byApp: co.record(z.string(), co.record(z.string(), z.string())),
-            })
-            .create(
-              {
-                all: allLicensesRecord,
-                byApp: byAppLicensesRecord,
-              },
-              { owner: adminGroup },
-            );
-          await myLicenses.$jazz.waitForSync();
+            const myLicenses = co
+              .map({
+                all: co.record(z.string(), z.string()),
+                byApp: co.record(z.string(), co.record(z.string(), z.string())),
+              })
+              .create(
+                {
+                  all: allLicensesRecord,
+                  byApp: byAppLicensesRecord,
+                },
+                { owner: adminGroup },
+              );
+            await myLicenses.$jazz.waitForSync();
 
-          regardeSDK.$jazz.set("myLicenses", myLicenses);
-          console.info("[MIGRATION] Created myLicenses:", myLicenses.$jazz.id);
-        }
+            regardeSDK.$jazz.set("myLicenses", myLicenses);
+            console.info("[MIGRATION] Created myLicenses:", myLicenses.$jazz.id);
+          }
 
-        // Update version to 4
-        regardeSDK.$jazz.set("version", 4);
-        await regardeSDK.$jazz.waitForSync();
-        console.info("[SUCCESS] RegardeSDK migrated to v4");
+          // Update version to 4
+          regardeSDK.$jazz.set("version", 4);
+          await regardeSDK.$jazz.waitForSync();
+          console.info("[SUCCESS] RegardeSDK migrated to v4");
         }
       }
     }

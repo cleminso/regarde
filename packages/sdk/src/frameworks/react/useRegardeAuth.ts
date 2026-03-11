@@ -83,12 +83,8 @@ export function useRegardeAuth(): TUseRegardeAuthResult {
   }, [jazzAuth.state]);
 
   const signUp = useMemo(() => {
-    return async (
-      userName: string,
-      providedPassphrase?: string,
-    ): Promise<TSignUpResult> => {
-      const passphrase =
-        providedPassphrase ?? jazzAuth.generateRandomPassphrase();
+    return async (userName: string, providedPassphrase?: string): Promise<TSignUpResult> => {
+      const passphrase = providedPassphrase ?? jazzAuth.generateRandomPassphrase();
       await jazzAuth.registerNewAccount(passphrase, userName);
       const isAccountLoaded = account !== null && account.$isLoaded === true;
       const accountId = isAccountLoaded === true ? account.$jazz.id : "";
@@ -102,8 +98,7 @@ export function useRegardeAuth(): TUseRegardeAuthResult {
       return null;
     }
 
-    const isRootLoaded =
-      account.root !== null && account.root.$isLoaded === true;
+    const isRootLoaded = account.root !== null && account.root.$isLoaded === true;
     if (isRootLoaded === false) {
       return null;
     }

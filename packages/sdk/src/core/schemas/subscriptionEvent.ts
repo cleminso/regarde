@@ -53,16 +53,16 @@ export type TSubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
 export const SubscriptionEvent = co.map({
   webhookId: z.string().describe("Webhook CoMap ID that received this event"),
   provider: z.enum(PAYMENT_PROVIDERS),
-  mode: z.optional(ModeSchema).describe("From webhook.environment (production -> 'production', sandbox -> 'test')"),
+  mode: z
+    .optional(ModeSchema)
+    .describe("From webhook.environment (production -> 'production', sandbox -> 'test')"),
 
   providerEventId: z.string(),
   prefixedProviderEventUUID: z.string(),
   eventType: z.enum(SUBSCRIPTION_EVENT_TYPES),
 
   app: z.string().describe("App CoMap ID for which the payment was done"),
-  userAccount: z
-    .string()
-    .describe("JazzAccountId by which the payment was done"),
+  userAccount: z.string().describe("JazzAccountId by which the payment was done"),
 
   providerSubscriptionId: z.string(),
   status: z.enum(SUBSCRIPTION_STATUSES),

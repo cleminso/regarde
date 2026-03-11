@@ -2,10 +2,7 @@ import type Stripe from "stripe";
 
 import { RegardeError, REGARDE_ERROR_CODES } from "#core/errors";
 
-import type {
-  TCreateCheckoutParams,
-  TCreateCheckoutResult,
-} from "../types";
+import type { TCreateCheckoutParams, TCreateCheckoutResult } from "../types";
 
 /**
  * Creates a Stripe Checkout Session with Regarde metadata embedded.
@@ -26,39 +23,37 @@ export async function createStripeCheckout(
     const { default: StripeSDK } = await import("stripe");
     const stripe = new StripeSDK(apiKey);
 
-    const stripeEscapeHatch = (params.stripe ?? {}) as Record<string, unknown>;
+    const stripeEscapeHatch = (params.stripe ?? {});
 
-    const session: Stripe.Checkout.Session =
-      await stripe.checkout.sessions.create({
-        line_items: [
-          {
-            price_data: {
-              currency: params.currency.toLowerCase(),
-              product_data: {
-                name: params.productName ?? "Purchase",
-              },
-              unit_amount: params.amount,
-              ...(params.mode === "subscription"
-                ? { recurring: { interval: "month" } }
-                : {}),
+    const session: Stripe.Checkout.Session = await stripe.checkout.sessions.create({
+      line_items: [
+        {
+          price_data: {
+            currency: params.currency.toLowerCase(),
+            product_data: {
+              name: params.productName ?? "Purchase",
             },
-            quantity: 1,
+            unit_amount: params.amount,
+            ...(params.mode === "subscription" ? { recurring: { interval: "month" } } : {}),
           },
-        ],
-        mode: params.mode,
-        success_url: params.successUrl,
-        cancel_url: params.cancelUrl,
-        customer_email: params.customerEmail,
-        ...stripeEscapeHatch,
-        metadata: {
-          regarde_session_id: params.checkoutSessionId,
-          regarde_app_id: params.appId,
-          regarde_user_id: params.userAccountId,
-          regarde_sdk_id: params.regardeSDKId,
-          ...params.metadata,
-          ...(stripeEscapeHatch.metadata as Record<string, string> | undefined),
+          quantity: 1,
         },
-      });
+      ],
+      mode: params.mode,
+      success_url: params.successUrl,
+      cancel_url: params.cancelUrl,
+      customer_email: params.customerEmail,
+      ...stripeEscapeHatch,
+      metadata: {
+        regarde_session_id: params.checkoutSessionId,
+        regarde_app_id: params.appId,
+        regarde_user_id: params.userAccountId,
+        regarde_sdk_id: params.regardeSDKId,
+        ...params.metadata,
+        // oxlint-disable-next-line no-unsafe-type-assertion -- Provider escape hatch metadata
+        ...(stripeEscapeHatch.metadata as Record<string, string> | undefined),
+      },
+    });
 
     const isUrlPresent = session.url !== null && session.url !== undefined;
     if (isUrlPresent === false) {
@@ -80,9 +75,7 @@ export async function createStripeCheckout(
     }
 
     throw new RegardeError(
-      error instanceof Error
-        ? error.message
-        : "Failed to create Stripe checkout session",
+      error instanceof Error ? error.message : "Failed to create Stripe checkout session",
       REGARDE_ERROR_CODES.CHECKOUT_CREATE_FAILED,
       "stripe",
       error,

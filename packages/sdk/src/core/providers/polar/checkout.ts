@@ -1,9 +1,6 @@
 import { RegardeError, REGARDE_ERROR_CODES } from "#core/errors";
 
-import type {
-  TCreateCheckoutParams,
-  TCreateCheckoutResult,
-} from "../types";
+import type { TCreateCheckoutParams, TCreateCheckoutResult } from "../types";
 
 /**
  * Creates a Polar checkout session with Regarde metadata embedded.
@@ -23,9 +20,10 @@ export async function createPolarCheckout(
     const { Polar } = await import("@polar-sh/sdk");
     const polar = new Polar({ accessToken });
 
-    const polarEscapeHatch = (params.polar ?? {}) as Record<string, unknown>;
+    const polarEscapeHatch = (params.polar ?? {});
 
     const checkout = await polar.checkouts.create({
+      // oxlint-disable-next-line no-unsafe-type-assertion -- Provider escape hatch property
       productPriceId: polarEscapeHatch.productPriceId as string | undefined,
       successUrl: params.successUrl,
       customerEmail: params.customerEmail,
@@ -36,9 +34,8 @@ export async function createPolarCheckout(
         regarde_user_id: params.userAccountId,
         regarde_sdk_id: params.regardeSDKId,
         ...params.metadata,
-        ...(polarEscapeHatch.metadata as
-          | Record<string, string>
-          | undefined),
+        // oxlint-disable-next-line no-unsafe-type-assertion -- Provider escape hatch metadata
+        ...(polarEscapeHatch.metadata as Record<string, string> | undefined),
       },
     });
 
@@ -53,7 +50,7 @@ export async function createPolarCheckout(
 
     return {
       providerSessionId: checkout.id,
-      paymentUrl: checkout.url as string,
+      paymentUrl: checkout.url,
     };
   } catch (error) {
     const isRegardeError = error instanceof RegardeError;
@@ -62,9 +59,7 @@ export async function createPolarCheckout(
     }
 
     throw new RegardeError(
-      error instanceof Error
-        ? error.message
-        : "Failed to create Polar checkout",
+      error instanceof Error ? error.message : "Failed to create Polar checkout",
       REGARDE_ERROR_CODES.CHECKOUT_CREATE_FAILED,
       "polar",
       error,

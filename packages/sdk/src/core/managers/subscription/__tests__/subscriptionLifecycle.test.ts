@@ -1,22 +1,12 @@
 import { describe, it, expect } from "vitest";
 
 import { RegardeError, REGARDE_ERROR_CODES } from "#core/errors";
-import {
-  SUBSCRIPTION_STATUSES,
-  SUBSCRIPTION_EVENT_TYPES,
-} from "#core/schemas/subscriptionEvent";
+import { SUBSCRIPTION_STATUSES, SUBSCRIPTION_EVENT_TYPES } from "#core/schemas/subscriptionEvent";
 
 describe("Subscription Lifecycle", () => {
   describe("subscription statuses", () => {
     it("should have all expected subscription statuses", () => {
-      const expectedStatuses = [
-        "trialing",
-        "active",
-        "past_due",
-        "canceled",
-        "expired",
-        "paused",
-      ];
+      const expectedStatuses = ["trialing", "active", "past_due", "canceled", "expired", "paused"];
 
       expectedStatuses.forEach((status) => {
         expect(SUBSCRIPTION_STATUSES).toContain(status);

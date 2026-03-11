@@ -27,31 +27,19 @@ export const RegardeRegistryAppMetadata = co.map({
 });
 
 /** Loaded RegistryAppMetadata instance */
-export type TRegardeRegistryAppMetadata = co.loaded<
-  typeof RegardeRegistryAppMetadata
->;
+export type TRegardeRegistryAppMetadata = co.loaded<typeof RegardeRegistryAppMetadata>;
 
 /** All apps in the registry, indexed by App ID */
-export const AllRegardeRegistryAppsSchema = co.record(
-  z.string(),
-  RegardeRegistryAppMetadata,
-);
+export const AllRegardeRegistryAppsSchema = co.record(z.string(), RegardeRegistryAppMetadata);
 
 /** Loaded AllRegistryAppsSchema instance */
-export type TAllRegistryAppsSchema = co.loaded<
-  typeof AllRegardeRegistryAppsSchema
->;
+export type TAllRegistryAppsSchema = co.loaded<typeof AllRegardeRegistryAppsSchema>;
 
 /** Apps grouped by user, indexed by Jazz account ID */
-export const RegardeAppsByUserRecord = co.record(
-  z.string(),
-  co.list(RegardeRegistryAppMetadata),
-);
+export const RegardeAppsByUserRecord = co.record(z.string(), co.list(RegardeRegistryAppMetadata));
 
 /** Loaded AppsByUserRecord instance */
-export type TRegardeAppsByUserRecord = co.loaded<
-  typeof RegardeAppsByUserRecord
->;
+export type TRegardeAppsByUserRecord = co.loaded<typeof RegardeAppsByUserRecord>;
 
 /**
  * Registry of all applications.

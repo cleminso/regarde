@@ -1,5 +1,5 @@
-import type { TPaymentProvider } from "#schemas/paymentEvent";
 import type { TCheckoutMode } from "#schemas/checkoutSession";
+import type { TPaymentProvider } from "#schemas/paymentEvent";
 
 /**
  * Regarde metadata embedded in every provider checkout/subscription call.

@@ -7,8 +7,8 @@ import {
   resumeSubscription,
   cancelSubscription,
 } from "#core/managers/subscription";
-import type { TSubscription } from "#schemas/subscriptionEvent";
 import { RegardeAccount } from "#schemas/regardeAccount";
+import type { TSubscription } from "#schemas/subscriptionEvent";
 
 export interface TUsePauseSubscriptionResult {
   pauseSubscription: (apiKey: string, subscription: TSubscription) => Promise<void>;
@@ -34,6 +34,8 @@ export interface TUseCancelSubscriptionResult {
 
 /**
  * React hook for pausing a subscription.
+ *
+ * @returns Object with pauseSubscription function, isPausing state, and error
  */
 export function usePauseSubscription(): TUsePauseSubscriptionResult {
   const isAuthenticated = useIsAuthenticated();
@@ -84,6 +86,8 @@ export function usePauseSubscription(): TUsePauseSubscriptionResult {
 
 /**
  * React hook for resuming a paused subscription.
+ *
+ * @returns Object with resumeSubscription function, isResuming state, and error
  */
 export function useResumeSubscription(): TUseResumeSubscriptionResult {
   const isAuthenticated = useIsAuthenticated();
@@ -134,6 +138,8 @@ export function useResumeSubscription(): TUseResumeSubscriptionResult {
 
 /**
  * React hook for canceling a subscription.
+ *
+ * @returns Object with cancelSubscription function, isCanceling state, and error
  */
 export function useCancelSubscription(): TUseCancelSubscriptionResult {
   const isAuthenticated = useIsAuthenticated();

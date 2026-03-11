@@ -1,5 +1,5 @@
-import { useCoState } from "jazz-tools/react";
 import type { MaybeLoaded, ID } from "jazz-tools";
+import { useCoState } from "jazz-tools/react";
 
 import { Subscription } from "#schemas/subscriptionEvent";
 import type { TSubscription, TSubscriptionStatus } from "#schemas/subscriptionEvent";
@@ -31,14 +31,11 @@ export function useSubscriptionForUser(
   const isLoading = subscription === undefined;
 
   const status =
-    subscription !== null &&
-    subscription !== undefined &&
-    subscription.$isLoaded === true
+    subscription !== null && subscription !== undefined && subscription.$isLoaded === true
       ? subscription.status
       : null;
 
-  const isActive =
-    status === "active" || status === "trialing" || status === "past_due";
+  const isActive = status === "active" || status === "trialing" || status === "past_due";
 
   return {
     subscription,

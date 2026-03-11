@@ -44,9 +44,7 @@ export const CheckoutSession = co.map({
   userAccountId: z.string().describe("JazzAccountId of the payer"),
 
   provider: z.enum(PAYMENT_PROVIDERS),
-  providerSessionId: z
-    .optional(z.string())
-    .describe("Provider checkout session ID"),
+  providerSessionId: z.optional(z.string()).describe("Provider checkout session ID"),
 
   status: z.enum(CHECKOUT_SESSION_STATUSES),
   mode: z.enum(CHECKOUT_MODES),
@@ -58,9 +56,7 @@ export const CheckoutSession = co.map({
   paymentUrl: z.optional(z.string()).describe("Provider checkout redirect URL"),
 
   paymentEventId: z.optional(z.string()).describe("Links to PaymentEvent"),
-  subscriptionId: z
-    .optional(z.string())
-    .describe("Links to Subscription (if mode=subscription)"),
+  subscriptionId: z.optional(z.string()).describe("Links to Subscription (if mode=subscription)"),
 
   providerMetadata: co.record(z.string(), z.string()),
 
@@ -82,6 +78,4 @@ export const AppCheckoutSessionsSchema = co.map({
   byUser: co.record(z.string(), co.record(z.string(), z.string())),
 });
 
-export type TAppCheckoutSessionsSchema = co.loaded<
-  typeof AppCheckoutSessionsSchema
->;
+export type TAppCheckoutSessionsSchema = co.loaded<typeof AppCheckoutSessionsSchema>;

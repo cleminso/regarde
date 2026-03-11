@@ -6,8 +6,8 @@ import {
   cancelPolarSubscription,
 } from "#core/providers";
 import type { TPaymentProvider } from "#schemas/paymentEvent";
-import type { TSubscription } from "#schemas/subscriptionEvent";
 import type { TRegardeAccount } from "#schemas/regardeAccount";
+import type { TSubscription } from "#schemas/subscriptionEvent";
 
 export interface TSubscriptionActionOptions {
   subscription: TSubscription;
@@ -17,9 +17,7 @@ export interface TSubscriptionActionOptions {
 
 const validateSubscription = (subscription: TSubscription): void => {
   const isLoaded =
-    subscription !== null &&
-    subscription !== undefined &&
-    subscription.$isLoaded === true;
+    subscription !== null && subscription !== undefined && subscription.$isLoaded === true;
   if (isLoaded === false) {
     throw new RegardeError(
       "Subscription must be loaded",
@@ -34,6 +32,9 @@ const validateSubscription = (subscription: TSubscription): void => {
  * Provider support:
  * - Stripe: Native pause via pause_collection
  * - Polar: Not supported (throws error)
+ *
+ * @param _account - The Regarde account (unused but required for type consistency)
+ * @param options - Subscription action options including the subscription to pause
  */
 export const pauseSubscription = async (
   _account: TRegardeAccount,
@@ -56,9 +57,9 @@ export const pauseSubscription = async (
       );
     default:
       throw new RegardeError(
-        `Pause not supported for provider: ${provider}`,
+        `Pause not supported for provider: ${provider as string}`,
         REGARDE_ERROR_CODES.SUBSCRIPTION_PAUSE_FAILED,
-        provider,
+        provider as TPaymentProvider,
       );
   }
 };
@@ -69,6 +70,9 @@ export const pauseSubscription = async (
  * Provider support:
  * - Stripe: Native resume via clearing pause_collection
  * - Polar: Not supported
+ *
+ * @param _account - The Regarde account (unused but required for type consistency)
+ * @param options - Subscription action options including the subscription to resume
  */
 export const resumeSubscription = async (
   _account: TRegardeAccount,
@@ -91,9 +95,9 @@ export const resumeSubscription = async (
       );
     default:
       throw new RegardeError(
-        `Resume not supported for provider: ${provider}`,
+        `Resume not supported for provider: ${provider as string}`,
         REGARDE_ERROR_CODES.SUBSCRIPTION_RESUME_FAILED,
-        provider,
+        provider as TPaymentProvider,
       );
   }
 };
@@ -103,6 +107,9 @@ export const resumeSubscription = async (
  *
  * All providers support cancellation. For Stripe, you can choose to cancel
  * at period end or immediately.
+ *
+ * @param _account - The Regarde account (unused but required for type consistency)
+ * @param options - Subscription action options including the subscription to cancel
  */
 export const cancelSubscription = async (
   _account: TRegardeAccount,
@@ -116,18 +123,14 @@ export const cancelSubscription = async (
 
   switch (provider) {
     case "stripe":
-      await cancelStripeSubscription(
-        options.apiKey,
-        providerSubscriptionId,
-        cancelAtPeriodEnd,
-      );
+      await cancelStripeSubscription(options.apiKey, providerSubscriptionId, cancelAtPeriodEnd);
       break;
     case "polar":
       await cancelPolarSubscription(options.apiKey, providerSubscriptionId);
       break;
     default:
       throw new RegardeError(
-        `Cancel not supported for provider: ${provider}`,
+        `Cancel not supported for provider: ${provider as string}`,
         REGARDE_ERROR_CODES.SUBSCRIPTION_CANCEL_FAILED,
         provider as TPaymentProvider,
       );

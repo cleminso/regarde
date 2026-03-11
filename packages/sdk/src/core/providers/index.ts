@@ -18,7 +18,4 @@ export {
 } from "./stripe/subscription";
 
 export { createPolarCheckout } from "./polar/checkout";
-export {
-  pausePolarSubscription,
-  cancelPolarSubscription,
-} from "./polar/subscription";
+export { pausePolarSubscription, cancelPolarSubscription } from "./polar/subscription";

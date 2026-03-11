@@ -32,8 +32,7 @@ export const REGARDE_ERROR_CODES = {
   SDK_NOT_INITIALIZED: "sdk_not_initialized",
 } as const;
 
-export type TRegardeErrorCode =
-  (typeof REGARDE_ERROR_CODES)[keyof typeof REGARDE_ERROR_CODES];
+export type TRegardeErrorCode = (typeof REGARDE_ERROR_CODES)[keyof typeof REGARDE_ERROR_CODES];
 
 /**
  * Normalized error class for all Regarde operations.
@@ -63,6 +62,11 @@ export class RegardeError extends Error {
 /**
  * Wraps an unknown error as a RegardeError.
  * If already a RegardeError, returns it unchanged.
+ *
+ * @param error - The error to wrap
+ * @param fallbackCode - Error code to use if error is not already a RegardeError
+ * @param provider - Optional payment provider that caused the error
+ * @returns A RegardeError instance
  */
 export function toRegardeError(
   error: unknown,
@@ -71,11 +75,10 @@ export function toRegardeError(
 ): RegardeError {
   const isRegardeError = error instanceof RegardeError;
   if (isRegardeError === true) {
-    return error as RegardeError;
+    return error;
   }
 
-  const message =
-    error instanceof Error ? error.message : "Unknown error occurred";
+  const message = error instanceof Error ? error.message : "Unknown error occurred";
 
   return new RegardeError(message, fallbackCode, provider, error);
 }

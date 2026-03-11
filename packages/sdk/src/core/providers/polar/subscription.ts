@@ -5,6 +5,9 @@ import { RegardeError, REGARDE_ERROR_CODES } from "#core/errors";
  *
  * Polar does not natively support pause - this cancels at period end
  * as the closest equivalent. The SDK user should be informed of this.
+ *
+ * @param accessToken - The Polar API access token
+ * @param providerSubscriptionId - The Polar subscription ID
  */
 export async function pausePolarSubscription(
   accessToken: string,
@@ -22,9 +25,7 @@ export async function pausePolarSubscription(
     });
   } catch (error) {
     throw new RegardeError(
-      error instanceof Error
-        ? error.message
-        : "Failed to pause Polar subscription",
+      error instanceof Error ? error.message : "Failed to pause Polar subscription",
       REGARDE_ERROR_CODES.SUBSCRIPTION_PAUSE_FAILED,
       "polar",
       error,
@@ -35,7 +36,9 @@ export async function pausePolarSubscription(
 /**
  * Cancels a Polar subscription.
  *
- * @param cancelAtPeriodEnd - Not used for Polar (always cancels via API).
+ * @param accessToken - The Polar API access token
+ * @param providerSubscriptionId - The Polar subscription ID
+ * @param _cancelAtPeriodEnd - Not used for Polar (always cancels via API).
  */
 export async function cancelPolarSubscription(
   accessToken: string,
@@ -49,9 +52,7 @@ export async function cancelPolarSubscription(
     await polar.subscriptions.cancel({ id: providerSubscriptionId });
   } catch (error) {
     throw new RegardeError(
-      error instanceof Error
-        ? error.message
-        : "Failed to cancel Polar subscription",
+      error instanceof Error ? error.message : "Failed to cancel Polar subscription",
       REGARDE_ERROR_CODES.SUBSCRIPTION_CANCEL_FAILED,
       "polar",
       error,

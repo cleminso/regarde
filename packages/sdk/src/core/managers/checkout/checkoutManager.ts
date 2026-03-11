@@ -60,21 +60,14 @@ export const createCheckout = async (
   }
 
   const isRootLoaded =
-    account.root !== null &&
-    account.root !== undefined &&
-    account.root.$isLoaded === true;
+    account.root !== null && account.root !== undefined && account.root.$isLoaded === true;
   if (isRootLoaded === false) {
-    throw new RegardeError(
-      "Account root must be loaded",
-      REGARDE_ERROR_CODES.SDK_NOT_INITIALIZED,
-    );
+    throw new RegardeError("Account root must be loaded", REGARDE_ERROR_CODES.SDK_NOT_INITIALIZED);
   }
 
   const regardeSdk = account.root["regarde-sdk"];
   const isSdkLoaded =
-    regardeSdk !== null &&
-    regardeSdk !== undefined &&
-    regardeSdk.$isLoaded === true;
+    regardeSdk !== null && regardeSdk !== undefined && regardeSdk.$isLoaded === true;
   if (isSdkLoaded === false) {
     throw new RegardeError(
       "RegardeSDK must be initialized",
@@ -83,20 +76,14 @@ export const createCheckout = async (
   }
 
   const app = options.app;
-  const isAppLoaded =
-    app !== null && app !== undefined && app.$isLoaded === true;
+  const isAppLoaded = app !== null && app !== undefined && app.$isLoaded === true;
   if (isAppLoaded === false) {
-    throw new RegardeError(
-      "App must be loaded",
-      REGARDE_ERROR_CODES.COMAP_NOT_FOUND,
-    );
+    throw new RegardeError("App must be loaded", REGARDE_ERROR_CODES.COMAP_NOT_FOUND);
   }
 
   const ownerGroup = regardeSdk.$jazz.owner;
   const isOwnerGroupLoaded =
-    ownerGroup !== null &&
-    ownerGroup !== undefined &&
-    ownerGroup.$isLoaded === true;
+    ownerGroup !== null && ownerGroup !== undefined && ownerGroup.$isLoaded === true;
   if (isOwnerGroupLoaded === false) {
     throw new RegardeError(
       "Failed to get owner group for checkout creation",
@@ -156,15 +143,12 @@ export const createCheckout = async (
       break;
     default:
       throw new RegardeError(
-        `Unsupported provider: ${options.provider}`,
+        `Unsupported provider: ${options.provider as string}`,
         REGARDE_ERROR_CODES.PROVIDER_NOT_CONFIGURED,
       );
   }
 
-  checkoutSession.$jazz.set(
-    "providerSessionId",
-    providerResult.providerSessionId,
-  );
+  checkoutSession.$jazz.set("providerSessionId", providerResult.providerSessionId);
   checkoutSession.$jazz.set("paymentUrl", providerResult.paymentUrl);
   await checkoutSession.$jazz.waitForSync();
 
@@ -205,19 +189,14 @@ const indexCheckoutSession = async (
 
   const userSessions = byUser[userAccountId];
   const hasUserSessions =
-    userSessions !== null &&
-    userSessions !== undefined &&
-    userSessions.$isLoaded === true;
+    userSessions !== null && userSessions !== undefined && userSessions.$isLoaded === true;
 
   if (hasUserSessions === true) {
     userSessions.$jazz.set(providerSessionId, checkoutSessionId);
   } else {
     const newUserRecord = co
       .record(z.string(), z.string())
-      .create(
-        { [providerSessionId]: checkoutSessionId },
-        { owner: byUser.$jazz.owner },
-      );
+      .create({ [providerSessionId]: checkoutSessionId }, { owner: byUser.$jazz.owner });
     await newUserRecord.$jazz.waitForSync();
     byUser.$jazz.set(userAccountId, newUserRecord);
   }

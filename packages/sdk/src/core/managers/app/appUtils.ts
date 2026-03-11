@@ -16,9 +16,7 @@ export const useMyApps = (regardeSDK: Loaded<typeof RegardeSDK> | null) => {
     return getMyApps(regardeSDK);
   };
 
-  const getAppById = async (
-    appId: string,
-  ): Promise<TRegardeApp | undefined> => {
+  const getAppById = async (appId: string): Promise<TRegardeApp | undefined> => {
     const isSdkExists = regardeSDK !== null;
     if (isSdkExists === false) return undefined;
     const apps = await getMyApps(regardeSDK);
@@ -44,6 +42,6 @@ export function useAppById(
 
   if (appId === null) return undefined;
 
-  const app = myApps.find((app) => app.$jazz.id === appId);
-  return app?.$isLoaded === true ? app : undefined;
+  const foundApp = myApps.find((item) => item.$jazz.id === appId);
+  return foundApp?.$isLoaded === true ? foundApp : undefined;
 }

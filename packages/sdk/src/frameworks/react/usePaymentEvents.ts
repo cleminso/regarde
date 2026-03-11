@@ -68,8 +68,7 @@ export function usePaymentEvents(
 
     // Get all event IDs from the record
     return Object.values(allPayments).filter(
-      (id): id is string =>
-        id !== null && id !== undefined && typeof id === "string",
+      (id): id is string => id !== null && id !== undefined && typeof id === "string",
     );
   }, [app]);
 
@@ -84,11 +83,7 @@ export function usePaymentEvents(
     );
 
     const modeFilter = options?.mode;
-    if (
-      modeFilter !== null &&
-      modeFilter !== undefined &&
-      modeFilter !== "all"
-    ) {
+    if (modeFilter !== null && modeFilter !== undefined && modeFilter !== "all") {
       return loadedEvents.filter((event) => event.mode === modeFilter);
     }
 
@@ -112,8 +107,7 @@ export function usePaymentEvents(
 
     // Check if all PaymentEvents are loaded
     return allEvents.some(
-      (event) =>
-        event === null || event === undefined || event.$isLoaded === false,
+      (event) => event === null || event === undefined || event.$isLoaded === false,
     );
   }, [app, allEvents]);
 

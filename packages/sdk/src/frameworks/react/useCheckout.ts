@@ -1,5 +1,5 @@
-import { useCoState } from "jazz-tools/react";
 import type { MaybeLoaded, ID } from "jazz-tools";
+import { useCoState } from "jazz-tools/react";
 
 import { CheckoutSession } from "#schemas/checkoutSession";
 import type { TCheckoutSession } from "#schemas/checkoutSession";
@@ -41,10 +41,7 @@ export interface TUseCheckoutResult {
  * ```
  */
 export function useCheckout(options: TUseCheckoutOptions): TUseCheckoutResult {
-  const checkout = useCoState(
-    CheckoutSession,
-    options.checkoutSessionId,
-  );
+  const checkout = useCoState(CheckoutSession, options.checkoutSessionId);
 
   const isLoading = checkout === undefined;
 

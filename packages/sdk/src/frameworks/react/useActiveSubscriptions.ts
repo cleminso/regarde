@@ -93,13 +93,17 @@ export function useActiveSubscriptions(
     }
 
     const regardeSdk = root["regarde-sdk"];
-    const isRegardeSdkLoaded = regardeSdk !== null && regardeSdk !== undefined && regardeSdk.$isLoaded === true;
+    const isRegardeSdkLoaded =
+      regardeSdk !== null && regardeSdk !== undefined && regardeSdk.$isLoaded === true;
     if (isRegardeSdkLoaded === false) {
       return [];
     }
 
     const mySubscriptions = regardeSdk.mySubscriptions;
-    const isMySubscriptionsLoaded = mySubscriptions !== null && mySubscriptions !== undefined && mySubscriptions.$isLoaded === true;
+    const isMySubscriptionsLoaded =
+      mySubscriptions !== null &&
+      mySubscriptions !== undefined &&
+      mySubscriptions.$isLoaded === true;
     if (isMySubscriptionsLoaded === false) {
       return [];
     }
@@ -122,8 +126,7 @@ export function useActiveSubscriptions(
 
     // Extract subscription IDs (values are Subscription CoMap IDs)
     return Object.values(appSubscriptions).filter(
-      (id): id is string =>
-        id !== null && id !== undefined && typeof id === "string",
+      (id): id is string => id !== null && id !== undefined && typeof id === "string",
     );
   }, [account, appId]);
 
@@ -133,8 +136,7 @@ export function useActiveSubscriptions(
   // Filter subscriptions by status
   const subscriptions = useMemo((): TSubscription[] => {
     const loadedSubscriptions = allSubscriptions.filter(
-      (sub): sub is TSubscription =>
-        sub !== null && sub !== undefined && sub.$isLoaded === true,
+      (sub): sub is TSubscription => sub !== null && sub !== undefined && sub.$isLoaded === true,
     );
 
     const statusesToInclude = options?.statuses ?? DEFAULT_ACTIVE_STATUSES;
@@ -165,21 +167,24 @@ export function useActiveSubscriptions(
     }
 
     const regardeSdk = root["regarde-sdk"];
-    const isRegardeSdkLoaded = regardeSdk !== null && regardeSdk !== undefined && regardeSdk.$isLoaded === true;
+    const isRegardeSdkLoaded =
+      regardeSdk !== null && regardeSdk !== undefined && regardeSdk.$isLoaded === true;
     if (isRegardeSdkLoaded === false) {
       return true;
     }
 
     const mySubscriptions = regardeSdk.mySubscriptions;
-    const isMySubscriptionsLoaded = mySubscriptions !== null && mySubscriptions !== undefined && mySubscriptions.$isLoaded === true;
+    const isMySubscriptionsLoaded =
+      mySubscriptions !== null &&
+      mySubscriptions !== undefined &&
+      mySubscriptions.$isLoaded === true;
     if (isMySubscriptionsLoaded === false) {
       return true;
     }
 
     // Check if all Subscription CoMaps are loaded
     return allSubscriptions.some(
-      (sub) =>
-        sub === null || sub === undefined || sub.$isLoaded === false,
+      (sub) => sub === null || sub === undefined || sub.$isLoaded === false,
     );
   }, [account, allSubscriptions]);
 

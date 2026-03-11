@@ -32,18 +32,11 @@ export {
   RegistryWorkerAccountRoot,
   RegistryWorkerAccount,
 } from "./registry/worker";
-export type {
-  TRegistryWorkerAccountRoot,
-  TRegistryWorkerAccount,
-} from "./registry/worker";
+export type { TRegistryWorkerAccountRoot, TRegistryWorkerAccount } from "./registry/worker";
 
 export { RegardeSDK } from "./regardeSDK";
 export { PaymentSchema, SubscriptionSchema, LicenseSchema } from "./regardeSDK";
-export type {
-  TPaymentSchema,
-  TSubscriptionSchema,
-  TLicenseSchema,
-} from "./regardeSDK";
+export type { TPaymentSchema, TSubscriptionSchema, TLicenseSchema } from "./regardeSDK";
 
 export {
   PaymentEvent,
@@ -73,11 +66,7 @@ export type {
   TSubscriptionStatus,
 } from "./subscriptionEvent";
 
-export {
-  LicenseEvent,
-  LICENSE_EVENT_TYPES,
-  LICENSE_STATUSES,
-} from "./licenseEvent";
+export { LicenseEvent, LICENSE_EVENT_TYPES, LICENSE_STATUSES } from "./licenseEvent";
 export type { TLicenseEvent, TLicenseEventType, TLicenseStatus } from "./licenseEvent";
 
 export { RegardeAccount } from "./regardeAccount";
@@ -121,9 +110,5 @@ export type {
   TAppLicensesSchema,
 } from "./regardeUserApp";
 
-export {
-  UserHandle,
-  setNicknameFromRegistry,
-  deactivate,
-} from "./regardeUserHandle";
+export { UserHandle, setNicknameFromRegistry, deactivate } from "./regardeUserHandle";
 export type { TUserHandleLoaded } from "./regardeUserHandle";

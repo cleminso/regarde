@@ -15,10 +15,12 @@
     "lint:ci": "oxlint --type-aware . --deny-warnings",
     "lint:admin": "oxlint --type-aware packages/admin",
     "lint:sdk": "oxlint --type-aware packages/sdk",
+    "lint:sdk:fix": "oxlint --type-aware packages/sdk --fix",
     "lint:dashboard": "oxlint --type-aware apps/dashboard.regarde.dev",
     "format:sdk": "oxfmt packages/sdk --write",
     "format:api": "oxfmt packages/api.regarde.dev --write",
     "format-and-lint:sdk": "oxfmt packages/sdk --check && oxlint --type-aware packages/sdk",
+    "format-and-lint:sdk:fix": "oxfmt packages/sdk --write && oxlint --type-aware packages/sdk --fix",
     "format-and-lint:api": "oxfmt packages/api.regarde.dev --check && oxlint --type-aware packages/api.regarde.dev"
   },
   "dependencies": {

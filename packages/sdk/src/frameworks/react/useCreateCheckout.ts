@@ -3,7 +3,6 @@ import { useCallback, useState } from "react";
 
 import { RegardeError } from "#core/errors";
 import { createCheckout } from "#core/managers/checkout";
-import type { TCreateCheckoutOptions } from "#core/managers/checkout";
 import type { TCheckoutSession } from "#schemas/checkoutSession";
 import type { TPaymentProvider } from "#schemas/paymentEvent";
 import { RegardeAccount } from "#schemas/regardeAccount";
@@ -22,7 +21,6 @@ export interface TCreateCheckoutParams {
   metadata?: Record<string, string>;
   stripe?: Record<string, unknown>;
   polar?: Record<string, unknown>;
-  lemonsqueezy?: Record<string, unknown>;
 }
 
 export interface TUseCreateCheckoutResult {
@@ -88,7 +86,9 @@ export function useCreateCheckout(): TUseCreateCheckoutResult {
 
       try {
         const isAccountLoaded =
-          account !== null && account !== undefined && account.$isLoaded === true;
+          account !== null &&
+          account !== undefined &&
+          account.$isLoaded === true;
         if (isAccountLoaded === false) {
           throw new RegardeError(
             "Account must be loaded",
@@ -110,7 +110,6 @@ export function useCreateCheckout(): TUseCreateCheckoutResult {
           metadata: params.metadata,
           stripe: params.stripe,
           polar: params.polar,
-          lemonsqueezy: params.lemonsqueezy,
         });
 
         return result;

@@ -75,18 +75,14 @@ export const PaymentEvent = co.map({
   provider: z.enum(PAYMENT_PROVIDERS),
   mode: z
     .optional(ModeSchema)
-    .describe(
-      "From webhook.environment (production -> 'production', sandbox -> 'test')",
-    ),
+    .describe("From webhook.environment (production -> 'production', sandbox -> 'test')"),
 
   providerEventId: z.string(),
   prefixedProviderEventUUID: z.string(),
   eventType: z.enum(PAYMENT_EVENT_TYPES),
 
   app: z.string().describe("App CoMap ID for which the payment was done"),
-  userAccount: z
-    .string()
-    .describe("JazzAccountId by which the payment was done"),
+  userAccount: z.string().describe("JazzAccountId by which the payment was done"),
 
   amount: z.string(),
   currency: z.string(),
