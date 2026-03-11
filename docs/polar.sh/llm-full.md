@@ -2743,6 +2743,14 @@ Secret message only customers can see, e.g [Cal.com](http://Cal.com) link, priva
 
 For custom integrations you can also distinguish benefits granted to customers to offer even more bespoke user benefits.
 
+<Note>
+  Previously, we recommended using a Custom benefit without a note as a way to
+  grant access to software or SaaS features — decoupling entitlements from
+  checking directly on products. We now recommend the
+  [Feature Flag](/features/benefits/feature-flags) benefit for this purpose, as
+  it's purpose-built for feature gating and supports key-value metadata.
+</Note>
+
 # Automate Discord Invites & Roles
 
 Source: https://polar.sh/docs/features/benefits/discord-access
@@ -2792,6 +2800,49 @@ Which Discord role do you want to grant as part of this benefit?
 ## Adding Benefit to Product
 
 Head over to the product you want to associate this new Discord benefit with. You should be able to toggle the benefit in the bottom of the Edit Product form.
+
+# Feature Flag Benefit
+
+Source: https://polar.sh/docs/features/benefits/feature-flags
+
+Gate access to features using simple, API-driven feature flags
+
+The Feature Flag benefit is a lightweight way to grant feature access to customers without any external service integration. If a customer has the benefit grant, they have access — it's that simple.
+
+## Use Cases
+
+- Gate premium features behind a subscription tier
+- Offer early access or beta features to select customers
+- Differentiate access levels across product tiers
+- Control API rate limit tiers or usage quotas in your application
+
+## Create Feature Flag Benefit
+
+1. Go to `Benefits` in the sidebar
+2. Click `+ New Benefit` to create a new benefit
+3. Choose `Feature Flag` as the `Type`
+4. Give it a short description (e.g. "Premium Features" or "Beta Access")
+
+### Metadata
+
+You can optionally attach key-value metadata to a feature flag benefit. This is useful for passing additional context to your application, for example:
+
+- `role` → `editor`
+- `max_upload_size` → `10`
+- `priority` → `elevated`
+
+Metadata can be configured when creating or editing the benefit in the dashboard using the **Add Metadata** button.
+
+## Integration
+
+The recommended way to check if a customer has a feature flag benefit is through the [Customer State](/integrate/customer-state) API or the [`customer.state_changed`](/api-reference/webhooks/customer.state_changed) webhook.
+
+The customer state object includes all granted benefits. Simply check if the customer has a benefit grant for your feature flag benefit to determine access.
+
+### Lifecycle
+
+- **Subscriptions**: The feature flag is granted at the start of each subscription cycle and automatically revoked when the subscription is cancelled.
+- **One-time purchases**: The feature flag is granted at the time of purchase with lifetime access.
 
 # Automate Customer File Downloads
 
@@ -2938,6 +2989,7 @@ designer ecosystem with more to come.
 
 - [**Credits**](/features/benefits/credits). A simple benefit that allows you to credit a customer's Usage Meter balance.
 - [**License Keys**](/features/benefits/license-keys). Software license keys that you can customize the branding of.
+- [**Feature Flags**](/features/benefits/feature-flags). Simple, API-driven feature access flags with optional metadata.
 - [**File Downloads**](/features/benefits/file-downloads). Downloadable files of any kind up to 10GB each.
 - [**GitHub Repository Access**](/features/benefits/github-access). Automatically invite subscribers to private GitHub repo(s).
 - [**Discord Invite**](/features/benefits/discord-access). Automate invitations and granting of roles to subscribers and customers.
@@ -3639,12 +3691,15 @@ You can append `?locale=` to any checkout link and that will take precedence ove
 - Swedish (sv)
 - German (de)
 - Hungarian (hu)
+- Italian (it)
+- Portuguese (Brazil) (pt)
+- Portuguese (Portugal) (pt-PT)
 
 The following languages are coming soon:
 
-- Portuguese (Brazil) (pt-BR)
+- Korean (kr)
 
-Want to help us review translations for an upcoming language? Reach out at [pieter+i18n@polar.sh](mailto:pieter+i18n@polar.sh).
+Want to help us review translations for an upcoming language? Reach out at [translations@polar.sh](mailto:translations@polar.sh).
 
 ## Known limitations
 
@@ -5082,12 +5137,6 @@ Determine how you want to charge your customers for this product.
   </Step>
 
   <Step title="Multiple payment currencies">
-    <Info>
-      **Private Beta Feature**
-
-      Multiple payment currencies is currently available as a private beta feature. Contact support to enable this for your organization.
-    </Info>
-
     Products can now be created in several currencies, allowing customers to purchase in their local currency:
 
     * **Default Payment Currency**: Your organization has a default payment currency that serves as the fallback.
@@ -5172,6 +5221,7 @@ Read more in our [product benefits guide](/features/benefits/introduction) on ho
 - Discord Server Role
 - GitHub Repository Access
 - File Downloads
+- Feature Flags
 - Custom Benefit
 
 ## Variants
@@ -5272,10 +5322,8 @@ Seat-based pricing allows you to sell products where a billing manager purchases
 ## Feature Flag
 
 <Warning>
-  Seat-based pricing is currently in **private beta**. We are enabling this feature gradually.
+  Seat-based pricing is currently in **private beta**. Contact our support team to enable it for your organization.
 </Warning>
-
-Seat-based pricing is controlled by a feature flag at the organization level. Once enabled by our team, you'll have full access to create and manage seat-based products.
 
 ## How it works
 
@@ -5290,14 +5338,11 @@ Team members receive an invitation email with a claim link. Once they claim thei
 
 ### Subscriptions vs One-Time Purchases
 
-Seat-based pricing works for both recurring subscriptions and one-time purchases:
-
 | Feature           | Subscriptions              | One-Time Purchases       |
 | ----------------- | -------------------------- | ------------------------ |
 | **Payment**       | Recurring (monthly/yearly) | Single payment           |
 | **Seat Duration** | Active while subscribed    | Perpetual (never expire) |
 | **Adding Seats**  | Modify subscription        | Purchase new order       |
-| **Billing**       | Renews automatically       | No renewals              |
 | **Benefits**      | While subscription active  | Forever after claim      |
 
 <Tip>
@@ -5332,11 +5377,13 @@ Seat-based pricing works for both recurring subscriptions and one-time purchases
       * **Max seats**: Upper limit for this tier (leave empty for unlimited)
       * **Price per seat**: Amount charged per seat in this tier (in cents)
 
-    Example tiered pricing:
+    Seat-based pricing uses **volume pricing** — the per-seat price is determined by the total number of seats purchased, and that rate applies to all seats. For example, if your tiers are:
 
     * 1-4 seats: \$10/seat per month
     * 5-9 seats: \$9/seat per month
     * 10+ seats: \$8/seat per month
+
+    A purchase of 6 seats would cost 6 × $9 = $54/month (all seats at the 5-9 tier rate).
 
   </Step>
 
@@ -5346,258 +5393,45 @@ Seat-based pricing works for both recurring subscriptions and one-time purchases
 </Steps>
 
 <Info>
-  Unlike standard subscriptions, seat-based products **do not grant benefits to the billing manager**. Benefits are only granted to team members who claim their assigned seats.
-</Info>
-
-## Purchasing seats
-
-When a customer purchases a seat-based product, they specify how many seats they want during checkout. The total amount is calculated based on your tiered pricing.
-
-The checkout experience clearly shows:
-
-- Number of seats being purchased
-- Price per seat based on volume
-- Total amount
-- For subscriptions: recurring billing cycle
-- For one-time: perpetual access indication
-
-Once payment is completed, the billing manager can immediately start assigning seats to their team.
-
-<Info>
-  For **one-time purchases**, each order is independent. If customers want more seats later, they purchase a new order with its own seat pool. All purchased seats remain perpetual.
+  Unlike standard subscriptions, seat-based products **do not grant benefits to the billing manager**. Benefits are only granted to team members who claim their assigned seats. The billing manager can assign a seat to themselves if they also want to receive benefits — this counts toward the purchased seat total.
 </Info>
 
 ## Managing seats
 
-### Assigning seats
-
-Billing managers can assign seats through:
-
-1. **Customer Portal**: Accessible via the customer portal with billing manager permissions
-2. **API**: Programmatically assign seats using the [Customer Seats API](/api-reference/customer-seats/assign)
-
-To assign a seat, provide:
-
-- **Subscription ID** (for subscriptions) or **Order ID** (for one-time purchases)
-- **Email address** (creates a new customer if needed)
-- **External customer ID** (optional, for syncing with your system)
-- **Customer ID** (if customer already exists in Polar)
-- **Metadata** (optional, up to 10 keys for custom data like role, department)
-
-An invitation email is automatically sent to the recipient with a secure claim link (valid for 24 hours).
+After purchase, the billing manager can assign and manage seats from the **Customer Portal** or via the API.
 
 ### Seat statuses
-
-Each seat can have one of three statuses:
 
 - **Pending**: Seat assigned, invitation sent, awaiting claim
 - **Claimed**: Seat claimed by team member, benefits granted
 - **Revoked**: Seat revoked, benefits removed, can be reassigned
 
-### Resending invitations
+### Key actions
 
-For pending seats, billing managers can resend the invitation email if it was lost or expired.
-
-### Revoking seats
-
-Billing managers can revoke a claimed seat at any time:
-
-1. Benefits are immediately removed from the seat holder
-2. The seat becomes available for reassignment
-3. The seat holder loses access to all product benefits
-4. The revoked seat can be assigned to a different team member
+- **Assign seats** by email, external customer ID, or existing Polar customer ID
+- **Resend invitations** for pending seats if the link expired (valid for 24 hours)
+- **Revoke seats** to remove benefits and free the seat for reassignment
+- **Reduce seat count** to lower the number of seats on the subscription (triggers a prorated credit)
 
 <Warning>
-  Revoking a seat does **not** issue a refund. The billing manager continues to pay for the total number of seats in their subscription.
+  **Revoking a seat** and **reducing the seat count** are different actions:
+
+- **Revoking a seat** removes a specific user's access and frees that seat for reassignment. It does **not** reduce the number of seats on the subscription, and the billing manager continues to pay for the same total.
+- **Reducing the seat count** changes the subscription quantity itself, which results in a prorated credit for the remainder of the billing period.
+
+To stop paying for an unused seat, you must reduce the seat count — not just revoke the assignment.
 </Warning>
 
-## Claiming seats
+### Proration and billing adjustments
 
-When a team member receives a seat invitation:
+When the seat count on a subscription changes mid-billing cycle, charges are prorated automatically:
 
-1. They click the claim link in the email
-2. A claim page displays the product details and organization info
-3. They click **Claim Seat** to accept
-4. Benefits are automatically granted
-5. They receive a customer session token for immediate portal access
-6. They can access their benefits through the customer portal
+- **Adding seats**: The billing manager is charged immediately for the new seats, prorated for the remainder of the current billing period. The full per-seat price applies from the next billing cycle onward.
+- **Reducing seat count**: A prorated credit is applied for the removed seats, covering the unused portion of the current billing period.
 
-<Info>
-  Claim links are single-use and expire after 24 hours for security. If expired, the billing manager can resend the invitation.
-</Info>
-
-## Scaling seats
-
-### Adding seats
-
-**For subscriptions:**
-
-Billing managers can upgrade their subscription to add more seats:
-
-1. The new seat count is applied immediately
-2. Prorated charges are calculated for the current billing period
-3. Future renewals bill at the new seat count
-4. New seats can be assigned right away
-
-If adding seats moves to a different pricing tier, the new per-seat rate applies to **all seats**, not just the additional ones.
-
-**For one-time purchases:**
-
-Billing managers purchase a new order with additional seats:
-
-1. Create a new checkout for the same product with desired seat quantity
-2. Once paid, a new independent order is created
-3. Each order has its own seat pool
-4. All seats remain perpetual across all orders
-
-### Reducing seats
-
-**For subscriptions:**
-
-To reduce seats, the billing manager should:
-
-1. Revoke seats until the desired count is reached
-2. Update the subscription to reflect the lower seat count
-3. The change takes effect at the next renewal
-
-<Warning>
-  You cannot reduce subscription seats below the number of currently claimed seats. Revoke seats first before reducing the subscription seat count.
-</Warning>
-
-**For one-time purchases:**
-
-Seats cannot be reduced or refunded as they are perpetual. The billing manager can:
-
-1. Revoke unwanted seats to make them unassigned
-2. The seats remain available for future assignment
-3. No refund is issued for revoked seats
-
-## API Integration
-
-Seat-based pricing provides full API support for:
-
-- Creating seat-based products with tiered pricing
-- Checking out with seat quantities
-- Assigning seats programmatically
-- Listing seats and their statuses
-- Revoking seats
-
-<Note>
-  **SDK Version Requirement**
-
-To use seat-based pricing features, ensure you have the latest version of the Polar SDK installed:
-
-- TypeScript/JavaScript: `npm install @polar-sh/sdk@latest`
-- Python: `pip install --upgrade polar-sdk`
-
-Older SDK versions may not include seat-based pricing support.
-</Note>
-
-See the [Customer Seats API Reference](/api-reference/customer-seats/assign) for complete documentation.
-
-### Example: Assign a seat (subscription)
-
-```typescript theme={null}
-await polar.customerSeats.assign({
-  subscription_id: "sub_123",
-  email: "engineer@company.com",
-  metadata: {
-    department: "Engineering",
-    role: "Developer",
-  },
-});
-```
-
-### Example: Assign a seat (one-time purchase)
-
-```typescript theme={null}
-await polar.customerSeats.assign({
-  order_id: "order_456",
-  email: "engineer@company.com",
-  metadata: {
-    department: "Engineering",
-    role: "Developer",
-  },
-});
-```
-
-### Example: List seats for subscription
-
-```typescript theme={null}
-const seats = await polar.customerSeats.list({
-  subscription_id: "sub_123",
-});
-
-console.log(`Available: ${seats.available_seats}/${seats.total_seats}`);
-```
-
-### Example: List seats for order
-
-```typescript theme={null}
-const seats = await polar.customerSeats.list({
-  order_id: "order_456",
-});
-
-console.log(`Available: ${seats.available_seats}/${seats.total_seats}`);
-```
-
-## Webhooks
-
-Seat-based pricing triggers webhooks for both subscriptions and orders:
-
-**Subscription events:**
-
-- `subscription.created` - When seat-based subscription is purchased
-- `subscription.updated` - When seat count changes
-- `subscription.canceled` - When subscription is cancelled
-
-**Order events:**
-
-- `order.created` - When seat-based one-time purchase is completed
-- `order.updated` - When order is updated
-
-**Seat and benefit events (both types):**
-
-- `benefit_grant.created` - When a seat is claimed and benefits granted
-- `benefit_grant.revoked` - When a seat is revoked and benefits removed
-
-<Info>
-  For both subscriptions and one-time purchases, `benefit_grant.created` events are triggered per seat claim, not at purchase time.
-</Info>
-
-## Best Practices
-
-### Use tiered pricing strategically
-
-Structure your tiers to incentivize volume:
-
-- Lower per-seat prices as quantity increases
-- Create tiers at natural team sizes (5, 10, 25, etc.)
-- Consider flat pricing for very large teams
-
-### Leverage metadata
-
-Use seat metadata to store:
-
-- Team member roles
-- Departments or cost centers
-
-### Monitor seat utilization
-
-Track how many purchased seats are actually claimed to identify:
-
-- Organizations that may need more seats
-- Unused capacity that could be reduced
-- Patterns in team adoption
-
-### Communicate clearly
-
-Ensure product pages clearly explain:
-
-- The billing manager will not get direct access
-- Seats must be assigned to team members
-- Pricing structure and volume discounts
-- Seat assignment and claiming process
+<Tip>
+  Proration ensures billing managers only pay for seats during the time they are active. Encourage customers to adjust their seat count rather than leaving unused seats idle.
+</Tip>
 
 ## Limitations
 
@@ -5606,7 +5440,10 @@ Ensure product pages clearly explain:
 - Billing manager does not receive product benefits
 - Maximum of 1,000 seats per subscription
 - Metadata limited to 10 keys and 1KB total size per seat
-- **Usage-based pricing with shared emails**: If you sell to multiple businesses and different businesses assign seats to the same email address (e.g., "[john@gmail.com](mailto:john@gmail.com)"), and usage-based pricing is enabled, separate meters should be created for each business to properly segregate usage. This is a rare scenario since employees from different businesses typically don't share the same email address.
+
+## Next steps
+
+For implementation details including API integration, webhook handling, and code examples, see the [Implementing Seat-Based Pricing](/guides/seat-based-pricing) guide.
 
 # Trials
 
@@ -9309,12 +9146,12 @@ Before writing any code, there are three entities you need to understand. They c
 With standard Polar products, one person buys and one person uses — they're the same person. With seat-based products, buying and using are separate concerns, modeled through three distinct entities:
 
 - A **Customer** is the billing entity — who pays. They own subscriptions, orders, and payment methods. On first seat-based purchase, the customer is permanently upgraded to `type: "team"`, which enables members and team management.
-- A **Member** is a person under a customer — who uses. Each member has their own email, role (`owner`, `billing_manager`, or `member`), and receives benefit grants independently. The person who purchases the products is created as an `owner` member.
+- A **Member** is a person under a customer — who uses. Each member has their own email, role (`owner`, `billing_manager`, or `member`), and receives benefit grants independently. The person who purchases the product is created as an `owner` member. Both `owner` and `billing_manager` roles can manage seats, update or cancel the subscription, and manage payment methods. The `owner` role may receive additional management capabilities in the future.
 - A **CustomerSeat** is the link between a product and a member. It tracks assignment status (`pending`, `claimed`, `revoked`), holds the invitation token, and carries optional metadata.
 
 ```
-Customer (Jane — billing manager, type: "team")
-  ├── Member: Jane (role: owner)          → manages team, no seat and no product benefits
+Customer (Jane — purchaser, type: "team")
+  ├── Member: Jane (role: owner)          → manages team, can self-assign a seat for benefits
   ├── Member: Alice (role: member)        → gets benefits via seat
   └── Member: Bob (role: member)          → gets benefits via seat
 
@@ -9368,7 +9205,7 @@ Purchase → Assign seats → Members claim → Benefits granted
     * **Pricing type**: Seat-based
     * **Min seats**: 1 (or your minimum team size)
 
-    Define volume-based tiers:
+    Define volume-based tiers. Seat-based pricing uses **volume pricing** — the per-seat price is determined by the total number of seats, and that rate applies to all seats (e.g., 6 seats at the 5-9 tier = 6 × $9 = $54).
 
     | Tier | Max Seats | Price per Seat |
     | ---- | --------- | -------------- |
@@ -9433,8 +9270,13 @@ const seat = await polar.customerSeats.assign({
 
 Listen for benefit webhooks to sync access in your system. Remember: use `grant.member` to identify the recipient, not `grant.customer_id` (which is the buyer).
 
+<Warning>
+  Always [verify webhook signatures](/integrate/webhooks/endpoints#verify-signature) before processing events. The example below omits verification for brevity.
+</Warning>
+
 ```typescript theme={null}
 app.post("/webhooks/polar", async (req, res) => {
+  // Verify webhook signature first — see webhook docs
   const event = req.body;
 
   if (event.type === "benefit_grant.created") {
@@ -9480,13 +9322,14 @@ const checkout = await polar.checkouts.create({
 
 ## Member sessions and portal
 
-To give a member access to the customer portal, create a member session:
+To give a member access to the customer portal, create a customer session with a `member_id` to scope the view:
 
 ```typescript theme={null}
-const session = await polar.memberSessions.create({
+const session = await polar.customerSessions.create({
+  customer_id: "cust_123",
   member_id: "mem_789",
 });
-// Redirect to session.member_portal_url
+// Redirect to session.customer_portal_url
 ```
 
 - **Billing managers** (owner/billing_manager role) see full team management — assigning seats, managing members, and viewing seat utilization.
@@ -9512,7 +9355,7 @@ const session = await polar.memberSessions.create({
 
 - **Use `grant.member` everywhere** — not `grant.customer_id` — to identify who has access
 - **Use seat metadata** to store department, role, or cost center for your own tracking
-- **Communicate clearly** to billing managers that they won't receive benefits directly
+- **Communicate clearly** to billing managers that they won't receive benefits automatically — they can assign a seat to themselves if they also want access
 
 ## Troubleshooting
 
@@ -10018,7 +9861,7 @@ claude mcp add --transport http "Polar" "https://mcp.polar.sh/mcp/polar-mcp"
 For sandbox:
 
 ```
-claude mcp add --transport http "Polar Sandbox" "https://mcp.polar.sh/mcp/polar-sandbox"
+claude mcp add --transport http "Polar-Sandbox" "https://mcp.polar.sh/mcp/polar-sandbox"
 ```
 
 ### ChatGPT
@@ -13665,21 +13508,6 @@ automatically trigger webhook events without spending a dime.
 
     <img />
 
-    <Tip>
-      **Developing locally?**
-
-      Use a tool like [ngrok](https://ngrok.com/) to tunnel webhook events to your local development environment. This will allow you to test your webhook handlers without deploying them to a live server.
-
-      Once you have `ngrok` you can easily start a tunnel:
-
-      ```bash Terminal theme={null}
-      ngrok http 3000
-      ```
-
-      Just be sure to provide the URL ngrok gives you as the webhook endpoint on
-      Polar.
-    </Tip>
-
   </Step>
 
   <Step title="Choose a delivery format">
@@ -13713,6 +13541,37 @@ automatically trigger webhook events without spending a dime.
   </Step>
 </Steps>
 
+<Tip>
+  **Developing locally?**
+
+Install Polar CLI to use the listening command. This will allow you to test your webhook handlers without deploying them to a live server.
+
+Install the Polar CLI
+
+```bash Terminal theme={null}
+curl -fsSL https://polar.sh/install.sh | bash
+```
+
+Once you have installed the Polar CLI, you can easily start a tunnel:
+
+```bash Terminal theme={null}
+polar listen http://localhost:3000/
+```
+
+This will relay webhooks automatically to the speicified URL.
+
+```bash theme={null}
+✔ Select Organization …  My Organization
+
+  Connected  My Organization
+  Secret     6t3c8ce2247c493a3ade20uea4484d64
+  Forwarding http://localhost:3000
+
+  Waiting for events...
+```
+
+</Tip>
+
 [Now, it's time to integrate our endpoint to receive events
 →](/integrate/webhooks/delivery)
 
@@ -13730,6 +13589,10 @@ Our webhook events and in which context they are useful
   <Card title="checkout.created" icon="link" href="/api-reference/webhooks/checkout.created" />
 
   <Card title="checkout.updated" icon="link" href="/api-reference/webhooks/checkout.updated" />
+
+  <Card title="checkout.expired" icon="link" href="/api-reference/webhooks/checkout.expired">
+    Fired when a checkout link has expired without being completed.
+  </Card>
 </Columns>
 
 ### Customers
@@ -14455,6 +14318,7 @@ refund/chargeback risks.
 - Virus & Spyware
 - Telecommunication & eSIM Services
 - Products you don’t own the IP of or have the required licenses to resell
+- Standardized test prep platforms reselling real or past exam questions (e.g. IELTS, SAT, GMAT). Due to the high risk of copyright infringement and illegal distribution of proprietary exam content, we disallow this category entirely.
 - Advertising & unsolicited marketing services. Including services to:
   - Generate, scrape or sell leads
   - Send SMS/WhatsApp messages in bulk

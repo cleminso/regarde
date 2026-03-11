@@ -177,8 +177,8 @@ describe("Subscription Lifecycle", () => {
   describe("subscription CoMap structure", () => {
     it("should have required fields", () => {
       const subscription = {
-        app: "co_app123",
-        userAccount: "co_user456",
+        appId: "co_app123",
+        userAccountId: "co_user456",
         provider: "stripe",
         providerSubscriptionId: "sub_123",
         createdByEventId: "co_event789",
@@ -192,8 +192,8 @@ describe("Subscription Lifecycle", () => {
         updatedAt: Date.now(),
       };
 
-      expect(subscription.app).toBeDefined();
-      expect(subscription.userAccount).toBeDefined();
+      expect(subscription.appId).toBeDefined();
+      expect(subscription.userAccountId).toBeDefined();
       expect(subscription.provider).toBeOneOf(["stripe", "polar"]);
       expect(subscription.providerSubscriptionId).toBeDefined();
       expect(subscription.status).toBeOneOf(SUBSCRIPTION_STATUSES);

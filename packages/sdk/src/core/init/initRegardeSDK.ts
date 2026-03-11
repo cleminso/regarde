@@ -88,7 +88,7 @@ export const initRegardeSDK = async (
       data: {
         groupJazzId: userGroup.$jazz.id,
         directMembers: userGroup.getDirectMembers(),
-        allMembers: userGroup.members(),
+        allMembers: userGroup.members,
         myRole: userGroup.myRole(),
       },
     });
@@ -105,7 +105,7 @@ export const initRegardeSDK = async (
       data: {
         groupJazzId: regardeAdminOtherReadersGroup.$jazz.id,
         directMembers: regardeAdminOtherReadersGroup.getDirectMembers(),
-        allMembers: regardeAdminOtherReadersGroup.members(),
+        allMembers: regardeAdminOtherReadersGroup.members,
         myRole: regardeAdminOtherReadersGroup.myRole(),
       },
     });
@@ -304,7 +304,7 @@ export const initRegardeSDK = async (
         metadata: { operation: "ensureFallbackCreate" },
         groupJazzId: userGroup.$jazz.id,
         directMembers: userGroup.getDirectMembers(),
-        allMembers: userGroup.members(),
+        allMembers: userGroup.members,
         myRole: userGroup.myRole(),
       },
     });
@@ -321,7 +321,7 @@ export const initRegardeSDK = async (
       data: {
         groupJazzId: regardeAdminOtherReadersGroup.$jazz.id,
         directMembers: regardeAdminOtherReadersGroup.getDirectMembers(),
-        allMembers: regardeAdminOtherReadersGroup.members(),
+        allMembers: regardeAdminOtherReadersGroup.members,
         myRole: regardeAdminOtherReadersGroup.myRole(),
       },
     });

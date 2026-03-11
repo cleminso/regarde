@@ -39,8 +39,8 @@ export type TSubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
  * - `providerEventId`: Native provider event ID
  * - `prefixedProviderEventUUID`: Prefixed ID for deduplication
  * - `eventType`: Unified event type (subscription.created, .activated, .paused, .resumed, .canceled, etc.)
- * - `app`: App CoMap ID
- * - `userAccount`: Jazz account ID of subscriber
+ * - `appId`: App CoMap ID
+ * - `userAccountId`: Jazz account ID of subscriber
  * - `providerSubscriptionId`: Provider's subscription identifier (for linking to Subscription state)
  * - `status`: Subscription status at time of event
  * - `currentPeriodStart`: Current billing period start (optional)
@@ -61,8 +61,8 @@ export const SubscriptionEvent = co.map({
   prefixedProviderEventUUID: z.string(),
   eventType: z.enum(SUBSCRIPTION_EVENT_TYPES),
 
-  app: z.string().describe("App CoMap ID for which the payment was done"),
-  userAccount: z.string().describe("JazzAccountId by which the payment was done"),
+  appId: z.string().describe("App CoMap ID for which the payment was done"),
+  userAccountId: z.string().describe("JazzAccountId by which the payment was done"),
 
   providerSubscriptionId: z.string(),
   status: z.enum(SUBSCRIPTION_STATUSES),
@@ -84,8 +84,8 @@ export type TSubscriptionEvent = co.loaded<typeof SubscriptionEvent>;
  * Separates "what happened" (SubscriptionEvent logs) from "current state" (Subscription).
  *
  * @schema
- * - `app`: App CoMap ID
- * - `userAccount`: Jazz account ID of subscriber
+ * - `appId`: App CoMap ID
+ * - `userAccountId`: Jazz account ID of subscriber
  * - `provider`: Payment provider
  * - `providerSubscriptionId`: Provider's subscription ID (lookup key)
  * - `createdByEventId`: SubscriptionEvent that created this subscription
@@ -101,8 +101,8 @@ export type TSubscriptionEvent = co.loaded<typeof SubscriptionEvent>;
  * - `updatedAt`: Last update timestamp
  */
 export const Subscription = co.map({
-  app: z.string(),
-  userAccount: z.string(),
+  appId: z.string(),
+  userAccountId: z.string(),
   provider: z.enum(PAYMENT_PROVIDERS),
   providerSubscriptionId: z.string(),
 

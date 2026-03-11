@@ -51,8 +51,8 @@ export const LicenseEvent = co.map({
   prefixedProviderEventUUID: z.string(),
   eventType: z.enum(LICENSE_EVENT_TYPES),
 
-  app: z.string().describe("App CoMap ID for which the payment was done"),
-  userAccount: z.string().describe("JazzAccountId by which the payment was done"),
+  appId: z.string().describe("App CoMap ID for which the payment was done"),
+  userAccountId: z.string().describe("JazzAccountId by which the payment was done"),
 
   licenseKey: z.optional(z.string()),
   productId: z.optional(z.string()),
