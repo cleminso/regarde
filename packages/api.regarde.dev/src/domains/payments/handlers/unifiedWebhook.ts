@@ -36,9 +36,7 @@ const logger = useLogging({
 // Unified Webhook Handler
 // ---------------------------------------------------------------------------
 
-export const unifiedWebhookHandler = (
-  worker: Loaded<typeof RegistryWorkerAccount>,
-) => {
+export const unifiedWebhookHandler = (worker: Loaded<typeof RegistryWorkerAccount>) => {
   return async (c: any) => {
     try {
       const workerId = process.env.REGARDE_REGISTRY_GROUP;
@@ -47,9 +45,7 @@ export const unifiedWebhookHandler = (
           message: "Starting webhook handler, checking registry group",
           data: { workerId },
         });
-        throw new Error(
-          "Missing `REGARDE_REGISTRY_GROUP` required environment variable",
-        );
+        throw new Error("Missing `REGARDE_REGISTRY_GROUP` required environment variable");
       }
 
       // Extract provider from URL path: /v1/webhooks/{provider}/{appId}/{webhookId}
@@ -76,9 +72,7 @@ export const unifiedWebhookHandler = (
       const allHeaders = Object.fromEntries(
         Object.entries(c.req.header()).map(([key, value]) => [
           key,
-          typeof value === "string" && value.length > 50
-            ? value.substring(0, 50) + "..."
-            : value,
+          typeof value === "string" && value.length > 50 ? value.substring(0, 50) + "..." : value,
         ]),
       );
 
@@ -175,10 +169,7 @@ export const unifiedWebhookHandler = (
             webhookId: pathWebhookId,
           },
         });
-        return c.json(
-          { received: true, ignored: true, reason: "webhook disabled" },
-          200,
-        );
+        return c.json({ received: true, ignored: true, reason: "webhook disabled" }, 200);
       }
 
       // Capture headers for debugging and storage
@@ -217,19 +208,12 @@ export const unifiedWebhookHandler = (
         let errorRetryCount = 0;
         if (app.allEvents.$isLoaded === true) {
           const errorSessionFeed = app.allEvents.perSession[pathWebhookId];
-          if (
-            errorSessionFeed !== undefined &&
-            errorSessionFeed.all !== undefined
-          ) {
+          if (errorSessionFeed !== undefined && errorSessionFeed.all !== undefined) {
             for (const entry of errorSessionFeed.all) {
               const entryValue = entry.value;
               const isEntryLoaded =
-                entryValue !== undefined &&
-                entryValue.providerEventId !== undefined;
-              if (
-                isEntryLoaded === true &&
-                entryValue.providerEventId === rawProviderEventId
-              ) {
+                entryValue !== undefined && entryValue.providerEventId !== undefined;
+              if (isEntryLoaded === true && entryValue.providerEventId === rawProviderEventId) {
                 errorRetryCount = errorRetryCount + 1;
               }
             }
@@ -267,25 +251,20 @@ export const unifiedWebhookHandler = (
             provider,
             pathAppId,
             webhookId: pathWebhookId,
-            errorMessage:
-              extractError instanceof Error ? extractError.message : "Unknown",
+            errorMessage: extractError instanceof Error ? extractError.message : "Unknown",
             availableMetadataSources: {
               stripeMetadata: json.data?.object?.metadata,
               polarMetadata: json.data?.metadata,
             },
           },
         });
-        return c.json(
-          { error: "Missing required context in webhook payload" },
-          400,
-        );
+        return c.json({ error: "Missing required context in webhook payload" }, 400);
       }
 
       const appId = ctx.appId as ID<Account>;
       const { jazzAccountId, regardeSDKId } = ctx;
 
-      const isAppIdValid =
-        appId !== null && appId !== undefined && appId !== "";
+      const isAppIdValid = appId !== null && appId !== undefined && appId !== "";
       if (isAppIdValid === false) {
         logger.error({
           message: "Missing App ID",
@@ -299,9 +278,7 @@ export const unifiedWebhookHandler = (
       const rawSignatureHeader = c.req.header(signatureHeader);
       const signature =
         rawSignatureHeader ??
-        c.req.header(
-          signatureHeader.charAt(0).toUpperCase() + signatureHeader.slice(1),
-        ) ??
+        c.req.header(signatureHeader.charAt(0).toUpperCase() + signatureHeader.slice(1)) ??
         null;
 
       logger.debug({
@@ -322,32 +299,24 @@ export const unifiedWebhookHandler = (
           rawBody,
           signature,
           webhook.secret,
-          adapter.timestampHeader
-            ? c.req.header(adapter.timestampHeader)
-            : undefined,
+          adapter.timestampHeader ? c.req.header(adapter.timestampHeader) : undefined,
           adapter.idHeader ? c.req.header(adapter.idHeader) : undefined,
         );
 
       if (isSignatureValid === false) {
         // Extract provider event info from raw payload for error logging
-        const sigErrorProviderEventId =
-          json.id || json.meta?.event_id || "unknown";
-        const sigErrorEventType =
-          json.type || json.meta?.event_name || "unknown";
+        const sigErrorProviderEventId = json.id || json.meta?.event_id || "unknown";
+        const sigErrorEventType = json.type || json.meta?.event_name || "unknown";
 
         // Calculate retry status from CoFeed
         let sigErrorRetryCount = 0;
         if (app.allEvents.$isLoaded === true) {
           const sigErrorSessionFeed = app.allEvents.perSession[pathWebhookId];
-          if (
-            sigErrorSessionFeed !== undefined &&
-            sigErrorSessionFeed.all !== undefined
-          ) {
+          if (sigErrorSessionFeed !== undefined && sigErrorSessionFeed.all !== undefined) {
             for (const entry of sigErrorSessionFeed.all) {
               const entryValue = entry.value;
               const isEntryLoaded =
-                entryValue !== undefined &&
-                entryValue.providerEventId !== undefined;
+                entryValue !== undefined && entryValue.providerEventId !== undefined;
               if (
                 isEntryLoaded === true &&
                 entryValue.providerEventId === sigErrorProviderEventId
@@ -394,8 +363,7 @@ export const unifiedWebhookHandler = (
       try {
         normalized = adapter.normalizeEvent(json);
       } catch (normalizeError) {
-        const errorMessage =
-          normalizeError instanceof Error ? normalizeError.message : "Unknown";
+        const errorMessage = normalizeError instanceof Error ? normalizeError.message : "Unknown";
 
         // Check if this is an unsupported event type (not an error, just not processed)
         if (errorMessage.includes("Unsupported")) {
@@ -408,10 +376,7 @@ export const unifiedWebhookHandler = (
               reason: errorMessage,
             },
           });
-          return c.json(
-            { received: true, processed: false, reason: errorMessage },
-            200,
-          );
+          return c.json({ received: true, processed: false, reason: errorMessage }, 200);
         }
 
         logger.error({
@@ -425,8 +390,7 @@ export const unifiedWebhookHandler = (
         return c.json({ error: "Failed to normalize event" }, 400);
       }
 
-      const isRegardeSDKIdValid =
-        regardeSDKId !== undefined && regardeSDKId !== "";
+      const isRegardeSDKIdValid = regardeSDKId !== undefined && regardeSDKId !== "";
       if (isRegardeSDKIdValid === false) {
         logger.error({
           message: "RegardeSDK ID is required",
@@ -455,10 +419,7 @@ export const unifiedWebhookHandler = (
             workerAccountId: worker.$jazz.id, // Which worker is trying to load?
           },
         });
-        return c.json(
-          { error: "Failed to load registryProfileWorkerGroup" },
-          500,
-        );
+        return c.json({ error: "Failed to load registryProfileWorkerGroup" }, 500);
       }
 
       const workerRoot = worker.root as TRegistryWorkerAccountRoot;
@@ -481,37 +442,25 @@ export const unifiedWebhookHandler = (
             processedProviderEventsIsLoaded: processedProviderEvents.$isLoaded,
           },
         });
-        return c.json(
-          { error: "processedProviderEvents not available on worker root" },
-          500,
-        );
+        return c.json({ error: "processedProviderEvents not available on worker root" }, 500);
       }
 
-      const { prefixedProviderEventUUID, providerEventId, eventType } =
-        normalized;
+      const { prefixedProviderEventUUID, providerEventId, eventType } = normalized;
 
       // Calculate retry tracking
-      const isAlreadyProcessed =
-        processedProviderEvents[prefixedProviderEventUUID] !== undefined;
+      const isAlreadyProcessed = processedProviderEvents[prefixedProviderEventUUID] !== undefined;
       const isRetry = isAlreadyProcessed === true;
 
       // Count how many times we've seen this providerEventId in the CoFeed
       let retryCount = 0;
       if (app.allEvents.$isLoaded === true) {
         const webhookSessionFeed = app.allEvents.perSession[pathWebhookId];
-        if (
-          webhookSessionFeed !== undefined &&
-          webhookSessionFeed.all !== undefined
-        ) {
+        if (webhookSessionFeed !== undefined && webhookSessionFeed.all !== undefined) {
           for (const entry of webhookSessionFeed.all) {
             const entryValue = entry.value;
             const isEntryLoaded =
-              entryValue !== undefined &&
-              entryValue.providerEventId !== undefined;
-            if (
-              isEntryLoaded === true &&
-              entryValue.providerEventId === providerEventId
-            ) {
+              entryValue !== undefined && entryValue.providerEventId !== undefined;
+            if (isEntryLoaded === true && entryValue.providerEventId === providerEventId) {
               retryCount = retryCount + 1;
             }
           }
@@ -627,15 +576,11 @@ export const unifiedWebhookHandler = (
         let procErrorRetryCount = 0;
         if (app.allEvents.$isLoaded === true) {
           const procErrorSessionFeed = app.allEvents.perSession[pathWebhookId];
-          if (
-            procErrorSessionFeed !== undefined &&
-            procErrorSessionFeed.all !== undefined
-          ) {
+          if (procErrorSessionFeed !== undefined && procErrorSessionFeed.all !== undefined) {
             for (const entry of procErrorSessionFeed.all) {
               const entryValue = entry.value;
               const isEntryLoaded =
-                entryValue !== undefined &&
-                entryValue.providerEventId !== undefined;
+                entryValue !== undefined && entryValue.providerEventId !== undefined;
               if (
                 isEntryLoaded === true &&
                 entryValue.providerEventId === normalized.providerEventId
@@ -651,9 +596,7 @@ export const unifiedWebhookHandler = (
         // Store error in CoFeed
         if (app.allEvents.$isLoaded === true) {
           const errorMessage =
-            processingError instanceof Error
-              ? processingError.message
-              : "Processing failed";
+            processingError instanceof Error ? processingError.message : "Processing failed";
           app.allEvents.$jazz.push({
             payload: json,
             headers: requestHeaders,
@@ -737,10 +680,7 @@ const handlePaymentEvent = async (
   await event.$jazz.waitForSync();
 
   // Mark as processed
-  processedProviderEvents.$jazz.set(
-    normalized.prefixedProviderEventUUID,
-    event.$jazz.id,
-  );
+  processedProviderEvents.$jazz.set(normalized.prefixedProviderEventUUID, event.$jazz.id);
   await processedProviderEvents.$jazz.waitForSync();
 
   // Index into user SDK
@@ -771,12 +711,7 @@ const handlePaymentEvent = async (
   }
 
   // Update CheckoutSession status if this payment is linked to a checkout
-  await updateCheckoutSessionFromPayment(
-    normalized,
-    event.$jazz.id,
-    app,
-    worker,
-  );
+  await updateCheckoutSessionFromPayment(normalized, event.$jazz.id, app, worker);
 
   // Create Invoice for successful payments
   await createInvoiceFromPayment(
@@ -833,10 +768,7 @@ const handleSubscriptionEvent = async (
   await event.$jazz.waitForSync();
 
   // Mark as processed
-  processedProviderEvents.$jazz.set(
-    normalized.prefixedProviderEventUUID,
-    event.$jazz.id,
-  );
+  processedProviderEvents.$jazz.set(normalized.prefixedProviderEventUUID, event.$jazz.id);
   await processedProviderEvents.$jazz.waitForSync();
 
   // Index into user SDK
@@ -913,10 +845,7 @@ const handleLicenseEvent = async (
   await event.$jazz.waitForSync();
 
   // Mark as processed
-  processedProviderEvents.$jazz.set(
-    normalized.prefixedProviderEventUUID,
-    event.$jazz.id,
-  );
+  processedProviderEvents.$jazz.set(normalized.prefixedProviderEventUUID, event.$jazz.id);
   await processedProviderEvents.$jazz.waitForSync();
 
   // Index into user SDK
@@ -987,9 +916,7 @@ const indexPaymentEventToUser = async (
     myPayments.byApp.$jazz.set(appId, {
       [prefixedProviderEventUUID]: eventId,
     });
-  } else if (
-    myPayments.byApp[appId].$jazz.has(prefixedProviderEventUUID) === false
-  ) {
+  } else if (myPayments.byApp[appId].$jazz.has(prefixedProviderEventUUID) === false) {
     myPayments.byApp[appId].$jazz.set(prefixedProviderEventUUID, eventId);
   }
   await myPayments.$jazz.waitForSync();
@@ -1040,9 +967,7 @@ const indexSubscriptionEventToUser = async (
     mySubscriptions.byApp.$jazz.set(appId, {
       [prefixedProviderEventUUID]: eventId,
     });
-  } else if (
-    mySubscriptions.byApp[appId].$jazz.has(prefixedProviderEventUUID) === false
-  ) {
+  } else if (mySubscriptions.byApp[appId].$jazz.has(prefixedProviderEventUUID) === false) {
     mySubscriptions.byApp[appId].$jazz.set(prefixedProviderEventUUID, eventId);
   }
   await mySubscriptions.$jazz.waitForSync();
@@ -1092,9 +1017,7 @@ const indexLicenseEventToUser = async (
     myLicenses.byApp.$jazz.set(appId, {
       [prefixedProviderEventUUID]: eventId,
     });
-  } else if (
-    myLicenses.byApp[appId].$jazz.has(prefixedProviderEventUUID) === false
-  ) {
+  } else if (myLicenses.byApp[appId].$jazz.has(prefixedProviderEventUUID) === false) {
     myLicenses.byApp[appId].$jazz.set(prefixedProviderEventUUID, eventId);
   }
   await myLicenses.$jazz.waitForSync();
@@ -1110,8 +1033,7 @@ const indexPaymentEventToApp = async (
   jazzAccountId: string,
   app: TRegardeApp,
 ): Promise<void> => {
-  const isPaymentsLoaded =
-    app.payments !== null && app.payments.$isLoaded === true;
+  const isPaymentsLoaded = app.payments !== null && app.payments.$isLoaded === true;
   if (isPaymentsLoaded === false) {
     logger.error({
       message: "App payments not loaded for indexing",
@@ -1135,14 +1057,8 @@ const indexPaymentEventToApp = async (
     appPaymentsByUser.$jazz.set(jazzAccountId, {
       [prefixedProviderEventUUID]: eventId,
     });
-  } else if (
-    appPaymentsByUser[jazzAccountId].$jazz.has(prefixedProviderEventUUID) ===
-    false
-  ) {
-    appPaymentsByUser[jazzAccountId].$jazz.set(
-      prefixedProviderEventUUID,
-      eventId,
-    );
+  } else if (appPaymentsByUser[jazzAccountId].$jazz.has(prefixedProviderEventUUID) === false) {
+    appPaymentsByUser[jazzAccountId].$jazz.set(prefixedProviderEventUUID, eventId);
   }
   await app.$jazz.waitForSync();
 };
@@ -1153,8 +1069,7 @@ const indexSubscriptionEventToApp = async (
   jazzAccountId: string,
   app: TRegardeApp,
 ): Promise<void> => {
-  const isSubscriptionsLoaded =
-    app.subscriptions !== null && app.subscriptions.$isLoaded === true;
+  const isSubscriptionsLoaded = app.subscriptions !== null && app.subscriptions.$isLoaded === true;
   if (isSubscriptionsLoaded === false) {
     logger.error({
       message: "App subscriptions not loaded for indexing",
@@ -1165,10 +1080,9 @@ const indexSubscriptionEventToApp = async (
   const appSubscriptions = await app.subscriptions.$jazz.ensureLoaded({
     resolve: { all: { $each: true }, byUser: true },
   });
-  const appSubscriptionsByUser =
-    await appSubscriptions.byUser.$jazz.ensureLoaded({
-      resolve: { $each: true },
-    });
+  const appSubscriptionsByUser = await appSubscriptions.byUser.$jazz.ensureLoaded({
+    resolve: { $each: true },
+  });
 
   if (appSubscriptions.all.$jazz.has(prefixedProviderEventUUID) === false) {
     appSubscriptions.all.$jazz.set(prefixedProviderEventUUID, eventId);
@@ -1179,15 +1093,8 @@ const indexSubscriptionEventToApp = async (
     appSubscriptionsByUser.$jazz.set(jazzAccountId, {
       [prefixedProviderEventUUID]: eventId,
     });
-  } else if (
-    appSubscriptionsByUser[jazzAccountId].$jazz.has(
-      prefixedProviderEventUUID,
-    ) === false
-  ) {
-    appSubscriptionsByUser[jazzAccountId].$jazz.set(
-      prefixedProviderEventUUID,
-      eventId,
-    );
+  } else if (appSubscriptionsByUser[jazzAccountId].$jazz.has(prefixedProviderEventUUID) === false) {
+    appSubscriptionsByUser[jazzAccountId].$jazz.set(prefixedProviderEventUUID, eventId);
   }
   await app.$jazz.waitForSync();
 };
@@ -1198,8 +1105,7 @@ const indexLicenseEventToApp = async (
   jazzAccountId: string,
   app: TRegardeApp,
 ): Promise<void> => {
-  const isLicensesLoaded =
-    app.licenses !== null && app.licenses.$isLoaded === true;
+  const isLicensesLoaded = app.licenses !== null && app.licenses.$isLoaded === true;
   if (isLicensesLoaded === false) {
     logger.error({
       message: "App licenses not loaded for indexing",
@@ -1223,14 +1129,8 @@ const indexLicenseEventToApp = async (
     appLicensesByUser.$jazz.set(jazzAccountId, {
       [prefixedProviderEventUUID]: eventId,
     });
-  } else if (
-    appLicensesByUser[jazzAccountId].$jazz.has(prefixedProviderEventUUID) ===
-    false
-  ) {
-    appLicensesByUser[jazzAccountId].$jazz.set(
-      prefixedProviderEventUUID,
-      eventId,
-    );
+  } else if (appLicensesByUser[jazzAccountId].$jazz.has(prefixedProviderEventUUID) === false) {
+    appLicensesByUser[jazzAccountId].$jazz.set(prefixedProviderEventUUID, eventId);
   }
   await app.$jazz.waitForSync();
 };
@@ -1340,10 +1240,7 @@ const manageSubscriptionState = async (
     await subscription.$jazz.waitForSync();
 
     // Index by providerSubscriptionId
-    mySubscriptions.status.$jazz.set(
-      data.providerSubscriptionId,
-      subscription.$jazz.id,
-    );
+    mySubscriptions.status.$jazz.set(data.providerSubscriptionId, subscription.$jazz.id);
     await mySubscriptions.$jazz.waitForSync();
   }
 };
@@ -1399,9 +1296,7 @@ const updateCheckoutSessionFromPayment = async (
   const checkoutSessionId = providerMetadata.regarde_session_id;
 
   const hasCheckoutSessionId =
-    checkoutSessionId !== undefined &&
-    checkoutSessionId !== null &&
-    checkoutSessionId !== "";
+    checkoutSessionId !== undefined && checkoutSessionId !== null && checkoutSessionId !== "";
   if (hasCheckoutSessionId === false) {
     return;
   }
@@ -1411,9 +1306,7 @@ const updateCheckoutSessionFromPayment = async (
   });
 
   const isSessionLoaded =
-    checkoutSession !== null &&
-    checkoutSession !== undefined &&
-    checkoutSession.$isLoaded === true;
+    checkoutSession !== null && checkoutSession !== undefined && checkoutSession.$isLoaded === true;
   if (isSessionLoaded === false) {
     logger.warn({
       message: "CheckoutSession not found for payment event",

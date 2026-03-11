@@ -1,10 +1,6 @@
 import { co, Loaded } from "jazz-tools";
 
-import {
-  RegardeTokenAuth,
-  RegistryWorkerAccount,
-  useLogging,
-} from "@regarde-dev/core";
+import { RegardeTokenAuth, RegistryWorkerAccount, useLogging } from "@regarde-dev/core";
 
 const logger = useLogging({
   module: import.meta.filename,
@@ -22,20 +18,15 @@ export async function verifyRegardeAuth(
   worker: Loaded<typeof RegistryWorkerAccount>,
 ): Promise<VerificationResult> {
   try {
-    const isJazzAccountIdValid =
-      typeof jazzAccountId === "string" && jazzAccountId !== "";
+    const isJazzAccountIdValid = typeof jazzAccountId === "string" && jazzAccountId !== "";
 
     const isProvidedRegardeAuthValid =
       typeof providedRegardeAuth === "string" && providedRegardeAuth !== "";
 
-    if (
-      isJazzAccountIdValid === false ||
-      isProvidedRegardeAuthValid === false
-    ) {
+    if (isJazzAccountIdValid === false || isProvidedRegardeAuthValid === false) {
       return {
         isValid: false,
-        error:
-          "Invalid jazzAccountId or registration token: must be non-empty strings",
+        error: "Invalid jazzAccountId or registration token: must be non-empty strings",
       };
     }
 
@@ -60,8 +51,7 @@ export async function verifyRegardeAuth(
     }
 
     logger.info({
-      message:
-        "RegardeTokenAuth loaded successfully, proceeding with verification",
+      message: "RegardeTokenAuth loaded successfully, proceeding with verification",
       data: {
         jazzAccountId,
         regardeAuthCoValueId,
@@ -98,8 +88,7 @@ export async function verifyRegardeAuth(
       });
       return {
         isValid: false,
-        error:
-          "User does not have permission to access this RegardeTokenAuth CoMap",
+        error: "User does not have permission to access this RegardeTokenAuth CoMap",
       };
     }
 
@@ -142,8 +131,7 @@ export async function verifyRegardeAuth(
     });
     return { isValid: true };
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error occurred";
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
     logger.error({
       message: "Unexpected error during registration token verification",
       data: {

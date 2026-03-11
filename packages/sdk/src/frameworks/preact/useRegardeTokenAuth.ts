@@ -77,8 +77,7 @@ export function useRegardeTokenAuth(
     }
   }, [regardeTokenAuthCoMap]);
 
-  const isCoMapPresent =
-    regardeTokenAuthCoMap !== null && regardeTokenAuthCoMap !== undefined;
+  const isCoMapPresent = regardeTokenAuthCoMap !== null && regardeTokenAuthCoMap !== undefined;
 
   return {
     token: regardeTokenAuthCoMap?.token ?? null,

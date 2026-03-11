@@ -51,12 +51,7 @@ export const polarAdapter: PaymentProviderAdapter = {
 
       // Construct signed payload according to Standard Webhooks spec
       let signedPayload: string;
-      if (
-        id !== undefined &&
-        id !== "" &&
-        timestamp !== undefined &&
-        timestamp !== ""
-      ) {
+      if (id !== undefined && id !== "" && timestamp !== undefined && timestamp !== "") {
         signedPayload = `${id}.${timestamp}.${payload}`;
       } else if (timestamp !== undefined && timestamp !== "") {
         signedPayload = `${timestamp}.${payload}`;
@@ -64,9 +59,7 @@ export const polarAdapter: PaymentProviderAdapter = {
         signedPayload = payload;
       }
 
-      const expected = createHmac("sha256", signingSecret)
-        .update(signedPayload)
-        .digest("base64");
+      const expected = createHmac("sha256", signingSecret).update(signedPayload).digest("base64");
 
       const sigBuffer = Buffer.from(sig, "base64");
       const expectedBuffer = Buffer.from(expected, "base64");
@@ -77,9 +70,7 @@ export const polarAdapter: PaymentProviderAdapter = {
     }
 
     // Legacy format or fallback
-    const expected = createHmac("sha256", signingSecret)
-      .update(payload)
-      .digest("base64");
+    const expected = createHmac("sha256", signingSecret).update(payload).digest("base64");
 
     const sigBuffer = Buffer.from(signature, "base64");
     const expectedBuffer = Buffer.from(expected, "base64");
@@ -87,24 +78,17 @@ export const polarAdapter: PaymentProviderAdapter = {
     return timingSafeEqual(sigBuffer, expectedBuffer);
   },
 
-  extractContext(
-    payload: unknown,
-    queryContext?: WebhookQueryContext,
-  ): WebhookContext {
+  extractContext(payload: unknown, queryContext?: WebhookQueryContext): WebhookContext {
     const parsed = PolarWebhookSchema.parse(payload);
     const data = parsed.data;
     const metadata = data.metadata ?? {};
 
     // Use metadata first, fall back to URL path for appId
-    const appId =
-      metadata.regarde_app_id ?? metadata.app_id ?? queryContext?.pathAppId;
+    const appId = metadata.regarde_app_id ?? metadata.app_id ?? queryContext?.pathAppId;
     // Use metadata first, fall back to query params for testing
     const jazzAccountId =
-      metadata.regarde_user_id ??
-      metadata.user_id ??
-      queryContext?.regarde_user_id;
-    const regardeSDKId =
-      metadata.regarde_sdk_id ?? queryContext?.regarde_sdk_id;
+      metadata.regarde_user_id ?? metadata.user_id ?? queryContext?.regarde_user_id;
+    const regardeSDKId = metadata.regarde_sdk_id ?? queryContext?.regarde_sdk_id;
 
     if (typeof appId !== "string" || appId === "") {
       throw new Error("Missing regarde_app_id in Polar metadata or URL path");
@@ -115,9 +99,7 @@ export const polarAdapter: PaymentProviderAdapter = {
       );
     }
     if (typeof regardeSDKId !== "string" || regardeSDKId === "") {
-      throw new Error(
-        "Missing regarde_sdk_id in Polar metadata or query params (regarde_sdk_id)",
-      );
+      throw new Error("Missing regarde_sdk_id in Polar metadata or query params (regarde_sdk_id)");
     }
 
     return { appId, jazzAccountId, regardeSDKId };
@@ -127,13 +109,8 @@ export const polarAdapter: PaymentProviderAdapter = {
     const parsed = PolarWebhookSchema.parse(payload);
     const data = parsed.data;
     const providerEventId = data.id ?? "";
-    const prefixedProviderEventUUID = prefixProviderEventId(
-      "polar",
-      providerEventId,
-    );
-    const timestamp = data.created_at
-      ? new Date(data.created_at).getTime()
-      : Date.now();
+    const prefixedProviderEventUUID = prefixProviderEventId("polar", providerEventId);
+    const timestamp = data.created_at ? new Date(data.created_at).getTime() : Date.now();
 
     // Polar doesn't indicate mode in webhooks
 
@@ -647,13 +624,7 @@ export const polarAdapter: PaymentProviderAdapter = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-type TPolarSubStatus =
-  | "trialing"
-  | "active"
-  | "past_due"
-  | "canceled"
-  | "expired"
-  | "paused";
+type TPolarSubStatus = "trialing" | "active" | "past_due" | "canceled" | "expired" | "paused";
 
 const mapPolarSubscriptionStatus = (status: string): TPolarSubStatus => {
   switch (status) {

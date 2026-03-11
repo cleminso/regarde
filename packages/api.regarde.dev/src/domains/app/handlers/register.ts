@@ -148,7 +148,8 @@ export const registerAppHandler = (
 
       // Check if app has any enabled webhooks
       const isWebhooksLoaded = app.webhooks !== null && app.webhooks.$isLoaded === true;
-      const hasEnabledWebhooks = isWebhooksLoaded === true &&
+      const hasEnabledWebhooks =
+        isWebhooksLoaded === true &&
         app.webhooks.some((w) => w !== null && w.$isLoaded === true && w.isEnabled === true);
 
       const metadata = RegardeRegistryAppMetadata.create(

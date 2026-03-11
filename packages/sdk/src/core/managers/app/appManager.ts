@@ -98,16 +98,12 @@ export const createApp = async (
         myAppsLoaded: myApps?.$isLoaded,
       },
     });
-    throw new Error(
-      "RegardeSDK.myApps must be loaded before calling createApp",
-    );
+    throw new Error("RegardeSDK.myApps must be loaded before calling createApp");
   }
 
-  const regardeProfileWorkerGroup = await co
-    .group()
-    .load(REGARDE_REGISTRY_GROUP, {
-      loadAs: account,
-    });
+  const regardeProfileWorkerGroup = await co.group().load(REGARDE_REGISTRY_GROUP, {
+    loadAs: account,
+  });
   const isGroupLoaded = regardeProfileWorkerGroup.$isLoaded === true;
 
   logger.debug({
@@ -134,9 +130,7 @@ export const createApp = async (
         ownerLoaded: userGroup?.$isLoaded,
       },
     });
-    throw new Error(
-      "Failed to load SDK owner group. Please refresh and try again.",
-    );
+    throw new Error("Failed to load SDK owner group. Please refresh and try again.");
   }
 
   const regardeAdminOtherReadersGroup = Group.create({
@@ -302,9 +296,7 @@ export const createApp = async (
  * @param regardeSDK - Loaded RegardeSDK instance
  * @returns Array of loaded App CoMaps, empty array if none exist
  */
-export const getMyApps = async (
-  regardeSDK: Loaded<typeof RegardeSDK>,
-): Promise<TRegardeApp[]> => {
+export const getMyApps = async (regardeSDK: Loaded<typeof RegardeSDK>): Promise<TRegardeApp[]> => {
   const myApps = regardeSDK.myApps;
   const myAppsValid = myApps !== null && myApps.$isLoaded === true;
 

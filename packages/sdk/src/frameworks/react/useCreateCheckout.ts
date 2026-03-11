@@ -86,14 +86,9 @@ export function useCreateCheckout(): TUseCreateCheckoutResult {
 
       try {
         const isAccountLoaded =
-          account !== null &&
-          account !== undefined &&
-          account.$isLoaded === true;
+          account !== null && account !== undefined && account.$isLoaded === true;
         if (isAccountLoaded === false) {
-          throw new RegardeError(
-            "Account must be loaded",
-            "account_not_loaded" as const,
-          );
+          throw new RegardeError("Account must be loaded", "account_not_loaded" as const);
         }
 
         const result = await createCheckout(account, apiKey, {

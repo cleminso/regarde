@@ -20,7 +20,7 @@ export async function createPolarCheckout(
     const { Polar } = await import("@polar-sh/sdk");
     const polar = new Polar({ accessToken });
 
-    const polarEscapeHatch = (params.polar ?? {});
+    const polarEscapeHatch = params.polar ?? {};
 
     const checkout = await polar.checkouts.create({
       // oxlint-disable-next-line no-unsafe-type-assertion -- Provider escape hatch property

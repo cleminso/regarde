@@ -31,10 +31,7 @@ describe("RegardeError", () => {
     });
 
     it("should be instance of Error", () => {
-      const error = new RegardeError(
-        "Test error",
-        REGARDE_ERROR_CODES.PROVIDER_API_ERROR,
-      );
+      const error = new RegardeError("Test error", REGARDE_ERROR_CODES.PROVIDER_API_ERROR);
 
       expect(error).toBeInstanceOf(Error);
       expect(error).toBeInstanceOf(RegardeError);

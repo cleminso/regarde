@@ -7,17 +7,9 @@ import type {
   TMode,
 } from "@regarde-dev/core";
 
-export type TUnifiedEventType =
-  | TPaymentEventType
-  | TSubscriptionEventType
-  | TLicenseEventType;
+export type TUnifiedEventType = TPaymentEventType | TSubscriptionEventType | TLicenseEventType;
 
-export type TPaymentStatus =
-  | "succeeded"
-  | "failed"
-  | "refunded"
-  | "pending"
-  | "action_required";
+export type TPaymentStatus = "succeeded" | "failed" | "refunded" | "pending" | "action_required";
 export type TLicenseStatus = "active" | "inactive" | "revoked";
 
 // ---------------------------------------------------------------------------
@@ -110,10 +102,7 @@ export interface PaymentProviderAdapter {
     id?: string,
   ): boolean;
 
-  extractContext(
-    payload: unknown,
-    queryContext?: WebhookQueryContext,
-  ): WebhookContext;
+  extractContext(payload: unknown, queryContext?: WebhookQueryContext): WebhookContext;
 
   normalizeEvent(payload: unknown): NormalizedEvent;
 }

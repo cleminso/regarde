@@ -1,5 +1,4 @@
 import type { TNicknameRegistry, TReservedNicknamesRegistry } from "@regarde-dev/core";
-
 import { useLogging } from "@regarde-dev/core";
 
 const logger = useLogging({

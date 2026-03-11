@@ -4,10 +4,7 @@
 
 import { describe, it, expect } from "vitest";
 
-import {
-  createMockRegistrationRequest,
-  createMockJazzAccount,
-} from "#/test-utils/index.js";
+import { createMockRegistrationRequest, createMockJazzAccount } from "#/test-utils/index.js";
 
 // Simple business logic functions to test registration workflow
 function validateRegistrationRequest(request: any) {
@@ -67,11 +64,7 @@ function processRegistration(request: any, account: any) {
 
   // Validate registration key
   const authData = account.root["auth.regarde.bio"];
-  const keyValidation = validateRegardeAuth(
-    request.regardeAuth,
-    authData.key,
-    authData.expiresAt,
-  );
+  const keyValidation = validateRegardeAuth(request.regardeAuth, authData.key, authData.expiresAt);
 
   if (!keyValidation.isValid) {
     return {
@@ -141,11 +134,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
     expect(validResult.isValid).toBe(true);
 
     // Invalid key
-    const invalidKeyResult = validateRegardeAuth(
-      "wrong-key",
-      validKey,
-      futureExpiry,
-    );
+    const invalidKeyResult = validateRegardeAuth("wrong-key", validKey, futureExpiry);
     expect(invalidKeyResult.isValid).toBe(false);
     expect(invalidKeyResult.reason).toBe("Invalid registration key");
 
@@ -231,10 +220,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
 
   it("should handle nickname conflict scenarios", () => {
     // Test conflict resolution business logic
-    function handleNicknameConflict(
-      requestedNickname: string,
-      existingNicknames: string[],
-    ) {
+    function handleNicknameConflict(requestedNickname: string, existingNicknames: string[]) {
       if (existingNicknames.includes(requestedNickname.toLowerCase())) {
         return {
           success: false,
@@ -243,10 +229,7 @@ describe("Nickname Registration Logic - Business Rules", () => {
             `${requestedNickname}1`,
             `${requestedNickname}2`,
             `${requestedNickname}_user`,
-          ].filter(
-            (suggestion) =>
-              !existingNicknames.includes(suggestion.toLowerCase()),
-          ),
+          ].filter((suggestion) => !existingNicknames.includes(suggestion.toLowerCase())),
         };
       }
       return { success: true };

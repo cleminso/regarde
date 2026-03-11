@@ -32,9 +32,7 @@ export type TStripeEvent = z.infer<typeof StripeEventSchema>;
 
 const STRIPE_SIGNATURE_TOLERANCE_SECONDS = 300;
 
-const parseStripeSignature = (
-  header: string,
-): { timestamp: string; signatures: string[] } => {
+const parseStripeSignature = (header: string): { timestamp: string; signatures: string[] } => {
   const parts = header.split(",");
   let timestamp = "";
   const signatures: string[] = [];
@@ -56,11 +54,7 @@ export const stripeAdapter: PaymentProviderAdapter = {
   provider: "stripe",
   signatureHeader: "stripe-signature",
 
-  validateSignature(
-    payload: string,
-    signature: string,
-    secret: string,
-  ): boolean {
+  validateSignature(payload: string, signature: string, secret: string): boolean {
     const { timestamp, signatures } = parseStripeSignature(signature);
 
     if (signatures.length === 0 || timestamp === "") {
@@ -74,9 +68,7 @@ export const stripeAdapter: PaymentProviderAdapter = {
     }
 
     const signedPayload = `${timestamp}.${payload}`;
-    const expectedSignature = createHmac("sha256", secret)
-      .update(signedPayload)
-      .digest("hex");
+    const expectedSignature = createHmac("sha256", secret).update(signedPayload).digest("hex");
 
     return signatures.some((sig) => {
       const sigBuffer = Buffer.from(sig, "utf8");
@@ -86,29 +78,20 @@ export const stripeAdapter: PaymentProviderAdapter = {
     });
   },
 
-  extractContext(
-    payload: unknown,
-    queryContext?: WebhookQueryContext,
-  ): WebhookContext {
+  extractContext(payload: unknown, queryContext?: WebhookQueryContext): WebhookContext {
     const parsed = StripeEventSchema.parse(payload);
     const obj = parsed.data.object;
 
     const metadata = obj.metadata ?? {};
     // Use metadata first, fall back to URL path for appId
-    const appId =
-      metadata.regarde_app_id ?? metadata.app_id ?? queryContext?.pathAppId;
+    const appId = metadata.regarde_app_id ?? metadata.app_id ?? queryContext?.pathAppId;
     // Use metadata first, fall back to query params for testing
     const jazzAccountId =
-      metadata.regarde_user_id ??
-      metadata.user_id ??
-      queryContext?.regarde_user_id;
-    const regardeSDKId =
-      metadata.regarde_sdk_id ?? queryContext?.regarde_sdk_id;
+      metadata.regarde_user_id ?? metadata.user_id ?? queryContext?.regarde_user_id;
+    const regardeSDKId = metadata.regarde_sdk_id ?? queryContext?.regarde_sdk_id;
 
     if (typeof appId !== "string" || appId === "") {
-      throw new Error(
-        "Missing regarde_app_id in Stripe metadata or URL path",
-      );
+      throw new Error("Missing regarde_app_id in Stripe metadata or URL path");
     }
     if (typeof jazzAccountId !== "string" || jazzAccountId === "") {
       throw new Error(
@@ -116,9 +99,7 @@ export const stripeAdapter: PaymentProviderAdapter = {
       );
     }
     if (typeof regardeSDKId !== "string" || regardeSDKId === "") {
-      throw new Error(
-        "Missing regarde_sdk_id in Stripe metadata or query params (regarde_sdk_id)",
-      );
+      throw new Error("Missing regarde_sdk_id in Stripe metadata or query params (regarde_sdk_id)");
     }
 
     return { appId, jazzAccountId, regardeSDKId };
@@ -1028,9 +1009,7 @@ export const stripeAdapter: PaymentProviderAdapter = {
           currentPeriodStart: obj.current_period_start
             ? obj.current_period_start * 1000
             : undefined,
-          currentPeriodEnd: obj.current_period_end
-            ? obj.current_period_end * 1000
-            : undefined,
+          currentPeriodEnd: obj.current_period_end ? obj.current_period_end * 1000 : undefined,
           planId: extractStripePlanId(obj),
           cancelAtPeriodEnd: obj.cancel_at_period_end ?? false,
         },
@@ -1057,9 +1036,7 @@ export const stripeAdapter: PaymentProviderAdapter = {
           currentPeriodStart: obj.current_period_start
             ? obj.current_period_start * 1000
             : undefined,
-          currentPeriodEnd: obj.current_period_end
-            ? obj.current_period_end * 1000
-            : undefined,
+          currentPeriodEnd: obj.current_period_end ? obj.current_period_end * 1000 : undefined,
           planId: extractStripePlanId(obj),
         },
       };
@@ -1085,9 +1062,7 @@ export const stripeAdapter: PaymentProviderAdapter = {
           currentPeriodStart: obj.current_period_start
             ? obj.current_period_start * 1000
             : undefined,
-          currentPeriodEnd: obj.current_period_end
-            ? obj.current_period_end * 1000
-            : undefined,
+          currentPeriodEnd: obj.current_period_end ? obj.current_period_end * 1000 : undefined,
           planId: extractStripePlanId(obj),
         },
       };
@@ -1113,9 +1088,7 @@ export const stripeAdapter: PaymentProviderAdapter = {
           currentPeriodStart: obj.current_period_start
             ? obj.current_period_start * 1000
             : undefined,
-          currentPeriodEnd: obj.current_period_end
-            ? obj.current_period_end * 1000
-            : undefined,
+          currentPeriodEnd: obj.current_period_end ? obj.current_period_end * 1000 : undefined,
           planId: extractStripePlanId(obj),
         },
       };
@@ -1125,9 +1098,7 @@ export const stripeAdapter: PaymentProviderAdapter = {
     if (parsed.type === "customer.subscription.trial_will_end") {
       const subId = obj.id ?? "";
       if (obj.customer) providerMetadata.customerId = obj.customer;
-      providerMetadata.trialEnd = obj.trial_end
-        ? new Date(obj.trial_end * 1000).toISOString()
-        : "";
+      providerMetadata.trialEnd = obj.trial_end ? new Date(obj.trial_end * 1000).toISOString() : "";
 
       return {
         provider: "stripe",
@@ -1144,9 +1115,7 @@ export const stripeAdapter: PaymentProviderAdapter = {
           currentPeriodStart: obj.current_period_start
             ? obj.current_period_start * 1000
             : undefined,
-          currentPeriodEnd: obj.current_period_end
-            ? obj.current_period_end * 1000
-            : undefined,
+          currentPeriodEnd: obj.current_period_end ? obj.current_period_end * 1000 : undefined,
           planId: extractStripePlanId(obj),
         },
       };
@@ -1177,9 +1146,7 @@ export const stripeAdapter: PaymentProviderAdapter = {
           currentPeriodStart: obj.current_period_start
             ? obj.current_period_start * 1000
             : undefined,
-          currentPeriodEnd: obj.current_period_end
-            ? obj.current_period_end * 1000
-            : undefined,
+          currentPeriodEnd: obj.current_period_end ? obj.current_period_end * 1000 : undefined,
           planId: extractStripePlanId(obj),
           cancelAtPeriodEnd: obj.cancel_at_period_end ?? false,
         },

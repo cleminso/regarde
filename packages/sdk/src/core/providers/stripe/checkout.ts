@@ -23,7 +23,7 @@ export async function createStripeCheckout(
     const { default: StripeSDK } = await import("stripe");
     const stripe = new StripeSDK(apiKey);
 
-    const stripeEscapeHatch = (params.stripe ?? {});
+    const stripeEscapeHatch = params.stripe ?? {};
 
     const session: Stripe.Checkout.Session = await stripe.checkout.sessions.create({
       line_items: [

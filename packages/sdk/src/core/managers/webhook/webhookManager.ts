@@ -36,8 +36,7 @@ export const generateWebhookSecret = (): string => {
   const randomValues = new Uint8Array(ARRAY_LENGTH);
   crypto.getRandomValues(randomValues);
 
-  const CHARSET =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const result = Array.from(randomValues)
     .map((byte) => CHARSET[byte % CHARSET.length])
     .join("");
@@ -66,8 +65,7 @@ export const createWebhook = async (
     throw new Error("App must be loaded before creating webhook");
   }
 
-  const isWebhooksLoaded =
-    app.webhooks !== null && app.webhooks.$isLoaded === true;
+  const isWebhooksLoaded = app.webhooks !== null && app.webhooks.$isLoaded === true;
   if (isWebhooksLoaded === false) {
     throw new Error("App webhooks list is not loaded");
   }
@@ -112,8 +110,7 @@ export const createWebhook = async (
 
     return webhook;
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     logger.error({
       message: "Failed to create webhook",
       data: {
@@ -190,8 +187,7 @@ export const updateWebhook = async (
       },
     });
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     logger.error({
       message: "Failed to update webhook",
       data: {
@@ -236,8 +232,7 @@ export const regenerateSecret = async (webhook: TWebhook): Promise<string> => {
 
     return newSecret;
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     logger.error({
       message: "Failed to regenerate webhook secret",
       data: {
@@ -262,10 +257,7 @@ export const regenerateSecret = async (webhook: TWebhook): Promise<string> => {
  * @returns Promise resolving when toggle is complete
  * @throws {Error} When webhook is not loaded or sync fails
  */
-export const toggleWebhookStatus = async (
-  webhook: TWebhook,
-  isEnabled: boolean,
-): Promise<void> => {
+export const toggleWebhookStatus = async (webhook: TWebhook, isEnabled: boolean): Promise<void> => {
   const isWebhookLoaded = webhook.$isLoaded === true;
   if (isWebhookLoaded === false) {
     throw new Error("Webhook must be loaded before toggling status");
@@ -283,8 +275,7 @@ export const toggleWebhookStatus = async (
       },
     });
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     logger.error({
       message: "Failed to toggle webhook status",
       data: {

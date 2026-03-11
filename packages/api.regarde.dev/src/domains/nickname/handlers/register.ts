@@ -1,12 +1,12 @@
+import type { Loaded } from "jazz-tools";
+
+import { verifyRegardeAuth } from "#/domains/auth/handlers/verify";
 import type {
   TNicknameRegistry,
   TReverseNicknameRegistry,
   TReservedNicknamesRegistry,
   RegistryWorkerAccount,
 } from "@regarde-dev/core";
-import type { Loaded } from "jazz-tools";
-
-import { verifyRegardeAuth } from "#/domains/auth/handlers/verify";
 import { useLogging } from "@regarde-dev/core";
 
 const logger = useLogging({
