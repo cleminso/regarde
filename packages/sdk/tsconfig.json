@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022", "DOM"],
-    "types": ["jazz-tools", "node", "react"],
+    "types": ["jazz-tools", "cojson", "node", "react"],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "declaration": true,
@@ -23,9 +23,11 @@
       "#managers/*": ["./src/core/managers/*"],
       "#init/*": ["./src/core/init/*"],
       "#core/*": ["./src/core/*"],
-      "#frameworks/*": ["./src/frameworks/*"]
-    }
+      "#frameworks/*": ["./src/frameworks/*"],
+      "#provider/*": ["./src/core/provider/*"],
+      "erros": ["./src/core/errors/*"],
+    },
   },
   "include": ["src/**/*", "./vite.config.ts"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
 }

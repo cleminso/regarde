@@ -13,6 +13,7 @@ catalog:
   "@types/react": ~19.2.14
   "@types/react-dom": ^19.2.3
   "@vitest/ui": ^4.0.18
+  cojson: ^0.20.11
   cojson-core-rn: ^0.20.11
   cojson-transport-ws: ^0.20.11
   dotenv: ^17.3.1

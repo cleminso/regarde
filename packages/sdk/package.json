@@ -56,7 +56,8 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "cojson": "catalog:"
   },
   "peerDependencies": {
     "@polar-sh/sdk": "^0.46.3",
