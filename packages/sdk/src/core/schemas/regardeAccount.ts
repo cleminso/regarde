@@ -29,7 +29,8 @@ export const RegardeAccount = co
     root: RegardeRoot,
   })
   .withMigration(async (account) => {
-    if (!account.$jazz.has("profile")) {
+    const hasProfile = account.$jazz.has("profile") === true;
+    if (hasProfile === false) {
       const publicGroup = Group.create({
         owner: account,
       });
@@ -40,7 +41,8 @@ export const RegardeAccount = co
       );
     }
 
-    if (!account.$jazz.has("root")) {
+    const hasRoot = account.$jazz.has("root") === true;
+    if (hasRoot === false) {
       const regardeSdk = await initRegardeSDK(account, "create");
       account.$jazz.set("root", {
         "regarde-sdk": regardeSdk,
@@ -57,11 +59,13 @@ export const RegardeAccount = co
         root: true,
       },
     });
-    if (!root.$isLoaded) {
+    const isRootLoaded = root.$isLoaded === true;
+    if (isRootLoaded === false) {
       throw new Error("Failed to load RegardeAccount root");
     }
 
-    if (!root.$jazz.has("regarde-sdk")) {
+    const hasRegardeSdk = root.$jazz.has("regarde-sdk") === true;
+    if (hasRegardeSdk === false) {
       const regardeSDK = await initRegardeSDK(account, "create");
       root.$jazz.set("regarde-sdk", regardeSDK);
       await account.$jazz.waitForSync();
@@ -73,7 +77,11 @@ export const RegardeAccount = co
       let regardeSDK = root["regarde-sdk"] as co.loaded<typeof RegardeSDK>;
 
       // v2 is deprecated - fully recreate as v4
-      if (regardeSDK && regardeSDK.$isLoaded && regardeSDK.version < 3) {
+      const isRegardeSdkV2 =
+        regardeSDK !== null &&
+        regardeSDK.$isLoaded === true &&
+        regardeSDK.version < 3;
+      if (isRegardeSdkV2 === true) {
         console.warn("[DEPRECATION] v2 SDK detected. Recreating as v4...");
         regardeSDK = await initRegardeSDK(account, "create");
         root.$jazz.set("regarde-sdk", regardeSDK);
@@ -82,11 +90,12 @@ export const RegardeAccount = co
           "[SUCCESS] RegardeSDK recreated as v4:",
           regardeSDK.$jazz.id,
         );
-      } else if (
-        regardeSDK &&
-        regardeSDK.$isLoaded &&
-        regardeSDK.version === 3
-      ) {
+      } else {
+        const isRegardeSdkV3 =
+          regardeSDK !== null &&
+          regardeSDK.$isLoaded === true &&
+          regardeSDK.version === 3;
+        if (isRegardeSdkV3 === true) {
         // Migration v3 -> v4: Add mySubscriptions and myLicenses if missing
         const ownerGroup = regardeSDK.$jazz.owner;
         const isOwnerGroupValid =
@@ -200,6 +209,7 @@ export const RegardeAccount = co
         regardeSDK.$jazz.set("version", 4);
         await regardeSDK.$jazz.waitForSync();
         console.info("[SUCCESS] RegardeSDK migrated to v4");
+        }
       }
     }
   });

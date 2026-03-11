@@ -27,15 +27,18 @@ export const UserHandle = co
     isActive: z.boolean(),
   })
   .withMigration((userHandle) => {
-    if (!userHandle.$jazz.has("isActive")) {
+    const hasIsActive = userHandle.$jazz.has("isActive") === true;
+    if (hasIsActive === false) {
       userHandle.$jazz.set("isActive", false);
     }
 
-    if (!userHandle.$jazz.has("registeredAt")) {
+    const hasRegisteredAt = userHandle.$jazz.has("registeredAt") === true;
+    if (hasRegisteredAt === false) {
       userHandle.$jazz.set("registeredAt", Date.now());
     }
 
-    if (!userHandle.$jazz.has("lastModified")) {
+    const hasLastModified = userHandle.$jazz.has("lastModified") === true;
+    if (hasLastModified === false) {
       userHandle.$jazz.set("lastModified", Date.now());
     }
   });

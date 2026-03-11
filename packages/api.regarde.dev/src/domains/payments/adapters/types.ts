@@ -12,7 +12,12 @@ export type TUnifiedEventType =
   | TSubscriptionEventType
   | TLicenseEventType;
 
-export type TPaymentStatus = "succeeded" | "failed" | "refunded" | "pending" | "action_required";
+export type TPaymentStatus =
+  | "succeeded"
+  | "failed"
+  | "refunded"
+  | "pending"
+  | "action_required";
 export type TLicenseStatus = "active" | "inactive" | "revoked";
 
 // ---------------------------------------------------------------------------
@@ -118,7 +123,6 @@ export interface PaymentProviderAdapter {
 // ---------------------------------------------------------------------------
 
 export const PROVIDER_PREFIXES: Record<TPaymentProvider, string> = {
-  lemonsqueezy: "LS",
   stripe: "ST",
   polar: "PO",
 };

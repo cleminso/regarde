@@ -1,27 +1,28 @@
 import { wordlist } from "@scure/bip39/wordlists/english.js";
-import type { co } from "jazz-tools";
+import type { MaybeLoaded } from "jazz-tools";
 import { usePassphraseAuth, useAccount, useLogOut } from "jazz-tools/react";
 import { useMemo } from "react";
 
 import { RegardeAccount } from "#schemas/regardeAccount";
+import type { TRegardeAccount } from "#schemas/regardeAccount";
 import { RegardeSDK } from "#schemas/regardeSDK";
+import type { TRegardeSDK } from "#schemas/regardeSDK";
 
-export type UseRegardeAuthState = "anonymous" | "signedIn";
+export type TUseRegardeAuthState = "anonymous" | "signedIn";
 
-export interface SignUpResult {
+export interface TSignUpResult {
   passphrase: string;
   accountId: string;
 }
 
-export interface UseRegardeAuthResult {
-  state: UseRegardeAuthState;
-  signUp: (userName: string, passphrase?: string) => Promise<SignUpResult>;
+export interface TUseRegardeAuthResult {
+  state: TUseRegardeAuthState;
+  signUp: (userName: string, passphrase?: string) => Promise<TSignUpResult>;
   logIn: (passphrase: string) => Promise<void>;
   logOut: () => void;
   generatePassphrase: () => string;
-  account: co.loaded<typeof RegardeAccount> | null;
-  regardeSDK: co.loaded<typeof RegardeSDK> | null;
-  // TODO: add a new login option via secret
+  account: MaybeLoaded<TRegardeAccount>;
+  regardeSDK: MaybeLoaded<TRegardeSDK> | null;
 }
 
 /**
@@ -31,8 +32,37 @@ export interface UseRegardeAuthResult {
  * initialized via RegardeAccount.withMigration during account creation.
  *
  * @returns Authentication state, methods, and loaded account/SDK instances
+ *
+ * @example
+ * ```tsx
+ * function AuthComponent() {
+ *   const { state, signUp, logIn, logOut, account, regardeSDK } = useRegardeAuth();
+ *
+ *   if (state === "anonymous") {
+ *     return <LoginForm onLogin={logIn} onSignUp={signUp} />;
+ *   }
+ *
+ *   if (!account.$isLoaded) {
+ *     switch (account.$jazz.loadingState) {
+ *       case "loading":
+ *         return <div>Loading account...</div>;
+ *       case "unavailable":
+ *         return <div>Account not found</div>;
+ *       case "unauthorized":
+ *         return <div>Access denied</div>;
+ *     }
+ *   }
+ *
+ *   return (
+ *     <div>
+ *       <p>Welcome, {account.name}!</p>
+ *       <button onClick={logOut}>Log out</button>
+ *     </div>
+ *   );
+ * }
+ * ```
  */
-export function useRegardeAuth(): UseRegardeAuthResult {
+export function useRegardeAuth(): TUseRegardeAuthResult {
   const jazzAuth = usePassphraseAuth({ wordlist });
   const logOut = useLogOut();
 
@@ -47,7 +77,7 @@ export function useRegardeAuth(): UseRegardeAuthResult {
     },
   });
 
-  const state: UseRegardeAuthState = useMemo(() => {
+  const state: TUseRegardeAuthState = useMemo(() => {
     const isSignedIn = jazzAuth.state === "signedIn";
     return isSignedIn === true ? "signedIn" : "anonymous";
   }, [jazzAuth.state]);
@@ -56,7 +86,7 @@ export function useRegardeAuth(): UseRegardeAuthResult {
     return async (
       userName: string,
       providedPassphrase?: string,
-    ): Promise<SignUpResult> => {
+    ): Promise<TSignUpResult> => {
       const passphrase =
         providedPassphrase ?? jazzAuth.generateRandomPassphrase();
       await jazzAuth.registerNewAccount(passphrase, userName);
@@ -66,7 +96,7 @@ export function useRegardeAuth(): UseRegardeAuthResult {
     };
   }, [jazzAuth, account]);
 
-  const regardeSDK = useMemo(() => {
+  const regardeSDK = useMemo((): MaybeLoaded<TRegardeSDK> | null => {
     const isAccountLoaded = account !== null && account.$isLoaded === true;
     if (isAccountLoaded === false) {
       return null;
@@ -79,15 +109,11 @@ export function useRegardeAuth(): UseRegardeAuthResult {
     }
 
     const sdk = account.root["regarde-sdk"];
-    const isSdkLoaded =
-      sdk !== null && sdk !== undefined && sdk.$isLoaded === true;
+    if (sdk === null || sdk === undefined) {
+      return null;
+    }
 
-    return isSdkLoaded === true ? sdk : null;
-  }, [account]);
-
-  const loadedAccount = useMemo(() => {
-    const isLoaded = account !== null && account.$isLoaded === true;
-    return isLoaded === true ? account : null;
+    return sdk as MaybeLoaded<TRegardeSDK>;
   }, [account]);
 
   const generatePassphrase = useMemo(() => {
@@ -102,7 +128,7 @@ export function useRegardeAuth(): UseRegardeAuthResult {
     logIn: jazzAuth.logIn,
     logOut,
     generatePassphrase,
-    account: loadedAccount,
+    account,
     regardeSDK,
   };
 }

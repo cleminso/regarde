@@ -18,11 +18,13 @@ export const RegardeTokenAuth = co
     expiresAt: z.number(),
   })
   .withMigration((regardeTokenAuth) => {
-    if (!regardeTokenAuth.$jazz.has("token")) {
+    const hasToken = regardeTokenAuth.$jazz.has("token") === true;
+    if (hasToken === false) {
       regardeTokenAuth.$jazz.set("token", generateRegardeToken());
     }
 
-    if (!regardeTokenAuth.$jazz.has("expiresAt")) {
+    const hasExpiresAt = regardeTokenAuth.$jazz.has("expiresAt") === true;
+    if (hasExpiresAt === false) {
       regardeTokenAuth.$jazz.set("expiresAt", 0);
     }
   });

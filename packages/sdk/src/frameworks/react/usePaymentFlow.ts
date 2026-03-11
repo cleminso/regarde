@@ -1,5 +1,5 @@
 import { useCoState } from "jazz-tools/react";
-import type { MaybeLoaded } from "jazz-tools";
+import type { MaybeLoaded, ID } from "jazz-tools";
 import { useMemo } from "react";
 
 import { CheckoutSession } from "#schemas/checkoutSession";
@@ -8,7 +8,7 @@ import { PaymentEvent } from "#schemas/paymentEvent";
 import type { TPaymentEvent } from "#schemas/paymentEvent";
 
 export interface TUsePaymentFlowOptions {
-  checkoutSessionId: string;
+  checkoutSessionId: ID<typeof CheckoutSession>;
 }
 
 export interface TUsePaymentFlowResult {
@@ -30,7 +30,7 @@ export interface TUsePaymentFlowResult {
 export function usePaymentFlow(
   options: TUsePaymentFlowOptions,
 ): TUsePaymentFlowResult {
-  const checkout = useCoState(CheckoutSession, options.checkoutSessionId as any);
+  const checkout = useCoState(CheckoutSession, options.checkoutSessionId);
 
   const paymentEventId =
     checkout !== null &&
@@ -41,7 +41,7 @@ export function usePaymentFlow(
 
   const payment = useCoState(
     PaymentEvent,
-    paymentEventId !== undefined ? (paymentEventId as any) : undefined,
+    paymentEventId,
   );
 
   const isLoading = checkout === undefined;

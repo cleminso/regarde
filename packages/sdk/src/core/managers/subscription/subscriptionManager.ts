@@ -4,9 +4,6 @@ import {
   resumeStripeSubscription,
   cancelStripeSubscription,
   cancelPolarSubscription,
-  cancelLemonSqueezySubscription,
-  pauseLemonSqueezySubscription,
-  resumeLemonSqueezySubscription,
 } from "#core/providers";
 import type { TPaymentProvider } from "#schemas/paymentEvent";
 import type { TSubscription } from "#schemas/subscriptionEvent";
@@ -36,7 +33,6 @@ const validateSubscription = (subscription: TSubscription): void => {
  *
  * Provider support:
  * - Stripe: Native pause via pause_collection
- * - LemonSqueezy: Native pause via API
  * - Polar: Not supported (throws error)
  */
 export const pauseSubscription = async (
@@ -51,9 +47,6 @@ export const pauseSubscription = async (
   switch (provider) {
     case "stripe":
       await pauseStripeSubscription(options.apiKey, providerSubscriptionId);
-      break;
-    case "lemonsqueezy":
-      await pauseLemonSqueezySubscription(options.apiKey, providerSubscriptionId);
       break;
     case "polar":
       throw new RegardeError(
@@ -75,7 +68,6 @@ export const pauseSubscription = async (
  *
  * Provider support:
  * - Stripe: Native resume via clearing pause_collection
- * - LemonSqueezy: Native resume via API
  * - Polar: Not supported
  */
 export const resumeSubscription = async (
@@ -90,9 +82,6 @@ export const resumeSubscription = async (
   switch (provider) {
     case "stripe":
       await resumeStripeSubscription(options.apiKey, providerSubscriptionId);
-      break;
-    case "lemonsqueezy":
-      await resumeLemonSqueezySubscription(options.apiKey, providerSubscriptionId);
       break;
     case "polar":
       throw new RegardeError(
@@ -135,9 +124,6 @@ export const cancelSubscription = async (
       break;
     case "polar":
       await cancelPolarSubscription(options.apiKey, providerSubscriptionId);
-      break;
-    case "lemonsqueezy":
-      await cancelLemonSqueezySubscription(options.apiKey, providerSubscriptionId);
       break;
     default:
       throw new RegardeError(

@@ -35,8 +35,6 @@ export interface TCreateCheckoutParams {
   stripe?: Record<string, unknown>;
   /** Polar-specific options (passed directly to Polar API) */
   polar?: Record<string, unknown>;
-  /** LemonSqueezy-specific options */
-  lemonsqueezy?: Record<string, unknown>;
 }
 
 /**
@@ -63,7 +61,6 @@ export interface TCreateSubscriptionParams {
 
   stripe?: Record<string, unknown>;
   polar?: Record<string, unknown>;
-  lemonsqueezy?: Record<string, unknown>;
 }
 
 /**

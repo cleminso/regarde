@@ -1,5 +1,5 @@
 import { useAccount } from "jazz-tools/react";
-import type { co, CoList } from "jazz-tools";
+import type { MaybeLoaded, CoList } from "jazz-tools";
 import { useMemo } from "react";
 
 import { RegardeAccount } from "#schemas/regardeAccount";
@@ -25,31 +25,31 @@ import type { TRegardeAuthLoaded } from "#schemas/regardeTokenAuth";
 /**
  * Simple field - shallow load (true)
  */
-export type SimpleField = true;
+export type TSimpleField = true;
 
 /**
  * App field resolution options
  */
-export type AppField =
+export type TAppField =
   | { $each: true }
   | { $each: { payments?: true; subscriptions?: true; licenses?: true } };
 
 /**
  * Payment schema field resolution options
  */
-export type PaymentField = true | { all?: true; byApp?: true };
+export type TPaymentField = true | { all?: true; byApp?: true };
 
 /**
  * Subscription schema field resolution options
  */
-export type SubscriptionField =
+export type TSubscriptionField =
   | true
   | { all?: true; byApp?: true; status?: true };
 
 /**
  * License schema field resolution options
  */
-export type LicenseField = true | { all?: true; byApp?: true };
+export type TLicenseField = true | { all?: true; byApp?: true };
 
 /**
  * Configuration for loading specific RegardeSDK fields.
@@ -71,13 +71,13 @@ export type LicenseField = true | { all?: true; byApp?: true };
  * { myPayments: { all: true, byApp: true } }
  * ```
  */
-export interface UseMyRegardeAccountResolve {
-  auth?: SimpleField;
-  myUserHandle?: SimpleField;
-  myApps?: AppField;
-  myPayments?: PaymentField;
-  mySubscriptions?: SubscriptionField;
-  myLicenses?: LicenseField;
+export interface TUseMyRegardeAccountResolve {
+  auth?: TSimpleField;
+  myUserHandle?: TSimpleField;
+  myApps?: TAppField;
+  myPayments?: TPaymentField;
+  mySubscriptions?: TSubscriptionField;
+  myLicenses?: TLicenseField;
 }
 
 // =============================================================================
@@ -88,29 +88,41 @@ export interface UseMyRegardeAccountResolve {
  * Result of useMyRegardeAccount hook.
  *
  * Fields are typed based on your resolve configuration:
- * - Fields you requested will be CoValues (with $isLoaded = true) when isReady is true
+ * - Fields you requested will be available when isReady is true
  * - Fields you didn't request will be null
+ * - Account is always returned as MaybeLoaded for loading state handling
  *
  * @example
  * ```typescript
  * // With { auth: true, myApps: { $each: true } }
- * const { isReady, auth, myApps } = useMyRegardeAccount({ resolve: {...} });
+ * const { isReady, account, myApps, auth } = useMyRegardeAccount({ resolve: {...} });
+ *
+ * if (!account.$isLoaded) {
+ *   switch (account.$jazz.loadingState) {
+ *     case "loading":
+ *       return <div>Loading account...</div>;
+ *     case "unavailable":
+ *       return <div>Account not found</div>;
+ *     case "unauthorized":
+ *       return <div>Access denied</div>;
+ *   }
+ * }
  *
  * if (isReady) {
- *   // auth is TRegardeAuthLoaded (not null, not MaybeLoaded)
+ *   // auth is TRegardeAuthLoaded (not null)
  *   // myApps is CoList<TApp> with all apps loaded
  *   auth.token; // string - accessible
  *   myApps.forEach(app => app.name); // TApp - accessible
  * }
  * ```
  */
-export interface UseMyRegardeAccountResult {
+export interface TUseMyRegardeAccountResult {
   /** True when account is loaded, authenticated, and all requested fields are available */
   isReady: boolean;
   /** True when account is authenticated */
   isAuthenticated: boolean;
-  /** The loaded RegardeAccount or null if not loaded */
-  account: TRegardeAccount | null;
+  /** The RegardeAccount with loading state information */
+  account: MaybeLoaded<TRegardeAccount>;
   /** The loaded RegardeSDK or null if not loaded */
   regardeSDK: TRegardeSDK | null;
   /** Auth token CoMap when auth field is requested and loaded, null otherwise */
@@ -137,7 +149,7 @@ export interface UseMyRegardeAccountResult {
  * Builds Jazz resolve configuration from user-friendly field config
  */
 function buildResolveConfig(
-  fields: UseMyRegardeAccountResolve,
+  fields: TUseMyRegardeAccountResolve,
 ): Record<string, unknown> {
   const hasFields = Object.keys(fields).length > 0;
   if (hasFields === false) {
@@ -183,15 +195,29 @@ function isLoadedCoValue<T>(value: unknown): value is T & { $isLoaded: true } {
  * a field in the resolve config and isReady is true, that field is guaranteed to
  * be loaded and accessible without additional checks.
  *
+ * The account is returned as MaybeLoaded<TRegardeAccount>, allowing you to handle
+ * loading states, errors, and unauthorized access with full type safety.
+ *
  * @example
  * ```tsx
  * // Load auth and apps
  * function AppList() {
- *   const { isReady, myApps, auth } = useMyRegardeAccount({
+ *   const { isReady, account, myApps, auth } = useMyRegardeAccount({
  *     resolve: { auth: true, myApps: { $each: true } }
  *   });
  *
- *   if (isReady === false) return <div>Loading...</div>;
+ *   if (!account.$isLoaded) {
+ *     switch (account.$jazz.loadingState) {
+ *       case "loading":
+ *         return <div>Loading account...</div>;
+ *       case "unavailable":
+ *         return <div>Account not found</div>;
+ *       case "unauthorized":
+ *         return <div>Access denied</div>;
+ *     }
+ *   }
+ *
+ *   if (isReady === false) return <div>Loading SDK fields...</div>;
  *
  *   // TypeScript knows myApps is loaded CoList<TApp>
  *   return (
@@ -205,11 +231,15 @@ function isLoadedCoValue<T>(value: unknown): value is T & { $isLoaded: true } {
  *
  * // Load apps with nested payment records
  * function AppWithPayments() {
- *   const { isReady, myApps } = useMyRegardeAccount({
+ *   const { isReady, account, myApps } = useMyRegardeAccount({
  *     resolve: { myApps: { $each: { payments: true } } }
  *   });
  *
- *   if (isReady === false) return <div>Loading...</div>;
+ *   if (!account.$isLoaded) {
+ *     return <div>Loading account...</div>;
+ *   }
+ *
+ *   if (isReady === false) return <div>Loading apps...</div>;
  *
  *   // TypeScript knows app.payments is loaded (if requested in resolve)
  *   return myApps.map(app => (
@@ -222,8 +252,13 @@ function isLoadedCoValue<T>(value: unknown): value is T & { $isLoaded: true } {
  *
  * // Default: no SDK fields loaded
  * function AccountInfo() {
- *   const { account, isReady } = useMyRegardeAccount();
- *   return <div>Authenticated: {isReady ? 'Yes' : 'No'}</div>;
+ *   const { account } = useMyRegardeAccount();
+ *
+ *   if (!account.$isLoaded) {
+ *     return <div>Loading...</div>;
+ *   }
+ *
+ *   return <div>Account ID: {account.$jazz.id}</div>;
  * }
  * ```
  *
@@ -231,8 +266,8 @@ function isLoadedCoValue<T>(value: unknown): value is T & { $isLoaded: true } {
  * @returns Account state with typed loaded fields
  */
 export function useMyRegardeAccount(
-  options: { resolve?: UseMyRegardeAccountResolve } = {},
-): UseMyRegardeAccountResult {
+  options: { resolve?: TUseMyRegardeAccountResolve } = {},
+): TUseMyRegardeAccountResult {
   const { resolve = {} } = options;
 
   // Build resolve configuration from fields
@@ -254,7 +289,7 @@ export function useMyRegardeAccount(
       return {
         isReady: isAccountLoaded,
         isAuthenticated,
-        account: isAccountLoaded ? (account as TRegardeAccount) : null,
+        account: account as MaybeLoaded<TRegardeAccount>,
         regardeSDK: null,
         auth: null,
         myUserHandle: null,
@@ -331,7 +366,7 @@ export function useMyRegardeAccount(
     return {
       isReady,
       isAuthenticated,
-      account: isAccountLoaded ? (account as TRegardeAccount) : null,
+      account: account as MaybeLoaded<TRegardeAccount>,
       regardeSDK: isSdkLoaded ? sdk : null,
       auth,
       myUserHandle,

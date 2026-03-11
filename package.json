@@ -8,14 +8,18 @@
     "test": "pnpm -r test",
     "test:run": "pnpm --filter \"*.test.ts\" test:run",
     "cli": "node packages/cli/dist/index.mjs",
-    "format-and-lint": "oxfmt . --check && oxlint .",
-    "format-and-lint:fix": "oxfmt . --write && oxlint . --fix",
+    "format-and-lint": "oxfmt . --check && oxlint --type-aware .",
+    "format-and-lint:fix": "oxfmt . --write && oxlint --type-aware . --fix",
     "format": "oxfmt . --write",
     "format:check": "oxfmt . --check",
-    "lint:ci": "oxlint . --deny-warnings",
-    "lint:admin": "oxlint packages/admin",
-    "lint:sdk": "oxlint packages/sdk",
-    "lint:dashboard": "oxlint apps/dashboard.regarde.dev"
+    "lint:ci": "oxlint --type-aware . --deny-warnings",
+    "lint:admin": "oxlint --type-aware packages/admin",
+    "lint:sdk": "oxlint --type-aware packages/sdk",
+    "lint:dashboard": "oxlint --type-aware apps/dashboard.regarde.dev",
+    "format:sdk": "oxfmt packages/sdk --write",
+    "format:api": "oxfmt packages/api.regarde.dev --write",
+    "format-and-lint:sdk": "oxfmt packages/sdk --check && oxlint --type-aware packages/sdk",
+    "format-and-lint:api": "oxfmt packages/api.regarde.dev --check && oxlint --type-aware packages/api.regarde.dev"
   },
   "dependencies": {
     "@scure/bip39": "catalog:",
@@ -35,6 +39,7 @@
     "little-timestamp": "catalog:",
     "oxfmt": "^0.35.0",
     "oxlint": "^1.50.0",
+    "oxlint-tsgolint": "^0.16.0",
     "rolldown": "1.0.0-beta.57",
     "vitest": "catalog:"
   }

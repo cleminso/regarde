@@ -106,7 +106,7 @@ export const unifiedWebhookHandler = (
         message: "Webhook payload parsed",
         data: {
           provider,
-          eventType: json.type || json.meta?.event_name, // Stripe vs LemonSqueezy
+          eventType: json.type || json.meta?.event_name, // Stripe
           hasMetadata: !!(
             json.data?.object?.metadata ||
             json.meta?.custom_data ||
@@ -271,7 +271,6 @@ export const unifiedWebhookHandler = (
               extractError instanceof Error ? extractError.message : "Unknown",
             availableMetadataSources: {
               stripeMetadata: json.data?.object?.metadata,
-              lemonSqueezyCustomData: json.meta?.custom_data,
               polarMetadata: json.data?.metadata,
             },
           },
@@ -1400,7 +1399,9 @@ const updateCheckoutSessionFromPayment = async (
   const checkoutSessionId = providerMetadata.regarde_session_id;
 
   const hasCheckoutSessionId =
-    checkoutSessionId !== undefined && checkoutSessionId !== null && checkoutSessionId !== "";
+    checkoutSessionId !== undefined &&
+    checkoutSessionId !== null &&
+    checkoutSessionId !== "";
   if (hasCheckoutSessionId === false) {
     return;
   }
@@ -1410,7 +1411,9 @@ const updateCheckoutSessionFromPayment = async (
   });
 
   const isSessionLoaded =
-    checkoutSession !== null && checkoutSession !== undefined && checkoutSession.$isLoaded === true;
+    checkoutSession !== null &&
+    checkoutSession !== undefined &&
+    checkoutSession.$isLoaded === true;
   if (isSessionLoaded === false) {
     logger.warn({
       message: "CheckoutSession not found for payment event",

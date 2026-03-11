@@ -110,8 +110,8 @@ export function useRegardeStripeCheckoutLink(
     [account, app],
   );
 
-  const isLoading =
-    isAuthenticated === true && (account === undefined || !account.$isLoaded);
+  const isAccountNotLoaded = account === undefined || account.$isLoaded === false;
+  const isLoading = isAuthenticated === true && isAccountNotLoaded;
 
   const error =
     isAuthenticated === true &&

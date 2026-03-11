@@ -58,15 +58,116 @@ apps/
 
 ## Code Style Guidelines
 
-### Golden Rule - Boolean Pattern (Explicit Checks)
+### Golden Rule - Boolean Pattern (Explicit Checks) - MANDATORY
+
+ALWAYS use explicit `=== true` and `=== false` comparisons. NEVER use implicit truthiness checks (`!variable`, `variable` in conditions).
+
+**Why:**
+
+- Prevents TypeScript type narrowing issues with literal types
+- Makes code read like English - explicit intent
+- Avoids bugs from falsy values (`0`, `""`, `undefined`)
+- Ensures consistent patterns across the codebase
 
 ```typescript
-// Prefer explicit comparisons over implicit truthiness
-const accountValid = account !== null && account.$isLoaded === true;
-if (accountValid === false) {
-  throw new Error("Account must be loaded");
+// FORBIDDEN - Implicit truthiness
+if (!account.$isLoaded) {
+  throw new Error("Not loaded");
+}
+if (account) {
+  process(account);
+}
+if (!root.$jazz.has("field")) {
+  createField();
+}
+
+// REQUIRED - Explicit boolean comparisons
+const isLoaded = account !== null && account.$isLoaded === true;
+if (isLoaded === false) {
+  throw new Error("Not loaded");
+}
+
+const hasField = root.$jazz.has("field") === true;
+if (hasField === false) {
+  createField();
+}
+
+// For combined conditions, extract to named const
+const isAccountValid =
+  account !== null && account !== undefined && account.$isLoaded === true;
+if (isAccountValid === false) {
+  throw new Error("Invalid");
 }
 ```
+
+### MaybeLoaded Pattern - Hook Return Types
+
+All data-reading hooks MUST return `MaybeLoaded<T>` to align with Jazz ecosystem patterns. This enables consistent loading states across all data access.
+
+```typescript
+import type { MaybeLoaded } from "jazz-tools";
+
+// CORRECT - Returns MaybeLoaded
+export interface TUseMyDataResult {
+  data: MaybeLoaded<TMyData>;
+  isLoading: boolean;
+}
+
+export function useMyData(options: TOptions): TUseMyDataResult {
+  const data = useCoState(MyDataSchema, options.id);
+  const isLoading = data === undefined;
+  return { data, isLoading };
+}
+
+// INCORRECT - Returns non-MaybeLoaded
+export interface TUseMyDataResult {
+  data: TMyData | null; // Wrong! Should be MaybeLoaded<TMyData>
+  isLoading: boolean;
+}
+```
+
+### Type Predicate Pattern - Filter Callbacks
+
+Use implicit parameter types with type predicates in filter callbacks. This maintains clean, readable code while providing proper type narrowing.
+
+```typescript
+// CORRECT - Implicit parameter type (matches codebase convention)
+const loadedSubscriptions = subscriptions.filter(
+  (sub): sub is TSubscription =>
+    sub !== null && sub !== undefined && sub.$isLoaded === true,
+);
+
+// INCORRECT - Explicit 'unknown' parameter (too verbose, unnecessary)
+const loadedSubscriptions = subscriptions.filter(
+  (sub: unknown): sub is TSubscription =>
+    sub !== null &&
+    sub !== undefined &&
+    (sub as { $isLoaded?: boolean }).$isLoaded === true,
+);
+
+// INCORRECT - Missing type predicate (loses type narrowing)
+const loadedSubscriptions = subscriptions.filter(
+  (sub) => sub !== null && sub !== undefined && sub.$isLoaded === true,
+);
+```
+
+### Automated Enforcement (Oxlint)
+
+The following patterns are automatically enforced via Oxlint rules in `.oxlintrc.json`:
+
+**Enabled Rules:**
+
+- `eqeqeq` - Enforces `===` and `!==` over `==` and `!=`
+- `no-implicit-coercion` - Prevents implicit boolean coercion (e.g., `!!value`, `+value`)
+- `no-extra-boolean-cast` - Prevents unnecessary boolean casts
+- `typescript/strict-boolean-expressions` - Enforces explicit boolean checks in conditions (catches `if (string)`, `!object`, etc.)
+- `@typescript-eslint/naming-convention` - Enforces 'T' prefix on type aliases
+
+**Type-Aware Linting:**
+
+The `strict-boolean-expressions` rule requires type information and runs with the `--type-aware` flag. The `oxlint-tsgolint` package provides this capability.
+
+Run `pnpm format-and-lint` to check your code against these rules.
 
 ### Naming Conventions
 

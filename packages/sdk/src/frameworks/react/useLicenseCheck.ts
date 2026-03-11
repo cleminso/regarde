@@ -1,11 +1,11 @@
 import { useCoState } from "jazz-tools/react";
-import type { MaybeLoaded } from "jazz-tools";
+import type { MaybeLoaded, ID } from "jazz-tools";
 
 import { LicenseEvent } from "#schemas/licenseEvent";
 import type { TLicenseEvent, TLicenseStatus } from "#schemas/licenseEvent";
 
 export interface TUseLicenseCheckOptions {
-  licenseEventId: string;
+  licenseEventId: ID<typeof LicenseEvent>;
 }
 
 export interface TUseLicenseCheckResult {
@@ -26,7 +26,7 @@ export interface TUseLicenseCheckResult {
 export function useLicenseCheck(
   options: TUseLicenseCheckOptions,
 ): TUseLicenseCheckResult {
-  const license = useCoState(LicenseEvent, options.licenseEventId as any);
+  const license = useCoState(LicenseEvent, options.licenseEventId);
 
   const isLoading = license === undefined;
 

@@ -20,6 +20,22 @@
     "unicorn/no-array-sort": "off",
     "react/react-in-jsx-scope": "off",
     "no-unused-vars": "error",
+    "eqeqeq": ["error", "always", { "null": "ignore" }],
+    "no-implicit-coercion": "error",
+    "no-extra-boolean-cast": "error",
+    "typescript/strict-boolean-expressions": [
+      "error",
+      {
+        "allowString": false,
+        "allowNumber": false,
+        "allowNullableObject": false,
+        "allowNullableBoolean": false,
+        "allowNullableString": false,
+        "allowNullableNumber": false,
+        "allowNullableEnum": false,
+        "allowAny": false
+      }
+    ],
     "@typescript-eslint/naming-convention": [
       "error",
       {

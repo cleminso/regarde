@@ -76,7 +76,8 @@ export const RegistryWorkerAccount = co
         },
       });
 
-      if (!loadedAccount.root.$isLoaded) {
+      const isRootLoaded = loadedAccount.root.$isLoaded === true;
+      if (isRootLoaded === false) {
         // Create all nested CoValues first
         const newRegistry = NicknameRegistryCoRecord.create({});
         await newRegistry.$jazz.waitForSync();

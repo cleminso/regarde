@@ -58,3 +58,5 @@ export async function cancelPolarSubscription(
     );
   }
 }
+
+// TODO: verify that Polar use Cancel or Revoke

@@ -1,11 +1,7 @@
 import { Group, co, z } from "jazz-tools";
 
 import { RegardeError, REGARDE_ERROR_CODES } from "#core/errors";
-import {
-  createStripeCheckout,
-  createPolarCheckout,
-  createLemonSqueezyCheckout,
-} from "#core/providers";
+import { createStripeCheckout, createPolarCheckout } from "#core/providers";
 import type { TCreateCheckoutParams } from "#core/providers/types";
 import {
   CheckoutSession,
@@ -29,7 +25,6 @@ export interface TCreateCheckoutOptions {
   metadata?: Record<string, string>;
   stripe?: Record<string, unknown>;
   polar?: Record<string, unknown>;
-  lemonsqueezy?: Record<string, unknown>;
 }
 
 export interface TCreateCheckoutReturn {
@@ -47,7 +42,7 @@ export interface TCreateCheckoutReturn {
  * 4. Indexes checkout session in app's checkoutSessions
  *
  * @param account - The RegardeAccount creating the checkout
- * @param apiKey - Provider API key (Stripe secret, Polar token, or LemonSqueezy key)
+ * @param apiKey - Provider API key (Stripe secret, Polar token)
  * @param options - Checkout creation options
  * @returns The created CheckoutSession CoMap and payment URL
  */
@@ -88,7 +83,8 @@ export const createCheckout = async (
   }
 
   const app = options.app;
-  const isAppLoaded = app !== null && app !== undefined && app.$isLoaded === true;
+  const isAppLoaded =
+    app !== null && app !== undefined && app.$isLoaded === true;
   if (isAppLoaded === false) {
     throw new RegardeError(
       "App must be loaded",
@@ -98,7 +94,9 @@ export const createCheckout = async (
 
   const ownerGroup = regardeSdk.$jazz.owner;
   const isOwnerGroupLoaded =
-    ownerGroup !== null && ownerGroup !== undefined && ownerGroup.$isLoaded === true;
+    ownerGroup !== null &&
+    ownerGroup !== undefined &&
+    ownerGroup.$isLoaded === true;
   if (isOwnerGroupLoaded === false) {
     throw new RegardeError(
       "Failed to get owner group for checkout creation",
@@ -146,7 +144,6 @@ export const createCheckout = async (
     metadata: options.metadata,
     stripe: options.stripe,
     polar: options.polar,
-    lemonsqueezy: options.lemonsqueezy,
   };
 
   let providerResult;
@@ -157,9 +154,6 @@ export const createCheckout = async (
     case "polar":
       providerResult = await createPolarCheckout(apiKey, providerParams);
       break;
-    case "lemonsqueezy":
-      providerResult = await createLemonSqueezyCheckout(apiKey, providerParams);
-      break;
     default:
       throw new RegardeError(
         `Unsupported provider: ${options.provider}`,
@@ -167,11 +161,19 @@ export const createCheckout = async (
       );
   }
 
-  checkoutSession.$jazz.set("providerSessionId", providerResult.providerSessionId);
+  checkoutSession.$jazz.set(
+    "providerSessionId",
+    providerResult.providerSessionId,
+  );
   checkoutSession.$jazz.set("paymentUrl", providerResult.paymentUrl);
   await checkoutSession.$jazz.waitForSync();
 
-  await indexCheckoutSession(app, checkoutSessionId, providerResult.providerSessionId, jazzAccountId);
+  await indexCheckoutSession(
+    app,
+    checkoutSessionId,
+    providerResult.providerSessionId,
+    jazzAccountId,
+  );
 
   return {
     checkoutSession,
@@ -203,15 +205,19 @@ const indexCheckoutSession = async (
 
   const userSessions = byUser[userAccountId];
   const hasUserSessions =
-    userSessions !== null && userSessions !== undefined && userSessions.$isLoaded === true;
+    userSessions !== null &&
+    userSessions !== undefined &&
+    userSessions.$isLoaded === true;
 
   if (hasUserSessions === true) {
     userSessions.$jazz.set(providerSessionId, checkoutSessionId);
   } else {
-    const newUserRecord = co.record(z.string(), z.string()).create(
-      { [providerSessionId]: checkoutSessionId },
-      { owner: byUser.$jazz.owner },
-    );
+    const newUserRecord = co
+      .record(z.string(), z.string())
+      .create(
+        { [providerSessionId]: checkoutSessionId },
+        { owner: byUser.$jazz.owner },
+      );
     await newUserRecord.$jazz.waitForSync();
     byUser.$jazz.set(userAccountId, newUserRecord);
   }

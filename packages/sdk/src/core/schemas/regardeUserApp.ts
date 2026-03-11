@@ -49,7 +49,7 @@ export type TAppLicensesSchema = co.loaded<typeof AppLicensesSchema>;
 export const Webhook = co.map({
   name: z.string(),
   description: z.string(),
-  provider: z.enum(["lemonsqueezy", "stripe", "polar"]),
+  provider: z.enum(["stripe", "polar"]),
   environment: z.enum(["sandbox", "production"]), // regarde related
   createdAt: z.number(),
   isEnabled: z.boolean(), // desactive webhook if I don't wanna use it

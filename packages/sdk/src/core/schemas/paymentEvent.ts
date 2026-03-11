@@ -1,6 +1,6 @@
 import { co, z } from "jazz-tools";
 
-export const PAYMENT_PROVIDERS = ["lemonsqueezy", "stripe", "polar"] as const;
+export const PAYMENT_PROVIDERS = ["stripe", "polar"] as const;
 export type TPaymentProvider = (typeof PAYMENT_PROVIDERS)[number];
 
 export const PAYMENT_EVENT_TYPES = [

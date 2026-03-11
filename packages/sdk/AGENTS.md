@@ -69,12 +69,89 @@ await account.$jazz.ensureLoaded({
 });
 ```
 
-### Boolean Pattern (Explicit Checks)
+### Boolean Pattern (Explicit Checks) - MANDATORY
+
+ALWAYS use explicit `=== true` and `=== false` comparisons. NEVER use implicit truthiness checks (`!variable`, `variable` in conditions).
+
+**Why:**
+
+- Prevents TypeScript type narrowing issues with literal types
+- Makes code read like English - explicit intent
+- Avoids bugs from falsy values (`0`, `""`, `undefined`)
+- Ensures consistent patterns across the codebase
 
 ```typescript
-const isAvailable = !existingNickname && !reservation;
-const isTokenPresent = token !== null && token.length > 0;
-if (isRequired === true) { ... }
+// FORBIDDEN - Implicit truthiness
+if (!account.$isLoaded) {
+  throw new Error("Not loaded");
+}
+if (account) {
+  process(account);
+}
+if (!root.$jazz.has("field")) {
+  createField();
+}
+
+// REQUIRED - Explicit boolean comparisons
+const isLoaded = account !== null && account.$isLoaded === true;
+if (isLoaded === false) {
+  throw new Error("Not loaded");
+}
+
+const hasField = root.$jazz.has("field") === true;
+if (hasField === false) {
+  createField();
+}
+
+// For combined conditions, extract to named const
+const isAccountValid =
+  account !== null && account !== undefined && account.$isLoaded === true;
+if (isAccountValid === false) {
+  throw new Error("Invalid");
+}
+```
+
+### MaybeLoaded Pattern - Hook Return Types
+
+All data-reading hooks MUST return `MaybeLoaded<T>` to align with Jazz ecosystem patterns.
+
+```typescript
+import type { MaybeLoaded } from "jazz-tools";
+
+// CORRECT - Returns MaybeLoaded
+export interface TUseMyDataResult {
+  data: MaybeLoaded<TMyData>;
+  isLoading: boolean;
+}
+
+export function useMyData(options: TOptions): TUseMyDataResult {
+  const data = useCoState(MyDataSchema, options.id);
+  const isLoading = data === undefined;
+  return { data, isLoading };
+}
+
+// INCORRECT - Returns non-MaybeLoaded
+export interface TUseMyDataResult {
+  data: TMyData | null; // Wrong! Should be MaybeLoaded<TMyData>
+  isLoading: boolean;
+}
+```
+
+### Type Predicate Pattern - Filter Callbacks
+
+Use implicit parameter types with type predicates in filter callbacks:
+
+```typescript
+// CORRECT - Implicit parameter type
+(sub): sub is TSubscription =>
+  sub !== null && sub !== undefined && sub.$isLoaded === true,
+
+// INCORRECT - Explicit 'unknown' parameter (too verbose)
+(sub: unknown): sub is TSubscription =>
+  sub !== null && sub !== undefined && (sub as { $isLoaded?: boolean }).$isLoaded === true,
+
+// INCORRECT - Missing type predicate (loses type narrowing)
+(sub) => sub !== null && sub !== undefined && sub.$isLoaded === true,
 ```
 
 ## Code Style

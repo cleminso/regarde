@@ -2,13 +2,13 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "experimentalSortImports": {
     "groups": [
-      ["side-effect"],
+      ["side_effect"],
       ["builtin"],
-      ["external", "external-type", "value-external"],
-      ["internal", "internal-type", "value-internal"],
-      ["sibling", "sibling-type"],
-      ["parent", "parent-type"],
-      ["index", "index-type"]
+      ["external", "type-external"],
+      ["internal", "type-internal"],
+      ["sibling", "type-sibling"],
+      ["parent", "type-parent"],
+      ["index", "type-index"]
     ],
     "internalPattern": ["#", "@regarde-dev/"],
     "newlinesBetween": true

@@ -1,11 +1,11 @@
 import { useCoState } from "jazz-tools/react";
-import type { MaybeLoaded } from "jazz-tools";
+import type { MaybeLoaded, ID } from "jazz-tools";
 
 import { PaymentEvent } from "#schemas/paymentEvent";
 import type { TPaymentEvent, TPaymentStatus } from "#schemas/paymentEvent";
 
 export interface TUsePaymentStatusOptions {
-  paymentEventId: string;
+  paymentEventId: ID<typeof PaymentEvent>;
 }
 
 export interface TUsePaymentStatusResult {
@@ -25,7 +25,7 @@ export interface TUsePaymentStatusResult {
 export function usePaymentStatus(
   options: TUsePaymentStatusOptions,
 ): TUsePaymentStatusResult {
-  const payment = useCoState(PaymentEvent, options.paymentEventId as any);
+  const payment = useCoState(PaymentEvent, options.paymentEventId);
 
   const isLoading = payment === undefined;
 

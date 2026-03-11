@@ -1,11 +1,11 @@
 import { useCoState } from "jazz-tools/react";
-import type { MaybeLoaded } from "jazz-tools";
+import type { MaybeLoaded, ID } from "jazz-tools";
 
 import { Subscription } from "#schemas/subscriptionEvent";
 import type { TSubscription, TSubscriptionStatus } from "#schemas/subscriptionEvent";
 
 export interface TUseSubscriptionForUserOptions {
-  subscriptionId: string;
+  subscriptionId: ID<typeof Subscription>;
 }
 
 export interface TUseSubscriptionForUserResult {
@@ -26,7 +26,7 @@ export interface TUseSubscriptionForUserResult {
 export function useSubscriptionForUser(
   options: TUseSubscriptionForUserOptions,
 ): TUseSubscriptionForUserResult {
-  const subscription = useCoState(Subscription, options.subscriptionId as any);
+  const subscription = useCoState(Subscription, options.subscriptionId);
 
   const isLoading = subscription === undefined;
 
