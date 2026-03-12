@@ -9,10 +9,17 @@ export const REGARDE_ERROR_CODES = {
 
   // Subscription errors
   SUBSCRIPTION_CREATE_FAILED: "subscription_create_failed",
+  SUBSCRIPTION_UPDATE_FAILED: "subscription_update_failed",
   SUBSCRIPTION_PAUSE_FAILED: "subscription_pause_failed",
   SUBSCRIPTION_RESUME_FAILED: "subscription_resume_failed",
   SUBSCRIPTION_CANCEL_FAILED: "subscription_cancel_failed",
   SUBSCRIPTION_NOT_FOUND: "subscription_not_found",
+
+  // Refund errors
+  REFUND_CREATE_FAILED: "refund_create_failed",
+  REFUND_EXCEEDS_PAYMENT: "refund_exceeds_payment",
+  REFUND_ALREADY_REFUNDED: "refund_already_refunded",
+  REFUND_NOT_FOUND: "refund_not_found",
 
   // Provider errors
   PROVIDER_API_ERROR: "provider_api_error",
@@ -24,6 +31,7 @@ export const REGARDE_ERROR_CODES = {
   INVALID_AMOUNT: "invalid_amount",
   INVALID_CURRENCY: "invalid_currency",
   MISSING_REQUIRED_FIELD: "missing_required_field",
+  PROVIDER_VALIDATION_FAILED: "provider_validation_failed",
 
   // Jazz/State errors
   COMAP_NOT_FOUND: "comap_not_found",

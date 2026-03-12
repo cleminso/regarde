@@ -91,6 +91,9 @@ export type {
 export { Invoice, InvoiceLineItem } from "./invoice";
 export type { TInvoice, TInvoiceLineItem } from "./invoice";
 
+export { Refund, RefundLineItem, AppRefundsSchema, RefundSchema } from "./refund";
+export type { TRefund, TRefundLineItem, TAppRefundsSchema, TRefundSchema } from "./refund";
+
 export {
   RegardeApp,
   Webhook,

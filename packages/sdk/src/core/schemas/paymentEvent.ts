@@ -91,10 +91,13 @@ export const PaymentEvent = co.map({
   providerSubscriptionId: z.optional(z.string()), // Since we properly map event, is it still needed?
   providerLicenseId: z.optional(z.string()), // same
 
+  refundAmount: z.optional(z.string()).describe("Total refunded amount"),
+  refundReason: z.optional(z.string()).describe("Reason for refund"),
+  refundEventId: z.optional(z.string()).describe("Links to Refund CoMap"),
+
   providerMetadata: co.record(z.string(), z.string()),
   metadata: co.record(z.string(), z.string()),
   timestamp: z.number(),
 });
 
-/** Loaded PaymentEvent instance */
 export type TPaymentEvent = co.loaded<typeof PaymentEvent>;

@@ -189,6 +189,54 @@ export const initRegardeSDK = async (
       );
     await myLicenses.$jazz.waitForSync();
 
+    const allInvoicesRecord = co
+      .record(z.string(), z.string())
+      .create({}, { owner: regardeAdminOtherReadersGroup });
+    await allInvoicesRecord.$jazz.waitForSync();
+
+    const byAppInvoicesRecord = co
+      .record(z.string(), co.record(z.string(), z.string()))
+      .create({}, { owner: regardeAdminOtherReadersGroup });
+    await byAppInvoicesRecord.$jazz.waitForSync();
+
+    const myInvoices = co
+      .map({
+        all: co.record(z.string(), z.string()),
+        byApp: co.record(z.string(), co.record(z.string(), z.string())),
+      })
+      .create(
+        {
+          all: allInvoicesRecord,
+          byApp: byAppInvoicesRecord,
+        },
+        { owner: regardeAdminOtherReadersGroup },
+      );
+    await myInvoices.$jazz.waitForSync();
+
+    const allRefundsRecord = co
+      .record(z.string(), z.string())
+      .create({}, { owner: regardeAdminOtherReadersGroup });
+    await allRefundsRecord.$jazz.waitForSync();
+
+    const byAppRefundsRecord = co
+      .record(z.string(), co.record(z.string(), z.string()))
+      .create({}, { owner: regardeAdminOtherReadersGroup });
+    await byAppRefundsRecord.$jazz.waitForSync();
+
+    const myRefunds = co
+      .map({
+        all: co.record(z.string(), z.string()),
+        byApp: co.record(z.string(), co.record(z.string(), z.string())),
+      })
+      .create(
+        {
+          all: allRefundsRecord,
+          byApp: byAppRefundsRecord,
+        },
+        { owner: regardeAdminOtherReadersGroup },
+      );
+    await myRefunds.$jazz.waitForSync();
+
     const newSDK = RegardeSDK.create(
       {
         myUserHandle: UserHandle.create(
@@ -215,6 +263,8 @@ export const initRegardeSDK = async (
         myPayments: myPayments,
         mySubscriptions: mySubscriptions,
         myLicenses: myLicenses,
+        myInvoices: myInvoices,
+        myRefunds: myRefunds,
         version: 4,
       },
       {
@@ -405,6 +455,54 @@ export const initRegardeSDK = async (
       );
     await myLicenses.$jazz.waitForSync();
 
+    const allInvoicesRecord = co
+      .record(z.string(), z.string())
+      .create({}, { owner: regardeAdminOtherReadersGroup });
+    await allInvoicesRecord.$jazz.waitForSync();
+
+    const byAppInvoicesRecord = co
+      .record(z.string(), co.record(z.string(), z.string()))
+      .create({}, { owner: regardeAdminOtherReadersGroup });
+    await byAppInvoicesRecord.$jazz.waitForSync();
+
+    const myInvoices = co
+      .map({
+        all: co.record(z.string(), z.string()),
+        byApp: co.record(z.string(), co.record(z.string(), z.string())),
+      })
+      .create(
+        {
+          all: allInvoicesRecord,
+          byApp: byAppInvoicesRecord,
+        },
+        { owner: regardeAdminOtherReadersGroup },
+      );
+    await myInvoices.$jazz.waitForSync();
+
+    const allRefundsRecord = co
+      .record(z.string(), z.string())
+      .create({}, { owner: regardeAdminOtherReadersGroup });
+    await allRefundsRecord.$jazz.waitForSync();
+
+    const byAppRefundsRecord = co
+      .record(z.string(), co.record(z.string(), z.string()))
+      .create({}, { owner: regardeAdminOtherReadersGroup });
+    await byAppRefundsRecord.$jazz.waitForSync();
+
+    const myRefunds = co
+      .map({
+        all: co.record(z.string(), z.string()),
+        byApp: co.record(z.string(), co.record(z.string(), z.string())),
+      })
+      .create(
+        {
+          all: allRefundsRecord,
+          byApp: byAppRefundsRecord,
+        },
+        { owner: regardeAdminOtherReadersGroup },
+      );
+    await myRefunds.$jazz.waitForSync();
+
     const newSDK = RegardeSDK.create(
       {
         myUserHandle: UserHandle.create(
@@ -431,6 +529,8 @@ export const initRegardeSDK = async (
         myPayments: myPayments,
         mySubscriptions: mySubscriptions,
         myLicenses: myLicenses,
+        myInvoices: myInvoices,
+        myRefunds: myRefunds,
         version: 4,
       },
       {
@@ -466,6 +566,8 @@ export const initRegardeSDK = async (
       myPayments: true,
       mySubscriptions: true,
       myLicenses: true,
+      myInvoices: true,
+      myRefunds: true,
     },
   });
 

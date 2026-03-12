@@ -234,3 +234,55 @@ Build outputs `dist/index.js`, `dist/react.js`, `dist/preact.js` with bundled ty
 - RegardeSDK version field enables migration support
 - PaymentEvent maps use nested structure: `all[providerUUID]` and `byApp[appId][providerUUID]`
 - Separate groups for user data (userGroup) and payment data (regardeAdminOtherReadersGroup)
+
+## Manager Function Patterns
+
+### When to Pass `account` Parameter
+
+Functions should only accept `account` when creating Jazz CoMaps. Provider-only operations don't need it.
+
+**Need account (create CoMaps):**
+```typescript
+// Creates CheckoutSession CoMap - needs owner group from account
+await createCheckout(account, apiKey, { ... });
+
+// Creates Refund CoMap - needs owner group from account
+await createRefund(account, apiKey, "stripe", { ... });
+```
+
+**Don't need account (provider APIs only):**
+```typescript
+// These hooks don't need account because:
+// 1. They only call provider APIs (Stripe/Polar), not Jazz
+// 2. The subscription is identified by provider's ID (e.g., sub_123456)
+// 3. The user is implicit via the API key
+
+await pauseSubscription({ subscriptionId, provider, apiKey });
+await cancelSubscription({ subscriptionId, provider, apiKey, cancelAtPeriodEnd });
+await updateSubscription(apiKey, { subscriptionId, provider, priceId });
+```
+
+**Why this distinction matters:**
+- Clear intent - you know when Jazz data is being created
+- No unused parameters - don't pass account "just in case"
+- Jazz stays synced via webhooks - provider actions trigger webhooks that update CoMaps asynchronously
+
+### Hook Operations Reference
+
+Use this table to understand what each React hook does and whether it needs the account parameter:
+
+| Hook | Jazz Operations | Provider Operations | Needs Account |
+|------|----------------|---------------------|---------------|
+| `useCreateCheckout` | Creates CheckoutSession CoMap | Calls Stripe/Polar checkout API | Yes |
+| `useCreateRefund` | Creates Refund CoMap | Calls Stripe/Polar refund API | Yes |
+| `useCreateSubscription` | Creates Subscription CoMap | Calls Stripe/Polar subscription API | Yes |
+| `usePauseSubscription` | None | Calls Stripe/Polar pause API | No |
+| `useResumeSubscription` | None | Calls Stripe/Polar resume API | No |
+| `useCancelSubscription` | None | Calls Stripe/Polar cancel API | No |
+| `useUpdateSubscription` | None | Calls Stripe/Polar update API | No |
+| `useInvoices` | Reads Invoice CoMaps | None | Yes (to access user's invoices) |
+
+**Legend:**
+- **Jazz Operations**: Actions performed on Jazz CoMaps (create, read, update)
+- **Provider Operations**: API calls to payment providers (Stripe, Polar)
+- **Needs Account**: Whether the hook requires the `account` parameter

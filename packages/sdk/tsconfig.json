@@ -25,9 +25,9 @@
       "#core/*": ["./src/core/*"],
       "#frameworks/*": ["./src/frameworks/*"],
       "#provider/*": ["./src/core/provider/*"],
-      "erros": ["./src/core/errors/*"],
-    },
+      "erros": ["./src/core/errors/*"]
+    }
   },
   "include": ["src/**/*", "./vite.config.ts"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }

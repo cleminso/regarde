@@ -2,67 +2,63 @@ import { useAccount, useIsAuthenticated } from "jazz-tools/react";
 import { useCallback, useState } from "react";
 
 import { RegardeError } from "#core/errors";
-import { createCheckout } from "#core/managers/checkout";
+import { createSubscription, type TCreateSubscriptionReturn } from "#core/managers/subscription";
 import { RegardeAccount } from "#schemas/regardeAccount";
-import type { TCheckoutSession } from "#schemas/checkoutSession";
 import type { TPaymentProvider } from "#schemas/paymentEvent";
 import type { TRegardeApp } from "#schemas/regardeUserApp";
 
-export interface TCreateCheckoutParams {
+export interface TCreateSubscriptionParams {
   provider: TPaymentProvider;
-  amount: number;
-  currency: string;
-  mode: "payment" | "subscription";
+  priceId: string;
   app: TRegardeApp;
-  successUrl: string;
-  cancelUrl: string;
   customerEmail?: string;
-  productName?: string;
+  trialDays?: number;
   metadata?: Record<string, string>;
   stripe?: Record<string, unknown>;
   polar?: Record<string, unknown>;
 }
 
-export interface TUseCreateCheckoutResult {
-  createCheckout: (
+export interface TUseCreateSubscriptionResult {
+  createSubscription: (
     apiKey: string,
-    params: TCreateCheckoutParams,
-  ) => Promise<{ checkoutSession: TCheckoutSession; paymentUrl: string }>;
+    params: TCreateSubscriptionParams,
+  ) => Promise<TCreateSubscriptionReturn>;
   isCreating: boolean;
   error: RegardeError | null;
 }
 
 /**
- * React hook for creating a checkout session.
+ * React hook for creating a subscription directly.
  *
  * Operations:
- * - Jazz: Creates CheckoutSession CoMap (needs account for owner group)
- * - Provider: Calls Stripe/Polar checkout API
+ * - Jazz: Creates Subscription CoMap (needs account for owner group)
+ * - Provider: Calls Stripe/Polar subscription API
  *
- * @returns Object with createCheckout function, loading state, and error
+ * For Stripe: Creates a subscription and returns the subscription ID.
+ * For Polar: Creates a checkout session in subscription mode.
+ *
+ * @returns Object with createSubscription function, loading state, and error
  *
  * @example
  * ```tsx
- * const { createCheckout, isCreating, error } = useCreateCheckout();
+ * const { createSubscription, isCreating, error } = useCreateSubscription();
  *
- * const handleCheckout = async () => {
- *   const { checkoutSession, paymentUrl } = await createCheckout(
+ * const handleSubscribe = async () => {
+ *   const result = await createSubscription(
  *     "sk_test_...",
  *     {
  *       provider: "stripe",
- *       amount: 1000,
- *       currency: "usd",
- *       mode: "payment",
+ *       priceId: "price_123",
  *       app: myApp,
- *       successUrl: "https://example.com/success",
- *       cancelUrl: "https://example.com/cancel",
+ *       customerEmail: "user@example.com",
+ *       trialDays: 14,
  *     }
  *   );
- *   window.location.href = paymentUrl;
+ *   console.log("Subscription created:", result.providerSubscriptionId);
  * };
  * ```
  */
-export function useCreateCheckout(): TUseCreateCheckoutResult {
+export function useCreateSubscription(): TUseCreateSubscriptionResult {
   const isAuthenticated = useIsAuthenticated();
   const account = useAccount(
     RegardeAccount,
@@ -80,11 +76,11 @@ export function useCreateCheckout(): TUseCreateCheckoutResult {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<RegardeError | null>(null);
 
-  const createCheckoutFn = useCallback(
+  const createSubscriptionFn = useCallback(
     async (
       apiKey: string,
-      params: TCreateCheckoutParams,
-    ): Promise<{ checkoutSession: TCheckoutSession; paymentUrl: string }> => {
+      params: TCreateSubscriptionParams,
+    ): Promise<TCreateSubscriptionReturn> => {
       setIsCreating(true);
       setError(null);
 
@@ -95,17 +91,12 @@ export function useCreateCheckout(): TUseCreateCheckoutResult {
           throw new RegardeError("Account must be loaded", "account_not_loaded" as const);
         }
 
-        const result = await createCheckout(account, apiKey, {
-          ...params,
+        const result = await createSubscription(account, apiKey, {
           provider: params.provider,
-          amount: params.amount,
-          currency: params.currency,
-          mode: params.mode,
+          priceId: params.priceId,
           app: params.app,
-          successUrl: params.successUrl,
-          cancelUrl: params.cancelUrl,
           customerEmail: params.customerEmail,
-          productName: params.productName,
+          trialDays: params.trialDays,
           metadata: params.metadata,
           stripe: params.stripe,
           polar: params.polar,
@@ -118,7 +109,7 @@ export function useCreateCheckout(): TUseCreateCheckoutResult {
             ? err
             : new RegardeError(
                 err instanceof Error ? err.message : "Unknown error",
-                "checkout_create_failed" as const,
+                "subscription_create_failed" as const,
               );
         setError(regardeError);
         throw regardeError;
@@ -130,7 +121,7 @@ export function useCreateCheckout(): TUseCreateCheckoutResult {
   );
 
   return {
-    createCheckout: createCheckoutFn,
+    createSubscription: createSubscriptionFn,
     isCreating,
     error,
   };

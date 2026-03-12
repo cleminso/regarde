@@ -21,10 +21,20 @@ export async function createPolarCheckout(
     const polar = new Polar({ accessToken });
 
     const polarEscapeHatch = params.polar ?? {};
+    const products = polarEscapeHatch.products as string[] | undefined;
+
+    const hasProducts =
+      products !== null && products !== undefined && Array.isArray(products) && products.length > 0;
+    if (hasProducts === false) {
+      throw new RegardeError(
+        "Polar checkout requires 'products' array (pass via polar.products escape hatch)",
+        REGARDE_ERROR_CODES.MISSING_REQUIRED_FIELD,
+        "polar",
+      );
+    }
 
     const checkout = await polar.checkouts.create({
-      // oxlint-disable-next-line no-unsafe-type-assertion -- Provider escape hatch property
-      productPriceId: polarEscapeHatch.productPriceId as string | undefined,
+      products,
       successUrl: params.successUrl,
       customerEmail: params.customerEmail,
       ...polarEscapeHatch,

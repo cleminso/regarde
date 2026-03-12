@@ -1,4 +1,4 @@
-import { useAccount, useIsAuthenticated } from "jazz-tools/react";
+import { useIsAuthenticated } from "jazz-tools/react";
 import { useCallback, useState } from "react";
 
 import { RegardeError } from "#core/errors";
@@ -7,17 +7,24 @@ import {
   resumeSubscription,
   cancelSubscription,
 } from "#core/managers/subscription";
-import { RegardeAccount } from "#schemas/regardeAccount";
-import type { TSubscription } from "#schemas/subscriptionEvent";
+import type { TPaymentProvider } from "#schemas/paymentEvent";
 
 export interface TUsePauseSubscriptionResult {
-  pauseSubscription: (apiKey: string, subscription: TSubscription) => Promise<void>;
+  pauseSubscription: (
+    apiKey: string,
+    subscriptionId: string,
+    provider: TPaymentProvider,
+  ) => Promise<void>;
   isPausing: boolean;
   error: RegardeError | null;
 }
 
 export interface TUseResumeSubscriptionResult {
-  resumeSubscription: (apiKey: string, subscription: TSubscription) => Promise<void>;
+  resumeSubscription: (
+    apiKey: string,
+    subscriptionId: string,
+    provider: TPaymentProvider,
+  ) => Promise<void>;
   isResuming: boolean;
   error: RegardeError | null;
 }
@@ -25,7 +32,8 @@ export interface TUseResumeSubscriptionResult {
 export interface TUseCancelSubscriptionResult {
   cancelSubscription: (
     apiKey: string,
-    subscription: TSubscription,
+    subscriptionId: string,
+    provider: TPaymentProvider,
     cancelAtPeriodEnd?: boolean,
   ) => Promise<void>;
   isCanceling: boolean;
@@ -35,29 +43,25 @@ export interface TUseCancelSubscriptionResult {
 /**
  * React hook for pausing a subscription.
  *
+ * Operations:
+ * - Jazz: None (Jazz state updated via webhooks)
+ * - Provider: Calls Stripe/Polar pause API
+ *
  * @returns Object with pauseSubscription function, isPausing state, and error
  */
 export function usePauseSubscription(): TUsePauseSubscriptionResult {
-  const isAuthenticated = useIsAuthenticated();
-  const account = useAccount(RegardeAccount, isAuthenticated ? {} : {});
-
   const [isPausing, setIsPausing] = useState(false);
   const [error, setError] = useState<RegardeError | null>(null);
 
   const pauseFn = useCallback(
-    async (apiKey: string, subscription: TSubscription): Promise<void> => {
+    async (apiKey: string, subscriptionId: string, provider: TPaymentProvider): Promise<void> => {
       setIsPausing(true);
       setError(null);
 
       try {
-        const isAccountLoaded =
-          account !== null && account !== undefined && account.$isLoaded === true;
-        if (isAccountLoaded === false) {
-          throw new RegardeError("Account must be loaded", "account_not_loaded" as const);
-        }
-
-        await pauseSubscription(account, {
-          subscription,
+        await pauseSubscription({
+          subscriptionId,
+          provider,
           apiKey,
         });
       } catch (err) {
@@ -74,7 +78,7 @@ export function usePauseSubscription(): TUsePauseSubscriptionResult {
         setIsPausing(false);
       }
     },
-    [account],
+    [],
   );
 
   return {
@@ -87,29 +91,25 @@ export function usePauseSubscription(): TUsePauseSubscriptionResult {
 /**
  * React hook for resuming a paused subscription.
  *
+ * Operations:
+ * - Jazz: None (Jazz state updated via webhooks)
+ * - Provider: Calls Stripe/Polar resume API
+ *
  * @returns Object with resumeSubscription function, isResuming state, and error
  */
 export function useResumeSubscription(): TUseResumeSubscriptionResult {
-  const isAuthenticated = useIsAuthenticated();
-  const account = useAccount(RegardeAccount, isAuthenticated ? {} : {});
-
   const [isResuming, setIsResuming] = useState(false);
   const [error, setError] = useState<RegardeError | null>(null);
 
   const resumeFn = useCallback(
-    async (apiKey: string, subscription: TSubscription): Promise<void> => {
+    async (apiKey: string, subscriptionId: string, provider: TPaymentProvider): Promise<void> => {
       setIsResuming(true);
       setError(null);
 
       try {
-        const isAccountLoaded =
-          account !== null && account !== undefined && account.$isLoaded === true;
-        if (isAccountLoaded === false) {
-          throw new RegardeError("Account must be loaded", "account_not_loaded" as const);
-        }
-
-        await resumeSubscription(account, {
-          subscription,
+        await resumeSubscription({
+          subscriptionId,
+          provider,
           apiKey,
         });
       } catch (err) {
@@ -126,7 +126,7 @@ export function useResumeSubscription(): TUseResumeSubscriptionResult {
         setIsResuming(false);
       }
     },
-    [account],
+    [],
   );
 
   return {
@@ -139,33 +139,30 @@ export function useResumeSubscription(): TUseResumeSubscriptionResult {
 /**
  * React hook for canceling a subscription.
  *
+ * Operations:
+ * - Jazz: None (Jazz state updated via webhooks)
+ * - Provider: Calls Stripe/Polar cancel API
+ *
  * @returns Object with cancelSubscription function, isCanceling state, and error
  */
 export function useCancelSubscription(): TUseCancelSubscriptionResult {
-  const isAuthenticated = useIsAuthenticated();
-  const account = useAccount(RegardeAccount, isAuthenticated ? {} : {});
-
   const [isCanceling, setIsCanceling] = useState(false);
   const [error, setError] = useState<RegardeError | null>(null);
 
   const cancelFn = useCallback(
     async (
       apiKey: string,
-      subscription: TSubscription,
+      subscriptionId: string,
+      provider: TPaymentProvider,
       cancelAtPeriodEnd?: boolean,
     ): Promise<void> => {
       setIsCanceling(true);
       setError(null);
 
       try {
-        const isAccountLoaded =
-          account !== null && account !== undefined && account.$isLoaded === true;
-        if (isAccountLoaded === false) {
-          throw new RegardeError("Account must be loaded", "account_not_loaded" as const);
-        }
-
-        await cancelSubscription(account, {
-          subscription,
+        await cancelSubscription({
+          subscriptionId,
+          provider,
           apiKey,
           cancelAtPeriodEnd,
         });
@@ -183,7 +180,7 @@ export function useCancelSubscription(): TUseCancelSubscriptionResult {
         setIsCanceling(false);
       }
     },
-    [account],
+    [],
   );
 
   return {

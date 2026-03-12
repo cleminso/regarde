@@ -1,5 +1,6 @@
 import { co, z } from "jazz-tools";
 
+import { RefundSchema } from "./refund";
 import { RegardeTokenAuth } from "./regardeTokenAuth";
 import { RegardeApp } from "./regardeUserApp";
 import { UserHandle } from "./regardeUserHandle";
@@ -49,6 +50,20 @@ export const LicenseSchema = co.map({
 export type TLicenseSchema = co.loaded<typeof LicenseSchema>;
 
 /**
+ * Invoice records structure.
+ *
+ * Maps invoice IDs to Invoice CoMap IDs.
+ * - `all`: Global lookup by invoiceId
+ * - `byApp`: App-scoped lookup by App.id -> invoiceId -> Invoice.id
+ */
+export const InvoiceSchema = co.map({
+  all: co.record(z.string(), z.string()),
+  byApp: co.record(z.string(), co.record(z.string(), z.string())),
+});
+
+export type TInvoiceSchema = co.loaded<typeof InvoiceSchema>;
+
+/**
  * Regarde SDK container schema.
  *
  * Holds all SDK components for user account.
@@ -59,6 +74,8 @@ export type TLicenseSchema = co.loaded<typeof LicenseSchema>;
  * - `myPayments`: Payment event records indexed by provider UUID and App ID
  * - `mySubscriptions`: Subscription event records + mutable subscription state
  * - `myLicenses`: License event records indexed by provider UUID and App ID
+ * - `myInvoices`: Invoice records indexed by invoice ID and App ID
+ * - `myRefunds`: Refund records indexed by refund ID and App ID
  * - `myUserHandle`: User profile and nickname
  * - `version`: Schema version for migration tracking
  */
@@ -69,6 +86,8 @@ export const RegardeSDK = co.map({
   myPayments: PaymentSchema,
   mySubscriptions: SubscriptionSchema,
   myLicenses: LicenseSchema,
+  myInvoices: InvoiceSchema,
+  myRefunds: RefundSchema,
   myUserHandle: UserHandle,
   version: z.number(),
 });

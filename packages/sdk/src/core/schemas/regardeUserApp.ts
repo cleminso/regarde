@@ -1,6 +1,7 @@
 import { co, z } from "jazz-tools";
 
 import { AppCheckoutSessionsSchema } from "./checkoutSession";
+import { AppRefundsSchema } from "./refund";
 import { Groups } from "./regardeGroups";
 
 /**
@@ -45,17 +46,32 @@ export const AppLicensesSchema = co.map({
 
 export type TAppLicensesSchema = co.loaded<typeof AppLicensesSchema>;
 
-//Use webhook.id as feed session key
+/**
+ * Webhook endpoint configuration for receiving payment provider events.
+ *
+ * Created per-webhook endpoint. Used as session key in AllWebhookEventsFeed.
+ *
+ * @schema
+ * - `name`: Human-readable identifier for this webhook
+ * - `description`: Optional details about the webhook's purpose
+ * - `provider`: Payment provider (stripe or polar)
+ * - `environment`: sandbox or production (Regarde-managed)
+ * - `createdAt`: Unix timestamp when webhook was created
+ * - `isEnabled`: Whether webhook is active (can disable without deleting)
+ * - `url`: Endpoint URL where provider sends webhooks
+ * - `secret`: Signing secret for webhook verification
+ * - `customMetadata`: Provider-specific configuration and integration hints
+ */
 export const Webhook = co.map({
   name: z.string(),
   description: z.string(),
   provider: z.enum(["stripe", "polar"]),
-  environment: z.enum(["sandbox", "production"]), // regarde related
+  environment: z.enum(["sandbox", "production"]),
   createdAt: z.number(),
-  isEnabled: z.boolean(), // desactive webhook if I don't wanna use it
+  isEnabled: z.boolean(),
   url: z.url(),
   secret: z.string(),
-  customMetadata: co.record(z.string(), z.string()), // depend on provider and type of events then I can give a code snippet to integrate
+  customMetadata: co.record(z.string(), z.string()),
 });
 
 export const ListOfWebhooks = co.list(Webhook);
@@ -72,24 +88,28 @@ export type TWebhook = co.loaded<typeof Webhook>;
  * - `payload`: Raw JSON payload from payment provider (arbitrary JSON)
  * - `headers`: HTTP headers from webhook request (for signature debugging)
  * - `receivedAt`: Unix timestamp when webhook was received
+ * - `httpStatusCode`: HTTP status code returned to provider (e.g., "200", "500")
+ * - `responseBody`: Response body sent back to provider
  * - `error`: Processing error message if normalization failed
+ * - `providerEventId`: Provider's unique event ID (Stripe: evt_123, Polar: event UUID)
+ * - `parsedEventType`: Normalized event type (e.g., "invoice.payment_succeeded")
+ * - `regardeEventId`: Reference to PaymentEvent/SubscriptionEvent CoMap ID (if successfully normalized)
+ * - `isRetry`: True if this providerEventId was seen before (deduplication marker)
+ * - `retryCount`: Number of times provider has retried (0 = first delivery)
  */
 export const WebhookEvent = z.object({
   payload: z.json(),
   headers: z.optional(z.record(z.string(), z.string())),
   receivedAt: z.number(),
-  error: z.optional(z.string()), // Normalization error (if any)
   httpStatusCode: z.string(),
   responseBody: z.string(),
   // responseTimeMs: z.optional(z.number()) , // responseTime = processingEndTime - receivedAt
-
-  regardeEventId: z.optional(z.string()), // Reference to PaymentEvent/SubscriptionEvent (if successfully normalized)
-
-  providerEventId: z.string(), // Stripe: evt_123, LemonSqueezy: meta.event_id
-  parsedEventType: z.string(), // "invoice.payment_succeeded"
-
-  isRetry: z.boolean().default(false), // True if providerEventId was seen before
-  retryCount: z.number().default(0), // 0 = first delivery, 1 = first retry, etc.
+  error: z.optional(z.string()),
+  providerEventId: z.string(),
+  parsedEventType: z.string(),
+  regardeEventId: z.optional(z.string()),
+  isRetry: z.boolean().default(false).describe("true if providerEventId was seen before"),
+  retryCount: z.number().default(0).describe("0 = first delivery, 1 = first retry, etc."),
 });
 
 export type TWebhookEvent = z.infer<typeof WebhookEvent>;
@@ -121,6 +141,7 @@ export type TProfile = co.loaded<typeof Profile>;
  * - `payments`: Payment event records for this app (deprecated `.all` field)
  * - `subscriptions`: Subscription event records for this app (deprecated `.all` field)
  * - `licenses`: License event records for this app (deprecated `.all` field)
+ * - `refunds`: Refund event records for this app
  * - `checkoutSessions`: Checkout session records for this app
  * - `allEvents`: CoFeed of raw webhook payloads organized by webhook ID
  * - `groups`: Permission groups for the app
@@ -136,6 +157,7 @@ export const RegardeApp = co.map({
   payments: AppPaymentsSchema,
   subscriptions: AppSubscriptionsSchema,
   licenses: AppLicensesSchema,
+  refunds: AppRefundsSchema,
   checkoutSessions: AppCheckoutSessionsSchema,
   allEvents: AllWebhookEventsFeed,
   groups: Groups,
