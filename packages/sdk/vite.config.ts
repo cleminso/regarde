@@ -33,7 +33,6 @@ export default defineConfig({
       input: {
         index: resolve(__dirname, "src/index.ts"),
         react: resolve(__dirname, "src/frameworks/react/index.ts"),
-        preact: resolve(__dirname, "src/frameworks/preact/index.ts"),
       },
       output: {
         entryFileNames: "[name].js",
@@ -42,7 +41,6 @@ export default defineConfig({
       treeshake: true,
       external: [
         "react",
-        "preact",
         "jazz-tools",
         "jazz-tools/react",
         "zod",

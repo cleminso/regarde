@@ -1,6 +1,6 @@
 # @regarde-dev/core
 
-Client SDK for Regarde. Initializes Jazz-based CoMaps in user accounts, manages registration tokens, provides React/Preact hooks, and handles app/payment state.
+Client SDK for Regarde. Initializes Jazz-based CoMaps in user accounts, manages registration tokens, provides React hooks, and handles app/payment state.
 
 ## Table of Contents
 
@@ -23,21 +23,6 @@ pnpm add @regarde-dev/core jazz-tools
 ```bash
 pnpm add react
 ```
-
-### For Preact users
-
-```bash
-pnpm add preact
-```
-
-## Features
-
-- **CoMap initialization** - Initialize RegardeSDK with auth, apps, and payments
-- **Token management** - Generate/refresh registration tokens (24-hour lifetime)
-- **React/Preact hooks** - Framework-specific hooks for easy integration
-- **Type-safe schemas** - Full TypeScript support for all CoMaps
-- **Tree-shaking enabled** - Only bundle what you use
-- **Separate entry points** - No cross-framework pollution
 
 ## Quick Start
 

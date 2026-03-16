@@ -1,10 +1,9 @@
 {
   "name": "@regarde-dev/core",
   "version": "1.0.0",
-  "description": "Regarde SDK for React and Preact with registration token logic",
+  "description": "Regarde SDK for React with registration token logic",
   "keywords": [
     "jazz-tools",
-    "preact",
     "react",
     "regarde",
     "sdk"
@@ -28,10 +27,6 @@
     "./react": {
       "types": "./dist/react.d.ts",
       "import": "./dist/react.js"
-    },
-    "./preact": {
-      "types": "./dist/preact.d.ts",
-      "import": "./dist/preact.js"
     }
   },
   "scripts": {
@@ -52,7 +47,6 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "cojson": "catalog:",
-    "preact": "catalog:",
     "react": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
@@ -61,15 +55,11 @@
   },
   "peerDependencies": {
     "@polar-sh/sdk": "^0.46.3",
-    "preact": "^10.0.0",
     "react": "^18.0.0 || ^19.0.0",
     "stripe": "^20.4.1"
   },
   "peerDependenciesMeta": {
     "react": {
-      "optional": true
-    },
-    "preact": {
       "optional": true
     },
     "stripe": {
