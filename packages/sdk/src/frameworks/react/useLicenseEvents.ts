@@ -27,6 +27,10 @@ export interface UseLicenseEventsResult {
  * This hook loads the App's license event index and resolves all LicenseEvent
  * CoMaps. It can filter by mode or specific license ID.
  *
+ * DESIGN NOTE: Returns filtered array (loaded items only) instead of MaybeLoaded<T>[]
+ * Rationale: Individual item loading states are rarely needed for lists. Users want
+ * "8 licenses" not "8 of 10 loaded". See docs/research/maybeLoaded-pattern-jazz.md
+ *
  * @param appId - The Jazz CoValue ID of the App
  * @param options - Optional filtering (mode, providerLicenseId)
  * @returns Object containing events array and loading state

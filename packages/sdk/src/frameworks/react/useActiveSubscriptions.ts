@@ -30,6 +30,10 @@ const DEFAULT_ACTIVE_STATUSES: TSubscriptionStatus[] = ["trialing", "active", "p
  * and filters for a specific app. It returns Subscription CoMaps representing the
  * current state (not event history).
  *
+ * DESIGN NOTE: Returns filtered array (loaded items only) instead of MaybeLoaded<T>[]
+ * Rationale: Individual item loading states are rarely needed for lists. Users want
+ * "5 active subscriptions" not "5 of 8 loaded". See docs/research/maybeLoaded-pattern-jazz.md
+ *
  * @param appId - The Jazz CoValue ID of the App to filter subscriptions by
  * @param options - Optional filtering (statuses, includeCanceling)
  * @returns Object containing subscriptions array, loading state, and total count

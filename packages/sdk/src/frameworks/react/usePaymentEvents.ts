@@ -24,6 +24,10 @@ export interface UsePaymentEventsResult {
  * This hook loads the App's payment event index and resolves all PaymentEvent
  * CoMaps. It automatically updates when new webhooks create PaymentEvents.
  *
+ * DESIGN NOTE: Returns filtered array (loaded items only) instead of MaybeLoaded<T>[]
+ * Rationale: Individual item loading states are rarely needed for lists. Users want
+ * "7 payments" not "7 of 10 loaded". See docs/research/maybeLoaded-pattern-jazz.md
+ *
  * @param appId - The Jazz CoValue ID of the App
  * @param options - Optional filtering (mode)
  * @returns Object containing events array and loading state
