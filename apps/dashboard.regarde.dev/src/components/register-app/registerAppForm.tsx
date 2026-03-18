@@ -2,8 +2,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { Loader2, ArrowRight } from "lucide-react";
 import { useState } from "react";
 
-import { useMyRegardeAccount } from "#/lib/account/useMyRegardeAccount";
-import { registerApp, RegisterAppApiError } from "#/lib/api/registerApp";
+import { useMyRegardeAccount } from "#lib/account/useMyRegardeAccount";
+import { registerApp, RegisterAppApiError } from "#lib/api/registerApp";
 import { Button } from "#ui/button";
 import {
   Card,

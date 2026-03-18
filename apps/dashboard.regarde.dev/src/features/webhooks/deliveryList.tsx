@@ -1,7 +1,7 @@
 "use client";
 
 import type { TWebhookEvent } from "@regarde-dev/core";
-import { cn } from "#/lib/utils";
+import { cn } from "#lib/utils";
 
 interface DeliveryListProps {
   deliveries: TWebhookEvent[];

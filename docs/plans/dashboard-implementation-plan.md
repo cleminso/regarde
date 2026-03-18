@@ -170,7 +170,6 @@ export { useActiveSubscriptions } from "./useActiveSubscriptions";
   "exports": {
     ".": "./dist/index.js",
     "./react": "./dist/react.js",
-    "./preact": "./dist/preact.js"
   }
 }
 ```

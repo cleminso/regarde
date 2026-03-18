@@ -301,7 +301,7 @@ Generates a random 16-character registration token.
 
 Constant for token lifetime (24 hours = 86400 seconds).
 
-### React/Preact Hooks
+### React Hooks
 
 #### `useRegardeTokenAuth(regardeTokenAuthCoMap)`
 

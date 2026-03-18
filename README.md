@@ -54,7 +54,7 @@ Regarde.dev uses a stateless authentication system where tokens are generated cl
 
 ### @regarde-dev/core
 
-Client SDK for Regarde. Initializes Jazz CoMaps in user accounts, generates registration tokens, provides React/Preact hooks, and manages app/payment state.
+Client SDK for Regarde. Initializes Jazz CoMaps in user accounts, generates registration tokens, provides React hooks, and manages app/payment state.
 
 **See**: [packages/sdk/README.md](packages/sdk/README.md)
 
@@ -171,7 +171,7 @@ regarde.dev/
 │   ├── sdk/                  # @regarde-dev/core - Client SDK
 │   │   ├── src/
 │   │   │   ├── core/         # CoMap schemas, managers
-│   │   │   ├── frameworks/   # React/Preact hooks
+│   │   │   ├── frameworks/   # React hooks
 │   │   │   └── registry/     # Registry schemas
 │   │   └── AGENTS.md         # SDK-specific guidelines
 │   ├── api.regarde.dev/      # Registry API service

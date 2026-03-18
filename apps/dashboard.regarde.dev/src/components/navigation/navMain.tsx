@@ -8,7 +8,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "#ui/sidebar";
-import { useMyRegardeAccount } from "#/lib/account/useMyRegardeAccount";
+import { useMyRegardeAccount } from "#lib/account/useMyRegardeAccount";
 
 interface NavMainProps {
   onNavigate?: () => void;

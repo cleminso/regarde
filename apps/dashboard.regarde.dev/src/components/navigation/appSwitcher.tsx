@@ -16,7 +16,7 @@ import {
 import {
   useMyRegardeAccount,
   type TApp,
-} from "#/lib/account/useMyRegardeAccount";
+} from "#lib/account/useMyRegardeAccount";
 
 export function AppSwitcher(): React.ReactElement {
   const navigate = useNavigate();

@@ -24,7 +24,15 @@ export default defineConfig({
   resolve: {
     alias: {
       "#ui": resolve(import.meta.dirname, "./src/components/ui"),
-      "#": resolve(import.meta.dirname, "./src"),
+      "#features": resolve(import.meta.dirname, "./src/features"),
+      "#lib": resolve(import.meta.dirname, "./src/lib"),
+      "#hooks": resolve(import.meta.dirname, "./src/hooks"),
+      "#navigation": resolve(import.meta.dirname, "./src/components/navigation"),
+      "#register-app": resolve(import.meta.dirname, "./src/components/register-app"),
+      "#layout": resolve(import.meta.dirname, "./src/components/layout"),
+      "#auth": resolve(import.meta.dirname, "./src/components/auth"),
+      "#": resolve(import.meta.dirname, "./src/components"),
+      "@": resolve(import.meta.dirname, "./src"),
     },
   },
   server: { port: PORT, host: true },

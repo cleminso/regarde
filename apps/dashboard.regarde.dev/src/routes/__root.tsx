@@ -2,7 +2,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import { Outlet, createRootRoute, useLocation } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
-import { DashboardLayout } from "#/components/layout/dashboardLayout";
+import { DashboardLayout } from "#layout/dashboardLayout";
 
 export const Route = createRootRoute({
   component: RootComponent,

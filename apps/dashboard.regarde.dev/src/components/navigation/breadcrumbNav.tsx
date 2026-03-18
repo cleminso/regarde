@@ -11,7 +11,7 @@ import {
 import {
   useMyRegardeAccount,
   type TApp,
-} from "#/lib/account/useMyRegardeAccount";
+} from "#lib/account/useMyRegardeAccount";
 
 function getPageLabelFromPathname(pathname: string): string {
   const segments = pathname.split("/");

@@ -1,7 +1,7 @@
 import { Navigate, createFileRoute } from "@tanstack/react-router";
 
-import { AuthCard } from "#/components/auth/authCard";
-import { useMyRegardeAccount } from "#/lib/account/useMyRegardeAccount";
+import { AuthCard } from "#auth/authCard";
+import { useMyRegardeAccount } from "#lib/account/useMyRegardeAccount";
 
 export const Route = createFileRoute("/")({
   component: IndexRoute,

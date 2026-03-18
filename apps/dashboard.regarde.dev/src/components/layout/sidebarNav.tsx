@@ -7,8 +7,8 @@ import {
   SidebarRail,
 } from "#ui/sidebar";
 
-import { AppSwitcher } from "#/components/navigation/appSwitcher";
-import { NavMain } from "#/components/navigation/navMain";
+import { AppSwitcher } from "#navigation/appSwitcher";
+import { NavMain } from "#navigation/navMain";
 
 export function SidebarNav(): React.ReactElement {
   return (

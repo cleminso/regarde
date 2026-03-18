@@ -33,7 +33,7 @@ import {
   Table as TableRaw,
   TableRow as TableRowRaw,
 } from "#ui/table";
-import { cn } from "#/lib/utils";
+import { cn } from "#lib/utils";
 
 export type { ColumnDef } from "@tanstack/react-table";
 

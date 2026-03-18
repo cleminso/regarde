@@ -10,8 +10,16 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "#/*": ["./src/*"],
+      "#/*": ["./src/components/*"],
+      "#features/*": ["./src/features/*"],
       "#ui/*": ["./src/components/ui/*"],
+      "#lib/*": ["./src/lib/*"],
+      "#hooks/*": ["./src/hooks/*"],
+      "#navigation/*": ["./src/components/navigation/*"],
+      "#register-app/*": ["./src/components/register-app/*"],
+      "#layout/*": ["./src/components/layout/*"],
+      "#auth/*": ["./src/components/auth/*"],
+      "@/*": ["./src/*"],
     },
 
     "allowImportingTsExtensions": true,

@@ -20,7 +20,7 @@ import {
 } from "#ui/dialog";
 import { Input } from "#ui/input";
 import { Textarea } from "#ui/textarea";
-import { getWebhookUrl } from "#/lib/config/api";
+import { getWebhookUrl } from "#lib/config/api";
 
 import type { WebhookFormData } from "./types";
 

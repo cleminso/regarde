@@ -21,7 +21,7 @@ import {
 } from "#ui/dropdown-menu";
 import { Input } from "#ui/input";
 import { Textarea } from "#ui/textarea";
-import { getWebhookUrl } from "#/lib/config/api";
+import { getWebhookUrl } from "#lib/config/api";
 import { CreateWebhookDialog } from "./createWebhookDialog";
 
 import type { WebhookFormData } from "./types";

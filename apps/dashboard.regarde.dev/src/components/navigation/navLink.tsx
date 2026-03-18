@@ -2,7 +2,7 @@
 
 import { Link, useMatches } from "@tanstack/react-router";
 
-import { cn } from "#/lib/utils";
+import { cn } from "#lib/utils";
 
 interface NavLinkProps {
   to: string;

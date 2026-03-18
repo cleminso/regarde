@@ -1,7 +1,7 @@
 import { Separator } from "#ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "#ui/sidebar";
 
-import { BreadcrumbNav } from "#/components/navigation/breadcrumbNav";
+import { BreadcrumbNav } from "#navigation/breadcrumbNav";
 import { SidebarNav } from "./sidebarNav";
 
 interface DashboardLayoutProps {

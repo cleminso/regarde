@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "new-york",
+  "style": "base-mira",
   "rsc": false,
   "tsx": true,
   "tailwind": {
@@ -16,9 +16,11 @@
     "components": "src/components",
     "utils": "src/lib/utils",
     "ui": "src/components/ui",
-    "lib": "src/components/ui/share",
+    "lib": "src/lib",
     "hooks": "src/hooks"
   },
+  "menuColor": "default",
+  "menuAccent": "subtle",
   "registries": {
     "@kibo-ui": "https://www.kibo-ui.com/r/{name}.json"
   }
