@@ -57,42 +57,37 @@ export function AppSwitcher(): React.ReactElement {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger className="flex h-10 w-full items-center justify-between hover:bg-sidebar-accent/50 transition-colors outline-none">
+      <DropdownMenuTrigger className="flex h-10 w-full items-center justify-between transition-colors outline-none">
         <div className="flex items-center gap-2 min-w-0 flex-1 group-data-[collapsible=icon]:justify-center">
           <div className="flex h-5 w-5 items-center justify-center rounded-sm border border-sidebar-border bg-sidebar-accent shrink-0">
-            <span className="text-[10px] font-medium text-sidebar-foreground">
+            <span className="text-sm font-medium text-sidebar-foreground">
               {activeApp.name.charAt(0).toUpperCase()}
             </span>
           </div>
-          <span className="text-sm text-sidebar-foreground truncate group-data-[collapsible=icon]:hidden">
+          <span className="truncate group-data-[collapsible=icon]:hidden">
             {activeApp.name}
           </span>
         </div>
         <ChevronsUpDown
           className={cn(
-            "h-3.5 w-3.5 text-sidebar-foreground/60 shrink-0 transition-transform group-data-[collapsible=icon]:hidden",
-            open && "rotate-180"
+            "h-3.5 w-3.5 shrink-0 group-data-[collapsible=icon]:hidden"
           )}
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-(--anchor-width) rounded-sm border-border p-0"
+        className="w-(--anchor-width)"
         align="start"
         side="top"
         sideOffset={4}
       >
-        <div className="flex flex-col py-1">
+        <div className="flex flex-col">
           {myApps.map((app: TApp) => (
             <DropdownMenuItem
               key={app.$jazz.id}
               onClick={() => handleSelect(app)}
-              className={cn(
-                "flex items-center gap-2 px-3 py-2 text-sm cursor-pointer rounded-none focus:bg-accent",
-                app.$jazz.id === activeApp.$jazz.id && "bg-accent"
-              )}
             >
-              <div className="flex h-5 w-5 items-center justify-center rounded-sm border border-border bg-muted shrink-0">
-                <span className="text-[10px] font-medium">
+              <div className="flex h-5 w-5 items-center justify-center shrink-0">
+                <span className="text-sm">
                   {app.name.charAt(0).toUpperCase()}
                 </span>
               </div>
@@ -104,15 +99,10 @@ export function AppSwitcher(): React.ReactElement {
           ))}
         </div>
 
-        <DropdownMenuSeparator className="my-1" />
+        <DropdownMenuSeparator />
 
-        <DropdownMenuItem
-          onClick={handleCreateApp}
-          className="flex items-center gap-2 px-3 py-2 text-sm cursor-pointer rounded-none focus:bg-accent"
-        >
-          <div className="flex h-5 w-5 items-center justify-center rounded-sm border border-border shrink-0">
-            <Plus className="h-3 w-3 text-muted-foreground" />
-          </div>
+        <DropdownMenuItem onClick={handleCreateApp}>
+          <Plus className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           <span className="text-muted-foreground">Add app</span>
         </DropdownMenuItem>
       </DropdownMenuContent>

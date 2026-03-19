@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "#ui/sidebar";
+import { Button } from "#ui/button";
 
 import { AppSwitcher } from "#navigation/appSwitcher";
 import { NavMain } from "#navigation/navMain";
@@ -24,10 +25,10 @@ export function SidebarNav(): React.ReactElement {
         <div className="flex items-center justify-between group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-2">
           <div className="h-5 w-5 group-data-[collapsible=icon]:hidden" />
 
-          <div className="flex items-center gap-2 group-data-[collapsible=icon]:flex-col-reverse">
-            <button type="button" className="p-1 hover:bg-sidebar-accent rounded-xs">
-              <Moon className="h-3.5 w-3.5" />
-            </button>
+          <div className="flex items-center gap-1 group-data-[collapsible=icon]:flex-col-reverse">
+            <Button variant="ghost" size="icon-sm" >
+              <Moon />
+            </Button>
             <SidebarTrigger/>
           </div>
         </div>
