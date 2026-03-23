@@ -1,6 +1,7 @@
 packages:
   - apps/dashboard.regarde.dev
   - apps/regarde.bio/*
+  - apps/tools/*
   - packages/*
 
 catalog:

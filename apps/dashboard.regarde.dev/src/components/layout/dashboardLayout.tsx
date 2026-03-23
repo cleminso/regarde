@@ -14,7 +14,7 @@ export function DashboardLayout({
     <SidebarProvider>
       <div className="flex min-h-svh w-full flex-col md:hidden">
         {/* Mobile header */}
-        <header className="flex h-14 shrink-0 items-center justify-between border-b bg-card px-4">
+        <header className="flex h-14 shrink-0 items-center justify-between border-b bg-background px-4">
           <div className="h-5 w-5 bg-primary" />
           <SidebarTrigger />
         </header>
@@ -36,11 +36,11 @@ export function DashboardLayout({
 
           {/* Main content area */}
           <main className="flex flex-1 flex-col gap-1 overflow-hidden rounded-tl-xs">
-            <header className="flex items-center gap-2 rounded-bl-xs bg-background/90 px-2 py-2">
+            <header className="flex items-center gap-2 rounded-bl-xs bg-background px-2 py-2">
               <BreadcrumbNav />
             </header>
 
-            <div className="flex-1 overflow-auto rounded-tl-xs bg-background/90 p-4">
+            <div className="flex-1 overflow-auto rounded-tl-xs bg-background p-4">
               {children}
             </div>
           </main>

@@ -1,0 +1,48 @@
+{
+  "bases": {
+    "blue": [0.563, 0.1711, 269.97],
+    "neutral": [0.55, 0.01, 265],
+    "red": [0.55, 0.16, 25],
+    "green": [0.58, 0.15, 145],
+    "yellow": [0.72, 0.14, 85]
+  },
+  "palette": {
+    "lightnessCurve": [
+      0.96,
+      0.90,
+      0.82,
+      0.72,
+      0,
+      0.42,
+      0.28,
+      0.15
+    ],
+    "chromaCurve": [0.12, 0.30, 0.55, 0.80, 1, 0.85, 0.65, 0.40],
+    "hueShift": { "darkEnd": 10, "lightEnd": -5 },
+    "colors": [
+      { "name": "blue" },
+      { "name": "red", "chromaScale": 0.9 },
+      { "name": "green" },
+      { "name": "yellow", "chromaScale": 0.8 }
+    ]
+  },
+  "neutralPalette": {
+    "lightnessCurve": [
+      0.97,
+      0.92,
+      0.85,
+      0.75,
+      0.55,
+      0.40,
+      0.25,
+      0.12
+    ],
+    "chromaCurve": [0.008, null, null, null, null, null, null, 0.005],
+    "hueShift": { "darkEnd": 0, "lightEnd": 0 },
+    "baseHue": 265
+  },
+  "backgrounds": {
+    "dark": "#0a0a0a",
+    "light": "#fafafa"
+  }
+}

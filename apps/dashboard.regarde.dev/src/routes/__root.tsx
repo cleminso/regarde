@@ -18,7 +18,7 @@ function RootComponent(): React.ReactElement {
     return (
       <>
         <DashboardLayout>{content}</DashboardLayout>
-        <TanStackDevtools
+        {/*<TanStackDevtools
           config={{
             position: "bottom-right",
           }}
@@ -28,7 +28,7 @@ function RootComponent(): React.ReactElement {
               render: <TanStackRouterDevtoolsPanel />,
             },
           ]}
-        />
+        />*/}
       </>
     );
   }

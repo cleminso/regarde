@@ -1,0 +1,26 @@
+{
+  "name": "@regarde/color-gen",
+  "description": "This tool is a palette generator that maintain one source of truth for colors across themes. It's from Oxide Computer design system https://github.com/oxidecomputer/design-system",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "generate": "tsx generate.ts",
+    "apply": "tsx apply-colors.ts"
+  },
+  "dependencies": {
+    "culori": "^4.0.0",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "tsx": "^4.8.1",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-tsconfig-paths": "catalog:"
+  }
+}
