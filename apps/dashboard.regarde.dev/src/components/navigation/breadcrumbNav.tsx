@@ -2,12 +2,7 @@
 
 import { useLocation, useParams } from "@tanstack/react-router";
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "#ui/breadcrumb";
+import { Breadcrumb } from "@regarde/ui/components/atoms/Breadcrumb";
 import {
   useMyRegardeAccount,
   type TApp,
@@ -61,13 +56,13 @@ export function BreadcrumbNav(): React.ReactElement {
   const appReady = effectiveApp !== null;
   if (isAccountReady === false || appReady === false) {
     return (
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbPage>Loading...</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <Breadcrumb.Root>
+        <Breadcrumb.List>
+          <Breadcrumb.Item>
+            <Breadcrumb.Page>Loading...</Breadcrumb.Page> // TODO: avoid loading at each page refresh
+          </Breadcrumb.Item>
+        </Breadcrumb.List>
+      </Breadcrumb.Root>
     );
   }
 
@@ -79,12 +74,12 @@ export function BreadcrumbNav(): React.ReactElement {
   }
 
   return (
-    <Breadcrumb>
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbPage>{pageLabel}</BreadcrumbPage>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
+    <Breadcrumb.Root>
+      <Breadcrumb.List>
+        <Breadcrumb.Item>
+          <Breadcrumb.Page>{pageLabel}</Breadcrumb.Page>
+        </Breadcrumb.Item>
+      </Breadcrumb.List>
+    </Breadcrumb.Root>
   );
 }

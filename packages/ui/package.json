@@ -8,12 +8,13 @@
   "exports": {
     "./*": {
       "types": "./dist/*.d.ts",
-      "import": "./dist/*.js"
+      "import": "./dist/*.mjs",
+      "require": "./dist/*.js"
     }
   },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "tsup --watch",
+    "build": "rm -rf dist && tsup",
     "lint": "oxlint .",
     "format": "oxfmt \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit"
@@ -21,13 +22,10 @@
   "dependencies": {
     "@base-ui/react": "^1.2.0",
     "@fontsource-variable/geist": "^5.2.8",
-    "@tailwindcss/vite": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
     "cmdk": "^1.1.1",
     "lucide-react": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
     "shadcn": "^4.0.8",
     "tailwind-merge": "catalog:",
     "tailwindcss": "catalog:",
@@ -37,8 +35,11 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react": "catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:"
+    "tsup": "^8.5.1",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
   }
 }

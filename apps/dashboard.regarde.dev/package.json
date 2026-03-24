@@ -13,6 +13,7 @@
     "@base-ui/react": "^1.1.0",
     "@fontsource-variable/geist": "^5.2.8",
     "@regarde-dev/core": "workspace:*",
+    "@regarde/ui": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-devtools": "^0.9.5",
     "@tanstack/react-router": "^1.159.4",
