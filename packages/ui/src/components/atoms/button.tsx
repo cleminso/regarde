@@ -1,4 +1,4 @@
-import { Button as BaseButton } from "@/components/ui/button"
+import { Button as BaseButton } from "@/components/shadcn-ui/button"
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 import { twMerge } from "tailwind-merge"
@@ -102,7 +102,7 @@ const Button = ({
 
 Button.displayName = "Button"
 
-// Raw version for edge cases — uses /ui/ styling without Regarde branding
+// Raw version for edge cases — uses /shadcn-ui/ styling without Regarde branding
 const RawButton = ({
   ref,
   className,

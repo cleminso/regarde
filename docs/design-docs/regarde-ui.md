@@ -1,29 +1,62 @@
 # Regarde UI
 
-Two-layer system: generated shadcn components in `/ui/`, branded customizations in `/atoms/`. Component architecture adapted for Base UI primitives
+Three-layer system: Base UI primitives in `/base-ui/`, generated shadcn components in `/shadcn-ui/`, branded customizations in `/atoms/`.
 
 ## Architecture
 
 ```
-/ui/      → Raw shadcn components (generated, pristine)
-/atoms/   → Branded components (customized, domain-specific)
+/base-ui/    → Base UI primitive re-exports (mergeProps, useRender, etc.)
+/shadcn-ui/  → Raw shadcn components (generated, pristine)
+/atoms/      → Branded components (customized, domain-specific)
 ```
 
-| Layer     | Contains         | Tooling            | Editable                          |
-| --------- | ---------------- | ------------------ | --------------------------------- |
-| `/ui/`    | shadcn defaults  | `cn()`             | No — regenerate with `shadcn add` |
-| `/atoms/` | Branded variants | `twMerge()`, `cva` | Yes — this is your code           |
+| Layer         | Contains          | Tooling            | Editable                          |
+| ------------- | ----------------- | ------------------ | --------------------------------- |
+| `/base-ui/`   | Base UI utilities | Re-exports         | No — thin wrapper layer           |
+| `/shadcn-ui/` | shadcn defaults   | `cn()`             | No — regenerate with `shadcn add` |
+| `/atoms/`     | Branded variants  | `twMerge()`, `cva` | Yes — this is Regarde code        |
 
-**Critical**: Base UI does NOT export props from `/ui/` files. Unlike Radix-based shadcn, adding exports to `/ui/` breaks on updates. Import primitive types directly from `@base-ui/react/*`.
+**Critical**: Base UI does NOT export props from `/shadcn-ui/` files. Unlike Radix-based shadcn, adding exports to `/shadcn-ui/` breaks on updates. Import primitive types directly from `@base-ui/react/*` or from `/base-ui/` utilities.
+
+### Prerequisite
+
+1. Verify is a Base UI project by checking `components.json`. THe `style` field should start with `"base-{theme_name}"` (e.g., `"base-vega"`, `"base-nova"`, `"base-maia"`, `"base-lyra"`, `"base-mira"`).
+2. Ensure `@base-ui/react` package is installed.
+
+## Base UI Utilities (`/base-ui/`)
+
+The `/base-ui/` folder contains thin re-exports of Base UI utilities. This provides a single source of truth for Base UI primitives used throughout the UI package.
+
+### Available Utilities
+
+| File                    | Exports                             | Usage                            |
+| ----------------------- | ----------------------------------- | -------------------------------- |
+| `merge-props.ts`        | `mergeProps`                        | Merge internal and user props    |
+| `use-render.ts`         | `useRender`                         | Polymorphic component rendering  |
+| `csp-provider.ts`       | `CSPProvider`                       | Content Security Policy provider |
+| `direction-provider.ts` | `DirectionProvider`, `useDirection` | RTL/LTR direction handling       |
+
+### Usage in Components
+
+```typescript
+// In shadcn-ui components
+import { mergeProps } from "@/base-ui/merge-props";
+import { useRender } from "@/base-ui/use-render";
+
+// In atoms (for primitive types)
+import { Button as ButtonPrimitive } from "@base-ui/react/button";
+```
+
+**Note**: Import utilities from `/base-ui/` for consistency, but import primitive components (like `ButtonPrimitive`) directly from `@base-ui/react/*`.
 
 ## Creating New `/atoms` Components
 
 ### Checklist
 
 - [ ] Install raw component: `pnpm dlx shadcn@latest add <component>`
-- [ ] Import component from `/ui/`: `import { Component as BaseComponent } from "@/components/ui/component"`
+- [ ] Import component from `/shadcn-ui/`: `import { Component as BaseComponent } from "@/components/shadcn-ui/component"`
 - [ ] Import props from primitive: `import { Component as ComponentPrimitive } from "@base-ui/react/component"`
-- [ ] Define branded variants with `cva()` (do NOT reuse `/ui/` variants)
+- [ ] Define branded variants with `cva()` (do NOT reuse `/shadcn-ui/` variants)
 - [ ] Extend props: `ComponentPrimitive.Props & { domainProp?: boolean }`
 - [ ] Use `twMerge()` for class merging (not `cn()`)
 - [ ] Set `displayName = 'Component'`
@@ -34,7 +67,7 @@ Two-layer system: generated shadcn components in `/ui/`, branded customizations 
 ### Template
 
 ````typescript
-import { Component as BaseComponent } from "@/components/ui/component"
+import { Component as BaseComponent } from "@/components/shadcn-ui/component"
 import { Component as ComponentPrimitive } from "@base-ui/react/component"
 import { cva, type VariantProps } from "class-variance-authority"
 import { twMerge } from "tailwind-merge"
@@ -91,7 +124,7 @@ export type ComponentProps = ComponentPrimitive.Props &
 
 ### Checklist
 
-- [ ] Import from atoms, never from `/ui/` directly
+- [ ] Import from atoms, never from `/shadcn-ui/` directly
 - [ ] Use named imports: `import { Button } from "@regarde/ui/components/atoms/Button"`
 - [ ] Use props type when needed: `import type { ButtonProps } from "@regarde/ui/components/atoms/Button"`
 - [ ] Never import from `@base-ui/react/*` in app code — always go through atoms
@@ -104,7 +137,7 @@ import { Button } from "@regarde/ui/components/atoms/Button";
 import type { ButtonProps } from "@regarde/ui/components/atoms/Button";
 
 // Bad — bypasses branding
-import { Button } from "@regarde/ui/components/ui/button";
+import { Button } from "@regarde/ui/components/shadcn-ui/button";
 import { Button } from "@base-ui/react/button";
 ```
 
@@ -112,7 +145,7 @@ import { Button } from "@base-ui/react/button";
 
 ### ClassName Handling
 
-Base UI's `className` accepts `string | ((state) => string)`. `twMerge()` only handles strings. Solution: compute string classes in atoms, let `/ui/` handle function merging.
+Base UI's `className` accepts `string | ((state) => string)`. `twMerge()` only handles strings. Solution: compute string classes in atoms, let `/shadcn-ui/` handle function merging.
 
 ```typescript
 // Atoms: only pass strings to twMerge
@@ -150,14 +183,14 @@ Define in consuming app's CSS, use in atoms as Tailwind classes:
 ```
 
 ```typescript
-// packages/ui/src/components/atoms/Button.tsx
+// packages/shadcn-ui/src/components/atoms/Button.tsx
 className={twMerge(
   'bg-primary hover:bg-primary/80',  // Uses CSS variable
   className
 )}
 ```
 
-## Technical Details
+## Technical Pattern
 
 ### Base UI ClassName Type Issue
 
@@ -202,13 +235,13 @@ Browser renders with that color
 
 ## Common Mistakes
 
-| Mistake                          | Why It Breaks                 | Correct Approach                         |
-| -------------------------------- | ----------------------------- | ---------------------------------------- |
-| Adding exports to `/ui/` files   | shadcn updates overwrite them | Import from `@base-ui/react/*`           |
-| Using `cn()` in atoms            | Unnecessary complexity        | Use `twMerge()`                          |
-| Importing props from `/ui/`      | Base UI doesn't export them   | Import from primitive                    |
-| Passing `className` to `twMerge` | Could be a function           | Compute base classes, pass to BaseButton |
-| Modifying `/ui/` styling         | Lost on regeneration          | Override in `/atoms/`                    |
+| Mistake                               | Why It Breaks                 | Correct Approach                         |
+| ------------------------------------- | ----------------------------- | ---------------------------------------- |
+| Adding exports to `/shadcn-ui/` files | shadcn updates overwrite them | Import from `@base-ui/react/*`           |
+| Using `cn()` in atoms                 | Unnecessary complexity        | Use `twMerge()`                          |
+| Importing props from `/shadcn-ui/`    | Base UI doesn't export them   | Import from primitive                    |
+| Passing `className` to `twMerge`      | Could be a function           | Compute base classes, pass to BaseButton |
+| Modifying `/shadcn-ui/` styling       | Lost on regeneration          | Override in `/atoms/`                    |
 
 ## Maintenance Workflow
 
@@ -218,7 +251,7 @@ Browser renders with that color
 # Preview changes before applying
 pnpm dlx shadcn@latest add button --diff
 
-# Apply update (overwrites /ui/, preserves /atoms/)
+# Apply update (overwrites /shadcn-ui/, preserves /atoms/)
 pnpm dlx shadcn@latest add button --overwrite
 
 # Update all components at once
@@ -230,11 +263,10 @@ pnpm dlx shadcn@latest add --all --overwrite
 1. Install raw: `pnpm dlx shadcn@latest add <component>`
 2. Create atom wrapper following checklist above
 3. Update app imports to `@regarde/ui/components/atoms/<Component>`
-4. Delete component from app's `/components/ui/`
+4. Delete component from app's `/components/shadcn-ui/`
 
 ## References
 
-- [Study: Polar UI Architecture](/docs/research/study-polar-ui-lib.md) — Full research on why we use this pattern
 - [shadcn/ui Registry](https://ui.shadcn.com) — Component reference
 - [Base UI Documentation](https://base-ui.com) — Primitive behavior
 - [Vercel Academy: shadcn/ui](https://vercel.com/academy/shadcn-ui) — Best practices guide
