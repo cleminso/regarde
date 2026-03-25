@@ -30,7 +30,7 @@ export function DashboardLayout({
         <SidebarNav />
       </div>
 
-      <div className="hidden h-screen w-full bg-dashboard pt-1 md:block">
+      <div className="hidden h-screen w-full bg-background-dashboard pt-1 md:block">
         <div className="flex h-full gap-1">
           <SidebarNav />
 
@@ -40,7 +40,7 @@ export function DashboardLayout({
               <BreadcrumbNav />
             </header>
 
-            <div className="flex-1 overflow-auto rounded-tl-xs bg-background p-4">
+            <div className="flex-1 overflow-auto rounded-tl-xs bg-background">
               {children}
             </div>
           </main>

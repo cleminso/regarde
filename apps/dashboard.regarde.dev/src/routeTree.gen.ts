@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppAppIdWebhooksRouteImport } from './routes/app/$appId/webhooks'
 import { Route as AppAppIdSettingsRouteImport } from './routes/app/$appId/settings'
 import { Route as AppAppIdOverviewRouteImport } from './routes/app/$appId/overview'
+import { Route as AppAppIdWebhookWebhookIdRouteImport } from './routes/app/$appId/webhook.$webhookId'
 
 const RegisterAppRoute = RegisterAppRouteImport.update({
   id: '/register-app',
@@ -40,6 +41,12 @@ const AppAppIdOverviewRoute = AppAppIdOverviewRouteImport.update({
   path: '/app/$appId/overview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppAppIdWebhookWebhookIdRoute =
+  AppAppIdWebhookWebhookIdRouteImport.update({
+    id: '/app/$appId/webhook/$webhookId',
+    path: '/app/$appId/webhook/$webhookId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +54,7 @@ export interface FileRoutesByFullPath {
   '/app/$appId/overview': typeof AppAppIdOverviewRoute
   '/app/$appId/settings': typeof AppAppIdSettingsRoute
   '/app/$appId/webhooks': typeof AppAppIdWebhooksRoute
+  '/app/$appId/webhook/$webhookId': typeof AppAppIdWebhookWebhookIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +62,7 @@ export interface FileRoutesByTo {
   '/app/$appId/overview': typeof AppAppIdOverviewRoute
   '/app/$appId/settings': typeof AppAppIdSettingsRoute
   '/app/$appId/webhooks': typeof AppAppIdWebhooksRoute
+  '/app/$appId/webhook/$webhookId': typeof AppAppIdWebhookWebhookIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,6 +71,7 @@ export interface FileRoutesById {
   '/app/$appId/overview': typeof AppAppIdOverviewRoute
   '/app/$appId/settings': typeof AppAppIdSettingsRoute
   '/app/$appId/webhooks': typeof AppAppIdWebhooksRoute
+  '/app/$appId/webhook/$webhookId': typeof AppAppIdWebhookWebhookIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -71,6 +81,7 @@ export interface FileRouteTypes {
     | '/app/$appId/overview'
     | '/app/$appId/settings'
     | '/app/$appId/webhooks'
+    | '/app/$appId/webhook/$webhookId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -78,6 +89,7 @@ export interface FileRouteTypes {
     | '/app/$appId/overview'
     | '/app/$appId/settings'
     | '/app/$appId/webhooks'
+    | '/app/$appId/webhook/$webhookId'
   id:
     | '__root__'
     | '/'
@@ -85,6 +97,7 @@ export interface FileRouteTypes {
     | '/app/$appId/overview'
     | '/app/$appId/settings'
     | '/app/$appId/webhooks'
+    | '/app/$appId/webhook/$webhookId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -93,6 +106,7 @@ export interface RootRouteChildren {
   AppAppIdOverviewRoute: typeof AppAppIdOverviewRoute
   AppAppIdSettingsRoute: typeof AppAppIdSettingsRoute
   AppAppIdWebhooksRoute: typeof AppAppIdWebhooksRoute
+  AppAppIdWebhookWebhookIdRoute: typeof AppAppIdWebhookWebhookIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -132,6 +146,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppIdOverviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/$appId/webhook/$webhookId': {
+      id: '/app/$appId/webhook/$webhookId'
+      path: '/app/$appId/webhook/$webhookId'
+      fullPath: '/app/$appId/webhook/$webhookId'
+      preLoaderRoute: typeof AppAppIdWebhookWebhookIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -141,6 +162,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppAppIdOverviewRoute: AppAppIdOverviewRoute,
   AppAppIdSettingsRoute: AppAppIdSettingsRoute,
   AppAppIdWebhooksRoute: AppAppIdWebhooksRoute,
+  AppAppIdWebhookWebhookIdRoute: AppAppIdWebhookWebhookIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { WebhooksPage } from "#features/webhooks";
+import { WebhooksListPage } from "#features/webhooks/pages/WebhooksListPage";
 
 export const Route = createFileRoute("/app/$appId/webhooks")({
   component: RouteComponent,
@@ -8,5 +8,5 @@ export const Route = createFileRoute("/app/$appId/webhooks")({
 
 function RouteComponent(): React.ReactElement {
   const { appId } = Route.useParams();
-  return <WebhooksPage appId={appId} />;
+  return <WebhooksListPage appId={appId} />;
 }

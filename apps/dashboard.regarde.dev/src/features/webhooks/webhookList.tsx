@@ -40,12 +40,10 @@ export function WebhookList({
   const [formData, setFormData] = useState<Partial<WebhookFormData>>({});
 
   const handleToggle = async (webhook: TWebhook) => {
-    if (webhook.$isLoaded === false) return;
     await toggleWebhookStatus(webhook, !webhook.isEnabled);
   };
 
   const startEdit = (webhook: TWebhook) => {
-    if (webhook.$isLoaded === false) return;
     setEditingWebhook(webhook);
     setFormData({
       name: webhook.name,
