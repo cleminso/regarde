@@ -11,7 +11,7 @@ import {
   generateWebhookSecret,
 } from "@regarde-dev/core";
 import { Button } from "#ui/button";
-import { Input } from "#ui/input";
+import { Input } from "@regarde/ui/components/atoms/Input";
 import { Textarea } from "#ui/textarea";
 import { getWebhookUrl } from "#lib/config/api";
 

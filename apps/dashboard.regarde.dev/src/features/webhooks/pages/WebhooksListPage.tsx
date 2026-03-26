@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 
 import type { TWebhook } from "@regarde-dev/core";
 import { useRegardeApp } from "@regarde-dev/core";
@@ -15,17 +15,16 @@ interface WebhooksListPageProps {
 export function WebhooksListPage({
   appId,
 }: WebhooksListPageProps): React.ReactElement {
+  const containerRef = useRef<HTMLDivElement>(null);
   const app = useRegardeApp(appId);
 
-  // Check loading states - use type guard pattern for MaybeLoaded
   const isAppLoaded = app !== null && app !== undefined && app.$isLoaded === true;
-  
-  // Extract webhooks with proper type narrowing
+
   const webhooks = useMemo<TWebhook[]>(() => {
     if (isAppLoaded === false) return [];
     if (app.webhooks === null || app.webhooks === undefined) return [];
     if (app.webhooks.$isLoaded === false) return [];
-    
+
     return app.webhooks.filter(
       (webhook): webhook is TWebhook =>
         webhook !== null &&
@@ -34,30 +33,27 @@ export function WebhooksListPage({
     );
   }, [app, isAppLoaded]);
 
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [sheetMode, setSheetMode] = useState<"create" | "edit">("create");
-  const [selectedWebhook, setSelectedWebhook] = useState<TWebhook | undefined>(
-    undefined
-  );
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [panelMode, setPanelMode] = useState<"create" | "edit">("create");
+  const [selectedWebhook, setSelectedWebhook] = useState<TWebhook | undefined>(undefined);
 
   const handleCreate = (): void => {
-    setSheetMode("create");
+    setPanelMode("create");
     setSelectedWebhook(undefined);
-    setIsSheetOpen(true);
+    setIsPanelOpen(true);
   };
 
   const handleEdit = (webhook: TWebhook): void => {
-    setSheetMode("edit");
+    setPanelMode("edit");
     setSelectedWebhook(webhook);
-    setIsSheetOpen(true);
+    setIsPanelOpen(true);
   };
 
-  const handleCloseSheet = (): void => {
-    setIsSheetOpen(false);
+  const handleClosePanel = (): void => {
+    setIsPanelOpen(false);
     setSelectedWebhook(undefined);
   };
 
-  // Handle loading states
   if (isAppLoaded === false) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -67,8 +63,8 @@ export function WebhooksListPage({
   }
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex-1 overflow-auto">
+    <div ref={containerRef} className="relative flex h-full gap-1">
+      <div className="flex-1 min-w-0 overflow-auto bg-background">
         <WebhookList
           webhooks={webhooks}
           appId={appId}
@@ -78,11 +74,13 @@ export function WebhooksListPage({
       </div>
 
       <WebhookSheet
-        mode={sheetMode}
+        mode={panelMode}
         webhook={selectedWebhook}
         appId={appId}
-        isOpen={isSheetOpen}
-        onClose={handleCloseSheet}
+        isOpen={isPanelOpen}
+        onClose={handleClosePanel}
+        inline
+        container={containerRef}
       />
     </div>
   );

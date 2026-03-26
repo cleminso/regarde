@@ -37,20 +37,22 @@ body::-webkit-scrollbar {
 }
 
 @theme {
-  /* Raw Color Tokens */
   /* Neutrals */
   --color-gray-100: oklch(0.9702 0 0);
   --color-gray-200: oklch(0.9401 0 0);
   --color-gray-300: oklch(0.8638 0 0);
   --color-gray-400: oklch(0.7952 0 0);
-  --color-gray-500: oklch(0.4386 0 0);
-  --color-gray-600: oklch(0.2686 0 0);
+  --color-gray-600: oklch(0.4386 0 0);
+  --color-gray-800: oklch(0.2686 0 0);
+  --color-gray-900: oklch(0.205 0 0);
 
   /* Semantic Colors */
-  --color-blue: oklch(0.5851 0.205 270.57);
-  --color-blue-light: oklch(0.8905 0.044 271.33);
-  --color-green: oklch(0.5624 0.1776 144.5);
-  --color-red: oklch(0.6306 0.1765 24.03);
+  /*--color-white: oklch(0.9702 0 0);
+  --color-dark: oklch(0.2686 0 0);*/
+  --color-blue-500: oklch(0.5851 0.205 270.57);
+  --color-blue-200: oklch(0.8905 0.044 271.33);
+  --color-green-700: oklch(0.5624 0.1776 144.5);
+  --color-red-500: oklch(0.6306 0.1765 24.03);
 
   /* TailwindCSS <> ShadcnUI Theme Mappings */
   --color-background-dashboard: var(--background-dashboard);
@@ -118,43 +120,43 @@ body::-webkit-scrollbar {
     /* Semantic Color Mappings - Light Theme */
     --background-dashboard: var(--color-gray-400);
     --background: var(--color-gray-200);
-    --foreground: var(--color-gray-600);
+    --foreground: var(--color-gray-800);
 
     --card: var(--color-gray-100);
     --card-foreground: var(--color-gray-500);
 
     --popover: var(--color-gray-100);
-    --popover-foreground: var(--color-gray-500);
+    --popover-foreground: var(--color-gray-600);
 
-    --primary: var(--color-blue);
+    --primary: var(--color-blue-500);
     --primary-foreground: var(--color-gray-100);
 
     --secondary: var(--color-gray-400);
-    --secondary-foreground: var(--color-gray-600);
+    --secondary-foreground: var(--color-gray-800);
 
     --muted: var(--color-gray-200);
-    --muted-foreground: var(--color-gray-600);
+    --muted-foreground: var(--color-gray-800);
 
-    --accent: var(--color-blue-light);
-    --accent-foreground: var(--color-blue);
+    --accent: var(--color-blue-200);
+    --accent-foreground: var(--color-blue-600);
 
-    --destructive: var(--color-red);
+    --destructive: var(--color-red-500);
     --destructive-foreground: var(--color-gray-100);
 
     --border: var(--color-gray-300);
     --input: var(--color-gray-200);
-    --ring: var(--color-blue);
+    --ring: var(--color-blue-500);
 
     --color-sidebar: var(--color-gray-200);
-    --color-sidebar-foreground: var(--color-gray-600);
-    --color-sidebar-primary: var(--color-blue-light);
-    --color-sidebar-primary-foreground: var(--color-blue);
+    --color-sidebar-foreground: var(--color-gray-800);
+    --color-sidebar-primary: var(--color-blue-200);
+    --color-sidebar-primary-foreground: var(--color-blue-500);
     --color-sidebar-accent: var(--color-gray-100);
-    --color-sidebar-accent-foreground: var(--color-gray-500);
+    --color-sidebar-accent-foreground: var(--color-gray-600);
     --color-sidebar-border: var(--color-gray-300);
-    --color-sidebar-ring: var(--color-blue);
+    --color-sidebar-ring: var(--color-blue-500);
 
-    --success: var(--color-green);
+    --success: var(--color-green-700);
     --success-bg: var(--color-gray-100);
   }
 }

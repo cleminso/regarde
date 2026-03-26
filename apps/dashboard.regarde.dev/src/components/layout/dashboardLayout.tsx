@@ -40,7 +40,7 @@ export function DashboardLayout({
               <BreadcrumbNav />
             </header>
 
-            <div className="flex-1 overflow-auto rounded-tl-xs bg-background">
+            <div className="flex-1 overflow-auto rounded-tl-xs">
               {children}
             </div>
           </main>

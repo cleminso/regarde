@@ -19,6 +19,8 @@ interface WebhookSheetProps {
   appId: string;
   isOpen: boolean;
   onClose: () => void;
+  inline?: boolean;
+  container?: HTMLElement | React.RefObject<HTMLElement | null> | null;
 }
 
 export function WebhookSheet({
@@ -27,11 +29,12 @@ export function WebhookSheet({
   appId,
   isOpen,
   onClose,
+  inline = false,
+  container,
 }: WebhookSheetProps): React.ReactElement {
   const [key, setKey] = useState(0);
 
   const handleSuccess = (): void => {
-    // Reset form key to clear state
     setKey((prev) => prev + 1);
     onClose();
   };
@@ -41,8 +44,12 @@ export function WebhookSheet({
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="sm:max-w-lg">
+    <Sheet open={isOpen} onOpenChange={onClose} modal={!inline}>
+      <SheetContent 
+        inline={inline} 
+        container={container}
+        className={inline ? "" : "sm:max-w-lg"}
+      >
         <SheetHeader>
           <SheetTitle>
             {mode === "create" ? "Create Webhook" : "Edit Webhook"}
