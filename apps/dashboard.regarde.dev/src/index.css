@@ -196,4 +196,26 @@ body::-webkit-scrollbar {
   .card-selected {
     background-color: oklch(0.5851 0.205 270.57);
   }
+
+  /* Switch */
+  [data-slot="switch"] {
+    width: 30px;
+    height: 20px;
+    background-color: var(--destructive);
+  }
+
+  [data-slot="switch"][data-checked] {
+    background-color: var(--success);
+  }
+
+  [data-slot="switch"] [data-slot="switch-thumb"] {
+    width: 8px;
+    height: 16px;
+    background-color: white;
+    transform: translateX(2px);
+  }
+
+  [data-slot="switch"][data-checked] [data-slot="switch-thumb"] {
+    transform: translateX(18px);
+  }
 }

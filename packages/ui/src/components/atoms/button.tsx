@@ -1,19 +1,18 @@
-import { Button as BaseButton } from "@/components/shadcn-ui/button"
-import { Button as ButtonPrimitive } from "@base-ui/react/button"
+import * as React from "react"
+import { Button as ShadButton } from "@/components/shadcn-ui/button"
 import { cva, type VariantProps } from "class-variance-authority"
 import { twMerge } from "tailwind-merge"
-import React from "react"
 
 const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center rounded-sm border border-transparent bg-clip-padding text-xs/relaxed font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 active:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 cursor-pointer",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
         outline:
           "border-border hover:bg-input/50 hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-input/30",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/90 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
           "hover:bg-primary/60 hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
@@ -39,28 +38,34 @@ const buttonVariants = cva(
   }
 )
 
-const Button = ({
+export type ButtonProps = React.ComponentProps<typeof ShadButton> &
+  VariantProps<typeof buttonVariants> & {
+    loading?: boolean
+  }
+
+/**
+ * @example
+ * ```tsx
+ * <Button variant="secondary" size="sm" loading={isSubmitting}>
+ *   Submit
+ * </Button>
+ * ```
+ */
+function Button({
   ref,
   className,
   variant = "default",
   size = "default",
   loading = false,
-  fullWidth = false,
   children,
   disabled,
   ...props
-}: ButtonPrimitive.Props &
-  VariantProps<typeof buttonVariants> & {
-    ref?: React.RefObject<HTMLButtonElement>
-    loading?: boolean
-    fullWidth?: boolean
-  }) => {
-  // BaseButton handles className internally (supports both string and function)
-  // We only use twMerge for our own classes, then pass combined className
-  const baseClasses = twMerge(buttonVariants({ variant, size }), fullWidth ? "w-full" : "")
+}: ButtonProps) {
+  // CVA handles className internally and always returns a string
+  const baseClasses = twMerge(buttonVariants({ variant, size, className }))
 
   return (
-    <BaseButton
+    <ShadButton
       ref={ref}
       data-slot="button"
       className={baseClasses}
@@ -96,41 +101,31 @@ const Button = ({
       ) : (
         children
       )}
-    </BaseButton>
+    </ShadButton>
   )
 }
 
 Button.displayName = "Button"
 
-// Raw version for edge cases — uses /shadcn-ui/ styling without Regarde branding
-const RawButton = ({
+/**
+ * @example
+ * ```tsx
+ * <RawButton className="custom-styles">Click</RawButton>
+ * ```
+ */
+export function RawButton({
   ref,
   className,
-  variant,
-  size,
   children,
   ...props
-}: ButtonPrimitive.Props &
-  VariantProps<typeof buttonVariants> & {
-    ref?: React.RefObject<HTMLButtonElement>
-  }) => {
+}: React.ComponentProps<typeof ShadButton>) {
   return (
-    <BaseButton
-      ref={ref}
-      className={twMerge(buttonVariants({ variant, size, className }))}
-      {...props}
-    >
+    <ShadButton ref={ref} className={className} {...props}>
       {children}
-    </BaseButton>
+    </ShadButton>
   )
 }
 
 RawButton.displayName = "RawButton"
 
 export default Button
-export { Button, buttonVariants, RawButton }
-export type ButtonProps = ButtonPrimitive.Props &
-  VariantProps<typeof buttonVariants> & {
-    loading?: boolean
-    fullWidth?: boolean
-  }
