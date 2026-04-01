@@ -2,11 +2,11 @@
 
 import { useLocation, useParams } from "@tanstack/react-router";
 
-import { Breadcrumb } from "@regarde/ui/components/atoms/Breadcrumb";
 import {
-  useMyRegardeAccount,
-  type TApp,
+    useMyRegardeAccount,
+    type TApp,
 } from "#lib/account/useMyRegardeAccount";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage } from "@regarde/ui/shadcn/breadcrumb";
 
 function getPageLabelFromPathname(pathname: string): string {
   const segments = pathname.split("/");
@@ -56,13 +56,13 @@ export function BreadcrumbNav(): React.ReactElement {
   const appReady = effectiveApp !== null;
   if (isAccountReady === false || appReady === false) {
     return (
-      <Breadcrumb.Root>
-        <Breadcrumb.List>
-          <Breadcrumb.Item>
-            <Breadcrumb.Page>Loading...</Breadcrumb.Page> // TODO: avoid loading at each page refresh
-          </Breadcrumb.Item>
-        </Breadcrumb.List>
-      </Breadcrumb.Root>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Loading...</BreadcrumbPage> // TODO: avoid loading at each page refresh
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
     );
   }
 
@@ -74,12 +74,12 @@ export function BreadcrumbNav(): React.ReactElement {
   }
 
   return (
-    <Breadcrumb.Root>
-      <Breadcrumb.List>
-        <Breadcrumb.Item>
-          <Breadcrumb.Page>{pageLabel}</Breadcrumb.Page>
-        </Breadcrumb.Item>
-      </Breadcrumb.List>
-    </Breadcrumb.Root>
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbPage>{pageLabel}</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
   );
 }

@@ -87,7 +87,7 @@ const CardDescription = ({
     ref={ref}
     data-slot="card-description"
     className={twMerge(
-      "text-xs/relaxed text-muted-foreground",
+      "text-sm/relaxed text-muted-foreground",
       className
     )}
     {...props}

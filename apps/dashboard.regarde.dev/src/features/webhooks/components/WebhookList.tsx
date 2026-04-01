@@ -1,18 +1,17 @@
 "use client";
 
+import { Switch } from "@regarde/ui/switch";
 import { MoreHorizontal, Copy } from "lucide-react";
 
-import type { TWebhook } from "@regarde-dev/core";
-import { toggleWebhookStatus } from "@regarde-dev/core";
-import { Badge } from "@regarde/ui/components/atoms/Badge";
+import { getWebhookUrl } from "#lib/config/api";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "#ui/dropdown-menu";
-import { Switch } from "#ui/switch";
-import { getWebhookUrl } from "#lib/config/api";
+} from "@regarde/ui/dropdownMenu";
+import type { TWebhook } from "@regarde-dev/core";
+import { toggleWebhookStatus } from "@regarde-dev/core";
 
 interface WebhookListProps {
   webhooks: TWebhook[];
@@ -36,22 +35,6 @@ export function WebhookList({
     await navigator.clipboard.writeText(url);
   };
 
-  const getProviderVariant = (
-    provider: string
-  ): "stripe" | "polar" | "default" => {
-    if (provider === "stripe") return "stripe";
-    if (provider === "polar") return "polar";
-    return "default";
-  };
-
-  const getEnvironmentVariant = (
-    environment: string
-  ): "production" | "sandbox" | "default" => {
-    if (environment === "production") return "production";
-    if (environment === "sandbox") return "sandbox";
-    return "default";
-  };
-
   return (
     <div className="w-full overflow-hidden bg-card">
       {/* Header */}
@@ -59,25 +42,14 @@ export function WebhookList({
         <div className="flex flex-2 items-center min-w-0">
           <span className="text-xs font-mono text-muted-foreground">Name</span>
         </div>
-        <div className="flex flex-1 items-center min-w-0">
-          <span className="text-xs font-mono text-muted-foreground">
-            Description
-          </span>
-        </div>
         <div className="flex w-20 items-center justify-center shrink-0">
-          <span className="text-xs font-mono text-muted-foreground">
-            Provider
-          </span>
+          <span className="text-xs font-mono text-muted-foreground">Provider</span>
         </div>
         <div className="flex w-24 items-center justify-center shrink-0">
-          <span className="text-xs font-mono text-muted-foreground">
-            Environment
-          </span>
+          <span className="text-xs font-mono text-muted-foreground">Environment</span>
         </div>
         <div className="flex w-16 items-center justify-center shrink-0">
-          <span className="text-xs font-mono text-muted-foreground">
-            Enabled
-          </span>
+          <span className="text-xs font-mono text-muted-foreground">Enabled</span>
         </div>
         <div className="flex w-40 items-center min-w-0">
           <span className="text-xs font-mono text-muted-foreground">Secret</span>
@@ -89,20 +61,14 @@ export function WebhookList({
       <div className="divide-y divide-border">
         {webhooks.length === 0 ? (
           <div className="flex items-center justify-center py-8">
-            <span className="text-sm font-mono text-muted-foreground">
-              No webhooks configured.
-            </span>
+            <span className="text-sm font-mono text-muted-foreground">No webhooks configured.</span>
           </div>
         ) : (
           webhooks.map((webhook) => {
             const isLoaded = webhook !== null && webhook.$isLoaded === true;
             if (isLoaded === false) return null;
 
-            const endpointUrl = getWebhookUrl(
-              webhook.provider,
-              appId,
-              webhook.$jazz.id
-            );
+            const endpointUrl = getWebhookUrl(webhook.provider, appId, webhook.$jazz.id);
 
             return (
               <div
@@ -119,39 +85,8 @@ export function WebhookList({
                   </span>
                 </div>
 
-                {/* Description */}
-                <div className="flex flex-1 items-center min-w-0 pr-4">
-                  <span className="text-sm text-foreground truncate">
-                    {webhook.description || "-"}
-                  </span>
-                </div>
-
-                {/* Provider */}
-                <div className="flex w-20 items-center justify-center shrink-0">
-                  <Badge variant={getProviderVariant(webhook.provider)}>
-                    {webhook.provider.charAt(0).toUpperCase() +
-                      webhook.provider.slice(1)}
-                  </Badge>
-                </div>
-
-                {/* Environment */}
-                <div className="flex w-24 items-center justify-center shrink-0">
-                  <Badge
-                    variant={getEnvironmentVariant(webhook.environment)}
-                  >
-                    {webhook.environment.charAt(0).toUpperCase() +
-                      webhook.environment.slice(1)}
-                  </Badge>
-                </div>
-
                 {/* Enabled Toggle */}
-                <div
-                  className="flex w-16 items-center justify-center shrink-0"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleToggle(webhook);
-                  }}
-                >
+                <div className="flex w-16 items-center justify-center shrink-0">
                   <Switch
                     checked={webhook.isEnabled}
                     onCheckedChange={() => handleToggle(webhook)}
@@ -174,12 +109,8 @@ export function WebhookList({
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onEdit(webhook)}>
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleCopyEndpoint(webhook)}
-                      >
+                      <DropdownMenuItem onClick={() => onEdit(webhook)}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleCopyEndpoint(webhook)}>
                         <Copy className="mr-2 h-4 w-4" />
                         Copy endpoint URL
                       </DropdownMenuItem>

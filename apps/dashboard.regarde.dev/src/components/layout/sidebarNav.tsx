@@ -1,8 +1,12 @@
 "use client";
 
 import { Moon } from "lucide-react";
+import { Button } from "@regarde/ui/button";
+
+import { AppSwitcher } from "#navigation/appSwitcher";
+import { NavMain } from "#navigation/navMain";
 import {
-  Sidebar,
+  DashboardSidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
@@ -12,15 +16,11 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-} from "#ui/sidebar";
-import { Button } from "#ui/button";
-
-import { AppSwitcher } from "#navigation/appSwitcher";
-import { NavMain } from "#navigation/navMain";
+} from "./dashboardSidebar";
 
 export function SidebarNav(): React.ReactElement {
   return (
-    <Sidebar layout="flex" collapsible="icon" className="h-full">
+    <DashboardSidebar layout="flex" collapsible="icon" className="h-full">
       <SidebarHeader className="px-2 py-2">
         <div className="flex items-center justify-between group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-2">
           <div className="h-5 w-5 group-data-[collapsible=icon]:hidden" />
@@ -65,6 +65,6 @@ export function SidebarNav(): React.ReactElement {
       </SidebarFooter>
 
       <SidebarRail />
-    </Sidebar>
+    </DashboardSidebar>
   );
 }

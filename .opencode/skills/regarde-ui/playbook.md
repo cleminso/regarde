@@ -95,8 +95,8 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-8 px-3 text-xs",
-        lg: "h-12 px-6 text-base",
+        sm: "h-8 px-3 text-sm",
+        lg: "h-12 px-6 text-sm",
         icon: "h-10 w-10",
       },
     },
@@ -212,10 +212,10 @@ Minimal export pattern:
 ### Standard Exports (most components)
 
 ```typescript
-Component.displayName = ShadComponent.displayName
+Component.displayName = ShadComponent.displayName;
 
-export default Component
-export type { ComponentProps }
+export default Component;
+export type { ComponentProps };
 ```
 
 ### With Raw Variant
@@ -223,12 +223,12 @@ export type { ComponentProps }
 When providing both full-featured and raw versions:
 
 ```typescript
-Component.displayName = ShadComponent.displayName
-RawComponent.displayName = 'RawComponent'
+Component.displayName = ShadComponent.displayName;
+RawComponent.displayName = "RawComponent";
 
-export default Component
-export { RawComponent }
-export type { ComponentProps }
+export default Component;
+export { RawComponent };
+export type { ComponentProps };
 ```
 
 ### What's NOT Exported
@@ -241,32 +241,35 @@ export type { ComponentProps }
 ### Exception: When to Export Variants
 
 Export variants only when:
+
 - Multiple atoms share the same variant logic (rare)
 - Building a theming system that needs runtime access to variants
 
 ## When to Use CVA
 
 **Use CVA for:**
+
 - Button (variant, size)
 - Badge (variant)
 - Any component with 3+ visual states
 
 **Skip CVA for:**
+
 - Input (just adds slots)
 - Textarea (styling wrapper only)
 - Label (minimal styling)
 
 ## Common Mistakes
 
-| Mistake | Why It Breaks | Fix |
-|---------|---------------|-----|
-| `ComponentProps<"input">` | Misses shadcn's custom props | Use `ComponentProps<typeof ShadInput>` |
-| Implicit ref forwarding | React 19 form incompatibility | Explicitly destructure `ref` in params |
-| PascalCase atom files | Inconsistent with codebase | Use camelCase |
-| `twMerge(variants, className)` | twMerge can't handle function className | `twMerge(variants({ ..., className }))` |
-| Using `twMerge()` with conditionals | Loses conditional class logic | Use `cn()` for conditionals |
-| Using `BaseInput` alias | Confusing — not the actual base | Use `ShadInput` alias |
-| Modifying `/shadcn-ui/` files | Lost on shadcn regeneration | Customize in `/atoms/` only |
+| Mistake                             | Why It Breaks                           | Fix                                     |
+| ----------------------------------- | --------------------------------------- | --------------------------------------- |
+| `ComponentProps<"input">`           | Misses shadcn's custom props            | Use `ComponentProps<typeof ShadInput>`  |
+| Implicit ref forwarding             | React 19 form incompatibility           | Explicitly destructure `ref` in params  |
+| PascalCase atom files               | Inconsistent with codebase              | Use camelCase                           |
+| `twMerge(variants, className)`      | twMerge can't handle function className | `twMerge(variants({ ..., className }))` |
+| Using `twMerge()` with conditionals | Loses conditional class logic           | Use `cn()` for conditionals             |
+| Using `BaseInput` alias             | Confusing — not the actual base         | Use `ShadInput` alias                   |
+| Modifying `/shadcn-ui/` files       | Lost on shadcn regeneration             | Customize in `/atoms/` only             |
 
 ## Maintenance
 

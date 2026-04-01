@@ -23,10 +23,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "#ui": resolve(import.meta.dirname, "./src/components/ui"),
       "#features": resolve(import.meta.dirname, "./src/features"),
       "#lib": resolve(import.meta.dirname, "./src/lib"),
-      "#hooks": resolve(import.meta.dirname, "./src/hooks"),
       "#navigation": resolve(import.meta.dirname, "./src/components/navigation"),
       "#register-app": resolve(import.meta.dirname, "./src/components/register-app"),
       "#layout": resolve(import.meta.dirname, "./src/components/layout"),

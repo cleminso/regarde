@@ -1,6 +1,7 @@
 ---
 name: regarde-ui
 description: Use to create and consume Regarde UI components using the three-layer architecture (Base UI → shadcn → branded atoms)
+compatibility: Requires Tailwind CSS v4 and @base-ui/react. Designed for React projects using the shadcn component registry.
 ---
 
 # regarde-ui
@@ -116,7 +117,7 @@ className={cn(
 
 Keep JSDoc minimal. Use `@example` for compound component usage patterns, omit verbose descriptions:
 
-```typescript
+````typescript
 /**
  * @example
  * ```tsx
@@ -128,7 +129,7 @@ Keep JSDoc minimal. Use `@example` for compound component usage patterns, omit v
  * ```
  */
 const Card = ...
-```
+````
 
 ### Function Style
 
@@ -189,6 +190,7 @@ Standardize on ONE pattern per component type:
 **Don't mix patterns** — pick one and be consistent.
 
 **Compound pattern options** (choose ONE):
+
 - **Option A**: Compound object only — `Card.Root`, `Card.Header` accessed via `Card.X`
 - **Option B**: Individual exports only — `Card`, `CardHeader` as separate named exports
 - **Option C**: Both compound AND individual — NOT recommended, creates two ways to do the same thing

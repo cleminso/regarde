@@ -1,4 +1,4 @@
-import { SidebarProvider, SidebarTrigger } from "#ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@regarde/ui/sidebar";
 
 import { BreadcrumbNav } from "#navigation/breadcrumbNav";
 import { SidebarNav } from "./sidebarNav";

@@ -4,14 +4,14 @@ import { useNavigate } from "@tanstack/react-router";
 import { ChevronsUpDown, Plus, Check } from "lucide-react";
 import * as React from "react";
 
-import { cn } from "#lib/utils";
+import { cn } from "@regarde/ui/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "#ui/dropdown-menu";
+} from "@regarde/ui/dropdownMenu";
 import {
   useMyRegardeAccount,
   type TApp,

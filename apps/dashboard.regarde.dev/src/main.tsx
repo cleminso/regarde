@@ -12,7 +12,7 @@ import { RegardeAccount } from "@regarde-dev/core";
 import { apiKey } from "./lib/config/apiKey";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
-import { TooltipProvider } from "#ui/tooltip";
+import { TooltipProvider } from "@regarde/ui/shadcn/tooltip";
 
 // Create a new router instance
 const router = createRouter({

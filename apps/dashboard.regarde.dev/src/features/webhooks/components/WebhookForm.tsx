@@ -10,9 +10,9 @@ import {
   updateWebhook,
   generateWebhookSecret,
 } from "@regarde-dev/core";
-import { Button } from "#ui/button";
-import { Input } from "@regarde/ui/components/atoms/Input";
-import { Textarea } from "#ui/textarea";
+import { Button } from "@regarde/ui/button";
+import { Input } from "@regarde/ui/input";
+import { Textarea } from "@regarde/ui/shadcn/textarea";
 import { getWebhookUrl } from "#lib/config/api";
 
 const PROVIDER_OPTIONS: { value: TPaymentProvider; label: string }[] = [

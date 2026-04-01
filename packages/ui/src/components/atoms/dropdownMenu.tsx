@@ -95,7 +95,7 @@ const DropdownMenuLabel = ({
   <ShadDropdownMenuLabel
     ref={ref}
     className={cn(
-      "px-1.5 py-1 text-xs font-medium text-muted-foreground",
+      "px-1.5 py-1 text-sm font-medium text-muted-foreground",
       className
     )}
     {...props}
@@ -221,7 +221,7 @@ const DropdownMenuShortcut = ({
   <ShadDropdownMenuShortcut
     ref={ref}
     className={cn(
-      "ml-auto text-xs tracking-widest text-muted-foreground group-focus/dropdown-menu-item:text-accent-foreground",
+      "ml-auto text-sm tracking-widest text-muted-foreground group-focus/dropdown-menu-item:text-accent-foreground",
       className
     )}
     {...props}

@@ -7,7 +7,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "#ui/sidebar";
+} from "@regarde/ui/sidebar";
 import { useMyRegardeAccount } from "#lib/account/useMyRegardeAccount";
 
 interface NavMainProps {

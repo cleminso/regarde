@@ -7,9 +7,19 @@
   "type": "module",
   "exports": {
     "./*": {
-      "types": "./dist/*.d.ts",
-      "import": "./dist/*.mjs",
-      "require": "./dist/*.js"
+      "types": "./dist/components/atoms/*.d.ts",
+      "import": "./dist/components/atoms/*.mjs",
+      "require": "./dist/components/atoms/*.js"
+    },
+    "./shadcn/*": {
+      "types": "./dist/components/shadcn-ui/*.d.ts",
+      "import": "./dist/components/shadcn-ui/*.mjs",
+      "require": "./dist/components/shadcn-ui/*.js"
+    },
+    "./lib/*": {
+      "types": "./dist/lib/*.d.ts",
+      "import": "./dist/lib/*.mjs",
+      "require": "./dist/lib/*.js"
     }
   },
   "scripts": {

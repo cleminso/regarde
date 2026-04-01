@@ -9,7 +9,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
-} from "#ui/sheet";
+} from "@regarde/ui/sheet";
 
 import { WebhookForm } from "./WebhookForm";
 
@@ -44,9 +44,9 @@ export function WebhookSheet({
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose} modal={!inline}>
-      <SheetContent 
-        inline={inline} 
+    <Sheet open={isOpen} onOpenChange={onClose}>
+      <SheetContent
+        variant={inline ? "inline" : "modal"}
         container={container}
         className={inline ? "" : "sm:max-w-lg"}
       >

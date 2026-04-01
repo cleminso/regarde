@@ -4,16 +4,16 @@ import { useState } from "react";
 
 import { useMyRegardeAccount } from "#lib/account/useMyRegardeAccount";
 import { registerApp, RegisterAppApiError } from "#lib/api/registerApp";
-import { Button } from "#ui/button";
+import { Button } from "@regarde/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "#ui/card";
-import { Input } from "#ui/input";
-import { Textarea } from "#ui/textarea";
+} from "@regarde/ui/card";
+import { Input } from "@regarde/ui/input";
+import { Textarea } from "@regarde/ui/shadcn/textarea";
 import { createApp } from "@regarde-dev/core";
 import { useRegardeTokenAuth } from "@regarde-dev/core/react";
 
