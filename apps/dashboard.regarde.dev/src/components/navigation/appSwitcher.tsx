@@ -1,10 +1,11 @@
 "use client";
 
+import { motion } from "motion/react";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronsUpDown, Plus, Check } from "lucide-react";
 import * as React from "react";
 
-import { cn } from "@regarde/ui/lib/utils";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@regarde/ui/dropdownMenu";
+import { useSidebar } from "@regarde/ui/sidebar";
 import {
   useMyRegardeAccount,
   type TApp,
@@ -19,6 +21,8 @@ import {
 
 export function AppSwitcher(): React.ReactElement {
   const navigate = useNavigate();
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
   const { myApps, selectedAppId, isAccountReady } = useMyRegardeAccount();
 
   const [activeApp, setActiveApp] = React.useState<TApp | null>(null);
@@ -57,22 +61,43 @@ export function AppSwitcher(): React.ReactElement {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger className="flex h-10 w-full items-center justify-between transition-colors outline-none">
-        <div className="flex items-center gap-2 min-w-0 flex-1 group-data-[collapsible=icon]:justify-center">
-          <div className="flex h-5 w-5 items-center justify-center rounded-sm border border-sidebar-border bg-sidebar-accent shrink-0">
+      <DropdownMenuTrigger className="flex h-12 w-full hover:bg-secondary px-3 items-center justify-between transition-colors outline-none">
+        <div className="flex items-center min-w-0 flex-1 justify-start">
+          <motion.div
+            className="shrink-0"
+            initial={false}
+            animate={{
+              width: isCollapsed ? 6 : 0,
+            }}
+            transition={{ duration: 0.2 }}
+          />
+          <div className="flex h-5 w-5 items-center justify-center rounded-sm border border-border bg-secondary shrink-0">
             <span className="text-sm font-medium text-sidebar-foreground">
               {activeApp.name.charAt(0).toUpperCase()}
             </span>
           </div>
-          <span className="truncate group-data-[collapsible=icon]:hidden">
+          <motion.span
+            className="truncate text-sm ml-2"
+            initial={false}
+            animate={{
+              opacity: isCollapsed ? 0 : 1,
+              width: isCollapsed ? 0 : "auto",
+            }}
+            transition={{ duration: 0.2 }}
+          >
             {activeApp.name}
-          </span>
+          </motion.span>
         </div>
-        <ChevronsUpDown
-          className={cn(
-            "h-3.5 w-3.5 shrink-0 group-data-[collapsible=icon]:hidden"
-          )}
-        />
+        <motion.div
+          initial={false}
+          animate={{
+            opacity: isCollapsed ? 0 : 1,
+            width: isCollapsed ? 0 : "auto",
+          }}
+          transition={{ duration: 0.2 }}
+        >
+          <ChevronsUpDown className="h-3.5 w-3.5 shrink-0" />
+        </motion.div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         className="w-(--anchor-width)"
@@ -86,12 +111,12 @@ export function AppSwitcher(): React.ReactElement {
               key={app.$jazz.id}
               onClick={() => handleSelect(app)}
             >
-              <div className="flex h-5 w-5 items-center justify-center shrink-0">
-                <span className="text-sm">
+              <div className="flex h-5 w-5 items-center justify-center rounded-xs border border-sidebar-border bg-sidebar-accent shrink-0">
+                <span className="text-sm font-medium text-sidebar-foreground">
                   {app.name.charAt(0).toUpperCase()}
                 </span>
               </div>
-              <span className="flex-1 truncate">{app.name}</span>
+              <span className="flex-1 truncate text-sm">{app.name}</span>
               {app.$jazz.id === activeApp.$jazz.id && (
                 <Check className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
               )}
@@ -103,7 +128,7 @@ export function AppSwitcher(): React.ReactElement {
 
         <DropdownMenuItem onClick={handleCreateApp}>
           <Plus className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          <span className="text-muted-foreground">Add app</span>
+          <span className="text-muted-foreground text-sm">Add app</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

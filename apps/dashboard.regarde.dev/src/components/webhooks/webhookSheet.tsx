@@ -11,7 +11,7 @@ import {
   SheetDescription,
 } from "@regarde/ui/sheet";
 
-import { WebhookForm } from "./WebhookForm";
+import { WebhookForm } from "./webhookForm";
 
 interface WebhookSheetProps {
   mode: "create" | "edit";

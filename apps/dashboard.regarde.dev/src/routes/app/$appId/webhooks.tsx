@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { WebhooksListPage } from "#features/webhooks/pages/WebhooksListPage";
+import { WebhooksListPage } from "#webhooks/webhooksListPage";
 
 export const Route = createFileRoute("/app/$appId/webhooks")({
   component: RouteComponent,

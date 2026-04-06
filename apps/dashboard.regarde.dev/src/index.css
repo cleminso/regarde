@@ -3,14 +3,21 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Tell Tailwind to scan @regarde/ui package source files for classes */
+@source "../../../packages/ui/src";
+
 @import "shadcn/tailwind.css";
 
 @import "@fontsource-variable/geist";
+@import "@fontsource/geist-mono/400.css";
+@import "@fontsource/geist-mono/500.css";
 
 @theme {
-  --font-sans: var(--geist), sans-serif; /* Body text */
-  --font-display: var(--geist), sans-serif; /* Headings & buttons */
-  --font-mono: var(--commit-mono), monospace; /* Data & Code */
+  --breakpoint-md: 768px;
+
+  --font-sans: "Geist Sans", sans-serif; /* Body text */
+  --font-display: "Geist Sans", sans-serif; /* Headings & buttons */
+  --font-mono: "Geist Mono", monospace; /* Data & Code */
 
   --text-xxs: 0.65rem;
 
@@ -22,6 +29,10 @@
   --radius-2xl: 1rem;
   --radius-3xl: 3.5rem;
   --radius-4xl: 4rem;
+
+  /* Sidebar widths */
+  --width-sidebar: 16rem;
+  --width-sidebar-icon: 3rem;
 
   /* Neutrals */
   --color-gray-100: oklch(0.9702 0 0);
@@ -95,8 +106,8 @@
     --primary: var(--color-blue-500);
     --primary-foreground: var(--color-gray-100);
 
-    --secondary: var(--color-gray-400);
-    --secondary-foreground: var(--color-gray-800);
+    --secondary: var(--color-gray-100);
+    --secondary-foreground: var(--color-gray-700);
 
     --muted: var(--color-gray-200);
     --muted-foreground: var(--color-gray-800);
@@ -111,14 +122,14 @@
     --input: var(--color-gray-200);
     --ring: var(--color-blue-500);
 
-    --color-sidebar: var(--color-gray-200);
-    --color-sidebar-foreground: var(--color-gray-800);
-    --color-sidebar-primary: var(--color-blue-200);
-    --color-sidebar-primary-foreground: var(--color-blue-500);
-    --color-sidebar-accent: var(--color-gray-100);
-    --color-sidebar-accent-foreground: var(--color-gray-600);
-    --color-sidebar-border: var(--color-gray-300);
-    --color-sidebar-ring: var(--color-blue-500);
+    --sidebar: var(--color-gray-200);
+    --sidebar-foreground: var(--color-gray-800);
+    --sidebar-primary: var(--color-blue-200);
+    --sidebar-primary-foreground: var(--color-blue-500);
+    --sidebar-accent: var(--color-gray-100);
+    --sidebar-accent-foreground: var(--color-gray-600);
+    --sidebar-border: var(--color-gray-300);
+    --sidebar-ring: var(--color-blue-500);
 
     --success: var(--color-green-700);
     --success-bg: var(--color-gray-100);

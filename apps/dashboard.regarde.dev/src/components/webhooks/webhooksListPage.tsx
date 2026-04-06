@@ -5,8 +5,8 @@ import { useState, useMemo, useRef } from "react";
 import type { TWebhook } from "@regarde-dev/core";
 import { useRegardeApp } from "@regarde-dev/core";
 
-import { WebhookList } from "../components/WebhookList";
-import { WebhookSheet } from "../components/WebhookSheet";
+import { WebhookList } from "./webhookList";
+import { WebhookSheet } from "./webhookSheet";
 
 interface WebhooksListPageProps {
   appId: string;
