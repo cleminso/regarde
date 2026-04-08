@@ -44,8 +44,8 @@ export function DashboardNavigation({ onNavigate }: DashboardNavigationProps): R
   const pathname = matches[matches.length - 1]?.pathname ?? "";
 
   return (
-    <SidebarGroup className="px-0 py-2">
-      <SidebarMenu className="md:group-data-[collapsible=icon]:px-3">
+    <SidebarGroup className="p-2">
+      <SidebarMenu className="gap-0.5">
         {visibleRoutes.map((route) => {
           const isActive = route.checkIsActive
             ? route.checkIsActive(pathname, effectiveAppId)
@@ -58,14 +58,14 @@ export function DashboardNavigation({ onNavigate }: DashboardNavigationProps): R
           return (
             <SidebarMenuItem key={route.id}>
               {isDisabled ? (
-                <SidebarMenuButton disabled tooltip={route.title} className="disabled:text-muted-foreground disabled:opacity-40 disabled:hover:bg-transparent text-base rounded-none px-3 md:group-data-[collapsible=icon]:rounded-xs">
-                  {IconComponent && <IconComponent className="size-4" />}
+                <SidebarMenuButton disabled tooltip={route.title} lassName="disabled:text-muted-foreground disabled:opacity-40 disabled:hover:bg-transparent text-base rounded-none px-1 md:group-data-[collapsible=icon]:rounded-xs">
+                  {IconComponent && <IconComponent />}
                   <span>{route.title}</span>
                 </SidebarMenuButton>
               ) : (
-                <Link to={route.link} onClick={onNavigate} className="w-full focus:outline-none">
-                  <SidebarMenuButton isActive={isActive} tooltip={route.title} className="focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-sidebar-ring focus-visible:ring-offset-0 data-active:bg-sidebar-primary data-active:text-sidebar-primary-foreground data-active:hover:text-sidebar-primary-foreground data-active:hover:bg-sidebar-primary active:bg-transparent active:text-sidebar-foreground text-sidebar-accent-foreground hover:bg-transparent hover:text-sidebar-foreground text-base rounded-none px-3 md:group-data-[collapsible=icon]:rounded-xs">
-                    {IconComponent && <IconComponent className="size-4" />}
+                <Link to={route.link} onClick={onNavigate}>
+                  <SidebarMenuButton isActive={isActive} tooltip={route.title} className="focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-sidebar-ring focus-visible:ring-offset-0 data-active:bg-sidebar-primary data-active:text-sidebar-primary-foreground data-active:hover:text-sidebar-primary-foreground data-active:hover:bg-sidebar-primary active:bg-transparent active:text-sidebar-foreground text-sidebar-accent-foreground hover:bg-secondary hover:text-sidebar-accent-foreground text-sm rounded-xs px-2 md:group-data-[collapsible=icon]:rounded-xs">
+                    {IconComponent && <IconComponent />}
                     <span>{route.title}</span>
                   </SidebarMenuButton>
                 </Link>

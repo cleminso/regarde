@@ -1,10 +1,8 @@
 "use client";
 
-import { motion } from "motion/react";
 import { useNavigate } from "@tanstack/react-router";
-import { ChevronsUpDown, Plus, Check } from "lucide-react";
+import { ChevronDown, Plus, Check } from "lucide-react";
 import * as React from "react";
-
 
 import {
   DropdownMenu,
@@ -13,31 +11,51 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@regarde/ui/dropdownMenu";
-import { useSidebar } from "@regarde/ui/sidebar";
 import {
   useMyRegardeAccount,
-  type TApp,
-} from "#lib/account/useMyRegardeAccount";
+  type TRegardeApp,
+} from "@regarde-dev/core/react";
+
+/**
+ * Placeholder component shown while the app switcher is loading.
+ * Matches the shape of the actual switcher to prevent layout shift.
+ */
+function AppSwitcherPlaceholder(): React.ReactElement {
+  return (
+    <div className="group flex h-8 w-full items-center justify-start px-2 gap-2 overflow-hidden">
+      {/* Icon box with subtle pulse */}
+      <div className="flex h-5 w-5 items-center justify-center rounded-sm border border-border bg-secondary/50 shrink-0 animate-pulse" />
+
+      {/* Text placeholder - hidden when collapsed */}
+      <span className="flex-1 text-left group-data-[collapsible=icon]:hidden">
+        <span className="block h-4 w-20 bg-secondary/50 rounded animate-pulse" />
+      </span>
+
+      {/* Chevron placeholder - hidden when collapsed */}
+      <div className="h-3.5 w-3.5 shrink-0 group-data-[collapsible=icon]:hidden" />
+    </div>
+  );
+}
 
 export function AppSwitcher(): React.ReactElement {
   const navigate = useNavigate();
-  const { state } = useSidebar();
-  const isCollapsed = state === "collapsed";
-  const { myApps, selectedAppId, isAccountReady } = useMyRegardeAccount();
+  const { account, myApps, selectedAppId, isReady } = useMyRegardeAccount({
+    resolve: { myApps: { $each: true } },
+  });
 
-  const [activeApp, setActiveApp] = React.useState<TApp | null>(null);
+  const [activeApp, setActiveApp] = React.useState<TRegardeApp | null>(null);
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
-    if (isAccountReady && myApps && myApps.length > 0) {
+    if (isReady && myApps && myApps.length > 0) {
       const currentApp = myApps.find(
-        (app: TApp) => app.$jazz.id === selectedAppId,
+        (app: TRegardeApp) => app.$jazz.id === selectedAppId,
       );
       setActiveApp(currentApp ?? myApps[0]);
     }
-  }, [isAccountReady, myApps, selectedAppId]);
+  }, [isReady, myApps, selectedAppId]);
 
-  const handleSelect = (app: TApp): void => {
+  const handleSelect = (app: TRegardeApp): void => {
     setActiveApp(app);
     setOpen(false);
     navigate({
@@ -51,53 +69,34 @@ export function AppSwitcher(): React.ReactElement {
     navigate({ to: "/register-app" });
   };
 
-  if (isAccountReady === false || myApps === undefined || activeApp === null) {
-    return (
-      <div className="flex h-10 items-center px-3 bg-primary border-b border-sidebar-border">
-        <span className="text-sm text-sidebar-foreground">Loading...</span>
-      </div>
-    );
+  // Show placeholder while account is loading
+  if (account.$isLoaded === false) {
+    return <AppSwitcherPlaceholder />;
+  }
+
+  // Show placeholder while SDK fields are loading
+  if (isReady === false || myApps === null) {
+    return <AppSwitcherPlaceholder />;
+  }
+
+  // Wait for activeApp to be set (find the current app in the list)
+  // This also handles the edge case where selectedAppId doesn't match any app
+  if (activeApp === null) {
+    return <AppSwitcherPlaceholder />;
   }
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger className="flex h-12 w-full hover:bg-secondary px-3 items-center justify-between transition-colors outline-none">
-        <div className="flex items-center min-w-0 flex-1 justify-start">
-          <motion.div
-            className="shrink-0"
-            initial={false}
-            animate={{
-              width: isCollapsed ? 6 : 0,
-            }}
-            transition={{ duration: 0.2 }}
-          />
-          <div className="flex h-5 w-5 items-center justify-center rounded-sm border border-border bg-secondary shrink-0">
-            <span className="text-sm font-medium text-sidebar-foreground">
-              {activeApp.name.charAt(0).toUpperCase()}
-            </span>
-          </div>
-          <motion.span
-            className="truncate text-sm ml-2"
-            initial={false}
-            animate={{
-              opacity: isCollapsed ? 0 : 1,
-              width: isCollapsed ? 0 : "auto",
-            }}
-            transition={{ duration: 0.2 }}
-          >
-            {activeApp.name}
-          </motion.span>
+      <DropdownMenuTrigger className="group flex h-8 w-full hover:bg-secondary rounded-sm items-center justify-start px-2 gap-2 overflow-hidden transition-colors outline-none">
+        <div className="flex h-5 w-5 items-center justify-center rounded-sm border border-border bg-secondary shrink-0">
+          <span className="text-sm font-medium text-sidebar-foreground">
+            {activeApp.name.charAt(0).toUpperCase()}
+          </span>
         </div>
-        <motion.div
-          initial={false}
-          animate={{
-            opacity: isCollapsed ? 0 : 1,
-            width: isCollapsed ? 0 : "auto",
-          }}
-          transition={{ duration: 0.2 }}
-        >
-          <ChevronsUpDown className="h-3.5 w-3.5 shrink-0" />
-        </motion.div>
+        <span className="truncate text-sm flex-1 text-left group-data-[collapsible=icon]:hidden">
+          {activeApp.name}
+        </span>
+        <ChevronDown className="h-3.5 w-3.5 shrink-0 group-data-[collapsible=icon]:hidden" />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         className="w-(--anchor-width)"
@@ -106,7 +105,7 @@ export function AppSwitcher(): React.ReactElement {
         sideOffset={4}
       >
         <div className="flex flex-col">
-          {myApps.map((app: TApp) => (
+          {myApps.map((app: TRegardeApp) => (
             <DropdownMenuItem
               key={app.$jazz.id}
               onClick={() => handleSelect(app)}

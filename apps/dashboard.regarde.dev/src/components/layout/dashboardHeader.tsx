@@ -16,7 +16,7 @@ export function DashboardHeader({
   return (
     <header className="flex h-9 items-center justify-between bg-sidebar rounded-l-xs px-4">
       {customContent ?? (
-        <nav className="flex items-center gap-2 text-md">
+        <nav className="flex items-center gap-2 text-sm">
           <span className="font-medium">{title}</span>
         </nav>
       )}

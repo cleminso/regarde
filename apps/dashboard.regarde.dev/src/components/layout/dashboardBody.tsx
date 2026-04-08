@@ -16,7 +16,7 @@ export function DashboardBody({
   return (
     <main
       className={cn(
-        "flex-1 overflow-auto bg-card md:rounded-tl-xs",
+        "flex-1 overflow-auto md:rounded-tl-xs",
         // wide ? "" : "w-full",
         className
       )}

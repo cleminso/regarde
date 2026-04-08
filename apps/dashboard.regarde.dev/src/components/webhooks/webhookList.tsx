@@ -1,23 +1,15 @@
 "use client";
 
-import { Switch } from "@regarde/ui/switch";
-import { MoreHorizontal, Copy } from "lucide-react";
-
-import { getWebhookUrl } from "#lib/config/api";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@regarde/ui/dropdownMenu";
 import type { TWebhook } from "@regarde-dev/core";
-import { toggleWebhookStatus } from "@regarde-dev/core";
+
+import { WebhookListItem } from "./webhookListItem";
 
 interface WebhookListProps {
   webhooks: TWebhook[];
   appId: string;
   onEdit: (webhook: TWebhook) => void;
   onCreate: () => void;
+  onNavigate: (webhookId: string) => void;
 }
 
 export function WebhookList({
@@ -25,18 +17,10 @@ export function WebhookList({
   appId,
   onEdit,
   onCreate,
+  onNavigate,
 }: WebhookListProps): React.ReactElement {
-  const handleToggle = async (webhook: TWebhook): Promise<void> => {
-    await toggleWebhookStatus(webhook, !webhook.isEnabled);
-  };
-
-  const handleCopyEndpoint = async (webhook: TWebhook): Promise<void> => {
-    const url = getWebhookUrl(webhook.provider, appId, webhook.$jazz.id);
-    await navigator.clipboard.writeText(url);
-  };
-
   return (
-    <div className="w-full overflow-hidden bg-card">
+    <div className="w-full h-full overflow-hidden bg-card">
       {/* Header */}
       <div className="flex items-center border-b border-border bg-background px-4 py-2">
         <div className="flex flex-2 items-center min-w-0">
@@ -61,65 +45,20 @@ export function WebhookList({
       <div className="divide-y divide-border">
         {webhooks.length === 0 ? (
           <div className="flex items-center justify-center py-8">
-            <span className="text-sm font-mono text-muted-foreground">No webhooks configured.</span>
+            <span className="text-sm font-mono text-muted-foreground">
+              No webhooks configured.
+            </span>
           </div>
         ) : (
-          webhooks.map((webhook) => {
-            const isLoaded = webhook !== null && webhook.$isLoaded === true;
-            if (isLoaded === false) return null;
-
-            const endpointUrl = getWebhookUrl(webhook.provider, appId, webhook.$jazz.id);
-
-            return (
-              <div
-                key={webhook.$jazz.id}
-                className="flex items-center px-4 py-3 hover:bg-accent/50 transition-colors"
-              >
-                {/* Name + URL */}
-                <div className="flex flex-2 flex-col gap-0.5 min-w-0 pr-4">
-                  <span className="text-sm font-medium text-foreground truncate">
-                    {webhook.name}
-                  </span>
-                  <span className="text-xs font-mono text-muted-foreground truncate">
-                    {endpointUrl}
-                  </span>
-                </div>
-
-                {/* Enabled Toggle */}
-                <div className="flex w-16 items-center justify-center shrink-0">
-                  <Switch
-                    checked={webhook.isEnabled}
-                    onCheckedChange={() => handleToggle(webhook)}
-                  />
-                </div>
-
-                {/* Secret */}
-                <div className="flex w-40 items-center min-w-0 pr-4">
-                  <span className="text-xs font-mono text-foreground truncate">
-                    {webhook.secret.slice(0, 16)}...
-                  </span>
-                </div>
-
-                {/* Actions */}
-                <div className="flex w-10 items-center justify-end shrink-0">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger>
-                      <button className="p-1 hover:bg-accent rounded">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onEdit(webhook)}>Edit</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleCopyEndpoint(webhook)}>
-                        <Copy className="mr-2 h-4 w-4" />
-                        Copy endpoint URL
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            );
-          })
+          webhooks.map((webhook) => (
+            <WebhookListItem
+              key={webhook.$jazz.id}
+              webhook={webhook}
+              appId={appId}
+              onEdit={onEdit}
+              onNavigate={onNavigate}
+            />
+          ))
         )}
       </div>
 

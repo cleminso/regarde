@@ -2,14 +2,8 @@
 
 import { useState } from "react";
 
-import type { TWebhook } from "@regarde-dev/core";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@regarde/ui/sheet";
+import type { TWebhook, TRegardeApp } from "@regarde-dev/core";
+import { SidePanel } from "@regarde/ui/sidePanel";
 
 import { WebhookForm } from "./webhookForm";
 
@@ -17,61 +11,52 @@ interface WebhookSheetProps {
   mode: "create" | "edit";
   webhook?: TWebhook;
   appId: string;
-  isOpen: boolean;
-  onClose: () => void;
-  inline?: boolean;
-  container?: HTMLElement | React.RefObject<HTMLElement | null> | null;
+  app: TRegardeApp;
+  onSuccess?: () => void;
+  showCloseButton?: boolean;
 }
 
 export function WebhookSheet({
   mode,
   webhook,
   appId,
-  isOpen,
-  onClose,
-  inline = false,
-  container,
+  app,
+  onSuccess: onSuccessProp,
+  showCloseButton = true,
 }: WebhookSheetProps): React.ReactElement {
   const [key, setKey] = useState(0);
 
   const handleSuccess = (): void => {
     setKey((prev) => prev + 1);
-    onClose();
+    onSuccessProp?.();
   };
 
-  const handleCancel = (): void => {
-    onClose();
+  const handleClose = (): void => {
+    onSuccessProp?.();
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent
-        variant={inline ? "inline" : "modal"}
-        container={container}
-        className={inline ? "" : "sm:max-w-lg"}
-      >
-        <SheetHeader>
-          <SheetTitle>
-            {mode === "create" ? "Create Webhook" : "Edit Webhook"}
-          </SheetTitle>
-          <SheetDescription>
-            {mode === "create"
-              ? "Configure a new webhook endpoint for receiving payment events."
-              : "Update webhook configuration."}
-          </SheetDescription>
-        </SheetHeader>
+    <>
+      <SidePanel.Header>
+        {showCloseButton && (
+          <SidePanel.CloseButton onClick={handleClose} />
+        )}
+        <SidePanel.Title>
+          {mode === "create" ? "Create Webhook" : `Edit: ${webhook?.name ?? "Webhook"}`}
+        </SidePanel.Title>
+      </SidePanel.Header>
 
-        <div className="mt-6">
-          <WebhookForm
-            key={key}
-            mode={mode}
-            webhook={webhook}
-            appId={appId}
-            onSuccess={handleSuccess}
-            onCancel={handleCancel}
-          />
-        </div>
-      </SheetContent>
-    </Sheet>
+      <SidePanel.Content>
+        <WebhookForm
+          key={key}
+          mode={mode}
+          webhook={webhook}
+          appId={appId}
+          app={app}
+          onSuccess={handleSuccess}
+          onCancel={handleClose}
+        />
+      </SidePanel.Content>
+    </>
   );
 }

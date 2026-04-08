@@ -124,8 +124,8 @@
 
     --sidebar: var(--color-gray-200);
     --sidebar-foreground: var(--color-gray-800);
-    --sidebar-primary: var(--color-blue-200);
-    --sidebar-primary-foreground: var(--color-blue-500);
+    --sidebar-primary: var(--color-gray-100);
+    --sidebar-primary-foreground: var(--color-gray-800);
     --sidebar-accent: var(--color-gray-100);
     --sidebar-accent-foreground: var(--color-gray-600);
     --sidebar-border: var(--color-gray-300);

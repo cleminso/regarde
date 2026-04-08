@@ -24,7 +24,7 @@ function Input({
       <ShadInput
         ref={ref}
         className={cn(
-          "bg-input border-border text-foreground rounded-xs",
+          "bg-input border-border text-foreground rounded-sm focus-visible:ring-0",
           "focus:z-10",
           preSlot && "pl-9",
           postSlot && "pr-9",

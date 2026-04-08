@@ -1,18 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { Form } from "@base-ui/react/form";
-import { Field } from "@base-ui/react/field";
-import { Copy, Check, RefreshCw } from "lucide-react";
+import { Copy, Check } from "lucide-react";
 
-import type { TWebhook, TPaymentProvider } from "@regarde-dev/core";
+import type { TWebhook, TPaymentProvider, TRegardeApp } from "@regarde-dev/core";
 import {
+  createWebhook,
   updateWebhook,
-  generateWebhookSecret,
 } from "@regarde-dev/core";
 import { Button } from "@regarde/ui/button";
 import { Input } from "@regarde/ui/input";
-import { Textarea } from "@regarde/ui/shadcn/textarea";
+import { Textarea } from "@regarde/ui/textarea";
+import { Label } from "@regarde/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@regarde/ui/select";
 import { getWebhookUrl } from "#lib/config/api";
 
 const PROVIDER_OPTIONS: { value: TPaymentProvider; label: string }[] = [
@@ -20,16 +26,16 @@ const PROVIDER_OPTIONS: { value: TPaymentProvider; label: string }[] = [
   { value: "polar", label: "Polar" },
 ];
 
-const ENVIRONMENT_OPTIONS: { value: "sandbox" | "production"; label: string }[] =
-  [
-    { value: "production", label: "Production" },
-    { value: "sandbox", label: "Sandbox" },
-  ];
+const ENVIRONMENT_OPTIONS: { value: "sandbox" | "production"; label: string }[] = [
+  { value: "production", label: "Production" },
+  { value: "sandbox", label: "Sandbox" },
+];
 
 interface WebhookFormProps {
   mode: "create" | "edit";
   webhook?: TWebhook;
   appId: string;
+  app: TRegardeApp;
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -38,15 +44,23 @@ export function WebhookForm({
   mode,
   webhook,
   appId,
+  app,
   onSuccess,
   onCancel,
 }: WebhookFormProps): React.ReactElement {
+  const isEdit = mode === "edit";
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copiedSecret, setCopiedSecret] = useState(false);
-  const [generatedSecret, setGeneratedSecret] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const isEdit = mode === "edit";
+  // Form field states
+  const [provider, setProvider] = useState<TPaymentProvider>(
+    isEdit && webhook !== undefined ? webhook.provider : "stripe"
+  );
+  const [environment, setEnvironment] = useState<"sandbox" | "production">(
+    isEdit && webhook !== undefined ? webhook.environment : "production"
+  );
   const webhookId = webhook?.$jazz?.id;
   const endpointUrl =
     isEdit && webhook !== undefined && webhookId !== undefined
@@ -59,21 +73,13 @@ export function WebhookForm({
     setTimeout(() => setCopiedSecret(false), 2000);
   };
 
-  const handleGenerateSecret = (): void => {
-    const secret = generateWebhookSecret();
-    setGeneratedSecret(secret);
-  };
-
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     setErrors({});
 
     const formData = new FormData(event.currentTarget);
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
-    const environment = formData.get("environment") as "sandbox" | "production";
     const secret = formData.get("secret") as string;
 
     // Validation
@@ -102,8 +108,7 @@ export function WebhookForm({
           secret?: string;
         } = {};
         if (name !== webhook.name) updates.name = name;
-        if (description !== webhook.description)
-          updates.description = description;
+        if (description !== webhook.description) updates.description = description;
         if (environment !== webhook.environment) updates.environment = environment;
         if (secret !== webhook.secret) updates.secret = secret;
 
@@ -111,9 +116,15 @@ export function WebhookForm({
           await updateWebhook(webhook, updates);
         }
       } else {
-        // Create new webhook - requires app context
-        // This needs to be called from the parent with the app instance
-        console.error("Create mode requires app instance - use WebhookSheet");
+        // Create new webhook
+        await createWebhook(app, {
+          name: name.trim(),
+          description: description.trim(),
+          provider,
+          environment,
+          url: getWebhookUrl(provider, appId, crypto.randomUUID()),
+          secret,
+        });
       }
 
       onSuccess();
@@ -128,107 +139,102 @@ export function WebhookForm({
   };
 
   return (
-    <Form
-      className="space-y-4"
-      errors={errors}
-      onSubmit={handleSubmit}
-    >
-      {/* Provider */}
-      <Field.Root name="provider" className="space-y-1.5">
-        <div className="flex items-center justify-between">
-          <Field.Label className="text-sm font-medium">
-            Provider <span className="text-destructive">*</span>
-          </Field.Label>
-        </div>
-        <select
-          name="provider"
-          defaultValue={isEdit ? webhook?.provider : "stripe"}
-          disabled={isEdit}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {PROVIDER_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <Field.Error className="text-xs text-destructive" />
-      </Field.Root>
-
+    <form onSubmit={handleSubmit} className="space-y-4">
       {/* Name */}
-      <Field.Root name="name" className="space-y-1.5">
-        <div className="flex items-center justify-between">
-          <Field.Label className="text-sm font-medium">
-            Name <span className="text-destructive">*</span>
-          </Field.Label>
-        </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="name">
+          Name
+        </Label>
         <Input
+          id="name"
           name="name"
           defaultValue={isEdit ? webhook?.name : ""}
           placeholder="Production Webhook"
         />
-        <Field.Error className="text-xs text-destructive" />
-      </Field.Root>
+        {errors.name && (
+          <p className="text-xs text-destructive">{errors.name}</p>
+        )}
+      </div>
+
+      {/* Provider */}
+      <div className="space-y-1.5">
+        <Label>
+          Provider
+        </Label>
+        <Select
+          value={provider}
+          onValueChange={(value) => setProvider(value as TPaymentProvider)}
+          disabled={isEdit}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select provider" />
+          </SelectTrigger>
+          <SelectContent>
+            {PROVIDER_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.provider && (
+          <p className="text-xs text-destructive">{errors.provider}</p>
+        )}
+      </div>
 
       {/* Description */}
-      <Field.Root name="description" className="space-y-1.5">
-        <div className="flex items-center justify-between">
-          <Field.Label className="text-sm font-medium">Description</Field.Label>
-        </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="description">Description</Label>
         <Textarea
+          id="description"
           name="description"
           defaultValue={isEdit ? webhook?.description : ""}
           placeholder="Brief description of this webhook..."
-          rows={2}
+          rows={3}
         />
-        <Field.Error className="text-xs text-destructive" />
-      </Field.Root>
+      </div>
 
       {/* Environment */}
-      <Field.Root name="environment" className="space-y-1.5">
-        <div className="flex items-center justify-between">
-          <Field.Label className="text-sm font-medium">
-            Environment <span className="text-destructive">*</span>
-          </Field.Label>
-        </div>
-        <select
-          name="environment"
-          defaultValue={isEdit ? webhook?.environment : "production"}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+      <div className="space-y-1.5">
+        <Label>
+          Environment
+        </Label>
+        <Select
+          value={environment}
+          onValueChange={(value) => setEnvironment(value as "sandbox" | "production")}
         >
-          {ENVIRONMENT_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <Field.Error className="text-xs text-destructive" />
-      </Field.Root>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select environment" />
+          </SelectTrigger>
+          <SelectContent>
+            {ENVIRONMENT_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {/* Secret */}
-      <Field.Root name="secret" className="space-y-1.5">
-        <div className="flex items-center justify-between">
-          <Field.Label className="text-sm font-medium">
-            Secret <span className="text-destructive">*</span>
-          </Field.Label>
-        </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="secret">
+          Secret
+        </Label>
         <div className="flex gap-2">
           <Input
+            id="secret"
             name="secret"
             type="password"
-            defaultValue={
-              isEdit
-                ? webhook?.secret
-                : generatedSecret ?? ""
-            }
+            defaultValue={isEdit ? webhook?.secret : ""}
             placeholder="whsec_..."
-            className="font-mono"
+            className="font-mono flex-1"
           />
-          {isEdit && webhook !== undefined && webhook.secret !== undefined && (
+          {isEdit && webhook !== undefined && (
             <Button
               type="button"
               variant="outline"
-              size="icon"
+              size="icon-lg"
               onClick={() => handleCopySecret(webhook.secret)}
             >
               {copiedSecret ? (
@@ -239,42 +245,30 @@ export function WebhookForm({
             </Button>
           )}
         </div>
-        {!isEdit && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleGenerateSecret}
-            className="w-full"
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Generate Secret
-          </Button>
+        {errors.secret && (
+          <p className="text-xs text-destructive">{errors.secret}</p>
         )}
-        <Field.Error className="text-xs text-destructive" />
-      </Field.Root>
+      </div>
 
       {/* Endpoint URL (show in edit mode) */}
       {isEdit && endpointUrl !== undefined && (
         <div className="space-y-1.5">
-          <label className="text-sm font-medium">Endpoint URL</label>
+          <Label>Endpoint URL</Label>
           <div className="flex gap-2">
             <Input
               value={endpointUrl}
               readOnly
-              className="font-mono text-xs"
+              className="font-mono text-xs flex-1"
             />
             <Button
               type="button"
               variant="outline"
-              size="icon"
+              size="icon-lg"
               onClick={() => handleCopySecret(endpointUrl)}
             >
               <Copy className="h-4 w-4" />
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Use this URL in your {webhook?.provider} dashboard.
-          </p>
         </div>
       )}
 
@@ -284,27 +278,14 @@ export function WebhookForm({
       )}
 
       {/* Actions */}
-      <div className="flex gap-2 pt-2">
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="flex-1"
-        >
-          {isSubmitting
-            ? "Saving..."
-            : isEdit
-            ? "Save Changes"
-            : "Create Webhook"}
+      <div className="flex w-auto gap-2">
+        <Button type="submit" size="icon-lg" disabled={isSubmitting} className="flex-1">
+          {isSubmitting ? "Saving..." : isEdit ? "Save Changes" : "Create Webhook"}
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
+        <Button type="button" variant="outline" size="icon-lg" onClick={onCancel} disabled={isSubmitting}>
           Cancel
         </Button>
       </div>
-    </Form>
+    </form>
   );
 }
