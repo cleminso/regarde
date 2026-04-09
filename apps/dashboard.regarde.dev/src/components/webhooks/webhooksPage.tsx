@@ -8,7 +8,7 @@ import { useRegardeApp } from "@regarde-dev/core";
 import { SidePanel } from "@regarde/ui/sidePanel";
 import { cn } from "@regarde/ui/lib/utils";
 
-import { WebhookList } from "./webhookList";
+import { WebhooksTable } from "./webhooksTable";
 import { WebhookSheet } from "./webhookSheet";
 
 interface WebhooksPageProps {
@@ -70,9 +70,10 @@ function WebhooksPageContent({ appId }: WebhooksPageProps): React.ReactElement {
   return (
     <div className={cn("flex h-full", open && "gap-1")}>
       <div className={cn("flex-1 min-w-0 overflow-auto bg-background", open && "rounded-tr-xs")}>
-        <WebhookList
+        <WebhooksTable
           webhooks={webhooks}
           appId={appId}
+          isLoading={isAppLoaded === false}
           onNavigate={handleNavigateToDetail}
           onCreate={handleCreate}
           onEdit={handleEdit}

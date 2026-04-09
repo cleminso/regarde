@@ -1,25 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { Copy, Check } from "lucide-react";
-
-import type { TWebhook } from "@regarde-dev/core";
 import { Button } from "@regarde/ui/button";
 import { Input } from "@regarde/ui/input";
-import { Textarea } from "@regarde/ui/textarea";
+import { SensitiveInput } from "@regarde/ui/input-sensitive";
 import { Label } from "@regarde/ui/label";
+import { Switch } from "@regarde/ui/switch";
+import { Textarea } from "@regarde/ui/textarea";
+import { Copy, Check } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+
 import { getWebhookUrl } from "#lib/config/api";
+import type { TWebhook } from "@regarde-dev/core";
+import { toggleWebhookStatus } from "@regarde-dev/core";
 
 interface EditWebhookFormProps {
   webhook: TWebhook;
   appId: string;
 }
 
-export function EditWebhookForm({
-  webhook,
-  appId,
-}: EditWebhookFormProps): React.ReactElement {
-  const [copiedSecret, setCopiedSecret] = useState(false);
+export function EditWebhookForm({ webhook, appId }: EditWebhookFormProps): React.ReactElement {
   const [copiedUrl, setCopiedUrl] = useState(false);
 
   const isLoaded = webhook !== null && webhook.$isLoaded === true;
@@ -42,22 +42,29 @@ export function EditWebhookForm({
     webhook.$jazz.set("environment", value);
   };
 
-  const handleSecretChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleSecretChange = (value: string): void => {
     if (isLoaded === false) return;
-    webhook.$jazz.set("secret", e.target.value);
+    webhook.$jazz.set("secret", value);
   };
 
-  const handleCopySecret = async (): Promise<void> => {
-    if (isLoaded === false) return;
-    await navigator.clipboard.writeText(webhook.secret);
-    setCopiedSecret(true);
-    setTimeout(() => setCopiedSecret(false), 2000);
+  const handleCopySecret = (): void => {
+    toast.success("Secret copied to clipboard");
   };
 
   const handleCopyUrl = async (): Promise<void> => {
     await navigator.clipboard.writeText(endpointUrl);
     setCopiedUrl(true);
     setTimeout(() => setCopiedUrl(false), 2000);
+  };
+
+  const handleToggleEnabled = async (checked: boolean): Promise<void> => {
+    if (isLoaded === false) return;
+    try {
+      await toggleWebhookStatus(webhook, checked);
+      toast.success(`Webhook "${webhook.name}" ${checked ? "enabled" : "disabled"}`);
+    } catch (error) {
+      toast.error(`Failed to ${checked ? "enable" : "disable"} webhook "${webhook.name}"`);
+    }
   };
 
   if (isLoaded === false) {
@@ -70,6 +77,18 @@ export function EditWebhookForm({
 
   return (
     <div className="space-y-6">
+      {/* Enabled */}
+      <div className="flex items-center justify-between">
+        <Label htmlFor="enabled" className="text-sm">
+          Enabled
+        </Label>
+        <Switch
+          id="enabled"
+          checked={webhook.isEnabled}
+          onCheckedChange={handleToggleEnabled}
+          variant={webhook.isEnabled ? "success" : "destructive"}
+        />
+      </div>
 
       {/* Name */}
       <div className="space-y-1.5">
@@ -85,28 +104,15 @@ export function EditWebhookForm({
       {/* Secret */}
       <div className="space-y-1.5">
         <Label htmlFor="secret">Secret</Label>
-        <div className="flex gap-2">
-          <Input
-            id="secret"
-            type="password"
-            value={webhook.secret}
-            onChange={handleSecretChange}
-            placeholder="whsec_..."
-            className="font-mono flex-1"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-lg"
-            onClick={handleCopySecret}
-          >
-            {copiedSecret ? (
-              <Check className="h-4 w-4 text-green-600" />
-            ) : (
-              <Copy className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
+        <SensitiveInput
+          id="secret"
+          value={webhook.secret}
+          onValueChange={handleSecretChange}
+          onCopy={handleCopySecret}
+          placeholder="whsec_..."
+          className="font-mono"
+          autoComplete="off"
+        />
       </div>
 
       {/* Description */}
@@ -150,17 +156,8 @@ export function EditWebhookForm({
       <div className="space-y-1.5">
         <Label>Endpoint URL</Label>
         <div className="flex gap-2">
-          <Input
-            value={endpointUrl}
-            readOnly
-            className="font-mono text-xs flex-1"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-lg"
-            onClick={handleCopyUrl}
-          >
+          <Input value={endpointUrl} readOnly className="font-mono text-xs flex-1" />
+          <Button type="button" variant="outline" size="icon-lg" onClick={handleCopyUrl}>
             {copiedUrl ? (
               <Check className="h-4 w-4 text-green-600" />
             ) : (

@@ -44,7 +44,7 @@ export function DashboardNavigation({ onNavigate }: DashboardNavigationProps): R
   const pathname = matches[matches.length - 1]?.pathname ?? "";
 
   return (
-    <SidebarGroup className="p-2">
+    <SidebarGroup className="px-2 py-1.5">
       <SidebarMenu className="gap-0.5">
         {visibleRoutes.map((route) => {
           const isActive = route.checkIsActive

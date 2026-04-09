@@ -48,8 +48,8 @@
   --color-dark: oklch(0.2686 0 0);*/
   --color-blue-500: oklch(0.5851 0.205 270.57);
   --color-blue-200: oklch(0.8905 0.044 271.33);
-  --color-green-700: oklch(0.5624 0.1776 144.5);
-  --color-red-500: oklch(0.6306 0.1765 24.03);
+  --color-green-600: oklch(62.7% 0.194 149.214);
+  --color-red-500: oklch(63.7% 0.237 25.331);
 
   /* TailwindCSS <> ShadcnUI Theme Mappings */
   --color-background-dashboard: var(--background-dashboard);
@@ -115,9 +115,6 @@
     --accent: var(--color-blue-200);
     --accent-foreground: var(--color-blue-600);
 
-    --destructive: var(--color-red-500);
-    --destructive-foreground: var(--color-gray-100);
-
     --border: var(--color-gray-300);
     --input: var(--color-gray-200);
     --ring: var(--color-blue-500);
@@ -131,7 +128,10 @@
     --sidebar-border: var(--color-gray-300);
     --sidebar-ring: var(--color-blue-500);
 
-    --success: var(--color-green-700);
+    --destructive: var(--color-red-500);
+    --destructive-foreground: var(--color-gray-100);
+
+    --success: var(--color-green-600);
     --success-bg: var(--color-gray-100);
   }
 }
@@ -199,27 +199,5 @@
   [data-slot="card"][data-state="selected"],
   .card-selected {
     background-color: var(--color-blue-500);
-  }
-
-  /* Switch */
-  [data-slot="switch"] {
-    width: 30px;
-    height: 20px;
-    background-color: var(--destructive);
-  }
-
-  [data-slot="switch"][data-checked] {
-    background-color: var(--success);
-  }
-
-  [data-slot="switch"] [data-slot="switch-thumb"] {
-    width: 8px;
-    height: 16px;
-    background-color: white;
-    transform: translateX(2px);
-  }
-
-  [data-slot="switch"][data-checked] [data-slot="switch-thumb"] {
-    transform: translateX(18px);
   }
 }

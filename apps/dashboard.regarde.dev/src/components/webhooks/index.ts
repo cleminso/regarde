@@ -1,4 +1,3 @@
 export { WebhooksPage } from "./webhooksPage";
-export { WebhookList } from "./webhookList";
-export { WebhookListItem } from "./webhookListItem";
+export { WebhooksTable } from "./webhooksTable";
 export { WebhookSheet } from "./webhookSheet";

@@ -2,6 +2,7 @@ import { Outlet, createRootRoute, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { SidebarProvider } from "@regarde/ui/sidebar";
+import { Toaster } from "@regarde/ui/sonner";
 
 import { DashboardBody } from "#layout/dashboardBody";
 import { DashboardLayout } from "#layout/dashboardLayout";
@@ -52,9 +53,15 @@ function RootComponent(): React.ReactElement {
             <Outlet />
           </DashboardBody>
         </DashboardLayout>
+        <Toaster position="bottom-right" />
       </SidebarProvider>
     );
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+      <Toaster position="bottom-right" />
+    </>
+  );
 }
