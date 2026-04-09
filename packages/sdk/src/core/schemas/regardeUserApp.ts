@@ -79,6 +79,15 @@ export const ListOfWebhooks = co.list(Webhook);
 export type TWebhook = co.loaded<typeof Webhook>;
 
 /**
+ * Partial webhook schema for incremental form building.
+ *
+ * Used in creation forms where fields are built up gradually before
+ * finalizing into a full Webhook CoValue.
+ */
+export const PartialWebhook = Webhook.partial();
+export type TPartialWebhook = co.loaded<typeof PartialWebhook>;
+
+/**
  * Raw webhook payload log entry.
  *
  * Pushed into AllWebhookEventsFeed CoFeed. Uses Webhook CoMap ID as session key.

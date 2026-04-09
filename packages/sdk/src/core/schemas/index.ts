@@ -97,6 +97,7 @@ export type { TRefund, TRefundLineItem, TAppRefundsSchema, TRefundSchema } from 
 export {
   RegardeApp,
   Webhook,
+  PartialWebhook,
   ListOfWebhooks,
   WebhookEvent,
   AllWebhookEventsFeed,
@@ -107,6 +108,7 @@ export {
 export type {
   TRegardeApp,
   TWebhook,
+  TPartialWebhook,
   TWebhookEvent,
   TAppPaymentsSchema,
   TAppSubscriptionsSchema,

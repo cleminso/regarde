@@ -20,7 +20,7 @@ function SidebarHeaderContent(): React.ReactElement {
     <div className="flex flex-col py-2 gap-2">
       <div className={cn(
         "flex items-center gap-1",
-        isCollapsed ? "flex-col gap-2" : "flex-row justify-between"
+        isCollapsed ? "flex-col gap-3.5" : "flex-row justify-between"
       )}>
         <AppSwitcher />
         <SidebarTrigger className="h-8 w-8 shrink-0 [&_svg:not([class*='size-'])]:size-4.5 hover:bg-sidebar-accent" />

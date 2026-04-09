@@ -3,15 +3,14 @@
 import { MoreHorizontal, Copy } from "lucide-react";
 
 import { getWebhookUrl } from "#lib/config/api";
+import { Button } from "@regarde/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@regarde/ui/dropdownMenu";
-import { Switch } from "@regarde/ui/switch";
 import type { TWebhook } from "@regarde-dev/core";
-import { toggleWebhookStatus } from "@regarde-dev/core";
 
 interface WebhookListItemProps {
   webhook: TWebhook;
@@ -31,17 +30,13 @@ export function WebhookListItem({
 
   const endpointUrl = getWebhookUrl(webhook.provider, appId, webhook.$jazz.id);
 
-  const handleToggle = async (): Promise<void> => {
-    await toggleWebhookStatus(webhook, !webhook.isEnabled);
-  };
-
   const handleCopyEndpoint = async (): Promise<void> => {
     await navigator.clipboard.writeText(endpointUrl);
   };
 
   return (
     <div
-      className="flex items-center px-4 py-3 hover:bg-accent/50 transition-colors cursor-pointer"
+      className="flex items-center px-4 py-3 hover:bg-muted transition-colors cursor-pointer"
       onClick={() => onNavigate(webhook.$jazz.id)}
       role="button"
       tabIndex={0}
@@ -75,15 +70,6 @@ export function WebhookListItem({
         </span>
       </div>
 
-      {/* Enabled Toggle */}
-      <div className="flex w-16 items-center justify-center shrink-0">
-        <Switch
-          checked={webhook.isEnabled}
-          onCheckedChange={handleToggle}
-          onClick={(e) => e.stopPropagation()}
-        />
-      </div>
-
       {/* Secret */}
       <div className="flex w-40 items-center min-w-0 pr-4">
         <span className="text-xs font-mono text-foreground truncate">
@@ -95,12 +81,12 @@ export function WebhookListItem({
       <div className="flex w-10 items-center justify-end shrink-0">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button
-              className="p-1 hover:bg-accent rounded"
+            <Button
+              variant="ghost"
               onClick={(e) => e.stopPropagation()}
             >
               <MoreHorizontal className="h-4 w-4" />
-            </button>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem

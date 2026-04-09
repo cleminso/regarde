@@ -19,8 +19,8 @@ export interface CreateWebhookParams {
   provider: TPaymentProvider;
   /** Environment (sandbox or production) */
   environment: "sandbox" | "production";
-  /** Webhook endpoint URL */
-  url: string;
+  /** Webhook endpoint URL. If not provided, will be auto-generated using the webhook's CoValue ID */
+  url?: string;
   /** Webhook secret (required for Stripe/Polar, auto-generated for LemonSqueezy) */
   secret?: string;
 }
@@ -45,14 +45,34 @@ export const generateWebhookSecret = (): string => {
 };
 
 /**
+ * Base URL for the Regarde API
+ * Used for generating webhook endpoint URLs
+ */
+const API_BASE_URL = "https://api.regarde.dev";
+
+/**
+ * Generate webhook URL for a specific provider and app
+ *
+ * @param provider - Payment provider (stripe, polar)
+ * @param appId - Jazz CoMap ID for the app
+ * @param webhookId - Webhook CoValue ID
+ * @returns Full webhook URL
+ */
+const generateWebhookUrl = (
+  provider: TPaymentProvider,
+  appId: string,
+  webhookId: string,
+): string => `${API_BASE_URL}/v1/webhooks/${provider}/${appId}/${webhookId}`;
+
+/**
  * Creates a new webhook for an app.
  *
  * Creates Webhook CoMap and pushes it to the app's webhooks list.
- * For LemonSqueezy provider, auto-generates the secret if not provided.
+ * Generates the correct webhook URL after creation using the CoValue ID.
  * Waits for sync to ensure the webhook is persisted before returning.
  *
  * @param app - Loaded RegardeApp instance
- * @param params - Webhook configuration (name, provider, environment, url, secret)
+ * @param params - Webhook configuration (name, provider, environment, secret)
  * @returns Promise resolving to newly created Webhook CoMap
  * @throws {Error} When app webhooks list is not loaded or sync fails
  */
@@ -76,8 +96,10 @@ export const createWebhook = async (
   const secret = params.secret;
 
   const ownerGroup = app.$jazz.owner;
+  const appId = app.$jazz.id;
 
   try {
+    // Create webhook with provided URL or empty string (will be generated if not provided)
     const webhook = Webhook.create(
       {
         name: params.name.trim(),
@@ -86,7 +108,7 @@ export const createWebhook = async (
         environment: params.environment,
         createdAt: Date.now(),
         isEnabled: true,
-        url: params.url,
+        url: params.url ?? "",
         secret,
         customMetadata: {},
       },
@@ -94,6 +116,13 @@ export const createWebhook = async (
     );
 
     await webhook.$jazz.waitForSync();
+
+    // Generate webhook URL if not provided
+    if (params.url === undefined || params.url.length === 0) {
+      const webhookUrl = generateWebhookUrl(params.provider, appId, webhook.$jazz.id);
+      webhook.$jazz.set("url", webhookUrl);
+      await webhook.$jazz.waitForSync();
+    }
 
     app.webhooks.$jazz.push(webhook);
     await app.webhooks.$jazz.waitForSync();

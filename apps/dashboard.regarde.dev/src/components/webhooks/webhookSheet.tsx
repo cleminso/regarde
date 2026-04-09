@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
-
 import type { TWebhook, TRegardeApp } from "@regarde-dev/core";
 import { SidePanel } from "@regarde/ui/sidePanel";
 
-import { WebhookForm } from "./webhookForm";
+import { CreateWebhookForm } from "./createWebhookForm";
+import { EditWebhookForm } from "./editWebhookForm";
 
 interface WebhookSheetProps {
   mode: "create" | "edit";
@@ -21,41 +20,36 @@ export function WebhookSheet({
   webhook,
   appId,
   app,
-  onSuccess: onSuccessProp,
+  onSuccess,
   showCloseButton = true,
 }: WebhookSheetProps): React.ReactElement {
-  const [key, setKey] = useState(0);
+  const isEdit = mode === "edit";
+  const title = isEdit ? `Edit ${webhook?.name ?? "Webhook"}` : "Create Webhook";
 
-  const handleSuccess = (): void => {
-    setKey((prev) => prev + 1);
-    onSuccessProp?.();
-  };
-
-  const handleClose = (): void => {
-    onSuccessProp?.();
+  const handleCancel = (): void => {
+    onSuccess?.();
   };
 
   return (
     <>
       <SidePanel.Header>
         {showCloseButton && (
-          <SidePanel.CloseButton onClick={handleClose} />
+          <SidePanel.CloseButton onClick={handleCancel} />
         )}
-        <SidePanel.Title>
-          {mode === "create" ? "Create Webhook" : `Edit: ${webhook?.name ?? "Webhook"}`}
-        </SidePanel.Title>
+        <SidePanel.Title>{title}</SidePanel.Title>
       </SidePanel.Header>
 
       <SidePanel.Content>
-        <WebhookForm
-          key={key}
-          mode={mode}
-          webhook={webhook}
-          appId={appId}
-          app={app}
-          onSuccess={handleSuccess}
-          onCancel={handleClose}
-        />
+        {isEdit && webhook !== undefined ? (
+          <EditWebhookForm webhook={webhook} appId={appId} />
+        ) : (
+          <CreateWebhookForm
+            app={app}
+            appId={appId}
+            onSuccess={() => onSuccess?.()}
+            onCancel={handleCancel}
+          />
+        )}
       </SidePanel.Content>
     </>
   );
