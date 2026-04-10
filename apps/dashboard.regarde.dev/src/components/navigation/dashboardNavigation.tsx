@@ -8,7 +8,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@regarde/ui/sidebar";
-import { useMyRegardeAccount } from "#lib/account/useMyRegardeAccount";
+import { useMyRegardeAccount } from "@regarde-dev/core/react";
 import { getAppRoutes } from "#lib/navigation/appRoutes";
 
 interface DashboardNavigationProps {
@@ -17,15 +17,18 @@ interface DashboardNavigationProps {
 
 export function DashboardNavigation({ onNavigate }: DashboardNavigationProps): React.ReactElement {
   const { appId } = useParams({ strict: false });
-  const { myApps, isAccountReady } = useMyRegardeAccount();
+  const { account, isAccountReady, myApps } = useMyRegardeAccount({
+    resolve: { myApps: { $each: true } },
+  });
   const matches = useMatches();
 
   // Determine effective appId
   let effectiveAppId = appId;
   if (
     effectiveAppId === undefined &&
-    isAccountReady &&
-    myApps &&
+    account.$isLoaded === true &&
+    isAccountReady === true &&
+    myApps !== null &&
     myApps.length > 0
   ) {
     effectiveAppId = myApps[0].$jazz.id;
@@ -58,7 +61,7 @@ export function DashboardNavigation({ onNavigate }: DashboardNavigationProps): R
           return (
             <SidebarMenuItem key={route.id}>
               {isDisabled ? (
-                <SidebarMenuButton disabled tooltip={route.title} lassName="disabled:text-muted-foreground disabled:opacity-40 disabled:hover:bg-transparent text-base rounded-none px-1 md:group-data-[collapsible=icon]:rounded-xs">
+                <SidebarMenuButton disabled tooltip={route.title} className="disabled:text-muted-foreground disabled:opacity-40 disabled:hover:bg-transparent text-base rounded-none px-1 md:group-data-[collapsible=icon]:rounded-xs">
                   {IconComponent && <IconComponent />}
                   <span>{route.title}</span>
                 </SidebarMenuButton>

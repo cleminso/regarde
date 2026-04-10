@@ -113,8 +113,7 @@ const DropdownMenuItem = ({
     ref={ref}
     onClick={onClick}
     className={cn(
-      "group/dropdown-menu-item relative flex cursor-default items-center gap-1.5 rounded-xs px-1.5 py-1 text-xs outline-none select-none focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
-      onClick && "cursor-pointer",
+      "group/dropdown-menu-item relative flex cursor-pointer items-center gap-1.5 rounded-sm px-1 py-1 text-sm outline-hidden select-none focus:!bg-muted focus:!text-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive data-open:!bg-muted data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
       className
     )}
     {...props}
@@ -137,7 +136,7 @@ const DropdownMenuSubTrigger = ({
   <ShadDropdownMenuSubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default items-center gap-1.5 rounded-xs px-1.5 py-1 text-xs outline-none select-none focus:bg-accent focus:text-accent-foreground data-popup-open:bg-accent data-popup-open:text-accent-foreground data-open:bg-accent data-open:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
+      "flex cursor-default items-center gap-1.5 rounded-xs px-1 py-1 text-xs outline-none select-none focus:bg-muted focus:text-foreground data-popup-open:bg-accent data-popup-open:text-accent-foreground data-open:bg-accent data-open:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
       className
     )}
     {...props}
@@ -221,7 +220,7 @@ const DropdownMenuShortcut = ({
   <ShadDropdownMenuShortcut
     ref={ref}
     className={cn(
-      "ml-auto text-sm tracking-widest text-muted-foreground group-focus/dropdown-menu-item:text-accent-foreground",
+      "ml-auto text-sm tracking-widest text-foreground group-focus/dropdown-menu-item:text-foreground",
       className
     )}
     {...props}

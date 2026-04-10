@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 
 import type { TRegardeApp, TPaymentProvider } from "@regarde-dev/core";
 import { createWebhook } from "@regarde-dev/core";
@@ -58,6 +59,7 @@ export function CreateWebhookForm({
         secret: secret.trim(),
       });
 
+      toast.success(`Webhook "${name.trim()}" created`);
       onSuccess();
     } catch (error) {
       console.error("Failed to create webhook:", error);

@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useMatches, useParams } from "@tanstack/react-router";
 import { LayoutDashboard, Webhook, Settings } from "lucide-react";
 
-import { useMyRegardeAccount } from "#lib/account/useMyRegardeAccount";
+import { useMyRegardeAccount } from "@regarde-dev/core/react";
 
 /**
  * Route definition for dashboard navigation.
@@ -63,7 +63,7 @@ export function getAppRoutes(appId?: string): TRoute[] {
       link: `${baseRoute}/overview`,
       if: appId !== undefined,
       checkIsActive: (pathname: string, id?: string) => {
-        if (!id) return false;
+        if (id === undefined) return false;
         return pathname === `/app/${id}/overview` || pathname === `/app/${id}`;
       },
     },
@@ -74,7 +74,7 @@ export function getAppRoutes(appId?: string): TRoute[] {
       link: `${baseRoute}/webhooks`,
       if: appId !== undefined,
       checkIsActive: (pathname: string, id?: string) => {
-        if (!id) return false;
+        if (id === undefined) return false;
         return pathname.startsWith(`/app/${id}/webhooks`);
       },
     },
@@ -85,7 +85,7 @@ export function getAppRoutes(appId?: string): TRoute[] {
       link: `${baseRoute}/settings`,
       if: appId !== undefined,
       checkIsActive: (pathname: string, id?: string) => {
-        if (!id) return false;
+        if (id === undefined) return false;
         return pathname.startsWith(`/app/${id}/settings`);
       },
     },
@@ -97,16 +97,18 @@ export function getAppRoutes(appId?: string): TRoute[] {
  */
 export function useAppRoutes(): TRouteWithActive[] {
   const { appId } = useParams({ strict: false });
-  const { myApps, isAccountReady } = useMyRegardeAccount();
+  const { account, isAccountReady, myApps } = useMyRegardeAccount({
+    resolve: { myApps: { $each: true } },
+  });
   const matches = useMatches();
 
   const effectiveAppId = useMemo(() => {
-    if (appId) return appId;
-    if (isAccountReady && myApps && myApps.length > 0) {
+    if (appId !== undefined) return appId;
+    if (account.$isLoaded === true && isAccountReady === true && myApps !== null && myApps.length > 0) {
       return myApps[0].$jazz.id;
     }
     return undefined;
-  }, [appId, isAccountReady, myApps]);
+  }, [appId, account.$isLoaded, isAccountReady, myApps]);
 
   const pathname = useMemo(() => {
     const lastMatch = matches[matches.length - 1];

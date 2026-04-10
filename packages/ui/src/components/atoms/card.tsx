@@ -36,7 +36,7 @@ const Card = ({
     ref={ref}
     data-slot="card"
     className={twMerge(
-      "group/card flex flex-col gap-4 overflow-hidden rounded-lg bg-card py-4 text-xs/relaxed text-card-foreground ring-1 ring-foreground/10 has-[>img:first-child]:pt-0",
+      "group/card flex flex-col gap-4 overflow-hidden rounded-sm bg-card py-3 text-xs/relaxed text-card-foreground ring-1 ring-foreground/10 has-[>img:first-child]:pt-0",
       className
     )}
     {...props}

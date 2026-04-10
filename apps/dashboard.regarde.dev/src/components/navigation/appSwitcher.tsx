@@ -2,7 +2,7 @@
 
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown, Plus, Check } from "lucide-react";
-import * as React from "react";
+import { useMemo, useState } from "react";
 
 import {
   DropdownMenu,
@@ -16,22 +16,18 @@ import {
   type TRegardeApp,
 } from "@regarde-dev/core/react";
 
-/**
- * Placeholder component shown while the app switcher is loading.
- * Matches the shape of the actual switcher to prevent layout shift.
- */
 function AppSwitcherPlaceholder(): React.ReactElement {
   return (
     <div className="group flex h-8 w-full items-center justify-start px-2 gap-2 overflow-hidden">
-      {/* Icon box with subtle pulse */}
+      {/* Icon box */}
       <div className="flex h-5 w-5 items-center justify-center rounded-sm border border-border bg-secondary/50 shrink-0 animate-pulse" />
 
-      {/* Text placeholder - hidden when collapsed */}
+      {/* Text placeholder */}
       <span className="flex-1 text-left group-data-[collapsible=icon]:hidden">
         <span className="block h-4 w-20 bg-secondary/50 rounded animate-pulse" />
       </span>
 
-      {/* Chevron placeholder - hidden when collapsed */}
+      {/* Chevron placeholder */}
       <div className="h-3.5 w-3.5 shrink-0 group-data-[collapsible=icon]:hidden" />
     </div>
   );
@@ -39,24 +35,18 @@ function AppSwitcherPlaceholder(): React.ReactElement {
 
 export function AppSwitcher(): React.ReactElement {
   const navigate = useNavigate();
-  const { account, myApps, selectedAppId, isReady } = useMyRegardeAccount({
+  const { account, myApps, selectedAppId, isAccountReady } = useMyRegardeAccount({
     resolve: { myApps: { $each: true } },
   });
 
-  const [activeApp, setActiveApp] = React.useState<TRegardeApp | null>(null);
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
-  React.useEffect(() => {
-    if (isReady && myApps && myApps.length > 0) {
-      const currentApp = myApps.find(
-        (app: TRegardeApp) => app.$jazz.id === selectedAppId,
-      );
-      setActiveApp(currentApp ?? myApps[0]);
-    }
-  }, [isReady, myApps, selectedAppId]);
+  const activeApp = useMemo<TRegardeApp | null>(() => {
+    if (isAccountReady === false || myApps === null || myApps.length === 0) return null;
+    return myApps.find((app) => app.$jazz.id === selectedAppId) ?? myApps[0];
+  }, [isAccountReady, myApps, selectedAppId]);
 
   const handleSelect = (app: TRegardeApp): void => {
-    setActiveApp(app);
     setOpen(false);
     navigate({
       to: "/app/$appId/overview",
@@ -69,13 +59,11 @@ export function AppSwitcher(): React.ReactElement {
     navigate({ to: "/register-app" });
   };
 
-  // Show placeholder while account is loading
   if (account.$isLoaded === false) {
     return <AppSwitcherPlaceholder />;
   }
 
-  // Show placeholder while SDK fields are loading
-  if (isReady === false || myApps === null) {
+  if (isAccountReady === false || myApps === null) {
     return <AppSwitcherPlaceholder />;
   }
 
@@ -126,8 +114,8 @@ export function AppSwitcher(): React.ReactElement {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem onClick={handleCreateApp}>
-          <Plus className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          <span className="text-muted-foreground text-sm">Add app</span>
+          <Plus className="h-3.5 w-3.5 shrink-0" />
+          <span className="text-sm">Add app</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

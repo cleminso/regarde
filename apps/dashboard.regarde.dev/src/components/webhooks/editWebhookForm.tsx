@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 import { getWebhookUrl } from "#lib/config/api";
 import type { TWebhook } from "@regarde-dev/core";
-import { toggleWebhookStatus } from "@regarde-dev/core";
+import { toggleWebhookStatus, updateWebhook } from "@regarde-dev/core";
 
 interface EditWebhookFormProps {
   webhook: TWebhook;
@@ -26,25 +26,24 @@ export function EditWebhookForm({ webhook, appId }: EditWebhookFormProps): React
   const webhookId = webhook.$jazz.id;
   const endpointUrl = isLoaded ? getWebhookUrl(webhook.provider, appId, webhookId) : "";
 
-  // Direct mutation handlers via Jazz
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleNameChange = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
     if (isLoaded === false) return;
-    webhook.$jazz.set("name", e.target.value);
+    await updateWebhook(webhook, { name: e.target.value });
   };
 
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
+  const handleDescriptionChange = async (e: React.ChangeEvent<HTMLTextAreaElement>): Promise<void> => {
     if (isLoaded === false) return;
-    webhook.$jazz.set("description", e.target.value);
+    await updateWebhook(webhook, { description: e.target.value });
   };
 
-  const handleEnvironmentChange = (value: "sandbox" | "production"): void => {
+  const handleEnvironmentChange = async (value: "sandbox" | "production"): Promise<void> => {
     if (isLoaded === false) return;
-    webhook.$jazz.set("environment", value);
+    await updateWebhook(webhook, { environment: value });
   };
 
-  const handleSecretChange = (value: string): void => {
+  const handleSecretChange = async (value: string): Promise<void> => {
     if (isLoaded === false) return;
-    webhook.$jazz.set("secret", value);
+    await updateWebhook(webhook, { secret: value });
   };
 
   const handleCopySecret = (): void => {

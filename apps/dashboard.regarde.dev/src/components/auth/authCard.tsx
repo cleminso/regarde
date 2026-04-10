@@ -101,10 +101,7 @@ export function AuthCard({ defaultMode = "login" }: AuthCardProps) {
     try {
       await navigator.clipboard.writeText(generatedPassphrase);
       setCopied(true);
-
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
       setError("Failed to copy to clipboard. Please copy manually.");
     }

@@ -1,33 +1,47 @@
 import { Navigate, createFileRoute } from "@tanstack/react-router";
 
 import { AuthCard } from "#auth/authCard";
-import { useMyRegardeAccount } from "#lib/account/useMyRegardeAccount";
+import { useMyRegardeAccount } from "@regarde-dev/core/react";
 
 export const Route = createFileRoute("/")({
   component: IndexRoute,
 });
 
 function IndexRoute(): React.ReactElement {
-  const { isAccountReady, myApps } = useMyRegardeAccount();
+  const { account, isAccountReady, myApps } = useMyRegardeAccount({
+    resolve: { myApps: { $each: true } },
+  });
 
-  // Show landing page while loading
-  if (isAccountReady === false) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-4">
-        <AuthCard />
-      </div>
-    );
+  if (account.$isLoaded === false) {
+    switch (account.$jazz.loadingState) {
+      case "loading":
+        return (
+          <div className="flex min-h-screen flex-col items-center justify-center p-4">
+            <AuthCard />
+          </div>
+        );
+      case "unauthorized":
+        return (
+          <div className="flex min-h-screen flex-col items-center justify-center p-4">
+            <AuthCard />
+          </div>
+        );
+      case "unavailable":
+        return (
+          <div className="flex min-h-screen flex-col items-center justify-center p-4">
+            <p className="text-destructive">Account unavailable</p>
+          </div>
+        );
+    }
   }
 
-  // User has apps - redirect to first app's overview
-  if (myApps && myApps.length > 0) {
+  if (isAccountReady === true && myApps !== null && myApps.length > 0) {
     const firstAppId = myApps[0].$jazz.id;
     return (
       <Navigate to="/app/$appId/overview" params={{ appId: firstAppId }} />
     );
   }
 
-  // No apps - show landing page with auth
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <AuthCard />

@@ -12,7 +12,7 @@ interface WebhookSheetProps {
   appId: string;
   app: TRegardeApp;
   onSuccess?: () => void;
-  showCloseButton?: boolean;
+  createFormKey?: number;
 }
 
 export function WebhookSheet({
@@ -21,7 +21,7 @@ export function WebhookSheet({
   appId,
   app,
   onSuccess,
-  showCloseButton = true,
+  createFormKey = 0,
 }: WebhookSheetProps): React.ReactElement {
   const isEdit = mode === "edit";
   const title = isEdit ? `Edit ${webhook?.name ?? "Webhook"}` : "Create Webhook";
@@ -33,9 +33,7 @@ export function WebhookSheet({
   return (
     <>
       <SidePanel.Header>
-        {showCloseButton && (
-          <SidePanel.CloseButton onClick={handleCancel} />
-        )}
+        <SidePanel.CloseButton onClick={handleCancel} />
         <SidePanel.Title>{title}</SidePanel.Title>
       </SidePanel.Header>
 
@@ -44,6 +42,7 @@ export function WebhookSheet({
           <EditWebhookForm webhook={webhook} appId={appId} />
         ) : (
           <CreateWebhookForm
+            key={`create-webhook-${createFormKey}`}
             app={app}
             appId={appId}
             onSuccess={() => onSuccess?.()}

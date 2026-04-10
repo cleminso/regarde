@@ -22,6 +22,7 @@ function WebhooksPageContent({ appId }: WebhooksPageProps): React.ReactElement {
   const { open, onOpenChange } = SidePanel.useSidePanel();
   const [selectedWebhook, setSelectedWebhook] = useState<TWebhook | undefined>(undefined);
   const [mode, setMode] = useState<"create" | "edit">("create");
+  const [createFormKey, setCreateFormKey] = useState(0);
 
   const isAppLoaded = app !== null && app !== undefined && app.$isLoaded === true;
 
@@ -45,6 +46,7 @@ function WebhooksPageContent({ appId }: WebhooksPageProps): React.ReactElement {
   const handleCreate = (): void => {
     setMode("create");
     setSelectedWebhook(undefined);
+    setCreateFormKey(prev => prev + 1);
     onOpenChange(true);
   };
 
@@ -61,15 +63,28 @@ function WebhooksPageContent({ appId }: WebhooksPageProps): React.ReactElement {
 
   if (isAppLoaded === false) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-foreground" />
+      <div className="flex h-full">
+        <div className="flex-1 min-w-0 overflow-auto bg-secondary">
+          <div className="p-4 space-y-4">
+            {/* Header skeleton */}
+            <div className="flex items-center justify-between">
+              <div className="h-6 w-32 bg-secondary/50 rounded animate-pulse" />
+              <div className="h-9 w-28 bg-secondary/50 rounded animate-pulse" />
+            </div>
+            <div className="space-y-2">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-12 bg-secondary/50 rounded animate-pulse" />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className={cn("flex h-full", open && "gap-1")}>
-      <div className={cn("flex-1 min-w-0 overflow-auto bg-background", open && "rounded-tr-xs")}>
+      <div className={cn("flex-1 min-w-0 overflow-auto bg-secondary", open && "rounded-tr-xs")}>
         <WebhooksTable
           webhooks={webhooks}
           appId={appId}
@@ -80,6 +95,7 @@ function WebhooksPageContent({ appId }: WebhooksPageProps): React.ReactElement {
         />
       </div>
 
+
       <SidePanel>
         <WebhookSheet
           mode={mode}
@@ -87,6 +103,7 @@ function WebhooksPageContent({ appId }: WebhooksPageProps): React.ReactElement {
           appId={appId}
           app={app}
           onSuccess={handleClose}
+          createFormKey={createFormKey}
         />
       </SidePanel>
     </div>

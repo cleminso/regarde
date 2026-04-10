@@ -86,14 +86,14 @@ export interface TUseMyRegardeAccountResolve {
  * Result of useMyRegardeAccount hook.
  *
  * Fields are typed based on your resolve configuration:
- * - Fields you requested will be available when isReady is true
+ * - Fields you requested will be available when isAccountReady is true
  * - Fields you didn't request will be null
  * - Account is always returned as MaybeLoaded for loading state handling
  *
  * @example
  * ```typescript
  * // With { auth: true, myApps: { $each: true } }
- * const { isReady, account, myApps, auth } = useMyRegardeAccount({ resolve: {...} });
+ * const { isAccountReady, account, myApps, auth } = useMyRegardeAccount({ resolve: {...} });
  *
  * if (!account.$isLoaded) {
  *   switch (account.$jazz.loadingState) {
@@ -106,7 +106,7 @@ export interface TUseMyRegardeAccountResolve {
  *   }
  * }
  *
- * if (isReady) {
+ * if (isAccountReady) {
  *   // auth is TRegardeAuthLoaded (not null)
  *   // myApps is CoList<TApp> with all apps loaded
  *   auth.token; // string - accessible
@@ -116,7 +116,7 @@ export interface TUseMyRegardeAccountResolve {
  */
 export interface TUseMyRegardeAccountResult {
   /** True when account is loaded, authenticated, and all requested fields are available */
-  isReady: boolean;
+  isAccountReady: boolean;
   /** True when account is authenticated */
   isAuthenticated: boolean;
   /** The RegardeAccount with loading state information */
@@ -194,7 +194,7 @@ function isLoadedCoValue<T>(value: unknown): value is T & { $isLoaded: true } {
  * React hook for loading selective fields from the current user's RegardeAccount.
  *
  * Provides granular control over which RegardeSDK fields to load. When you specify
- * a field in the resolve config and isReady is true, that field is guaranteed to
+ * a field in the resolve config and isAccountReady is true, that field is guaranteed to
  * be loaded and accessible without additional checks.
  *
  * The account is returned as MaybeLoaded<TRegardeAccount>, allowing you to handle
@@ -204,7 +204,7 @@ function isLoadedCoValue<T>(value: unknown): value is T & { $isLoaded: true } {
  * ```tsx
  * // Load auth and apps
  * function AppList() {
- *   const { isReady, account, myApps, auth } = useMyRegardeAccount({
+ *   const { isAccountReady, account, myApps, auth } = useMyRegardeAccount({
  *     resolve: { auth: true, myApps: { $each: true } }
  *   });
  *
@@ -219,7 +219,7 @@ function isLoadedCoValue<T>(value: unknown): value is T & { $isLoaded: true } {
  *     }
  *   }
  *
- *   if (isReady === false) return <div>Loading SDK fields...</div>;
+ *   if (isAccountReady === false) return <div>Loading SDK fields...</div>;
  *
  *   // TypeScript knows myApps is loaded CoList<TApp>
  *   return (
@@ -233,7 +233,7 @@ function isLoadedCoValue<T>(value: unknown): value is T & { $isLoaded: true } {
  *
  * // Load apps with nested payment records
  * function AppWithPayments() {
- *   const { isReady, account, myApps } = useMyRegardeAccount({
+ *   const { isAccountReady, account, myApps } = useMyRegardeAccount({
  *     resolve: { myApps: { $each: { payments: true } } }
  *   });
  *
@@ -241,7 +241,7 @@ function isLoadedCoValue<T>(value: unknown): value is T & { $isLoaded: true } {
  *     return <div>Loading account...</div>;
  *   }
  *
- *   if (isReady === false) return <div>Loading apps...</div>;
+ *   if (isAccountReady === false) return <div>Loading apps...</div>;
  *
  *   // TypeScript knows app.payments is loaded (if requested in resolve)
  *   return myApps.map(app => (
@@ -289,7 +289,7 @@ export function useMyRegardeAccount(
     const hasRequestedFields = Object.keys(resolve).length > 0;
     if (hasRequestedFields === false) {
       return {
-        isReady: isAccountLoaded,
+        isAccountReady: isAccountLoaded,
         isAuthenticated,
         account: account as MaybeLoaded<TRegardeAccount>,
         regardeSDK: null,
@@ -311,7 +311,7 @@ export function useMyRegardeAccount(
     const isSdkLoaded = sdk !== null && isLoadedCoValue<TRegardeSDK>(sdk);
 
     // Determine overall readiness (all requested fields must be loaded)
-    const isReady = isAccountLoaded && isRootLoaded && isSdkLoaded;
+    const isAccountReady = isAccountLoaded && isRootLoaded && isSdkLoaded;
 
     // Extract requested fields with type safety
     const auth =
@@ -361,7 +361,7 @@ export function useMyRegardeAccount(
     }
 
     return {
-      isReady,
+      isAccountReady,
       isAuthenticated,
       account: account as MaybeLoaded<TRegardeAccount>,
       regardeSDK: isSdkLoaded ? sdk : null,

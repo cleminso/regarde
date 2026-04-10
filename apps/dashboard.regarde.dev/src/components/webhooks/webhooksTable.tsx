@@ -19,6 +19,7 @@ import {
   DataTableEmptyState,
   DataTableBadgeCell,
   DataTableDateCell,
+  DataTableFooter,
 } from "@regarde/ui/data-table";
 import { Button } from "@regarde/ui/button";
 import { Switch } from "@regarde/ui/switch";
@@ -55,9 +56,11 @@ export function WebhooksTable({
   // Column definitions
   const columns = useMemo(
     () => [
-      // Name column with URL below (like the screenshot)
       columnHelper.accessor("name", {
         header: "Name",
+        meta: {
+          className: "w-full min-w-[200px]",
+        },
         cell: ({ row }) => {
           const webhook = row.original;
           const endpointUrl = getWebhookUrl(
@@ -65,20 +68,27 @@ export function WebhooksTable({
             appId,
             webhook.$jazz.id
           );
-          // Truncate URL to fit (similar to screenshot)
-          const truncatedUrl =
-            endpointUrl.length > 50
-              ? `${endpointUrl.slice(0, 50)}...`
-              : endpointUrl;
+
+          // Split URL into parts for middle truncation
+          // Format: {API_BASE_URL}/v1/webhooks/{provider}/{appId}/{webhookId}
+          const urlParts = endpointUrl.split('/');
+          const webhookId = urlParts[urlParts.length - 1];
+          const appIdPart = urlParts[urlParts.length - 2];
+          const providerPart = urlParts[urlParts.length - 3];
+          const baseUrl = `${urlParts.slice(0, urlParts.length - 3).join('/')}/`;
+          const middlePart = `${providerPart}/${appIdPart}/`;
 
           return (
             <div className="flex flex-col gap-0.5 min-w-0">
               <span className="font-medium text-foreground truncate">
                 {webhook.name}
               </span>
-              <span className="font-mono text-xs text-muted-foreground truncate">
-                {truncatedUrl}
-              </span>
+              <div className="font-mono text-xs text-muted-foreground flex overflow-hidden">
+                <span className="shrink-0">{baseUrl}</span>
+
+                <span className="min-w-[2.5ch] truncate">{middlePart}</span>
+                <span className="shrink-0">{webhookId}</span>
+              </div>
             </div>
           );
         },
@@ -87,6 +97,9 @@ export function WebhooksTable({
       // Provider column with badge
       columnHelper.accessor("provider", {
         header: "Provider",
+        meta: {
+          className: "w-[100px]",
+        },
         cell: ({ getValue }) => {
           const provider = getValue();
           return (
@@ -101,6 +114,9 @@ export function WebhooksTable({
       // Environment column with badge
       columnHelper.accessor("environment", {
         header: "Environment",
+        meta: {
+          className: "w-[120px]",
+        },
         cell: ({ getValue }) => {
           const environment = getValue();
           return (
@@ -115,6 +131,9 @@ export function WebhooksTable({
       // Enabled column with switch
       columnHelper.accessor("isEnabled", {
         header: "Enabled",
+        meta: {
+          className: "w-[80px]",
+        },
         cell: ({ getValue, row }) => {
           const isEnabled = getValue();
           const webhook = row.original;
@@ -153,6 +172,9 @@ export function WebhooksTable({
       // TODO: when hovered, shows the iso date w/ a tooltip. Should it be clickable? copy icon à la zed?s
       columnHelper.accessor("createdAt", {
         header: "Created",
+        meta: {
+          className: "w-[100px]",
+        },
         cell: ({ getValue }) => {
           const timestamp = getValue();
           return (
@@ -169,6 +191,9 @@ export function WebhooksTable({
       columnHelper.display({
         id: "actions",
         header: "",
+        meta: {
+          className: "w-[60px]",
+        },
         cell: ({ row }) => {
           const webhook = row.original;
           const endpointUrl = getWebhookUrl(
@@ -226,12 +251,15 @@ export function WebhooksTable({
   }
 
   return (
-    <DataTable density="compact">
+    <DataTable density="compact" className="table-fixed">
       <DataTableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <DataTableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => (
-              <DataTableHead key={header.id}>
+              <DataTableHead
+                key={header.id}
+                className={(header.column.columnDef.meta as { className?: string })?.className}
+              >
                 {header.isPlaceholder === false
                   ? flexRender(
                       header.column.columnDef.header,
@@ -251,13 +279,27 @@ export function WebhooksTable({
             onClick={() => onNavigate(row.original.$jazz.id)}
           >
             {row.getVisibleCells().map((cell) => (
-              <DataTableCell key={cell.id}>
+              <DataTableCell
+                key={cell.id}
+                className={(cell.column.columnDef.meta as { className?: string })?.className}
+              >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </DataTableCell>
             ))}
           </DataTableRow>
         ))}
       </DataTableBody>
+      <DataTableFooter className="bg-transparent">
+        <DataTableRow className="hover:bg-transparent border-0">
+          <DataTableCell colSpan={columns.length} className="py-2">
+            <div className="flex justify-end">
+              <Button variant="default" onClick={onCreate}>
+                Add Webhook
+              </Button>
+            </div>
+          </DataTableCell>
+        </DataTableRow>
+      </DataTableFooter>
     </DataTable>
   );
 }

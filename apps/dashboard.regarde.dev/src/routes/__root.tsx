@@ -23,7 +23,7 @@ function RootComponent(): React.ReactElement {
     const cookie = document.cookie
       .split("; ")
       .find((row) => row.startsWith("sidebar_state="));
-    if (cookie) {
+    if (cookie !== undefined) {
       const value = cookie.split("=")[1];
       setDefaultOpen(value !== "false");
     } else {
@@ -38,7 +38,7 @@ function RootComponent(): React.ReactElement {
     );
   }
 
-  if (isAppRoute) {
+  if (isAppRoute === true) {
     return (
       <SidebarProvider
         defaultOpen={defaultOpen}

@@ -15,7 +15,7 @@ export interface CreateWebhookParams {
   name: string;
   /** Optional description */
   description?: string;
-  /** Payment provider (lemonsqueezy, stripe, polar) */
+  /** Payment provider (stripe, polar) */
   provider: TPaymentProvider;
   /** Environment (sandbox or production) */
   environment: "sandbox" | "production";

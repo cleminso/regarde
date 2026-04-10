@@ -127,7 +127,7 @@ export type TWebhookEvent = z.infer<typeof WebhookEvent>;
 export const AllWebhookEventsFeed = co.feed(WebhookEvent);
 
 export const Profile = co.map({
-  description: z.optional(z.string()),
+  description: z.optional(z.string().min(1).max(200)),
   logoUrl: z.optional(z.url()),
   website: z.optional(z.url()),
   socials: co.optional(co.record(z.string(), z.url())),
@@ -156,7 +156,7 @@ export type TProfile = co.loaded<typeof Profile>;
  * - `groups`: Permission groups for the app
  */
 export const RegardeApp = co.map({
-  name: z.string(),
+  name: z.string().min(1).max(30),
   ownerAccountId: z.string(),
   isEnabled: z.boolean(),
   createdAt: z.number(),

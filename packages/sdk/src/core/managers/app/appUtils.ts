@@ -6,7 +6,7 @@ import { TRegardeApp, RegardeApp } from "#schemas/regardeUserApp";
 
 export interface AppQueryParams {
   appId?: string;
-  paymentProvider?: "lemonsqueezy" | "stripe" | "polar";
+  paymentProvider?: "stripe" | "polar";
 }
 
 export const useMyApps = (regardeSDK: Loaded<typeof RegardeSDK> | null) => {

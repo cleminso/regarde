@@ -5,10 +5,10 @@ export const unifiedWebhookRoute = createRoute({
   path: "/v1/webhooks/{provider}/{appId}/{webhookId}",
   summary: "Unified Payment Webhook Endpoint",
   description:
-    "Receives and processes webhook events from payment providers (LemonSqueezy, Stripe, Polar). Validates signature using webhook-specific secret, stores raw payload in CoFeed, and creates normalized events.",
+    "Receives and processes webhook events from payment providers (Stripe, Polar). Validates signature using webhook-specific secret, stores raw payload in CoFeed, and creates normalized events.",
   request: {
     params: z.object({
-      provider: z.enum(["lemonsqueezy", "stripe", "polar"]),
+      provider: z.enum(["stripe", "polar"]),
       appId: z.string(),
       webhookId: z.string(),
     }),

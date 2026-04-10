@@ -1,0 +1,1 @@
+export { RegisterAppPage } from "./registerAppPage";

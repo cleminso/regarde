@@ -160,7 +160,11 @@ function DataTableRowActions<TData>({
         <MoreHorizontal className="size-4" />
         <span className="sr-only">{triggerLabel}</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align={align} side={side} className="w-48">
+      <DropdownMenuContent
+        align={align}
+        side={side}
+        className="min-w-fit whitespace-nowrap"
+      >
         {visibleActions.map((action, index) => {
           if (action.variant === "separator") {
             return <DropdownMenuSeparator key={`sep-${index}`} />
@@ -179,6 +183,7 @@ function DataTableRowActions<TData>({
               disabled={isDisabled}
               data-variant={action.variant}
               className={cn(
+                "justify-end",
                 action.variant === "destructive" &&
                   "text-destructive focus:text-destructive"
               )}

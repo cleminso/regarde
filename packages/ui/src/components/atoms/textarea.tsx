@@ -10,7 +10,7 @@ function Textarea({
     <ShadTextarea
       ref={ref}
       className={cn(
-        "bg-input border-border text-foreground resize-none rounded-sm focus-visible:ring-0",
+        "bg-input border-border text-foreground resize-none rounded-sm focus-visible:ring-0 w-full max-h-[220px]",
         className
       )}
       {...props}
