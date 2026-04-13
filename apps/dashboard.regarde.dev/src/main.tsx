@@ -2,6 +2,7 @@ import "./index.css";
 
 import { Agentation } from "agentation";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { setDefaultValidationMode } from "jazz-tools";
 import { JazzInspector } from "jazz-tools/inspector";
 import { JazzReactProvider } from "jazz-tools/react";
 import { StrictMode } from "react";
@@ -13,6 +14,9 @@ import { apiKey } from "./lib/config/apiKey";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 import { TooltipProvider } from "@regarde/ui/shadcn/tooltip";
+
+// Enable strict schema validation - invalid data will throw instead of warn
+setDefaultValidationMode("strict");
 
 // Create a new router instance
 const router = createRouter({

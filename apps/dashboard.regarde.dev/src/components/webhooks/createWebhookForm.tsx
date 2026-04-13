@@ -1,14 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { toast } from "sonner";
 
-import type { TRegardeApp, TPaymentProvider } from "@regarde-dev/core";
-import { createWebhook } from "@regarde-dev/core";
+import type { TRegardeApp } from "@regarde-dev/core";
+import { createWebhook, STRIPE_SECRET_PREFIX, POLAR_SECRET_PREFIX } from "@regarde-dev/core";
 import { Button } from "@regarde/ui/button";
 import { Input } from "@regarde/ui/input";
 import { Textarea } from "@regarde/ui/textarea";
 import { Label } from "@regarde/ui/label";
+import { RequiredInput } from "@regarde/ui/required-input";
+
+import {
+  webhookFormAtom,
+  canSubmitAtom,
+  resetWebhookFormAtom,
+} from "#atoms/webhookForm";
+import { WEBHOOK_NAME_MAX_LENGTH, WEBHOOK_DESCRIPTION_MAX_LENGTH } from "@regarde-dev/core";
 
 interface CreateWebhookFormProps {
   app: TRegardeApp;
@@ -21,30 +30,24 @@ export function CreateWebhookForm({
   onSuccess,
   onCancel,
 }: CreateWebhookFormProps): React.ReactElement {
+  const [form, setForm] = useAtom(webhookFormAtom);
+  const canSubmit = useAtomValue(canSubmitAtom);
+  const resetForm = useSetAtom(resetWebhookFormAtom);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const secretValidationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [provider, setProvider] = useState<TPaymentProvider>("stripe");
-  const [environment, setEnvironment] = useState<"sandbox" | "production">("production");
-  const [secret, setSecret] = useState("");
+  const secretPrefix =
+    form.provider === "stripe" ? STRIPE_SECRET_PREFIX : POLAR_SECRET_PREFIX;
+  const providerLabel = form.provider === "stripe" ? "Stripe" : "Polar";
+  const isSecretEmpty = form.secret.trim().length === 0;
+  const isSecretInvalid = isSecretEmpty === false && form.secret.startsWith(secretPrefix) === false;
 
   const handleSubmit = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
-    setErrors({});
+    setSubmitError(null);
 
-    // Submit-only validation
-    const newErrors: Record<string, string> = {};
-    if (name.trim().length === 0) {
-      newErrors.name = "Name is required";
-    }
-    if (secret.trim().length === 0) {
-      newErrors.secret = "Secret is required";
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (canSubmit === false) {
       return;
     }
 
@@ -52,90 +55,115 @@ export function CreateWebhookForm({
 
     try {
       await createWebhook(app, {
-        name: name.trim(),
-        description: description.trim(),
-        provider,
-        environment,
-        secret: secret.trim(),
+        name: form.name.trim(),
+        description: form.description.trim(),
+        provider: form.provider,
+        environment: form.environment,
+        secret: form.secret.trim(),
       });
 
-      toast.success(`Webhook "${name.trim()}" created`);
+      toast.success(`Webhook "${form.name.trim()}" created`);
+      resetForm();
       onSuccess();
     } catch (error) {
       console.error("Failed to create webhook:", error);
-      setErrors({ submit: "Failed to create webhook. Please try again." });
+      setSubmitError("Failed to create webhook. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const updateField = (field: keyof typeof form) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+      setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    };
+
+  const handleSecretChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const value = e.target.value;
+    setForm((prev) => ({ ...prev, secret: value }));
+
+    if (secretValidationTimeoutRef.current) {
+      clearTimeout(secretValidationTimeoutRef.current);
+    }
+
+    if (value.length === 0) {
+      return;
+    }
+
+    secretValidationTimeoutRef.current = setTimeout(() => {
+      if (value.startsWith(secretPrefix) === false) {
+        toast.error(
+          `Secret must start with '${secretPrefix}' for ${providerLabel} webhooks`
+        );
+      }
+    }, 500);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Name */}
-      <div className="space-y-1.5">
-        <Label htmlFor="name">Name</Label>
+      <RequiredInput
+        label="Name"
+        isRequired={true}
+        isValid={form.name.trim().length > 0}
+        htmlFor="name"
+      >
         <Input
           id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={form.name}
+          onChange={updateField("name")}
           placeholder="Production Webhook"
+          maxLength={WEBHOOK_NAME_MAX_LENGTH}
         />
-        {errors.name !== undefined && (
-          <p className="text-xs text-destructive">{errors.name}</p>
-        )}
-      </div>
+      </RequiredInput>
 
       {/* Description */}
       <div className="space-y-1.5">
         <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={form.description}
+          onChange={updateField("description")}
           placeholder="Brief description of this webhook..."
           rows={3}
+          maxLength={WEBHOOK_DESCRIPTION_MAX_LENGTH}
         />
       </div>
 
       {/* Secret */}
-      <div className="space-y-1.5">
-        <Label htmlFor="secret">Secret</Label>
+      <RequiredInput
+        label="Secret"
+        isRequired={true}
+        isValid={isSecretEmpty === false && isSecretInvalid === false}
+        isInvalid={isSecretInvalid}
+        htmlFor="secret"
+      >
         <Input
           id="secret"
           type="password"
-          value={secret}
-          onChange={(e) => setSecret(e.target.value)}
+          value={form.secret}
+          onChange={handleSecretChange}
           placeholder="whsec_..."
           className="font-mono text-foreground"
         />
-        {errors.secret !== undefined && (
-          <p className="text-xs text-destructive">{errors.secret}</p>
-        )}
-      </div>
-
+      </RequiredInput>
 
       {/* Provider */}
       <div className="space-y-1.5">
         <Label>Provider</Label>
         <div className="flex gap-1">
-          <Button
-            type="button"
-            variant={provider === "stripe" ? "inverse" : "ghost"}
-            size="default"
-            onClick={() => setProvider("stripe")}
-            className="flex-1"
-          >
-            Stripe
-          </Button>
-          <Button
-            type="button"
-            variant={provider === "polar" ? "inverse" : "ghost"}
-            size="default"
-            onClick={() => setProvider("polar")}
-            className="flex-1"
-          >
-            Polar
-          </Button>
+          {(["stripe", "polar"] as const).map((p) => (
+            <Button
+              key={p}
+              type="button"
+              variant={form.provider === p ? "inverse" : "ghost"}
+              size="default"
+              onClick={() => setForm((prev) => ({ ...prev, provider: p }))}
+              className="flex-1 capitalize"
+            >
+              {p}
+            </Button>
+          ))}
         </div>
       </div>
 
@@ -143,38 +171,43 @@ export function CreateWebhookForm({
       <div className="space-y-1.5">
         <Label>Environment</Label>
         <div className="flex gap-1">
-          <Button
-            type="button"
-            variant={environment === "production" ? "inverse" : "ghost"}
-            size="default"
-            onClick={() => setEnvironment("production")}
-            className="flex-1"
-          >
-            Production
-          </Button>
-          <Button
-            type="button"
-            variant={environment === "sandbox" ? "inverse" : "ghost"}
-            size="default"
-            onClick={() => setEnvironment("sandbox")}
-            className="flex-1"
-          >
-            Sandbox
-          </Button>
+          {(["production", "sandbox"] as const).map((env) => (
+            <Button
+              key={env}
+              type="button"
+              variant={form.environment === env ? "inverse" : "ghost"}
+              size="default"
+              onClick={() => setForm((prev) => ({ ...prev, environment: env }))}
+              className="flex-1 capitalize"
+            >
+              {env}
+            </Button>
+          ))}
         </div>
       </div>
 
-      {errors.submit !== undefined && (
-        <p className="text-sm text-destructive">{errors.submit}</p>
+      {submitError !== null && (
+        <p className="text-sm text-destructive">{submitError}</p>
       )}
 
       {/* Actions */}
       <div className="flex gap-2 pt-2">
-        <Button type="submit" size="lg" disabled={isSubmitting} className="flex-1">
-          {isSubmitting ? "Creating..." : "Create Webhook"}
-        </Button>
-        <Button type="button" variant="outline" size="lg" onClick={onCancel} disabled={isSubmitting}>
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          onClick={onCancel}
+          disabled={isSubmitting}
+        >
           Cancel
+        </Button>
+        <Button
+          type="submit"
+          size="lg"
+          disabled={canSubmit === false || isSubmitting}
+          className="flex-1"
+        >
+          {isSubmitting ? "Creating..." : "Create Webhook"}
         </Button>
       </div>
     </form>

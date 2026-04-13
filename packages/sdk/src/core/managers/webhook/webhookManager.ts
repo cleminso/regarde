@@ -1,11 +1,45 @@
 import { useLogging } from "#core/logger";
 import type { TPaymentProvider } from "#schemas/paymentEvent";
-import { Webhook, type TWebhook } from "#schemas/regardeUserApp";
-import type { TRegardeApp } from "#schemas/regardeUserApp";
+import {
+  Webhook,
+  WEBHOOK_NAME_MAX_LENGTH,
+  WEBHOOK_DESCRIPTION_MAX_LENGTH,
+  STRIPE_SECRET_PREFIX,
+  POLAR_SECRET_PREFIX,
+} from "#schemas/regardeUserApp";
+import type { TRegardeApp, TWebhook } from "#schemas/regardeUserApp";
 
 const logger = useLogging({
   module: import.meta.filename,
 });
+
+/**
+ * Validates secret format based on payment provider.
+ *
+ * @param secret - Secret string to validate
+ * @param provider - Payment provider (stripe, polar)
+ * @returns Error message if invalid, null if valid
+ */
+const validateSecretFormat = (
+  secret: string,
+  provider: TPaymentProvider
+): string | null => {
+  if (provider === "stripe" && secret.startsWith(STRIPE_SECRET_PREFIX) === false) {
+    return `Stripe secrets must start with "${STRIPE_SECRET_PREFIX}"`;
+  }
+  if (provider === "polar" && secret.startsWith(POLAR_SECRET_PREFIX) === false) {
+    return `Polar secrets must start with "${POLAR_SECRET_PREFIX}"`;
+  }
+  return null;
+};
+
+/**
+ * Validation result type
+ */
+export interface ValidationResult {
+  success: boolean;
+  errors?: Record<string, string>;
+}
 
 /**
  * Parameters for creating a new webhook
@@ -22,8 +56,108 @@ export interface CreateWebhookParams {
   /** Webhook endpoint URL. If not provided, will be auto-generated using the webhook's CoValue ID */
   url?: string;
   /** Webhook secret (required for Stripe/Polar, auto-generated for LemonSqueezy) */
-  secret?: string;
+  secret: string;
 }
+
+/**
+ * Validates create webhook parameters
+ *
+ * Validates business logic constraints before schema validation.
+ * Schema handles max length, we check for empty values.
+ *
+ * @param params - Parameters to validate
+ * @returns Validation result with errors if invalid
+ */
+export const validateCreateWebhookParams = (
+  params: CreateWebhookParams
+): ValidationResult => {
+  const errors: Record<string, string> = {};
+
+  if (params.name.trim().length === 0) {
+    errors.name = "Name is required";
+  } else if (params.name.length > WEBHOOK_NAME_MAX_LENGTH) {
+    errors.name = `Name must be ${WEBHOOK_NAME_MAX_LENGTH} characters or less`;
+  }
+
+  if (params.secret.trim().length === 0) {
+    errors.secret = "Secret is required";
+  } else {
+    const formatError = validateSecretFormat(params.secret, params.provider);
+    if (formatError !== null) {
+      errors.secret = formatError;
+    }
+  }
+
+  if (
+    params.description !== undefined &&
+    params.description.length > WEBHOOK_DESCRIPTION_MAX_LENGTH
+  ) {
+    errors.description = `Description must be ${WEBHOOK_DESCRIPTION_MAX_LENGTH} characters or less`;
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return { success: false, errors };
+  }
+
+  return { success: true };
+};
+
+/**
+ * Validates webhook update parameters
+ *
+ * Validates business logic constraints before schema validation.
+ * Schema handles max length, we check for empty values on optional fields.
+ * Prefix secret format is validated against the provider.
+ *
+ * @param updates - Partial updates to validate
+ * @param provider - Payment provider for prefix secret format validation
+ * @returns Validation result with errors if invalid
+ */
+export const validateWebhookUpdates = (
+  updates: Partial<{
+    name: string;
+    description: string;
+    url: string;
+    secret: string;
+    environment: "sandbox" | "production";
+    isEnabled: boolean;
+  }>,
+  provider: TPaymentProvider
+): ValidationResult => {
+  const errors: Record<string, string> = {};
+
+  if (updates.name !== undefined) {
+    if (updates.name.trim().length === 0) {
+      errors.name = "Name cannot be empty";
+    } else if (updates.name.length > WEBHOOK_NAME_MAX_LENGTH) {
+      errors.name = `Name must be ${WEBHOOK_NAME_MAX_LENGTH} characters or less`;
+    }
+  }
+
+  if (
+    updates.description !== undefined &&
+    updates.description.length > WEBHOOK_DESCRIPTION_MAX_LENGTH
+  ) {
+    errors.description = `Description must be ${WEBHOOK_DESCRIPTION_MAX_LENGTH} characters or less`;
+  }
+
+  if (updates.secret !== undefined) {
+    if (updates.secret.trim().length === 0) {
+      errors.secret = "Secret cannot be empty";
+    } else {
+      const formatError = validateSecretFormat(updates.secret, provider);
+      if (formatError !== null) {
+        errors.secret = formatError;
+      }
+    }
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return { success: false, errors };
+  }
+
+  return { success: true };
+};
 
 /**
  * Generates a cryptographically secure webhook secret.
@@ -90,10 +224,15 @@ export const createWebhook = async (
     throw new Error("App webhooks list is not loaded");
   }
 
-  if (params.secret === undefined || params.secret.length === 0) {
-    throw new Error("Secret is required for all webhook providers");
+  // Validate parameters before creating
+  const validation = validateCreateWebhookParams(params);
+  if (validation.success === false) {
+    throw new Error(
+      `Validation failed: ${Object.entries(validation.errors ?? {})
+        .map(([field, error]) => `${field}: ${error}`)
+        .join(", ")}`
+    );
   }
-  const secret = params.secret;
 
   const ownerGroup = app.$jazz.owner;
   const appId = app.$jazz.id;
@@ -109,7 +248,7 @@ export const createWebhook = async (
         createdAt: Date.now(),
         isEnabled: true,
         url: params.url ?? "",
-        secret,
+        secret: params.secret,
         customMetadata: {},
       },
       ownerGroup,
@@ -179,6 +318,16 @@ export const updateWebhook = async (
   const isWebhookLoaded = webhook.$isLoaded === true;
   if (isWebhookLoaded === false) {
     throw new Error("Webhook must be loaded before updating");
+  }
+
+  // Validate updates before applying
+  const validation = validateWebhookUpdates(updates, webhook.provider);
+  if (validation.success === false) {
+    throw new Error(
+      `Validation failed: ${Object.entries(validation.errors ?? {})
+        .map(([field, error]) => `${field}: ${error}`)
+        .join(", ")}`
+    );
   }
 
   try {

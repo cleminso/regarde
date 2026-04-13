@@ -2,17 +2,26 @@
 
 import { Button } from "@regarde/ui/button";
 import { Input } from "@regarde/ui/input";
+import { RequiredInput } from "@regarde/ui/required-input";
 import { SensitiveInput } from "@regarde/ui/input-sensitive";
 import { Label } from "@regarde/ui/label";
 import { Switch } from "@regarde/ui/switch";
 import { Textarea } from "@regarde/ui/textarea";
 import { Copy, Check } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { getWebhookUrl } from "#lib/config/api";
 import type { TWebhook } from "@regarde-dev/core";
-import { toggleWebhookStatus, updateWebhook } from "@regarde-dev/core";
+import {
+  toggleWebhookStatus,
+  updateWebhook,
+  validateWebhookUpdates,
+  STRIPE_SECRET_PREFIX,
+  POLAR_SECRET_PREFIX,
+  WEBHOOK_NAME_MAX_LENGTH,
+  WEBHOOK_DESCRIPTION_MAX_LENGTH,
+} from "@regarde-dev/core";
 
 interface EditWebhookFormProps {
   webhook: TWebhook;
@@ -21,6 +30,8 @@ interface EditWebhookFormProps {
 
 export function EditWebhookForm({ webhook, appId }: EditWebhookFormProps): React.ReactElement {
   const [copiedUrl, setCopiedUrl] = useState(false);
+  const [secretIsValid, setSecretIsValid] = useState(true);
+  const secretValidationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isLoaded = webhook !== null && webhook.$isLoaded === true;
   const webhookId = webhook.$jazz.id;
@@ -28,22 +39,79 @@ export function EditWebhookForm({ webhook, appId }: EditWebhookFormProps): React
 
   const handleNameChange = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
     if (isLoaded === false) return;
-    await updateWebhook(webhook, { name: e.target.value });
+    const newName = e.target.value;
+    if (newName.trim().length === 0) {
+      toast.error("Name is required");
+      return;
+    }
+    const validation = validateWebhookUpdates({ name: newName }, webhook.provider);
+    if (validation.success === false) {
+      toast.error(validation.errors?.name ?? "Invalid name");
+      return;
+    }
+    try {
+      await updateWebhook(webhook, { name: newName });
+    } catch (error) {
+      toast.error(`Failed to update webhook name: ${error instanceof Error ? error.message : "Unknown error"}`);
+    }
   };
 
   const handleDescriptionChange = async (e: React.ChangeEvent<HTMLTextAreaElement>): Promise<void> => {
     if (isLoaded === false) return;
-    await updateWebhook(webhook, { description: e.target.value });
+    try {
+      await updateWebhook(webhook, { description: e.target.value });
+    } catch (error) {
+      toast.error(`Failed to update description: ${error instanceof Error ? error.message : "Unknown error"}`);
+    }
   };
 
   const handleEnvironmentChange = async (value: "sandbox" | "production"): Promise<void> => {
     if (isLoaded === false) return;
-    await updateWebhook(webhook, { environment: value });
+    try {
+      await updateWebhook(webhook, { environment: value });
+    } catch (error) {
+      toast.error(`Failed to update environment: ${error instanceof Error ? error.message : "Unknown error"}`);
+    }
   };
 
   const handleSecretChange = async (value: string): Promise<void> => {
     if (isLoaded === false) return;
-    await updateWebhook(webhook, { secret: value });
+
+    if (secretValidationTimeoutRef.current) {
+      clearTimeout(secretValidationTimeoutRef.current);
+    }
+
+    if (value.length === 0) {
+      setSecretIsValid(false);
+      return;
+    }
+
+    const secretPrefix =
+      webhook.provider === "stripe" ? STRIPE_SECRET_PREFIX : POLAR_SECRET_PREFIX;
+
+    secretValidationTimeoutRef.current = setTimeout(async () => {
+      if (value.startsWith(secretPrefix) === false) {
+        const providerLabel = webhook.provider === "stripe" ? "Stripe" : "Polar";
+        toast.error(
+          `Secret must start with '${secretPrefix}' for ${providerLabel} webhooks`
+        );
+        setSecretIsValid(false);
+        return;
+      }
+
+      const validation = validateWebhookUpdates({ secret: value }, webhook.provider);
+      if (validation.success === false) {
+        toast.error(validation.errors?.secret ?? "Invalid secret");
+        return;
+      }
+      try {
+        await updateWebhook(webhook, { secret: value });
+        setSecretIsValid(true);
+      } catch (error) {
+        toast.error(`Failed to update secret: ${error instanceof Error ? error.message : "Unknown error"}`);
+        setSecretIsValid(false);
+      }
+    }, 500);
   };
 
   const handleCopySecret = (): void => {
@@ -90,19 +158,26 @@ export function EditWebhookForm({ webhook, appId }: EditWebhookFormProps): React
       </div>
 
       {/* Name */}
-      <div className="space-y-1.5">
-        <Label htmlFor="name">Name</Label>
+      <RequiredInput
+        label="Name"
+        isRequired={true}
+        isValid={webhook.name.trim().length > 0}
+      >
         <Input
           id="name"
           value={webhook.name}
           onChange={handleNameChange}
           placeholder="Production Webhook"
+          maxLength={WEBHOOK_NAME_MAX_LENGTH}
         />
-      </div>
+      </RequiredInput>
 
       {/* Secret */}
-      <div className="space-y-1.5">
-        <Label htmlFor="secret">Secret</Label>
+      <RequiredInput
+        label="Secret"
+        isRequired={true}
+        isValid={secretIsValid && webhook.secret.length > 0}
+      >
         <SensitiveInput
           id="secret"
           value={webhook.secret}
@@ -112,7 +187,7 @@ export function EditWebhookForm({ webhook, appId }: EditWebhookFormProps): React
           className="font-mono"
           autoComplete="off"
         />
-      </div>
+      </RequiredInput>
 
       {/* Description */}
       <div className="space-y-1.5">
@@ -123,6 +198,7 @@ export function EditWebhookForm({ webhook, appId }: EditWebhookFormProps): React
           onChange={handleDescriptionChange}
           placeholder="Brief description of this webhook..."
           rows={3}
+          maxLength={WEBHOOK_DESCRIPTION_MAX_LENGTH}
         />
       </div>
 

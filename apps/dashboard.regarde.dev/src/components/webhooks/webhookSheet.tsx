@@ -12,7 +12,6 @@ interface WebhookSheetProps {
   appId: string;
   app: TRegardeApp;
   onSuccess?: () => void;
-  createFormKey?: number;
 }
 
 export function WebhookSheet({
@@ -21,7 +20,6 @@ export function WebhookSheet({
   appId,
   app,
   onSuccess,
-  createFormKey = 0,
 }: WebhookSheetProps): React.ReactElement {
   const isEdit = mode === "edit";
   const title = isEdit ? `Edit ${webhook?.name ?? "Webhook"}` : "Create Webhook";
@@ -42,7 +40,6 @@ export function WebhookSheet({
           <EditWebhookForm webhook={webhook} appId={appId} />
         ) : (
           <CreateWebhookForm
-            key={`create-webhook-${createFormKey}`}
             app={app}
             appId={appId}
             onSuccess={() => onSuccess?.()}

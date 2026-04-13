@@ -2,11 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useSetAtom } from "jotai";
 
 import type { TWebhook } from "@regarde-dev/core";
 import { useRegardeApp } from "@regarde-dev/core";
 import { SidePanel } from "@regarde/ui/sidePanel";
 import { cn } from "@regarde/ui/lib/utils";
+
+import { resetWebhookFormAtom } from "@/atoms/webhookForm";
 
 import { WebhooksTable } from "./webhooksTable";
 import { WebhookSheet } from "./webhookSheet";
@@ -20,9 +23,9 @@ function WebhooksPageContent({ appId }: WebhooksPageProps): React.ReactElement {
   const navigate = useNavigate();
   const app = useRegardeApp(appId);
   const { open, onOpenChange } = SidePanel.useSidePanel();
+  const resetForm = useSetAtom(resetWebhookFormAtom);
   const [selectedWebhook, setSelectedWebhook] = useState<TWebhook | undefined>(undefined);
   const [mode, setMode] = useState<"create" | "edit">("create");
-  const [createFormKey, setCreateFormKey] = useState(0);
 
   const isAppLoaded = app !== null && app !== undefined && app.$isLoaded === true;
 
@@ -46,7 +49,7 @@ function WebhooksPageContent({ appId }: WebhooksPageProps): React.ReactElement {
   const handleCreate = (): void => {
     setMode("create");
     setSelectedWebhook(undefined);
-    setCreateFormKey(prev => prev + 1);
+    resetForm(); // Reset form state without remount
     onOpenChange(true);
   };
 
@@ -95,7 +98,6 @@ function WebhooksPageContent({ appId }: WebhooksPageProps): React.ReactElement {
         />
       </div>
 
-
       <SidePanel>
         <WebhookSheet
           mode={mode}
@@ -103,7 +105,6 @@ function WebhooksPageContent({ appId }: WebhooksPageProps): React.ReactElement {
           appId={appId}
           app={app}
           onSuccess={handleClose}
-          createFormKey={createFormKey}
         />
       </SidePanel>
     </div>

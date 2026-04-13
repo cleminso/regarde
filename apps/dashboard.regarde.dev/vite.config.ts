@@ -26,6 +26,7 @@ export default defineConfig({
       "#": resolve(import.meta.dirname, "./src/components"),
       "@": resolve(import.meta.dirname, "./src"),
       "#auth": resolve(import.meta.dirname, "./src/components/auth"),
+      "#atoms": resolve(import.meta.dirname, "./src/atoms"),
       "#layout": resolve(import.meta.dirname, "./src/components/layout"),
       "#navigation": resolve(import.meta.dirname, "./src/components/navigation"),
       "#overview": resolve(import.meta.dirname, "./src/components/overview"),
