@@ -5,43 +5,43 @@ packages:
   - packages/*
 
 catalog:
-  "@clerk/clerk-react": ^5.61.3
-  "@hono/node-server": ^1.19.11
-  "@hono/swagger-ui": ^0.6.1
-  "@hono/zod-openapi": ^1.2.4
-  "@scure/bip39": ^2.0.1
-  "@tailwindcss/vite": ^4.2.2
-  "@types/node": ^25.5.0
-  "@types/react": ~19.2.14
-  "@types/react-dom": ^19.2.3
-  "@vitejs/plugin-react": ^6.0.1
-  "@vitest/ui": ^4.1.2
+  '@clerk/clerk-react': ^5.61.3
+  '@hono/node-server': ^1.19.11
+  '@hono/swagger-ui': ^0.6.1
+  '@hono/zod-openapi': ^1.2.4
+  '@scure/bip39': ^2.0.1
+  '@tailwindcss/vite': ^4.2.2
+  '@types/node': ^25.6.0
+  '@types/react': ~19.2.14
+  '@types/react-dom': ^19.2.3
+  '@vitejs/plugin-react': ^6.0.1
+  '@vitest/ui': ^4.1.4
   class-variance-authority: ^0.7.1
   clsx: ^2.1.1
   cojson: ^0.20.15
-  cojson-core-rn: ^0.20.15
+  cojson-core-rn: ^0.20.17
   cojson-transport-ws: ^0.20.15
-  dotenv: ^17.3.1
+  dotenv: ^17.4.2
   hono: ^4.12.9
-  jazz-tools: ^0.20.15
+  jazz-tools: ^0.20.17
   little-timestamp: ^1.0.0
-  lucide-react: ^1.7.0
+  lucide-react: ^1.8.0
   react: 19.2.4
   react-dom: 19.2.4
-  tailwindcss: ^4.2.2
   tailwind-merge: ^3.5.0
+  tailwindcss: ^4.2.2
   typescript: ^6.0.2
   ulidx: ^2.4.1
   vite: 8.0.0-beta.5
   vite-plugin-dts: ^4.5.4
   vite-tsconfig-paths: ^6.1.1
-  vitest: ^4.1.2
+  vitest: ^4.1.4
   zod: ^4.3.6
 
 onlyBuiltDependencies:
-  - "@biomejs/biome"
-  - "@clerk/shared"
-  - "@parcel/watcher"
-  - "@tailwindcss/oxide"
+  - '@biomejs/biome'
+  - '@clerk/shared'
+  - '@parcel/watcher'
+  - '@tailwindcss/oxide'
   - better-sqlite3
   - esbuild
