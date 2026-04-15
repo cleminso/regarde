@@ -81,12 +81,22 @@ export const createCheckout = async (
     throw new RegardeError("App must be loaded", REGARDE_ERROR_CODES.COMAP_NOT_FOUND);
   }
 
-  const ownerGroup = regardeSdk.$jazz.owner;
+  const checkoutSessions = app.checkoutSessions;
+  const isCheckoutSessionsLoaded =
+    checkoutSessions !== null && checkoutSessions !== undefined && checkoutSessions.$isLoaded === true;
+  if (isCheckoutSessionsLoaded === false) {
+    throw new RegardeError(
+      "App checkout sessions index must be loaded",
+      REGARDE_ERROR_CODES.COMAP_NOT_FOUND,
+    );
+  }
+
+  const ownerGroup = checkoutSessions.$jazz.owner;
   const isOwnerGroupLoaded =
     ownerGroup !== null && ownerGroup !== undefined && ownerGroup.$isLoaded === true;
   if (isOwnerGroupLoaded === false) {
     throw new RegardeError(
-      "Failed to get owner group for checkout creation",
+      "Failed to get app-scoped owner group for checkout creation",
       REGARDE_ERROR_CODES.SYNC_FAILED,
     );
   }

@@ -31,6 +31,7 @@ export async function verifyRegardeAuth(
     }
 
     const regardeAuth = (await RegardeTokenAuth.load(regardeAuthCoValueId, {
+      loadAs: worker,
       resolve: true,
     })) as Loaded<typeof RegardeTokenAuth>;
 

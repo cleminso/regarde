@@ -78,12 +78,21 @@ export const createRefund = async (
     throw new RegardeError("App must be loaded", REGARDE_ERROR_CODES.COMAP_NOT_FOUND);
   }
 
-  const ownerGroup = regardeSdk.$jazz.owner;
+  const refunds = app.refunds;
+  const isRefundsLoaded = refunds !== null && refunds !== undefined && refunds.$isLoaded === true;
+  if (isRefundsLoaded === false) {
+    throw new RegardeError(
+      "App refunds index must be loaded",
+      REGARDE_ERROR_CODES.COMAP_NOT_FOUND,
+    );
+  }
+
+  const ownerGroup = refunds.$jazz.owner;
   const isOwnerGroupLoaded =
     ownerGroup !== null && ownerGroup !== undefined && ownerGroup.$isLoaded === true;
   if (isOwnerGroupLoaded === false) {
     throw new RegardeError(
-      "Failed to get owner group for refund creation",
+      "Failed to get app-scoped owner group for refund creation",
       REGARDE_ERROR_CODES.SYNC_FAILED,
     );
   }

@@ -2,6 +2,7 @@ import { useLogging } from "#core/logger";
 import type { TPaymentProvider } from "#schemas/paymentEvent";
 import {
   Webhook,
+  WebhookEventsFeed,
   WEBHOOK_NAME_MAX_LENGTH,
   WEBHOOK_DESCRIPTION_MAX_LENGTH,
   STRIPE_SECRET_PREFIX,
@@ -57,6 +58,8 @@ export interface CreateWebhookParams {
   url?: string;
   /** Webhook secret (required for Stripe/Polar, auto-generated for LemonSqueezy) */
   secret: string;
+  /** API base URL for generating webhook URLs. Defaults to https://api.regarde.dev. Override for local development. */
+  apiBaseUrl?: string;
 }
 
 /**
@@ -179,10 +182,10 @@ export const generateWebhookSecret = (): string => {
 };
 
 /**
- * Base URL for the Regarde API
- * Used for generating webhook endpoint URLs
+ * Default base URL for the Regarde API.
+ * Used when no custom API base URL is provided.
  */
-const API_BASE_URL = "https://api.regarde.dev";
+const DEFAULT_API_BASE_URL = "https://api.regarde.dev";
 
 /**
  * Generate webhook URL for a specific provider and app
@@ -190,13 +193,15 @@ const API_BASE_URL = "https://api.regarde.dev";
  * @param provider - Payment provider (stripe, polar)
  * @param appId - Jazz CoMap ID for the app
  * @param webhookId - Webhook CoValue ID
+ * @param apiBaseUrl - Optional API base URL (defaults to https://api.regarde.dev)
  * @returns Full webhook URL
  */
 const generateWebhookUrl = (
   provider: TPaymentProvider,
   appId: string,
   webhookId: string,
-): string => `${API_BASE_URL}/v1/webhooks/${provider}/${appId}/${webhookId}`;
+  apiBaseUrl: string = DEFAULT_API_BASE_URL,
+): string => `${apiBaseUrl}/v1/webhooks/${provider}/${appId}/${webhookId}`;
 
 /**
  * Creates a new webhook for an app.
@@ -238,7 +243,15 @@ export const createWebhook = async (
   const appId = app.$jazz.id;
 
   try {
-    // Create webhook with provided URL or empty string (will be generated if not provided)
+    // Generate a placeholder URL for creation (url: z.url() rejects empty strings).
+    // The real URL requires the CoValue ID, so we set it after creation.
+    const apiBaseUrl = params.apiBaseUrl ?? DEFAULT_API_BASE_URL;
+    const placeholderUrl = params.url ?? generateWebhookUrl(params.provider, appId, "pending", apiBaseUrl);
+
+    // Create the events feed first (it needs to exist before we can assign it)
+    const eventsFeed = WebhookEventsFeed.create([], ownerGroup);
+    await eventsFeed.$jazz.waitForSync();
+
     const webhook = Webhook.create(
       {
         name: params.name.trim(),
@@ -247,8 +260,9 @@ export const createWebhook = async (
         environment: params.environment,
         createdAt: Date.now(),
         isEnabled: true,
-        url: params.url ?? "",
+        url: placeholderUrl,
         secret: params.secret,
+        events: eventsFeed,
         customMetadata: {},
       },
       ownerGroup,
@@ -256,9 +270,9 @@ export const createWebhook = async (
 
     await webhook.$jazz.waitForSync();
 
-    // Generate webhook URL if not provided
+    // Replace placeholder with the real URL that includes the webhook CoValue ID
     if (params.url === undefined || params.url.length === 0) {
-      const webhookUrl = generateWebhookUrl(params.provider, appId, webhook.$jazz.id);
+      const webhookUrl = generateWebhookUrl(params.provider, appId, webhook.$jazz.id, apiBaseUrl);
       webhook.$jazz.set("url", webhookUrl);
       await webhook.$jazz.waitForSync();
     }

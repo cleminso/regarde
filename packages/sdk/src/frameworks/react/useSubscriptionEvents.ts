@@ -48,43 +48,41 @@ export function useSubscriptionEvents(
   appId: string,
   options?: UseSubscriptionEventsOptions,
 ): UseSubscriptionEventsResult {
-  // Load the App CoValue with all nested records
+  // Load the App CoValue with the subscription index
   const app: TRegardeApp | null = useCoState(RegardeApp, appId, {
     resolve: {
-      payments: { all: true, byUser: true },
       subscriptions: { all: true, byUser: true },
-      licenses: { all: true, byUser: true },
     },
   });
 
-  // Extract event IDs from the subscriptions record
-  const eventIds = useMemo((): string[] => {
+  // Extract event IDs from the subscription index
+  const subscriptionEventIds = useMemo((): string[] => {
     if (app === null || app.$isLoaded !== true) {
       return [];
     }
 
-    const subscriptionsRecord = app.subscriptions;
-    if (subscriptionsRecord === null || subscriptionsRecord.$isLoaded === false) {
+    const subscriptionsIndex = app.subscriptions;
+    if (subscriptionsIndex === null || subscriptionsIndex.$isLoaded === false) {
       return [];
     }
 
-    const allSubscriptions = subscriptionsRecord.all;
+    const allSubscriptions = subscriptionsIndex.all;
     if (allSubscriptions === null || allSubscriptions.$isLoaded === false) {
       return [];
     }
 
-    // Get all event IDs from the record
+    // Get all event IDs from the index
     return Object.values(allSubscriptions).filter(
       (id): id is string => id !== null && id !== undefined && typeof id === "string",
     );
   }, [app]);
 
   // Load all SubscriptionEvent CoMaps by their IDs
-  const allEvents = useCoStates(SubscriptionEvent, eventIds);
+  const allSubscriptionEvents = useCoStates(SubscriptionEvent, subscriptionEventIds);
 
   // Filter events
-  const events = useMemo((): TSubscriptionEvent[] => {
-    let loadedEvents = allEvents.filter(
+  const subscriptionEvents = useMemo((): TSubscriptionEvent[] => {
+    let loadedSubscriptionEvents = allSubscriptionEvents.filter(
       (event): event is TSubscriptionEvent =>
         event !== null && event !== undefined && event.$isLoaded === true,
     );
@@ -92,7 +90,7 @@ export function useSubscriptionEvents(
     // Apply mode filter
     const modeFilter = options?.mode;
     if (modeFilter !== null && modeFilter !== undefined && modeFilter !== "all") {
-      loadedEvents = loadedEvents.filter((event) => event.mode === modeFilter);
+      loadedSubscriptionEvents = loadedSubscriptionEvents.filter((event) => event.mode === modeFilter);
     }
 
     // Apply provider subscription ID filter
@@ -102,37 +100,37 @@ export function useSubscriptionEvents(
       providerSubIdFilter !== undefined &&
       providerSubIdFilter !== ""
     ) {
-      loadedEvents = loadedEvents.filter(
+      loadedSubscriptionEvents = loadedSubscriptionEvents.filter(
         (event) => event.providerSubscriptionId === providerSubIdFilter,
       );
     }
 
-    return loadedEvents;
-  }, [allEvents, options?.mode, options?.providerSubscriptionId]);
+    return loadedSubscriptionEvents;
+  }, [allSubscriptionEvents, options?.mode, options?.providerSubscriptionId]);
 
   // Determine loading state
   const isLoading = useMemo((): boolean => {
     if (app === null) return true;
     if (app.$isLoaded !== true) return true;
 
-    const subscriptionsRecord = app.subscriptions;
-    if (subscriptionsRecord === null || subscriptionsRecord.$isLoaded === false) {
+    const subscriptionsIndex = app.subscriptions;
+    if (subscriptionsIndex === null || subscriptionsIndex.$isLoaded === false) {
       return true;
     }
 
-    const allSubscriptions = subscriptionsRecord.all;
+    const allSubscriptions = subscriptionsIndex.all;
     if (allSubscriptions === null || allSubscriptions.$isLoaded === false) {
       return true;
     }
 
     // Check if all SubscriptionEvents are loaded
-    return allEvents.some(
+    return allSubscriptionEvents.some(
       (event) => event === null || event === undefined || event.$isLoaded === false,
     );
-  }, [app, allEvents]);
+  }, [app, allSubscriptionEvents]);
 
   return {
-    events,
+    events: subscriptionEvents,
     isLoading,
   };
 }

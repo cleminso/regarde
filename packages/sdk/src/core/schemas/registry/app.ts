@@ -35,8 +35,11 @@ export const AllRegardeRegistryAppsSchema = co.record(z.string(), RegardeRegistr
 /** Loaded AllRegistryAppsSchema instance */
 export type TAllRegistryAppsSchema = co.loaded<typeof AllRegardeRegistryAppsSchema>;
 
+/** Apps list for a single user in the registry */
+export const RegardeAppsByUserList = co.list(RegardeRegistryAppMetadata);
+
 /** Apps grouped by user, indexed by Jazz account ID */
-export const RegardeAppsByUserRecord = co.record(z.string(), co.list(RegardeRegistryAppMetadata));
+export const RegardeAppsByUserRecord = co.record(z.string(), RegardeAppsByUserList);
 
 /** Loaded AppsByUserRecord instance */
 export type TRegardeAppsByUserRecord = co.loaded<typeof RegardeAppsByUserRecord>;

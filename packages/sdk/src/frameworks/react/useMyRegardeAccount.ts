@@ -7,10 +7,12 @@ import type { TRegardeAccount } from "#schemas/regardeAccount";
 import { RegardeSDK } from "#schemas/regardeSDK";
 import type {
   TRegardeSDK,
-  TPaymentSchema,
-  TSubscriptionSchema,
-  TLicenseSchema,
+  TSdkInvoiceIndex,
+  TSdkLicenseIndex,
+  TSdkPaymentIndex,
+  TSdkSubscriptionIndex,
 } from "#schemas/regardeSDK";
+import type { TSdkRefundIndex } from "#schemas/refund";
 import { RegardeTokenAuth } from "#schemas/regardeTokenAuth";
 import type { TRegardeAuthLoaded } from "#schemas/regardeTokenAuth";
 import { RegardeApp } from "#schemas/regardeUserApp";
@@ -50,6 +52,16 @@ export type TSubscriptionField = true | { all?: true; byApp?: true; status?: tru
 export type TLicenseField = true | { all?: true; byApp?: true };
 
 /**
+ * Invoice schema field resolution options
+ */
+export type TInvoiceField = true | { all?: true; byApp?: true };
+
+/**
+ * Refund schema field resolution options
+ */
+export type TRefundField = true | { all?: true; byApp?: true };
+
+/**
  * Configuration for loading specific RegardeSDK fields.
  *
  * Each field can be loaded shallowly (true) or with nested resolution.
@@ -76,6 +88,8 @@ export interface TUseMyRegardeAccountResolve {
   myPayments?: TPaymentField;
   mySubscriptions?: TSubscriptionField;
   myLicenses?: TLicenseField;
+  myInvoices?: TInvoiceField;
+  myRefunds?: TRefundField;
 }
 
 // =============================================================================
@@ -132,11 +146,15 @@ export interface TUseMyRegardeAccountResult {
   /** Apps CoList when myApps field is requested and loaded, null otherwise */
   myApps: CoList<TRegardeApp> | null;
   /** Payments CoMap when myPayments field is requested and loaded, null otherwise */
-  myPayments: TPaymentSchema | null;
+  myPayments: TSdkPaymentIndex | null;
   /** Subscriptions CoMap when mySubscriptions field is requested and loaded, null otherwise */
-  mySubscriptions: TSubscriptionSchema | null;
+  mySubscriptions: TSdkSubscriptionIndex | null;
   /** Licenses CoMap when myLicenses field is requested and loaded, null otherwise */
-  myLicenses: TLicenseSchema | null;
+  myLicenses: TSdkLicenseIndex | null;
+  /** Invoices CoMap when myInvoices field is requested and loaded, null otherwise */
+  myInvoices: TSdkInvoiceIndex | null;
+  /** Refunds CoMap when myRefunds field is requested and loaded, null otherwise */
+  myRefunds: TSdkRefundIndex | null;
 }
 
 // =============================================================================
@@ -300,6 +318,8 @@ export function useMyRegardeAccount(
         myPayments: null,
         mySubscriptions: null,
         myLicenses: null,
+        myInvoices: null,
+        myRefunds: null,
       };
     }
 
@@ -334,7 +354,7 @@ export function useMyRegardeAccount(
     }
 
     // Extract myPayments if requested
-    let myPayments: TPaymentSchema | null = null;
+    let myPayments: TSdkPaymentIndex | null = null;
     if (isSdkLoaded && resolve.myPayments !== undefined) {
       const paymentsValue = sdk.myPayments;
       if (isLoadedCoValue(paymentsValue)) {
@@ -343,7 +363,7 @@ export function useMyRegardeAccount(
     }
 
     // Extract mySubscriptions if requested
-    let mySubscriptions: TSubscriptionSchema | null = null;
+    let mySubscriptions: TSdkSubscriptionIndex | null = null;
     if (isSdkLoaded && resolve.mySubscriptions !== undefined) {
       const subscriptionsValue = sdk.mySubscriptions;
       if (isLoadedCoValue(subscriptionsValue)) {
@@ -352,11 +372,27 @@ export function useMyRegardeAccount(
     }
 
     // Extract myLicenses if requested
-    let myLicenses: TLicenseSchema | null = null;
+    let myLicenses: TSdkLicenseIndex | null = null;
     if (isSdkLoaded && resolve.myLicenses !== undefined) {
       const licensesValue = sdk.myLicenses;
       if (isLoadedCoValue(licensesValue)) {
         myLicenses = licensesValue;
+      }
+    }
+
+    let myInvoices: TSdkInvoiceIndex | null = null;
+    if (isSdkLoaded && resolve.myInvoices !== undefined) {
+      const invoicesValue = sdk.myInvoices;
+      if (isLoadedCoValue(invoicesValue)) {
+        myInvoices = invoicesValue;
+      }
+    }
+
+    let myRefunds: TSdkRefundIndex | null = null;
+    if (isSdkLoaded && resolve.myRefunds !== undefined) {
+      const refundsValue = sdk.myRefunds;
+      if (isLoadedCoValue(refundsValue)) {
+        myRefunds = refundsValue;
       }
     }
 
@@ -372,6 +408,8 @@ export function useMyRegardeAccount(
       myPayments,
       mySubscriptions,
       myLicenses,
+      myInvoices,
+      myRefunds,
     };
   }, [account, resolve]);
 

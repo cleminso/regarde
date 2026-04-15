@@ -2,6 +2,8 @@ import { co, z } from "jazz-tools";
 
 import { useLogging } from "#core/logger";
 
+import { WebhookEvent } from "../regardeUserApp";
+
 import { RegardeAppRegistry, RegardeAppsByUserRecord, AllRegardeRegistryAppsSchema } from "./app";
 import { RegistryAuditLog } from "./audit";
 import {
@@ -23,6 +25,11 @@ const logger = useLogging({ module: import.meta.filename });
 export const ProcessedProviderEvents = co.record(z.string(), z.string());
 
 /**
+ * Global webhook delivery, stores raw delivery entries across all apps and webhooks.
+ */
+export const RegistryWebhookDeliveriesFeed = co.feed(WebhookEvent);
+
+/**
  * Root schema containing all registry components.
  *
  * @schema
@@ -32,6 +39,7 @@ export const ProcessedProviderEvents = co.record(z.string(), z.string());
  * - `reservedNicknames`: Protected names with metadata
  * - `apps`: Application registry
  * - `processedProviderEvents`: Webhook event deduplication
+ * - `webhookDeliveries`: Global webhook delivery
  */
 export const RegistryWorkerAccountRoot = co.map({
   registry: NicknameRegistryCoRecord,
@@ -40,6 +48,7 @@ export const RegistryWorkerAccountRoot = co.map({
   reservedNicknames: ReservedNicknamesRegistry,
   apps: RegardeAppRegistry,
   processedProviderEvents: ProcessedProviderEvents,
+  webhookDeliveries: RegistryWebhookDeliveriesFeed,
 });
 
 /** Loaded RegistryWorkerAccountRoot instance */
@@ -73,18 +82,18 @@ export const RegistryWorkerAccount = co
       const isRootLoaded = loadedAccount.root.$isLoaded === true;
       if (isRootLoaded === false) {
         // Create all nested CoValues first
-        const newRegistry = NicknameRegistryCoRecord.create({});
+        const newRegistry = NicknameRegistryCoRecord.create({}, { owner: account });
         await newRegistry.$jazz.waitForSync();
-        const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
+        const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({}, { owner: account });
         await newReverseRegistry.$jazz.waitForSync();
-        const newAuditLog = RegistryAuditLog.create([]);
+        const newAuditLog = RegistryAuditLog.create([], { owner: account });
         await newAuditLog.$jazz.waitForSync();
-        const newReservedNicknames = ReservedNicknamesRegistry.create({});
+        const newReservedNicknames = ReservedNicknamesRegistry.create({}, { owner: account });
         await newReservedNicknames.$jazz.waitForSync();
 
-        const appsByUser = RegardeAppsByUserRecord.create({});
+        const appsByUser = RegardeAppsByUserRecord.create({}, { owner: account });
         await appsByUser.$jazz.waitForSync();
-        const allApps = AllRegardeRegistryAppsSchema.create({});
+        const allApps = AllRegardeRegistryAppsSchema.create({}, { owner: account });
         await allApps.$jazz.waitForSync();
         const newAppsRegistry = RegardeAppRegistry.create({
           appsByUser: appsByUser,
@@ -92,11 +101,13 @@ export const RegistryWorkerAccount = co
           metadata: {},
           registeredAt: Date.now(),
           version: 1,
-        });
+        }, { owner: account });
         await newAppsRegistry.$jazz.waitForSync();
 
-        const newProcessedProviderEvents = ProcessedProviderEvents.create({});
+        const newProcessedProviderEvents = ProcessedProviderEvents.create({}, { owner: account });
         await newProcessedProviderEvents.$jazz.waitForSync();
+        const newWebhookDeliveries = RegistryWebhookDeliveriesFeed.create([], { owner: account });
+        await newWebhookDeliveries.$jazz.waitForSync();
 
         // Create root with all children and set in one operation
         const newRoot = RegistryWorkerAccountRoot.create({
@@ -106,7 +117,8 @@ export const RegistryWorkerAccount = co
           reservedNicknames: newReservedNicknames,
           apps: newAppsRegistry,
           processedProviderEvents: newProcessedProviderEvents,
-        });
+          webhookDeliveries: newWebhookDeliveries,
+        }, { owner: account });
         await newRoot.$jazz.waitForSync();
 
         loadedAccount.$jazz.set("root", newRoot);
@@ -122,7 +134,7 @@ export const RegistryWorkerAccount = co
       // Check and create individual fields if missing
       const hasRegistry = loadedAccount.root.$jazz.has("registry") === true;
       if (hasRegistry === false) {
-        const newRegistry = NicknameRegistryCoRecord.create({});
+        const newRegistry = NicknameRegistryCoRecord.create({}, { owner: account });
         loadedAccount.root.$jazz.set("registry", newRegistry);
         await loadedAccount.root.$jazz.waitForSync();
         logger.info({
@@ -133,7 +145,7 @@ export const RegistryWorkerAccount = co
 
       const hasReverseRegistry = loadedAccount.root.$jazz.has("reverseRegistry") === true;
       if (hasReverseRegistry === false) {
-        const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
+        const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({}, { owner: account });
         loadedAccount.root.$jazz.set("reverseRegistry", newReverseRegistry);
         await loadedAccount.root.$jazz.waitForSync();
         logger.info({
@@ -144,7 +156,7 @@ export const RegistryWorkerAccount = co
 
       const hasAuditLog = loadedAccount.root.$jazz.has("auditLog") === true;
       if (hasAuditLog === false) {
-        const newAuditLog = RegistryAuditLog.create([]);
+        const newAuditLog = RegistryAuditLog.create([], { owner: account });
         loadedAccount.root.$jazz.set("auditLog", newAuditLog);
         await loadedAccount.root.$jazz.waitForSync();
         logger.info({
@@ -155,7 +167,7 @@ export const RegistryWorkerAccount = co
 
       const hasReservedNicknames = loadedAccount.root.$jazz.has("reservedNicknames") === true;
       if (hasReservedNicknames === false) {
-        const newReservedNicknames = ReservedNicknamesRegistry.create({});
+        const newReservedNicknames = ReservedNicknamesRegistry.create({}, { owner: account });
         loadedAccount.root.$jazz.set("reservedNicknames", newReservedNicknames);
         await loadedAccount.root.$jazz.waitForSync();
         logger.info({
@@ -170,9 +182,9 @@ export const RegistryWorkerAccount = co
         appsValue !== null && appsValue !== undefined && appsValue.$isLoaded === true;
 
       if (hasApps === false || isAppsLoaded === false) {
-        const appsByUser = RegardeAppsByUserRecord.create({});
+        const appsByUser = RegardeAppsByUserRecord.create({}, { owner: account });
         await appsByUser.$jazz.waitForSync();
-        const allApps = AllRegardeRegistryAppsSchema.create({});
+        const allApps = AllRegardeRegistryAppsSchema.create({}, { owner: account });
         await allApps.$jazz.waitForSync();
         const newAppsRegistry = RegardeAppRegistry.create({
           appsByUser: appsByUser,
@@ -180,7 +192,7 @@ export const RegistryWorkerAccount = co
           metadata: {},
           registeredAt: Date.now(),
           version: 1,
-        });
+        }, { owner: account });
         await newAppsRegistry.$jazz.waitForSync();
 
         loadedAccount.root.$jazz.set("apps", newAppsRegistry);
@@ -196,11 +208,22 @@ export const RegistryWorkerAccount = co
       const hasProcessedProviderEvents =
         loadedAccount.root.$jazz.has("processedProviderEvents") === true;
       if (hasProcessedProviderEvents === false) {
-        const newProcessedProviderEvents = ProcessedProviderEvents.create({});
+        const newProcessedProviderEvents = ProcessedProviderEvents.create({}, { owner: account });
         loadedAccount.root.$jazz.set("processedProviderEvents", newProcessedProviderEvents);
         await loadedAccount.root.$jazz.waitForSync();
         logger.info({
           message: "ProcessedProviderEvents created in worker account root",
+          data: {},
+        });
+      }
+
+      const hasWebhookDeliveries = loadedAccount.root.$jazz.has("webhookDeliveries") === true;
+      if (hasWebhookDeliveries === false) {
+        const newWebhookDeliveries = RegistryWebhookDeliveriesFeed.create([], { owner: account });
+        loadedAccount.root.$jazz.set("webhookDeliveries", newWebhookDeliveries);
+        await loadedAccount.root.$jazz.waitForSync();
+        logger.info({
+          message: "WebhookDeliveries created in worker account root",
           data: {},
         });
       }
@@ -212,18 +235,18 @@ export const RegistryWorkerAccount = co
 
       if (account.root === null || account.root.$isLoaded === false) {
         // Create all nested CoValues first
-        const newRegistry = NicknameRegistryCoRecord.create({});
+        const newRegistry = NicknameRegistryCoRecord.create({}, { owner: account });
         await newRegistry.$jazz.waitForSync();
-        const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
+        const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({}, { owner: account });
         await newReverseRegistry.$jazz.waitForSync();
-        const newAuditLog = RegistryAuditLog.create([]);
+        const newAuditLog = RegistryAuditLog.create([], { owner: account });
         await newAuditLog.$jazz.waitForSync();
-        const newReservedNicknames = ReservedNicknamesRegistry.create({});
+        const newReservedNicknames = ReservedNicknamesRegistry.create({}, { owner: account });
         await newReservedNicknames.$jazz.waitForSync();
 
-        const appsByUser = RegardeAppsByUserRecord.create({});
+        const appsByUser = RegardeAppsByUserRecord.create({}, { owner: account });
         await appsByUser.$jazz.waitForSync();
-        const allApps = AllRegardeRegistryAppsSchema.create({});
+        const allApps = AllRegardeRegistryAppsSchema.create({}, { owner: account });
         await allApps.$jazz.waitForSync();
         const newAppsRegistry = RegardeAppRegistry.create({
           appsByUser: appsByUser,
@@ -231,11 +254,13 @@ export const RegistryWorkerAccount = co
           metadata: {},
           registeredAt: Date.now(),
           version: 1,
-        });
+        }, { owner: account });
         await newAppsRegistry.$jazz.waitForSync();
 
-        const newProcessedProviderEvents = ProcessedProviderEvents.create({});
+        const newProcessedProviderEvents = ProcessedProviderEvents.create({}, { owner: account });
         await newProcessedProviderEvents.$jazz.waitForSync();
+        const newWebhookDeliveries = RegistryWebhookDeliveriesFeed.create([], { owner: account });
+        await newWebhookDeliveries.$jazz.waitForSync();
 
         // Create root with all children and set in one operation
         const newRoot = RegistryWorkerAccountRoot.create({
@@ -245,7 +270,8 @@ export const RegistryWorkerAccount = co
           reservedNicknames: newReservedNicknames,
           apps: newAppsRegistry,
           processedProviderEvents: newProcessedProviderEvents,
-        });
+          webhookDeliveries: newWebhookDeliveries,
+        }, { owner: account });
         await newRoot.$jazz.waitForSync();
 
         account.$jazz.set("root", newRoot);
@@ -259,7 +285,7 @@ export const RegistryWorkerAccount = co
         // Check and create individual fields with sync waits
         const hasRegistry = account.root.$jazz.has("registry") === true;
         if (hasRegistry === false) {
-          const newRegistry = NicknameRegistryCoRecord.create({});
+          const newRegistry = NicknameRegistryCoRecord.create({}, { owner: account });
           account.root.$jazz.set("registry", newRegistry);
           await account.root.$jazz.waitForSync();
           logger.info({
@@ -270,7 +296,7 @@ export const RegistryWorkerAccount = co
 
         const hasReverseRegistry = account.root.$jazz.has("reverseRegistry") === true;
         if (hasReverseRegistry === false) {
-          const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({});
+          const newReverseRegistry = ReverseNicknameRegistryCoRecord.create({}, { owner: account });
           account.root.$jazz.set("reverseRegistry", newReverseRegistry);
           await account.root.$jazz.waitForSync();
           logger.info({
@@ -281,7 +307,7 @@ export const RegistryWorkerAccount = co
 
         const hasAuditLog = account.root.$jazz.has("auditLog") === true;
         if (hasAuditLog === false) {
-          const newAuditLog = RegistryAuditLog.create([]);
+          const newAuditLog = RegistryAuditLog.create([], { owner: account });
           account.root.$jazz.set("auditLog", newAuditLog);
           await account.root.$jazz.waitForSync();
           logger.info({
@@ -292,7 +318,7 @@ export const RegistryWorkerAccount = co
 
         const hasReservedNicknames = account.root.$jazz.has("reservedNicknames") === true;
         if (hasReservedNicknames === false) {
-          const newReservedNicknames = ReservedNicknamesRegistry.create({});
+          const newReservedNicknames = ReservedNicknamesRegistry.create({}, { owner: account });
           account.root.$jazz.set("reservedNicknames", newReservedNicknames);
           await account.root.$jazz.waitForSync();
           logger.info({
@@ -303,9 +329,9 @@ export const RegistryWorkerAccount = co
 
         const hasApps = account.root.$jazz.has("apps") === true;
         if (hasApps === false) {
-          const appsByUser = RegardeAppsByUserRecord.create({});
+          const appsByUser = RegardeAppsByUserRecord.create({}, { owner: account });
           await appsByUser.$jazz.waitForSync();
-          const allApps = AllRegardeRegistryAppsSchema.create({});
+          const allApps = AllRegardeRegistryAppsSchema.create({}, { owner: account });
           await allApps.$jazz.waitForSync();
           const newAppsRegistry = RegardeAppRegistry.create({
             appsByUser: appsByUser,
@@ -313,7 +339,7 @@ export const RegistryWorkerAccount = co
             metadata: {},
             registeredAt: Date.now(),
             version: 1,
-          });
+          }, { owner: account });
           await newAppsRegistry.$jazz.waitForSync();
 
           account.root.$jazz.set("apps", newAppsRegistry);
@@ -329,11 +355,22 @@ export const RegistryWorkerAccount = co
         const hasProcessedProviderEvents =
           account.root.$jazz.has("processedProviderEvents") === true;
         if (hasProcessedProviderEvents === false) {
-          const newProcessedProviderEvents = ProcessedProviderEvents.create({});
+          const newProcessedProviderEvents = ProcessedProviderEvents.create({}, { owner: account });
           account.root.$jazz.set("processedProviderEvents", newProcessedProviderEvents);
           await account.root.$jazz.waitForSync();
           logger.info({
             message: "ProcessedProviderEvents created in existing root during fallback",
+            data: {},
+          });
+        }
+
+        const hasWebhookDeliveries = account.root.$jazz.has("webhookDeliveries") === true;
+        if (hasWebhookDeliveries === false) {
+          const newWebhookDeliveries = RegistryWebhookDeliveriesFeed.create([], { owner: account });
+          account.root.$jazz.set("webhookDeliveries", newWebhookDeliveries);
+          await account.root.$jazz.waitForSync();
+          logger.info({
+            message: "WebhookDeliveries created in existing root during fallback",
             data: {},
           });
         }

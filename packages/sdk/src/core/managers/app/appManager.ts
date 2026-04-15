@@ -1,12 +1,16 @@
-import { co, z, Loaded, Group } from "jazz-tools";
+import { co, Group, Loaded, z } from "jazz-tools";
 
 import { useLogging } from "#core/logger";
 import { RegardeAccount } from "#schemas/regardeAccount";
+import { AppCheckoutSessionsSchema } from "#schemas/checkoutSession";
 import { BlankGroup, Groups } from "#schemas/regardeGroups";
 import { RegardeSDK } from "#schemas/regardeSDK";
+import { AppRefundIndex } from "#schemas/refund";
 import {
+  AppLicenseIndex,
+  AppPaymentIndex,
+  AppSubscriptionIndex,
   RegardeApp,
-  AllWebhookEventsFeed,
   ListOfWebhooks,
   Profile,
   type TRegardeApp,
@@ -42,18 +46,6 @@ export const createApp = async (
   appData: CreateAppParams,
 ): Promise<TRegardeApp> => {
   const REGARDE_REGISTRY_GROUP = "co_zoppoxWWJaHYKPgSgUkuCCXQX21";
-
-  const adminGroup = Group.create();
-  const writeGroup = Group.create();
-  const readerGroup = Group.create();
-
-  const appGroups = Groups.create({
-    adminGroup: BlankGroup.create({}, { owner: adminGroup }),
-    writerGroup: BlankGroup.create({}, { owner: writeGroup }),
-    readerGroup: BlankGroup.create({}, { owner: readerGroup }),
-  });
-
-  // Frontend to add member appGroups.readerGroup.$jazz.owner.removeMember("co_z456");
 
   const { root: accountRoot } = await account.$jazz.ensureLoaded({
     resolve: {
@@ -118,20 +110,26 @@ export const createApp = async (
     throw new Error("regardeProfileWorkerGroup not loaded");
   }
 
-  const userGroup = resolvedSdk.$jazz.owner;
-  const isUserGroupValid = userGroup !== null && userGroup.$isLoaded === true;
+  const adminGroup = Group.create({ owner: account, name: `${appData.name} - Admin` });
+  const writeGroup = Group.create({ owner: account, name: `${appData.name} - Write` });
+  const readerGroup = Group.create({ owner: account, name: `${appData.name} - Read` });
+  const appOwnerGroup = Group.create({ owner: account, name: `${appData.name} - Owner` });
 
-  if (isUserGroupValid === false) {
-    logger.error({
-      message: "Failed to load SDK owner group",
-      data: {
-        regardeSdkId: resolvedSdk.$jazz.id,
-        ownerExists: userGroup !== null,
-        ownerLoaded: userGroup?.$isLoaded,
-      },
-    });
-    throw new Error("Failed to load SDK owner group. Please refresh and try again.");
-  }
+  appOwnerGroup.addMember(regardeProfileWorkerGroup, "reader");
+  appOwnerGroup.addMember(adminGroup, "admin");
+  appOwnerGroup.addMember(writeGroup, "writer");
+  appOwnerGroup.addMember(readerGroup, "reader");
+
+  await appOwnerGroup.$jazz.waitForSync();
+
+  const appGroups = Groups.create(
+    {
+      adminGroup: BlankGroup.create({}, { owner: adminGroup }),
+      writerGroup: BlankGroup.create({}, { owner: writeGroup }),
+      readerGroup: BlankGroup.create({}, { owner: readerGroup }),
+    },
+    { owner: appOwnerGroup },
+  );
 
   const regardeAdminOtherReadersGroup = Group.create({
     owner: account,
@@ -149,9 +147,7 @@ export const createApp = async (
     },
   });
 
-  const allPaymentsRecord = co
-    .record(z.string(), z.string())
-    .create({}, { owner: regardeAdminOtherReadersGroup });
+  const allPaymentsRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
   await allPaymentsRecord.$jazz.waitForSync();
 
   const byUserPaymentsRecord = co
@@ -159,23 +155,16 @@ export const createApp = async (
     .create({}, { owner: regardeAdminOtherReadersGroup });
   await byUserPaymentsRecord.$jazz.waitForSync();
 
-  const payments = co
-    .map({
-      all: co.record(z.string(), z.string()),
-      byUser: co.record(z.string(), co.record(z.string(), z.string())),
-    })
-    .create(
-      {
-        all: allPaymentsRecord,
-        byUser: byUserPaymentsRecord,
-      },
-      { owner: regardeAdminOtherReadersGroup },
-    );
+  const payments = AppPaymentIndex.create(
+    {
+      all: allPaymentsRecord,
+      byUser: byUserPaymentsRecord,
+    },
+    { owner: regardeAdminOtherReadersGroup },
+  );
   await payments.$jazz.waitForSync();
 
-  const allSubscriptionsRecord = co
-    .record(z.string(), z.string())
-    .create({}, { owner: regardeAdminOtherReadersGroup });
+  const allSubscriptionsRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
   await allSubscriptionsRecord.$jazz.waitForSync();
 
   const byUserSubscriptionsRecord = co
@@ -183,23 +172,16 @@ export const createApp = async (
     .create({}, { owner: regardeAdminOtherReadersGroup });
   await byUserSubscriptionsRecord.$jazz.waitForSync();
 
-  const subscriptions = co
-    .map({
-      all: co.record(z.string(), z.string()),
-      byUser: co.record(z.string(), co.record(z.string(), z.string())),
-    })
-    .create(
-      {
-        all: allSubscriptionsRecord,
-        byUser: byUserSubscriptionsRecord,
-      },
-      { owner: regardeAdminOtherReadersGroup },
-    );
+  const subscriptions = AppSubscriptionIndex.create(
+    {
+      all: allSubscriptionsRecord,
+      byUser: byUserSubscriptionsRecord,
+    },
+    { owner: regardeAdminOtherReadersGroup },
+  );
   await subscriptions.$jazz.waitForSync();
 
-  const allLicensesRecord = co
-    .record(z.string(), z.string())
-    .create({}, { owner: regardeAdminOtherReadersGroup });
+  const allLicensesRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
   await allLicensesRecord.$jazz.waitForSync();
 
   const byUserLicensesRecord = co
@@ -207,23 +189,16 @@ export const createApp = async (
     .create({}, { owner: regardeAdminOtherReadersGroup });
   await byUserLicensesRecord.$jazz.waitForSync();
 
-  const licenses = co
-    .map({
-      all: co.record(z.string(), z.string()),
-      byUser: co.record(z.string(), co.record(z.string(), z.string())),
-    })
-    .create(
-      {
-        all: allLicensesRecord,
-        byUser: byUserLicensesRecord,
-      },
-      { owner: regardeAdminOtherReadersGroup },
-    );
+  const licenses = AppLicenseIndex.create(
+    {
+      all: allLicensesRecord,
+      byUser: byUserLicensesRecord,
+    },
+    { owner: regardeAdminOtherReadersGroup },
+  );
   await licenses.$jazz.waitForSync();
 
-  const allCheckoutSessionsRecord = co
-    .record(z.string(), z.string())
-    .create({}, { owner: regardeAdminOtherReadersGroup });
+  const allCheckoutSessionsRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
   await allCheckoutSessionsRecord.$jazz.waitForSync();
 
   const byUserCheckoutSessionsRecord = co
@@ -231,23 +206,16 @@ export const createApp = async (
     .create({}, { owner: regardeAdminOtherReadersGroup });
   await byUserCheckoutSessionsRecord.$jazz.waitForSync();
 
-  const checkoutSessions = co
-    .map({
-      all: co.record(z.string(), z.string()),
-      byUser: co.record(z.string(), co.record(z.string(), z.string())),
-    })
-    .create(
-      {
-        all: allCheckoutSessionsRecord,
-        byUser: byUserCheckoutSessionsRecord,
-      },
-      { owner: regardeAdminOtherReadersGroup },
-    );
+  const checkoutSessions = AppCheckoutSessionsSchema.create(
+    {
+      all: allCheckoutSessionsRecord,
+      byUser: byUserCheckoutSessionsRecord,
+    },
+    { owner: regardeAdminOtherReadersGroup },
+  );
   await checkoutSessions.$jazz.waitForSync();
 
-  const allRefundsRecord = co
-    .record(z.string(), z.string())
-    .create({}, { owner: regardeAdminOtherReadersGroup });
+  const allRefundsRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
   await allRefundsRecord.$jazz.waitForSync();
 
   const byUserRefundsRecord = co
@@ -255,18 +223,13 @@ export const createApp = async (
     .create({}, { owner: regardeAdminOtherReadersGroup });
   await byUserRefundsRecord.$jazz.waitForSync();
 
-  const refunds = co
-    .map({
-      all: co.record(z.string(), z.string()),
-      byUser: co.record(z.string(), co.record(z.string(), z.string())),
-    })
-    .create(
-      {
-        all: allRefundsRecord,
-        byUser: byUserRefundsRecord,
-      },
-      { owner: regardeAdminOtherReadersGroup },
-    );
+  const refunds = AppRefundIndex.create(
+    {
+      all: allRefundsRecord,
+      byUser: byUserRefundsRecord,
+    },
+    { owner: regardeAdminOtherReadersGroup },
+  );
   await refunds.$jazz.waitForSync();
 
   const newApp = RegardeApp.create(
@@ -276,24 +239,17 @@ export const createApp = async (
       isEnabled: false,
       createdAt: Date.now(),
       providerMetadata: {},
-      profile: Profile.create({}, { owner: userGroup }),
-      webhooks: ListOfWebhooks.create([], { owner: userGroup }),
+      profile: Profile.create({}, { owner: appOwnerGroup }),
+      webhooks: ListOfWebhooks.create([], { owner: appOwnerGroup }),
       payments: payments,
       subscriptions: subscriptions,
       licenses: licenses,
       refunds: refunds,
       checkoutSessions: checkoutSessions,
-      allEvents: AllWebhookEventsFeed.create([], {
-        owner: regardeAdminOtherReadersGroup,
-      }),
       groups: appGroups,
     },
-    { owner: userGroup },
+    { owner: appOwnerGroup },
   );
-
-  newApp.$jazz.owner.addMember(adminGroup, "admin");
-  newApp.$jazz.owner.addMember(writeGroup, "writer");
-  newApp.$jazz.owner.addMember(readerGroup, "reader");
 
   // TODO: frontside: newApp.groups.adminGroup.$jazz.owner.removeMember("co_z123");
   // TODO: create hooks to get group members list
@@ -331,9 +287,15 @@ export const getMyApps = async (regardeSDK: Loaded<typeof RegardeSDK>): Promise<
 
   await myApps.$jazz.ensureLoaded({ resolve: { $each: true } });
 
-  return Array.from(myApps).filter(
-    (app): app is TRegardeApp => app !== null && app.$isLoaded === true,
-  );
+  return Array.from(myApps).filter((app): app is TRegardeApp => {
+    return (
+      app !== null &&
+      app !== undefined &&
+      typeof app === "object" &&
+      "$isLoaded" in app &&
+      app.$isLoaded === true
+    );
+  });
 };
 
 // To find my app no need new fucntions

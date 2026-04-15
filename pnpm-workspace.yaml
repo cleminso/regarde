@@ -18,7 +18,7 @@ catalog:
   '@vitest/ui': ^4.1.4
   class-variance-authority: ^0.7.1
   clsx: ^2.1.1
-  cojson: ^0.20.15
+  cojson: ^0.20.17
   cojson-core-rn: ^0.20.17
   cojson-transport-ws: ^0.20.15
   dotenv: ^17.4.2

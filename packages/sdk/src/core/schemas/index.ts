@@ -1,6 +1,7 @@
 export {
   RegardeRegistryAppMetadata,
   AllRegardeRegistryAppsSchema,
+  RegardeAppsByUserList,
   RegardeAppsByUserRecord,
   RegardeAppRegistry,
 } from "./registry/app";
@@ -35,8 +36,8 @@ export {
 export type { TRegistryWorkerAccountRoot, TRegistryWorkerAccount } from "./registry/worker";
 
 export { RegardeSDK } from "./regardeSDK";
-export { PaymentSchema, SubscriptionSchema, LicenseSchema } from "./regardeSDK";
-export type { TPaymentSchema, TSubscriptionSchema, TLicenseSchema } from "./regardeSDK";
+export { SdkPaymentIndex, SdkSubscriptionIndex, SdkLicenseIndex, SdkInvoiceIndex } from "./regardeSDK";
+export type { TSdkPaymentIndex, TSdkSubscriptionIndex, TSdkLicenseIndex, TSdkInvoiceIndex } from "./regardeSDK";
 
 export {
   PaymentEvent,
@@ -91,8 +92,18 @@ export type {
 export { Invoice, InvoiceLineItem } from "./invoice";
 export type { TInvoice, TInvoiceLineItem } from "./invoice";
 
-export { Refund, RefundLineItem, AppRefundsSchema, RefundSchema } from "./refund";
-export type { TRefund, TRefundLineItem, TAppRefundsSchema, TRefundSchema } from "./refund";
+export {
+  Refund,
+  RefundLineItem,
+  AppRefundIndex,
+  SdkRefundIndex,
+} from "./refund";
+export type {
+  TRefund,
+  TRefundLineItem,
+  TAppRefundIndex,
+  TSdkRefundIndex,
+} from "./refund";
 
 export {
   RegardeApp,
@@ -100,10 +111,9 @@ export {
   PartialWebhook,
   ListOfWebhooks,
   WebhookEvent,
-  AllWebhookEventsFeed,
-  AppPaymentsSchema,
-  AppSubscriptionsSchema,
-  AppLicensesSchema,
+  AppPaymentIndex,
+  AppSubscriptionIndex,
+  AppLicenseIndex,
   WEBHOOK_NAME_MAX_LENGTH,
   WEBHOOK_DESCRIPTION_MAX_LENGTH,
   STRIPE_SECRET_PREFIX,
@@ -114,9 +124,9 @@ export type {
   TWebhook,
   TPartialWebhook,
   TWebhookEvent,
-  TAppPaymentsSchema,
-  TAppSubscriptionsSchema,
-  TAppLicensesSchema,
+  TAppPaymentIndex,
+  TAppSubscriptionIndex,
+  TAppLicenseIndex,
 } from "./regardeUserApp";
 
 export { UserHandle, setNicknameFromRegistry, deactivate } from "./regardeUserHandle";

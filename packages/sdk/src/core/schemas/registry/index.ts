@@ -2,12 +2,13 @@ export { RegardeRegistryAppMetadata } from "./app";
 export type { TRegardeRegistryAppMetadata } from "./app";
 export { AllRegardeRegistryAppsSchema } from "./app";
 export type { TAllRegistryAppsSchema } from "./app";
+export { RegardeAppsByUserList } from "./app";
 export { RegardeAppsByUserRecord } from "./app";
 export type { TRegardeAppsByUserRecord } from "./app";
 export { RegardeAppRegistry } from "./app";
 export type { TRegardeAppRegistry } from "./app";
 
-export { ProcessedProviderEvents } from "./worker";
+export { ProcessedProviderEvents, RegistryWebhookDeliveriesFeed } from "./worker";
 
 export { RegistryAuditEntryCoMap } from "./audit";
 export type { TRegistryAuditEntry } from "./audit";

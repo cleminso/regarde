@@ -18,6 +18,7 @@ import {
   resetWebhookFormAtom,
 } from "#atoms/webhookForm";
 import { WEBHOOK_NAME_MAX_LENGTH, WEBHOOK_DESCRIPTION_MAX_LENGTH } from "@regarde-dev/core";
+import { API_BASE_URL } from "#lib/config/api";
 
 interface CreateWebhookFormProps {
   app: TRegardeApp;
@@ -60,6 +61,7 @@ export function CreateWebhookForm({
         provider: form.provider,
         environment: form.environment,
         secret: form.secret.trim(),
+        apiBaseUrl: API_BASE_URL,
       });
 
       toast.success(`Webhook "${form.name.trim()}" created`);
@@ -213,3 +215,22 @@ export function CreateWebhookForm({
     </form>
   );
 }
+
+/*
+ * SCENARIOS COVERED
+ *
+ * Validation:
+ * - Name: required, max 30 chars (WEBHOOK_NAME_MAX_LENGTH)
+ * - Secret: required, must start with provider prefix (whsec_/polar_whs_)
+ * - Description: optional, max 120 chars
+ *
+ * State Management:
+ * - Form state via jotai atoms (webhookFormAtom, canSubmitAtom)
+ * - Form resets after successful creation
+ *
+ * Key Behaviors:
+ * - Secret validation debounced (500ms) to avoid toast spam
+ * - All inputs trimmed before submission
+ * - Submit button disabled until all validations pass
+ * - Success toast → form reset → callback
+ */

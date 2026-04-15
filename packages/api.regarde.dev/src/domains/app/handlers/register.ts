@@ -5,6 +5,7 @@ import {
   RegistryWorkerAccount,
   type TAllRegistryAppsSchema,
   type TRegardeAppsByUserRecord,
+  RegardeAppsByUserList,
   RegardeRegistryAppMetadata,
   RegardeApp,
   useLogging,
@@ -172,7 +173,7 @@ export const registerAppHandler = (
       if (isUserAppsListExists === false) {
         appsByUserRecord.$jazz.set(
           jazzAccountId,
-          co.list(RegardeRegistryAppMetadata).create([], registryProfileWorkerGroup),
+          RegardeAppsByUserList.create([], registryProfileWorkerGroup),
         );
         await appsByUserRecord.$jazz.waitForSync();
       }

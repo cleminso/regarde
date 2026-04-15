@@ -50,29 +50,27 @@ export function useWebhookEvents(
     );
   }, [app]);
 
+  // Find the specific webhook and read from its events feed
+  const targetWebhook = useMemo(() => {
+    return webhooks.find((w) => w.$jazz.id === webhookId);
+  }, [webhooks, webhookId]);
+
   const deliveries = useMemo((): WebhookDelivery[] => {
-    if (app === null || app.$isLoaded !== true) {
+    if (targetWebhook === undefined) {
       return [];
     }
 
-    const allEvents = app.allEvents;
-    if (allEvents === null || allEvents.$isLoaded !== true) {
-      return [];
-    }
-
-    const sessionFeed = allEvents.perSession[webhookId as any];
-    if (sessionFeed === undefined) {
-      return [];
-    }
-
-    const allEntries = sessionFeed.all;
-    if (allEntries === undefined) {
+    // Primary: read from webhook.events feed
+    const eventsFeed = targetWebhook.events;
+    if (eventsFeed === null || eventsFeed.$isLoaded !== true) {
       return [];
     }
 
     const entries: WebhookDelivery[] = [];
 
-    for (const entry of allEntries) {
+    // CoFeed is iterable - cast to any due to TypeScript type limitations
+    // oxlint-disable-next-line no-unsafe-type-assertion
+    for (const entry of eventsFeed as unknown as Iterable<{ value: TWebhookEvent }>) {
       // oxlint-disable-next-line no-unsafe-type-assertion -- Jazz runtime data requires type assertion
       const value = entry.value as TWebhookEvent;
       if (value === undefined) {
@@ -98,7 +96,7 @@ export function useWebhookEvents(
         retryCount: value.retryCount ?? 0,
         error: value.error,
         regardeEventId: value.regardeEventId,
-        webhookId,
+        webhookId: targetWebhook.$jazz.id,
       };
       entries.push(delivery);
     }
@@ -132,7 +130,7 @@ export function useWebhookEvents(
     }
 
     return filteredEntries;
-  }, [app, webhookId, options?.status, options?.limit]);
+  }, [targetWebhook, options?.status, options?.limit]);
 
   const stats = useMemo((): WebhookStats => {
     const totalWebhooks = webhooks.length;
@@ -172,13 +170,16 @@ export function useWebhookEvents(
       return true;
     }
 
-    const allEvents = app.allEvents;
-    if (allEvents === null || allEvents.$isLoaded !== true) {
-      return true;
+    // Check if target webhook's events are loaded
+    if (targetWebhook !== undefined) {
+      const eventsFeed = targetWebhook.events;
+      if (eventsFeed === null || eventsFeed.$isLoaded !== true) {
+        return true;
+      }
     }
 
     return false;
-  }, [app]);
+  }, [app, targetWebhook]);
 
   return {
     webhooks,

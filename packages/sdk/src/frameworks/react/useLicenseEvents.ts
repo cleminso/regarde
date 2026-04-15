@@ -48,43 +48,41 @@ export function useLicenseEvents(
   appId: string,
   options?: UseLicenseEventsOptions,
 ): UseLicenseEventsResult {
-  // Load the App CoValue with all nested records
+  // Load the App CoValue with the license index
   const app: TRegardeApp | null = useCoState(RegardeApp, appId, {
     resolve: {
-      payments: { all: true, byUser: true },
-      subscriptions: { all: true, byUser: true },
       licenses: { all: true, byUser: true },
     },
   });
 
-  // Extract event IDs from the licenses record
-  const eventIds = useMemo((): string[] => {
+  // Extract event IDs from the license index
+  const licenseEventIds = useMemo((): string[] => {
     if (app === null || app.$isLoaded !== true) {
       return [];
     }
 
-    const licensesRecord = app.licenses;
-    if (licensesRecord === null || licensesRecord.$isLoaded === false) {
+    const licensesIndex = app.licenses;
+    if (licensesIndex === null || licensesIndex.$isLoaded === false) {
       return [];
     }
 
-    const allLicenses = licensesRecord.all;
+    const allLicenses = licensesIndex.all;
     if (allLicenses === null || allLicenses.$isLoaded === false) {
       return [];
     }
 
-    // Get all event IDs from the record
+    // Get all event IDs from the index
     return Object.values(allLicenses).filter(
       (id): id is string => id !== null && id !== undefined && typeof id === "string",
     );
   }, [app]);
 
   // Load all LicenseEvent CoMaps by their IDs
-  const allEvents = useCoStates(LicenseEvent, eventIds);
+  const allLicenseEvents = useCoStates(LicenseEvent, licenseEventIds);
 
   // Filter events
-  const events = useMemo((): TLicenseEvent[] => {
-    let loadedEvents = allEvents.filter(
+  const licenseEvents = useMemo((): TLicenseEvent[] => {
+    let loadedLicenseEvents = allLicenseEvents.filter(
       (event): event is TLicenseEvent =>
         event !== null && event !== undefined && event.$isLoaded === true,
     );
@@ -92,7 +90,7 @@ export function useLicenseEvents(
     // Apply mode filter
     const modeFilter = options?.mode;
     if (modeFilter !== null && modeFilter !== undefined && modeFilter !== "all") {
-      loadedEvents = loadedEvents.filter((event) => event.mode === modeFilter);
+      loadedLicenseEvents = loadedLicenseEvents.filter((event) => event.mode === modeFilter);
     }
 
     // Apply provider license ID filter
@@ -103,7 +101,7 @@ export function useLicenseEvents(
       providerLicenseIdFilter !== ""
     ) {
       // Check all possible license ID fields
-      loadedEvents = loadedEvents.filter((event) => {
+      loadedLicenseEvents = loadedLicenseEvents.filter((event) => {
         const licenseKeyMatch = event.licenseKey === providerLicenseIdFilter;
         const entitlementMatch = event.entitlementId === providerLicenseIdFilter;
         const benefitMatch = event.benefitId === providerLicenseIdFilter;
@@ -111,32 +109,32 @@ export function useLicenseEvents(
       });
     }
 
-    return loadedEvents;
-  }, [allEvents, options?.mode, options?.providerLicenseId]);
+    return loadedLicenseEvents;
+  }, [allLicenseEvents, options?.mode, options?.providerLicenseId]);
 
   // Determine loading state
   const isLoading = useMemo((): boolean => {
     if (app === null) return true;
     if (app.$isLoaded !== true) return true;
 
-    const licensesRecord = app.licenses;
-    if (licensesRecord === null || licensesRecord.$isLoaded === false) {
+    const licensesIndex = app.licenses;
+    if (licensesIndex === null || licensesIndex.$isLoaded === false) {
       return true;
     }
 
-    const allLicenses = licensesRecord.all;
+    const allLicenses = licensesIndex.all;
     if (allLicenses === null || allLicenses.$isLoaded === false) {
       return true;
     }
 
     // Check if all LicenseEvents are loaded
-    return allEvents.some(
+    return allLicenseEvents.some(
       (event) => event === null || event === undefined || event.$isLoaded === false,
     );
-  }, [app, allEvents]);
+  }, [app, allLicenseEvents]);
 
   return {
-    events,
+    events: licenseEvents,
     isLoading,
   };
 }

@@ -1,67 +1,70 @@
 import { co, z } from "jazz-tools";
 
-import { RefundSchema } from "./refund";
+import { SdkRefundIndex } from "./refund";
 import { RegardeTokenAuth } from "./regardeTokenAuth";
 import { RegardeApp } from "./regardeUserApp";
 import { UserHandle } from "./regardeUserHandle";
 
 /**
- * Payment records structure.
+ * Payment index structure.
  *
  * Maps provider event UUIDs to PaymentEvent CoMap IDs.
  * - `all`: Global lookup by prefixedProviderEventUUID
  * - `byApp`: App-scoped lookup by App.id -> prefixedProviderEventUUID -> PaymentEvent.id
  */
-export const PaymentSchema = co.map({
+export const SdkPaymentIndex = co.map({
   all: co.record(z.string(), z.string()),
   byApp: co.record(z.string(), co.record(z.string(), z.string())),
 });
 
-export type TPaymentSchema = co.loaded<typeof PaymentSchema>;
+export type TSdkPaymentIndex = co.loaded<typeof SdkPaymentIndex>;
 
 /**
- * Subscription records structure.
+ * Subscription index structure.
  *
  * Maps provider event UUIDs to SubscriptionEvent CoMap IDs.
  * - `all`: Global lookup by prefixedProviderEventUUID
  * - `byApp`: App-scoped lookup by App.id -> prefixedProviderEventUUID -> SubscriptionEvent.id
  * - `status`: Mutable subscription state by providerSubscriptionId -> Subscription.id
  */
-export const SubscriptionSchema = co.map({
+export const SdkSubscriptionIndex = co.map({
   all: co.record(z.string(), z.string()),
   byApp: co.record(z.string(), co.record(z.string(), z.string())),
   status: co.record(z.string(), z.string()),
 });
 
-export type TSubscriptionSchema = co.loaded<typeof SubscriptionSchema>;
+export type TSdkSubscriptionIndex = co.loaded<typeof SdkSubscriptionIndex>;
 
 /**
- * License records structure.
+ * License index structure.
  *
  * Maps provider event UUIDs to LicenseEvent CoMap IDs.
  * - `all`: Global lookup by prefixedProviderEventUUID
  * - `byApp`: App-scoped lookup by App.id -> prefixedProviderEventUUID -> LicenseEvent.id
  */
-export const LicenseSchema = co.map({
+export const SdkLicenseIndex = co.map({
   all: co.record(z.string(), z.string()),
   byApp: co.record(z.string(), co.record(z.string(), z.string())),
 });
 
-export type TLicenseSchema = co.loaded<typeof LicenseSchema>;
+export type TSdkLicenseIndex = co.loaded<typeof SdkLicenseIndex>;
 
 /**
- * Invoice records structure.
+ * Invoice index structure.
  *
  * Maps invoice IDs to Invoice CoMap IDs.
  * - `all`: Global lookup by invoiceId
  * - `byApp`: App-scoped lookup by App.id -> invoiceId -> Invoice.id
  */
-export const InvoiceSchema = co.map({
+export const SdkInvoiceIndex = co.map({
   all: co.record(z.string(), z.string()),
   byApp: co.record(z.string(), co.record(z.string(), z.string())),
 });
 
-export type TInvoiceSchema = co.loaded<typeof InvoiceSchema>;
+export type TSdkInvoiceIndex = co.loaded<typeof SdkInvoiceIndex>;
+
+/** Shared list schema for the current user's apps */
+export const MyAppsList = co.list(RegardeApp);
 
 /**
  * Regarde SDK container schema.
@@ -82,12 +85,12 @@ export type TInvoiceSchema = co.loaded<typeof InvoiceSchema>;
 export const RegardeSDK = co.map({
   // TODO: `auth` become semantically wrong here? Still convenient to write `auth.token`
   auth: RegardeTokenAuth,
-  myApps: co.list(RegardeApp),
-  myPayments: PaymentSchema,
-  mySubscriptions: SubscriptionSchema,
-  myLicenses: LicenseSchema,
-  myInvoices: InvoiceSchema,
-  myRefunds: RefundSchema,
+  myApps: MyAppsList,
+  myPayments: SdkPaymentIndex,
+  mySubscriptions: SdkSubscriptionIndex,
+  myLicenses: SdkLicenseIndex,
+  myInvoices: SdkInvoiceIndex,
+  myRefunds: SdkRefundIndex,
   myUserHandle: UserHandle,
   version: z.number(),
 });

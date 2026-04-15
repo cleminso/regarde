@@ -51,7 +51,7 @@ function Header({ className, children, ...props }: React.ComponentProps<"div">) 
 Header.displayName = "SidePanelHeader"
 
 function Content({ className, children, ...props }: React.ComponentProps<"div">) {
-  return <div className={cn("flex-1 overflow-auto p-2", className)} {...props}>{children}</div>
+  return <div className={cn("flex-1 overflow-auto p-2 mt-4", className)} {...props}>{children}</div>
 }
 Content.displayName = "SidePanelContent"
 

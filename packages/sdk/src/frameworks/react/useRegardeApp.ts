@@ -33,8 +33,11 @@ import type { TRegardeApp } from "#core/schemas/regardeUserApp";
 export function useRegardeApp(appId: string): MaybeLoaded<TRegardeApp> {
   return useCoState(RegardeApp, appId, {
     resolve: {
-      webhooks: { $each: true },
-      allEvents: true,
+      webhooks: {
+        $each: {
+          events: true,
+        },
+      },
       payments: { all: true, byUser: true },
       subscriptions: { all: true, byUser: true },
       licenses: { all: true, byUser: true },

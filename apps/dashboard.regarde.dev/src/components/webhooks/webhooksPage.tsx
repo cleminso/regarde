@@ -49,7 +49,7 @@ function WebhooksPageContent({ appId }: WebhooksPageProps): React.ReactElement {
   const handleCreate = (): void => {
     setMode("create");
     setSelectedWebhook(undefined);
-    resetForm(); // Reset form state without remount
+    resetForm();
     onOpenChange(true);
   };
 

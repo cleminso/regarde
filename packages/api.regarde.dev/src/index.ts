@@ -128,6 +128,7 @@ async function main() {
           reverseRegistry: true,
           reservedNicknames: true,
           processedProviderEvents: true,
+          webhookDeliveries: true,
           // TODO: apps will be loaded separately via appRegistry
         },
       },

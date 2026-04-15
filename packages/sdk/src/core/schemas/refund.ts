@@ -59,28 +59,28 @@ export const Refund = co.map({
 export type TRefund = co.loaded<typeof Refund>;
 
 /**
- * Index of refunds for an app.
+ * App-level refund index.
  *
  * - `all`: providerRefundId -> Refund CoMap ID
  * - `byUser`: userAccountId -> providerRefundId -> Refund CoMap ID
  */
-export const AppRefundsSchema = co.map({
+export const AppRefundIndex = co.map({
   all: co.record(z.string(), z.string()),
   byUser: co.record(z.string(), co.record(z.string(), z.string())),
 });
 
-export type TAppRefundsSchema = co.loaded<typeof AppRefundsSchema>;
+export type TAppRefundIndex = co.loaded<typeof AppRefundIndex>;
 
 /**
- * Refund records structure for RegardeSDK.
+ * SDK-level refund index.
  *
  * Maps refund IDs to Refund CoMap IDs.
  * - `all`: Global lookup by refundId
  * - `byApp`: App-scoped lookup by App.id -> refundId -> Refund.id
  */
-export const RefundSchema = co.map({
+export const SdkRefundIndex = co.map({
   all: co.record(z.string(), z.string()),
   byApp: co.record(z.string(), co.record(z.string(), z.string())),
 });
 
-export type TRefundSchema = co.loaded<typeof RefundSchema>;
+export type TSdkRefundIndex = co.loaded<typeof SdkRefundIndex>;

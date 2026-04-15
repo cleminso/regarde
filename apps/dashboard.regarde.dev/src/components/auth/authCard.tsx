@@ -34,7 +34,7 @@ export function AuthCard({ defaultMode = "login" }: AuthCardProps) {
 
   useEffect(() => {
     if (state === "signedIn") {
-      void navigate({ to: "/" });
+      void navigate({ to: "/register-app" });
     }
   }, [state, navigate]);
 

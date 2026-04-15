@@ -1,14 +1,22 @@
-import { co, z, Group, type ID } from "jazz-tools";
+import { co, Group, z, type ID } from "jazz-tools";
 
 import { useLogging } from "#core/logger";
 import { TOKEN_LIFETIME_SECONDS } from "#managers/auth/";
 import { generateRegardeToken } from "#managers/auth/generateToken";
 import { getRegardeTokenAuth } from "#managers/auth/refreshAuthToken";
 import { RegardeAccount } from "#schemas/regardeAccount";
-import { RegardeSDK } from "#schemas/regardeSDK";
+import {
+  MyAppsList,
+  RegardeSDK,
+  SdkInvoiceIndex,
+  SdkLicenseIndex,
+  SdkPaymentIndex,
+  SdkSubscriptionIndex,
+} from "#schemas/regardeSDK";
 import { RegardeTokenAuth } from "#schemas/regardeTokenAuth";
 import { RegardeApp } from "#schemas/regardeUserApp";
 import { UserHandle } from "#schemas/regardeUserHandle";
+import { SdkRefundIndex } from "#schemas/refund";
 
 const logger = useLogging({
   module: import.meta.filename,
@@ -110,9 +118,7 @@ export const initRegardeSDK = async (
       },
     });
 
-    const allPaymentsRecord = co
-      .record(z.string(), z.string())
-      .create({}, { owner: regardeAdminOtherReadersGroup });
+    const allPaymentsRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
     await allPaymentsRecord.$jazz.waitForSync();
 
     const byAppPaymentsRecord = co
@@ -120,23 +126,16 @@ export const initRegardeSDK = async (
       .create({}, { owner: regardeAdminOtherReadersGroup });
     await byAppPaymentsRecord.$jazz.waitForSync();
 
-    const myPayments = co
-      .map({
-        all: co.record(z.string(), z.string()),
-        byApp: co.record(z.string(), co.record(z.string(), z.string())),
-      })
-      .create(
-        {
-          all: allPaymentsRecord,
-          byApp: byAppPaymentsRecord,
-        },
-        { owner: regardeAdminOtherReadersGroup },
-      );
+    const myPayments = SdkPaymentIndex.create(
+      {
+        all: allPaymentsRecord,
+        byApp: byAppPaymentsRecord,
+      },
+      { owner: regardeAdminOtherReadersGroup },
+    );
     await myPayments.$jazz.waitForSync();
 
-    const allSubscriptionsRecord = co
-      .record(z.string(), z.string())
-      .create({}, { owner: regardeAdminOtherReadersGroup });
+    const allSubscriptionsRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
     await allSubscriptionsRecord.$jazz.waitForSync();
 
     const byAppSubscriptionsRecord = co
@@ -144,30 +143,20 @@ export const initRegardeSDK = async (
       .create({}, { owner: regardeAdminOtherReadersGroup });
     await byAppSubscriptionsRecord.$jazz.waitForSync();
 
-    const subscriptionStatusRecord = co
-      .record(z.string(), z.string())
-      .create({}, { owner: regardeAdminOtherReadersGroup });
+    const subscriptionStatusRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
     await subscriptionStatusRecord.$jazz.waitForSync();
 
-    const mySubscriptions = co
-      .map({
-        all: co.record(z.string(), z.string()),
-        byApp: co.record(z.string(), co.record(z.string(), z.string())),
-        status: co.record(z.string(), z.string()),
-      })
-      .create(
-        {
-          all: allSubscriptionsRecord,
-          byApp: byAppSubscriptionsRecord,
-          status: subscriptionStatusRecord,
-        },
-        { owner: regardeAdminOtherReadersGroup },
-      );
+    const mySubscriptions = SdkSubscriptionIndex.create(
+      {
+        all: allSubscriptionsRecord,
+        byApp: byAppSubscriptionsRecord,
+        status: subscriptionStatusRecord,
+      },
+      { owner: regardeAdminOtherReadersGroup },
+    );
     await mySubscriptions.$jazz.waitForSync();
 
-    const allLicensesRecord = co
-      .record(z.string(), z.string())
-      .create({}, { owner: regardeAdminOtherReadersGroup });
+    const allLicensesRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
     await allLicensesRecord.$jazz.waitForSync();
 
     const byAppLicensesRecord = co
@@ -175,23 +164,16 @@ export const initRegardeSDK = async (
       .create({}, { owner: regardeAdminOtherReadersGroup });
     await byAppLicensesRecord.$jazz.waitForSync();
 
-    const myLicenses = co
-      .map({
-        all: co.record(z.string(), z.string()),
-        byApp: co.record(z.string(), co.record(z.string(), z.string())),
-      })
-      .create(
-        {
-          all: allLicensesRecord,
-          byApp: byAppLicensesRecord,
-        },
-        { owner: regardeAdminOtherReadersGroup },
-      );
+    const myLicenses = SdkLicenseIndex.create(
+      {
+        all: allLicensesRecord,
+        byApp: byAppLicensesRecord,
+      },
+      { owner: regardeAdminOtherReadersGroup },
+    );
     await myLicenses.$jazz.waitForSync();
 
-    const allInvoicesRecord = co
-      .record(z.string(), z.string())
-      .create({}, { owner: regardeAdminOtherReadersGroup });
+    const allInvoicesRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
     await allInvoicesRecord.$jazz.waitForSync();
 
     const byAppInvoicesRecord = co
@@ -199,23 +181,16 @@ export const initRegardeSDK = async (
       .create({}, { owner: regardeAdminOtherReadersGroup });
     await byAppInvoicesRecord.$jazz.waitForSync();
 
-    const myInvoices = co
-      .map({
-        all: co.record(z.string(), z.string()),
-        byApp: co.record(z.string(), co.record(z.string(), z.string())),
-      })
-      .create(
-        {
-          all: allInvoicesRecord,
-          byApp: byAppInvoicesRecord,
-        },
-        { owner: regardeAdminOtherReadersGroup },
-      );
+    const myInvoices = SdkInvoiceIndex.create(
+      {
+        all: allInvoicesRecord,
+        byApp: byAppInvoicesRecord,
+      },
+      { owner: regardeAdminOtherReadersGroup },
+    );
     await myInvoices.$jazz.waitForSync();
 
-    const allRefundsRecord = co
-      .record(z.string(), z.string())
-      .create({}, { owner: regardeAdminOtherReadersGroup });
+    const allRefundsRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
     await allRefundsRecord.$jazz.waitForSync();
 
     const byAppRefundsRecord = co
@@ -223,18 +198,13 @@ export const initRegardeSDK = async (
       .create({}, { owner: regardeAdminOtherReadersGroup });
     await byAppRefundsRecord.$jazz.waitForSync();
 
-    const myRefunds = co
-      .map({
-        all: co.record(z.string(), z.string()),
-        byApp: co.record(z.string(), co.record(z.string(), z.string())),
-      })
-      .create(
-        {
-          all: allRefundsRecord,
-          byApp: byAppRefundsRecord,
-        },
-        { owner: regardeAdminOtherReadersGroup },
-      );
+    const myRefunds = SdkRefundIndex.create(
+      {
+        all: allRefundsRecord,
+        byApp: byAppRefundsRecord,
+      },
+      { owner: regardeAdminOtherReadersGroup },
+    );
     await myRefunds.$jazz.waitForSync();
 
     const newSDK = RegardeSDK.create(
@@ -259,13 +229,13 @@ export const initRegardeSDK = async (
             owner: userGroup,
           },
         ),
-        myApps: co.list(RegardeApp).create([], { owner: userGroup }),
+        myApps: MyAppsList.create([], { owner: userGroup }),
         myPayments: myPayments,
         mySubscriptions: mySubscriptions,
         myLicenses: myLicenses,
         myInvoices: myInvoices,
         myRefunds: myRefunds,
-        version: 4,
+        version: 5,
       },
       {
         owner: userGroup,
@@ -376,9 +346,7 @@ export const initRegardeSDK = async (
       },
     });
 
-    const allPaymentsRecord = co
-      .record(z.string(), z.string())
-      .create({}, { owner: regardeAdminOtherReadersGroup });
+    const allPaymentsRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
     await allPaymentsRecord.$jazz.waitForSync();
 
     const byAppPaymentsRecord = co
@@ -386,23 +354,16 @@ export const initRegardeSDK = async (
       .create({}, { owner: regardeAdminOtherReadersGroup });
     await byAppPaymentsRecord.$jazz.waitForSync();
 
-    const myPayments = co
-      .map({
-        all: co.record(z.string(), z.string()),
-        byApp: co.record(z.string(), co.record(z.string(), z.string())),
-      })
-      .create(
-        {
-          all: allPaymentsRecord,
-          byApp: byAppPaymentsRecord,
-        },
-        { owner: regardeAdminOtherReadersGroup },
-      );
+    const myPayments = SdkPaymentIndex.create(
+      {
+        all: allPaymentsRecord,
+        byApp: byAppPaymentsRecord,
+      },
+      { owner: regardeAdminOtherReadersGroup },
+    );
     await myPayments.$jazz.waitForSync();
 
-    const allSubscriptionsRecord = co
-      .record(z.string(), z.string())
-      .create({}, { owner: regardeAdminOtherReadersGroup });
+    const allSubscriptionsRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
     await allSubscriptionsRecord.$jazz.waitForSync();
 
     const byAppSubscriptionsRecord = co
@@ -410,30 +371,20 @@ export const initRegardeSDK = async (
       .create({}, { owner: regardeAdminOtherReadersGroup });
     await byAppSubscriptionsRecord.$jazz.waitForSync();
 
-    const subscriptionStatusRecord = co
-      .record(z.string(), z.string())
-      .create({}, { owner: regardeAdminOtherReadersGroup });
+    const subscriptionStatusRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
     await subscriptionStatusRecord.$jazz.waitForSync();
 
-    const mySubscriptions = co
-      .map({
-        all: co.record(z.string(), z.string()),
-        byApp: co.record(z.string(), co.record(z.string(), z.string())),
-        status: co.record(z.string(), z.string()),
-      })
-      .create(
-        {
-          all: allSubscriptionsRecord,
-          byApp: byAppSubscriptionsRecord,
-          status: subscriptionStatusRecord,
-        },
-        { owner: regardeAdminOtherReadersGroup },
-      );
+    const mySubscriptions = SdkSubscriptionIndex.create(
+      {
+        all: allSubscriptionsRecord,
+        byApp: byAppSubscriptionsRecord,
+        status: subscriptionStatusRecord,
+      },
+      { owner: regardeAdminOtherReadersGroup },
+    );
     await mySubscriptions.$jazz.waitForSync();
 
-    const allLicensesRecord = co
-      .record(z.string(), z.string())
-      .create({}, { owner: regardeAdminOtherReadersGroup });
+    const allLicensesRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
     await allLicensesRecord.$jazz.waitForSync();
 
     const byAppLicensesRecord = co
@@ -441,23 +392,16 @@ export const initRegardeSDK = async (
       .create({}, { owner: regardeAdminOtherReadersGroup });
     await byAppLicensesRecord.$jazz.waitForSync();
 
-    const myLicenses = co
-      .map({
-        all: co.record(z.string(), z.string()),
-        byApp: co.record(z.string(), co.record(z.string(), z.string())),
-      })
-      .create(
-        {
-          all: allLicensesRecord,
-          byApp: byAppLicensesRecord,
-        },
-        { owner: regardeAdminOtherReadersGroup },
-      );
+    const myLicenses = SdkLicenseIndex.create(
+      {
+        all: allLicensesRecord,
+        byApp: byAppLicensesRecord,
+      },
+      { owner: regardeAdminOtherReadersGroup },
+    );
     await myLicenses.$jazz.waitForSync();
 
-    const allInvoicesRecord = co
-      .record(z.string(), z.string())
-      .create({}, { owner: regardeAdminOtherReadersGroup });
+    const allInvoicesRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
     await allInvoicesRecord.$jazz.waitForSync();
 
     const byAppInvoicesRecord = co
@@ -465,23 +409,16 @@ export const initRegardeSDK = async (
       .create({}, { owner: regardeAdminOtherReadersGroup });
     await byAppInvoicesRecord.$jazz.waitForSync();
 
-    const myInvoices = co
-      .map({
-        all: co.record(z.string(), z.string()),
-        byApp: co.record(z.string(), co.record(z.string(), z.string())),
-      })
-      .create(
-        {
-          all: allInvoicesRecord,
-          byApp: byAppInvoicesRecord,
-        },
-        { owner: regardeAdminOtherReadersGroup },
-      );
+    const myInvoices = SdkInvoiceIndex.create(
+      {
+        all: allInvoicesRecord,
+        byApp: byAppInvoicesRecord,
+      },
+      { owner: regardeAdminOtherReadersGroup },
+    );
     await myInvoices.$jazz.waitForSync();
 
-    const allRefundsRecord = co
-      .record(z.string(), z.string())
-      .create({}, { owner: regardeAdminOtherReadersGroup });
+    const allRefundsRecord = co.record(z.string(), z.string()).create({}, { owner: regardeAdminOtherReadersGroup });
     await allRefundsRecord.$jazz.waitForSync();
 
     const byAppRefundsRecord = co
@@ -489,18 +426,13 @@ export const initRegardeSDK = async (
       .create({}, { owner: regardeAdminOtherReadersGroup });
     await byAppRefundsRecord.$jazz.waitForSync();
 
-    const myRefunds = co
-      .map({
-        all: co.record(z.string(), z.string()),
-        byApp: co.record(z.string(), co.record(z.string(), z.string())),
-      })
-      .create(
-        {
-          all: allRefundsRecord,
-          byApp: byAppRefundsRecord,
-        },
-        { owner: regardeAdminOtherReadersGroup },
-      );
+    const myRefunds = SdkRefundIndex.create(
+      {
+        all: allRefundsRecord,
+        byApp: byAppRefundsRecord,
+      },
+      { owner: regardeAdminOtherReadersGroup },
+    );
     await myRefunds.$jazz.waitForSync();
 
     const newSDK = RegardeSDK.create(
@@ -525,13 +457,13 @@ export const initRegardeSDK = async (
             owner: userGroup,
           },
         ),
-        myApps: co.list(RegardeApp).create([], { owner: userGroup }),
+        myApps: MyAppsList.create([], { owner: userGroup }),
         myPayments: myPayments,
         mySubscriptions: mySubscriptions,
         myLicenses: myLicenses,
         myInvoices: myInvoices,
         myRefunds: myRefunds,
-        version: 4,
+        version: 5,
       },
       {
         owner: userGroup,

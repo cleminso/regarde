@@ -45,78 +45,76 @@ export function usePaymentEvents(
   appId: string,
   options?: UsePaymentEventsOptions,
 ): UsePaymentEventsResult {
-  // Load the App CoValue with all nested records
+  // Load the App CoValue with the payment index
   const app: TRegardeApp | null = useCoState(RegardeApp, appId, {
     resolve: {
       payments: { all: true, byUser: true },
-      subscriptions: { all: true, byUser: true },
-      licenses: { all: true, byUser: true },
     },
   });
 
-  // Extract event IDs from the payments record
-  const eventIds = useMemo((): string[] => {
+  // Extract event IDs from the payment index
+  const paymentEventIds = useMemo((): string[] => {
     if (app === null || app.$isLoaded !== true) {
       return [];
     }
 
-    const paymentsRecord = app.payments;
-    if (paymentsRecord === null || paymentsRecord.$isLoaded === false) {
+    const paymentsIndex = app.payments;
+    if (paymentsIndex === null || paymentsIndex.$isLoaded === false) {
       return [];
     }
 
-    const allPayments = paymentsRecord.all;
+    const allPayments = paymentsIndex.all;
     if (allPayments === null || allPayments.$isLoaded === false) {
       return [];
     }
 
-    // Get all event IDs from the record
+    // Get all event IDs from the index
     return Object.values(allPayments).filter(
       (id): id is string => id !== null && id !== undefined && typeof id === "string",
     );
   }, [app]);
 
   // Load all PaymentEvent CoMaps by their IDs
-  const allEvents = useCoStates(PaymentEvent, eventIds);
+  const allPaymentEvents = useCoStates(PaymentEvent, paymentEventIds);
 
   // Filter events by mode
-  const events = useMemo((): TPaymentEvent[] => {
-    const loadedEvents = allEvents.filter(
+  const paymentEvents = useMemo((): TPaymentEvent[] => {
+    const loadedPaymentEvents = allPaymentEvents.filter(
       (event): event is TPaymentEvent =>
         event !== null && event !== undefined && event.$isLoaded === true,
     );
 
     const modeFilter = options?.mode;
     if (modeFilter !== null && modeFilter !== undefined && modeFilter !== "all") {
-      return loadedEvents.filter((event) => event.mode === modeFilter);
+      return loadedPaymentEvents.filter((event) => event.mode === modeFilter);
     }
 
-    return loadedEvents;
-  }, [allEvents, options?.mode]);
+    return loadedPaymentEvents;
+  }, [allPaymentEvents, options?.mode]);
 
   // Determine loading state
   const isLoading = useMemo((): boolean => {
     if (app === null) return true;
     if (app.$isLoaded !== true) return true;
 
-    const paymentsRecord = app.payments;
-    if (paymentsRecord === null || paymentsRecord.$isLoaded === false) {
+    const paymentsIndex = app.payments;
+    if (paymentsIndex === null || paymentsIndex.$isLoaded === false) {
       return true;
     }
 
-    const allPayments = paymentsRecord.all;
+    const allPayments = paymentsIndex.all;
     if (allPayments === null || allPayments.$isLoaded === false) {
       return true;
     }
 
     // Check if all PaymentEvents are loaded
-    return allEvents.some(
+    return allPaymentEvents.some(
       (event) => event === null || event === undefined || event.$isLoaded === false,
     );
-  }, [app, allEvents]);
+  }, [app, allPaymentEvents]);
 
   return {
-    events,
+    events: paymentEvents,
     isLoading,
   };
 }
