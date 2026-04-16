@@ -1,12 +1,9 @@
-import {
-  PaymentEvent,
-  TPaymentEventType,
-} from "@regarde-dev/core";
+import { PaymentEvent } from "@regarde-dev/core";
 
-import { indexPaymentEvent } from "../indexing/payment";
-import { updateSubscriptionFromPayment } from "../sideEffects/subscriptionState";
-import { updateCheckoutSessionFromPayment } from "../sideEffects/checkoutSession";
-import { createInvoiceFromPayment } from "../sideEffects/invoice";
+import { indexPaymentEvent } from "#payments/services/indexing/payment";
+import { updateSubscriptionFromPayment } from "#payments/services/mutations/subscriptionState";
+import { updateCheckoutSessionFromPayment } from "#payments/services/mutations/checkoutSession";
+import { createInvoiceFromPayment } from "#payments/services/mutations/invoice";
 import type { TProcessPaymentEventInput } from "./types";
 
 export const processPaymentEvent = async ({
@@ -28,7 +25,7 @@ export const processPaymentEvent = async ({
       mode: normalized.mode,
       providerEventId: normalized.providerEventId,
       prefixedProviderEventUUID: normalized.prefixedProviderEventUUID,
-      eventType: normalized.eventType as TPaymentEventType,
+      eventType: normalized.eventType,
       appId,
       userAccountId: jazzAccountId,
       amount: data.amount,

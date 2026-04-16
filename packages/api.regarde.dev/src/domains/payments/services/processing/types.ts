@@ -7,7 +7,7 @@ import type {
   NormalizedLicenseData,
   NormalizedPaymentData,
   NormalizedSubscriptionData,
-} from "../../adapters";
+} from "#payments/types/normalized";
 
 export type TProcessEventInput<TData> = {
   normalized: NormalizedEvent;

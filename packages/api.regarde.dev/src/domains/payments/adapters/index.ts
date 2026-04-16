@@ -21,13 +21,15 @@ export { stripeAdapter } from "./stripe";
 export { polarAdapter } from "./polar";
 export type {
   PaymentProviderAdapter,
+  WebhookContext,
+  WebhookQueryContext,
+} from "./types";
+export type {
   NormalizedEvent,
   NormalizedEventData,
   NormalizedPaymentData,
   NormalizedSubscriptionData,
   NormalizedLicenseData,
-  WebhookContext,
-  WebhookQueryContext,
   TUnifiedEventType,
-} from "./types";
+} from "../types/normalized";
 export { PROVIDER_PREFIXES, prefixProviderEventId } from "./types";

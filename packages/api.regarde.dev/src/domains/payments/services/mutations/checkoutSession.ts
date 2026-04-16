@@ -8,7 +8,7 @@ import {
   useLogging,
 } from "@regarde-dev/core";
 
-import type { NormalizedEvent } from "../../adapters";
+import type { NormalizedEvent } from "#payments/types/normalized";
 
 const logger = useLogging({
   module: import.meta.filename,

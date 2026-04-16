@@ -2,7 +2,7 @@ import { Group } from "jazz-tools";
 
 import { Invoice, TRegardeApp, useLogging } from "@regarde-dev/core";
 
-import type { NormalizedEvent, NormalizedPaymentData } from "../../adapters";
+import type { NormalizedEvent, NormalizedPaymentData } from "#payments/types/normalized";
 
 const logger = useLogging({
   module: import.meta.filename,

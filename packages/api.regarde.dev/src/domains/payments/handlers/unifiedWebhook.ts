@@ -9,15 +9,15 @@ import {
   useLogging,
 } from "@regarde-dev/core";
 
-import { getAdapter, isSupportedProvider } from "../adapters";
-import type { NormalizedEvent } from "../adapters";
+import { getAdapter, isSupportedProvider } from "#payments/adapters/index";
+import type { NormalizedEvent } from "#payments/types/normalized";
 import { parseJsonObject } from "./schema";
-import { processLicenseEvent } from "../services/processing/license";
-import { processPaymentEvent } from "../services/processing/payment";
-import { processSubscriptionEvent } from "../services/processing/subscription";
-import { getWebhookAttemptState, incrementWebhookAttemptCount } from "../services/webhook/attempts";
-import { buildWebhookDeliveryEntries, recordWebhookDelivery } from "../services/webhook/delivery";
-import type { TWebhookDeliveryContext, TWebhookDeliveryFeeds } from "../services/webhook/types";
+import { processLicenseEvent } from "#payments/services/processing/license";
+import { processPaymentEvent } from "#payments/services/processing/payment";
+import { processSubscriptionEvent } from "#payments/services/processing/subscription";
+import { getWebhookAttemptState, incrementWebhookAttemptCount } from "#payments/services/telemetry/attempts";
+import { buildWebhookDeliveryEntries, recordWebhookDelivery } from "#payments/services/telemetry/delivery";
+import type { TWebhookDeliveryContext, TWebhookDeliveryFeeds } from "#payments/services/telemetry/types";
 
 const logger = useLogging({
   module: import.meta.filename,

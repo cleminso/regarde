@@ -11,7 +11,7 @@ import { startWorker } from "jazz-tools/worker";
 import { registerAppHandler } from "#/domains/app/handlers/register";
 import { verifyHandler } from "#/domains/auth";
 import { registerHandler, checkAvailabilityHandler, lookupHandler } from "#/domains/nickname";
-import { unifiedWebhookHandler } from "#/domains/payments/handlers/unifiedWebhook";
+import { unifiedWebhookHandler } from "#payments/handlers/unifiedWebhook";
 import { RegistryWorkerAccount, TNicknameRegistry, useLogging } from "@regarde-dev/core";
 
 import { rateLimit } from "./middleware/rateLimit.js";

@@ -1,9 +1,6 @@
-import {
-  LicenseEvent,
-  TLicenseEventType,
-} from "@regarde-dev/core";
+import { LicenseEvent } from "@regarde-dev/core";
 
-import { indexLicenseEvent } from "../indexing/license";
+import { indexLicenseEvent } from "#payments/services/indexing/license";
 import type { TProcessLicenseEventInput } from "./types";
 
 export const processLicenseEvent = async ({
@@ -25,7 +22,7 @@ export const processLicenseEvent = async ({
       mode: normalized.mode,
       providerEventId: normalized.providerEventId,
       prefixedProviderEventUUID: normalized.prefixedProviderEventUUID,
-      eventType: normalized.eventType as TLicenseEventType,
+      eventType: normalized.eventType,
       appId,
       userAccountId: jazzAccountId,
       licenseKey: data.licenseKey,

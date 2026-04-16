@@ -2,7 +2,7 @@ import { Group, Loaded } from "jazz-tools";
 
 import { RegardeSDK, RegistryWorkerAccount, Subscription, useLogging } from "@regarde-dev/core";
 
-import type { NormalizedEvent, NormalizedSubscriptionData } from "../../adapters";
+import type { NormalizedEvent, NormalizedSubscriptionData } from "#payments/types/normalized";
 
 const logger = useLogging({
   module: import.meta.filename,

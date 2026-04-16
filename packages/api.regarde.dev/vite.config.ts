@@ -6,6 +6,11 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [tsconfigPaths()],
+  resolve: {
+    alias: {
+      "#payments": resolve(__dirname, "src/domains/payments"),
+    },
+  },
   build: {
     minify: false,
     sourcemap: true,

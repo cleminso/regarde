@@ -1,10 +1,7 @@
-import {
-  SubscriptionEvent,
-  TSubscriptionEventType,
-} from "@regarde-dev/core";
+import { SubscriptionEvent } from "@regarde-dev/core";
 
-import { indexSubscriptionEvent } from "../indexing/subscription";
-import { manageSubscriptionState } from "../sideEffects/subscriptionState";
+import { indexSubscriptionEvent } from "#payments/services/indexing/subscription";
+import { manageSubscriptionState } from "#payments/services/mutations/subscriptionState";
 import type { TProcessSubscriptionEventInput } from "./types";
 
 export const processSubscriptionEvent = async ({
@@ -26,7 +23,7 @@ export const processSubscriptionEvent = async ({
       mode: normalized.mode,
       providerEventId: normalized.providerEventId,
       prefixedProviderEventUUID: normalized.prefixedProviderEventUUID,
-      eventType: normalized.eventType as TSubscriptionEventType,
+      eventType: normalized.eventType,
       appId,
       userAccountId: jazzAccountId,
       providerSubscriptionId: data.providerSubscriptionId,
