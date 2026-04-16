@@ -13,6 +13,9 @@ import {
   RegardeApp,
   RegardeSDK,
   TRegistryWorkerAccountRoot,
+  type TRegistryWebhookDelivery,
+  type TWebhook,
+  type TWebhookEvent,
   useLogging,
   type TPaymentEventType,
   type TSubscriptionEventType,
@@ -31,6 +34,78 @@ import type {
 const logger = useLogging({
   module: import.meta.filename,
 });
+
+const appendWebhookEvent = async (feed: TWebhook["events"], entry: TWebhookEvent): Promise<void> => {
+  if (feed === null || feed.$isLoaded !== true) {
+    return;
+  }
+
+  feed.$jazz.push(entry);
+  await feed.$jazz.waitForSync();
+};
+
+const appendRegistryWebhookDelivery = async (
+  feed: TRegistryWorkerAccountRoot["webhookDeliveries"],
+  entry: TRegistryWebhookDelivery,
+): Promise<void> => {
+  if (feed === null || feed.$isLoaded !== true) {
+    return;
+  }
+
+  feed.$jazz.push(entry);
+  await feed.$jazz.waitForSync();
+};
+
+const getWebhookAttemptState = async (
+  attemptCounts: TRegistryWorkerAccountRoot["webhookAttemptCounts"],
+  webhookId: string,
+  providerEventId: string,
+): Promise<{ isRetry: boolean; retryCount: number }> => {
+  if (attemptCounts === null || attemptCounts.$isLoaded !== true) {
+    return { isRetry: false, retryCount: 0 };
+  }
+
+  const webhookCounts = attemptCounts[webhookId];
+  if (webhookCounts === null || webhookCounts === undefined || webhookCounts.$isLoaded !== true) {
+    return { isRetry: false, retryCount: 0 };
+  }
+
+  const loadedWebhookCounts = await webhookCounts.$jazz.ensureLoaded({
+    resolve: { $each: true },
+  });
+  const retryCount = loadedWebhookCounts[providerEventId] ?? 0;
+
+  return {
+    isRetry: retryCount > 0,
+    retryCount,
+  };
+};
+
+const incrementWebhookAttemptCount = async (
+  attemptCounts: TRegistryWorkerAccountRoot["webhookAttemptCounts"],
+  webhookId: string,
+  providerEventId: string,
+  currentRetryCount: number,
+): Promise<void> => {
+  if (attemptCounts === null || attemptCounts.$isLoaded !== true) {
+    return;
+  }
+
+  const webhookCounts = attemptCounts[webhookId];
+  if (webhookCounts === null || webhookCounts === undefined || webhookCounts.$isLoaded !== true) {
+    attemptCounts.$jazz.set(webhookId, {
+      [providerEventId]: 1,
+    });
+    await attemptCounts.$jazz.waitForSync();
+    return;
+  }
+
+  const loadedWebhookCounts = await webhookCounts.$jazz.ensureLoaded({
+    resolve: { $each: true },
+  });
+  loadedWebhookCounts.$jazz.set(providerEventId, currentRetryCount + 1);
+  await loadedWebhookCounts.$jazz.waitForSync();
+};
 
 // ---------------------------------------------------------------------------
 // Unified Webhook Handler
@@ -119,7 +194,7 @@ export const unifiedWebhookHandler = (worker: Loaded<typeof RegistryWorkerAccoun
       const appRef = await RegardeApp.load(pathAppId, {
         loadAs: worker,
         resolve: {
-          webhooks: { $each: true },
+          webhooks: { $each: { events: true } },
           payments: { all: true, byUser: true },
           subscriptions: { all: true, byUser: true },
           licenses: { all: true, byUser: true },
@@ -136,7 +211,7 @@ export const unifiedWebhookHandler = (worker: Loaded<typeof RegistryWorkerAccoun
 
       const app = await (appRef as TRegardeApp).$jazz.ensureLoaded({
         resolve: {
-          webhooks: { $each: true },
+          webhooks: { $each: { events: true } },
           payments: { all: true, byUser: true },
           subscriptions: { all: true, byUser: true },
           licenses: { all: true, byUser: true },
@@ -144,7 +219,7 @@ export const unifiedWebhookHandler = (worker: Loaded<typeof RegistryWorkerAccoun
       });
 
       // Find specific webhook by ID
-      const webhook = app.webhooks.find((w) => w.$jazz.id === pathWebhookId);
+      const webhook = app.webhooks.find((w: TWebhook) => w.$jazz.id === pathWebhookId);
       const isWebhookLoaded =
         webhook !== undefined && webhook !== null && webhook.$isLoaded === true;
 
@@ -154,7 +229,7 @@ export const unifiedWebhookHandler = (worker: Loaded<typeof RegistryWorkerAccoun
           data: {
             appId: pathAppId,
             webhookId: pathWebhookId,
-            availableWebhooks: app.webhooks.map((w) => w.$jazz.id),
+            availableWebhooks: app.webhooks.map((w: TWebhook) => w.$jazz.id),
           },
         });
         return c.json({ error: "Webhook not found" }, 404);
@@ -170,6 +245,87 @@ export const unifiedWebhookHandler = (worker: Loaded<typeof RegistryWorkerAccoun
           },
         });
         return c.json({ received: true, ignored: true, reason: "webhook disabled" }, 200);
+      }
+
+      // Load worker resources needed for idempotency and admin analytics
+      const registryProfileWorkerGroup = await co.group().load(workerId, {
+        loadAs: worker,
+      });
+
+      const isGroupLoaded = registryProfileWorkerGroup.$isLoaded === true;
+      if (isGroupLoaded === false) {
+        logger.error({
+          message: "Failed to load registryProfileWorkerGroup",
+          data: {
+            workerId,
+            provider,
+            appId: pathAppId,
+            workerAccountId: worker.$jazz.id,
+          },
+        });
+        return c.json({ error: "Failed to load registryProfileWorkerGroup" }, 500);
+      }
+
+      const workerRoot = worker.root as TRegistryWorkerAccountRoot;
+
+      const processedProviderEvents = workerRoot.processedProviderEvents;
+      const isProcessedEventsLoaded =
+        processedProviderEvents !== null &&
+        processedProviderEvents !== undefined &&
+        processedProviderEvents.$isLoaded === true;
+      if (isProcessedEventsLoaded === false) {
+        logger.error({
+          message: "Failed to load processedProviderEvents from worker root",
+          data: {
+            workerJazzId: worker.$jazz.id,
+            workerId,
+            appId: pathAppId,
+            provider,
+            processedProviderEventsPresent: processedProviderEvents !== null,
+            processedProviderEventsIsLoaded: processedProviderEvents?.$isLoaded,
+          },
+        });
+        return c.json({ error: "processedProviderEvents not available on worker root" }, 500);
+      }
+
+      const webhookDeliveries = workerRoot.webhookDeliveries;
+      const isWebhookDeliveriesLoaded =
+        webhookDeliveries !== null &&
+        webhookDeliveries !== undefined &&
+        webhookDeliveries.$isLoaded === true;
+      if (isWebhookDeliveriesLoaded === false) {
+        logger.error({
+          message: "Failed to load webhookDeliveries from worker root",
+          data: {
+            workerJazzId: worker.$jazz.id,
+            workerId,
+            appId: pathAppId,
+            provider,
+            webhookDeliveriesPresent: webhookDeliveries !== null,
+            webhookDeliveriesLoaded: webhookDeliveries?.$isLoaded,
+          },
+        });
+        return c.json({ error: "webhookDeliveries not available on worker root" }, 500);
+      }
+
+      const webhookAttemptCounts = workerRoot.webhookAttemptCounts;
+      const isWebhookAttemptCountsLoaded =
+        webhookAttemptCounts !== null &&
+        webhookAttemptCounts !== undefined &&
+        webhookAttemptCounts.$isLoaded === true;
+      if (isWebhookAttemptCountsLoaded === false) {
+        logger.error({
+          message: "Failed to load webhookAttemptCounts from worker root",
+          data: {
+            workerJazzId: worker.$jazz.id,
+            workerId,
+            appId: pathAppId,
+            provider,
+            webhookAttemptCountsPresent: webhookAttemptCounts !== null,
+            webhookAttemptCountsLoaded: webhookAttemptCounts?.$isLoaded,
+          },
+        });
+        return c.json({ error: "webhookAttemptCounts not available on worker root" }, 500);
       }
 
       // Capture headers for debugging and storage
@@ -204,46 +360,55 @@ export const unifiedWebhookHandler = (worker: Loaded<typeof RegistryWorkerAccoun
         const rawProviderEventId = json.id || json.meta?.event_id || "unknown";
         const rawEventType = json.type || json.meta?.event_name || "unknown";
 
-        // Calculate retry status from CoFeed
-        let errorRetryCount = 0;
-        if (app.allEvents.$isLoaded === true) {
-          const errorSessionFeed = app.allEvents.perSession[pathWebhookId];
-          if (errorSessionFeed !== undefined && errorSessionFeed.all !== undefined) {
-            for (const entry of errorSessionFeed.all) {
-              const entryValue = entry.value;
-              const isEntryLoaded =
-                entryValue !== undefined && entryValue.providerEventId !== undefined;
-              if (isEntryLoaded === true && entryValue.providerEventId === rawProviderEventId) {
-                errorRetryCount = errorRetryCount + 1;
-              }
-            }
-          }
-        }
+        const receivedAt = Date.now();
+        const { isRetry, retryCount } = await getWebhookAttemptState(
+          webhookAttemptCounts,
+          pathWebhookId,
+          rawProviderEventId,
+        );
 
-        const errorIsRetry = errorRetryCount > 0;
-
-        // Store failed webhook in CoFeed with error
-        if (app.allEvents.$isLoaded === true) {
-          app.allEvents.$jazz.push({
-            payload: json,
-            headers: requestHeaders,
-            receivedAt: Date.now(),
-            regardeEventId: undefined,
-            providerEventId: rawProviderEventId,
-            parsedEventType: rawEventType,
-            isRetry: errorIsRetry,
-            retryCount: errorRetryCount,
-            error:
-              extractError instanceof Error
-                ? extractError.message
-                : "Failed to extract context from payload",
-            httpStatusCode: "400",
-            responseBody: JSON.stringify({
-              error: "Missing required context in webhook payload",
-            }),
-          });
-          await app.allEvents.$jazz.waitForSync();
-        }
+        await appendWebhookEvent(webhook.events, {
+          payload: json,
+          headers: requestHeaders,
+          receivedAt,
+          regardeEventId: undefined,
+          providerEventId: rawProviderEventId,
+          parsedEventType: rawEventType,
+          error:
+            extractError instanceof Error
+              ? extractError.message
+              : "Failed to extract context from payload",
+          httpStatusCode: "400",
+          responseBody: JSON.stringify({
+            error: "Missing required context in webhook payload",
+          }),
+          webhookId: pathWebhookId,
+        });
+        await appendRegistryWebhookDelivery(webhookDeliveries, {
+          appId: pathAppId,
+          ownerAccountId: app.ownerAccountId,
+          webhookId: pathWebhookId,
+          provider: webhook.provider,
+          environment: webhook.environment,
+          providerEventId: rawProviderEventId,
+          parsedEventType: rawEventType,
+          receivedAt,
+          httpStatusCode: "400",
+          error:
+            extractError instanceof Error
+              ? extractError.message
+              : "Failed to extract context from payload",
+          regardeEventId: undefined,
+          deliveryOutcome: "context_error",
+          isRetry,
+          retryCount,
+        });
+        await incrementWebhookAttemptCount(
+          webhookAttemptCounts,
+          pathWebhookId,
+          rawProviderEventId,
+          retryCount,
+        );
 
         logger.error({
           message: "Failed to extract context from webhook payload",
@@ -308,44 +473,47 @@ export const unifiedWebhookHandler = (worker: Loaded<typeof RegistryWorkerAccoun
         const sigErrorProviderEventId = json.id || json.meta?.event_id || "unknown";
         const sigErrorEventType = json.type || json.meta?.event_name || "unknown";
 
-        // Calculate retry status from CoFeed
-        let sigErrorRetryCount = 0;
-        if (app.allEvents.$isLoaded === true) {
-          const sigErrorSessionFeed = app.allEvents.perSession[pathWebhookId];
-          if (sigErrorSessionFeed !== undefined && sigErrorSessionFeed.all !== undefined) {
-            for (const entry of sigErrorSessionFeed.all) {
-              const entryValue = entry.value;
-              const isEntryLoaded =
-                entryValue !== undefined && entryValue.providerEventId !== undefined;
-              if (
-                isEntryLoaded === true &&
-                entryValue.providerEventId === sigErrorProviderEventId
-              ) {
-                sigErrorRetryCount = sigErrorRetryCount + 1;
-              }
-            }
-          }
-        }
+        const receivedAt = Date.now();
+        const { isRetry, retryCount } = await getWebhookAttemptState(
+          webhookAttemptCounts,
+          pathWebhookId,
+          sigErrorProviderEventId,
+        );
 
-        const sigErrorIsRetry = sigErrorRetryCount > 0;
-
-        // Store failed webhook in CoFeed
-        if (app.allEvents.$isLoaded === true) {
-          app.allEvents.$jazz.push({
-            payload: json,
-            headers: requestHeaders,
-            receivedAt: Date.now(),
-            regardeEventId: undefined,
-            providerEventId: sigErrorProviderEventId,
-            parsedEventType: sigErrorEventType,
-            isRetry: sigErrorIsRetry,
-            retryCount: sigErrorRetryCount,
-            error: "Invalid signature",
-            httpStatusCode: "401",
-            responseBody: JSON.stringify({ error: "Invalid Signature" }),
-          });
-          await app.allEvents.$jazz.waitForSync();
-        }
+        await appendWebhookEvent(webhook.events, {
+          payload: json,
+          headers: requestHeaders,
+          receivedAt,
+          regardeEventId: undefined,
+          providerEventId: sigErrorProviderEventId,
+          parsedEventType: sigErrorEventType,
+          error: "Invalid signature",
+          httpStatusCode: "401",
+          responseBody: JSON.stringify({ error: "Invalid Signature" }),
+          webhookId: pathWebhookId,
+        });
+        await appendRegistryWebhookDelivery(webhookDeliveries, {
+          appId: pathAppId,
+          ownerAccountId: app.ownerAccountId,
+          webhookId: pathWebhookId,
+          provider: webhook.provider,
+          environment: webhook.environment,
+          providerEventId: sigErrorProviderEventId,
+          parsedEventType: sigErrorEventType,
+          receivedAt,
+          httpStatusCode: "401",
+          error: "Invalid signature",
+          regardeEventId: undefined,
+          deliveryOutcome: "signature_error",
+          isRetry,
+          retryCount,
+        });
+        await incrementWebhookAttemptCount(
+          webhookAttemptCounts,
+          pathWebhookId,
+          sigErrorProviderEventId,
+          retryCount,
+        );
 
         logger.error({
           message: "Invalid webhook signature",
@@ -367,6 +535,48 @@ export const unifiedWebhookHandler = (worker: Loaded<typeof RegistryWorkerAccoun
 
         // Check if this is an unsupported event type (not an error, just not processed)
         if (errorMessage.includes("Unsupported")) {
+          const unsupportedProviderEventId = json.id || json.meta?.event_id || "unknown";
+          const unsupportedParsedEventType = json.type || json.meta?.event_name || "unknown";
+          const receivedAt = Date.now();
+          const { isRetry, retryCount } = await getWebhookAttemptState(
+            webhookAttemptCounts,
+            pathWebhookId,
+            unsupportedProviderEventId,
+          );
+          await appendWebhookEvent(webhook.events, {
+            payload: json,
+            headers: requestHeaders,
+            receivedAt,
+            regardeEventId: undefined,
+            providerEventId: unsupportedProviderEventId,
+            parsedEventType: unsupportedParsedEventType,
+            error: errorMessage,
+            httpStatusCode: "200",
+            responseBody: JSON.stringify({ received: true, processed: false, reason: errorMessage }),
+            webhookId: pathWebhookId,
+          });
+          await appendRegistryWebhookDelivery(webhookDeliveries, {
+            appId: pathAppId,
+            ownerAccountId: app.ownerAccountId,
+            webhookId: pathWebhookId,
+            provider: webhook.provider,
+            environment: webhook.environment,
+            providerEventId: unsupportedProviderEventId,
+            parsedEventType: unsupportedParsedEventType,
+            receivedAt,
+            httpStatusCode: "200",
+            error: errorMessage,
+            regardeEventId: undefined,
+            deliveryOutcome: "unsupported",
+            isRetry,
+            retryCount,
+          });
+          await incrementWebhookAttemptCount(
+            webhookAttemptCounts,
+            pathWebhookId,
+            unsupportedProviderEventId,
+            retryCount,
+          );
           logger.debug({
             message: "Event acknowledged but not processed",
             data: {
@@ -403,89 +613,55 @@ export const unifiedWebhookHandler = (worker: Loaded<typeof RegistryWorkerAccoun
         return c.json({ error: "RegardeSDK ID is required" }, 400);
       }
 
-      // Load worker resources
-      const registryProfileWorkerGroup = await co.group().load(workerId, {
-        loadAs: worker,
-      });
-
-      const isGroupLoaded = registryProfileWorkerGroup.$isLoaded === true;
-      if (isGroupLoaded === false) {
-        logger.error({
-          message: "Failed to load registryProfileWorkerGroup",
-          data: {
-            workerId,
-            provider,
-            appId,
-            workerAccountId: worker.$jazz.id, // Which worker is trying to load?
-          },
-        });
-        return c.json({ error: "Failed to load registryProfileWorkerGroup" }, 500);
-      }
-
-      const workerRoot = worker.root as TRegistryWorkerAccountRoot;
-
-      // Need to check for duplicate webhook deliveries against worker deduplication records of processed event IDs
-      const processedProviderEvents = workerRoot.processedProviderEvents;
-      const isProcessedEventsLoaded =
-        processedProviderEvents !== null &&
-        processedProviderEvents !== undefined &&
-        processedProviderEvents.$isLoaded === true;
-      if (isProcessedEventsLoaded === false) {
-        logger.error({
-          message: "Failed to load processedProviderEvents from worker root",
-          data: {
-            workerJazzId: worker.$jazz.id, // which worker has the broken root
-            workerId, // which registry group
-            appId,
-            provider,
-            processedProviderEventsPresent: processedProviderEvents !== null,
-            processedProviderEventsIsLoaded: processedProviderEvents.$isLoaded,
-          },
-        });
-        return c.json({ error: "processedProviderEvents not available on worker root" }, 500);
-      }
-
       const { prefixedProviderEventUUID, providerEventId, eventType } = normalized;
 
       // Calculate retry tracking
       const isAlreadyProcessed = processedProviderEvents[prefixedProviderEventUUID] !== undefined;
-      const isRetry = isAlreadyProcessed === true;
+      const receivedAt = Date.now();
+      const { isRetry, retryCount } = await getWebhookAttemptState(
+        webhookAttemptCounts,
+        pathWebhookId,
+        providerEventId,
+      );
 
-      // Count how many times we've seen this providerEventId in the CoFeed
-      let retryCount = 0;
-      if (app.allEvents.$isLoaded === true) {
-        const webhookSessionFeed = app.allEvents.perSession[pathWebhookId];
-        if (webhookSessionFeed !== undefined && webhookSessionFeed.all !== undefined) {
-          for (const entry of webhookSessionFeed.all) {
-            const entryValue = entry.value;
-            const isEntryLoaded =
-              entryValue !== undefined && entryValue.providerEventId !== undefined;
-            if (isEntryLoaded === true && entryValue.providerEventId === providerEventId) {
-              retryCount = retryCount + 1;
-            }
-          }
-        }
-      }
+      const eventEntry = {
+        payload: json,
+        headers: requestHeaders,
+        receivedAt,
+        providerEventId,
+        parsedEventType: eventType,
+        httpStatusCode: isAlreadyProcessed === true ? "200" : "200",
+        responseBody: JSON.stringify(
+          isAlreadyProcessed === true
+            ? { received: true, duplicate: true, retryCount }
+            : { received: true },
+        ),
+        webhookId: pathWebhookId,
+      };
 
-      // Log ALL deliveries to CoFeed (including retries) for debugging/audit
-      if (app.allEvents.$isLoaded === true) {
-        app.allEvents.$jazz.push({
-          payload: json,
-          headers: requestHeaders,
-          receivedAt: Date.now(),
-          providerEventId,
-          parsedEventType: eventType,
-          isRetry,
-          retryCount,
-          httpStatusCode: isAlreadyProcessed === true ? "200" : "200",
-          responseBody: JSON.stringify(
-            isAlreadyProcessed === true
-              ? { received: true, duplicate: true, retryCount }
-              : { received: true },
-          ),
-        });
-        await app.allEvents.$jazz.waitForSync();
-      }
+      await appendWebhookEvent(webhook.events, eventEntry);
+      await appendRegistryWebhookDelivery(webhookDeliveries, {
+        appId: pathAppId,
+        ownerAccountId: app.ownerAccountId,
+        webhookId: pathWebhookId,
+        provider: webhook.provider,
+        environment: webhook.environment,
+        providerEventId,
+        parsedEventType: eventType,
+        receivedAt,
+        httpStatusCode: eventEntry.httpStatusCode,
+        error: undefined,
+        regardeEventId: undefined,
+        deliveryOutcome: isAlreadyProcessed === true ? "duplicate" : "processed",
+        isRetry,
+        retryCount,
+      });
+      await incrementWebhookAttemptCount(
+        webhookAttemptCounts,
+        pathWebhookId,
+        providerEventId,
+        retryCount,
+      );
 
       // Check idempotency - skip normalization if already processed
       if (isAlreadyProcessed === true) {
@@ -503,7 +679,9 @@ export const unifiedWebhookHandler = (worker: Loaded<typeof RegistryWorkerAccoun
       }
 
       // Load user account
-      const userAccount = await co.account().load(jazzAccountId);
+      const userAccount = await co.account().load(jazzAccountId, {
+        loadAs: worker,
+      });
       const isUserAccountLoaded = userAccount.$isLoaded === true;
       if (isUserAccountLoaded === false) {
         logger.error({
@@ -520,7 +698,9 @@ export const unifiedWebhookHandler = (worker: Loaded<typeof RegistryWorkerAccoun
       }
 
       // Create ownership group for the event CoMaps
-      const eventOwnerGroup = Group.create();
+      const eventOwnerGroup = Group.create({
+        owner: worker,
+      });
       eventOwnerGroup.addMember(registryProfileWorkerGroup, "admin");
       eventOwnerGroup.addMember(userAccount, "reader");
       eventOwnerGroup.addMember(app.$jazz.owner, "reader");
@@ -572,46 +752,49 @@ export const unifiedWebhookHandler = (worker: Loaded<typeof RegistryWorkerAccoun
           return c.json({ error: "Unknown event kind" }, 400);
         }
       } catch (processingError) {
-        // Calculate retry status for processing error
-        let procErrorRetryCount = 0;
-        if (app.allEvents.$isLoaded === true) {
-          const procErrorSessionFeed = app.allEvents.perSession[pathWebhookId];
-          if (procErrorSessionFeed !== undefined && procErrorSessionFeed.all !== undefined) {
-            for (const entry of procErrorSessionFeed.all) {
-              const entryValue = entry.value;
-              const isEntryLoaded =
-                entryValue !== undefined && entryValue.providerEventId !== undefined;
-              if (
-                isEntryLoaded === true &&
-                entryValue.providerEventId === normalized.providerEventId
-              ) {
-                procErrorRetryCount = procErrorRetryCount + 1;
-              }
-            }
-          }
-        }
+        const receivedAt = Date.now();
+        const { isRetry, retryCount } = await getWebhookAttemptState(
+          webhookAttemptCounts,
+          pathWebhookId,
+          normalized.providerEventId,
+        );
 
-        const procErrorIsRetry = procErrorRetryCount > 0;
-
-        // Store error in CoFeed
-        if (app.allEvents.$isLoaded === true) {
-          const errorMessage =
-            processingError instanceof Error ? processingError.message : "Processing failed";
-          app.allEvents.$jazz.push({
-            payload: json,
-            headers: requestHeaders,
-            receivedAt: Date.now(),
-            regardeEventId: undefined,
-            providerEventId: normalized.providerEventId,
-            parsedEventType: normalized.eventType,
-            isRetry: procErrorIsRetry,
-            retryCount: procErrorRetryCount,
-            error: errorMessage,
-            httpStatusCode: "500",
-            responseBody: JSON.stringify({ error: errorMessage }),
-          });
-          await app.allEvents.$jazz.waitForSync();
-        }
+        const errorMessage =
+          processingError instanceof Error ? processingError.message : "Processing failed";
+        await appendWebhookEvent(webhook.events, {
+          payload: json,
+          headers: requestHeaders,
+          receivedAt,
+          regardeEventId: undefined,
+          providerEventId: normalized.providerEventId,
+          parsedEventType: normalized.eventType,
+          error: errorMessage,
+          httpStatusCode: "500",
+          responseBody: JSON.stringify({ error: errorMessage }),
+          webhookId: pathWebhookId,
+        });
+        await appendRegistryWebhookDelivery(webhookDeliveries, {
+          appId: pathAppId,
+          ownerAccountId: app.ownerAccountId,
+          webhookId: pathWebhookId,
+          provider: webhook.provider,
+          environment: webhook.environment,
+          providerEventId: normalized.providerEventId,
+          parsedEventType: normalized.eventType,
+          receivedAt,
+          httpStatusCode: "500",
+          error: errorMessage,
+          regardeEventId: undefined,
+          deliveryOutcome: "processing_error",
+          isRetry,
+          retryCount,
+        });
+        await incrementWebhookAttemptCount(
+          webhookAttemptCounts,
+          pathWebhookId,
+          normalized.providerEventId,
+          retryCount,
+        );
         throw processingError;
       }
 

@@ -75,8 +75,6 @@ export const POLAR_SECRET_PREFIX = "polar_whs_";
  * - `providerEventId`: Provider's unique event ID (Stripe: evt_123, Polar: event UUID)
  * - `parsedEventType`: Normalized event type (e.g., "invoice.payment_succeeded")
  * - `regardeEventId`: Reference to PaymentEvent/SubscriptionEvent CoMap ID (if successfully normalized)
- * - `isRetry`: True if this providerEventId was seen before (deduplication marker)
- * - `retryCount`: Number of times provider has retried (0 = first delivery)
  * - `webhookId`: CoValue ID of the Webhook CoMap that received this event
  */
 export const WebhookEvent = z.object({
@@ -89,8 +87,6 @@ export const WebhookEvent = z.object({
   providerEventId: z.string(),
   parsedEventType: z.string(),
   regardeEventId: z.optional(z.string()),
-  isRetry: z.boolean().default(false).describe("true if providerEventId was seen before"),
-  retryCount: z.number().default(0).describe("0 = first delivery, 1 = first retry, etc."),
   webhookId: z.string().describe("CoValue ID of the Webhook CoMap"),
 });
 

@@ -129,6 +129,7 @@ async function main() {
           reservedNicknames: true,
           processedProviderEvents: true,
           webhookDeliveries: true,
+          webhookAttemptCounts: true,
           // TODO: apps will be loaded separately via appRegistry
         },
       },

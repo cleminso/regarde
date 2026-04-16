@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "nodemon": "^3.1.10",
+    "nodemon": "^3.1.14",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-tsconfig-paths": "catalog:"

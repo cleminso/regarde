@@ -2,8 +2,6 @@ import { co, z } from "jazz-tools";
 
 import { useLogging } from "#core/logger";
 
-import { WebhookEvent } from "../regardeUserApp";
-
 import { RegardeAppRegistry, RegardeAppsByUserRecord, AllRegardeRegistryAppsSchema } from "./app";
 import { RegistryAuditLog } from "./audit";
 import {
@@ -24,10 +22,44 @@ const logger = useLogging({ module: import.meta.filename });
  */
 export const ProcessedProviderEvents = co.record(z.string(), z.string());
 
+export const RegistryWebhookDeliveryOutcome = z.enum([
+  "processed",
+  "duplicate",
+  "unsupported",
+  "context_error",
+  "signature_error",
+  "processing_error",
+]);
+
+export const RegistryWebhookDelivery = z.object({
+  appId: z.string(),
+  ownerAccountId: z.string(),
+  webhookId: z.string(),
+  provider: z.enum(["stripe", "polar"]),
+  environment: z.enum(["sandbox", "production"]),
+  providerEventId: z.string(),
+  parsedEventType: z.string(),
+  receivedAt: z.number(),
+  httpStatusCode: z.string(),
+  error: z.optional(z.string()),
+  regardeEventId: z.optional(z.string()),
+  deliveryOutcome: RegistryWebhookDeliveryOutcome,
+  isRetry: z.boolean(),
+  retryCount: z.number(),
+});
+
+export type TRegistryWebhookDelivery = z.infer<typeof RegistryWebhookDelivery>;
+
+export const RegistryWebhookAttemptCountByProviderEvent = co.record(z.string(), z.number());
+export const RegistryWebhookAttemptCounts = co.record(
+  z.string(),
+  RegistryWebhookAttemptCountByProviderEvent,
+);
+
 /**
- * Global webhook delivery, stores raw delivery entries across all apps and webhooks.
+ * Global webhook delivery projection for worker-side analytics.
  */
-export const RegistryWebhookDeliveriesFeed = co.feed(WebhookEvent);
+export const RegistryWebhookDeliveriesFeed = co.feed(RegistryWebhookDelivery);
 
 /**
  * Root schema containing all registry components.
@@ -40,6 +72,7 @@ export const RegistryWebhookDeliveriesFeed = co.feed(WebhookEvent);
  * - `apps`: Application registry
  * - `processedProviderEvents`: Webhook event deduplication
  * - `webhookDeliveries`: Global webhook delivery
+ * - `webhookAttemptCounts`: Per-webhook attempt counters by provider event ID
  */
 export const RegistryWorkerAccountRoot = co.map({
   registry: NicknameRegistryCoRecord,
@@ -49,6 +82,7 @@ export const RegistryWorkerAccountRoot = co.map({
   apps: RegardeAppRegistry,
   processedProviderEvents: ProcessedProviderEvents,
   webhookDeliveries: RegistryWebhookDeliveriesFeed,
+  webhookAttemptCounts: RegistryWebhookAttemptCounts,
 });
 
 /** Loaded RegistryWorkerAccountRoot instance */
@@ -108,6 +142,8 @@ export const RegistryWorkerAccount = co
         await newProcessedProviderEvents.$jazz.waitForSync();
         const newWebhookDeliveries = RegistryWebhookDeliveriesFeed.create([], { owner: account });
         await newWebhookDeliveries.$jazz.waitForSync();
+        const newWebhookAttemptCounts = RegistryWebhookAttemptCounts.create({}, { owner: account });
+        await newWebhookAttemptCounts.$jazz.waitForSync();
 
         // Create root with all children and set in one operation
         const newRoot = RegistryWorkerAccountRoot.create({
@@ -118,6 +154,7 @@ export const RegistryWorkerAccount = co
           apps: newAppsRegistry,
           processedProviderEvents: newProcessedProviderEvents,
           webhookDeliveries: newWebhookDeliveries,
+          webhookAttemptCounts: newWebhookAttemptCounts,
         }, { owner: account });
         await newRoot.$jazz.waitForSync();
 
@@ -227,6 +264,17 @@ export const RegistryWorkerAccount = co
           data: {},
         });
       }
+
+      const hasWebhookAttemptCounts = loadedAccount.root.$jazz.has("webhookAttemptCounts") === true;
+      if (hasWebhookAttemptCounts === false) {
+        const newWebhookAttemptCounts = RegistryWebhookAttemptCounts.create({}, { owner: account });
+        loadedAccount.root.$jazz.set("webhookAttemptCounts", newWebhookAttemptCounts);
+        await loadedAccount.root.$jazz.waitForSync();
+        logger.info({
+          message: "WebhookAttemptCounts created in worker account root",
+          data: {},
+        });
+      }
     } catch (error) {
       logger.error({
         message: "EnsureLoaded Root failed, using fallback migration",
@@ -261,6 +309,8 @@ export const RegistryWorkerAccount = co
         await newProcessedProviderEvents.$jazz.waitForSync();
         const newWebhookDeliveries = RegistryWebhookDeliveriesFeed.create([], { owner: account });
         await newWebhookDeliveries.$jazz.waitForSync();
+        const newWebhookAttemptCounts = RegistryWebhookAttemptCounts.create({}, { owner: account });
+        await newWebhookAttemptCounts.$jazz.waitForSync();
 
         // Create root with all children and set in one operation
         const newRoot = RegistryWorkerAccountRoot.create({
@@ -271,6 +321,7 @@ export const RegistryWorkerAccount = co
           apps: newAppsRegistry,
           processedProviderEvents: newProcessedProviderEvents,
           webhookDeliveries: newWebhookDeliveries,
+          webhookAttemptCounts: newWebhookAttemptCounts,
         }, { owner: account });
         await newRoot.$jazz.waitForSync();
 
@@ -371,6 +422,17 @@ export const RegistryWorkerAccount = co
           await account.root.$jazz.waitForSync();
           logger.info({
             message: "WebhookDeliveries created in existing root during fallback",
+            data: {},
+          });
+        }
+
+        const hasWebhookAttemptCounts = account.root.$jazz.has("webhookAttemptCounts") === true;
+        if (hasWebhookAttemptCounts === false) {
+          const newWebhookAttemptCounts = RegistryWebhookAttemptCounts.create({}, { owner: account });
+          account.root.$jazz.set("webhookAttemptCounts", newWebhookAttemptCounts);
+          await account.root.$jazz.waitForSync();
+          logger.info({
+            message: "WebhookAttemptCounts created in existing root during fallback",
             data: {},
           });
         }

@@ -4,14 +4,22 @@ import type { TWebhook, TWebhookEvent } from "#core/schemas/regardeUserApp";
 
 import { useRegardeApp } from "./useRegardeApp";
 
+const isLoadedWebhook = (webhook: unknown): webhook is TWebhook => {
+  return (
+    webhook !== null &&
+    webhook !== undefined &&
+    typeof webhook === "object" &&
+    "$isLoaded" in webhook &&
+    webhook.$isLoaded === true
+  );
+};
+
 export interface UseWebhookEventsOptions {
   status?: "success" | "failure" | "all";
   limit?: number;
 }
 
-export interface WebhookDelivery extends TWebhookEvent {
-  webhookId: string;
-}
+export type WebhookDelivery = TWebhookEvent;
 
 export interface WebhookStats {
   totalWebhooks: number;
@@ -44,10 +52,7 @@ export function useWebhookEvents(
       return [];
     }
 
-    return webhooksList.filter(
-      (webhook): webhook is TWebhook =>
-        webhook !== null && webhook !== undefined && webhook.$isLoaded === true,
-    );
+    return webhooksList.filter(isLoadedWebhook);
   }, [app]);
 
   // Find the specific webhook and read from its events feed
@@ -92,8 +97,6 @@ export function useWebhookEvents(
         responseBody: value.responseBody,
         providerEventId: value.providerEventId,
         parsedEventType: value.parsedEventType,
-        isRetry: value.isRetry ?? false,
-        retryCount: value.retryCount ?? 0,
         error: value.error,
         regardeEventId: value.regardeEventId,
         webhookId: targetWebhook.$jazz.id,

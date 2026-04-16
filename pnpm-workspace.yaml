@@ -6,9 +6,9 @@ packages:
 
 catalog:
   '@clerk/clerk-react': ^5.61.3
-  '@hono/node-server': ^1.19.11
+  '@hono/node-server': ^1.19.14
   '@hono/swagger-ui': ^0.6.1
-  '@hono/zod-openapi': ^1.2.4
+  '@hono/zod-openapi': ^1.3.0
   '@scure/bip39': ^2.0.1
   '@tailwindcss/vite': ^4.2.2
   '@types/node': ^25.6.0
@@ -22,7 +22,7 @@ catalog:
   cojson-core-rn: ^0.20.17
   cojson-transport-ws: ^0.20.15
   dotenv: ^17.4.2
-  hono: ^4.12.9
+  hono: ^4.12.14
   jazz-tools: ^0.20.17
   little-timestamp: ^1.0.0
   lucide-react: ^1.8.0

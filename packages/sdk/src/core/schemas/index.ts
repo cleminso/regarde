@@ -30,10 +30,19 @@ export type {
 
 export {
   ProcessedProviderEvents,
+  RegistryWebhookDeliveryOutcome,
+  RegistryWebhookDelivery,
+  RegistryWebhookDeliveriesFeed,
+  RegistryWebhookAttemptCountByProviderEvent,
+  RegistryWebhookAttemptCounts,
   RegistryWorkerAccountRoot,
   RegistryWorkerAccount,
 } from "./registry/worker";
-export type { TRegistryWorkerAccountRoot, TRegistryWorkerAccount } from "./registry/worker";
+export type {
+  TRegistryWebhookDelivery,
+  TRegistryWorkerAccountRoot,
+  TRegistryWorkerAccount,
+} from "./registry/worker";
 
 export { RegardeSDK } from "./regardeSDK";
 export { SdkPaymentIndex, SdkSubscriptionIndex, SdkLicenseIndex, SdkInvoiceIndex } from "./regardeSDK";

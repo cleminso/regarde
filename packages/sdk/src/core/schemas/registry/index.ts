@@ -8,7 +8,15 @@ export type { TRegardeAppsByUserRecord } from "./app";
 export { RegardeAppRegistry } from "./app";
 export type { TRegardeAppRegistry } from "./app";
 
-export { ProcessedProviderEvents, RegistryWebhookDeliveriesFeed } from "./worker";
+export {
+  ProcessedProviderEvents,
+  RegistryWebhookDeliveryOutcome,
+  RegistryWebhookDelivery,
+  RegistryWebhookDeliveriesFeed,
+  RegistryWebhookAttemptCountByProviderEvent,
+  RegistryWebhookAttemptCounts,
+} from "./worker";
+export type { TRegistryWebhookDelivery } from "./worker";
 
 export { RegistryAuditEntryCoMap } from "./audit";
 export type { TRegistryAuditEntry } from "./audit";
