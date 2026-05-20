@@ -1,206 +1,68 @@
-# Regarde.dev
+DEPRECATED
 
-Distributed authentication and registry system built on Jazz. Provides stateless authentication, nickname registration, and app management through a decentralized, multi-actor architecture.
+---
 
-## Table of Contents
+## Status
 
-- [Quick Start](#quick-start)
-- [Architecture Overview](#architecture-overview)
-- [Packages](#packages)
-- [Core Concepts](#core-concepts)
-- [Development](#development)
-- [Project Structure](#project-structure)
+Regarde is build on [jazz-classic](https://github.com/garden-co/classic-jazz). Since [Jazz v2 is out](https://github.com/garden-co/jazz) and fundamentaly changed the approach, I can't fully migrate and get the data ownership properties I was originally looking for. At least, I haven't found a model yet that fits my needs.
 
-## Quick Start
+Secondly, this was my first project, first repo. a bit ambitious for a first project. I get lose on the way a lot. The implement was confusing, not build with a good DX, half finished. Even if i spend another 6months finishing what I started, I'm not sure it would be usable.
 
-```bash
-# Install dependencies
-pnpm install
+It was great! I evolved with the codebase, deploy my first services, workers, put my hands on APIs and code - that I was not used to a year ago. Over technical code, the hardest part for me was to position myself as different persona. Jumping between `me` as Regarde dev; over "how regarde sdk-user will use it?"; "how end-user will use it? What entry point for them?".
 
-# Start development mode for all packages
-pnpm dev
+So I decided to stop here. Start and experiments with Jazz v2 and smaller projects, such as a [Jazz inspector](https://github.com/regardedev/inspector). And see if my mental model reach a point I see a way to continue Regarde in ine form or another.
 
-# Run tests
-pnpm test
+## Problem I've identified
 
-# Build all packages
-pnpm build
+### Identify across Jazz ecosystem applications
 
-# Check code style (Oxlint)
-pnpm format-and-lint
+- How do users identify themselves in Jazz ecosystem applications and beyond?
 
-# Auto-fix code style issues
-pnpm format-and-lint:fix
-```
+- Since JazzAccountId are random characters Id, no once can remember. Users need a memorable, shareable identities that must be unique - which requires a coordination layer.
 
-## Architecture Overview
+From a user perspective it means creating one `identity` for every application they use.
 
-Regarde.dev uses a stateless authentication system where tokens are generated client-side and verified server-side. All state is stored in Jazz Cloud CoMaps, enabling horizontal scalability without server-side sessions.
+- From a application developer perspective it means implementating user profiles separately, for every application they want to create.
 
-### System Flow
+Additionally, current solution rely on third-party to handle jazz private keys, making impossible for user to bring a unique identity over applications.
+User's don't know their private keys, so they don't own their identity.
 
-1. **SDK** - Client-side token generation and CoMap initialization
-2. **API** - Server-side token verification and registry operations
-3. **Accounts** - User data stored in personal Jazz accounts
-4. **Workers** - Service accounts with registry write permissions
+### Authentication
 
-### Data Ownership
+- How do we verify API request against data stored in Jazz network?
 
-- **User-owned**: Apps, PaymentEvents, UserHandle, Auth tokens
-- **Registry-owned**: Nickname registries, AppMetadata, reserved nicknames
-- **Permissions**: Managed through Jazz group membership
+- Since user authentication data is stored in Jazz (decentralised), the server need to verify who's making API's request.
 
-## Packages
+So I was implementing a stateless authentication. Authentication token was stored in the user's Jazz account root `account.root["regarde-sdk].auth.token` and exposed via `/verify`.
 
-### @regarde-dev/core
+For each authentication request, the server would verify the token against the user's account root. Since the request contains:
 
-Client SDK for Regarde. Initializes Jazz CoMaps in user accounts, generates registration tokens, provides React hooks, and manages app/payment state.
+- Regarde-Token
+- Regarde-Token-Id
+- Jazz-Account-Id
 
-**See**: [packages/sdk/README.md](packages/sdk/README.md)
+Any backend was able to verify that a Jazz user own his account.
 
-### api.regarde.dev
+At the end I was thinking of leverage Jazz internal API to create a signature implementation and user CoFeed to have a `bySession` authentication - that would have be more elegant.
 
-Registry API service for nickname management and app registration. Uses RegistryWorkerAccount with write access to nickname registries and user data.
+### Payments
 
-**See**: [packages/api.regarde.dev/README.md](packages/api.regarde.dev/README.md)
+For a Jazz native payment system, Jazz developer needs to implement their own:
 
-### @regarde-dev/cli
+- payment provider supports
+- CoValues to store payments; subscriptions and licenses under user Account
 
-Public CLI tool for Regarde users. Handles authentication (Jazz Account ID + BIP39 passphrase), app registration, nickname management, and credential storage.
+The idea was to enable Regarde sdk-user to manage their users payments through `RegardeSDK` via Jazz. The payment system extends `RegardeSDK` to provide new Covalues `myPayments`; `mySubscriptions` and `myLicenses` to store App payment events under user account + `webhooks`; `payments`; `subcriptions`; `licenses`; `refunds` and `checkoutSession` under `RegardeUserApp`.
 
-**See**: [packages/cli/README.md](packages/cli/README.md)
+That, sdk-user don't have to write a specific backend services to handle their App payments.
+Use regarde as backend service to receive webhooks and services that normalizes payment events from provider into a unified interface. Stores events in Jazz CoValues and provider SDK for querying payment data.
 
-### @regarde-dev/admin
+I was starting to refactor the payment implementation to evolve from "webhook-receiver" to a more explicit, owned billing/license domain, with providers adapter.
 
-Admin CLI tool for registry operations. Service-based architecture with audit logging, backup operations, and direct registry write access.
+## What was Regarde?
 
-**See**: [packages/admin/README.md](packages/admin/README.md)
+Regarde was leveraging Jazz native cryptography identify to:
 
-## Core Concepts
-
-### Stateless Authentication
-
-Tokens are generated client-side and stored in `RegardeTokenAuth` CoMaps with 24-hour expiration. Each API request independently verifies token ownership and expiration via Jazz group membership.
-
-**Headers**:
-
-- `X-Regarde-Token`: 16-character token string
-- `X-Regarde-Token-Id`: CoMap ID for verification
-
-### Worker Accounts
-
-Service accounts with specific permissions:
-
-- **RegistryWorkerAccount**: Manages nickname registries, writes to user data for payment events
-- **ProfileWorkerAccount**: Read-only access to user profiles (separate service)
-
-Workers are stateless - all instances access the same registries in Jazz Cloud.
-
-### Data Synchronization
-
-All CoValues sync through Jazz Cloud with eventual consistency:
-
-- RegardeAccount (user root)
-- RegardeSDK (auth, apps, payments)
-- NicknameRegistry (global mappings)
-- RegistryAppMetadata (app verification state)
-
-### Group Permissions
-
-- **userGroup**: User + worker writers for apps, payments, user data
-- **regardeAdminOtherReadersGroup**: Worker admin + user reader for payment events
-- **Registry group**: Hardcoded ID `co_zoppoxWWJaHYKPgSgUkuCCXQX21` for registry operations
-
-## Development
-
-### Tools
-
-- **Vite 8** with Rolldown - Build tool for all packages
-- **Oxlint** - Fast linter (10-100x faster than ESLint)
-- **Vitest** - Test runner (Vite-native)
-- **TypeScript** - Strict type checking
-
-### Package-Specific Commands
-
-```bash
-# Development mode for specific package
-pnpm --filter @regarde-dev/core dev
-pnpm --filter api.regarde.dev dev
-
-# Build specific package
-pnpm --filter @regarde-dev/core build
-
-# Run tests
-pnpm test --run              # Run all tests once
-pnpm test --watch            # Watch mode
-vitest path/to/test.test.ts  # Run single test file
-```
-
-### Code Style
-
-See [AGENTS.md](AGENTS.md) for comprehensive guidelines:
-
-- **Components**: PascalCase
-- **Functions**: camelCase
-- **Types**: PascalCase with 'T' prefix (`TProfile`)
-- **Constants**: UPPER_SNAKE_CASE
-- **Files**: camelCase
-- **Folders**: kebab-case
-
-### Import Order (auto-enforced)
-
-```typescript
-// Framework imports
-import { useAccount } from "jazz-tools/react";
-
-// Workspace imports
-import { RegardeAccount } from "@regarde-dev/core";
-
-// Aliased imports (#/)
-import { useMyRegardeAccount } from "#/lib/account/useMyRegardeAccount";
-
-// Relative imports
-import { MyComponent } from "./MyComponent";
-```
-
-## Project Structure
-
-```
-regarde.dev/
-├── packages/
-│   ├── sdk/                  # @regarde-dev/core - Client SDK
-│   │   ├── src/
-│   │   │   ├── core/         # CoMap schemas, managers
-│   │   │   ├── frameworks/   # React hooks
-│   │   │   └── registry/     # Registry schemas
-│   │   └── AGENTS.md         # SDK-specific guidelines
-│   ├── api.regarde.dev/      # Registry API service
-│   │   ├── src/
-│   │   │   ├── domains/      # Domain handlers
-│   │   │   └── lib/          # Shared utilities
-│   │   └── AGENTS.md         # API-specific guidelines
-│   ├── cli/                  # Public CLI for users
-│   │   ├── src/
-│   │   │   ├── commands/     # CLI command tools
-│   │   │   └── lib/          # Credential management
-│   │   └── AGENTS.md         # CLI-specific guidelines
-│   └── admin/                # Admin CLI for developers
-│       ├── src/
-│       │   ├── services/     # Service layer
-│       │   └── commands/     # Admin commands
-│       └── AGENTS.md         # Admin-specific guidelines
-├── AGENTS.md                 # Repository-wide guidelines
-└── README.md                 # This file
-```
-
-### Note on /app Directory
-
-The `/apps/regarde.bio/` directory contains an internal testing application used for SDK development. It's not part of the main Regarde.dev services and will be moved outside this project in the future. This README focuses on the `/packages/` directory which contains the production services.
-
-## Documentation
-
-- [AGENTS.md](AGENTS.md) - Repository-wide guidelines for agentic coding
-- [packages/sdk/README.md](packages/sdk/README.md) - SDK usage and API reference
-- [packages/api.regarde.dev/README.md](packages/api.regarde.dev/README.md) - API service documentation
-- [packages/cli/README.md](packages/cli/README.md) - Public CLI documentation
-- [packages/admin/README.md](packages/admin/README.md) - Admin CLI documentation
+- implement a coordination layer that map `jazzAccountId` <> `UserHandle` relation, via a registry
+- temporary authentication to verify user account ownership
+- native jazz payment system
